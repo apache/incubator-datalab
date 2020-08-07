@@ -86,7 +86,6 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
   }
 
   public bucketBrowser(permition): void {
-    console.log(this.exploratoryEnvironments);
     const defaultBucket = this.resourcesGrid.bucketsList[0].children[0];
       permition && this.dialog.open(BucketBrowserComponent, { data:
         {

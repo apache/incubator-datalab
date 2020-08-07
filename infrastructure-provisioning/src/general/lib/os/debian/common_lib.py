@@ -164,3 +164,54 @@ def ensure_step(user):
             sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
         sys.exit(1)
+
+def install_certbot(os_family):
+    try:
+        print('Installing Certbot')
+        if os_family == 'debian':
+            sudo('apt-get -y update')
+            sudo('apt-get -y install software-properties-common')
+            sudo('add-apt-repository -y universe')
+            sudo('add-apt-repository -y ppa:certbot/certbot')
+            sudo('apt-get -y update')
+            sudo('apt-get -y install certbot')
+        elif os_family == 'redhat':
+            print('This OS family is not supported yet')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed Certbot install: ' + str(err))
+        sys.exit(1)
+
+def run_certbot(domain_name, node, email=''):
+    try:
+        print('Running  Certbot')
+        sudo('service nginx stop')
+        if email != '':
+            sudo('certbot certonly --standalone -n -d {}.{} -m {}'.format(node, domain_name, email))
+        else:
+            sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to run Certbot: ' + str(err))
+        sys.exit(1)
+
+def configure_nginx_LE(domain_name, node):
+    try:
+        server_name_line ='    server_name {}.{};'.format(node, domain_name)
+        cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}.{}/fullchain.pem;'.format(node, domain_name)
+        cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}.{}/privkey.pem;'.format(node, domain_name)
+        certbot_service = "ExecStart = /usr/bin/certbot -q renew --pre-hook 'service nginx stop' --post-hook 'service nginx start'"
+        certbot_service_path = '/lib/systemd/system/certbot.service'
+        if node == 'ssn':
+            nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
+        else:
+            nginx_config_path = '/etc/nginx/conf.d/proxy.conf'
+        sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
+        sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
+        sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
+        sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
+        sudo('systemctl restart nginx')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to run Certbot: ' + str(err))
+        sys.exit(1)

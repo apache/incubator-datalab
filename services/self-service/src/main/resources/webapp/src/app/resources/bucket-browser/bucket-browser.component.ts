@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import {Component, OnInit, ViewChild, Inject, OnDestroy} from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -31,13 +31,16 @@ import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bu
 import {logger} from 'codelyzer/util/logger';
 import {HttpEventType, HttpResponse} from '@angular/common/http';
 import {CopyPathUtils} from '../../core/util/copyPathUtils';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'dlab-bucket-browser',
   templateUrl: './bucket-browser.component.html',
   styleUrls: ['./bucket-browser.component.scss']
 })
-export class BucketBrowserComponent implements OnInit {
+export class BucketBrowserComponent implements OnInit, OnDestroy {
+  private unsubscribe$ = new Subject();
   public addedFiles = [];
   public folderItems = [];
   public originFolderItems = [];
@@ -92,6 +95,11 @@ export class BucketBrowserComponent implements OnInit {
     this.cloud = this.getCloud();
   }
 
+  ngOnDestroy() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+
   public getTokenValidTime() {
     const token = JSON.parse(atob(this.storage.getToken().split('.')[1]));
     return token.exp * 1000 - new Date().getTime();
@@ -99,7 +107,11 @@ export class BucketBrowserComponent implements OnInit {
 
   private refreshToken() {
     this.isTokenRefreshing = true;
-    this.auth.refreshToken().subscribe(tokens => {
+    this.auth.refreshToken()
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe(tokens => {
       this.storage.storeTokens(tokens);
       this.isTokenRefreshing = false;
       this.sendFile();
@@ -152,7 +164,11 @@ export class BucketBrowserComponent implements OnInit {
          if (res) {
            if (this.refreshTokenLimit > this.getTokenValidTime()) {
              this.isTokenRefreshing = true;
-             this.auth.refreshToken().subscribe(v => {
+             this.auth.refreshToken()
+               .pipe(
+                 takeUntil(this.unsubscribe$)
+               )
+               .subscribe(v => {
                this.uploadingQueue(files);
                this.isTokenRefreshing = false;
              });
@@ -164,7 +180,11 @@ export class BucketBrowserComponent implements OnInit {
       } else {
         if (this.refreshTokenLimit > this.getTokenValidTime()) {
           this.isTokenRefreshing = true;
-          this.auth.refreshToken().subscribe(v => {
+          this.auth.refreshToken()
+            .pipe(
+              takeUntil(this.unsubscribe$)
+            )
+            .subscribe(v => {
             this.uploadingQueue(files);
             this.isTokenRefreshing = false;
           });
@@ -350,8 +370,6 @@ export class BucketBrowserComponent implements OnInit {
 
   private getCloud() {
     return this.buckets.filter(v => v.children.some(bucket => {
-      console.log(bucket.name);
-      console.log(this.bucketName);
       return bucket.name === this.bucketName;
     }))[0].cloud.toLowerCase();
   }
@@ -371,6 +389,9 @@ export class BucketBrowserComponent implements OnInit {
       selected[0]['isDownloading'] = true;
       this.folderItems.forEach(item => item.isSelected = false);
       this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`)
+        .pipe(
+          takeUntil(this.unsubscribe$)
+        )
         .subscribe(event =>  {
             if (event['type'] === HttpEventType.DownloadProgress) {
               selected[0].progress = Math.round(100 * event['loaded'] / selected[0].object.size);
@@ -402,7 +423,11 @@ export class BucketBrowserComponent implements OnInit {
         !res && this.clearSelection();
         res && this.bucketBrowserService.deleteFile({
           bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer
-        }).subscribe(() => {
+        })
+          .pipe(
+            takeUntil(this.unsubscribe$)
+          )
+          .subscribe(() => {
             this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
             this.toastr.success('Objects successfully deleted!', 'Success!');
             this.clearSelection();

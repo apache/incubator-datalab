@@ -26,6 +26,9 @@ import sys
 from fabric.api import *
 from fabric.contrib.files import exists
 from dlab.common_lib import manage_pkg
+from dlab.common_lib import install_certbot
+from dlab.common_lib import run_certbot
+from dlab.common_lib import configure_nginx_LE
 
 
 def configure_http_proxy_server(config):
@@ -149,6 +152,14 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             sudo('mkdir /usr/local/openresty/nginx/conf/locations')
             sudo('systemctl start openresty')
             sudo('touch /tmp/nginx_installed')
+            if os.environ['conf_letsencrypt_enabled'] == 'true':
+                print("Configuring letsencrypt certificates.")
+                install_certbot(os.environ['conf_os_family'])
+                if 'conf_letsencrypt_email' in os.environ:
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'], os.environ['conf_letsencrypt_email'])
+                else:
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'])
+                configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'])
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
         sys.exit(1)
