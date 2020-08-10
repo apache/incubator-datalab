@@ -29,8 +29,8 @@ export class LibrariesInstallationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
   public getGroupsList(project, exploratory, computational?): Observable<Response> {
-    let body = `?project_name=${project}&exploratory_name=${exploratory}`;
-    if (computational) body += `&computational_name=${computational}`;
+    let body = `/exploratory?project=${project}&exploratory=${exploratory}`;
+    if (computational) body = '/compute';
 
     return this.applicationServiceFacade
       .buildGetGroupsList(body)
