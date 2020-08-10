@@ -86,6 +86,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
             if err and name not in installed_out:
                 status_msg = 'installation_error'
+                if 'ERROR: No matching distribution found for {}'.format(name) in err:
+                    status_msg = 'invalid_name'
             elif res:
                 res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
@@ -433,7 +435,7 @@ def ensure_ciphers():
 
 def install_r_pkg(requisites):
     status = list()
-    error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping"
+    error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping|couldn't find"
     try:
         for r_pkg in requisites:
             name, vers = r_pkg
@@ -465,6 +467,8 @@ def install_r_pkg(requisites):
             res = sudo('cat /tmp/install_{0}.list'.format(name))
             if err:
                 status_msg = 'installation_error'
+                if 'couldn\'t find package \'{}\''.format(name) in err:
+                    status_msg = 'invalid_name'
             elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
