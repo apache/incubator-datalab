@@ -395,6 +395,8 @@ def install_os_pkg(requisites):
                             versions[n] = i.split(':')[1].split('-')[0]
                         else:
                             versions[n] = i.split('-')[0]
+                else:
+                    status_msg = 'invalid_name'
             status.append({"group": "os_pkg", "name": name, "version": version, "status": status_msg,
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})
         return status
