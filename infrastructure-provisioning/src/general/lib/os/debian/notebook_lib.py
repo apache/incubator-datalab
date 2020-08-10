@@ -433,6 +433,8 @@ def install_os_pkg(requisites):
             res = sudo('cat /tmp/os_install_{}.list'.format(name))
             if err:
                 status_msg = 'installation_error'
+                if 'E: Unable to locate package {}'.format(name) in err:
+                    status_msg = 'invalid_name'
             elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
