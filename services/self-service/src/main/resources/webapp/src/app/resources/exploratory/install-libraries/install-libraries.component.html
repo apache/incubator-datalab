@@ -106,14 +106,15 @@
                   [placeholder]="'Enter library version (optional)'"
                   [(ngModel)]="lib.version"
                   [disabled]="!lib.name"
+                  (keyup)="validateVersion(lib.version)"
                   (keydown.enter)="addLibrary(lib)"
                 >
-
+                <span class="error-message version-error" *ngIf="isVersionInvalid">Library version can only contain Latin letters, numbers and special characters -, _, :, /, ~, ., +.</span>
                 <span class="plus-icon"
-                      [ngClass]="{'not-allow': lib.name?.length < 2 || (isAutoComplete && !isLibSelected) || this.selectedLib?.isInSelectedList}"
+                      [ngClass]="{'not-allow': lib.name?.length < 2 || (isAutoComplete && !isLibSelected ) || this.selectedLib?.isInSelectedList || isVersionInvalid}"
                       matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList"
                 >
-                  <mat-icon  (click)="addLibrary(lib)"  [ngClass]="{'not-allowed': lib.name?.length < 2 || (isAutoComplete && !isLibSelected) || this.selectedLib?.isInSelectedList }">add</mat-icon>
+                  <mat-icon  (click)="addLibrary(lib)"  [ngClass]="{'not-allowed': lib.name?.length < 2 || (isAutoComplete && !isLibSelected) || this.selectedLib?.isInSelectedList || isVersionInvalid}">add</mat-icon>
                 </span>
               </div>
             </div>

@@ -241,7 +241,7 @@ ul.resources{
       padding-bottom: 0;
       flex-direction: column;
       box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
-      margin-top: 25px;
+      margin-top: 30px;
 
       .mat-form-field-flex {
         padding-left: 15px;
@@ -565,6 +565,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   top: 40px;
   font-size: 11px;
   color: red;
+  &.version-error{
+    left: 0;
+  }
 }
 
 .info-icon{
