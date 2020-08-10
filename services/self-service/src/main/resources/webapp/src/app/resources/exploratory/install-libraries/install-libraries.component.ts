@@ -26,7 +26,7 @@ import {debounceTime, take, takeUntil} from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
-import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import {SortUtils, HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import {FilterLibsModel} from './filter-libs.model';
 import {Subject} from 'rxjs';
 
@@ -84,8 +84,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   @ViewChild('resourceSelect', { static: false }) resource_select;
   @ViewChild('trigger', { static: false }) matAutoComplete;
   public lib: Library = {name: '', version: ''};
-  private selectedLib: any = null;
-  private isLibSelected: boolean = false;
+  public selectedLib: any = null;
+  public isLibSelected: boolean = false;
+  public isVersionInvalid: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -176,6 +177,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         this.libSearch.enable();
       }
       this.lib = {name: '', version: ''};
+      this.isVersionInvalid = false;
+      this.libSearch.setValue('');
     } else if ($event.model.type === 'destination') {
       this.isLibSelected = false;
       this.destination = $event.model.value;
@@ -215,7 +218,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public addLibrary(item): void {
     this.isLibSelected = false;
-    if ( !this.selectedLib.isInSelectedList) {
+    if ( !this.selectedLib.isInSelectedList && !this.isVersionInvalid) {
       if ( this.selectedLib && this.group !== 'java') {
         this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version || 'N/A' });
       } else {
@@ -468,6 +471,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public clearLibSelection(event) {
     this.isLibSelected = false;
+  }
+
+  private validateVersion(version) {
+    if (version.length) {
+      this.isVersionInvalid = !PATTERNS.libVersion.test(version);
+    } else {
+      this.isVersionInvalid = false;
+    }
   }
 }
 
