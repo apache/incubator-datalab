@@ -98,7 +98,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             versions = []
             if 'Could not find a version that satisfies the requirement' in err:
                 versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
-                if versions != '':
+                if versions != '' and versions != 'none':
                     versions = versions.split(', ')
                     status_msg = 'invalid_version'
                 else:
@@ -447,8 +447,8 @@ def install_r_pkg(requisites):
             else:
                 sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
                          'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
-            dep = sudo('grep "(NA" /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
-            dep_ver = sudo('grep "(NA" /tmp/tee.tmp | awk \'{print $4}\'').replace('\r\n', ' ').replace(')', '').split(' ')
+            dep = sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
+            dep_ver = sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').replace('\r\n', ' ').replace(')', '').split(' ')
             if dep == '':
                 dep = []
             else:
