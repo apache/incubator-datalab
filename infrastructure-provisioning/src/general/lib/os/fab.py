@@ -86,6 +86,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
             if err and name not in installed_out:
                 status_msg = 'installation_error'
+                if 'ERROR: No matching distribution found for {}'.format(name) in err:
+                    status_msg = 'invalid_name'
             elif res:
                 res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
