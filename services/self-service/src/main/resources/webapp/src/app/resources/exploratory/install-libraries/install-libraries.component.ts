@@ -35,6 +35,10 @@ interface Library {
   version: string;
 }
 
+interface GetLibrary {
+  autoComplete: boolean;
+  libraries: Library[];
+}
 
 @Component({
   selector: 'install-libraries',
@@ -74,14 +78,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public filterConfiguration: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filtered: boolean;
+  public isAutoComplete: boolean;
   public filtredNotebookLibs: Array<any> = [];
-
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
   @ViewChild('trigger', { static: false }) matAutoComplete;
-  private isLibExist: boolean;
   public lib: Library = {name: '', version: ''};
   private selectedLib: any = null;
+  private isLibSelected: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -167,11 +171,13 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
+      this.isLibSelected = false;
       if (this.group) {
         this.libSearch.enable();
       }
       this.lib = {name: '', version: ''};
     } else if ($event.model.type === 'destination') {
+      this.isLibSelected = false;
       this.destination = $event.model.value;
       this.destination && this.destination.type === 'СOMPUTATIONAL'
         ? this.model.computational_name = this.destination.name
@@ -188,7 +194,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public isDuplicated(item) {
-    if (this.filteredList) {
+    if (this.filteredList && this.filteredList.length) {
       if (this.group !== 'java') {
         this.selectedLib = this.filteredList.find(lib => lib.name.toLowerCase() === item.name.toLowerCase());
       } else {
@@ -196,14 +202,21 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           return lib.name.toLowerCase() === item.name.substring(0, item.name.lastIndexOf(':')).toLowerCase();
         });
       }
+    } else if ( !this.isAutoComplete ) {
+      this.selectedLib = {
+        name: this.lib.name,
+        version: this.lib.version,
+        isInSelectedList: this.model.selectedLibs.some(el => el.name.toLowerCase() === this.lib.name.toLowerCase())
+      };
     } else {
       this.selectedLib = null;
     }
   }
 
   public addLibrary(item): void {
-    if (this.selectedLib && !this.selectedLib.isInSelectedList) {
-      if (this.group !== 'java') {
+    this.isLibSelected = false;
+    if ( !this.selectedLib.isInSelectedList) {
+      if ( this.selectedLib && this.group !== 'java') {
         this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version || 'N/A' });
       } else {
         this.model.selectedLibs.push({
@@ -225,6 +238,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       this.libSearch.setValue(item.name + ':' + item.version);
       this.lib.name = item.name + ':' + item.version;
     } else {
+      this.isLibSelected = true;
       this.libSearch.setValue(item.name);
       this.lib.name = item.name;
     }
@@ -359,7 +373,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
               if (error.status === HTTP_STATUS_CODES.NOT_FOUND
                 || error.status === HTTP_STATUS_CODES.BAD_REQUEST
                 || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
-                this.validity_format = error.message;
+                this.validity_format = error.message || '';
                 if (error.message.indexOf('query param artifact') !== -1 || error.message.indexOf('Illegal character') !== -1) {
                   this.validity_format = 'Wrong library name format. Should be <groupId>:<artifactId>:<versionId>.';
                 }
@@ -380,9 +394,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.unsubscribe$)
       )
-      .subscribe((libs: Library[]) => {
-        this.isLibExist = libs.some(v => v.name.toLowerCase() === this.lib.name.toLowerCase());
-        this.filteredList = libs;
+      .subscribe((libs: GetLibrary) => {
+        this.isAutoComplete = libs.autoComplete;
+        this.filteredList = libs.libraries;
         this.filteredList.forEach(lib => {
           lib.isInSelectedList = this.model.selectedLibs.some(el => el.name.toLowerCase() === lib.name.toLowerCase());
           lib.isInstalled = this.notebookLibs.some(libr => lib.name === libr.name &&
@@ -450,6 +464,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public emitClick() {
       this.matAutoComplete.closePanel();
+  }
+
+  public clearLibSelection(event) {
+    this.isLibSelected = false;
   }
 }
 

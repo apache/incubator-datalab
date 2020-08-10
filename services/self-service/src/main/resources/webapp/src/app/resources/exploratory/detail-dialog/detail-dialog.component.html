@@ -60,7 +60,7 @@
             <p *ngIf="notebook.url?.length">Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
               <ng-container *ngFor="let item of notebook.url">
-                <span class="d-none" *ngIf="item.description === 'Ungit' && notebook.template_name.toLowerCase().indexOf('deep learning') !== -1; else ungit">
+                <span class="d-none" *ngIf="item.description.toLowerCase() === 'ungit' && notebook.template_name.toLowerCase().indexOf('zeppelin ') !== -1; else ungit">
                 </span>
                 <ng-template #ungit>
                   <p (mouseleave)="hideCopyIcon()">
