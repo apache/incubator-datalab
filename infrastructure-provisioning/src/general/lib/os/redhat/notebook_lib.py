@@ -377,8 +377,10 @@ def install_os_pkg(requisites):
                 dep = [i for i in dep if i]
             versions = []
             res = sudo(
-                'python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(
+                'python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(
                     name))
+            if res != []:
+                res = res[0]
             if err:
                 status_msg = 'installation_error'
             elif res:
