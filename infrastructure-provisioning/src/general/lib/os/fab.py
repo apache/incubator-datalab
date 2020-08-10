@@ -74,16 +74,17 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
                  ' /tmp/{0}install_{3}.log; then  echo "" > /tmp/{0}install_{3}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).replace('"', "'")
-            sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
+            sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
+            installed_out = sudo('cat /tmp/tee.tmp | grep "Successfully installed"')
             changed_pip_pkg = False
             if res == '':
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
                 changed_pip_pkg = changed_pip_pkg[0]
-                sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
+                sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
                 res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
-            if err:
+            if err and name not in installed_out:
                 status_msg = 'installation_error'
             elif res:
                 res = res.lower()
