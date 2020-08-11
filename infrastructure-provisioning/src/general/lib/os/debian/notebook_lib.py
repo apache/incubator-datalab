@@ -223,7 +223,7 @@ def ensure_additional_python_libs(os_user):
                 sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('pip2 install opencv-python h5py --no-cache-dir')
+                sudo('pip2 install opencv-python==4.2.0.32 h5py --no-cache-dir')
                 sudo('pip3 install opencv-python h5py --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
@@ -538,7 +538,7 @@ def install_theano(os_user, theano_version):
 
 def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip2 install mxnet-cu101=={} opencv-python==4.2.0.32 --no-cache-dir'.format(mxnet_version))
         sudo('pip3 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
