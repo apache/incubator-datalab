@@ -55,8 +55,8 @@ if __name__ == "__main__":
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
+        params = "--os_user {} --instance_ip {} --keyfile '{}' --group {}" \
+            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'], data_engine['group_name'])
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
