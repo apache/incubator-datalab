@@ -40,12 +40,13 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print('[GETTING ALL AVAILABLE PACKAGES]')
+        logging.info('[GETTING AVAILABLE PACKAGES]')
+        print('[GETTING AVAILABLE PACKAGES]')
         data_engine = dict()
         try:
             data_engine['os_user'] = os.environ['conf_os_user']
             data_engine['service_base_name'] = os.environ['conf_service_base_name']
+            data_engine['group_name'] = os.environ['libCacheKey']
             data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
             data_engine['cluster_name'] = os.environ['computational_id']
             data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
