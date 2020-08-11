@@ -47,6 +47,7 @@ if __name__ == "__main__":
         try:
             data_engine['os_user'] = 'ec2-user'
             data_engine['cluster_name'] = os.environ['computational_id']
+            data_engine['group_name'] = os.environ['libCacheKey']
             data_engine['cluster_id'] = get_emr_id_by_name(data_engine['cluster_name'])
             data_engine['cluster_instances'] = get_emr_instances_list(data_engine['cluster_id'], 'MASTER')
             data_engine['master_ip'] = data_engine['cluster_instances'][0].get('PrivateIpAddress')
@@ -54,8 +55,8 @@ if __name__ == "__main__":
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
+        params = "--os_user {} --instance_ip {} --keyfile '{}' --group {}" \
+            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'], data_engine['group_name'])
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
