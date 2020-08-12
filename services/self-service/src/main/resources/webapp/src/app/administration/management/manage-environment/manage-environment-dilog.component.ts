@@ -52,12 +52,16 @@ export class ManageEnvironmentComponent implements OnInit {
     this.setProjectsControl();
     this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || '');
     this.onFormChange();
+    this.manageUsersForm.value.total = +this.manageUsersForm.value.total;
+    if (this.manageUsersForm.value.total === 0) this.manageUsersForm.value.total = null;
     this.initialFormState = this.manageUsersForm.value;
   }
 
   public onFormChange() {
     this.manageUsersForm.valueChanges.subscribe(value => {
       this.isFormChanged = JSON.stringify(this.initialFormState) === JSON.stringify(this.manageUsersForm.value);
+      console.log(JSON.stringify(this.initialFormState));
+      console.log(JSON.stringify(this.manageUsersForm.value));
       if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
         this.manageUsersForm.controls['projects']['controls'].forEach(v => {
             v.controls['budget'].errors &&
@@ -79,10 +83,8 @@ export class ManageEnvironmentComponent implements OnInit {
       value.projects = value.projects.filter((v, i) =>
         this.initialFormState.projects[i].budget !== v.budget ||
         this.initialFormState.projects[i].monthlyBudget !== v.monthlyBudget);
-      if (this.initialFormState.total === value.total) {
-        delete value.total;
-      }
-      this.dialogRef.close(value);
+        value.isTotalChanged = this.initialFormState.total !== value.total;
+        this.dialogRef.close(value);
     } else {
       this.manageUsersForm.controls['total'].setErrors({ overrun: true });
     }
