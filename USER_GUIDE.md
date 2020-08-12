@@ -695,7 +695,7 @@ On this page you can see all billing information, including all costs assosiated
 
 You can leverage functionality of build-in UI filter to quickly manage the analytical tools and computational resources, which you only want to see in your dashboard.
 
-To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" width="16"> in dashboard header and filter your list by any of:
+To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" width="7"> in dashboard header and filter your list by any of:
 
 -   environment name (input field);
 -   status (multiple choice);
@@ -704,6 +704,6 @@ To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" wid
 
 ![Main page filter](doc/main_page_filter.png)
 
-Once your list of filtered by any of the columns, icon <img src="doc/filter_icon.png" alt="filter" width="16"> changes to <img src="doc/sort_icon.png" alt="filter" width="16"> for a filtered columns only.
+Once your list of filtered by any of the columns, icon <img src="doc/filter_icon.png" alt="filter" width="7"> changes to <img src="doc/sort_icon.png" alt="filter" width="16"> for a filtered columns only.
 
 There is also an option for quick and easy way to filter out all inactive instances (Failed and Terminated) by clicking on “Show active” button in the ribbon. To switch back to the list of all resources, click on “Show all”.
