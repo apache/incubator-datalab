@@ -682,6 +682,8 @@ In the footer of billing report, you can see "Total" cost for all environments.
 
 On this page you can see all audit information.
 
+--------------------------------
+
 ![Audit page](doc/audit_page.png)
 
 <p align="center"> 
