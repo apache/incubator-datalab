@@ -678,7 +678,7 @@ On top of that you can sort data by user, project, service charges.
 
 In the footer of billing report, you can see "Total" cost for all environments.
 
-# DLab Billing report <a name="audit_page"></a>
+# DLab Audit report <a name="audit_page"></a>
 
 On this page you can see all billing information, including all costs assosiated with service base name of SSN.
 
