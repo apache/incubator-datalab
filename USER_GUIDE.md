@@ -680,7 +680,7 @@ In the footer of billing report, you can see "Total" cost for all environments.
 
 # DLab Audit report <a name="audit_page"></a>
 
-On this page you can see all billing information, including all costs assosiated with service base name of SSN.
+On this page you can see all audit information.
 
 ![Audit page](doc/audit_page.png)
 
