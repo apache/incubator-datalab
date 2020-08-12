@@ -519,17 +519,17 @@ After commit you see your local version and remote repository. To push you chang
 
 Also clicking on "Circle" button you can uncommit or revert changes.
 
+--------------------------------
+
 ### Bucket browser <a name="bucket"></a>
 
-
-
-![Git_ui_ungit_changes](doc/bucket_button.png)
+![Bucket_browser_button](doc/bucket_button.png)
 
 When you click on the button "Bucket browser" – following popup shows up:
 
-![Git_ui_ungit_changes](doc/select_bucket.png)
+![Select_bucket](doc/select_bucket.png)
 
-![Git_ui_ungit_changes](doc/bucket_browser.png)
+![Bucket_browser](doc/bucket_browser.png)
 
 --------------------------------
 # Administration <a name="administration"></a>
