@@ -38,6 +38,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool (ungit)](#git_ui)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Bucket browser](#bucket)
+
 [Administration](#administration)
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage roles](#manage_roles)
@@ -51,6 +53,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DLab quotas](#manage_dlab_quotas)
 
 [DLab billing report](#billing_page)
+
+[DLab audit report](#audit_page)
 
 [Web UI filters](#filter)
 
@@ -258,6 +262,10 @@ To stop the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear
 Hit "OK" in confirmation popup.
 
 **NOTE:** Connected Data Engine Service becomes Terminated while connected (if any) Data Engine (Standalone Apache Spark cluster) becomes Stopped.
+
+<p align="center"> 
+    <img src="doc/notebook_terminate_confirm.png" alt="Notebook terminate confirm" width="400">
+</p>
 
 <p align="center"> 
     <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
@@ -511,6 +519,18 @@ After commit you see your local version and remote repository. To push you chang
 
 Also clicking on "Circle" button you can uncommit or revert changes.
 
+### Bucket browser <a name="bucket"></a>
+
+
+
+![Git_ui_ungit_changes](doc/bucket_button.png)
+
+When you click on the button "Bucket browser" – following popup shows up:
+
+![Git_ui_ungit_changes](doc/select_bucket.png)
+
+![Git_ui_ungit_changes](doc/bucket_browser.png)
+
 --------------------------------
 # Administration <a name="administration"></a>
 
@@ -628,7 +648,7 @@ After filling fields and clicking on "Apply" button, new quotas are used for pro
 If project and DLab quotas are exceeded the warning shows up during login.
 
 <p align="center" class="facebox-popup"> 
-    <img src="doc/exceeded quota.png" alt="Exceeded quota" width="400">
+    <img src="doc/project_quota.png" alt="Exceeded project quota" width="400">
 </p>
 
 In such case user cannot create new instance and already "Running" instance changes its status to "Stopping", except for Data Engine Service (its status changes "Terminating") and soon becomes "Stopped" or "Terminated" appropriately.
@@ -657,6 +677,17 @@ You can also filter data by environment name, user, project, resource type, inst
 On top of that you can sort data by user, project, service charges.
 
 In the footer of billing report, you can see "Total" cost for all environments.
+
+# DLab Billing report <a name="audit_page"></a>
+
+On this page you can see all billing information, including all costs assosiated with service base name of SSN.
+
+![Audit page](doc/audit_page.png)
+
+<p align="center"> 
+    <img src="doc/audit_info.png" alt="Notebook stop confirm" width="400">
+</p>
+
 
 --------------------------------
 
