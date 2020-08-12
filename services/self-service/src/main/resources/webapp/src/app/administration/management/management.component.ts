@@ -130,15 +130,30 @@ export class ManagementComponent implements OnInit {
   // }
 
   setBudgetLimits($event) {
-    this.projectService.updateProjectsBudget($event.projects).subscribe((result: any) => {
+    if ($event.projects.length) {
+      this.projectService.updateProjectsBudget($event.projects).subscribe((result: any) => {
+        if ($event.isTotalChanged) {
+          this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
+            result.status === HTTP_STATUS_CODES.OK
+            && res.status === HTTP_STATUS_CODES.NO_CONTENT
+            && this.toastr.success('Budget limits updated!', 'Success!');
+            this.buildGrid();
+          });
+        } else {
+          result.status === HTTP_STATUS_CODES.OK && this.toastr.success('Budget limits updated!', 'Success!');
+          this.buildGrid();
+        }
+
+      }, error => this.toastr.error(error.message, 'Oops!'));
+    } else {
       this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
-        result.status === HTTP_STATUS_CODES.OK
-          && res.status === HTTP_STATUS_CODES.NO_CONTENT
-          && this.toastr.success('Budget limits updated!', 'Success!');
+        res.status === HTTP_STATUS_CODES.NO_CONTENT
+        && this.toastr.success('Budget limits updated!', 'Success!');
         this.buildGrid();
       });
-    }, error => this.toastr.error(error.message, 'Oops!'));
-  }
+    }
+    }
+
 
   // manageEnvironment(event: { action: string, project: any }) {
   //   if (event.action === 'stop')
