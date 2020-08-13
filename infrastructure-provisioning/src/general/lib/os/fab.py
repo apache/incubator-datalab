@@ -76,7 +76,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).replace('"', "'")
             sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
-            installed_out = sudo('cat /tmp/tee.tmp | grep "Successfully installed"')
+            sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
+            installed_out = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
             changed_pip_pkg = False
             if res == '':
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
