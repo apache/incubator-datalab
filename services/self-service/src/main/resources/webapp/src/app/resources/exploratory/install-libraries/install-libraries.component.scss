@@ -336,8 +336,11 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 /* Tab info */
-.list-header{
-  line-height: 40px;
+
+.install-libraries{
+  .list-header{
+    line-height: 40px;
+  }
 }
 
 .mat-dialog-container {

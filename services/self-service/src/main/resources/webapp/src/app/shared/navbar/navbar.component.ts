@@ -237,24 +237,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
       total_quota_and_project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
           DLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
           Once quota is depleted all your analytical environment will be stopped.<br /><br />
-          Quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
-          Quota associated with project(s) <span class="strong">${informProjects}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          Quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
           If quota is depleted all your analytical environment will be stopped.<br /><br />
           To proceed working with environment you'll have to request increase of quota from DLab administrator. `,
 
       total_quota_and_project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
           DLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
           Once quota is depleted all your analytical environment will be stopped.<br /><br />
-          Quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
           To proceed working with environment you'll have to request increase of quota from DLab administrator. `,
 
       project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          DLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
-          Quota associated with project(s) <span class="strong">${informProjects}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          DLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
           If quota is depleted all your analytical environment will be stopped.<br /><br />
           To proceed working with environment, request increase of project quota from DLab administrator.`,
       project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          DLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded.
+          DLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded.
           All your analytical environment will be stopped.<br /><br />
           To proceed working with environment,
           request increase of project(s) quota from DLab administrator.`,
@@ -264,7 +264,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
           To proceed working with environment,
           request increase application quota from DLab administrator.`,
       project_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          Cloud infrastructure usage quota associated with project(s) <span class="strong">${informProjects}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          Cloud infrastructure usage quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
           Once quota is depleted all your analytical environment will be stopped.<br /><br />
           To proceed working with environment you'll have to request increase of project(s) quota from DLab administrator.`,
       total_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
