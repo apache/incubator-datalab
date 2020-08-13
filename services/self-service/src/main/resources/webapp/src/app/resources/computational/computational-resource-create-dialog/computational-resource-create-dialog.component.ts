@@ -291,7 +291,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.selectedImage = this.clusterTypes[0];
       }
     } else if (this.notebook_instance.template_name.toLowerCase().indexOf('jupyter notebook') !== -1 &&
-      this.selectedImage.image === 'docker.dlab-dataengine-service') {
+      this.selectedImage.image === 'docker.dlab-dataengine-service' && this.notebook_instance.cloud_provider !== 'gcp') {
       filtered = filterShapes(v => v);
     } else {
       filtered = filterShapes(key => !(allowed.includes(key)));
