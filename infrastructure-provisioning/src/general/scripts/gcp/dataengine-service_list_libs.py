@@ -40,11 +40,12 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print('[GETTING ALL AVAILABLE PACKAGES]')
+        logging.info('[GETTING AVAILABLE PACKAGES]')
+        print('[GETTING AVAILABLE PACKAGES]')
         data_engine = dict()
         try:
             data_engine['os_user'] = os.environ['conf_os_user']
+            data_engine['group_name'] = os.environ['libCacheKey']
             data_engine['cluster_name'] = os.environ['computational_id']
             data_engine['gcp_project_id'] = os.environ['gcp_project_id']
             data_engine['gcp_region'] = os.environ['gcp_region']
@@ -55,8 +56,8 @@ if __name__ == "__main__":
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
+        params = "--os_user {} --instance_ip {} --keyfile '{}' --group {}" \
+            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'], data_engine['group_name'])
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))

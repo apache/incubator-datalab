@@ -21,6 +21,7 @@ import {Component, EventEmitter, Inject, OnInit, Output} from '@angular/core';
 import {FilterAuditModel} from '../filter-audit.model';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {AuditService} from '../../../core/services/audit.service';
+import {SortUtils} from '../../../core/util';
 
 
 export interface AuditItem {
@@ -286,23 +287,35 @@ export class AuditInfoDialogComponent {
       this.info = JSON.parse(data.element.info);
     }
     if (data.element.info.indexOf('Update quota') !== -1) {
-      this.data.element.info.replace(/->/g, ' ').split('/n').forEach( (val, j) => {
-        this.updateBudget[j] = [];
-        val.split(' ')
-          .forEach((v, i, arr) => {
-            if (arr[0] === 'Update') {
-              if (i === 1) {
-                this.updateBudget[j].push(`${arr[0]} ${arr[1]}`);
-              }
-              if (i > 1) {
-                this.updateBudget[j].push(arr[i]);
-              }
-            } else {
-              this.updateBudget[j].push(arr[i]);
-            }
-
-          });
-      });
+      this.updateBudget = data.element.info.split('\n').reduce((acc, v, i, arr) => {
+        const row = v.split(':').map((el, index) => {
+          if (el.indexOf('->') !== -1) {
+            el = el.split('->');
+          } else if (index === 1 && el.indexOf('->') === -1) {
+            el = ['', el];
+          }
+          return el;
+        });
+        acc.push(SortUtils.flatDeep(row, 1));
+        return acc;
+      }, []);
+      // this.data.element.info.replace(/->/g, ' ').split('\n').forEach( (val, j) => {
+      //   this.updateBudget[j] = [];
+      //   val.split(' ')
+      //     .forEach((v, i, arr) => {
+      //       if (arr[0] === 'Update') {
+      //         if (i === 1) {
+      //           this.updateBudget[j].push(`${arr[0]} ${arr[1]}`);
+      //         }
+      //         if (i > 1) {
+      //           this.updateBudget[j].push(arr[i]);
+      //         }
+      //       } else {
+      //         this.updateBudget[j].push(arr[i]);
+      //       }
+      //
+      //     });
+      // });
     }
     this.actionList = data.element.info.split('\n').map(v => v.split(':')).filter(v => v[0] !== '');
   }

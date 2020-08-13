@@ -193,7 +193,7 @@ def ensure_additional_python_libs(os_user):
                 sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
                 sudo('python3.5 -m pip install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
+                sudo('python2.7 -m pip install opencv-python==4.2.0.32 h5py --no-cache-dir')
                 sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
@@ -359,12 +359,13 @@ def install_os_pkg(requisites):
             else:
                 version = 'N/A'
                 os_pkg = name
-            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" '
+                                               '/tmp/tee.tmp >  /tmp/os_install_{2}.log; then  echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
             install_output = sudo('cat /tmp/tee.tmp')
-            err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
+            err = sudo('cat /tmp/os_install_{}.log'.format(name)).replace('"', "'")
             sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
-            dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
+            dep = sudo('cat /tmp/os_install_{}.log'.format(name))
             if dep == '':
                 dep = []
             else:
@@ -376,8 +377,10 @@ def install_os_pkg(requisites):
                 dep = [i for i in dep if i]
             versions = []
             res = sudo(
-                'python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(
+                'python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(
                     name))
+            if res != []:
+                res = res[0]
             if err:
                 status_msg = 'installation_error'
             elif res:
@@ -392,6 +395,8 @@ def install_os_pkg(requisites):
                             versions[n] = i.split(':')[1].split('-')[0]
                         else:
                             versions[n] = i.split('-')[0]
+                else:
+                    status_msg = 'invalid_name'
             status.append({"group": "os_pkg", "name": name, "version": version, "status": status_msg,
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})
         return status
@@ -496,7 +501,7 @@ def install_theano(os_user, theano_version):
 
 def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip2 install mxnet-cu80=={} opencv-python==4.2.0.32 --no-cache-dir'.format(mxnet_version))
         sudo('pip3.5 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 

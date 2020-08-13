@@ -62,7 +62,7 @@ def configure_dataengine_service(instance, dataproc_conf):
             env['connection_attempts'] = 100
             env.key_filename = "{}".format(dataproc_conf['key_path'])
             env.host_string = dataproc_conf['dlab_ssh_user'] + '@' + dataproc_conf['instance_ip']
-            dlab.notebook_lib.install_os_pkg(['python-pip', 'python3-pip'])
+            dlab.notebook_lib.install_os_pkg([['python-pip', 'N/A'], ['python3-pip', 'N/A']])
             dlab.fab.configure_data_engine_service_pip(dataproc_conf['instance_ip'], dataproc_conf['dlab_ssh_user'],
                                                        dataproc_conf['key_path'])
         except:

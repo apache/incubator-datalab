@@ -34,6 +34,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--group', type=str, default='')
 args = parser.parse_args()
 
 
@@ -77,19 +78,20 @@ if __name__ == "__main__":
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = '{}@{}'.format(args.os_user, args.instance_ip)
-
     all_pkgs = dict()
-    all_pkgs['os_pkg'] = get_available_os_pkgs()
-    all_pkgs['java'] = {}
-
-    if os.environ['application'] in ('jupyter', 'jupyterlab', 'zeppelin', 'deeplearning', 'tensor', 'tensor-rstudio', 'rstudio'):
+    if args.group == 'os_pkg':
+        all_pkgs['os_pkg'] = get_available_os_pkgs()
+    elif args.group == 'java':
+        all_pkgs['java'] = {}
+    elif args.group == 'pip2':
+        all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
+    elif args.group == 'pip3':
+        all_pkgs['pip3'] = get_available_pip_pkgs("3.6")
+    elif args.group == 'others':
         all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
         all_pkgs['pip3'] = get_available_pip_pkgs("3.6")
         all_pkgs['others'] = get_uncategorised_pip_pkgs(all_pkgs['pip2'], all_pkgs['pip3'])
-
-    if (os.environ['application'] in ('jupyter', 'jupyterlab', 'zeppelin')
-        and os.environ['notebook_r_enabled'] == 'true')\
-            or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
+    elif args.group == 'r_pkg':
         all_pkgs['r_pkg'] = get_available_r_pkgs()
 
     # Writing response file & json file with all pkgs
