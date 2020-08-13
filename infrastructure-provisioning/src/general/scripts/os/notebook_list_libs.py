@@ -40,11 +40,12 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print('[GETTING ALL AVAILABLE PACKAGES]')
+        logging.info('[GETTING AVAILABLE PACKAGES]')
+        print('[GETTING AVAILABLE PACKAGES]')
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']
+            notebook_config['group_name'] = os.environ['libCacheKey']
             notebook_config['os_user'] = os.environ['conf_os_user']
             notebook_config['service_base_name'] = os.environ['conf_service_base_name'].lower()
             notebook_config['tag_name'] = notebook_config['service_base_name'] + '-tag'
@@ -55,8 +56,8 @@ if __name__ == "__main__":
             print('Error: {0}'.format(err))
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
+        params = "--os_user {} --instance_ip {} --keyfile '{}' --group {}" \
+            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'], notebook_config['group_name'])
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))

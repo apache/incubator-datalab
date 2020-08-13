@@ -100,7 +100,7 @@
     </div>
     <p class="path"><span>Bucket path:</span>
       <span class="url ellipsis"  [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
-       <span *ngFor="let folder of this.objectPath">
+       <span class="path-folder" *ngFor="let folder of this.objectPath">
          <span class="url-icon" *ngIf="this.objectPath.indexOf(folder) !== 0"> <i class="material-icons">
                chevron_right
             </i> </span>

@@ -44,7 +44,6 @@ export class BucketDataService {
 
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
-
     // this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
     // const copiedData = JSON.parse(JSON.stringify(v));
     // this.serverData = v;
@@ -132,14 +131,14 @@ export class BucketDataService {
         }
 
       });
-    };
+    }
 
     public processFolderArray = (acc, curr) => {
       const files = curr.object.split('/');
       this.processFiles(files, acc, curr);
 
       return acc;
-    };
+    }
 
     public convertToFolderTree = (data) => {
       const finalData = data.reduce(this.processFolderArray, {});
