@@ -164,13 +164,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private checkQuoteUsed(): void {
-    if (!this.storage.getBillingQuoteUsed()) {
-      console.log('storage');
+    if (!this.storage.getBillingQuoteUsed( )) {
       this.healthStatusService.getQuotaStatus().pipe(take(1)).subscribe((params: Quota) => {
-        params = {
-          projectQuotas: {Project2: 90, Project211: 90, Project21: 100, Project12: 100},
-          totalQuotaUsed: 90
-        };
         let checkQuotaAlert = '';
         const exceedProjects = [], informProjects = [];
         Object.keys(params.projectQuotas).forEach(key => {

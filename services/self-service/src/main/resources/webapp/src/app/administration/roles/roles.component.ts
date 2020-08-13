@@ -154,7 +154,6 @@ export class RolesComponent implements OnInit {
   }
 
   public manageRolesGroups($event) {
-    console.log($event);
     switch ($event.action) {
       case 'create':
         this.rolesService.setupNewGroup($event.value).subscribe(() => {

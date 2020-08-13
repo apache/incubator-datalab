@@ -80,10 +80,10 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String STOP_ACTION = "stop";
 	private static final String TERMINATE_ACTION = "terminate";
 
-	private static final String AUDIT_ADD_ENDPOINT = "Added endpoint(s) %s";
-	private static final String AUDIT_ADD_GROUP = "Added group(s) %s ";
-	private static final String AUDIT_REMOVE_GROUP = "Removed group(s) %s";
-	private static final String AUDIT_UPDATE_BUDGET = "Update quota %d->%d. Is monthly period: %b";
+	private static final String AUDIT_ADD_ENDPOINT = "Add endpoint(s): %s\n";
+	private static final String AUDIT_ADD_GROUP = "Add group(s): %s\n";
+	private static final String AUDIT_REMOVE_GROUP = "Remove group(s): %s\n";
+	private static final String AUDIT_UPDATE_BUDGET = "Update quota: %d->%d\nUpdate period: %b";
 	private static final String AUDIT_ADD_EDGE_NODE = "Create edge node for endpoint %s, requested in project %s";
 
 	private final ProjectDAO projectDAO;
