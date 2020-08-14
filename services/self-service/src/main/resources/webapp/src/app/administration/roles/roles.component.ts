@@ -306,8 +306,8 @@ export class RolesComponent implements OnInit {
    }
   }
 
-  checkIfUserAdded(users: any, value: string) {
-
+  public checkIfUserAdded(element: any, value: string) {
+    element.isUserAdded = element.users.map(v => v.toLowerCase()).includes(value.toLowerCase());
   }
 }
 
