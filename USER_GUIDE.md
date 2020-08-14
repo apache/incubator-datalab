@@ -330,7 +330,7 @@ To create Data Engine Service (Dataproc) with preemptible instances check off 'p
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
-    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="760">
+    <img src="doc/spark_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
 
 If you click on "Create" button Computational resource creation kicks off. You see corresponding record on DLab Web UI in status "Creating":
