@@ -205,8 +205,6 @@ You need to wait for a while after resource choosing till list of all available 
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
-![Resource select_lib](doc/notebook_selected_libs.png)
-
 After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
 ![Resource selected_lib](doc/notebook_selected_libs.png)
@@ -215,7 +213,7 @@ After clicking on "Install" button you see process of installation with appropri
 
 ![Resources libs_status](doc/notebook_libs_status.png)
 
-**Note:** If package can't be installed you see "instalation error" in status column and button to retry installation or 'invalid name' or 'invalid status'.
+**Note:** If package can't be installed you see "instalation error" in status column and button to retry installation or 'invalid name' or 'invalid version'.
 
 ### Create image <a name="create_image"></a>
 
@@ -245,8 +243,6 @@ To create new analytical environment from custom image click on "Create new" but
 
 Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
 
-**NOTE:** This functionality is implemented for AWS and Azure.
-
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
@@ -275,13 +271,13 @@ After you confirm your intent to stop the notebook - the status changes to "Stop
 --------------------------------
 ## Terminate Notebook server <a name="notebook_terminate"></a>
 
-Once you have finished working with an analytical tool and you need don't neeed cloud resources anymore, for the sake of the costs, we recommend to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook if you need to proceed with your analytical activities.
+Once you have finished working with an analytical tool and you don't neeed cloud resources anymore, for the sake of the costs, we recommend to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook if you need to proceed with your analytical activities.
 
 **NOTE:** Make sure you back-up your data (if exists on Notebook) and playbooks before termination.
 
 To terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Terminate":
 
-**NOTE:** If any Computational resources have been linked to your notebook server – they are automatically terminated if you terminate the notebook.
+**NOTE:** If any Computational resource has been linked to your notebook server – it's automatically terminated if you terminate the notebook.
 
 Confirm termination of the notebook and afterwards notebook status changes to "Terminating":
 
@@ -301,14 +297,14 @@ On “Create Computational Resource” popup you have to choose Computational re
 -   Total number of instances (min 2 and max 14, configurable);
 -   Master and Slave instance shapes (list is configurable and supports all available cloud instance shapes, supported in your cloud region);
 
-Also, if you want to save some costs for your Computational resource you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/)(this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
+Also, if you want to save some costs for your Data Engine Service you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/)(this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
 
 -   Select Spot Instance checkbox;
 -   Specify preferable bid for your spot instance in % (between 20 and 90, configurable).
 
 **NOTE:** When the current Spot price rises above your bid price, the Spot instance is reclaimed by cloud so that it can be given to another customer. Please make sure to backup your data on periodic basis.
 
-This picture shows menu for creating Computational resource for AWS:
+This picture shows menu for creating EMR for AWS (Data Engine Service):
 <p align="center"> 
     <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
 </p>
@@ -320,14 +316,14 @@ To tune computational resource configuration check off "Cluster configurations" 
     <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
 
-This picture shows menu for creating Computational resource for GCP:
+This picture shows menu for creating Dataproc for GCP:
 <p align="center"> 
     <img src="doc/dataproc_create.png" alt="Create Computational resource on GCP" width="760">
 </p>
 
 To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
-This picture shows menu for creating Computational resource for Azure:
+This picture shows menu for creating Data Engine (Standalone Apache Spark cluster) for Azure, AWS and GCP:
 <p align="center"> 
     <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
