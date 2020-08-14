@@ -304,29 +304,31 @@ Also, if you want to save some costs for your Data Engine Service you can create
 
 **NOTE:** When the current Spot price rises above your bid price, the Spot instance is reclaimed by cloud so that it can be given to another customer. Please make sure to backup your data on periodic basis.
 
-This picture shows menu for creating EMR for AWS (Data Engine Service):
+This picture shows menu for creating EMR (Data Engine Service) for AWS:
 <p align="center"> 
     <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
 </p>
 
-You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster). The configuration object is referenced as a JSON file.
+You can override the default configurations for applications for Data Engine Service by supplying a configuration object for applications when you create a cluster (this functionality is available for Amazon EMR cluster). The configuration object is referenced as a JSON file.
 To tune computational resource configuration check off "Cluster configurations" check box and insert JSON format in text box:
 
 <p align="center"> 
     <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
 
-This picture shows menu for creating Dataproc for GCP:
+This picture shows menu for creating Dataproc (Data Engine Service) for GCP:
 <p align="center"> 
     <img src="doc/dataproc_create.png" alt="Create Computational resource on GCP" width="760">
 </p>
 
 To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
-This picture shows menu for creating Data Engine (Standalone Apache Spark cluster) for Azure, AWS and GCP:
+This picture shows menu for creating Standalone Apache Spark cluster for Azure, AWS and GCP:
 <p align="center"> 
     <img src="doc/spark_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
+
+On top of that you can override the default spark configurations for Standalone Apache Spark cluster by supplying a configuration object for applications when you create a cluster or have already created. The configuration object is referenced as a JSON file. To tune spark configuration check off "Cluster configurations" check box and insert JSON format in text box.
 
 If you click on "Create" button Computational resource creation kicks off. You see corresponding record on DLab Web UI in status "Creating":
 
@@ -368,7 +370,7 @@ Insert following “magics” before blocks of your code to start executing your
 ---------------
 ## Stop Standalone Apache Spark cluster <a name="spark_stop"></a>
 
-Once you have stopped working with Standalone Apache Spark cluster (Data Engine) and you need to release cloud resources for the sake of the costs, you might want to stop Standalone Apache Spark cluster. You are able to start Standalone Apache Spark cluster again after a while and proceed with your analytics.
+Once you have stopped working with Standalone Apache Spark cluster and you need to release cloud resources for the sake of the costs, you might want to stop Standalone Apache Spark cluster. You are able to start Standalone Apache Spark cluster again after a while and proceed with your analytics.
 
 To stop Standalone Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to Standalone Apache Spark cluster alias.
 
@@ -395,7 +397,7 @@ In a while Computational resource gets "Terminated". Corresponding cloud instanc
 ## Scheduler <a name="scheduler"></a>
 
 Scheduler component allows to automatically schedule Start and Stop triggers for a Notebook/Computational, while 
-for Data Engine or Data Engine Service it can only trigger Stop or Terminate action correspondigly. There are 2 types of a scheduler:
+for Data Engine or Data Engine Service (Standalone Apache Spark cluster) it can only trigger Stop or Terminate action correspondigly. There are 2 types of a scheduler:
 - Scheduler by time;
 - Scheduler by inactivity.
 
@@ -440,7 +442,7 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 </p>
 
 Notebook/Standalone Apache Spark cluster is started/stopped automatically after scheduler setting.
-Please also note that if notebook is configured to be stopped, all running data engines assosiated with is stopped (for Standalone Apache Spark cluster) or terminated (for data engine serice) with notebook.
+Please also note that if notebook is configured to be stopped, all running computational resources assosiated with are stopped (for Standalone Apache Spark cluster) or terminated (for data engine serice) with notebook.
 
 After login user is notified  that corresponding resources are about to be stopped/terminated in some time.
 
@@ -474,7 +476,7 @@ Clicking on "Apply changes" button, your credentials are sent to all running ins
     <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="760">
 </p>
 
-On this tab you can also edit your credentials (click on pen icon <span style="translate:transformY(2px)"><img src="doc/pen_icon.png" alt="pen" width="15"></span>) or delete (click on bin icon <img src="doc/bin_icon.png" alt="bin" width="13">).
+On this tab you can also edit your credentials (click on pen icon <img src="doc/pen_icon.png" alt="pen" width="15">) or delete (click on bin icon <img src="doc/bin_icon.png" alt="bin" width="15">).
 
 ### Git UI tool (ungit) <a name="git_ui"></a>
 
@@ -486,9 +488,7 @@ On every analytical tool instance you can see Git UI tool (ungit):
 
 Before start working with Git repositories, you need to change working directory on the top of window to:
 
-**/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press Enter.
-
-**Note:** Zeppelin already uses git for local versioning of files, you can add upstream for all notebooks.
+**/home/dlab-user/** and press Enter.
 
 After changing working directory you can create repository or better way - clone existing:
 
@@ -541,6 +541,7 @@ To do it click on "Add group" button. "Add group" popup shows up:
 Roles consist of:
 - Administration - allow to execute administrative operation for the whole DLab or administrative operation only per project;
 - Billing - allow to view billing only the own resources or all users;
+- Bucket browser actions - allow to set permissions for cloud buckets if user only accesses via bucket browser
 - Compute - list of Compute types which are supposed for creation;
 - Compute shapes - list of Compute shapes which are supposed for creation;
 - Notebook - list of Notebook templates which are supposed for creation;
@@ -550,7 +551,7 @@ Roles consist of:
     <img src="doc/roles.png" alt="Roles" width="450">
 </p>
 
-To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
+To add group enter group name, choose certain action which should be allowed for group and furthermore you can add discrete user(s) (not mandatory) and then click "Create" button.
 After addidng the group it appears on "Manage roles" popup.
 
 Administrator can remove group or user. For that you should only click on bin icon <img src="doc/bin_icon.png" alt="bin" width="15">for certain group or for icon <img src="doc/delete_btn.png" alt="delete" width="13"> for particular user. After that hit "Yes" in confirmation popup.
@@ -575,8 +576,7 @@ The following menu shows up:
 
 Administrator can edit already existing project:
 - Add or remove group;
-- Add new endpoint;
-- Switch off/on 'Use shared image' option.
+- Add new endpoint.
 
 To edit the project hit "Edit project" and choose option which you want to add, remove or change. For applying changes click on "Update" button.
 
@@ -599,7 +599,7 @@ To stop or terminate the Notebook click on a gear icon <img src="doc/gear_icon.p
     <img src="doc/manage_env_actions.png" alt="Manage environment actions" width="160">
 </p>
 
-**NOTE:** Connected Data Engine Server is terminated and related Data Engine is stopped during Notebook stopping. During Notebook termination related Computational resources  are automatically terminated. 
+**NOTE:** Connected Data Engine Server is terminated and related Standalone Apache Spark cluster is stopped during Notebook stopping. During Notebook termination related Computational resources  are automatically terminated. 
 
 To stop or release specific cluster click an appropriate button close to cluster alias.
 
@@ -633,7 +633,7 @@ Administrator can deactivate whole analytical environment via bin icon <img src=
 
 ### Manage DLab quotas <a name="manage_dlab_quotas"></a>
 
-Administrator can set quotas per project and for the whole DLab. To do it click on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Administrator can see all active project:
+Administrator can set quotas per project (monthly or total period) and for the whole DLab. To do it click on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Administrator can see all active project:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="520">
