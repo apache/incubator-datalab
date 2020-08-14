@@ -518,11 +518,25 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 ### Bucket browser <a name="bucket"></a>
 
+You are ablle to access to cloud buckets via DLab Web UI.
+There are two ways to open bucket browser:
+- clicking on Notebook name in the "List of resources" page, where there is an "Open bucket browser" link;
+- clicking on "Bucket browser" bucket in the "List of resources" page.
+
 ![Bucket_browser_button](doc/bucket_button.png)
 
-When you click on the button "Bucket browser" – following popup shows up:
+When you click on the "Bucket browser" button or "Open bucket browser" link – following popup shows up:
 
 ![Select_bucket](doc/select_bucket.png)
+
+In the left side of the grid you see buckets for which you have access. You can switch between buckets by choosing appropriate one. In the right side of the grid you see folders and buckets which are already uploaded.
+
+In the bucket browser you are supposed to:
+- upload file;
+- create folder;
+- delete folder and file;
+- download file;
+- copy path to folder or to file;
 
 ![Bucket_browser](doc/bucket_browser.png)
 
