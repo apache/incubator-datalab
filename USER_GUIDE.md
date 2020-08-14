@@ -107,8 +107,6 @@ Please note, that you need to have a key pair combination (public and private ke
 
 Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process project is in status "Creating".
 
-'Use shared image' enabled means, that an image of particular notebook type is created while first notebook of same type is created in DLab. This image will be availble for all DLab users. This image is used for provisioning of further notebooks of same type within DLab. 'Use share image' disabled means, that image of particular notebook type is created while first notebook of same type is created in DLab. This AMI is available for all users withing same project.
-
 As soon as Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” is appeared on “List of Resources” page:
 
 ![Main page](doc/main_page.png)
@@ -127,7 +125,7 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   Jupyter
 -   Apache Zeppelin
 -   RStudio
--   RStudio with TensorFlow
+-   RStudio with TensorFlow (implemented on AWS)
 -   Jupyter with TensorFlow
 -   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
 -   JupyterLab
@@ -178,8 +176,8 @@ In the body of the dialog:
 -   Up time
 -   Analytical tool URL
 -   Git UI tool (ungit)
--   Shared bucket for all users
 -   Project bucket for project members
+-   Bucket browser  
 
 To access analytical tool Web UI you use direct URL's (your access is established via reverse proxy, so you don't need to have Edge node tunnel up and running).
 
@@ -191,22 +189,21 @@ On every analytical tool instance you can install additional libraries by clicki
     <img src="doc/notebook_menu_manage_libraries.png" alt="Notebook manage_libraries" width="150">
 </p>
 
-After clicking you see the window with 3 fields:
+After clicking you see the window with 4 fields:
 -   Field for selecting an active resource to install libraries
 -   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
--   Field for search available packages with autocomplete function except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for search available packages with autocomplete function (if it's gained) except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for library version. It's an optional field.
 
 ![Install libraries dialog](doc/install_libs_form.png)
 
-You need to wait for a while after resource choosing till list of all available libraries is received.
+You need to wait for a while after resource choosing till list of all available libraries is received. If available libraries list is not gained due to some reasons you are able to proceed to work without autocomplete function.
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
 **Note:** Apt or yum packages depends on your DLab OS family.
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
-
-![Resource select_lib](doc/notebook_select_lib.png)
 
 After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
@@ -216,7 +213,7 @@ After clicking on "Install" button you see process of installation with appropri
 
 ![Resources libs_status](doc/notebook_libs_status.png)
 
-**Note:** If package can't be installed you see "Failed" in status column and button to retry installation.
+**Note:** If package can't be installed you see "instalation error" in status column and button to retry installation or 'invalid name' or 'invalid version'.
 
 ### Create image <a name="create_image"></a>
 
@@ -246,8 +243,6 @@ To create new analytical environment from custom image click on "Create new" but
 
 Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
 
-**NOTE:** This functionality is implemented for AWS and Azure.
-
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
@@ -276,13 +271,13 @@ After you confirm your intent to stop the notebook - the status changes to "Stop
 --------------------------------
 ## Terminate Notebook server <a name="notebook_terminate"></a>
 
-Once you have finished working with an analytical tool and you need don't neeed cloud resources anymore, for the sake of the costs, we recommend to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook if you need to proceed with your analytical activities.
+Once you have finished working with an analytical tool and you don't neeed cloud resources anymore, for the sake of the costs, we recommend to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook if you need to proceed with your analytical activities.
 
 **NOTE:** Make sure you back-up your data (if exists on Notebook) and playbooks before termination.
 
 To terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Terminate":
 
-**NOTE:** If any Computational resources have been linked to your notebook server – they are automatically terminated if you terminate the notebook.
+**NOTE:** If any Computational resource has been linked to your notebook server – it's automatically terminated if you terminate the notebook.
 
 Confirm termination of the notebook and afterwards notebook status changes to "Terminating":
 
@@ -302,14 +297,14 @@ On “Create Computational Resource” popup you have to choose Computational re
 -   Total number of instances (min 2 and max 14, configurable);
 -   Master and Slave instance shapes (list is configurable and supports all available cloud instance shapes, supported in your cloud region);
 
-Also, if you want to save some costs for your Computational resource you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/)(this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
+Also, if you want to save some costs for your Data Engine Service you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/)(this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
 
 -   Select Spot Instance checkbox;
 -   Specify preferable bid for your spot instance in % (between 20 and 90, configurable).
 
 **NOTE:** When the current Spot price rises above your bid price, the Spot instance is reclaimed by cloud so that it can be given to another customer. Please make sure to backup your data on periodic basis.
 
-This picture shows menu for creating Computational resource for AWS:
+This picture shows menu for creating EMR for AWS (Data Engine Service):
 <p align="center"> 
     <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
 </p>
@@ -321,14 +316,14 @@ To tune computational resource configuration check off "Cluster configurations" 
     <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
 
-This picture shows menu for creating Computational resource for GCP:
+This picture shows menu for creating Dataproc for GCP:
 <p align="center"> 
     <img src="doc/dataproc_create.png" alt="Create Computational resource on GCP" width="760">
 </p>
 
 To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
-This picture shows menu for creating Computational resource for Azure:
+This picture shows menu for creating Data Engine (Standalone Apache Spark cluster) for Azure, AWS and GCP:
 <p align="center"> 
     <img src="doc/spark_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
