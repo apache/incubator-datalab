@@ -518,7 +518,7 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 ### Bucket browser <a name="bucket"></a>
 
-You are ablle to access to cloud buckets via DLab Web UI.
+You are able to access to cloud buckets via DLab Web UI.
 There are two ways to open bucket browser:
 - clicking on Notebook name in the "List of resources" page, where there is an "Open bucket browser" link;
 - clicking on "Bucket browser" bucket in the "List of resources" page.
@@ -536,7 +536,7 @@ In the bucket browser you are supposed to:
 - create folder;
 - delete folder and file;
 - download file;
-- copy path to folder or to file;
+- copy path to folder or to file.
 
 ![Bucket_browser](doc/bucket_browser.png)
 
@@ -687,13 +687,21 @@ On top of that you can sort data by user, project, service charges.
 
 In the footer of billing report, you can see "Total" cost for all environments.
 
-# DLab Audit report <a name="audit_page"></a>
-
-On this page you can see all audit information.
 
 --------------------------------
 
+# DLab Audit report <a name="audit_page"></a>
+
+On this page you can see change history, which have been done by any user.
+
+You are able to view:
+- when action was done
+- who did action
+- what action was done
+
 ![Audit page](doc/audit_page.png)
+
+If you click information icon you see more detail infornation.
 
 <p align="center"> 
     <img src="doc/audit_info.png" alt="Notebook stop confirm" width="400">
