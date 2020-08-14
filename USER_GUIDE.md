@@ -125,7 +125,7 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   Jupyter
 -   Apache Zeppelin
 -   RStudio
--   RStudio with TensorFlow
+-   RStudio with TensorFlow (implemented on AWS)
 -   Jupyter with TensorFlow
 -   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
 -   JupyterLab
@@ -176,8 +176,8 @@ In the body of the dialog:
 -   Up time
 -   Analytical tool URL
 -   Git UI tool (ungit)
--   Shared bucket for all users
 -   Project bucket for project members
+-   Bucket browser  
 
 To access analytical tool Web UI you use direct URL's (your access is established via reverse proxy, so you don't need to have Edge node tunnel up and running).
 
@@ -189,22 +189,21 @@ On every analytical tool instance you can install additional libraries by clicki
     <img src="doc/notebook_menu_manage_libraries.png" alt="Notebook manage_libraries" width="150">
 </p>
 
-After clicking you see the window with 3 fields:
+After clicking you see the window with 4 fields:
 -   Field for selecting an active resource to install libraries
 -   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
--   Field for search available packages with autocomplete function except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for search available packages with autocomplete function (if it's gained) except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for library version. It's an optional field.
 
 ![Install libraries dialog](doc/install_libs_form.png)
 
-You need to wait for a while after resource choosing till list of all available libraries is received.
+You need to wait for a while after resource choosing till list of all available libraries is received. If available libraries list is not gained due to some reasons you are able to proceed to work without autocomplete function.
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
 **Note:** Apt or yum packages depends on your DLab OS family.
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
-
-![Resource select_lib](doc/notebook_select_lib.png)
 
 After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
@@ -214,7 +213,7 @@ After clicking on "Install" button you see process of installation with appropri
 
 ![Resources libs_status](doc/notebook_libs_status.png)
 
-**Note:** If package can't be installed you see "Failed" in status column and button to retry installation.
+**Note:** If package can't be installed you see "instalation error" in status column and button to retry installation or 'invalid name' or 'invalid status'.
 
 ### Create image <a name="create_image"></a>
 
