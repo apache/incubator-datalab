@@ -474,7 +474,7 @@ Clicking on "Apply changes" button, your credentials are sent to all running ins
     <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="760">
 </p>
 
-On this tab you can also edit your credentials (click on pen icon <img src="doc/pen_icon.png" alt="pen" width="15" style="translate:transformY(2px)">) or delete (click on bin icon <img src="doc/bin_icon.png" alt="bin" width="13" translate:transformY(2px)>).
+On this tab you can also edit your credentials (click on pen icon <img src="doc/pen_icon.png" alt="pen" width="15" style="translate:transformY(2px)">) or delete (click on bin icon <img src="doc/bin_icon.png" alt="bin" width="13" style="translate:transformY(2px)">).
 
 ### Git UI tool (ungit) <a name="git_ui"></a>
 
