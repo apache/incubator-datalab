@@ -276,6 +276,10 @@ export class RolesComponent implements OnInit {
   }
 
   public addUser(value: string, item): void {
+    if (item.users.includes(value)) {
+      return;
+    }
+
     if (value && value.trim()) {
       item.users instanceof Array ? item.users.push(value.trim()) : item.users = [value.trim()];
     }
@@ -300,6 +304,10 @@ export class RolesComponent implements OnInit {
    } else {
      this.setupRoles = $event.model;
    }
+  }
+
+  public checkIfUserAdded(element: any, value: string) {
+    element.isUserAdded = element.users.map(v => v.toLowerCase()).includes(value.toLowerCase());
   }
 }
 
