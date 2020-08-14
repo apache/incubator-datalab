@@ -98,6 +98,10 @@
     white-space: nowrap;
     display: flex;
 
+    &-folder{
+      position: relative;
+    }
+
     .url{
       font-weight: 600;
       overflow: hidden;
@@ -119,6 +123,7 @@
         transform: translateY(1px);
         font-size: 15px;
         position: absolute;
+        left: 0;
       }
     }
   }

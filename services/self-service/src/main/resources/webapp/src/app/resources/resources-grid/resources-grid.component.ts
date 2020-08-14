@@ -326,7 +326,9 @@ export class ResourcesGridComponent implements OnInit {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
 
-    if (filteredData.length) this.filtering = true;
+    if (filteredData.some((v) => v.exploratory.length)) {
+      this.filtering = true;
+    }
     if (config) {
       this.activeProject = config.project;
       filteredData = filteredData

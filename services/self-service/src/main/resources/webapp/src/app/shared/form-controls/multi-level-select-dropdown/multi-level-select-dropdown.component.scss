@@ -25,7 +25,7 @@
 
 .dropdown-list button,
 .dropdown-multiselect button {
-  height: 38px;
+
   width: 100%;
   background: #fff;
   padding-left: 15px;
@@ -66,11 +66,16 @@
 
 .dropdown-multiselect {
   button {
-    span {
+    span{
       color: #999;
       font-weight: 300;
       display: inline-block;
       max-width: 80%;
+    }
+
+    span:not(.caret-btn){
+      padding-top: 3px;
+      font-size: 14px;
     }
 
     .selected-items {
