@@ -529,7 +529,7 @@ When you click on the "Bucket browser" button or "Open bucket browser" link – 
 
 ![Select_bucket](doc/select_bucket.png)
 
-In the left side of the grid you see buckets for which you have access. You can switch between buckets by choosing appropriate one. In the right side of the grid you see folders and buckets which are already uploaded.
+In the left side of the grid you see buckets for which you have access. You can switch between buckets by choosing appropriate one. In the right side of the grid you see folders and files which are already created or uploaded.
 
 In the bucket browser you are supposed to:
 - upload file;
@@ -695,9 +695,9 @@ In the footer of billing report, you can see "Total" cost for all environments.
 On this page you can see change history, which have been done by any user.
 
 You are able to view:
-- when action was done
-- who did action
-- what action was done
+- when the action was done
+- who did the action
+- what the action was done
 
 ![Audit page](doc/audit_page.png)
 
