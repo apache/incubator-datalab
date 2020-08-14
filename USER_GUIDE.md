@@ -107,8 +107,6 @@ Please note, that you need to have a key pair combination (public and private ke
 
 Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process project is in status "Creating".
 
-'Use shared image' enabled means, that an image of particular notebook type is created while first notebook of same type is created in DLab. This image will be availble for all DLab users. This image is used for provisioning of further notebooks of same type within DLab. 'Use share image' disabled means, that image of particular notebook type is created while first notebook of same type is created in DLab. This AMI is available for all users withing same project.
-
 As soon as Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” is appeared on “List of Resources” page:
 
 ![Main page](doc/main_page.png)
