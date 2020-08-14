@@ -205,6 +205,8 @@ You need to wait for a while after resource choosing till list of all available 
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
+![Resource select_lib](doc/notebook_selected_libs.png)
+
 After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
 ![Resource selected_lib](doc/notebook_selected_libs.png)
