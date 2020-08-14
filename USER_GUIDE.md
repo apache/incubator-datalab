@@ -701,7 +701,7 @@ You are able to view:
 
 ![Audit page](doc/audit_page.png)
 
-If you click information icon you see more detail infornation.
+If you click information icon <img src="doc/icon_info.png" alt="bin" width="15"> you see more detail information.
 
 <p align="center"> 
     <img src="doc/audit_info.png" alt="Notebook stop confirm" width="400">
