@@ -80,6 +80,7 @@
                     src/main/java/com/epam/dlab/backendapi/servlet/guacamole/**,
                     src/main/java/com/epam/dlab/backendapi/util/**,
                     src/main/java/com/epam/dlab/backendapi/validation/**,
+                    src/main/java/com/epam/dlab/backendapi/core/commands/**,
                     src/main/java/com/epam/dlab/process/**,
                     src/main/java/com/epam/dlab/backendapi/modules/**,
                     src/main/java/com/epam/dlab/backendapi/validation/**,

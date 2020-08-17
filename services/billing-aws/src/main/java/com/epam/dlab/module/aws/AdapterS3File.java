@@ -64,17 +64,15 @@ import java.util.List;
 				"    [secretAccessKey: <string>]     - Amazon secret access key."
 )
 public class AdapterS3File extends AdapterBase {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AdapterS3File.class);
-
 	/**
 	 * Name of key for the last loaded file.
 	 */
 	public static final String DATA_KEY_LAST_LOADED_FILE = "AdapterS3File_lastLoadedFile";
-
 	/**
 	 * Name of key for the modification date of loaded file.
 	 */
 	public static final String DATA_KEY_LAST_MODIFICATION_DATE = "AdapterS3File_lastModifyDate";
+	private static final Logger LOGGER = LoggerFactory.getLogger(AdapterS3File.class);
 	private static final String CANNOT_READ_FILE_FORMAT = "Cannot read file %s. %s";
 	private static final String DELIMITER = "/";
 
@@ -112,6 +110,41 @@ public class AdapterS3File extends AdapterBase {
 
 	@JsonProperty
 	private boolean awsJobEnabled;
+	/**
+	 * List of report files for loading.
+	 */
+	@JsonIgnore
+	private List<String> filelist = null;
+	/**
+	 * Index of current report file.
+	 */
+	@JsonIgnore
+	private int currentFileIndex = -1;
+	/**
+	 * Index of current report file.
+	 */
+	@JsonIgnore
+	private String entryName = null;
+	/**
+	 * Amazon S3 client.
+	 */
+	@JsonIgnore
+	private AmazonS3 clientS3 = null;
+	/**
+	 * Amazon S3 client.
+	 */
+	@JsonIgnore
+	private Date lastModificationDate = null;
+	/**
+	 * File input stream.
+	 */
+	@JsonIgnore
+	private InputStream fileInputStream = null;
+	/**
+	 * Reader for adapter.
+	 */
+	@JsonIgnore
+	private BufferedReader reader = null;
 
 	/**
 	 * Return the name of bucket.
@@ -182,49 +215,6 @@ public class AdapterS3File extends AdapterBase {
 	public void setSecretAccessKey(String secretAccessKey) {
 		this.secretAccessKey = secretAccessKey;
 	}
-
-
-	/**
-	 * List of report files for loading.
-	 */
-	@JsonIgnore
-	private List<String> filelist = null;
-
-	/**
-	 * Index of current report file.
-	 */
-	@JsonIgnore
-	private int currentFileIndex = -1;
-
-	/**
-	 * Index of current report file.
-	 */
-	@JsonIgnore
-	private String entryName = null;
-
-	/**
-	 * Amazon S3 client.
-	 */
-	@JsonIgnore
-	private AmazonS3 clientS3 = null;
-
-	/**
-	 * Amazon S3 client.
-	 */
-	@JsonIgnore
-	private Date lastModificationDate = null;
-
-	/**
-	 * File input stream.
-	 */
-	@JsonIgnore
-	private InputStream fileInputStream = null;
-
-	/**
-	 * Reader for adapter.
-	 */
-	@JsonIgnore
-	private BufferedReader reader = null;
 
 	@Override
 	public void open() throws AdapterException {

@@ -231,7 +231,7 @@ public class BillingToolConfiguration {
 	 * @throws InitializationException
 	 */
 	public ParserBase build() throws InitializationException {
-		ParserBase parser = getModule(this.parser, "parser", false);
+		ParserBase parserBase = getModule(this.parser, "parser", false);
 		AdapterBase in = getModule(adapterIn, "adapterIn", false);
 		AdapterBase out = getModule(adapterOut, "adapterOut", false);
 		FilterBase f = getModule(filter, "filter", true);
@@ -244,14 +244,14 @@ public class BillingToolConfiguration {
 		}
 		moduleData = new ModuleData(connection);
 
-		parser.setModuleData(moduleData);
+		parserBase.setModuleData(moduleData);
 		in.setModuleData(moduleData);
 		out.setModuleData(moduleData);
 		if (f != null) {
 			f.setModuleData(moduleData);
 		}
 
-		return parser.build(in, out, f);
+		return parserBase.build(in, out, f);
 	}
 
 	public boolean isBillingEnabled() {

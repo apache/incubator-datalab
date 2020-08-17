@@ -19,16 +19,15 @@
 
 package com.epam.dlab.configuration;
 
-import java.util.Map;
-import java.util.Set;
+import com.epam.dlab.core.BillingUtils;
+import com.epam.dlab.exceptions.InitializationException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-
-import com.epam.dlab.core.BillingUtils;
-import com.epam.dlab.exceptions.InitializationException;
+import java.util.Map;
+import java.util.Set;
 
 /** Json properties validator.
  * @param <T> Class for validation.
@@ -43,10 +42,6 @@ public class ConfigurationValidator<T> {
 	 * @param violation constraint violations.
 	 */
 	public String getMessage(ConstraintViolation<T> violation) {
-		String template = messages.get(violation.getMessageTemplate());
-		if (template == null) {
-			template = "Property \"%s\" %s";
-		}
 		return String.format(
 					messages.get(violation.getMessageTemplate()),
 					violation.getPropertyPath(),

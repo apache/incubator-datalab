@@ -37,16 +37,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Filters.regex;
 
 /**
  * Provides loading and storing the working data of modules.
  */
 public class ModuleData {
 
+	public static final String ENTRIES_FIELD = "entries";
 	private static final String ID_FIELD = "_id";
 	private static final String MODIFICATION_DATE = "lastModificationDate";
-	public static final String ENTRIES_FIELD = "entries";
 	/**
 	 * Date formatter.
 	 */
@@ -67,13 +71,6 @@ public class ModuleData {
 	private boolean modified;
 
 	/**
-	 * Return <b>true</b> if any entries was modify.
-	 */
-	public boolean isModified() {
-		return modified;
-	}
-
-	/**
 	 * Instantiate module data.
 	 *
 	 * @param connection the name of data file.
@@ -81,6 +78,13 @@ public class ModuleData {
 	 */
 	public ModuleData(MongoDbConnection connection) {
 		this.connection = connection;
+	}
+
+	/**
+	 * Return <b>true</b> if any entries was modify.
+	 */
+	public boolean isModified() {
+		return modified;
 	}
 
 	public void setId(String id) {
@@ -139,7 +143,6 @@ public class ModuleData {
 	}
 
 	public void store() {
-		//TODO refactor this module move working with db to DAO layer
 		final Document document = new Document().append(ID_FIELD, id).append(MODIFICATION_DATE,
 				modificationDate).append(ENTRIES_FIELD, entries);
 		connection.getCollection(MongoConstants.BILLING_DATA_COLLECTION)
