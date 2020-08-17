@@ -97,7 +97,7 @@ After login user sees warning in case of exceeding quota or close to this limit.
 
 When you log into DLab Web interface, the first thing you need to do is to create a new project.
 
-To do this click on “Upload” button on “Projects” page, select your personal public key (or click on "Generate" button), endpoint, group, 'Use shared image' select enable or disable and hit “Create” button. Do not forget to save your private key.
+To do this click on “Upload” button on “Projects” page, select your personal public key (or click on "Generate" button), endpoint, group and hit “Create” button. Do not forget to save your private key.
 
 <p align="center" class="facebox-popup"> 
     <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="100%">
