@@ -365,7 +365,7 @@ Insert following “magics” before blocks of your code to start executing your
 
 **RStudio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
 
-![RStudio](doc/rstudio.png)
+![RStudio](doc/rstudio_kernel.png)
 
 ---------------
 ## Stop Standalone Apache Spark cluster <a name="spark_stop"></a>
