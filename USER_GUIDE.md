@@ -127,7 +127,7 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   RStudio
 -   RStudio with TensorFlow (implemented on AWS)
 -   Jupyter with TensorFlow
--   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
+-   Deep Learning (Jupyter + MXNet, Caffe2, TensorFlow, CNTK, Theano, PyTorch and Keras)
 -   JupyterLab
 -   Superset (implemented on GCP)
 
@@ -350,7 +350,7 @@ To do that open any of the analytical tools and select proper kernel/interpreter
 
 **Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2 (only for local kernel)/3, Spark, Scala, R in Jupyter.
 
-![Jupiter](doc/jupiter.png)
+![Jupiter](doc/jupyter_kernel.png)
 
 **Zeppelin** – go to Interpreter Biding menu and switch between local and Computational resource there. Once needed interpreter is selected click on "Save".
 
