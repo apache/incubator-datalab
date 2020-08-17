@@ -192,7 +192,7 @@ On every analytical tool instance you can install additional libraries by clicki
 After clicking you see the window with 4 fields:
 -   Field for selecting an active resource to install libraries
 -   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
--   Field for search available packages with autocomplete function (if it's gained) except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for search available packages with autocomplete function (if it's gained) except for Java. For Java library you should enter using the next format: "groupID:artifactID:versionID"
 -   Field for library version. It's an optional field.
 
 ![Install libraries dialog](doc/install_libs_form.png)
@@ -201,7 +201,7 @@ You need to wait for a while after resource choosing till list of all available 
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
-**Note:** Apt or yum packages depends on your DLab OS family.
+**Note:** Apt or Yum packages depend on your DLab OS family.
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
@@ -297,7 +297,7 @@ On “Create Computational Resource” popup you have to choose Computational re
 -   Total number of instances (min 2 and max 14, configurable);
 -   Master and Slave instance shapes (list is configurable and supports all available cloud instance shapes, supported in your cloud region);
 
-Also, if you want to save some costs for your Data Engine Service you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/)(this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
+Also, if you want to save some costs for your Data Engine Service you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/) (this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
 
 -   Select Spot Instance checkbox;
 -   Specify preferable bid for your spot instance in % (between 20 and 90, configurable).
@@ -348,7 +348,7 @@ Since Computational resource is up and running - you are now able to leverage cl
 
 To do that open any of the analytical tools and select proper kernel/interpreter:
 
-**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2/3, Spark, Scala, R in Jupyter.
+**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2 (only for local kernel)/3, Spark, Scala, R in Jupyter.
 
 ![Jupiter](doc/jupiter.png)
 
@@ -442,7 +442,7 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 </p>
 
 Notebook/Standalone Apache Spark cluster is started/stopped automatically after scheduler setting.
-Please also note that if notebook is configured to be stopped, all running computational resources assosiated with are stopped (for Standalone Apache Spark cluster) or terminated (for data engine serice) with notebook.
+Please also note that if notebook is configured to be stopped, running computational resource assosiated with is stopped (for Standalone Apache Spark cluster) or terminated (for data engine serice) with notebook.
 
 After login user is notified  that corresponding resources are about to be stopped/terminated in some time.
 
@@ -464,7 +464,7 @@ When you click on the button "Git credentials" – following popup shows up:
 </p>
 
 In this window you need to add:
--   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, bitbucket.com, or your internal Git server.
+-   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, bitbucket.com.
 -   Your Username and Email - used to display author of commit in git.
 -   Your Login and Password - for authorization into git server.
 
@@ -520,8 +520,8 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 You are able to access to cloud buckets via DLab Web UI.
 There are two ways to open bucket browser:
-- clicking on Notebook name in the "List of resources" page, where there is an "Open bucket browser" link;
-- clicking on "Bucket browser" bucket in the "List of resources" page.
+- clicking on Notebook name on the "List of resources" page, where there is an "Open bucket browser" link;
+- clicking on "Bucket browser" bucket on the "List of resources" page.
 
 ![Bucket_browser_button](doc/bucket_button.png)
 
@@ -594,7 +594,7 @@ Administrator can edit already existing project:
 
 To edit the project hit "Edit project" and choose option which you want to add, remove or change. For applying changes click on "Update" button.
 
-To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation popup. All related instances change its status from 'Running' to "Stopping" and soon become "Stopped". You are able to start Edge node again after a while and proceed with your work. Do not forget to start notebook again if you want to continue with your analytics. Because start Edge node does not start related instances.
+To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation popup. All related instances change its status from 'Running' to "Stopping" (except for Data Engine Service, its status is "Terminated") and soon become "Stopped" ("Terminated" for Data Engine Service). You are able to start Edge node again after a while and proceed with your work. Do not forget to start notebook again if you want to continue with your analytics. Because start Edge node does not start related instances.
 
 To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon become "Terminated".
 
@@ -613,7 +613,7 @@ To stop or terminate the Notebook click on a gear icon <img src="doc/gear_icon.p
     <img src="doc/manage_env_actions.png" alt="Manage environment actions" width="160">
 </p>
 
-**NOTE:** Connected Data Engine Server is terminated and related Standalone Apache Spark cluster is stopped during Notebook stopping. During Notebook termination related Computational resources  are automatically terminated. 
+**NOTE:** Connected Data Engine Server is terminated and related Standalone Apache Spark cluster is stopped during Notebook stopping. During Notebook termination related Computational resource  is automatically terminated. 
 
 To stop or release specific cluster click an appropriate button close to cluster alias.
 
@@ -627,7 +627,7 @@ Confirm stopping/decommissioning of the Computational resource by hitting "Yes":
     <img src="doc/manage_env_confirm.png" alt="Manage environment action confirm" width="400">
 </p>
 
-**NOTE:** Terminate action is available only for notebooks and computational resources, not for Edge Nodes.
+**NOTE:** Terminate action is available only for notebook and computational resource, not for Edge Node.
 
 ### Multiple Cloud Endpoints <a name="multiple_cloud_endpoints"></a>
 
@@ -699,6 +699,8 @@ You are able to view:
 - who did the action
 - what the action was done
 
+Furthermore on the center of header you can choose period of report in datepicker.
+
 ![Audit page](doc/audit_page.png)
 
 If you click information icon <img src="doc/icon_info.png" alt="bin" width="15"> you see more detail information.
@@ -719,7 +721,7 @@ To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" wid
 -   environment name (input field);
 -   status (multiple choice);
 -   shape (multiple choice);
--   computational resources (multiple choice);
+-   compute (multiple choice);
 
 ![Main page filter](doc/main_page_filter.png)
 
