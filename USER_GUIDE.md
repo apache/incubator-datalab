@@ -192,12 +192,12 @@ On every analytical tool instance you can install additional libraries by clicki
 After clicking you see the window with 4 fields:
 -   Field for selecting an active resource to install libraries
 -   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
--   Field for search available packages with autocomplete function (if it's gained) except for Java. For Java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for search available packages with autocomplete feature (if it's gained) except Java dependencies. For Java library you should enter using the next format: "groupID:artifactID:versionID"
 -   Field for library version. It's an optional field.
 
 ![Install libraries dialog](doc/install_libs_form.png)
 
-You need to wait for a while after resource choosing till list of all available libraries is received. If available libraries list is not gained due to some reasons you are able to proceed to work without autocomplete function.
+You need to wait for a while after resource choosing till list of all available libraries is received. If available libraries list is not gained due to some reasons you are able to proceed to work without autocomplete feature.
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
@@ -613,7 +613,7 @@ To stop or terminate the Notebook click on a gear icon <img src="doc/gear_icon.p
     <img src="doc/manage_env_actions.png" alt="Manage environment actions" width="160">
 </p>
 
-**NOTE:** Connected Data Engine Server is terminated and related Standalone Apache Spark cluster is stopped during Notebook stopping. During Notebook termination related Computational resource  is automatically terminated. 
+**NOTE:** Connected Data Engine Server is terminated and related Standalone Apache Spark cluster is stopped during Notebook stopping. During Notebook termination related Computational resource is automatically terminated. 
 
 To stop or release specific cluster click an appropriate button close to cluster alias.
 
