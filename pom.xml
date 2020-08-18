@@ -67,6 +67,7 @@
                     **/*DAOImpl.java,
                     **/*Configuration.java,
                     **/*ApplicationConfiguration.java,
+                    **/*Application.java,
                     src/main/java/com/epam/dlab/dto/**,
                     src/main/java/com/epam/dlab/backendapi/interceptor/**,
                     src/main/java/com/epam/dlab/backendapi/auth/**,
