@@ -178,11 +178,12 @@ public class EndpointServiceImpl implements EndpointService {
 	}
 
 	private void checkProjectEndpointResourcesStatuses(List<ProjectDTO> projects, String endpoint) {
-		boolean isTerminationEnabled = projects.stream().anyMatch(p ->
-				!projectService.checkExploratoriesAndComputationalProgress(p.getName(), Collections.singletonList(endpoint)) ||
-						p.getEndpoints().stream().anyMatch(e -> e.getName().equals(endpoint) &&
-								Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-										UserInstanceStatus.TERMINATING).contains(e.getStatus())));
+		boolean isTerminationEnabled = projects.stream()
+				.anyMatch(p -> !projectService.checkExploratoriesAndComputationalProgress(p.getName(), Collections.singletonList(endpoint)) ||
+						p.getEndpoints().stream()
+								.anyMatch(e -> e.getName().equals(endpoint) &&
+										Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+												UserInstanceStatus.TERMINATING).contains(e.getStatus())));
 
 		if (isTerminationEnabled) {
 			throw new ResourceConflictException(("Can not terminate resources of endpoint because one of project " +
