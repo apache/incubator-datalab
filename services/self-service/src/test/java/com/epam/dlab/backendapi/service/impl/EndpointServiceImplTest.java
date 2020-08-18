@@ -64,7 +64,6 @@ public class EndpointServiceImplTest extends TestBase {
 	private static final String EXPLORATORY_NAME_2 = "expName2";
 	private static final String PROJECT_NAME_1 = "projectName";
 	private static final String PROJECT_NAME_2 = "projectName_2";
-	private static final String ENDPOINT_NAME_2 = "endpointName2";
 
 	@Mock
 	private EndpointDAO endpointDAO;
@@ -304,7 +303,7 @@ public class EndpointServiceImplTest extends TestBase {
 	private List<ProjectDTO> getCreatingProjectDTO() {
 		ProjectDTO project = ProjectDTO.builder()
 				.name(PROJECT_NAME_1)
-				.endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME_2, UserInstanceStatus.CREATING, null)))
+				.endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.CREATING, null)))
 				.build();
 		return Collections.singletonList(project);
 	}
