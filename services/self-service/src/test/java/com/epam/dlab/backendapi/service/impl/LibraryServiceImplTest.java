@@ -357,32 +357,32 @@ public class LibraryServiceImplTest {
 
 	@Test
 	public void getComputeLibGroups() {
-		List<Object> computeGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS);
+		List<Object> computeGroups = Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG, GROUP_OS_PKG, GROUP_JAVA);
 
 		List<String> computeGroupsResult = libraryService.getComputeLibGroups();
 
-		assertEquals("lists are not equals", computeGroups, computeGroupsResult);
+		assertEquals("lists are not equal", computeGroups, computeGroupsResult);
 	}
 
 	@Test
 	public void getExploratoryJupyterLibGroups() {
-		List<Object> exploratoryGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG);
+		List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG, GROUP_OS_PKG, GROUP_PIP2, GROUP_JAVA);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getJupyterUserInstanceDtoForLibGroups());
 
 		List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);
 
-		assertEquals("lists are not equals", exploratoryGroups, exploratoryGroupsResult);
+		assertEquals("lists are not equal", exploratoryGroups, exploratoryGroupsResult);
 		verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 	}
 
 	@Test
 	public void getExploratoryRstudioLibGroups() {
-		List<Object> exploratoryGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG);
+		List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG, GROUP_OS_PKG, GROUP_PIP2);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getRstudioUserInstanceDtoForLibGroups());
 
 		List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);
 
-		assertEquals("lists are not equals", exploratoryGroups, exploratoryGroupsResult);
+		assertEquals("lists are not equal", exploratoryGroups, exploratoryGroupsResult);
 		verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 	}
 
