@@ -366,7 +366,7 @@ public class LibraryServiceImplTest {
 
 	@Test
 	public void getExploratoryJupyterLibGroups() {
-		List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG, GROUP_OS_PKG, GROUP_PIP2, GROUP_JAVA);
+		List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG, GROUP_R_PKG, GROUP_JAVA);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getJupyterUserInstanceDtoForLibGroups());
 
 		List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);
@@ -377,7 +377,7 @@ public class LibraryServiceImplTest {
 
 	@Test
 	public void getExploratoryRstudioLibGroups() {
-		List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG, GROUP_OS_PKG, GROUP_PIP2);
+		List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG, GROUP_R_PKG);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getRstudioUserInstanceDtoForLibGroups());
 
 		List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);
