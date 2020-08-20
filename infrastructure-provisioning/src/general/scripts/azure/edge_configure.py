@@ -241,14 +241,18 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+        if os.environ['conf_letsencrypt_enabled'] == 'true' and 'conf_letsencrypt_domain_name' in os.environ:
+            edge_conf['edge_hostname'] = '{}.{}'.format(edge_conf['project_name'], os.environ['conf_letsencrypt_domain_name'])
+        else:
+            edge_conf['edge_hostname'] = ''
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                           "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
-                          "--edge_public_ip {} --project_name {} --endpoint_name {} ".format(
+                          "--edge_public_ip {} --project_name {} --endpoint_name {} --hostname {} ".format(
                            edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                            os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                            os.environ['keycloak_user_password'],
                            edge_conf['keycloak_client_secret'], edge_conf['instance_hostname'], edge_conf['project_name'],
-                           edge_conf['endpoint_name'])
+                           edge_conf['endpoint_name'], edge_conf['edge_hostname'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
         except:
