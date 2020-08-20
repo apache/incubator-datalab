@@ -185,7 +185,10 @@ def install_certbot(os_family):
 def run_certbot(domain_name, node, email=''):
     try:
         print('Running  Certbot')
-        sudo('service nginx stop')
+        if node == 'ssn':
+            sudo('service nginx stop')
+        else:
+            sudo('service openresty stop')
         if email != '':
             sudo('certbot certonly --standalone -n -d {}.{} -m {}'.format(node, domain_name, email))
         else:
@@ -205,12 +208,15 @@ def configure_nginx_LE(domain_name, node):
         if node == 'ssn':
             nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
         else:
-            nginx_config_path = '/etc/nginx/conf.d/proxy.conf'
+            nginx_config_path = '/usr/local/openresty/nginx/conf/conf.d/proxy.conf'
         sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
         sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
         sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
         sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
-        sudo('systemctl restart nginx')
+        if node == 'ssn':
+            sudo('systemctl restart nginx')
+        else:
+            sudo('systemctl restart openresty')
     except Exception as err:
         traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))
