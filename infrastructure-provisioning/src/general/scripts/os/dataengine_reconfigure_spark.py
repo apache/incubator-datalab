@@ -108,7 +108,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('reconfigure_spark', params))
         except:
             traceback.print_exc()
-            #raise Exception
+            raise Exception
 
     except Exception as err:
         print('Error: {0}'.format(err))
