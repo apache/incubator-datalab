@@ -52,7 +52,7 @@ import java.nio.file.Paths;
 @Path("/bucket")
 @Slf4j
 public class BucketResource {
-    private static final String AUDIT_UPLOAD_FOLDER_MESSAGE = "Upload Folder: %s";
+    private static final String AUDIT_FOLDER_UPLOAD_MESSAGE = "Upload folder: %s";
     private static final String AUDIT_FILE_UPLOAD_MESSAGE = "Upload file: %s";
     private static final String AUDIT_FILE_DOWNLOAD_MESSAGE = "Download file: %s";
     private static final String AUDIT_FILE_DELETE_MESSAGE = "Delete file: %s";
@@ -95,7 +95,7 @@ public class BucketResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("/api/bucket/upload")
     public Response uploadFolder(@Auth UserInfo userInfo, @Valid FolderUploadDTO dto) {
-        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder(), dto.getEndpoint(), String.format(AUDIT_UPLOAD_FOLDER_MESSAGE, dto.getFolder()));
+        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder(), dto.getEndpoint(), String.format(AUDIT_FOLDER_UPLOAD_MESSAGE, dto.getFolder()));
         return Response.ok().build();
     }
 
