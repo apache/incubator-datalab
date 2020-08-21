@@ -79,11 +79,13 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String STOP_PRJ_API = "infrastructure/project/stop";
 	private static final String STOP_ACTION = "stop";
 	private static final String TERMINATE_ACTION = "terminate";
+	private static final String TOTAL_BUDGET_PERIOD = "Total";
+	private static final String MONTHLY_BUDGET_PERIOD = "Monthly";
 
 	private static final String AUDIT_ADD_ENDPOINT = "Add endpoint(s): %s\n";
 	private static final String AUDIT_ADD_GROUP = "Add group(s): %s\n";
 	private static final String AUDIT_REMOVE_GROUP = "Remove group(s): %s\n";
-	private static final String AUDIT_UPDATE_BUDGET = "Update quota: %d->%d\nIs monthly period: %b->%b";
+	private static final String AUDIT_UPDATE_BUDGET = "Update quota: %d->%d\nUpdate period: %s->%s";
 	private static final String AUDIT_ADD_EDGE_NODE = "Create edge node for endpoint %s, requested in project %s";
 
 	private final ProjectDAO projectDAO;
@@ -351,7 +353,12 @@ public class ProjectServiceImpl implements ProjectService {
 		Boolean monthlyBudget = Optional.ofNullable(projectDTO.getBudget())
 				.map(BudgetDTO::isMonthlyBudget)
 				.orElse(null);
-		return String.format(AUDIT_UPDATE_BUDGET, value, p.getBudget().getValue(), monthlyBudget, p.getBudget().isMonthlyBudget());
+		return String.format(AUDIT_UPDATE_BUDGET, value, p.getBudget().getValue(),
+				representBudgetType(monthlyBudget), representBudgetType(p.getBudget().isMonthlyBudget()));
+	}
+
+    private String representBudgetType(Boolean isMonthlyPeriod) {
+		return (isMonthlyPeriod) ? MONTHLY_BUDGET_PERIOD : TOTAL_BUDGET_PERIOD;
 	}
 
 	private List<ProjectEndpointDTO> getProjectEndpointDTOS(List<String> endpoints, @Project String name) {
