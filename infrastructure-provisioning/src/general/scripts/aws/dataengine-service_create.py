@@ -40,7 +40,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dry_run', action='store_true', help='Print all variables')
 parser.add_argument('--name', type=str, default='', help='Name to be applied to Cluster ( MANDATORY !!! )')
 parser.add_argument('--applications', type=str, default='',
-                    help='Set of applications to be installed on EMR (Default are: "Hadoop Hive Hue Spark")')
+                    help='Set of applications to be installed on EMR (Default are: "Hadoop Hive Hue Spark Livy")')
 parser.add_argument('--master_instance_type', type=str, default='', help='EC2 instance size for Master-Node (Default: m3.xlarge)')
 parser.add_argument('--slave_instance_type', type=str, default='', help='EC2 instance size for Worker-Nodes (Default: m3.xlarge)')
 parser.add_argument('--instance_count', type=int, default='',
