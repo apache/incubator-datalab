@@ -10,10 +10,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Deep Learning  2.3",
+      "template_name": "Deep Learning  2.4",
       "description": "Base image with Deep Learning and Jupyter",
       "environment_type": "exploratory",
-      "version": "deeplearning-2.3",
+      "version": "deeplearning-2.4",
       "vendor": "GCP"
     }
   ]

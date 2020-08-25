@@ -74,6 +74,26 @@ public class AdapterMongoDb extends DBAdapterBase {
 
 	@JsonProperty
 	private String serviceBaseName;
+	/**
+	 * Custom connection to Mongo database.
+	 */
+	private MongoDbConnection connection;
+	/**
+	 * Mongo collection.
+	 */
+	private MongoCollection<Document> collection;
+	/**
+	 * DAO of DLab's resource type.
+	 */
+	private DlabResourceTypeDAO resourceTypeDAO;
+	/**
+	 * Buffer for insert operations.
+	 */
+	private List<Document> buffer;
+	/**
+	 * List of dates for delete from MongoDB.
+	 */
+	private UsageDataList usageDateList;
 
 	public String getServiceBaseName() {
 		return serviceBaseName;
@@ -123,33 +143,6 @@ public class AdapterMongoDb extends DBAdapterBase {
 		}
 		this.upsert = upsert;
 	}
-
-
-	/**
-	 * Custom connection to Mongo database.
-	 */
-	private MongoDbConnection connection;
-
-	/**
-	 * Mongo collection.
-	 */
-	private MongoCollection<Document> collection;
-
-	/**
-	 * DAO of DLab's resource type.
-	 */
-	private DlabResourceTypeDAO resourceTypeDAO;
-
-	/**
-	 * Buffer for insert operations.
-	 */
-	private List<Document> buffer;
-
-	/**
-	 * List of dates for delete from MongoDB.
-	 */
-	private UsageDataList usageDateList;
-
 
 	@Override
 	public void open() throws AdapterException {
@@ -227,20 +220,6 @@ public class AdapterMongoDb extends DBAdapterBase {
 			throw new AdapterException("Cannot transform report line. " + e.getLocalizedMessage(), e);
 		}
 
-//		usageDateList.append(row.getUsageDate());
-//		if (upsert) {
-//			buffer.add(document);
-//			if (buffer.size() >= bufferSize) {
-//				connection.upsertRows(collection, buffer, usageDateList);
-//			}
-//		} else if (bufferSize > 0) {
-//			buffer.add(document);
-//			if (buffer.size() >= bufferSize) {
-//				connection.insertRows(collection, buffer);
-//			}
-//		} else {
-//			connection.insertOne(collection, document);
-//		}
 		return document;
 	}
 

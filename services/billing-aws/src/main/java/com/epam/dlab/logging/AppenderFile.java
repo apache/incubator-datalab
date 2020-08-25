@@ -19,15 +19,6 @@
 
 package com.epam.dlab.logging;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import com.epam.dlab.exceptions.InitializationException;
-import com.fasterxml.jackson.annotation.JsonClassDescription;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.google.common.base.MoreObjects.ToStringHelper;
-
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.CoreConstants;
@@ -36,6 +27,14 @@ import ch.qos.logback.core.rolling.DefaultTimeBasedFileNamingAndTriggeringPolicy
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedFileNamingAndTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import com.epam.dlab.exceptions.InitializationException;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.google.common.base.MoreObjects.ToStringHelper;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /** File appender for logging. Support rolling files and archiving.
  */
@@ -138,7 +137,7 @@ public class AppenderFile extends AppenderBase {
     /** Create and return synchronous the file appender. 
      */
 	private FileAppender<ILoggingEvent> getFileAppender() {
-		FileAppender<ILoggingEvent> appender = new FileAppender<ILoggingEvent>();
+		FileAppender<ILoggingEvent> appender = new FileAppender<>();
 		appender.setFile(currentLogFilename);
 		appender.setAppend(true);
 		return appender;
@@ -151,17 +150,17 @@ public class AppenderFile extends AppenderBase {
 		if (archivedLogFilenamePattern == null || archivedLogFilenamePattern.trim().isEmpty()) {
 			throw new InitializationException("Configuration property logging.appenders.archivedLogFilenamePattern cannot be null.");
 		}
-		RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<ILoggingEvent>();
-        appender.setFile(currentLogFilename);
-        appender.setAppend(true);
+		RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<>();
+		appender.setFile(currentLogFilename);
+		appender.setAppend(true);
 
-        TimeBasedFileNamingAndTriggeringPolicy<ILoggingEvent> triggerPolicy = new DefaultTimeBasedFileNamingAndTriggeringPolicy<ILoggingEvent>();
-        triggerPolicy.setContext(context);
-        
-        TimeBasedRollingPolicy<ILoggingEvent> rollPolicy = new TimeBasedRollingPolicy<ILoggingEvent>();
-        rollPolicy.setContext(context);
-        rollPolicy.setParent(appender);
-        rollPolicy.setFileNamePattern(archivedLogFilenamePattern);
+		TimeBasedFileNamingAndTriggeringPolicy<ILoggingEvent> triggerPolicy = new DefaultTimeBasedFileNamingAndTriggeringPolicy<>();
+		triggerPolicy.setContext(context);
+
+		TimeBasedRollingPolicy<ILoggingEvent> rollPolicy = new TimeBasedRollingPolicy<>();
+		rollPolicy.setContext(context);
+		rollPolicy.setParent(appender);
+		rollPolicy.setFileNamePattern(archivedLogFilenamePattern);
         rollPolicy.setMaxHistory(archivedFileCount);
         rollPolicy.setTimeBasedFileNamingAndTriggeringPolicy(triggerPolicy);
         rollPolicy.start();

@@ -156,10 +156,10 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 print("Configuring letsencrypt certificates.")
                 install_certbot(os.environ['conf_os_family'])
                 if 'conf_letsencrypt_email' in os.environ:
-                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'], os.environ['conf_letsencrypt_email'])
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower(), os.environ['conf_letsencrypt_email'])
                 else:
-                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'])
-                configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'])
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower())
+                configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower())
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
         sys.exit(1)

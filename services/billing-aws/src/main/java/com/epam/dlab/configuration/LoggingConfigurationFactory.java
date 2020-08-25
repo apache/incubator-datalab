@@ -19,10 +19,9 @@
 
 package com.epam.dlab.configuration;
 
-import javax.validation.Valid;
-
-import org.slf4j.LoggerFactory;
-
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.logging.AppenderBase;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,10 +31,9 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
+import javax.validation.Valid;
 
 /** Configuration and factory for logging.
  */
@@ -74,8 +72,8 @@ public class LoggingConfigurationFactory {
 	/** Set the list of logging levels for appenders. */
 	@JsonProperty
 	public void setLoggers(ImmutableMap<String, JsonNode> loggers) throws InitializationException {
-		ImmutableMap.Builder<String, Level> levels = new ImmutableMap.Builder<String, Level>();
-		for(String key : loggers.keySet()) {
+		ImmutableMap.Builder<String, Level> levels = new ImmutableMap.Builder<>();
+		for (String key : loggers.keySet()) {
 			JsonNode node = loggers.get(key);
 			levels.put(key, toLevel(node.asText()));
 		}

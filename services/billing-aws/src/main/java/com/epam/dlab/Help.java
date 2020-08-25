@@ -113,7 +113,7 @@ public class Help {
 	public static void usage(String ... args) throws InitializationException {
 		if (args == null || args.length == 0) {
 			printHelp("usage", null);
-		} else if (args[0].equalsIgnoreCase("conf")) {
+		} else if ("conf".equalsIgnoreCase(args[0])) {
 			printHelp("conf", findModules());
 		} else {
 			ModuleType type = ModuleType.of(args[0]);

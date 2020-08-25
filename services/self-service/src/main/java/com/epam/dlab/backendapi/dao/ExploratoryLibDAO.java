@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -395,7 +396,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 		return ((List<Document>) libsDocument.getOrDefault(libFieldName, Collections.emptyList()))
 				.stream()
 				.map(d -> convertFromDocument(d, Library.class))
-				.filter(library -> LibStatus.INVALID_VERSION != library.getStatus())
+				.filter(library -> !Arrays.asList(LibStatus.INVALID_VERSION, LibStatus.INVALID_NAME).contains(library.getStatus()))
 				.peek(l -> l.withType(libType).withResourceName(resourceName));
 	}
 }

@@ -91,14 +91,14 @@ public class BillingTool {
 	 */
 	protected static void setLoggerLevel() {
 		ch.qos.logback.classic.LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-		ch.qos.logback.classic.Logger logger = context.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-		String [] loggers = {
-			"org.hibernate",
-			"org.jboss.logging"
+		ch.qos.logback.classic.Logger logger;
+		String[] loggers = {
+				"org.hibernate",
+				"org.jboss.logging"
 		};
 		for (String name : loggers) {
 			logger = context.getLogger(name);
-            logger.setLevel(Level.INFO);
+			logger.setLevel(Level.INFO);
 		}
 	}
 	

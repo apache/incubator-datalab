@@ -410,7 +410,7 @@ def install_os_pkg(requisites):
                 version = 'N/A'
                 os_pkg = os_pkg[0]
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{2}.log; then echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg.split("=")[0], error_parser, name))
+                 '/tmp/os_install_{2}.log; then echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
             err = sudo('cat /tmp/os_install_{}.log'.format(name)).replace('"', "'")
             sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))

@@ -19,15 +19,6 @@
 
 package com.epam.dlab.module;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.core.parser.ParserByLine;
 import com.epam.dlab.exceptions.AdapterException;
 import com.epam.dlab.exceptions.InitializationException;
@@ -36,6 +27,13 @@ import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Parse CSV format to common CSV format.
  */
@@ -205,15 +203,10 @@ public class ParserCsv extends ParserByLine {
 		int pos = 0;
 		boolean isDelimiter = false;
 		StringBuilder sb = new StringBuilder(line);
-		List<String> row = new ArrayList<String>();
-		
+		List<String> row = new ArrayList<>();
+
 		while (pos < sb.length()) {
 			char c = sb.charAt(pos);
-			/*
-			LOGGER.debug("Current buffer {}", sb);
-			LOGGER.debug("pos {}", pos);
-			LOGGER.debug("isDelimiter {}", isDelimiter);
-			*/
 			if (c == escapeChar) {
 				realPos++;
 				pos++;

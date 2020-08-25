@@ -131,7 +131,7 @@ public class CommonFormat {
 			return toReportLine(sourceRow);
 		}
 
-		List<String> targetRow = new ArrayList<String>();
+		List<String> targetRow = new ArrayList<>();
 		for (ColumnInfo columnInfo : columnMeta.getColumnMapping()) {
 			targetRow.add((columnInfo.sourceIndex < 0 ? "" :
 					(columnInfo.sourceIndex < sourceRow.size() ? sourceRow.get(columnInfo.sourceIndex) : null)));
