@@ -378,17 +378,16 @@ def install_os_pkg(requisites):
             versions = []
             res = sudo(
                 'python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(
-                    name))
-            if res != []:
-                res = res[0]
+                    name)).split('\r\n')[1]
             if err:
                 status_msg = 'installation_error'
-            elif res:
-                version = res.split('\r\n')[1].replace("'", "\"")
+            elif res != []:
+                version = res.split("'")[1].split("-")[0]
                 status_msg = "installed"
             if 'No package {} available'.format(os_pkg) in install_output:
-                versions = sudo ('yum --showduplicates list ' + name + ' | expand | grep -A 10 "Available Packages" | grep -v "Available Packages"| awk \'{print $2}\'').replace('\r\n', '').split(' ')
-                if versions != '':
+                versions = sudo ('yum --showduplicates list ' + name + ' | expand | grep -A 10 "Available Packages" | grep -v "Available Packages"| awk \'{print $2}\'').replace('\r\n', '')
+                if versions and versions != 'Error: No matching Packages to list':
+                    versions = versions.split(' ')
                     status_msg = 'invalid_version'
                     for n, i in enumerate(versions):
                         if ':' in i:
@@ -396,6 +395,7 @@ def install_os_pkg(requisites):
                         else:
                             versions[n] = i.split('-')[0]
                 else:
+                    versions = []
                     status_msg = 'invalid_name'
             status.append({"group": "os_pkg", "name": name, "version": version, "status": status_msg,
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})

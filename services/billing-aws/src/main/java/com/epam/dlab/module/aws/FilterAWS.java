@@ -68,7 +68,8 @@ public class FilterAWS extends FilterBase {
 	@NotNull
 	@JsonProperty
 	private String serviceBaseName;
-
+	private int dlabIdIndex = -1;
+	private String dlabPrefix;
 
 	/**
 	 * Return the code of currency for billing.
@@ -111,10 +112,6 @@ public class FilterAWS extends FilterBase {
 	public void setServiceBaseName(String serviceBaseName) {
 		this.serviceBaseName = serviceBaseName;
 	}
-
-
-	private int dlabIdIndex = -1;
-	private String dlabPrefix;
 
 	@Override
 	public void initialize() throws InitializationException {

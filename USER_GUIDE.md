@@ -38,6 +38,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool (ungit)](#git_ui)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Bucket browser](#bucket)
+
 [Administration](#administration)
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage roles](#manage_roles)
@@ -51,6 +53,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DLab quotas](#manage_dlab_quotas)
 
 [DLab billing report](#billing_page)
+
+[DLab audit report](#audit_page)
 
 [Web UI filters](#filter)
 
@@ -93,7 +97,7 @@ After login user sees warning in case of exceeding quota or close to this limit.
 
 When you log into DLab Web interface, the first thing you need to do is to create a new project.
 
-To do this click on “Upload” button on “Projects” page, select your personal public key (or click on "Generate" button), endpoint, group, 'Use shared image' select enable or disable and hit “Create” button. Do not forget to save your private key.
+To do this click on “Upload” button on “Projects” page, select your personal public key (or click on "Generate" button), endpoint, group and hit “Create” button. Do not forget to save your private key.
 
 <p align="center" class="facebox-popup"> 
     <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="100%">
@@ -102,8 +106,6 @@ To do this click on “Upload” button on “Projects” page, select your pers
 Please note, that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. DLab build-in wiki page guides Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
 Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process project is in status "Creating".
-
-'Use shared image' enabled means, that an image of particular notebook type is created while first notebook of same type is created in DLab. This image will be availble for all DLab users. This image is used for provisioning of further notebooks of same type within DLab. 'Use share image' disabled means, that image of particular notebook type is created while first notebook of same type is created in DLab. This AMI is available for all users withing same project.
 
 As soon as Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” is appeared on “List of Resources” page:
 
@@ -123,9 +125,9 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   Jupyter
 -   Apache Zeppelin
 -   RStudio
--   RStudio with TensorFlow
+-   RStudio with TensorFlow (implemented on AWS)
 -   Jupyter with TensorFlow
--   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
+-   Deep Learning (Jupyter + MXNet, Caffe2, TensorFlow, CNTK, Theano, PyTorch and Keras)
 -   JupyterLab
 -   Superset (implemented on GCP)
 
@@ -174,8 +176,8 @@ In the body of the dialog:
 -   Up time
 -   Analytical tool URL
 -   Git UI tool (ungit)
--   Shared bucket for all users
 -   Project bucket for project members
+-   Bucket browser  
 
 To access analytical tool Web UI you use direct URL's (your access is established via reverse proxy, so you don't need to have Edge node tunnel up and running).
 
@@ -187,22 +189,21 @@ On every analytical tool instance you can install additional libraries by clicki
     <img src="doc/notebook_menu_manage_libraries.png" alt="Notebook manage_libraries" width="150">
 </p>
 
-After clicking you see the window with 3 fields:
+After clicking you see the window with 4 fields:
 -   Field for selecting an active resource to install libraries
 -   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
--   Field for search available packages with autocomplete function except for Java. java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for search available packages with autocomplete feature (if it's gained) except Java dependencies. For Java library you should enter using the next format: "groupID:artifactID:versionID"
+-   Field for library version. It's an optional field.
 
 ![Install libraries dialog](doc/install_libs_form.png)
 
-You need to wait for a while after resource choosing till list of all available libraries is received.
+You need to wait for a while after resource choosing till list of all available libraries is received. If available libraries list is not gained due to some reasons you are able to proceed to work without autocomplete feature.
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
-**Note:** Apt or yum packages depends on your DLab OS family.
+**Note:** Apt or Yum packages depend on your DLab OS family.
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
-
-![Resource select_lib](doc/notebook_select_lib.png)
 
 After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
@@ -212,7 +213,7 @@ After clicking on "Install" button you see process of installation with appropri
 
 ![Resources libs_status](doc/notebook_libs_status.png)
 
-**Note:** If package can't be installed you see "Failed" in status column and button to retry installation.
+**Note:** If package can't be installed you see "instalation error" in status column and button to retry installation or 'invalid name' or 'invalid version'.
 
 ### Create image <a name="create_image"></a>
 
@@ -242,8 +243,6 @@ To create new analytical environment from custom image click on "Create new" but
 
 Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
 
-**NOTE:** This functionality is implemented for AWS and Azure.
-
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
@@ -260,6 +259,10 @@ Hit "OK" in confirmation popup.
 **NOTE:** Connected Data Engine Service becomes Terminated while connected (if any) Data Engine (Standalone Apache Spark cluster) becomes Stopped.
 
 <p align="center"> 
+    <img src="doc/notebook_terminate_confirm.png" alt="Notebook terminate confirm" width="400">
+</p>
+
+<p align="center"> 
     <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
 </p>
 
@@ -268,13 +271,13 @@ After you confirm your intent to stop the notebook - the status changes to "Stop
 --------------------------------
 ## Terminate Notebook server <a name="notebook_terminate"></a>
 
-Once you have finished working with an analytical tool and you need don't neeed cloud resources anymore, for the sake of the costs, we recommend to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook if you need to proceed with your analytical activities.
+Once you have finished working with an analytical tool and you don't neeed cloud resources anymore, for the sake of the costs, we recommend to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook if you need to proceed with your analytical activities.
 
 **NOTE:** Make sure you back-up your data (if exists on Notebook) and playbooks before termination.
 
 To terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Terminate":
 
-**NOTE:** If any Computational resources have been linked to your notebook server – they are automatically terminated if you terminate the notebook.
+**NOTE:** If any Computational resource has been linked to your notebook server – it's automatically terminated if you terminate the notebook.
 
 Confirm termination of the notebook and afterwards notebook status changes to "Terminating":
 
@@ -294,36 +297,38 @@ On “Create Computational Resource” popup you have to choose Computational re
 -   Total number of instances (min 2 and max 14, configurable);
 -   Master and Slave instance shapes (list is configurable and supports all available cloud instance shapes, supported in your cloud region);
 
-Also, if you want to save some costs for your Computational resource you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/)(this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
+Also, if you want to save some costs for your Data Engine Service you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/) (this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
 
 -   Select Spot Instance checkbox;
 -   Specify preferable bid for your spot instance in % (between 20 and 90, configurable).
 
 **NOTE:** When the current Spot price rises above your bid price, the Spot instance is reclaimed by cloud so that it can be given to another customer. Please make sure to backup your data on periodic basis.
 
-This picture shows menu for creating Computational resource for AWS:
+This picture shows menu for creating EMR (Data Engine Service) for AWS:
 <p align="center"> 
     <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
 </p>
 
-You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster). The configuration object is referenced as a JSON file.
+You can override the default configurations for applications for Data Engine Service by supplying a configuration object for applications when you create a cluster (this functionality is available for Amazon EMR cluster). The configuration object is referenced as a JSON file.
 To tune computational resource configuration check off "Cluster configurations" check box and insert JSON format in text box:
 
 <p align="center"> 
     <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
 
-This picture shows menu for creating Computational resource for GCP:
+This picture shows menu for creating Dataproc (Data Engine Service) for GCP:
 <p align="center"> 
     <img src="doc/dataproc_create.png" alt="Create Computational resource on GCP" width="760">
 </p>
 
 To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
-This picture shows menu for creating Computational resource for Azure:
+This picture shows menu for creating Standalone Apache Spark cluster for Azure, AWS and GCP:
 <p align="center"> 
-    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="760">
+    <img src="doc/spark_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
+
+On top of that you can override the default spark configurations for Standalone Apache Spark cluster by supplying a configuration object for applications when you create a cluster or have already created. The configuration object is referenced as a JSON file. To tune spark configuration check off "Cluster configurations" check box and insert JSON format in text box.
 
 If you click on "Create" button Computational resource creation kicks off. You see corresponding record on DLab Web UI in status "Creating":
 
@@ -343,9 +348,9 @@ Since Computational resource is up and running - you are now able to leverage cl
 
 To do that open any of the analytical tools and select proper kernel/interpreter:
 
-**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2/3, Spark, Scala, R in Jupyter.
+**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2 (only for local kernel)/3, Spark, Scala, R in Jupyter.
 
-![Jupiter](doc/jupiter.png)
+![Jupiter](doc/jupyter_kernel.png)
 
 **Zeppelin** – go to Interpreter Biding menu and switch between local and Computational resource there. Once needed interpreter is selected click on "Save".
 
@@ -360,12 +365,12 @@ Insert following “magics” before blocks of your code to start executing your
 
 **RStudio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
 
-![RStudio](doc/rstudio.png)
+![RStudio](doc/rstudio_kernel.png)
 
 ---------------
 ## Stop Standalone Apache Spark cluster <a name="spark_stop"></a>
 
-Once you have stopped working with Standalone Apache Spark cluster (Data Engine) and you need to release cloud resources for the sake of the costs, you might want to stop Standalone Apache Spark cluster. You are able to start Standalone Apache Spark cluster again after a while and proceed with your analytics.
+Once you have stopped working with Standalone Apache Spark cluster and you need to release cloud resources for the sake of the costs, you might want to stop Standalone Apache Spark cluster. You are able to start Standalone Apache Spark cluster again after a while and proceed with your analytics.
 
 To stop Standalone Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to Standalone Apache Spark cluster alias.
 
@@ -392,7 +397,7 @@ In a while Computational resource gets "Terminated". Corresponding cloud instanc
 ## Scheduler <a name="scheduler"></a>
 
 Scheduler component allows to automatically schedule Start and Stop triggers for a Notebook/Computational, while 
-for Data Engine or Data Engine Service it can only trigger Stop or Terminate action correspondigly. There are 2 types of a scheduler:
+for Data Engine or Data Engine Service (Standalone Apache Spark cluster) it can only trigger Stop or Terminate action correspondigly. There are 2 types of a scheduler:
 - Scheduler by time;
 - Scheduler by inactivity.
 
@@ -437,7 +442,7 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 </p>
 
 Notebook/Standalone Apache Spark cluster is started/stopped automatically after scheduler setting.
-Please also note that if notebook is configured to be stopped, all running data engines assosiated with is stopped (for Standalone Apache Spark cluster) or terminated (for data engine serice) with notebook.
+Please also note that if notebook is configured to be stopped, running computational resource assosiated with is stopped (for Standalone Apache Spark cluster) or terminated (for data engine serice) with notebook.
 
 After login user is notified  that corresponding resources are about to be stopped/terminated in some time.
 
@@ -459,7 +464,7 @@ When you click on the button "Git credentials" – following popup shows up:
 </p>
 
 In this window you need to add:
--   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, bitbucket.com, or your internal Git server.
+-   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, bitbucket.com.
 -   Your Username and Email - used to display author of commit in git.
 -   Your Login and Password - for authorization into git server.
 
@@ -483,9 +488,7 @@ On every analytical tool instance you can see Git UI tool (ungit):
 
 Before start working with Git repositories, you need to change working directory on the top of window to:
 
-**/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press Enter.
-
-**Note:** Zeppelin already uses git for local versioning of files, you can add upstream for all notebooks.
+**/home/dlab-user/** and press Enter.
 
 After changing working directory you can create repository or better way - clone existing:
 
@@ -512,6 +515,32 @@ After commit you see your local version and remote repository. To push you chang
 Also clicking on "Circle" button you can uncommit or revert changes.
 
 --------------------------------
+
+### Bucket browser <a name="bucket"></a>
+
+You are able to access to cloud buckets via DLab Web UI.
+There are two ways to open bucket browser:
+- clicking on Notebook name on the "List of resources" page, where there is an "Open bucket browser" link;
+- clicking on "Bucket browser" bucket on the "List of resources" page.
+
+![Bucket_browser_button](doc/bucket_button.png)
+
+When you click on the "Bucket browser" button or "Open bucket browser" link – following popup shows up:
+
+![Select_bucket](doc/select_bucket.png)
+
+In the left side of the grid you see buckets for which you have access. You can switch between buckets by choosing appropriate one. In the right side of the grid you see folders and files which are already created or uploaded.
+
+In the bucket browser you are supposed to:
+- upload file;
+- create folder;
+- delete folder and file;
+- download file;
+- copy path to folder or to file.
+
+![Bucket_browser](doc/bucket_browser.png)
+
+--------------------------------
 # Administration <a name="administration"></a>
 
 ## Manage roles <a name="manage_roles"></a>
@@ -526,6 +555,7 @@ To do it click on "Add group" button. "Add group" popup shows up:
 Roles consist of:
 - Administration - allow to execute administrative operation for the whole DLab or administrative operation only per project;
 - Billing - allow to view billing only the own resources or all users;
+- Bucket browser actions - allow to set permissions for cloud buckets if user only accesses via bucket browser
 - Compute - list of Compute types which are supposed for creation;
 - Compute shapes - list of Compute shapes which are supposed for creation;
 - Notebook - list of Notebook templates which are supposed for creation;
@@ -535,7 +565,7 @@ Roles consist of:
     <img src="doc/roles.png" alt="Roles" width="450">
 </p>
 
-To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
+To add group enter group name, choose certain action which should be allowed for group and furthermore you can add discrete user(s) (not mandatory) and then click "Create" button.
 After addidng the group it appears on "Manage roles" popup.
 
 Administrator can remove group or user. For that you should only click on bin icon <img src="doc/bin_icon.png" alt="bin" width="15">for certain group or for icon <img src="doc/delete_btn.png" alt="delete" width="13"> for particular user. After that hit "Yes" in confirmation popup.
@@ -560,12 +590,11 @@ The following menu shows up:
 
 Administrator can edit already existing project:
 - Add or remove group;
-- Add new endpoint;
-- Switch off/on 'Use shared image' option.
+- Add new endpoint.
 
 To edit the project hit "Edit project" and choose option which you want to add, remove or change. For applying changes click on "Update" button.
 
-To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation popup. All related instances change its status from 'Running' to "Stopping" and soon become "Stopped". You are able to start Edge node again after a while and proceed with your work. Do not forget to start notebook again if you want to continue with your analytics. Because start Edge node does not start related instances.
+To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation popup. All related instances change its status from 'Running' to "Stopping" (except for Data Engine Service, its status is "Terminated") and soon become "Stopped" ("Terminated" for Data Engine Service). You are able to start Edge node again after a while and proceed with your work. Do not forget to start notebook again if you want to continue with your analytics. Because start Edge node does not start related instances.
 
 To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon become "Terminated".
 
@@ -584,7 +613,7 @@ To stop or terminate the Notebook click on a gear icon <img src="doc/gear_icon.p
     <img src="doc/manage_env_actions.png" alt="Manage environment actions" width="160">
 </p>
 
-**NOTE:** Connected Data Engine Server is terminated and related Data Engine is stopped during Notebook stopping. During Notebook termination related Computational resources  are automatically terminated. 
+**NOTE:** Connected Data Engine Server is terminated and related Standalone Apache Spark cluster is stopped during Notebook stopping. During Notebook termination related Computational resource is automatically terminated. 
 
 To stop or release specific cluster click an appropriate button close to cluster alias.
 
@@ -598,7 +627,7 @@ Confirm stopping/decommissioning of the Computational resource by hitting "Yes":
     <img src="doc/manage_env_confirm.png" alt="Manage environment action confirm" width="400">
 </p>
 
-**NOTE:** Terminate action is available only for notebooks and computational resources, not for Edge Nodes.
+**NOTE:** Terminate action is available only for notebook and computational resource, not for Edge Node.
 
 ### Multiple Cloud Endpoints <a name="multiple_cloud_endpoints"></a>
 
@@ -618,7 +647,7 @@ Administrator can deactivate whole analytical environment via bin icon <img src=
 
 ### Manage DLab quotas <a name="manage_dlab_quotas"></a>
 
-Administrator can set quotas per project and for the whole DLab. To do it click on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Administrator can see all active project:
+Administrator can set quotas per project (monthly or total period) and for the whole DLab. To do it click on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Administrator can see all active project:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="520">
@@ -628,7 +657,7 @@ After filling fields and clicking on "Apply" button, new quotas are used for pro
 If project and DLab quotas are exceeded the warning shows up during login.
 
 <p align="center" class="facebox-popup"> 
-    <img src="doc/exceeded quota.png" alt="Exceeded quota" width="400">
+    <img src="doc/project_quota.png" alt="Exceeded project quota" width="400">
 </p>
 
 In such case user cannot create new instance and already "Running" instance changes its status to "Stopping", except for Data Engine Service (its status changes "Terminating") and soon becomes "Stopped" or "Terminated" appropriately.
@@ -658,6 +687,29 @@ On top of that you can sort data by user, project, service charges.
 
 In the footer of billing report, you can see "Total" cost for all environments.
 
+
+--------------------------------
+
+# DLab Audit report <a name="audit_page"></a>
+
+On this page you can see change history, which have been done by any user.
+
+You are able to view:
+- when the action was done
+- who did the action
+- what the action was done
+
+Furthermore on the center of header you can choose period of report in datepicker.
+
+![Audit page](doc/audit_page.png)
+
+If you click information icon <img src="doc/icon_info.png" alt="bin" width="15"> you see more detail information.
+
+<p align="center"> 
+    <img src="doc/audit_info.png" alt="Notebook stop confirm" width="400">
+</p>
+
+
 --------------------------------
 
 # Web UI filters <a name="filter"></a>
@@ -669,7 +721,7 @@ To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" wid
 -   environment name (input field);
 -   status (multiple choice);
 -   shape (multiple choice);
--   computational resources (multiple choice);
+-   compute (multiple choice);
 
 ![Main page filter](doc/main_page_filter.png)
 

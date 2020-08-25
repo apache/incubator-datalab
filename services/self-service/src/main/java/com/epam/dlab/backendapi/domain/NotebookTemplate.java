@@ -23,9 +23,9 @@ public enum NotebookTemplate {
 	JUPYTER("Jupyter notebook 6.0.2"),
 	JUPYTER_LAB("JupyterLab 0.35.6"),
 	ZEPPELIN("Apache Zeppelin 0.8.2"),
-	DEEP_LEARNING("Deep Learning  2.3"),
-	TENSOR("Jupyter with TensorFlow 1.8.0"),
-	TENSOR_RSTUDIO("RStudio with TensorFlow 1.8.0"),
+	DEEP_LEARNING("Deep Learning  2.4"),
+	TENSOR("Jupyter with TensorFlow 2.1.0"),
+	TENSOR_RSTUDIO("RStudio with TensorFlow 2.1.0"),
 	RSTUDIO("RStudio 1.2.5033");
 
 	private String name;

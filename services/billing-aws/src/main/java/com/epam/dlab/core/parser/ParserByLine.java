@@ -41,6 +41,8 @@ import java.util.List;
  */
 public abstract class ParserByLine extends ParserBase {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ParserByLine.class);
+	private static final String ENTRY_NAME = "\nEntry name: ";
+	private static final String SOURCE_LINE = "\nSource line[";
 
 	/**
 	 * Parse the header of source data and return it.
@@ -65,10 +67,9 @@ public abstract class ParserByLine extends ParserBase {
 	 *
 	 * @return the parsed row from adapterIn.
 	 * @throws AdapterException
-	 * @throws ParseException
 	 */
 	@JsonIgnore
-	public String getNextRow() throws AdapterException, ParseException {
+	public String getNextRow() throws AdapterException {
 		String line = getAdapterIn().readLine();
 		if (line == null) {
 			return null;
@@ -188,23 +189,23 @@ public abstract class ParserByLine extends ParserBase {
 								continue;
 							}
 						} catch (ParseException e) {
-							throw new ParseException(e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics
+							throw new ParseException(e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics
 									().getEntryName() +
-									"\nSource line[" +
+									SOURCE_LINE +
 									getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						} catch (Exception e) {
 							throw new ParseException("Cannot evaluate condition " + getWhereCondition() + ". " +
-									e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName()
-									+ "\nSource line[" + getCurrentStatistics().getRowReaded() + "]: " + line, e);
+									e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics().getEntryName()
+									+ SOURCE_LINE + getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						}
 
 						try {
 							reportLine = getCommonFormat().toCommonFormat(row);
 						} catch (ParseException e) {
 							throw new ParseException("Cannot cast row to common format. " +
-									e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName
+									e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics().getEntryName
 									() +
-									"\nSource line[" + getCurrentStatistics().getRowReaded() + "]: " + line, e);
+									SOURCE_LINE + getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						}
 						if (getFilter() != null && (reportLine = getFilter().canAccept(reportLine)) == null) {
 							getCurrentStatistics().incrRowFiltered();

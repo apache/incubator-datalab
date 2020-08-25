@@ -38,43 +38,49 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-/** The adapter for file system.
+/**
+ * The adapter for file system.
  */
 @JsonTypeName(ModuleName.ADAPTER_FILE)
 @JsonClassDescription(
-	"File adapter.\n" +
-	"Read source or write converted data to the file.\n" +
-	"  - type: " + ModuleName.ADAPTER_FILE + "\n" +
-	"    [writeHeader: <true | false>]  - write header of data to the adapterOut.\n" +
-	"    file: <filename>               - the name of file."
-	)
+		"File adapter.\n" +
+				"Read source or write converted data to the file.\n" +
+				"  - type: " + ModuleName.ADAPTER_FILE + "\n" +
+				"    [writeHeader: <true | false>]  - write header of data to the adapterOut.\n" +
+				"    file: <filename>               - the name of file."
+)
 public class AdapterFile extends AdapterBase {
 
-	/** The name of file. */
+	/**
+	 * The name of file.
+	 */
 	@NotNull
 	@JsonProperty
 	private String file;
+	/**
+	 * Reader for adapter.
+	 */
+	@JsonIgnore
+	private BufferedReader reader;
+	/**
+	 * Writer for adapter.
+	 */
+	@JsonIgnore
+	private BufferedWriter writer;
 
-    
-	/** Return the name of file. */
+	/**
+	 * Return the name of file.
+	 */
 	public String getFile() {
 		return file;
 	}
-	
-	/** Set the name of file. */
+
+	/**
+	 * Set the name of file.
+	 */
 	public void setFile(String file) {
 		this.file = file;
 	}
-	
-	
-	/** Reader for adapter. */
-	@JsonIgnore
-	private BufferedReader reader;
-	
-	/** Writer for adapter. */
-	@JsonIgnore
-	private BufferedWriter writer;
-	
 
 	@Override
 	public void open() throws AdapterException {
@@ -102,7 +108,7 @@ public class AdapterFile extends AdapterBase {
 				reader = null;
 			}
 		}
-		
+
 		if (writer != null) {
 			try {
 				writer.close();
@@ -148,8 +154,8 @@ public class AdapterFile extends AdapterBase {
 		}
 		return null;
 	}
-	
-	
+
+
 	@Override
 	public ToStringHelper toStringHelper(Object self) {
 		return super.toStringHelper(self)

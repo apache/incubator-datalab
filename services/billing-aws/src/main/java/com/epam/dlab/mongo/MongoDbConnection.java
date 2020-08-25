@@ -22,7 +22,11 @@ package com.epam.dlab.mongo;
 import com.epam.dlab.core.aggregate.UsageDataList;
 import com.epam.dlab.exceptions.AdapterException;
 import com.epam.dlab.model.aws.ReportLine;
-import com.mongodb.*;
+import com.mongodb.BasicDBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
+import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
@@ -161,10 +165,9 @@ public class MongoDbConnection implements Closeable {
 	 * @param documents  the list of documents.
 	 * @throws AdapterException
 	 */
-	public void insertRows(MongoCollection<Document> collection, List<Document> documents)
-			throws AdapterException {
+	public void insertRows(MongoCollection<Document> collection, List<Document> documents) throws AdapterException {
 		try {
-			if (documents.size() > 0) {
+			if (!documents.isEmpty()) {
 				collection.insertMany(documents);
 				LOGGER.debug("{} documents has been inserted into collection {}",
 						documents.size(), collection.getNamespace());
