@@ -132,14 +132,15 @@
                     [matAutocomplete]="auto"
                     [formControl]="libSearch"
                     #trigger="matAutocompleteTrigger"
-                    (keyup.enter)="addLibrary(lib)"
+                    (keydown.enter)="addLibrary(lib)"
+                    (keyup)="clearLibSelection($event)"
                   >
                   <span
                     class="plus-icon"
-                    [ngClass]="{'not-allow': !this.selectedLib || this.selectedLib?.isInSelectedList}"
-                    matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList"
+                    [ngClass]="{'not-allow': !this.selectedLib || this.selectedLib?.isInSelectedList || !isLibSelected}"
+                    matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList || !isLibSelected"
                   >
-                  <mat-icon  (click)="addLibrary(lib)" (keyup.enter)="addLibrary(lib)" [ngClass]="{'not-allowed': !this.selectedLib || this.selectedLib?.isInSelectedList}">add</mat-icon>
+                  <mat-icon  (click)="addLibrary(lib)" (keyup.enter)="addLibrary(lib)" [ngClass]="{'not-allowed': !this.selectedLib || this.selectedLib?.isInSelectedList || !isLibSelected}">add</mat-icon>
                 </span>
                 </div>
                 <mat-autocomplete #auto="matAutocomplete" class="suggestions">

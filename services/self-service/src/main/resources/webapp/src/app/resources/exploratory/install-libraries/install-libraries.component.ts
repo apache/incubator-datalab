@@ -238,6 +238,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.group === 'java') {
+      this.isLibSelected = true;
       this.libSearch.setValue(item.name + ':' + item.version);
       this.lib.name = item.name + ':' + item.version;
     } else {
@@ -317,6 +318,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         this.filterLibs();
         this.changeDetector.markForCheck();
         this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v => this.groupsListMap[v.group]));
+        this.filterConfiguration.group = SortUtils.libFilterGroupsSort(this.filterConfiguration.group);
+        console.log(this.filterConfiguration.group);
         this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resource)));
         this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib =>
           lib.status.map(status => status.resourceType)));
