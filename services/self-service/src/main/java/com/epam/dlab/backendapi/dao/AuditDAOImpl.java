@@ -169,13 +169,4 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
             searchCriteria.add(in(user, users));
         }
     }
-
-    public static void main(String[] args) throws ParseException {
-        Instant from;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
-        from = simpleDateFormat.parse("2020-01-01").toInstant();
-
-        System.out.println(from.toString().replace("T", " "));
-    }
 }
