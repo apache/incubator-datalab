@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Inject, ViewChild} from '@angular/core';
 import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -275,14 +275,15 @@ export class RolesComponent implements OnInit {
     list.splice(list.indexOf(item), 1);
   }
 
-  public addUser(value: string, item): void {
-    if (item.users.includes(value)) {
+  public addUser(user, item): void {
+    if (item.isUserAdded) {
+      if (!this.toastr.toasts.length) this.toastr.error('User is already added to this group', 'Oops!');
       return;
     }
-
-    if (value && value.trim()) {
-      item.users instanceof Array ? item.users.push(value.trim()) : item.users = [value.trim()];
+    if (user.value && user.value.trim()) {
+      item.users instanceof Array ? item.users.push(user.value.trim()) : item.users = [user.value.trim()];
     }
+    user.value = '';
   }
 
   private getEnvironmentHealthStatus() {
