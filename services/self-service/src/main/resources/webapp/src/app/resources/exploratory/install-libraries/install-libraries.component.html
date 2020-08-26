@@ -30,11 +30,11 @@
     </div>
     <div *ngIf="notebook?.status === 'running'" class="top-wrapper">
       <div class="loading-block" *ngIf="!libs_uploaded && uploading && data.status === 'running'">
-      <div class="uploading">
-        <p>Please wait until DLab loads full list of available libraries for you...</p>
-        <img src="assets/img/gif-spinner.gif" alt="loading">
+        <div class="uploading">
+          <p>Please wait until DLab loads full list of available libraries for you...</p>
+          <img src="assets/img/gif-spinner.gif" alt="loading">
+        </div>
       </div>
-    </div>
       <div *ngIf="notebook?.status === 'running' && !uploading" class="lib-view-wrap">
       <div class="search-box">
         <div class="search-form">
