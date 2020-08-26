@@ -22,7 +22,7 @@ import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inje
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import {debounceTime, take, takeUntil} from 'rxjs/operators';
+import {debounceTime, filter, take, takeUntil} from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
@@ -125,7 +125,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.uploading = true;
     this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
       .pipe(
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe(
         response => {
@@ -161,12 +161,18 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public filterGroups(groupsList) {
-    const PREVENT_TEMPLATES = ['rstudio', 'rstudio with tensorflow'];
     const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
-    const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
 
+    if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1) {
+      const filtered = groupsList.filter(group => group !== 'r_pkg');
+      return SortUtils.libGroupsSort(filtered);
+    }
+
+    const PREVENT_TEMPLATES = ['rstudio', 'rstudio with tensorflow'];
+    const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
     const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
     return SortUtils.libGroupsSort(filteredGroups);
+
   }
 
   public onUpdate($event) {
@@ -238,6 +244,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.group === 'java') {
+      this.isLibSelected = true;
       this.libSearch.setValue(item.name + ':' + item.version);
       this.lib.name = item.name + ':' + item.version;
     } else {
@@ -317,6 +324,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         this.filterLibs();
         this.changeDetector.markForCheck();
         this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v => this.groupsListMap[v.group]));
+        this.filterConfiguration.group = SortUtils.libFilterGroupsSort(this.filterConfiguration.group);
         this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resource)));
         this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib =>
           lib.status.map(status => status.resourceType)));
@@ -362,9 +370,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
               this.filteredList = [libs];
               this.filteredList.forEach(lib => {
                 lib.isInSelectedList = this.model.selectedLibs
-                  .some(el => lib.name.toLowerCase() === el.name.substring(0, el.name.lastIndexOf(':')).toLowerCase());
+                  .some(el => {
+                    return lib.name.toLowerCase() === el.name.toLowerCase();
+                  });
                 lib.isInstalled = this.notebookLibs.some(libr => {
-                    return lib.name.toLowerCase() === libr.name.substring(0, libr.name.lastIndexOf(':')).toLowerCase() &&
+                    return lib.name.toLowerCase() === libr.name.toLowerCase() &&
                       this.group === libr.group &&
                       libr.status.some(res => res.resource === this.destination.name);
                   }

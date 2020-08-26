@@ -45,6 +45,6 @@ public class ColumnInfo {
 	
 	@Override
 	public String toString() {
-		return targetName + "=" + (sourceName == null ? "" : sourceName + "[" + String.valueOf(sourceIndex) + "]");
+		return targetName + "=" + (sourceName == null ? "" : sourceName + "[" + sourceIndex + "]");
 	}
 }

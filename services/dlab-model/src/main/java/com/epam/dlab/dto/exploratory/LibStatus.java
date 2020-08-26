@@ -27,6 +27,7 @@ public enum LibStatus {
 	INSTALLING,
 	INSTALLED,
 	INVALID_VERSION,
+	INVALID_NAME,
 	INSTALLATION_ERROR;
 
 	@JsonCreator

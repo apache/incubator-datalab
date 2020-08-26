@@ -30,11 +30,11 @@
     </div>
     <div *ngIf="notebook?.status === 'running'" class="top-wrapper">
       <div class="loading-block" *ngIf="!libs_uploaded && uploading && data.status === 'running'">
-      <div class="uploading">
-        <p>Please wait until DLab loads full list of available libraries for you...</p>
-        <img src="assets/img/gif-spinner.gif" alt="loading">
+        <div class="uploading">
+          <p>Please wait until DLab loads full list of available libraries for you...</p>
+          <img src="assets/img/gif-spinner.gif" alt="loading">
+        </div>
       </div>
-    </div>
       <div *ngIf="notebook?.status === 'running' && !uploading" class="lib-view-wrap">
       <div class="search-box">
         <div class="search-form">
@@ -132,14 +132,15 @@
                     [matAutocomplete]="auto"
                     [formControl]="libSearch"
                     #trigger="matAutocompleteTrigger"
-                    (keyup.enter)="addLibrary(lib)"
+                    (keydown.enter)="addLibrary(lib)"
+                    (keyup)="clearLibSelection($event)"
                   >
                   <span
                     class="plus-icon"
-                    [ngClass]="{'not-allow': !this.selectedLib || this.selectedLib?.isInSelectedList}"
-                    matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList"
+                    [ngClass]="{'not-allow': !this.selectedLib || this.selectedLib?.isInSelectedList || !isLibSelected}"
+                    matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList || !isLibSelected"
                   >
-                  <mat-icon  (click)="addLibrary(lib)" (keyup.enter)="addLibrary(lib)" [ngClass]="{'not-allowed': !this.selectedLib || this.selectedLib?.isInSelectedList}">add</mat-icon>
+                  <mat-icon  (click)="addLibrary(lib)" (keyup.enter)="addLibrary(lib)" [ngClass]="{'not-allowed': !this.selectedLib || this.selectedLib?.isInSelectedList || !isLibSelected}">add</mat-icon>
                 </span>
                 </div>
                 <mat-autocomplete #auto="matAutocomplete" class="suggestions">

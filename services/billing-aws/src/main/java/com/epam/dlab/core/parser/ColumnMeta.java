@@ -27,7 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides column meta information.
@@ -176,7 +180,7 @@ public class ColumnMeta {
 	 * @throws InitializationException if column not found in the list of columns.
 	 */
 	private static int getColumnIndex(String columnName) throws InitializationException {
-		ArrayList<String> list = new ArrayList<String>(COLUMN_NAMES.length);
+		ArrayList<String> list = new ArrayList<>(COLUMN_NAMES.length);
 		for (String s : COLUMN_NAMES) {
 			list.add(s);
 		}
@@ -198,7 +202,7 @@ public class ColumnMeta {
 	private Map<String, String> getSourceToTarget(String columnMappingString, List<String> sourceColumnNames) throws
 			InitializationException {
 		String[] entries = StringUtils.split(columnMappingString, MAPPING_COLUMN_SEPARATOR);
-		Map<String, String> sourceToTarget = new HashMap<String, String>();
+		Map<String, String> sourceToTarget = new HashMap<>();
 
 		for (String entry : entries) {
 			if (entry.trim().isEmpty() || !entry.contains("=")) {
@@ -264,8 +268,8 @@ public class ColumnMeta {
 		LOGGER.info("Mapping columns [target=source:name[index]]:");
 		int columnCount = COLUMN_NAMES.length - 1;
 		int tagCount = (tagColumns == null ? 0 : tagColumns.size());
-		columnMapping = new ArrayList<ColumnInfo>(columnCount + tagCount);
-		targetColumnNames = new ArrayList<String>(columnCount + tagCount);
+		columnMapping = new ArrayList<>(columnCount + tagCount);
+		targetColumnNames = new ArrayList<>(columnCount + tagCount);
 
 		for (int i = 0; i < columnCount; i++) {
 			String sourceName = sourceToTarget.get(COLUMN_NAMES[i]);
