@@ -276,7 +276,7 @@ export class RolesComponent implements OnInit {
   }
 
   public addUser(user, item): void {
-    if (item.users.filter(v => v.toLowerCase() === user.value.toLowerCase()).length) {
+    if (item.isUserAdded) {
       if (!this.toastr.toasts.length) this.toastr.error('User is already added to this group', 'Oops!');
       return;
     }
