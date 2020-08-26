@@ -39,7 +39,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 <!--    </dlab-toolbar>-->
 <!--    <mat-divider></mat-divider>-->
 <!--    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>-->
-    <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption) = setRangeOption($event)>
+    <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption)="setRangeOption($event)">
     </audit-toolbar>
     <mat-divider></mat-divider>
     <dlab-audit-grid (resetDateFilter)="resetDatepicker()"></dlab-audit-grid>
