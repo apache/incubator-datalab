@@ -85,7 +85,6 @@ public class BillingServiceImpl implements BillingService {
     private final RESTService provisioningService;
     private final ImageExploratoryDAO imageExploratoryDao;
     private final BillingDAO billingDAO;
-    private final String sbn;
 
     @Inject
     public BillingServiceImpl(ProjectService projectService, ProjectDAO projectDAO, EndpointService endpointService,
@@ -100,7 +99,6 @@ public class BillingServiceImpl implements BillingService {
         this.provisioningService = provisioningService;
         this.imageExploratoryDao = imageExploratoryDao;
         this.billingDAO = billingDAO;
-        sbn = configuration.getServiceBaseName();
     }
 
     @Override
@@ -116,8 +114,8 @@ public class BillingServiceImpl implements BillingService {
         final double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
         final String currency = billingReportLines.stream().map(BillingReportLine::getCurrency).distinct().count() == 1 ? billingReportLines.get(0).getCurrency() : null;
         return BillingReport.builder()
-		        .name("Billing report")
-		        .sbn(sbn)
+                .name("Billing report")
+                .sbn(configuration.getServiceBaseName())
 		        .reportLines(billingReportLines)
 		        .usageDateFrom(min)
 		        .usageDateTo(max)
@@ -130,20 +128,16 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public String downloadReport(UserInfo user, BillingFilter filter) {
         BillingReport report = getBillingReport(user, filter);
-        boolean isReportComplete =report.isReportHeaderCompletable();
+        boolean isReportComplete = report.isReportHeaderCompletable();
         StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
         String stringOfAdjustedHeader = BillingUtils.getHeader(isReportComplete);
         reportHead.append(stringOfAdjustedHeader);
-        try {
-            report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isReportComplete)));
-            reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
-            return reportHead.toString();
-        } catch (Exception e) {
-            log.error("Cannot write billing data ", e);
-            throw new DlabException("Cannot write billing file ", e);
-        }
+        report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isReportComplete)));
+        reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
+        return reportHead.toString();
     }
 
+    @Override
     public BillingReport getExploratoryBillingData(String project, String endpoint, String exploratoryName, List<String> compNames) {
         List<String> resourceNames = new ArrayList<>(compNames);
         resourceNames.add(exploratoryName);
@@ -155,13 +149,14 @@ public class BillingServiceImpl implements BillingService {
                 .collect(Collectors.toList());;
         final String currency = billingData.stream().map(BillingReportLine::getCurrency).distinct().count() == 1 ? billingData.get(0).getCurrency() : null;
         return BillingReport.builder()
-		        .name(exploratoryName)
-		        .reportLines(billingData)
-		        .totalCost(BigDecimal.valueOf(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
+                .name(exploratoryName)
+                .reportLines(billingData)
+                .totalCost(BigDecimal.valueOf(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
                 .build();
     }
 
+    @Override
     public void updateRemoteBillingData(UserInfo userInfo) {
         List<EndpointDTO> endpoints = endpointService.getEndpoints();
         if (CollectionUtils.isEmpty(endpoints)) {
@@ -173,14 +168,17 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
 
-        billingDataMap.forEach((endpointDTO, billingData) -> {
-            log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
-            try {
-                updateBillingData(endpointDTO, billingData);
-            } catch (Exception e) {
-                log.error("Something went wrong while trying to update billing for {}. {}", endpointDTO.getName(), e.getMessage(), e);
-            }
-        });
+        billingDataMap
+                .forEach((endpointDTO, billingData) -> {
+                    log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
+                    try {
+                        if (!billingData.isEmpty()) {
+                            updateBillingData(endpointDTO, billingData, endpoints);
+                        }
+                    } catch (Exception e) {
+                        log.error("Something went wrong while trying to update billing for {}. {}", endpointDTO.getName(), e.getMessage(), e);
+                    }
+                });
     }
 
     @Override
@@ -215,18 +213,18 @@ public class BillingServiceImpl implements BillingService {
         return monthlyBudget ? billingDAO.getMonthlyProjectCost(project, LocalDate.now()) : billingDAO.getOverallProjectCost(project);
     }
 
-    private Map<String, BillingReportLine> getBillableResources() {
+    private Map<String, BillingReportLine> getBillableResources(List<EndpointDTO> endpoints) {
         Set<ProjectDTO> projects = new HashSet<>(projectService.getProjects());
-        final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(sbn);
+        final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(configuration.getServiceBaseName());
         final Stream<BillingReportLine> billableEdges = projects
                 .stream()
                 .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
                 .entrySet()
                 .stream()
-                .flatMap(e -> projectEdges(sbn, e.getKey(), e.getValue()));
-        final Stream<BillingReportLine> billableSharedEndpoints = endpointService.getEndpoints()
+                .flatMap(e -> projectEdges(configuration.getServiceBaseName(), e.getKey(), e.getValue()));
+        final Stream<BillingReportLine> billableSharedEndpoints = endpoints
                 .stream()
-                .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), sbn));
+                .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), configuration.getServiceBaseName()));
         final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll(projects)
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
@@ -235,7 +233,7 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .map(p -> imageExploratoryDao.getImagesForProject(p.getName()))
                 .flatMap(Collection::stream)
-                .flatMap(i -> BillingUtils.customImageBillingDataStream(i, sbn));
+                .flatMap(i -> BillingUtils.customImageBillingDataStream(i, configuration.getServiceBaseName()));
 
         final Map<String, BillingReportLine> billableResources = Stream.of(ssnBillingDataStream, billableEdges, billableSharedEndpoints, billableUserInstances, customImages)
                 .flatMap(s -> s)
@@ -251,10 +249,10 @@ public class BillingServiceImpl implements BillingService {
                 .flatMap(endpoint -> BillingUtils.edgeBillingDataStream(projectName, serviceBaseName, endpoint.getName()));
     }
 
-    private void updateBillingData(EndpointDTO endpointDTO, List<BillingData> billingData) {
+    private void updateBillingData(EndpointDTO endpointDTO, List<BillingData> billingData, List<EndpointDTO> endpoints) {
         final String endpointName = endpointDTO.getName();
         final CloudProvider cloudProvider = endpointDTO.getCloudProvider();
-        final Map<String, BillingReportLine> billableResources = getBillableResources();
+        final Map<String, BillingReportLine> billableResources = getBillableResources(endpoints);
         final Stream<BillingReportLine> billingReportLineStream = billingData
                 .stream()
                 .peek(bd -> bd.setApplication(endpointName))
