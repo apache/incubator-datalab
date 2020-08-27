@@ -38,6 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -110,11 +111,13 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         inCriteria(searchCriteria, resourceTypes, RESOURCE_TYPE_FIELD);
         if (StringUtils.isNotEmpty(dateStart)) {
             Instant from = getInstant(dateStart);
-            searchCriteria.add(gte(TIMESTAMP_FIELD, from));
+            Date date = new Date(from.toEpochMilli());
+            searchCriteria.add(gte(TIMESTAMP_FIELD, date));
         }
         if (StringUtils.isNotEmpty(dateEnd)) {
             Instant to = getInstant(dateEnd).plus(1, ChronoUnit.DAYS);
-            searchCriteria.add(lte(TIMESTAMP_FIELD, to));
+            Date date = new Date(to.toEpochMilli());
+            searchCriteria.add(lte(TIMESTAMP_FIELD, date));
         }
         return searchCriteria;
     }
