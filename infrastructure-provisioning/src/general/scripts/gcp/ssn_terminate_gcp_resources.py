@@ -47,7 +47,7 @@ if __name__ == "__main__":
         labels = [
             {'sbn': args.service_base_name}
         ]
-        #clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
+        clusters_list = '' #meta_lib.GCPMeta().get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
                 actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, args.region)
