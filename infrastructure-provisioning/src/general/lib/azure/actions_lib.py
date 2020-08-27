@@ -1169,7 +1169,10 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                              cluster_name, cluster_dir), capture=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
-    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
+    if os.path.exists('{0}'.format(cluster_dir)):
+        print('=========')
+        local('ls -la /opt/')
+        local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
                                                                                                         cluster_dir))
     if datalake_enabled == 'false':
         local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
