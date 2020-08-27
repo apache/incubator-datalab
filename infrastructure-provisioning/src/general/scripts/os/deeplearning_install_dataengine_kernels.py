@@ -45,14 +45,15 @@ def configure_notebook(keyfile, hoststring):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     run('mkdir -p /tmp/{}/'.format(args.cluster_name))
+    put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
     if not exists('/tmp/deeplearning_dataengine_create_configs.py'):
         put(scripts_dir + 'deeplearning_dataengine_create_configs.py',
             '/tmp/deeplearning_dataengine_create_configs.py')
-    put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
-    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
+    #put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
+    #put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
-    spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
-    run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
+    #spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
+    #run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
     if not exists('/usr/local/bin/deeplearning_dataengine_create_configs.py'):
         put(scripts_dir + 'deeplearning_dataengine_create_configs.py', '/usr/local/bin/deeplearning_dataengine_create_configs.py', use_sudo=True)
         sudo('chmod 755 /usr/local/bin/deeplearning_dataengine_create_configs.py')
