@@ -1232,7 +1232,7 @@ def prepare_disk(os_user):
                     disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
                     with settings(warn_only=True):
                         sudo('umount -l /dev/{}1'.format(disk_name))
-                    sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' 2>&1 | tee /tmp/tee.tmp '''.format(
+                    sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{} 2>&1 | tee /tmp/tee.tmp' '''.format(
                         disk_name), warn_only=True)
                     out = sudo('cat /tmp/tee.tmp')
                     if 'Syncing disks' in out:
