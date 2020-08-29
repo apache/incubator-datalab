@@ -166,7 +166,7 @@ public class ExploratoryLibList {
 		Map<String, String> libMap = getLibs(group);
 		if (libMap == null) {
 			return LibraryAutoCompleteDTO.builder()
-					.autoComplete(Boolean.FALSE)
+					.autoComplete(isUpdating() ? AutoCompleteEnum.UPDATING : AutoCompleteEnum.NONE)
 					.libraries(Collections.emptyList())
 					.build();
 		}
@@ -177,7 +177,7 @@ public class ExploratoryLibList {
 				.collect(Collectors.toList());
 
 		return LibraryAutoCompleteDTO.builder()
-				.autoComplete(Boolean.TRUE)
+				.autoComplete(AutoCompleteEnum.ENABLED)
 				.libraries(libraries)
 				.build();
 	}

@@ -119,9 +119,9 @@
         <td mat-cell *matCellDef="let element" class="users-list ani">
           <mat-form-field class="chip-list">
             <input #user matInput placeholder="Enter user login" pattern="[@.-_0-9a-zA-Z]"
-              (keydown.enter)="addUser(user.value, element); user.value = ''" (keyup)="checkIfUserAdded(element, user.value)">
-            <button mat-icon-button matSuffix (click)="addUser(user.value, element); user.value = ''" [disabled]="element.isUserAdded">
-              <mat-icon matTooltip="User allready added to this group" matTooltipPosition="above" [matTooltipDisabled]="!element.isUserAdded">person_add</mat-icon>
+                   (keydown.enter)="addUser(user, element);" (keyup)="checkIfUserAdded(element, user.value)">
+            <button mat-icon-button matSuffix (click)="addUser(user, element); user.value = ''" [disabled]="element.isUserAdded">
+              <mat-icon matTooltip="User is already added to this group" matTooltipPosition="above" [matTooltipDisabled]="!element.isUserAdded">person_add</mat-icon>
             </button>
           </mat-form-field>
           <div class="list-selected list-container ani">

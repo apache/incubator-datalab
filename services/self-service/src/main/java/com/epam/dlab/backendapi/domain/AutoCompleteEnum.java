@@ -17,17 +17,8 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.backendapi.domain.AutoCompleteEnum;
-import lombok.Builder;
-import lombok.Data;
-
-import java.util.List;
-
-@Data
-@Builder
-public class LibraryAutoCompleteDTO {
-	private AutoCompleteEnum autoComplete;
-	private List<LibraryDTO> libraries;
+public enum AutoCompleteEnum {
+	NONE, UPDATING, ENABLED
 }

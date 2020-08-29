@@ -107,6 +107,7 @@ export class AuditGridComponent implements OnInit {
   public setAvaliblePeriod(period): void {
     this.filterAuditData.date_start = period.start_date;
     this.filterAuditData.date_end = period.end_date;
+    this.buildAuditGrid(true);
   }
 
   public toggleFilterRow(): void {
