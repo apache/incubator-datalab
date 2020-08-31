@@ -17,18 +17,32 @@
  * under the License.
  */
 
-import {Component, OnInit, Output, EventEmitter, ViewChild, Input, HostListener, AfterViewInit, ChangeDetectorRef} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  ViewChild,
+  Input,
+  HostListener,
+  AfterViewInit,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
+import {fromEvent, of} from 'rxjs';
+import {logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
     '../../../resources/resources-grid/resources-grid.component.scss'],
+  // changeDetection: ChangeDetectionStrategy.OnPush
 
 })
 export class ReportingGridComponent implements OnInit, AfterViewInit {
-
+  tableEl = {};
   filterConfiguration: ReportingConfigModel;
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
   collapseFilterRow: boolean = false;
@@ -45,6 +59,7 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   @Input() filteredReportData: ReportingConfigModel;
+  @Input() previousFilterData: ReportingConfigModel;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -66,13 +81,16 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   constructor(private changeDetector: ChangeDetectorRef) {
   }
 
-  ngOnInit() {}
-
-  ngAfterViewInit() {
+  ngOnInit() {
     window.setTimeout(() => {
       this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
       this.isMaxRight = this.checkMaxRight();
-    }, 500);
+      this.tableEl = this.table._elementRef.nativeElement;
+    }, 1000);
+  }
+
+  ngAfterViewInit() {
+
   }
 
   onUpdate($event): void {
@@ -155,6 +173,10 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   private checkMaxRight() {
     return this.isMaxRight = this.tableWrapper.nativeElement.offsetWidth +
       this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+  }
+
+  public isFilterChanged() {
+    return JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
   }
 
 }

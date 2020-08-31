@@ -17,8 +17,8 @@
   ~ under the License.
   -->
 
-<div class="wrapper">
-<section class="table-wrapper" id="scrolling" #tableWrapper (scroll)="scrollTable($event)">
+<div class="wrapper" >
+<section class="table-wrapper" id="scrolling" #tableWrapper (scroll)="scrollTable($event)" [ngClass]="{'scroll': reportData?.length > 4}">
 
 <!--  <div class="navigation-btn">-->
 <!--    <div class="left">-->
@@ -256,7 +256,7 @@
             <i class="material-icons">close</i>
           </button>
 
-          <button mat-icon-button class="btn apply" (click)="filter_btnClick()">
+          <button mat-icon-button class="btn apply" (click)="filter_btnClick()" [disabled]="isFilterChanged()">
             <i class="material-icons">done</i>
           </button>
         </div>
@@ -279,7 +279,7 @@
     <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
 </section>
-  <div class="buttons" *ngIf="isScrollButtonsVisible && reportData?.length">
+  <div class="buttons" *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0 && reportData?.length">
     <div class="button-container">
       <button mat-mini-fab aria-label="Scroll left" (click)="sctollTo('left')" [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 }">
         <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0}">keyboard_arrow_left</mat-icon>
@@ -290,7 +290,7 @@
               (click)="sctollTo('right')"
               [ngClass]="{'not-allowed': !isMaxRight }"
              >
-        <mat-icon [ngClass]="{'highlight': isMaxRight }">keyboard_arrow_right</mat-icon>
+        <mat-icon [ngClass]="{'highlight': checkMaxRight() }">keyboard_arrow_right</mat-icon>
       </button>
     </div>
   </div>

@@ -181,3 +181,29 @@ input[type=file]::-webkit-file-upload-button {
 .refresh-icon{
   color: #35afd5;
 }
+
+.buttons {
+  position: absolute;
+  display: flex;
+  justify-content: space-around;
+  z-index: 1000;
+  bottom: 9px;
+  left: 0;
+  right: 0;
+
+  .mat-mini-fab {
+    height: 25px;
+    width: 25px;
+
+    .mat-button-wrapper {
+      padding: 0;
+      line-height: unset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 2px;
+    }
+  }
+}
+
+

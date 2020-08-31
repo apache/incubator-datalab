@@ -21,24 +21,17 @@
   width: 100%;
   display: block;
   max-height: calc(100vh - 130px);
-  overflow: auto;
+  overflow: unset;
   position: relative;
   scroll-behavior: smooth;
   box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+  &.scroll{
+    overflow: auto;
+  }
 }
 
 .wrapper{
   position: relative;
-
-  .buttons{
-    position: absolute;
-    display: flex;
-    justify-content: space-around;
-    z-index: 1000;
-    bottom: 9px;
-    left: 0;
-    right: 0;
-
     button{
       background-color: #fff;
       box-shadow: none;
@@ -50,7 +43,7 @@
       }
     }
   }
-}
+
 
 
 .reporting {
@@ -273,7 +266,7 @@
 
   .table-footer{
     position: sticky;
-    bottom: 0;
+    bottom: -1px;
     background: inherit;
     border-top: 1px solid #E0E0E0;
     transform: translateY(-1px);
@@ -298,7 +291,7 @@
 
 .table-footer{
   position: sticky;
-  bottom: 0;
+  bottom: -1px;
   background: inherit;
   border-top: 1px solid #E0E0E0;
   transform: translateY(-1px);
@@ -322,6 +315,8 @@
     position: absolute;
     right: 0;
   }
+
+
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {

@@ -37,7 +37,12 @@ import {ProgressBarService} from '../../core/services/progress-bar.service';
                   (setRangeOption)="setRangeOption($event)">
     </dlab-toolbar>
     <mat-divider></mat-divider>
-    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()" [filteredReportData]="reportData" ></dlab-reporting-grid>
+    <dlab-reporting-grid
+      (filterReport)="filterReport($event)"
+      (resetRangePicker)="resetRangePicker()"
+      [filteredReportData]="reportData"
+      [previousFilterData]="this.cashedFilterData"
+    ></dlab-reporting-grid>
   </div>
 
   `,
