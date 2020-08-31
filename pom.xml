@@ -63,6 +63,9 @@
                 </sonar.host.url>
                 <sonar.coverage.exclusions>
                     **/*Exception.java,
+                    **/BucketServiceAwsImpl.java,
+                    **/BucketServiceAzureImpl.java,
+                    **/BucketServiceGcpImpl.java,
                     **/*DAO.java,
                     **/*DAOImpl.java,
                     **/*Configuration.java,
