@@ -16,282 +16,285 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
+<div class="billing-page-wrapper scrolling" #pageWrapper [ngClass]="{'scroll': reportData?.length < 5}" (scroll)="scrollTable($event)">
+  <div class="wrapper" #wrapper>
+    <section class="table-wrapper" id="scrolling" #tableWrapper (scroll)="scrollTable($event)" [ngClass]="{'scroll': reportData?.length > 4, 'shadow-none': reportData?.length < 5}">
 
-<div class="wrapper" >
-<section class="table-wrapper" id="scrolling" #tableWrapper (scroll)="scrollTable($event)" [ngClass]="{'scroll': reportData?.length > 4}">
+      <!--  <div class="navigation-btn">-->
+      <!--    <div class="left">-->
+      <!--      <button mat-fab aria-label="Scroll left">-->
+      <!--        <mat-icon>keyboard_arrow_left</mat-icon>-->
+      <!--      </button>-->
+      <!--    </div>-->
+      <!--    <div class="right">-->
+      <!--      <button mat-fab aria-label="Scroll right">-->
+      <!--        <mat-icon>keyboard_arrow_right</mat-icon>-->
+      <!--      </button>-->
+      <!--    </div>-->
+      <!--  </div>-->
+      <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6" #table>
 
-<!--  <div class="navigation-btn">-->
-<!--    <div class="left">-->
-<!--      <button mat-fab aria-label="Scroll left">-->
-<!--        <mat-icon>keyboard_arrow_left</mat-icon>-->
-<!--      </button>-->
-<!--    </div>-->
-<!--    <div class="right">-->
-<!--      <button mat-fab aria-label="Scroll right">-->
-<!--        <mat-icon>keyboard_arrow_right</mat-icon>-->
-<!--      </button>-->
-<!--    </div>-->
-<!--  </div>-->
-  <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6" #table>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef class="env_name label-header">
+            <div class="label"><span class="text"> Resource name</span></div>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filteredReportData.dlab_id.length > 0; else dlab_id_filtered">filter_list</span>
+                <ng-template #dlab_id_filtered>more_vert</ng-template>
+              </i>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let element"><span class="table-item">{{element.dlabId}}</span></td>
+          <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+        </ng-container>
 
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef class="env_name label-header">
-        <div class="label"><span class="text"> Resource name</span></div>
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
-            <span *ngIf="filteredReportData.dlab_id.length > 0; else dlab_id_filtered">filter_list</span>
-            <ng-template #dlab_id_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.dlabId}}</span></td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
+        <ng-container matColumnDef="user">
+          <th mat-header-cell *matHeaderCellDef class="th_user label-header">
 
-    <ng-container matColumnDef="user">
-      <th mat-header-cell *matHeaderCellDef class="th_user label-header">
+            <div class="label">
+              <div class="sort sort-user">
+                <div class="sort-arrow up" (click)="sortBy('user', 'down')" [ngClass]="{'active': !!this.active['userdown']}"></div>
+                <div class="sort-arrow down" (click)="sortBy('user', 'up')" [ngClass]="{'active': !!this.active['userup']}"></div>
+              </div>
+              <span class="text"> User </span>
+            </div>
 
-        <div class="label">
-          <div class="sort sort-user">
-            <div class="sort-arrow up" (click)="sortBy('user', 'down')" [ngClass]="{'active': !!this.active['userdown']}"></div>
-            <div class="sort-arrow down" (click)="sortBy('user', 'up')" [ngClass]="{'active': !!this.active['userup']}"></div>
-          </div>
-          <span class="text"> User </span>
-        </div>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filteredReportData.users.length > 0; else user_filtered">filter_list</span>
+                <ng-template #user_filtered>more_vert</ng-template>
+              </i>
+            </button>
+          </th>
+          <td mat-cell *matCellDef=" let element"> {{element.user}} </td>
+          <td mat-footer-cell *matFooterCellDef  class="table-footer"></td>
+        </ng-container>
 
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
-            <span *ngIf="filteredReportData.users.length > 0; else user_filtered">filter_list</span>
-            <ng-template #user_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef=" let element"> {{element.user}} </td>
-      <td mat-footer-cell *matFooterCellDef  class="table-footer"></td>
-    </ng-container>
+        <ng-container matColumnDef="project">
+          <th mat-header-cell *matHeaderCellDef class="th_project label-header">
 
-    <ng-container matColumnDef="project">
-      <th mat-header-cell *matHeaderCellDef class="th_project label-header">
+            <div class="label">
+              <div class="sort sort-project">
+                <div class="sort-arrow up" (click)="sortBy('project', 'down')" [ngClass]="{'active': !!this.active['projectdown']}"></div>
+                <div class="sort-arrow down" (click)="sortBy('project', 'up')" [ngClass]="{'active': !!this.active['projectup']}"></div>
+              </div>
+              <span class="text">Project</span>
+            </div>
 
-        <div class="label">
-          <div class="sort sort-project">
-            <div class="sort-arrow up" (click)="sortBy('project', 'down')" [ngClass]="{'active': !!this.active['projectdown']}"></div>
-            <div class="sort-arrow down" (click)="sortBy('project', 'up')" [ngClass]="{'active': !!this.active['projectup']}"></div>
-          </div>
-          <span class="text">Project</span>
-        </div>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filteredReportData.projects.length > 0; else project_filtered">filter_list</span>
+                <ng-template #project_filtered>more_vert</ng-template>
+              </i>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let element"> {{element.project}} </td>
+          <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+        </ng-container>
 
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
-            <span *ngIf="filteredReportData.projects.length > 0; else project_filtered">filter_list</span>
-            <ng-template #project_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef="let element"> {{element.project}} </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef class="th_type label-header">
+            <div class="label"><span class="text"> Resource Type</span> </div>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filteredReportData.resource_type.length > 0; else type_filtered">filter_list</span>
+                <ng-template #type_filtered>more_vert</ng-template>
+              </i>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let element"> {{element.resource_type | titlecase}} </td>
+          <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+        </ng-container>
 
-    <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef class="th_type label-header">
-        <div class="label"><span class="text"> Resource Type</span> </div>
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
-            <span *ngIf="filteredReportData.resource_type.length > 0; else type_filtered">filter_list</span>
-            <ng-template #type_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef="let element"> {{element.resource_type | titlecase}} </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
-
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef class="th_status label-header">
-        <div class="label"><span class="text"> Status</span> </div>
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
-            <span *ngIf="filteredReportData.statuses.length > 0; else status_filtered">filter_list</span>
-            <ng-template #status_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef="let element">
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="th_status label-header">
+            <div class="label"><span class="text"> Status</span> </div>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filteredReportData.statuses.length > 0; else status_filtered">filter_list</span>
+                <ng-template #status_filtered>more_vert</ng-template>
+              </i>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let element">
         <span class="status" ngClass="{{ element.status.toLowerCase() || '' }}"
-          *ngIf="element.status">{{ element.status.toLowerCase() }}</span>
-        <span *ngIf="!element.status">N/A</span>
-      </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
+              *ngIf="element.status">{{ element.status.toLowerCase() }}</span>
+            <span *ngIf="!element.status">N/A</span>
+          </td>
+          <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+        </ng-container>
 
-    <ng-container matColumnDef="shape">
-      <th mat-header-cell *matHeaderCellDef class="th_shape label-header">
-        <div class="label"><span class="text"> Instance size</span></div>
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
+        <ng-container matColumnDef="shape">
+          <th mat-header-cell *matHeaderCellDef class="th_shape label-header">
+            <div class="label"><span class="text"> Instance size</span></div>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
             <span
               *ngIf="filteredReportData['shapes'].length > 0; else shape_filtered">filter_list</span>
-            <ng-template #shape_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef="let element">
-        <ng-container *ngIf="element.shape">
-          <div *ngFor="let shape of shapeSplit(element.shape)">{{shape}}</div>
+                <ng-template #shape_filtered>more_vert</ng-template>
+              </i>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <ng-container *ngIf="element.shape">
+              <div *ngFor="let shape of shapeSplit(element.shape)">{{shape}}</div>
+            </ng-container>
+          </td>
+          <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
         </ng-container>
-      </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
 
-    <ng-container matColumnDef="service">
-      <th mat-header-cell *matHeaderCellDef class="service label-header">
-        <div class="label"><span class="text"> Product</span> </div>
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
+        <ng-container matColumnDef="service">
+          <th mat-header-cell *matHeaderCellDef class="service label-header">
+            <div class="label"><span class="text"> Product</span> </div>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
             <span
-              *ngIf="filteredReportData['shapes'].length > 0; else service_filtered">filter_list</span>
-            <ng-template #service_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.product }}
-<!--        <span *ngIf="element.product">{{ element.product }}</span>-->
-      </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
+              *ngIf="filteredReportData['products'].length > 0; else service_filtered">filter_list</span>
+                <ng-template #service_filtered>more_vert</ng-template>
+              </i>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.product }}
+            <!--        <span *ngIf="element.product">{{ element.product }}</span>-->
+          </td>
+          <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+        </ng-container>
 
-    <ng-container matColumnDef="empty">
-      <th mat-header-cell *matHeaderCellDef class="th_empty label-header">
-      </th>
-      <td mat-cell *matCellDef="let element">
-      </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer total-cost" [colSpan]="2">
+        <ng-container matColumnDef="empty">
+          <th mat-header-cell *matHeaderCellDef class="th_empty label-header">
+          </th>
+          <td mat-cell *matCellDef="let element">
+          </td>
+          <td mat-footer-cell *matFooterCellDef class="table-footer total-cost" [colSpan]="2" [ngClass]="{'right-sticky': reportData?.length < 5}">
         <span class="strong">
             Total <span *ngIf="reportData?.length"> {{ fullReport['total_cost'] }}
           {{ fullReport['currency'] }}</span>
         </span>
-      </td>
-    </ng-container>
+          </td>
+        </ng-container>
 
 
 
-    <ng-container matColumnDef="charge" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef class="th_charges label-header">
-        <div class="label">
-          <div class="sort">
-            <div class="sort-arrow up" (click)="sortBy('cost', 'down')" [ngClass]="{'active': !!this.active['costdown']}"></div>
-            <div class="sort-arrow down" (click)="sortBy('cost', 'up')" [ngClass]="{'active': !!this.active['costup']}"></div>
-          </div>
-          <span class="text">Service Charges</span>
-        </div>
-      </th>
+        <ng-container matColumnDef="charge" stickyEnd>
+          <th mat-header-cell *matHeaderCellDef class="th_charges label-header" [ngClass]="{'right-sticky': reportData?.length < 5}">
+            <div class="label">
+              <div class="sort">
+                <div class="sort-arrow up" (click)="sortBy('cost', 'down')" [ngClass]="{'active': !!this.active['costdown']}"></div>
+                <div class="sort-arrow down" (click)="sortBy('cost', 'up')" [ngClass]="{'active': !!this.active['costup']}"></div>
+              </div>
+              <span class="text">Service Charges</span>
+            </div>
+          </th>
 
-      <td mat-cell *matCellDef="let element">
-        {{ element.cost }} {{ element['currency'] }}
-      </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer total-cost d-none">
-      </td>
-    </ng-container>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'right-sticky': reportData?.length < 5}" >
+            {{ element.cost }} {{ element['currency'] }}
+          </td >
+          <td mat-footer-cell *matFooterCellDef class="table-footer total-cost d-none">
+          </td>
+        </ng-container>
 
-    <!-- ----------------FILTER -->
-    <ng-container matColumnDef="name-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <div class="input-wrapper">
-          <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
-                 [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target['value']" />
-        </div>
-      </th>
-    </ng-container>
-    <ng-container matColumnDef="user-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'users'"
-          [items]="filterConfiguration.users" [model]="filteredReportData.users"></multi-select-dropdown>
-      </th>
-    </ng-container>
-    <ng-container matColumnDef="project-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'projects'"
-          [items]="filterConfiguration.projects" [model]="filteredReportData.projects"></multi-select-dropdown>
-      </th>
-    </ng-container>
-    <ng-container matColumnDef="type-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'resource_type'"
-          [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type">
-        </multi-select-dropdown>
-      </th>
-    </ng-container>
-    <ng-container matColumnDef="status-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'statuses'"
-          [items]="filterConfiguration.statuses" [model]="filteredReportData.statuses"></multi-select-dropdown>
-      </th>
-    </ng-container>
-    <ng-container matColumnDef="shape-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)"
-          [type]="'shapes'" [items]="filterConfiguration['shapes']"
-          [model]="filteredReportData['shapes']"></multi-select-dropdown>
-      </th>
-    </ng-container>
+        <!-- ----------------FILTER -->
+        <ng-container matColumnDef="name-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+            <div class="input-wrapper">
+              <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
+                     [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target['value']" />
+            </div>
+          </th>
+        </ng-container>
+        <ng-container matColumnDef="user-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+            <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'users'"
+                                   [items]="filterConfiguration.users" [model]="filteredReportData.users"></multi-select-dropdown>
+          </th>
+        </ng-container>
+        <ng-container matColumnDef="project-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+            <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'projects'"
+                                   [items]="filterConfiguration.projects" [model]="filteredReportData.projects"></multi-select-dropdown>
+          </th>
+        </ng-container>
+        <ng-container matColumnDef="type-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+            <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'resource_type'"
+                                   [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type">
+            </multi-select-dropdown>
+          </th>
+        </ng-container>
+        <ng-container matColumnDef="status-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+            <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'statuses'"
+                                   [items]="filterConfiguration.statuses" [model]="filteredReportData.statuses"></multi-select-dropdown>
+          </th>
+        </ng-container>
+        <ng-container matColumnDef="shape-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+            <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)"
+                                   [type]="'shapes'" [items]="filterConfiguration['shapes']"
+                                   [model]="filteredReportData['shapes']"></multi-select-dropdown>
+          </th>
+        </ng-container>
 
-    <ng-container matColumnDef="empty-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-      </th>
-    </ng-container>
+        <ng-container matColumnDef="empty-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+          </th>
+        </ng-container>
 
-    <ng-container matColumnDef="service-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)"
-          [type]="['products']"
-          [items]="filterConfiguration['products']"
-          [model]="filteredReportData['products']"></multi-select-dropdown>
-      </th>
-    </ng-container>
-    <ng-container matColumnDef="actions" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <div class="actions">
-          <button mat-icon-button class="btn reset" (click)="resetFiltering(); isFiltered = !isFiltered">
-            <i class="material-icons">close</i>
-          </button>
+        <ng-container matColumnDef="service-filter">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+            <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)"
+                                   [type]="['products']"
+                                   [items]="filterConfiguration['products']"
+                                   [model]="filteredReportData['products']"></multi-select-dropdown>
+          </th>
+        </ng-container>
+        <ng-container matColumnDef="actions" stickyEnd>
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item" [ngClass]="{'right-sticky': reportData?.length < 5}">
+            <div class="actions">
+              <button mat-icon-button class="btn reset" (click)="resetFiltering(); isFiltered = !isFiltered">
+                <i class="material-icons">close</i>
+              </button>
 
-          <button mat-icon-button class="btn apply" (click)="filter_btnClick()" [disabled]="isFilterChanged()">
-            <i class="material-icons">done</i>
-          </button>
-        </div>
-      </th>
-    </ng-container>
-    <ng-container matColumnDef="placeholder">
-      <td mat-footer-cell *matFooterCellDef colspan="9" class="info">
-        <span>No data available</span>
-      </td>
-    </ng-container>
+              <button mat-icon-button class="btn apply" (click)="filter_btnClick()" [disabled]="isFilterChanged()">
+                <i class="material-icons">done</i>
+              </button>
+            </div>
+          </th>
+        </ng-container>
+        <ng-container matColumnDef="placeholder">
+          <td mat-footer-cell *matFooterCellDef colspan="9" class="info">
+            <span>No data available</span>
+          </td>
+        </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
 
-    <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
-      class="filter-row"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="content-row"></tr>
+        <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
+            class="filter-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="content-row"></tr>
 
-    <tr [hidden]="!reportData?.length" mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"
-      class="header-row"></tr>
-    <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
-  </table>
-</section>
-  <div class="buttons" *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0 && reportData?.length">
-    <div class="button-container">
-      <button mat-mini-fab aria-label="Scroll left" (click)="sctollTo('left')" [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 }">
-        <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0}">keyboard_arrow_left</mat-icon>
-      </button>
-    </div>
-    <div class="button-container">
-      <button mat-mini-fab aria-label="Scroll right"
-              (click)="sctollTo('right')"
-              [ngClass]="{'not-allowed': !isMaxRight }"
-             >
-        <mat-icon [ngClass]="{'highlight': checkMaxRight() }">keyboard_arrow_right</mat-icon>
-      </button>
+        <tr [hidden]="!reportData?.length" mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"
+            class="header-row"></tr>
+        <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+      </table>
+    </section>
+    <div class="buttons" *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0 && reportData?.length">
+      <div class="button-container">
+        <button mat-mini-fab aria-label="Scroll left" (click)="sctollTo('left')" [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 && reportData?.length > 4 || pageWrapper.scrollLeft === 0 && reportData?.length < 5}">
+          <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0 || pageWrapper.scrollLeft !== 0 && reportData?.length < 5}">keyboard_arrow_left</mat-icon>
+        </button>
+      </div>
+      <div class="button-container">
+        <button mat-mini-fab aria-label="Scroll right"
+                (click)="sctollTo('right')"
+                [ngClass]="{'not-allowed': !(isMaxRight | async)}"
+        >
+          <mat-icon [ngClass]="{'highlight': isMaxRight | async }">keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
     </div>
   </div>
+
+
 </div>

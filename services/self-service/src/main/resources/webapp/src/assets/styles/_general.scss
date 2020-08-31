@@ -186,7 +186,7 @@ input[type=file]::-webkit-file-upload-button {
   position: absolute;
   display: flex;
   justify-content: space-around;
-  z-index: 1000;
+  z-index: 10;
   bottom: 9px;
   left: 0;
   right: 0;
@@ -204,6 +204,14 @@ input[type=file]::-webkit-file-upload-button {
       padding-top: 2px;
     }
   }
+}
+
+.shadow-none{
+  box-shadow: none !important;
+}
+
+.right-sticky{
+  right: -15px !important;
 }
 
 
