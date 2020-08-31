@@ -1246,7 +1246,8 @@ def prepare_disk(os_user):
                         counter += 1
                         time.sleep(5)
         except Exception as err:
-            print('Error:', str(err))
+            print('Error: {}'.format(str(err)))
+            traceback.print_exc()
             sys.exit(1)
 
 
