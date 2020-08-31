@@ -24,12 +24,16 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
+@Builder
+@EqualsAndHashCode
 @ToString
 public class ProjectInfrastructureInfo {
 	@JsonProperty

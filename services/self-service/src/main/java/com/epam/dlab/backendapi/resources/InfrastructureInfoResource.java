@@ -70,7 +70,7 @@ public class InfrastructureInfoResource {
 	@Path("/status")
 	public HealthStatusPageDTO status(@Auth UserInfo userInfo,
 									  @QueryParam("full") @DefaultValue("0") int fullReport) {
-		return infrastructureInfoService.getHeathStatus(userInfo, fullReport != 0);
+		return infrastructureInfoService.getHeathStatus(userInfo);
 	}
 
 	/**

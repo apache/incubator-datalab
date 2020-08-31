@@ -187,22 +187,22 @@ public class BillingServiceImplTest extends TestBase {
 
 	@Test
 	public void getExploratoryBillingData() {
-		when(billingDAO.findBillingData(anyString(), anyString(), anyListOf(String.class))).thenReturn(getBillingReportLineWithDifferentCurrency());
+		when(billingDAO.findBillingData(anyString(), anyString(), anyListOf(String.class))).thenReturn(getBillingReportLineWithCost());
 
 		BillingReport actualReport = billingService.getExploratoryBillingData(PROJECT, ENDPOINT, EXPLORATORY_NAME, Arrays.asList(COMPUTE_NAME, COMPUTE_NAME_2));
 
-		assertEquals("reports should be equal", getReportWithNullCurrency(), actualReport);
+		assertEquals("reports should be equal", getReport(), actualReport);
 		verify(billingDAO).findBillingData(PROJECT, ENDPOINT, Arrays.asList(COMPUTE_NAME, COMPUTE_NAME_2, EXPLORATORY_NAME));
 		verifyNoMoreInteractions(billingDAO);
 	}
 
 	@Test
 	public void getExploratoryBillingDataWithNullCurrency() {
-		when(billingDAO.findBillingData(anyString(), anyString(), anyListOf(String.class))).thenReturn(getBillingReportLineWithCost());
+		when(billingDAO.findBillingData(anyString(), anyString(), anyListOf(String.class))).thenReturn(getBillingReportLineWithDifferentCurrency());
 
 		BillingReport actualReport = billingService.getExploratoryBillingData(PROJECT, ENDPOINT, EXPLORATORY_NAME, Arrays.asList(COMPUTE_NAME, COMPUTE_NAME_2));
 
-		assertEquals("reports should be equal", getReport(), actualReport);
+		assertEquals("reports should be equal", getReportWithNullCurrency(), actualReport);
 		verify(billingDAO).findBillingData(PROJECT, ENDPOINT, Arrays.asList(COMPUTE_NAME, COMPUTE_NAME_2, EXPLORATORY_NAME));
 		verifyNoMoreInteractions(billingDAO);
 	}

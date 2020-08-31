@@ -168,17 +168,12 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
 
-        billingDataMap
-                .forEach((endpointDTO, billingData) -> {
-                    log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
-                    try {
-                        if (!billingData.isEmpty()) {
-                            updateBillingData(endpointDTO, billingData, endpoints);
-                        }
-                    } catch (Exception e) {
-                        log.error("Something went wrong while trying to update billing for {}. {}", endpointDTO.getName(), e.getMessage(), e);
-                    }
-                });
+        billingDataMap.forEach((endpointDTO, billingData) -> {
+            log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
+            if (!billingData.isEmpty()) {
+                updateBillingData(endpointDTO, billingData, endpoints);
+            }
+        });
     }
 
     @Override
