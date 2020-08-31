@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, ApplicationRef} from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {Subscription, timer, interval, Subject} from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -40,6 +40,7 @@ import {
 } from '@angular/animations';
 import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
+import {tick} from '@angular/core/testing';
 
 
 interface Quota {
@@ -103,10 +104,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private storage: StorageService,
     private dialog: MatDialog,
     private progressBarService: ProgressBarService,
+    private changeDetector: ChangeDetectorRef,
+    private applicationRef: ApplicationRef,
   ) { }
 
   ngOnInit() {
-    this.showProgressBarSubscr = this.progressBarService.showProgressBar.subscribe(isProgressBarVissible => this.showProgressBar = isProgressBarVissible);
+    this.showProgressBarSubscr = this.progressBarService.showProgressBar
+      .subscribe(isProgressBarVissible => this.showProgressBar = isProgressBarVissible);
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;
@@ -151,6 +155,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   collapse() {
     this.isExpanded = !this.isExpanded;
+    const timeout = window.setTimeout(() => {
+      // this.changeDetector.detectChanges();
+      this.applicationRef.tick();
+      window.clearTimeout(timeout);
+    }, 400);
   }
 
   public emitQuotes(alert, total_quota?, exideedProjects?, informProjects?): void {
@@ -181,7 +190,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         if (exceedProjects.length > 0 && informProjects.length === 0) checkQuotaAlert = 'project_exceed';
         if (informProjects.length > 0 && exceedProjects.length > 0) checkQuotaAlert = 'project_inform_and_exceed';
         if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100 && exceedProjects.length > 0) checkQuotaAlert = 'total_quota_and_project_exceed';
-        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100 && informProjects.length > 0 && exceedProjects.length > 0) checkQuotaAlert = 'total_quota_and_project_inform_and_exceed';
+        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100
+          && informProjects.length > 0 && exceedProjects.length > 0) checkQuotaAlert = 'total_quota_and_project_inform_and_exceed';
 
 
         if (Number(params.totalQuotaUsed) >= 100) checkQuotaAlert = 'total_exceed';

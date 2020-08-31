@@ -28,7 +28,7 @@ import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
 import {SortUtils, HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import {FilterLibsModel} from './filter-libs.model';
-import {Subject} from 'rxjs';
+import {Subject, timer} from 'rxjs';
 
 interface Library {
   name: string;
@@ -36,7 +36,7 @@ interface Library {
 }
 
 interface GetLibrary {
-  autoComplete: boolean;
+  autoComplete: string;
   libraries: Library[];
 }
 
@@ -78,7 +78,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public filterConfiguration: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filtered: boolean;
-  public isAutoComplete: boolean;
+  public autoComplete: string;
   public filtredNotebookLibs: Array<any> = [];
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
@@ -123,7 +123,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   uploadLibGroups(): void {
     this.libs_uploaded = false;
     this.uploading = true;
-    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
+
+    setTimeout(() => this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
       .pipe(
         takeUntil(this.unsubscribe$),
       )
@@ -139,7 +140,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           this.group_select && this.group_select.setDefaultOptions(
             this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
-        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!'));
+        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!')), 1000);
+
   }
 
   private getResourcesList() {
@@ -211,7 +213,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           return lib.name.toLowerCase() === item.name.substring(0, item.name.lastIndexOf(':')).toLowerCase();
         });
       }
-    } else if ( !this.isAutoComplete ) {
+    } else if ( !this.autoComplete ) {
       this.selectedLib = {
         name: this.lib.name,
         version: this.lib.version,
@@ -408,7 +410,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         takeUntil(this.unsubscribe$)
       )
       .subscribe((libs: GetLibrary) => {
-        this.isAutoComplete = libs.autoComplete;
+        if (libs.autoComplete === 'UPDATING') {
+          timer(500000).pipe(
+            take(1)
+          ).subscribe(_ => {
+            this.getMatchedLibs();
+          });
+        }
+        this.autoComplete = libs.autoComplete;
         this.filteredList = libs.libraries;
         this.filteredList.forEach(lib => {
           lib.isInSelectedList = this.model.selectedLibs.some(el => el.name.toLowerCase() === lib.name.toLowerCase());
