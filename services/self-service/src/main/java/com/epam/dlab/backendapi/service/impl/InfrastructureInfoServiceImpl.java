@@ -42,7 +42,6 @@ import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
-import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
@@ -69,9 +68,8 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	private final BillingService billingService;
 
 	@Inject
-	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, SelfServiceApplicationConfiguration configuration,
-	                                     ProjectService projectService, EndpointService endpointService,
-	                                     BillingService billingService) {
+	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, SelfServiceApplicationConfiguration configuration, ProjectService projectService,
+	                                     EndpointService endpointService, BillingService billingService) {
 		this.expDAO = expDAO;
 		this.configuration = configuration;
 		this.projectService = projectService;
@@ -82,47 +80,41 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	@Override
 	public List<ProjectInfrastructureInfo> getUserResources(UserInfo user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
-		try {
-			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
-			return projectService.getUserProjects(user, false)
-					.stream()
-					.map(p -> {
-						List<UserInstanceDTO> exploratories = expDAO.findExploratories(user.getName(), p.getName());
-						return new ProjectInfrastructureInfo(p.getName(), billingService.getBillingProjectQuoteUsed(p.getName()),
-								getSharedInfo(p.getName()), exploratories, getExploratoryBillingData(exploratories),
-								getEndpoints(allEndpoints, p));
-					})
-					.collect(Collectors.toList());
-		} catch (Exception e) {
-			log.error("Could not load list of provisioned resources for user: {}", user, e);
-			throw new DlabException("Could not load list of provisioned resources for user: ");
-		}
+		List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
+		return projectService.getUserProjects(user, Boolean.FALSE)
+				.stream()
+				.map(p -> {
+					List<UserInstanceDTO> exploratories = expDAO.findExploratories(user.getName(), p.getName());
+					return ProjectInfrastructureInfo.builder()
+							.project(p.getName())
+							.billingQuoteUsed(billingService.getBillingProjectQuoteUsed(p.getName()))
+							.shared(getSharedInfo(p.getName()))
+							.exploratory(exploratories)
+							.exploratoryBilling(getExploratoryBillingData(exploratories))
+							.endpoints(getEndpoints(allEndpoints, p))
+							.build();
+				})
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport) {
-		final String user = userInfo.getName();
-		log.debug("Request the status of resources for user {}, report type {}", user, fullReport);
-		try {
-			return HealthStatusPageDTO.builder()
-					.status(HealthStatusEnum.OK.toString())
-					.listResources(Collections.emptyList())
-					.billingEnabled(configuration.isBillingSchedulerEnabled())
-					.auditEnabled(configuration.isAuditEnabled())
-					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
-					.admin(UserRoles.isAdmin(userInfo))
-					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
-					.bucketBrowser(HealthStatusPageDTO.BucketBrowser.builder()
-							.view(checkAccess(userInfo, PERMISSION_VIEW))
-							.upload(checkAccess(userInfo, PERMISSION_UPLOAD))
-							.download(checkAccess(userInfo, PERMISSION_DOWNLOAD))
-							.delete(checkAccess(userInfo, PERMISSION_DELETE))
-							.build())
-					.build();
-		} catch (Exception e) {
-			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
-			throw new DlabException(e.getMessage(), e);
-		}
+	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo) {
+		log.debug("Request the status of resources for user {}", userInfo.getName());
+		return HealthStatusPageDTO.builder()
+				.status(HealthStatusEnum.OK.toString())
+				.listResources(Collections.emptyList())
+				.billingEnabled(configuration.isBillingSchedulerEnabled())
+				.auditEnabled(configuration.isAuditEnabled())
+				.projectAdmin(UserRoles.isProjectAdmin(userInfo))
+				.admin(UserRoles.isAdmin(userInfo))
+				.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
+				.bucketBrowser(HealthStatusPageDTO.BucketBrowser.builder()
+						.view(checkAccess(userInfo, PERMISSION_VIEW))
+						.upload(checkAccess(userInfo, PERMISSION_UPLOAD))
+						.download(checkAccess(userInfo, PERMISSION_DOWNLOAD))
+						.delete(checkAccess(userInfo, PERMISSION_DELETE))
+						.build())
+				.build();
 	}
 
 	@Override
@@ -149,13 +141,17 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	}
 
 	private List<EndpointDTO> getEndpoints(List<EndpointDTO> allEndpoints, ProjectDTO projectDTO) {
-		return allEndpoints.stream().filter(endpoint -> projectDTO.getEndpoints().stream()
-				.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
+		return allEndpoints
+				.stream()
+				.filter(endpoint -> projectDTO.getEndpoints()
+						.stream()
+						.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
 				.collect(Collectors.toList());
 	}
 
 	private Map<String, Map<String, String>> getSharedInfo(String name) {
-		return projectService.get(name).getEndpoints().stream()
+		return projectService.get(name).getEndpoints()
+				.stream()
 				.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
 	}
 

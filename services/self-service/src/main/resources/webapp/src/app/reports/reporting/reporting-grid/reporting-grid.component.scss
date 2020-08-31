@@ -16,29 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+.billing-page-wrapper{
+  height: calc(100vh - 130px);
+  scroll-behavior: smooth;
+  margin-left: -15px;
+  padding-left: 15px;
+  margin-right: -15px;
+  padding-right: 15px;
+  &.scroll{
+    overflow: auto;
+  }
+}
+
 
 .table-wrapper {
   width: 100%;
   display: block;
   max-height: calc(100vh - 130px);
-  overflow: auto;
+  overflow: unset;
   position: relative;
   scroll-behavior: smooth;
   box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+  &.scroll{
+    overflow: auto;
+  }
 }
 
 .wrapper{
   position: relative;
-
-  .buttons{
-    position: absolute;
-    display: flex;
-    justify-content: space-around;
-    z-index: 1000;
-    bottom: 9px;
-    left: 0;
-    right: 0;
-
     button{
       background-color: #fff;
       box-shadow: none;
@@ -50,7 +55,7 @@
       }
     }
   }
-}
+
 
 
 .reporting {
@@ -200,6 +205,7 @@
   .table-footer.mat-column-charge{
     text-align: right;
     background-color: #f8f8f8;
+    z-index: 100 !important;
   }
 
   .header-row {
@@ -273,7 +279,7 @@
 
   .table-footer{
     position: sticky;
-    bottom: 0;
+    bottom: -1px;
     background: inherit;
     border-top: 1px solid #E0E0E0;
     transform: translateY(-1px);
@@ -298,7 +304,7 @@
 
 .table-footer{
   position: sticky;
-  bottom: 0;
+  bottom: -1px;
   background: inherit;
   border-top: 1px solid #E0E0E0;
   transform: translateY(-1px);
@@ -311,7 +317,7 @@
     padding-right: 25px;
     position: sticky;
     right: 0;
-    z-index: 17;
+    z-index: 101;
   }
 }
 
@@ -322,6 +328,8 @@
     position: absolute;
     right: 0;
   }
+
+
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {

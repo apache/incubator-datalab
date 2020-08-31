@@ -28,7 +28,7 @@ responseDirectory: /opt/dlab/tmp
 handlerDirectory: /opt/dlab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 2m
-resourceStatusPollTimeout: 300m
+resourceStatusPollTimeout: 400m
 keyLoaderPollTimeout: 30m
 requestEnvStatusTimeout: 50s
 adminKey: KEYNAME
