@@ -17,18 +17,33 @@
  * under the License.
  */
 
-import {Component, OnInit, Output, EventEmitter, ViewChild, Input, HostListener, AfterViewInit, ChangeDetectorRef} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  ViewChild,
+  Input,
+  HostListener,
+  AfterViewInit,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
+import {BehaviorSubject, fromEvent, Observable, of, Subject, timer} from 'rxjs';
+import {logger} from 'codelyzer/util/logger';
+import {take} from 'rxjs/operators';
 
 @Component({
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
     '../../../resources/resources-grid/resources-grid.component.scss'],
+  // changeDetection: ChangeDetectionStrategy.OnPush
 
 })
 export class ReportingGridComponent implements OnInit, AfterViewInit {
-
+  tableEl = {};
   filterConfiguration: ReportingConfigModel;
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
   collapseFilterRow: boolean = false;
@@ -40,20 +55,23 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
 
   @ViewChild('nameFilter', { static: false }) filter;
   @ViewChild('tableWrapper', { static: false }) tableWrapper;
+  @ViewChild('wrapper', { static: false }) wrapper;
+  @ViewChild('pageWrapper', { static: false }) pageWrapper;
 
   @ViewChild('table', { static: false }) table;
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   @Input() filteredReportData: ReportingConfigModel;
+  @Input() previousFilterData: ReportingConfigModel;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
-    this.isMaxRight = this.checkMaxRight();
+    this.checkMaxRight();
   }
   @HostListener('scroll', ['$event'])
   scrollTable($event: Event) {
-    this.isMaxRight = this.checkMaxRight();
+    this.checkMaxRight();
   }
 
 
@@ -61,18 +79,21 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'empty', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter',  'service-filter', 'empty-filter', 'actions'];
   filtered: any;
-  isMaxRight: boolean;
+  isMaxRight: Subject<boolean> = new BehaviorSubject(false);
 
   constructor(private changeDetector: ChangeDetectorRef) {
   }
 
-  ngOnInit() {}
-
-  ngAfterViewInit() {
+  ngOnInit() {
     window.setTimeout(() => {
       this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
-      this.isMaxRight = this.checkMaxRight();
-    }, 500);
+      this.checkMaxRight();
+      this.tableEl = this.table._elementRef.nativeElement;
+    }, 1000);
+  }
+
+  ngAfterViewInit() {
+
   }
 
   onUpdate($event): void {
@@ -147,14 +168,28 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   public sctollTo(direction: string) {
     if (direction === 'left') {
       this.tableWrapper.nativeElement.scrollLeft = 0;
+      this.pageWrapper.nativeElement.scrollLeft = 0;
     } else {
       this.tableWrapper.nativeElement.scrollLeft = this.tableWrapper.nativeElement.offsetWidth;
+      this.pageWrapper.nativeElement.scrollLeft = this.pageWrapper.nativeElement.offsetWidth;
     }
   }
 
   private checkMaxRight() {
-    return this.isMaxRight = this.tableWrapper.nativeElement.offsetWidth +
-      this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+    if (this.reportData && this.reportData.length < 5) {
+      const arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
+      this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+      return this.isMaxRight.next(arg);
+    } else {
+      const arg = this.tableWrapper.nativeElement.offsetWidth +
+        this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+      return this.isMaxRight.next(arg);
+    }
+
+  }
+
+  public isFilterChanged() {
+    return JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
   }
 
 }

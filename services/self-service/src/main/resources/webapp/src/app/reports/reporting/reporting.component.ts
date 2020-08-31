@@ -37,7 +37,12 @@ import {ProgressBarService} from '../../core/services/progress-bar.service';
                   (setRangeOption)="setRangeOption($event)">
     </dlab-toolbar>
     <mat-divider></mat-divider>
-    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()" [filteredReportData]="reportData" ></dlab-reporting-grid>
+    <dlab-reporting-grid
+      (filterReport)="filterReport($event)"
+      (resetRangePicker)="resetRangePicker()"
+      [filteredReportData]="reportData"
+      [previousFilterData]="this.cashedFilterData"
+    ></dlab-reporting-grid>
   </div>
 
   `,
@@ -67,7 +72,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   billingEnabled: boolean;
   admin: boolean;
-  private cashedFilterData: any;
+  public cashedFilterData: any;
 
   constructor(
     private billingReportService: BillingReportService,
