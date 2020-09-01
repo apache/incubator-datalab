@@ -197,7 +197,7 @@ After clicking you see the window with 4 fields:
 
 ![Install libraries dialog](doc/install_libs_form.png)
 
-You need to wait for a while after resource choosing till list of all available libraries is received. If available libraries list is not gained due to some reasons you are able to proceed to work without autocomplete feature.
+You need to wait for a while after resource and group choosing till list of all available libraries is received for a particular group. If available libraries list is not gained due to some reasons you are able to proceed to work without autocomplete feature.
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
