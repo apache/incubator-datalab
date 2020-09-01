@@ -20,11 +20,17 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.BudgetDTO;
+import com.epam.dlab.backendapi.domain.CreateProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.KeysDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.exceptions.ResourceConflictException;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;
@@ -37,6 +43,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -48,83 +56,129 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-
 public class ProjectResourceTest extends TestBase {
-	private ProjectService projectService = mock(ProjectService.class);
-	private AccessKeyService keyService = mock(AccessKeyService.class);
 
-	@Rule
-	public final ResourceTestRule resources = getResourceTestRuleInstance(
-			new ProjectResource(projectService, keyService));
+    private static final String PROJECT_NAME = "DLAB";
 
-	@Before
-	public void setup() throws AuthenticationException {
-		authSetup();
-	}
+    private final ProjectService projectService = mock(ProjectService.class);
+    private final AccessKeyService keyService = mock(AccessKeyService.class);
 
-	@Test
-	public void stopProject() {
-		final Response response = resources.getJerseyTest()
-				.target("project/stop")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getProjectActionDTO()));
+    @Rule
+    public final ResourceTestRule resources = getResourceTestRuleInstance(
+            new ProjectResource(projectService, keyService));
 
-		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-		verify(projectService).stopWithResources(any(UserInfo.class), anyList(), anyString());
-		verifyNoMoreInteractions(projectService);
-	}
+    @Before
+    public void setup() throws AuthenticationException {
+        authSetup();
+    }
 
-	@Test
-	public void startProject() {
-		final Response response = resources.getJerseyTest()
-				.target("project/start")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getProjectActionDTO()));
+    @Test
+    public void createProject() {
+        CreateProjectDTO createProjectDTO = returnCreateProjectDTO();
+        final Response response = resources.getJerseyTest()
+                .target("project")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(createProjectDTO));
 
-		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-		verify(projectService).start(any(UserInfo.class), anyList(), anyString());
-		verifyNoMoreInteractions(projectService);
-	}
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        verify(projectService).create(getUserInfo(), returnProjectDTO(createProjectDTO), createProjectDTO.getName());
+        verifyNoMoreInteractions(projectService);
+    }
 
-	@Test
-	public void generate() {
-		when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey",
-				"user"));
+    @Test
+    public void createExistingProject() {
+        CreateProjectDTO createProjectDTO = returnCreateProjectDTO();
+        doThrow(new ResourceConflictException("Project with passed name already exist in system"))
+                .when(projectService).create(any(UserInfo.class), any(ProjectDTO.class), anyString());
+        final Response response = resources.getJerseyTest()
+                .target("project")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(createProjectDTO));
 
-		final Response response = resources.getJerseyTest()
-				.target("/project/keys")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(""));
+        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
+        verify(projectService).create(getUserInfo(), returnProjectDTO(createProjectDTO), createProjectDTO.getName());
+        verifyNoMoreInteractions(projectService);
+    }
 
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+    @Test
+    public void stopProject() {
+        final Response response = resources.getJerseyTest()
+                .target("project/stop")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(getProjectActionDTO()));
 
-		verify(keyService).generateKeys(getUserInfo());
-		verifyNoMoreInteractions(keyService);
-	}
+        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+        verify(projectService).stopWithResources(any(UserInfo.class), anyList(), anyString());
+        verifyNoMoreInteractions(projectService);
+    }
 
-	@Test
-	public void generateKeysWithException() {
-		doThrow(new DlabException("Can not generate private/public key pair due to"))
-				.when(keyService).generateKeys(any(UserInfo.class));
+    @Test
+    public void startProject() {
+        final Response response = resources.getJerseyTest()
+                .target("project/start")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(getProjectActionDTO()));
 
-		final Response response = resources.getJerseyTest()
-				.target("/project/keys")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(""));
+        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+        verify(projectService).start(any(UserInfo.class), anyList(), anyString());
+        verifyNoMoreInteractions(projectService);
+    }
 
-		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+    @Test
+    public void generate() {
+        when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey",
+                "user"));
 
-		verify(keyService).generateKeys(getUserInfo());
-		verifyNoMoreInteractions(keyService);
-	}
+        final Response response = resources.getJerseyTest()
+                .target("/project/keys")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(""));
 
-	private ProjectActionFormDTO getProjectActionDTO() {
-		return new ProjectActionFormDTO("DLAB", Collections.singletonList("https://localhost:8083/"));
-	}
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+        verify(keyService).generateKeys(getUserInfo());
+        verifyNoMoreInteractions(keyService);
+    }
+
+    @Test
+    public void generateKeysWithException() {
+        doThrow(new DlabException("Can not generate private/public key pair due to"))
+                .when(keyService).generateKeys(any(UserInfo.class));
+
+        final Response response = resources.getJerseyTest()
+                .target("/project/keys")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(""));
+
+        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+        verify(keyService).generateKeys(getUserInfo());
+        verifyNoMoreInteractions(keyService);
+    }
+
+    private CreateProjectDTO returnCreateProjectDTO() {
+        return new CreateProjectDTO(PROJECT_NAME, Collections.emptySet(), Collections.emptySet(), "ssh-testKey", "testTag");
+    }
+
+    private ProjectDTO returnProjectDTO(CreateProjectDTO createProjectDTO) {
+        List<ProjectEndpointDTO> projectEndpointDTOS = createProjectDTO.getEndpoints()
+                .stream()
+                .map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
+                .collect(Collectors.toList());
+
+        return new ProjectDTO(createProjectDTO.getName(), createProjectDTO.getGroups(), createProjectDTO.getKey(), createProjectDTO.getTag(),
+                new BudgetDTO(), projectEndpointDTOS, createProjectDTO.isSharedImageEnabled());
+    }
+
+    private ProjectActionFormDTO getProjectActionDTO() {
+        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList("https://localhost:8083/"));
+    }
 }

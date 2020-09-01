@@ -124,7 +124,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.libs_uploaded = false;
     this.uploading = true;
 
-    setTimeout(() => this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
       .pipe(
         takeUntil(this.unsubscribe$),
       )
@@ -140,8 +140,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           this.group_select && this.group_select.setDefaultOptions(
             this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
-        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!')), 1000);
-
+        error => this.toastr.error(error.message || 'Groups list loading failed!', 'Oops!'));
   }
 
   private getResourcesList() {
@@ -289,9 +288,16 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public isInstallingInProgress(): void {
     this.installingInProgress = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
       if (this.installingInProgress) {
-        window.clearTimeout(this.loadLibsTimer);
-        this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 10000);
+        // window.clearTimeout(this.loadLibsTimer);
+        // this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 10000);
+        timer(10000).pipe(take(1)).subscribe(v => this.getInstalledLibrariesList());
       }
+    const source = timer(1000);
+
+    const subscribe = source.subscribe(val => console.log(val));
+
+    console.log(source);
+    console.log(subscribe);
     }
 
   public reinstallLibrary(item, lib) {
@@ -355,7 +361,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     } else {
       this.libs_uploaded = false;
       this.uploading = true;
-      this.clear = window.setTimeout(() => this.uploadLibGroups(), this.CHECK_GROUPS_TIMEOUT);
+      // this.clear = window.setTimeout(() => this.uploadLibGroups(), this.CHECK_GROUPS_TIMEOUT);
+      timer(this.CHECK_GROUPS_TIMEOUT).pipe(take(1)).subscribe(() => this.uploadLibGroups());
     }
   }
 
@@ -411,7 +418,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       )
       .subscribe((libs: GetLibrary) => {
         if (libs.autoComplete === 'UPDATING') {
-          timer(500000).pipe(
+           timer(5000).pipe(
             take(1)
           ).subscribe(_ => {
             this.getMatchedLibs();
