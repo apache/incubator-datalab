@@ -40,14 +40,15 @@ import static org.mockito.Mockito.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.when;
 
 public class AuditResourceTest extends TestBase {
 
     private final static String USER = "testuser";
     private final static String INFO = "testInfo";
     private final static String RESOURCE = "testResource";
+
     private final AuditService auditService = mock(AuditService.class);
+
     @Rule
     public final ResourceTestRule resources = getResourceTestRuleInstance(new AuditResource(auditService));
 
@@ -58,12 +59,12 @@ public class AuditResourceTest extends TestBase {
 
     @Test
     public void saveAudit() {
-        final Response response;
-        response = resources.getJerseyTest()
+        final Response response = resources.getJerseyTest()
                 .target("/audit")
                 .request()
                 .header("Authorization", "Bearer " + TOKEN)
                 .post(Entity.json(prepareAuditCreateDTO()));
+
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         verify(auditService).save(eq(USER), refEq(prepareAuditCreateDTO()));
         verifyNoMoreInteractions(auditService);
@@ -76,6 +77,7 @@ public class AuditResourceTest extends TestBase {
                 .request()
                 .header("Authorization", "Bearer " + TOKEN)
                 .get();
+
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
     }
