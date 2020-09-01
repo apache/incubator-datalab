@@ -275,7 +275,7 @@ if __name__ == "__main__":
         dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if notebook_config['shared_image_enabled'] == 'true':
+    if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
             ami_id = dlab.meta_lib.get_ami_id_by_name(notebook_config['expected_image_name'])
