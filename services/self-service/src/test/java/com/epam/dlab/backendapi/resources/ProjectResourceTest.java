@@ -57,6 +57,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProjectResourceTest extends TestBase {
+
     private final static String PROJECT_NAME = "DLAB";
 
     private final ProjectService projectService = mock(ProjectService.class);
