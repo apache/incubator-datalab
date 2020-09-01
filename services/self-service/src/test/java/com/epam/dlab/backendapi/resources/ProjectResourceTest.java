@@ -56,11 +56,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-
 public class ProjectResourceTest extends TestBase {
-    private ProjectService projectService = mock(ProjectService.class);
-    private AccessKeyService keyService = mock(AccessKeyService.class);
-    private String PROJECT_NAME = "DLAB";
+    private final static String PROJECT_NAME = "DLAB";
+
+    private final ProjectService projectService = mock(ProjectService.class);
+    private final AccessKeyService keyService = mock(AccessKeyService.class);
 
     @Rule
     public final ResourceTestRule resources = getResourceTestRuleInstance(
@@ -89,7 +89,7 @@ public class ProjectResourceTest extends TestBase {
     public void createExistingProject() {
         CreateProjectDTO createProjectDTO = returnCreateProjectDTO();
         doThrow(new ResourceConflictException("Project with passed name already exist in system"))
-                .when(projectService).create(getUserInfo(), returnProjectDTO(createProjectDTO), createProjectDTO.getName());
+                .when(projectService).create(any(UserInfo.class), any(ProjectDTO.class), anyString());
         final Response response = resources.getJerseyTest()
                 .target("project")
                 .request()
