@@ -121,8 +121,8 @@
                       [ngClass]="{'not-allow': lib.name?.length < 2
                       || (autoComplete === 'ENABLED' && !isLibSelected )
                       || this.selectedLib?.isInSelectedList || isVersionInvalid || autoComplete === 'UPDATING'}"
-
-                      matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList"
+                      [matTooltip]="this.selectedLib?.isInSelectedList ? 'Library is in selected list' : 'Please select library from autocomplete'"
+                      matTooltipPosition="above" [matTooltipDisabled]="(!this.selectedLib?.isInSelectedList && isLibSelected) || lib.name?.length < 2 || !this.selectedLib?.isInSelectedList && autoComplete === 'NONE'"
                 >
                   <mat-icon
                     (click)="addLibrary(lib)"

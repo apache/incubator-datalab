@@ -73,6 +73,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   };
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
+  private readonly INSTALLATION_IN_PROGRESS_CHECK: number = 10000;
   private clear: number;
 
   public filterConfiguration: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
@@ -114,8 +115,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    window.clearTimeout(this.loadLibsTimer);
-    window.clearTimeout(this.clear);
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
@@ -224,8 +223,13 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public addLibrary(item): void {
+    if ((this.autoComplete === 'ENABLED' && !this.isLibSelected )
+      || (this.selectedLib && this.selectedLib.isInSelectedList) || this.isVersionInvalid || this.autoComplete === 'UPDATING') {
+      return;
+    }
+
     this.isLibSelected = false;
-    if ( !this.selectedLib.isInSelectedList && !this.isVersionInvalid) {
+    if ( (!this.selectedLib && !this.isVersionInvalid) || (!this.selectedLib.isInSelectedList && !this.isVersionInvalid)) {
       if ( this.selectedLib && this.group !== 'java') {
         this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version || 'N/A' });
       } else {
@@ -288,17 +292,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public isInstallingInProgress(): void {
     this.installingInProgress = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
       if (this.installingInProgress) {
-        // window.clearTimeout(this.loadLibsTimer);
-        // this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 10000);
-        timer(10000).pipe(take(1)).subscribe(v => this.getInstalledLibrariesList());
+        timer(this.INSTALLATION_IN_PROGRESS_CHECK).pipe(take(1)).subscribe(v => this.getInstalledLibrariesList());
       }
-    const source = timer(1000);
-
-    const subscribe = source.subscribe(val => console.log(val));
-
-    console.log(source);
-    console.log(subscribe);
-    }
+  }
 
   public reinstallLibrary(item, lib) {
     const retry = [{ group: lib.group, name: lib.name, version: lib.version }];
@@ -361,7 +357,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     } else {
       this.libs_uploaded = false;
       this.uploading = true;
-      // this.clear = window.setTimeout(() => this.uploadLibGroups(), this.CHECK_GROUPS_TIMEOUT);
       timer(this.CHECK_GROUPS_TIMEOUT).pipe(take(1)).subscribe(() => this.uploadLibGroups());
     }
   }
@@ -454,9 +449,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.model.selectedLibs = [];
     this.filteredList = [];
     this.groupsList = [];
-
-    clearTimeout(this.clear);
-    clearTimeout(this.loadLibsTimer);
     this.selectorsReset(true);
   }
 
