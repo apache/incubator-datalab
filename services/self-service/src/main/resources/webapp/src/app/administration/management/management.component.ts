@@ -226,8 +226,9 @@ export class ManagementComponent implements OnInit {
         result && this.manageEnvironmentAction({ action, environment, resource });
       });
     } else {
-      const notebooks = this.selected.length ? this.selected : [environment];
+      let notebooks = this.selected.length ? this.selected : [environment];
       if (action === 'stop') {
+        notebooks = notebooks.filter(note => note.status !== 'stopped');
         this.dialog.open(ReconfirmationDialogComponent, {
           data: { notebooks: notebooks, type: 'notebook', action },
           width: '550px', panelClass: 'error-modalbox'
