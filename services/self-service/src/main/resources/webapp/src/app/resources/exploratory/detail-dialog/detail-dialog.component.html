@@ -43,13 +43,37 @@
         <div *ngIf="data.type === 'environment'" class="detail-info">
           <p>Open following URL(s) in your browser to access this box:</p>
           <div class="links_block">
-            <p *ngFor="let item of notebook.exploratory_urls">
-              <span class="description">{{item.description}}: &nbsp;</span>
-              <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
-                 target="_blank" (click)="logAction(notebook.name, item.description)">
-                &nbsp;{{item.url}}{{notebook.name}}
-              </a>
-            </p>
+<!--            <p *ngFor="let item of notebook.exploratory_urls">-->
+<!--              <span class="description">{{item.description}}: &nbsp;</span>-->
+<!--              <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"-->
+<!--                 target="_blank" (click)="logAction(notebook.name, item.description)">-->
+<!--                &nbsp;{{item.url}}{{notebook.name}}-->
+<!--              </a>-->
+<!--            </p>-->
+            <ng-container *ngFor="let item of notebook.exploratory_urls">
+                <span class="d-none" *ngIf="item.description.toLowerCase() === 'ungit' && notebook.exploratory_urls[0].description.toLowerCase().indexOf('zeppelin') !== -1; else ungit">
+                </span>
+              <ng-template #ungit>
+                <p (mouseleave)="hideCopyIcon()">
+                  <span class="description">{{item.description}}: &nbsp;</span>
+                  <a (mouseover)="showCopyIcon(item.description)"
+                     (click)="logAction(notebook.name, item.description)"
+                     class="ellipsis none-select" matTooltip="{{item.url}}"
+                     matTooltipPosition="above"
+                     href="{{item.url}}"
+                     target="_blank"
+                     (contextmenu)="false"
+                  >
+                    &nbsp;{{item.url}}
+                  </a>
+                  <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy ' + item.description + ' url': 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
+                      <span  class="link-icon" (click)="copyBucketName(item.url)" >
+                        <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                       </span>
+                    </span>
+                </p>
+              </ng-template>
+            </ng-container>
           </div>
         </div>
         <div class="scroll-box" id="scrolling" *ngIf="data.type === 'resource'">
