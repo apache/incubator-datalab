@@ -1827,9 +1827,10 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
             cluster_name, cluster_dir), capture=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
-    local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
+    if os.path.exists('{0}'.format(cluster_dir)):
+        local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
                                                                                                         cluster_dir))
-    if spark_configs:
+    if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
         dlab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
                             capture=True)
         spark_configurations = ast.literal_eval(spark_configs)
