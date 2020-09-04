@@ -129,6 +129,36 @@ public class ProjectResourceTest extends TestBase {
     }
 
     @Test
+    public void getProject() {
+        when(projectService.get(anyString())).thenReturn(ProjectDTO.builder().name(PROJECT_NAME).build());
+
+        final Response response = resources.getJerseyTest()
+                .target("project/" + PROJECT_NAME)
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .get();
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        verify(projectService).get(PROJECT_NAME);
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
+    public void getProjects() {
+        when(projectService.getProjects(any(UserInfo.class))).thenReturn(Collections.singletonList(ProjectDTO.builder().name(PROJECT_NAME).build()));
+
+        final Response response = resources.getJerseyTest()
+                .target("project")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .get();
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        verify(projectService).getProjects(getUserInfo());
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
     public void generate() {
         when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey",
                 "user"));
