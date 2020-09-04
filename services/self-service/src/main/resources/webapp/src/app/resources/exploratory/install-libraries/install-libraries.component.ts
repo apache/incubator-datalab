@@ -162,8 +162,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public filterGroups(groupsList) {
     const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
-
-    if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1) {
+    if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1  || CURRENT_TEMPLATE.indexOf('deep learning') !== -1) {
       const filtered = groupsList.filter(group => group !== 'r_pkg');
       return SortUtils.libGroupsSort(filtered);
     }
