@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.dao.UserSettingsDAO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
+import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -34,6 +35,8 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.exceptions.ResourceConflictException;
+import com.epam.dlab.model.ResourceEnum;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -47,7 +50,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING_IMAGE;
+import static com.epam.dlab.dto.UserInstanceStatus.STARTING;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anySet;
 import static org.mockito.Mockito.anyString;
@@ -63,17 +70,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentServiceImplTest {
-    private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
-    private static final String AUDIT_MESSAGE = "Notebook name %s";
-    private static final String DLAB_SYSTEM_USER = "DLab system user";
-    private static final String USER = "test";
-    private static final String EXPLORATORY_NAME_1 = "expName1";
-    private static final String EXPLORATORY_NAME_2 = "expName2";
-    private static final String TOKEN = "token";
-    private static final String UUID = "213-12312-321";
-    private static final String PROJECT_NAME = "projectName";
-    private static final String ENDPOINT_NAME = "endpointName";
-    private static final String ADMIN = "admin";
+
+	private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
+	private static final String AUDIT_MESSAGE = "Notebook name %s";
+	private static final String DLAB_SYSTEM_USER = "DLab system user";
+	private static final String DLAB_SYSTEM_USER_TOKEN = "token";
+	private static final String USER = "test";
+	private static final String EXPLORATORY_NAME_1 = "expName1";
+	private static final String EXPLORATORY_NAME_2 = "expName2";
+	private static final String TOKEN = "token";
+	private static final String UUID = "213-12312-321";
+	private static final String PROJECT_NAME = "projectName";
+	private static final String ENDPOINT_NAME = "endpointName";
+	private static final String SHAPE = "shape";
 
 	@Mock
 	private EnvDAO envDAO;
@@ -115,6 +124,114 @@ public class EnvironmentServiceImplTest {
 	}
 
 	@Test
+	public void getAllEnv() {
+		when(exploratoryDAO.getInstances()).thenReturn(getUserInstances());
+		when(projectService.getProjects(any(UserInfo.class))).thenReturn(Collections.singletonList(getProjectDTO()));
+
+		List<UserResourceInfo> actualAllEnv = environmentService.getAllEnv(getUserInfo());
+
+		List<UserResourceInfo> userResources = Arrays.asList(getUserResourceInfoEdge(), getUserResourceInfo(EXPLORATORY_NAME_1), getUserResourceInfo(EXPLORATORY_NAME_2));
+		assertEquals("lists are not equal", userResources, actualAllEnv);
+		verify(exploratoryDAO).getInstances();
+		verify(projectService).getProjects(getUserInfo());
+		verifyNoMoreInteractions(exploratoryDAO, projectService);
+	}
+
+	@Test
+	public void getAllEnvWithoutEdge() {
+		when(exploratoryDAO.getInstances()).thenReturn(getUserInstances());
+		when(projectService.getProjects(any(UserInfo.class))).thenReturn(Collections.singletonList(getProjectDTOWithoutEndpoint()));
+
+		List<UserResourceInfo> actualAllEnv = environmentService.getAllEnv(getUserInfo());
+
+		List<UserResourceInfo> userResources = Arrays.asList(getUserResourceInfo(EXPLORATORY_NAME_1), getUserResourceInfo(EXPLORATORY_NAME_2));
+		assertEquals("lists are not equal", userResources, actualAllEnv);
+		verify(exploratoryDAO).getInstances();
+		verify(projectService).getProjects(getUserInfo());
+		verifyNoMoreInteractions(exploratoryDAO, projectService);
+	}
+
+	@Test
+	public void stopAll() {
+		when(projectService.getProjects()).thenReturn(Collections.singletonList(getProjectDTO()));
+		when(exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(anyString(), anyListOf(UserInstanceStatus.class))).thenReturn(Collections.emptyList());
+		when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getDLabSystemUser());
+		when(projectService.get(anyString())).thenReturn(getProjectDTO());
+
+		environmentService.stopAll();
+
+		verify(projectService).getProjects();
+		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+		verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
+		verify(securityService, times(3)).getServiceAccountInfo(DLAB_SYSTEM_USER);
+		verify(exploratoryService).stop(getDLabSystemUser(), USER, PROJECT_NAME, EXPLORATORY_NAME_1, AUDIT_QUOTA_MESSAGE);
+		verify(exploratoryService).stop(getDLabSystemUser(), USER, PROJECT_NAME, EXPLORATORY_NAME_2, AUDIT_QUOTA_MESSAGE);
+		verify(projectService).get(PROJECT_NAME);
+		verify(projectService).stop(getDLabSystemUser(), ENDPOINT_NAME, PROJECT_NAME, AUDIT_QUOTA_MESSAGE);
+		verifyNoMoreInteractions(projectService, exploratoryDAO, securityService, exploratoryService);
+	}
+
+	@Test(expected = ResourceConflictException.class)
+	public void stopAllWithException() {
+		when(projectService.getProjects()).thenReturn(Collections.singletonList(getProjectDTO()));
+		when(exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE)).thenReturn(getUserInstances());
+
+		environmentService.stopAll();
+
+		verify(projectService).getProjects();
+		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+		verifyNoMoreInteractions(projectService, exploratoryDAO, securityService, exploratoryService);
+	}
+
+	@Test
+	public void stopAllWithStoppedProject() {
+		when(projectService.getProjects()).thenReturn(Collections.singletonList(getProjectDTOWithStoppedEdge()));
+		when(exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(anyString(), anyListOf(UserInstanceStatus.class))).thenReturn(Collections.emptyList());
+		when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getDLabSystemUser());
+		when(projectService.get(anyString())).thenReturn(getProjectDTOWithStoppedEdge());
+
+		environmentService.stopAll();
+
+		verify(projectService).getProjects();
+		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+		verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
+		verify(securityService, times(2)).getServiceAccountInfo(DLAB_SYSTEM_USER);
+		verify(exploratoryService).stop(getDLabSystemUser(), USER, PROJECT_NAME, EXPLORATORY_NAME_1, AUDIT_QUOTA_MESSAGE);
+		verify(exploratoryService).stop(getDLabSystemUser(), USER, PROJECT_NAME, EXPLORATORY_NAME_2, AUDIT_QUOTA_MESSAGE);
+		verify(projectService).get(PROJECT_NAME);
+		verifyNoMoreInteractions(projectService, exploratoryDAO, securityService, exploratoryService);
+	}
+
+	@Test
+	public void stopEnvironmentWithServiceAccount() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), anyListOf(UserInstanceStatus.class))).thenReturn(Collections.emptyList());
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getDLabSystemUser());
+
+		environmentService.stopEnvironmentWithServiceAccount(USER);
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
+		verify(securityService, times(2)).getServiceAccountInfo(DLAB_SYSTEM_USER);
+		verify(exploratoryService).stop(getDLabSystemUser(), USER, PROJECT_NAME, EXPLORATORY_NAME_1, AUDIT_QUOTA_MESSAGE);
+		verify(exploratoryService).stop(getDLabSystemUser(), USER, PROJECT_NAME, EXPLORATORY_NAME_2, AUDIT_QUOTA_MESSAGE);
+		verifyNoMoreInteractions(exploratoryDAO, securityService, exploratoryService);
+	}
+
+	@Test(expected = ResourceConflictException.class)
+	public void stopEnvironmentWithServiceAccountWithException() {
+		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE))
+				.thenReturn(getUserInstances());
+
+		environmentService.stopEnvironmentWithServiceAccount(USER);
+
+		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+		verifyNoMoreInteractions(exploratoryDAO, securityService, exploratoryService);
+	}
+
+	@Test
 	public void getActiveUsersWithException() {
 		doThrow(new DlabException("Users not found")).when(envDAO).fetchActiveEnvUsers();
 
@@ -123,7 +240,6 @@ public class EnvironmentServiceImplTest {
 
 		environmentService.getUsers();
 	}
-
 
 	@Test
 	public void stopProjectEnvironment() {
@@ -186,29 +302,66 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void terminateComputational() {
 		final UserInfo userInfo = getUserInfo();
-        doNothing().when(computationalService)
-                .terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyString());
+		doNothing().when(computationalService)
+				.terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyString());
 
 		environmentService.terminateComputational(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1, "compName");
 
-        verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
-                eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1)));
-        verifyNoMoreInteractions(securityService, computationalService);
+		verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
+				eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1)));
+		verifyNoMoreInteractions(securityService, computationalService);
+	}
+
+	private UserResourceInfo getUserResourceInfoEdge() {
+		return UserResourceInfo.builder()
+				.resourceType(ResourceEnum.EDGE_NODE)
+				.resourceStatus("running")
+				.project(PROJECT_NAME)
+				.ip(null)
+				.build();
+	}
+
+	private UserResourceInfo getUserResourceInfo(String exploratoryName) {
+		return UserResourceInfo.builder()
+				.resourceType(ResourceEnum.NOTEBOOK)
+				.resourceName(exploratoryName)
+				.resourceShape(SHAPE)
+				.resourceStatus("running")
+				.computationalResources(Collections.emptyList())
+				.user(USER)
+				.project(PROJECT_NAME)
+				.cloudProvider("aws")
+				.exploratoryUrls(null)
+				.build();
 	}
 
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
 
+	private UserInfo getDLabSystemUser() {
+		return new UserInfo(DLAB_SYSTEM_USER, DLAB_SYSTEM_USER_TOKEN);
+	}
+
 	private List<UserInstanceDTO> getUserInstances() {
 		return Arrays.asList(
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject(PROJECT_NAME),
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject(PROJECT_NAME));
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject(PROJECT_NAME).withShape(SHAPE).withStatus("running")
+						.withResources(Collections.emptyList()).withCloudProvider("aws"),
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject(PROJECT_NAME).withShape(SHAPE).withStatus("running")
+						.withResources(Collections.emptyList()).withCloudProvider("aws"));
 	}
 
 	private ProjectDTO getProjectDTO() {
 		return new ProjectDTO(PROJECT_NAME, Collections.emptySet(), "", "", null,
-				Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING,
-						new EdgeInfo())), true);
+				Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING, new EdgeInfo())), true);
+	}
+
+	private ProjectDTO getProjectDTOWithStoppedEdge() {
+		return new ProjectDTO(PROJECT_NAME, Collections.emptySet(), "", "", null,
+				Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.STOPPED, new EdgeInfo())), true);
+	}
+
+	private ProjectDTO getProjectDTOWithoutEndpoint() {
+		return new ProjectDTO(PROJECT_NAME, Collections.emptySet(), "", "", null, null, true);
 	}
 }
