@@ -130,7 +130,8 @@ public class ProjectResourceTest extends TestBase {
 
     @Test
     public void getProject() {
-        when(projectService.get(PROJECT_NAME)).thenReturn(ProjectDTO.builder().name(PROJECT_NAME).build());
+        when(projectService.get(anyString())).thenReturn(ProjectDTO.builder().name(PROJECT_NAME).build());
+
         final Response response = resources.getJerseyTest()
                 .target("project/" + PROJECT_NAME)
                 .request()
@@ -144,7 +145,8 @@ public class ProjectResourceTest extends TestBase {
 
     @Test
     public void getProjects() {
-        when(projectService.getProjects(getUserInfo())).thenReturn(Collections.singletonList(ProjectDTO.builder().name(PROJECT_NAME).build()));
+        when(projectService.getProjects(any(UserInfo.class))).thenReturn(Collections.singletonList(ProjectDTO.builder().name(PROJECT_NAME).build()));
+
         final Response response = resources.getJerseyTest()
                 .target("project")
                 .request()
