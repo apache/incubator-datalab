@@ -34,6 +34,7 @@ export class TodoItemFlatNode {
   item: string;
   level: number;
   expandable: boolean;
+  obj: string;
 }
 
 @Injectable({

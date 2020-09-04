@@ -77,7 +77,8 @@ export class FolderTreeComponent implements OnDestroy {
         const subject = this.dataSource._flattenedData;
         const subjectData = subject.getValue();
           if (this.selectedFolder) {
-            this.selectedFolder = subjectData.filter(v => v.item === this.selectedFolder.item && v.level === this.selectedFolder.level)[0];
+            this.selectedFolder = subjectData.find(v => v.item === this.selectedFolder.item &&
+              v.level === this.selectedFolder.level && v.obj === this.selectedFolder.obj);
           }
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
@@ -115,6 +116,7 @@ export class FolderTreeComponent implements OnDestroy {
     flatNode.item = node.item;
     flatNode.level = level;
     flatNode.expandable = !!node.children;
+    flatNode.obj = node.object.object;
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
