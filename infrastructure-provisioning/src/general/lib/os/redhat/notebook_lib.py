@@ -385,7 +385,7 @@ def install_os_pkg(requisites):
                 version = res.split("'")[1].split("-")[0]
                 status_msg = "installed"
             if 'No package {} available'.format(os_pkg) in install_output:
-                versions = sudo ('yum --showduplicates list ' + name + ' | expand | grep -A 10 "Available Packages" | grep -v "Available Packages"| awk \'{print $2}\'').replace('\r\n', '')
+                versions = sudo('yum --showduplicates list ' + name + ' | expand | grep ' + name + ' | awk \'{print $2}\'').replace('\r\n', '')
                 if versions and versions != 'Error: No matching Packages to list':
                     versions = versions.split(' ')
                     status_msg = 'invalid_version'
