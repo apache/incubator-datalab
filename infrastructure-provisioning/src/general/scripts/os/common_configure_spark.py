@@ -53,27 +53,28 @@ def update_spark_defaults_conf(spark_conf):
 
 def add_custom_spark_properties(cluster_name):
     try:
-        dlab_header = sudo('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name))
-        spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
-        new_spark_defaults = list()
-        spark_defaults = sudo('cat /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
-        current_spark_properties = spark_defaults.split('\n')
-        for param in current_spark_properties:
-            if param.split(' ')[0] != '#':
-                for config in spark_configurations:
-                    if config['Classification'] == 'spark-defaults':
-                        for property in config['Properties']:
-                            if property == param.split(' ')[0]:
-                                param = property + ' ' + config['Properties'][property]
-                            else:
-                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
-                new_spark_defaults.append(param)
-        new_spark_defaults = set(new_spark_defaults)
-        sudo("echo '{0}' > /opt/{1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_name))
-        for prop in new_spark_defaults:
-            prop = prop.rstrip()
-            sudo('echo "{0}" >> /opt/{1}/spark/conf/spark-defaults.conf'.format(prop, cluster_name))
-        sudo('sed -i "/^\s*$/d" /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
+        if os.path.exists('/opt/{0}'.format(cluster_name)):
+            dlab_header = sudo('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name))
+            spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+            new_spark_defaults = list()
+            spark_defaults = sudo('cat /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
+            current_spark_properties = spark_defaults.split('\n')
+            for param in current_spark_properties:
+                if param.split(' ')[0] != '#':
+                    for config in spark_configurations:
+                        if config['Classification'] == 'spark-defaults':
+                            for property in config['Properties']:
+                                if property == param.split(' ')[0]:
+                                    param = property + ' ' + config['Properties'][property]
+                                else:
+                                    new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                    new_spark_defaults.append(param)
+            new_spark_defaults = set(new_spark_defaults)
+            sudo("echo '{0}' > /opt/{1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_name))
+            for prop in new_spark_defaults:
+                prop = prop.rstrip()
+                sudo('echo "{0}" >> /opt/{1}/spark/conf/spark-defaults.conf'.format(prop, cluster_name))
+            sudo('sed -i "/^\s*$/d" /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

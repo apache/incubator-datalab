@@ -35,7 +35,6 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.model.ResourceEnum;
 import com.google.inject.Inject;
@@ -50,6 +49,10 @@ import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.NOT_ACTIVE;
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING_IMAGE;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
+import static com.epam.dlab.dto.UserInstanceStatus.STARTING;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
 import static java.util.stream.Collectors.toList;
 
@@ -133,8 +136,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.forEach(this::stopNotebookWithServiceAccount);
 
 		projectService.get(project).getEndpoints()
-                .stream()
-                .filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
+				.stream()
+				.filter(e -> RUNNING == e.getStatus())
                 .forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo(DLAB_SYSTEM_USER),
                         endpoint.getName(), project, AUDIT_QUOTA_MESSAGE));
 	}
@@ -169,12 +172,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void checkState(String user, String action) {
-		final List<UserInstanceDTO> userInstances = exploratoryDAO
-				.fetchUserExploratoriesWhereStatusIn(user,
-						Arrays.asList(UserInstanceStatus.CREATING,
-								UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
-						UserInstanceStatus.CREATING,
-						UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
+		final List<UserInstanceDTO> userInstances = exploratoryDAO.fetchUserExploratoriesWhereStatusIn(user, Arrays.asList(CREATING, STARTING, CREATING_IMAGE),
+				CREATING, STARTING, CREATING_IMAGE);
 		if (!userInstances.isEmpty()) {
 			log.error(String.format(ERROR_MSG_FORMAT, action));
 			throw new ResourceConflictException(String.format(ERROR_MSG_FORMAT, action));
@@ -221,11 +220,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void checkProjectResourceConditions(String project, String action) {
-		final List<UserInstanceDTO> userInstances = exploratoryDAO
-				.fetchProjectExploratoriesWhereStatusIn(project,
-						Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
-								UserInstanceStatus.CREATING_IMAGE),
-						UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
+		final List<UserInstanceDTO> userInstances = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(project,
+				Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+
 		if (!userInstances.isEmpty()) {
 			log.error(String.format(ERROR_MSG_FORMAT, action));
 			throw new ResourceConflictException(String.format(ERROR_MSG_FORMAT, action));
