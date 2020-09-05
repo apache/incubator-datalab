@@ -20,7 +20,12 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.*;
+import com.epam.dlab.backendapi.domain.BudgetDTO;
+import com.epam.dlab.backendapi.domain.CreateProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
 import com.epam.dlab.backendapi.resources.dto.KeysDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
