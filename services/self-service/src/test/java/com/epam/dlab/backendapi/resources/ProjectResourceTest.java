@@ -114,7 +114,7 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService).start(any(UserInfo.class), anyList(), anyString());
+        verify(projectService).start(getUserInfo(), Collections.singletonList("https://localhost:8083/"), PROJECT_NAME);
         verifyNoMoreInteractions(projectService);
     }
 
@@ -127,7 +127,7 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService).stopWithResources(any(UserInfo.class), anyList(), anyString());
+        verify(projectService).stopWithResources(getUserInfo(), Collections.singletonList("https://localhost:8083/"), PROJECT_NAME);
         verifyNoMoreInteractions(projectService);
     }
 
@@ -176,7 +176,7 @@ public class ProjectResourceTest extends TestBase {
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-        verify(projectService).getUserProjects(getUserInfo(), false);
+        verify(projectService).getUserProjects(getUserInfo(), Boolean.FALSE);
         verifyNoMoreInteractions(projectService);
     }
 
@@ -288,6 +288,6 @@ public class ProjectResourceTest extends TestBase {
     }
 
     private List<UpdateProjectBudgetDTO> prepareUpdateProjectBudgetDTOs() {
-        return Collections.singletonList(new UpdateProjectBudgetDTO(PROJECT_NAME, 123, false));
+        return Collections.singletonList(new UpdateProjectBudgetDTO(PROJECT_NAME, 123, Boolean.FALSE));
     }
 }
