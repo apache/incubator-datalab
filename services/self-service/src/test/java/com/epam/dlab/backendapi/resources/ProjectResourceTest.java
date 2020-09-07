@@ -131,7 +131,6 @@ public class ProjectResourceTest extends TestBase {
         verifyNoMoreInteractions(projectService);
     }
 
-
     @Test
     public void getProject() {
         when(projectService.get(anyString())).thenReturn(ProjectDTO.builder().name(PROJECT_NAME).build());
@@ -223,36 +222,6 @@ public class ProjectResourceTest extends TestBase {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
 
         verify(projectService).updateBudget(getUserInfo(), prepareUpdateProjectBudgetDTOs());
-        verifyNoMoreInteractions(projectService);
-    }
-
-    @Test
-    public void getProject() {
-        when(projectService.get(anyString())).thenReturn(ProjectDTO.builder().name(PROJECT_NAME).build());
-
-        final Response response = resources.getJerseyTest()
-                .target("project/" + PROJECT_NAME)
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
-
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
-        verify(projectService).get(PROJECT_NAME);
-        verifyNoMoreInteractions(projectService);
-    }
-
-    @Test
-    public void getProjects() {
-        when(projectService.getProjects(any(UserInfo.class))).thenReturn(Collections.singletonList(ProjectDTO.builder().name(PROJECT_NAME).build()));
-
-        final Response response = resources.getJerseyTest()
-                .target("project")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
-
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
-        verify(projectService).getProjects(getUserInfo());
         verifyNoMoreInteractions(projectService);
     }
 
