@@ -280,7 +280,7 @@ public class ProjectResourceTest extends TestBase {
     }
 
     private UpdateProjectDTO prepareUpdateProjectDTO() {
-        return new UpdateProjectDTO(PROJECT_NAME, Collections.emptySet(), Collections.emptySet(), true);
+        return new UpdateProjectDTO(PROJECT_NAME, Collections.emptySet(), Collections.emptySet(), Boolean.TRUE);
     }
 
     private ProjectActionFormDTO prepareProjectActionFormDTO(){
