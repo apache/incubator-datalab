@@ -206,7 +206,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to configure TensorFlow.", str(err))
-        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        #AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
