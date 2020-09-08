@@ -113,7 +113,10 @@ variable "endpoint_policies" {
     "compute.projects.setCommonInstanceMetadata",
     "compute.projects.setDefaultServiceAccount",
     "compute.subnetworks.create",
-    "compute.subnetworks.delete"
+    "compute.subnetworks.delete",
+    "compute.routes.create",
+    "compute.routes.delete",
+    "compute.routes.get"
   ]
 }
 
