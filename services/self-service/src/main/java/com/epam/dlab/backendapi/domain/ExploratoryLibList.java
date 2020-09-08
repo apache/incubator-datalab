@@ -145,13 +145,17 @@ public class ExploratoryLibList {
 					log.info("Update {} group with lib group {} with {} libraries", this.group, groupName, (group != null) ? group.size() : null);
 					libs.put(groupName, new TreeMap<>(group));
 				}
-				expiredTimeMillis = System.currentTimeMillis() + EXPIRED_TIMEOUT_MILLIS;
-				accessTimeMillis = System.currentTimeMillis();
+				setExpiredTime();
 				updating = false;
 			}
 		} catch (IOException e) {
 			throw new DlabException("Cannot deserialize the list of libraries. " + e.getLocalizedMessage(), e);
 		}
+	}
+
+	public void setExpiredTime() {
+		expiredTimeMillis = System.currentTimeMillis() + EXPIRED_TIMEOUT_MILLIS;
+		accessTimeMillis = System.currentTimeMillis();
 	}
 
 	/**
@@ -211,6 +215,13 @@ public class ExploratoryLibList {
 	public void setUpdating() {
 		updateStartTimeMillis = System.currentTimeMillis();
 		updating = true;
+	}
+
+	/**
+	 * Set updating to false.
+	 */
+	public void setNotUpdating() {
+		updating = Boolean.FALSE;
 	}
 
 	/**

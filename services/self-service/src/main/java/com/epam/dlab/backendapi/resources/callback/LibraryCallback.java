@@ -85,8 +85,8 @@ public class LibraryCallback {
 		requestId.checkAndRemove(dto.getRequestId());
 		try {
 			if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
-				log.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());
-				ExploratoryLibCache.getCache().removeLibList(dto.getGroup());
+				log.warn("Request for the list of libraries for {} fails: {}", dto.getGroup(), dto.getErrorMessage());
+				ExploratoryLibCache.getCache().updateLibListStatus(dto.getGroup());
 			} else {
 				ExploratoryLibCache.getCache().updateLibList(dto.getGroup(), dto.getLibs());
 			}
