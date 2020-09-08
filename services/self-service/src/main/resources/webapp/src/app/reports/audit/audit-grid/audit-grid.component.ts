@@ -55,6 +55,7 @@ export class AuditGridComponent implements OnInit {
   public allItems: number;
   private copiedFilterAuditData: FilterAuditModel;
   public isNavigationDisabled: boolean;
+  public isFilterSelected: boolean;
 
   @Output() resetDateFilter: EventEmitter<any> = new EventEmitter();
 
@@ -96,6 +97,7 @@ export class AuditGridComponent implements OnInit {
         '',
         ''
       );
+      this.checkFilters();
     });
   }
 
@@ -116,6 +118,12 @@ export class AuditGridComponent implements OnInit {
 
   public onUpdate($event): void {
     this.filterAuditData[$event.type] = $event.model;
+    this.checkFilters();
+  }
+
+  private checkFilters() {
+    this.isNavigationDisabled = JSON.stringify(this.copiedFilterAuditData) !== JSON.stringify(this.filterAuditData);
+    this.isFilterSelected = Object.keys(this.filterAuditData).filter(v => this.filterAuditData[v].length > 0).length > 0;
   }
 
   public openActionInfo(element: AuditItem): void {
@@ -166,7 +174,6 @@ export class AuditGridComponent implements OnInit {
   }
 
   public didFilterChanged(): boolean {
-    this.isNavigationDisabled = JSON.stringify(this.copiedFilterAuditData) !== JSON.stringify(this.filterAuditData);
     return this.isNavigationDisabled;
   }
 }

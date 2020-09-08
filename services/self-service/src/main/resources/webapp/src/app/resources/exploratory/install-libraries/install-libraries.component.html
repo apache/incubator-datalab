@@ -276,9 +276,9 @@
             <th class="lib-resource-type filter-col">
               <multi-select-dropdown
                 (selectionChange)="onFilterUpdate($event)"
-                [items]="this.filterConfiguration.resourceType"
-                [type]="'resource type'"
-                [model]="this.filterModel.resourceType"
+                [items]="this.filterConfiguration.resource_type"
+                [type]="'resource_type'"
+                [model]="this.filterModel.resource_type"
               >
               </multi-select-dropdown>
           </th>
@@ -293,12 +293,12 @@
           </th>
            <ng-container matColumnDef="action-filter" stickyEnd>
              <th mat-header-cell>
-               <div class="filter-actions">
-                 <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+               <div class="filter-actions actions">
+                 <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="!isFilterSelected">
                    <i class="material-icons">close</i>
                  </button>
 
-                 <button mat-icon-button class="btn apply" (click)="filterLibs()">
+                 <button mat-icon-button class="btn apply" (click)="filterLibs(true)" [disabled]="!isFilterChanged">
                    <i class="material-icons"  [ngClass]="{'not-allowed': filterModel['length'] === 0}">done</i>
                  </button>
                </div>
