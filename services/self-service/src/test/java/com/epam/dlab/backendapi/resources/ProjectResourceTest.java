@@ -24,6 +24,8 @@ import com.epam.dlab.backendapi.domain.BudgetDTO;
 import com.epam.dlab.backendapi.domain.CreateProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
 import com.epam.dlab.backendapi.resources.dto.KeysDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
@@ -55,6 +57,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
 
 public class ProjectResourceTest extends TestBase {
 
@@ -82,7 +85,7 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(createProjectDTO));
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
-        verify(projectService).create(getUserInfo(), returnProjectDTO(createProjectDTO), createProjectDTO.getName());
+        verify(projectService).create(getUserInfo(), prepareProjectDTO(createProjectDTO), createProjectDTO.getName());
         verifyNoMoreInteractions(projectService);
     }
 
@@ -98,20 +101,7 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(createProjectDTO));
 
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-        verify(projectService).create(getUserInfo(), returnProjectDTO(createProjectDTO), createProjectDTO.getName());
-        verifyNoMoreInteractions(projectService);
-    }
-
-    @Test
-    public void stopProject() {
-        final Response response = resources.getJerseyTest()
-                .target("project/stop")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .post(Entity.json(getProjectActionDTO()));
-
-        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService).stopWithResources(any(UserInfo.class), anyList(), anyString());
+        verify(projectService).create(getUserInfo(), prepareProjectDTO(createProjectDTO), createProjectDTO.getName());
         verifyNoMoreInteractions(projectService);
     }
 
@@ -124,7 +114,20 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService).start(any(UserInfo.class), anyList(), anyString());
+        verify(projectService).start(getUserInfo(), Collections.singletonList("https://localhost:8083/"), PROJECT_NAME);
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
+    public void stopProject() {
+        final Response response = resources.getJerseyTest()
+                .target("project/stop")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(getProjectActionDTO()));
+
+        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+        verify(projectService).stopWithResources(getUserInfo(), Collections.singletonList("https://localhost:8083/"), PROJECT_NAME);
         verifyNoMoreInteractions(projectService);
     }
 
@@ -139,6 +142,7 @@ public class ProjectResourceTest extends TestBase {
                 .get();
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
         verify(projectService).get(PROJECT_NAME);
         verifyNoMoreInteractions(projectService);
     }
@@ -154,14 +158,76 @@ public class ProjectResourceTest extends TestBase {
                 .get();
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
         verify(projectService).getProjects(getUserInfo());
         verifyNoMoreInteractions(projectService);
     }
 
     @Test
+    public void getUserProjects() {
+        when(projectService.getUserProjects(getUserInfo(), false)).thenReturn(Collections.singletonList(ProjectDTO.builder().name(PROJECT_NAME).build()));
+
+        final Response response = resources.getJerseyTest()
+                .target("project/me")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .get();
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+        verify(projectService).getUserProjects(getUserInfo(), Boolean.FALSE);
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
+    public void updateProject() {
+        doNothing().when(projectService).update(any(UserInfo.class), any(UpdateProjectDTO.class), anyString());
+
+        final Response response = resources.getJerseyTest()
+                .target("project")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .put(Entity.json(prepareUpdateProjectDTO()));
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        verify(projectService).update(getUserInfo(), prepareUpdateProjectDTO(), PROJECT_NAME);
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
+    public void removeProjectEndpoint() {
+        doNothing().when(projectService).terminateEndpoint(any(UserInfo.class), anyList(), anyString());
+
+        final Response response = resources.getJerseyTest()
+                .target("project/terminate")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(prepareProjectActionFormDTO()));
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        verify(projectService).terminateEndpoint(getUserInfo(), prepareProjectActionFormDTO().getEndpoints(), prepareProjectActionFormDTO().getProjectName());
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
+    public void updateBudget() {
+        doNothing().when(projectService).updateBudget(any(UserInfo.class), anyList());
+
+        final Response response = resources.getJerseyTest()
+                .target("project/budget")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .put(Entity.json((prepareUpdateProjectBudgetDTOs())));
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+
+        verify(projectService).updateBudget(getUserInfo(), prepareUpdateProjectBudgetDTOs());
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
     public void generate() {
-        when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey",
-                "user"));
+        when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey", "user"));
 
         final Response response = resources.getJerseyTest()
                 .target("/project/keys")
@@ -198,7 +264,7 @@ public class ProjectResourceTest extends TestBase {
         return new CreateProjectDTO(PROJECT_NAME, Collections.emptySet(), Collections.emptySet(), "ssh-testKey", "testTag");
     }
 
-    private ProjectDTO returnProjectDTO(CreateProjectDTO createProjectDTO) {
+    private ProjectDTO prepareProjectDTO(CreateProjectDTO createProjectDTO) {
         List<ProjectEndpointDTO> projectEndpointDTOS = createProjectDTO.getEndpoints()
                 .stream()
                 .map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
@@ -210,5 +276,17 @@ public class ProjectResourceTest extends TestBase {
 
     private ProjectActionFormDTO getProjectActionDTO() {
         return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList("https://localhost:8083/"));
+    }
+
+    private UpdateProjectDTO prepareUpdateProjectDTO() {
+        return new UpdateProjectDTO(PROJECT_NAME, Collections.emptySet(), Collections.emptySet(), Boolean.TRUE);
+    }
+
+    private ProjectActionFormDTO prepareProjectActionFormDTO(){
+        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList("https://localhost:8083/"));
+    }
+
+    private List<UpdateProjectBudgetDTO> prepareUpdateProjectBudgetDTOs() {
+        return Collections.singletonList(new UpdateProjectBudgetDTO(PROJECT_NAME, 123, Boolean.FALSE));
     }
 }

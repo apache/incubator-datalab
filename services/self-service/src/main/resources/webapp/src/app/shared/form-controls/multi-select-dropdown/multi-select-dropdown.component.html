@@ -44,8 +44,8 @@
           <li role="presentation" *ngIf="model">
             <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
               <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
-              <ng-container *ngIf="type !== 'resource_type' && type !== 'resource_types'">{{item}}</ng-container>
-              <ng-container *ngIf="type === 'resource_type' || type === 'resource_types'">{{item | convertaction}}</ng-container>
+              <ng-container *ngIf="type !== 'resource_type' && type !== 'resource_types' && item !== 'invalid_name' && item !== 'invalid_version' && item !== 'installation_error'">{{item}}</ng-container>
+              <ng-container *ngIf="type === 'resource_type' || type === 'resource_types' || item === 'invalid_name' || item === 'invalid_version' || item === 'installation_error'">{{item | convertaction}}</ng-container>
             </a>
           </li>
         </ng-template>

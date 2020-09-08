@@ -296,12 +296,12 @@
     <ng-container matColumnDef="action-filter" stickyEnd>
       <th mat-header-cell *matHeaderCellDef>
         <div class="actions">
-          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="filteredEnvironments.length == 0 && !filtering">
+          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="!isFilterSelected">
             <i class="material-icons">close</i>
           </button>
 
           <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)"
-            [disabled]="filteredEnvironments.length == 0 && !filtering">
+            [disabled]="!isFilterChanged">
             <i class="material-icons">done</i>
           </button>
         </div>

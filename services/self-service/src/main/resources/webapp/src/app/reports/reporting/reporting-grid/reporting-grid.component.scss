@@ -205,6 +205,11 @@
   .table-footer.mat-column-charge{
     text-align: right;
     background-color: #f8f8f8;
+  }
+
+  .mat-column-charge:not(.index-102),
+  .filter-row-item:last-child:not(.index-102),
+  .table-footer.mat-column-charge{
     z-index: 100 !important;
   }
 
@@ -328,6 +333,18 @@
     position: absolute;
     right: 0;
   }
+
+.wrapper{
+  .table-wrapper{
+    .reporting{
+      tr{
+        th.th_charges.index-102{
+          z-index: 102 !important;
+        }
+      }
+    }
+  }
+}
 
 
 

@@ -137,6 +137,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 			libs = cache.get(cacheKey);
 			if (libs.isUpdateNeeded() && !libs.isUpdating()) {
 				libs.setUpdating();
+				libs.setExpiredTime();
 				requestLibList(userInfo, userInstance, cacheKey);
 			}
 		}
@@ -158,13 +159,14 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	}
 
 	/**
-	 * Remove the list of libraries for docker image from cache.
+	 * Set updating library list to false
 	 *
-	 * @param imageName docker image name
+	 * @param groupName group name
 	 */
-	public void removeLibList(String imageName) {
+	public void updateLibListStatus(String groupName) {
 		synchronized (cache) {
-			cache.remove(imageName);
+			ExploratoryLibList exploratoryLibList = cache.get(groupName);
+			exploratoryLibList.setNotUpdating();
 		}
 	}
 
@@ -178,7 +180,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance, String group) {
 		try {
 
-			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {} computational {}",
+			LOGGER.info("Ask docker for the list of libraries for user {} and exploratory {} computational {}",
 					userInfo.getName(), userInstance.getExploratoryId(),
 					userInstance.getResources());
 

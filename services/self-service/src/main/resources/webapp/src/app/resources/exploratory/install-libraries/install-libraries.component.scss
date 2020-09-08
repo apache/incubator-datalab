@@ -363,6 +363,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
           padding-left: 15px;
         }
       }
+      .status{
+        text-transform: none;
+      }
     }
   }
 
@@ -518,20 +521,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
         display: flex;
       }
     }
-
-    .reset{
-      &:hover {
-        border-color: #f1696e;
-        background: #f9fafb;
-        color: #f1696e;
-      }
-    }
-
-    .apply:hover {
-      border-color: #49af38;
-      background: #f9fafb;
-      color: #49af38;
-    }
   }
 }
 
@@ -543,23 +532,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     &.list-item{
       color: #4a5c89 !important;
     }
-  }
-}
-
-.filter-row .filter-actions {
-  display: flex;
-
-  .reset{
-      &:hover {
-      border-color: #f1696e;
-      background: #f9fafb;
-      color: #f1696e;
-    }
-  }
-  .apply:hover {
-    border-color: #49af38;
-    background: #f9fafb;
-    color: #49af38;
   }
 }
 

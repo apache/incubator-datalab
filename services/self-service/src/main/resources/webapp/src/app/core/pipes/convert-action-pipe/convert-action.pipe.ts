@@ -22,7 +22,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({ name: 'convertaction' })
 
 export class ConvertActionPipe implements PipeTransform {
-  transform(value: string): any {
+  transform(value: string, lowercase?): any {
+    if (!!lowercase) {
+      return value.toLowerCase().replace(/_/g, ' ');
+    }
     return value.charAt(0) + value.slice(1).toLowerCase().replace(/_/g, ' ');
   }
 }
