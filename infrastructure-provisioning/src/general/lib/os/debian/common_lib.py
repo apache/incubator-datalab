@@ -43,8 +43,13 @@ def manage_pkg(command, environment, requisites, warn='False'):
                         counter += 1
                         time.sleep(10)
                     else:
-                        allow = True
-                        sudo('sudo dpkg --configure -a')
+                        try:
+                            sudo('sudo dpkg --configure -a', warn_only=warn)
+                        except:
+                            PID = sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
+                            sudo('kill -9 {}'.format(PID))
+                            sudo('rm -f /var/lib/dpkg/lock-frontend')
+                            sudo('sudo dpkg --configure -a')
                         sudo('sudo apt update')
                         try:
                             sudo('apt-get {0} {1}'.format(command, requisites), warn_only=warn)
@@ -55,6 +60,7 @@ def manage_pkg(command, environment, requisites, warn='False'):
                             sudo('rm -f /var/lib/apt/lists/lock')
                             sudo('rm -f /var/cache/apt/archives/lock')
                             sudo('rm -f /var/lib/dpkg/lock')
+                        allow = True
                 elif environment == 'local':
                     if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
                         counter += 1
