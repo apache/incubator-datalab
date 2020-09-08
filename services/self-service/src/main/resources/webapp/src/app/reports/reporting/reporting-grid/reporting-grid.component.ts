@@ -51,35 +51,35 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   fullReport: Array<any>;
   isFiltered: boolean = false;
   active: object = {};
+  displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'empty', 'charge'];
+  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter',  'service-filter', 'empty-filter', 'actions'];
+  filtered: any;
+  isMaxRight: Subject<boolean> = new BehaviorSubject(false);
+  isFilterSelected: boolean;
+  isFilterChanged: boolean;
   public isScrollButtonsVisible: boolean;
 
   @ViewChild('nameFilter', { static: false }) filter;
   @ViewChild('tableWrapper', { static: false }) tableWrapper;
   @ViewChild('wrapper', { static: false }) wrapper;
-  @ViewChild('pageWrapper', { static: false }) pageWrapper;
 
+  @ViewChild('pageWrapper', { static: false }) pageWrapper;
   @ViewChild('table', { static: false }) table;
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   @Input() filteredReportData: ReportingConfigModel;
-  @Input() previousFilterData: ReportingConfigModel;
 
+  @Input() previousFilterData: ReportingConfigModel;
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
     this.checkMaxRight();
   }
+
   @HostListener('scroll', ['$event'])
   scrollTable($event: Event) {
     this.checkMaxRight();
   }
-
-
-
-  displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'empty', 'charge'];
-  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter',  'service-filter', 'empty-filter', 'actions'];
-  filtered: any;
-  isMaxRight: Subject<boolean> = new BehaviorSubject(false);
 
   constructor(private changeDetector: ChangeDetectorRef) {
   }
@@ -90,6 +90,7 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
       this.checkMaxRight();
       this.tableEl = this.table._elementRef.nativeElement;
     }, 1000);
+    this.checkFilters();
   }
 
   ngAfterViewInit() {
@@ -98,11 +99,19 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
+    this.checkFilters();
+  }
+
+  private checkFilters() {
+    this.isFilterChanged = JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
+    this.isFilterSelected = Object.keys(this.filteredReportData).filter(v => this.filteredReportData[v].length > 0).length > 0;
   }
 
   refreshData(fullReport, report) {
     this.reportData = [...report];
     this.fullReport = fullReport;
+    console.log(fullReport);
+    this.checkFilters();
   }
 
   setFullReport(data): void {
@@ -145,11 +154,13 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
 
   setConfiguration(reportConfig: ReportingConfigModel): void {
     this.filterConfiguration = reportConfig;
+    this.checkFilters();
   }
 
   filter_btnClick(): void {
     this.filterReport.emit(this.filteredReportData);
     this.isFiltered = true;
+    this.checkFilters();
     this.removeSorting();
   }
 
@@ -159,6 +170,7 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
     this.filter.nativeElement.value = '';
     this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);
+    this.checkFilters();
   }
 
   shapeSplit(shape) {
@@ -176,6 +188,7 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   }
 
   private checkMaxRight() {
+    console.log('check');
     if (this.reportData && this.reportData.length < 5) {
       const arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
       this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
@@ -187,9 +200,4 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
     }
 
   }
-
-  public isFilterChanged() {
-    return JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
-  }
-
 }

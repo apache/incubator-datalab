@@ -939,13 +939,13 @@ mat-progress-bar {
   outline: none;
 }
 
-.filter-row .actions .reset:hover {
+.filter-row .actions .reset:not([disabled]):hover {
   border-color: #f1696e;
   background: #f9fafb;
   color: #f1696e;
 }
 
-.filter-row .actions .apply:hover {
+.filter-row .actions .apply:not([disabled]):hover {
   border-color: #49af38;
   background: #f9fafb;
   color: #49af38;

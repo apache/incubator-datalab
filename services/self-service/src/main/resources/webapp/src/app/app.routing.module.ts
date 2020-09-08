@@ -32,7 +32,6 @@ import { ManagementComponent } from './administration/management/management.comp
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
 import { SwaggerComponent } from './swagger/swagger.component';
-
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard, AuditGuard } from './core/services';
 import {AuditComponent} from './reports/audit/audit.component';
 

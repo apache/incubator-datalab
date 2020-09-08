@@ -116,7 +116,11 @@ export class FolderTreeComponent implements OnDestroy {
     flatNode.item = node.item;
     flatNode.level = level;
     flatNode.expandable = !!node.children;
-    flatNode.obj = node.object.object;
+    if (node.object) {
+      flatNode.obj = node.object.object;
+    } else {
+      flatNode.obj = '';
+    }
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;

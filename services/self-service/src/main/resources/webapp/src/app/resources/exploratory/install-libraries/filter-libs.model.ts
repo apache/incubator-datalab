@@ -22,7 +22,7 @@ export class FilterLibsModel {
     public name: string,
     public group: Array<any>,
     public resource: Array<any>,
-    public resourceType: Array<any>,
+    public resource_type: Array<any>,
     public status: Array<any>,
   ) { }
 
@@ -30,7 +30,7 @@ export class FilterLibsModel {
     this.name = '';
     this.group = [];
     this.resource = [];
-    this.resourceType = [];
+    this.resource_type = [];
     this.status = [];
   }
 }

@@ -40,6 +40,7 @@ import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 import {AuditService} from '../../core/services/audit.service';
+import {JAN} from '@angular/material/core';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -119,6 +120,9 @@ export class ResourcesGridComponent implements OnInit {
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
   public bucketsList: BucketList;
   public activeProjectsList: any;
+  public isFilterChanged: boolean;
+  public isFilterSelected: boolean;
+  private cashedFilterForm: FilterConfigurationModel;
 
   constructor(
     public toastr: ToastrService,
@@ -151,6 +155,7 @@ export class ResourcesGridComponent implements OnInit {
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
         this.progressBarService.stopProgressBar();
+
         }, () => this.progressBarService.stopProgressBar());
   }
 
@@ -160,6 +165,12 @@ export class ResourcesGridComponent implements OnInit {
 
   public onUpdate($event): void {
     this.filterForm[$event.type] = $event.model;
+    this.checkFilters();
+  }
+
+  private checkFilters() {
+    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterForm);
+    this.isFilterSelected = Object.keys(this.filterForm).filter(v => this.filterForm[v].length > 0).length > 0;
   }
 
   public selectActiveProject(project = ''): void {
@@ -319,9 +330,11 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public applyFilter_btnClick(config: FilterConfigurationModel): void {
-
+    const cached = this.loadUserPreferences(config);
+    this.cashedFilterForm = JSON.parse(JSON.stringify(cached));
+    Object.setPrototypeOf(this.cashedFilterForm, Object.getPrototypeOf(cached));
     let filteredData = this.getEnvironmentsListCopy();
-
+    this.checkFilters();
     const containsStatus = (list, selectedItems) => {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
@@ -416,6 +429,7 @@ export class ResourcesGridComponent implements OnInit {
           this.filterForm = this.loadUserPreferences(result.type ? this.filterActiveInstances() : this.aliveStatuses(result));
         }
         this.applyFilter_btnClick(result || this.filterForm);
+        this.checkFilters();
       }, () => this.applyFilter_btnClick(null));
   }
 

@@ -88,6 +88,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public selectedLib: any = null;
   public isLibSelected: boolean = false;
   public isVersionInvalid: boolean = false;
+  private isFilterChanged: boolean;
+  private isFilterSelected: boolean;
+  private cashedFilterForm: FilterLibsModel;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -199,6 +202,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public onFilterUpdate($event) {
     this.filterModel[$event.type] = $event.model;
+    this.checkFilters();
+  }
+
+  private checkFilters() {
+    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterModel);
+    this.isFilterSelected = Object.keys(this.filterModel).filter(v => this.filterModel[v].length > 0).length > 0;
   }
 
   public isDuplicated(item) {
@@ -291,7 +300,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public isInstallingInProgress(): void {
     this.installingInProgress = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
       if (this.installingInProgress) {
-        timer(this.INSTALLATION_IN_PROGRESS_CHECK).pipe(take(1)).subscribe(v => this.getInstalledLibrariesList());
+        timer(this.INSTALLATION_IN_PROGRESS_CHECK)
+          .pipe(
+            take(1),
+            takeUntil(this.unsubscribe$)
+          )
+          .subscribe(v => this.getInstalledLibrariesList());
       }
   }
 
@@ -329,7 +343,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v => this.groupsListMap[v.group]));
         this.filterConfiguration.group = SortUtils.libFilterGroupsSort(this.filterConfiguration.group);
         this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resource)));
-        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib =>
+        this.filterConfiguration.resource_type = this.createFilterList(this.notebookLibs.map(lib =>
           lib.status.map(status => status.resourceType)));
         this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.status)));
         this.isInstallingInProgress();
@@ -356,7 +370,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     } else {
       this.libs_uploaded = false;
       this.uploading = true;
-      timer(this.CHECK_GROUPS_TIMEOUT).pipe(take(1)).subscribe(() => this.uploadLibGroups());
+      timer(this.CHECK_GROUPS_TIMEOUT).pipe(
+        take(1),
+        takeUntil(this.unsubscribe$)
+      ).subscribe(() => this.uploadLibGroups());
     }
   }
 
@@ -413,7 +430,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       .subscribe((libs: GetLibrary) => {
         if (libs.autoComplete === 'UPDATING') {
            timer(5000).pipe(
-            take(1)
+            take(1),
+            takeUntil(this.unsubscribe$)
           ).subscribe(_ => {
             this.getMatchedLibs();
           });
@@ -455,26 +473,31 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.filtered = !this.filtered;
   }
 
-  public filterLibs(): void {
+  public filterLibs(updCachedForm?): void {
+    if (!this.cashedFilterForm || updCachedForm) {
+      this.cashedFilterForm = JSON.parse(JSON.stringify(this.filterModel));
+      Object.setPrototypeOf(this.cashedFilterForm, Object.getPrototypeOf(this.filterModel));
+    }
     this.filtredNotebookLibs = this.notebookLibs.filter((lib) => {
-      const isName = this.filterModel.name ?
-        lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1
-        || lib.version.indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
-      const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(this.groupsListMap[lib.group]) : true;
+      const isName = this.cashedFilterForm.name ?
+        lib.name.toLowerCase().indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1
+        || lib.version.indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1 : true;
+      const isGroup = this.cashedFilterForm.group.length ? this.cashedFilterForm.group.includes(this.groupsListMap[lib.group]) : true;
       lib.filteredStatus = lib.status.filter(status => {
-        const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) : true;
-        const isResourceType = this.filterModel.resourceType.length ? this.filterModel.resourceType.includes(status.resourceType) : true;
-        const isStatus = this.filterModel.status.length ? this.filterModel.status.includes(status.status) : true;
+        const isResource = this.cashedFilterForm.resource.length ? this.cashedFilterForm.resource.includes(status.resource) : true;
+        const isResourceType = this.cashedFilterForm.resource_type.length ? this.cashedFilterForm.resource_type.includes(status.resourceType) : true;
+        const isStatus = this.cashedFilterForm.status.length ? this.cashedFilterForm.status.includes(status.status) : true;
         return isResource && isResourceType && isStatus;
       });
+      this.checkFilters();
       return isName && isGroup && lib.filteredStatus.length;
     });
   }
 
   public resetFilterConfigurations(): void {
     this.notebookLibs.forEach(v => v.filteredStatus = v.status);
-    this.filtredNotebookLibs = [...this.notebookLibs];
     this.filterModel.resetFilterLibs();
+    this.filterLibs(true);
   }
 
   public openLibInfo(lib, type) {

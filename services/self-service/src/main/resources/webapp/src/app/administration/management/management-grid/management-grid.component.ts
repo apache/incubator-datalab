@@ -67,6 +67,8 @@ export class ManagementGridComponent implements OnInit {
   private selected;
   private allActiveNotebooks: any;
   private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
+  private isFilterSelected: boolean;
+  private isFilterChanged: boolean;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -101,6 +103,12 @@ export class ManagementGridComponent implements OnInit {
 
   public onUpdate($event): void {
     this.filterForm[$event.type] = $event.model;
+    this.checkFilters();
+  }
+
+  private checkFilters() {
+    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterForm);
+    this.isFilterSelected = Object.keys(this.filterForm).filter(v => this.filterForm[v].length > 0).length > 0;
   }
 
   public toggleFilterRow(): void {
@@ -157,6 +165,7 @@ export class ManagementGridComponent implements OnInit {
       .filter(v => v.name &&
       (v.status === 'running' || v.status === 'stopped') &&
       !this.clustersInProgress(v.resources));
+    this.checkFilters();
   }
 
   getEnvironmentDataCopy() {

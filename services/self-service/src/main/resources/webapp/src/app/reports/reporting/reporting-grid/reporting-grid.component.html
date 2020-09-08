@@ -177,7 +177,7 @@
 
 
         <ng-container matColumnDef="charge" stickyEnd>
-          <th mat-header-cell *matHeaderCellDef class="th_charges label-header" [ngClass]="{'right-sticky': reportData?.length < 5}">
+          <th mat-header-cell *matHeaderCellDef class="th_charges label-header index-102" [ngClass]="{'right-sticky': reportData?.length < 5}">
             <div class="label">
               <div class="sort">
                 <div class="sort-arrow up" (click)="sortBy('cost', 'down')" [ngClass]="{'active': !!this.active['costdown']}"></div>
@@ -250,13 +250,13 @@
           </th>
         </ng-container>
         <ng-container matColumnDef="actions" stickyEnd>
-          <th mat-header-cell *matHeaderCellDef class="filter-row-item" [ngClass]="{'right-sticky': reportData?.length < 5}">
+          <th mat-header-cell *matHeaderCellDef class="filter-row-item index-102" [ngClass]="{'right-sticky': reportData?.length < 5}" [ngStyle]="{'zIndex': '101 !important'}">
             <div class="actions">
-              <button mat-icon-button class="btn reset" (click)="resetFiltering(); isFiltered = !isFiltered">
+              <button mat-icon-button class="btn reset" (click)="resetFiltering(); isFiltered = !isFiltered" [disabled]="!isFilterSelected">
                 <i class="material-icons">close</i>
               </button>
 
-              <button mat-icon-button class="btn apply" (click)="filter_btnClick()" [disabled]="isFilterChanged()">
+              <button mat-icon-button class="btn apply" (click)="filter_btnClick()" [disabled]="isFilterChanged">
                 <i class="material-icons">done</i>
               </button>
             </div>
@@ -264,7 +264,10 @@
         </ng-container>
         <ng-container matColumnDef="placeholder">
           <td mat-footer-cell *matFooterCellDef colspan="9" class="info">
-            <span>No data available</span>
+            <span *ngIf="!isFilterSelected; else notFound">No data available</span>
+            <ng-template #notFound>
+              <span>No matches found</span>
+            </ng-template>
           </td>
         </ng-container>
 
@@ -280,12 +283,12 @@
       </table>
     </section>
     <div class="buttons" *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0 && reportData?.length">
-      <div class="button-container">
+      <div class="button-container" >
         <button mat-mini-fab aria-label="Scroll left" (click)="sctollTo('left')" [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 && reportData?.length > 4 || pageWrapper.scrollLeft === 0 && reportData?.length < 5}">
           <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0 || pageWrapper.scrollLeft !== 0 && reportData?.length < 5}">keyboard_arrow_left</mat-icon>
         </button>
       </div>
-      <div class="button-container">
+      <div class="button-container" [ngClass]="{'not-allowed': this.checkMaxRight()}">
         <button mat-mini-fab aria-label="Scroll right"
                 (click)="sctollTo('right')"
                 [ngClass]="{'not-allowed': !(isMaxRight | async)}"

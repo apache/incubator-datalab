@@ -211,11 +211,11 @@
     <ng-container matColumnDef="filter-buttons" stickyEnd>
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <div class="actions audit-actions">
-          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="!isFilterSelected">
             <i class="material-icons">close</i>
           </button>
 
-          <button mat-icon-button class="btn apply" (click)="buildAuditGrid(true)" [disabled]="!didFilterChanged()">
+          <button mat-icon-button class="btn apply" (click)="buildAuditGrid(true)" [disabled]="!isNavigationDisabled">
             <i class="material-icons">done</i>
           </button>
         </div>
