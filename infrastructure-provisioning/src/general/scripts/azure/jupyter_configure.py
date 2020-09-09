@@ -207,7 +207,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to configure jupyter.", str(err))
-        #AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -294,7 +294,7 @@ if __name__ == "__main__":
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except Exception as err:
             dlab.fab.append_result("Failed creating image.", str(err))
-            #AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+            AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
 
     try:
