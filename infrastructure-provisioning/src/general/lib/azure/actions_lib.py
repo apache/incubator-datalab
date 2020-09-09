@@ -1238,9 +1238,9 @@ def prepare_disk(os_user):
                     if 'Syncing disks' in out:
                         allow = True
                     elif 'The kernel still uses the old table.' in out:
-                        #sudo('partprobe')
-                        with settings(warn_only=True):
-                            reboot(wait=180)
+                        sudo('partprobe')
+                        #with settings(warn_only=True):
+                        reboot(wait=180)
                         allow = True
                     else:
                         counter += 1
