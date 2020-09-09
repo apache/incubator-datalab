@@ -190,6 +190,7 @@ def put_resource_status(resource, status, dlab_path, os_user, hostname):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
+            sudo('pip2 install pyrsistent==0.16.0 --no-cache-dir')
             sudo('pip2 install notebook==5.7.8 --no-cache-dir')
             sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
