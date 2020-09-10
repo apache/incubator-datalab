@@ -52,20 +52,19 @@ import static com.epam.dlab.process.model.ProcessStatus.TIMEOUT;
 @Slf4j
 public class ProcessInfoBuilder implements Supplier<ProcessInfo>, Testing, TimeoutAction, Expireable {
 
+	private static Function<Process, Integer> pidSupplier = null;
 	private final ProcessId processId;
 	private final long startTimeStamp = System.currentTimeMillis();
-	private ProcessStatus status = CREATED;
 	private final StringBuilder stdOut = new StringBuilder();
 	private final StringBuilder stdErr = new StringBuilder();
+	private ProcessStatus status = CREATED;
 	private int exitCode = -1;
 	private String[] command = new String[]{"N/A"};
 	private Collection<ProcessInfo> rejected = null;
 	private int pid = -1;
-
 	private boolean finished = false;
 	private boolean stdOutClosed = false;
 	private boolean stdErrClosed = false;
-
 	private Process p = null;
 	private CompletableFuture<ProcessInfo> future;
 	private long expirationTime;
@@ -151,6 +150,40 @@ public class ProcessInfoBuilder implements Supplier<ProcessInfo>, Testing, Timeo
 		}
 	}
 
+	public static void future(ProcessInfoBuilder b, CompletableFuture<ProcessInfo> future) {
+		if (b.future == null) {
+			b.future = future;
+		} else {
+			future.cancel(true);
+		}
+	}
+
+	public static int getPid(Process process) {
+		try {
+			if (pidSupplier == null) {
+				Class<?> cProcessImpl = process.getClass();
+				final Field fPid = cProcessImpl.getDeclaredField("pid");
+				log.debug("PID field found");
+				if (!fPid.isAccessible()) {
+					fPid.setAccessible(true);
+				}
+				pidSupplier = p -> {
+					try {
+						return fPid.getInt(p);
+					} catch (IllegalAccessException e) {
+						log.error("Unable to access PID. {}", e.getMessage(), e);
+						return -1;
+					}
+				};
+			}
+			return pidSupplier.apply(process);
+		} catch (NoSuchFieldException e) {
+			log.debug("PID field not found", e);
+			pidSupplier = p -> -1;
+			return -1;
+		}
+	}
+
 	private void launch() {
 		DlabProcess.getInstance().getUsersExecutorService(processId.getUser()).submit(() -> {
 			status = SCHEDULED;
@@ -233,14 +266,6 @@ public class ProcessInfoBuilder implements Supplier<ProcessInfo>, Testing, Timeo
 		stdErrClosed = true;
 	}
 
-	public static void future(ProcessInfoBuilder b, CompletableFuture<ProcessInfo> future) {
-		if (b.future == null) {
-			b.future = future;
-		} else {
-			future.cancel(true);
-		}
-	}
-
 	@Override
 	public void onTimeout() {
 		if (status != TIMEOUT) {
@@ -260,33 +285,4 @@ public class ProcessInfoBuilder implements Supplier<ProcessInfo>, Testing, Timeo
 	public long getExpirationTime() {
 		return expirationTime;
 	}
-
-	private static Function<Process, Integer> pidSupplier = null;
-
-	public static int getPid(Process process) {
-		try {
-			if (pidSupplier == null) {
-				Class<?> cProcessImpl = process.getClass();
-				final Field fPid = cProcessImpl.getDeclaredField("pid");
-				log.debug("PID field found");
-				if (!fPid.isAccessible()) {
-					fPid.setAccessible(true);
-				}
-				pidSupplier = p -> {
-					try {
-						return fPid.getInt(p);
-					} catch (IllegalAccessException e) {
-						log.error("Unable to access PID. {}", e.getMessage(), e);
-						return -1;
-					}
-				};
-			}
-			return pidSupplier.apply(process);
-		} catch (NoSuchFieldException e) {
-			log.debug("PID field not found", e);
-			pidSupplier = p -> -1;
-			return -1;
-		}
-	}
-
 }

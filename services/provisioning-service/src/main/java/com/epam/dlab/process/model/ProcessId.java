@@ -38,13 +38,19 @@ public class ProcessId {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	    if (this == o) {
+		    return true;
+	    }
+	    if (o == null || getClass() != o.getClass()) {
+		    return false;
+	    }
 
-        ProcessId processId = (ProcessId) o;
+	    ProcessId processId = (ProcessId) o;
 
-        if (user != null ? !user.equals(processId.user) : processId.user != null) return false;
-        return command != null ? command.equals(processId.command) : processId.command == null;
+	    if (user != null ? !user.equals(processId.user) : processId.user != null) {
+		    return false;
+	    }
+	    return command != null ? command.equals(processId.command) : processId.command == null;
     }
 
     @Override

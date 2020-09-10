@@ -83,7 +83,7 @@ public class LoggingConfigurationFactory {
 	 */
 	@JsonProperty
 	public void setLoggers(ImmutableMap<String, JsonNode> loggers) throws InitializationException {
-		ImmutableMap.Builder<String, Level> levels = new ImmutableMap.Builder<String, Level>();
+		ImmutableMap.Builder<String, Level> levels = new ImmutableMap.Builder<>();
 		for (String key : loggers.keySet()) {
 			JsonNode node = loggers.get(key);
 			levels.put(key, toLevel(node.asText()));
