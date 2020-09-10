@@ -21,7 +21,6 @@ package com.epam.dlab.module.aws;
 
 import com.epam.dlab.core.FilterBase;
 import com.epam.dlab.exceptions.InitializationException;
-import com.epam.dlab.exceptions.ParseException;
 import com.epam.dlab.model.aws.ReportLine;
 import com.epam.dlab.module.ModuleName;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
@@ -121,12 +120,12 @@ public class FilterAWS extends FilterBase {
 	}
 
 	@Override
-	public String canParse(String line) throws ParseException {
+	public String canParse(String line) {
 		return line;
 	}
 
 	@Override
-	public List<String> canTransform(List<String> row) throws ParseException {
+	public List<String> canTransform(List<String> row) {
 		if (dlabIdIndex != -1 &&
 				(row.size() <= dlabIdIndex ||
 						!row.get(dlabIdIndex).startsWith(dlabPrefix))) {
@@ -136,11 +135,10 @@ public class FilterAWS extends FilterBase {
 	}
 
 	@Override
-	public ReportLine canAccept(ReportLine row) throws ParseException {
+	public ReportLine canAccept(ReportLine row) {
 		row.setCurrencyCode(currencyCode);
 		return row;
 	}
-
 
 	@Override
 	public ToStringHelper toStringHelper(Object self) {

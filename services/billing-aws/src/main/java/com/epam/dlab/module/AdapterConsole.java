@@ -80,12 +80,12 @@ public class AdapterConsole extends AdapterBase {
 	}
 
 	@Override
-	public void writeHeader(List<String> header) throws AdapterException {
+	public void writeHeader(List<String> header) {
 		System.out.println(CommonFormat.rowToString(header));
 	}
 
 	@Override
-	public Document writeRow(ReportLine row) throws AdapterException {
+	public Document writeRow(ReportLine row) {
 		System.out.println(CommonFormat.rowToString(row));
 		return null;
 	}

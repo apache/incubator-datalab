@@ -54,7 +54,6 @@ public class BillingServiceImpl implements BillingService {
 		try {
 			ParserBase parser = configuration.build();
 
-			LOGGER.info("Try to load billing report for configuration: {}", configuration);
 			List<BillingData> billingData = parser.parse()
 					.stream()
 					.map(this::toBillingData)
