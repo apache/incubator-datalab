@@ -439,7 +439,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
             this.getMatchedLibs();
           });
         }
-        this.autoComplete = 'NONE';
+        this.autoComplete = libs.autoComplete;
         this.filteredList = libs.libraries;
         this.filteredList.forEach(lib => {
           lib.isInSelectedList = this.model.selectedLibs.some(el => el.name.toLowerCase() === lib.name.toLowerCase());

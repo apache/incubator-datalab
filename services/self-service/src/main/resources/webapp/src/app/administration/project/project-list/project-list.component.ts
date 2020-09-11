@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Component, OnInit, Output, EventEmitter, OnDestroy, Inject} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, OnDestroy, Inject, Input} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
@@ -42,6 +42,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   dataSource: Project[] | any = [];
   projectList: Project[];
 
+  @Input() isProjectAdmin: boolean;
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
   private subscriptions: Subscription = new Subscription();
