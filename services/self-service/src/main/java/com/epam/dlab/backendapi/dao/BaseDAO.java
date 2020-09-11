@@ -66,27 +66,27 @@ import static com.mongodb.client.model.Filters.ne;
  * Implements the base API for Mongo database.
  */
 public class BaseDAO {
-	private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
 
+	public static final String ID = "_id";
+	public static final String USER = "user";
+	public static final String STATUS = "status";
+	public static final String ERROR_MESSAGE = "error_message";
+	protected static final String INSTANCE_ID = "instance_id";
+	protected static final String EDGE_STATUS = "edge_status";
+	protected static final String ADD_TO_SET = "$addToSet";
+	protected static final String UNSET_OPERATOR = "$unset";
+	static final String FIELD_SET_DELIMETER = ".$.";
+	static final String SET = "$set";
+	static final String TIMESTAMP = "timestamp";
+	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
+	private static final String INSERT_ERROR_MESSAGE = "Insert to Mongo DB fails: ";
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
 			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
 			.registerModule(new IsoDateModule())
 			.registerModule(new JavaPrimitiveModule())
 			.registerModule(new MongoModule());
-
-	static final String FIELD_SET_DELIMETER = ".$.";
-	public static final String ID = "_id";
-	static final String SET = "$set";
-	public static final String USER = "user";
-	protected static final String INSTANCE_ID = "instance_id";
-	protected static final String EDGE_STATUS = "edge_status";
-	public static final String STATUS = "status";
-	public static final String ERROR_MESSAGE = "error_message";
-	static final String TIMESTAMP = "timestamp";
-	static final String REUPLOAD_KEY_REQUIRED = "reupload_key_required";
-	protected static final String ADD_TO_SET = "$addToSet";
-	protected static final String UNSET_OPERATOR = "$unset";
 	private static final String PULL = "$pull";
 	private static final String PULL_ALL = "$pullAll";
 	private static final String EACH = "$each";
@@ -137,7 +137,7 @@ public class BaseDAO {
 							.append(ID, uuid)
 							.append(TIMESTAMP, new Date()));
 		} catch (MongoException e) {
-			LOGGER.warn("Insert to Mongo DB fails: {}", e.getLocalizedMessage(), e);
+			LOGGER.warn(INSERT_ERROR_MESSAGE + "{}", e.getLocalizedMessage(), e);
 			throw new DlabException("Insert to Mongo DB failed: " + e.getLocalizedMessage(), e);
 		}
 	}
@@ -166,8 +166,8 @@ public class BaseDAO {
 							.append(ID, uuid)
 							.append(TIMESTAMP, new Date()));
 		} catch (MongoException e) {
-			LOGGER.warn("Insert to Mongo DB fails: {}", e.getLocalizedMessage(), e);
-			throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
+			LOGGER.warn(INSERT_ERROR_MESSAGE + "{}", e.getLocalizedMessage(), e);
+			throw new DlabException(INSERT_ERROR_MESSAGE + e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -189,8 +189,8 @@ public class BaseDAO {
 							.collect(Collectors.toList())
 					);
 		} catch (MongoException e) {
-			LOGGER.warn("Insert to Mongo DB fails: {}", e.getLocalizedMessage(), e);
-			throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
+			LOGGER.warn(INSERT_ERROR_MESSAGE + "{}", e.getLocalizedMessage(), e);
+			throw new DlabException(INSERT_ERROR_MESSAGE + e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -246,7 +246,7 @@ public class BaseDAO {
 					.updateMany(condition, document);
 		} catch (MongoException e) {
 			LOGGER.warn("Update Mongo DB fails: {}", e.getLocalizedMessage(), e);
-			throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
+			throw new DlabException("Update to Mongo DB fails: " + e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -351,8 +351,7 @@ public class BaseDAO {
 	 * @param collection collection name.
 	 * @param pipeline   the aggregate pipeline.
 	 */
-	public AggregateIterable<Document> aggregate(String collection,
-												 List<? extends Bson> pipeline) {
+	public AggregateIterable<Document> aggregate(String collection, List<? extends Bson> pipeline) {
 		return mongoService.getCollection(collection)
 				.aggregate(pipeline);
 	}
@@ -395,11 +394,9 @@ public class BaseDAO {
 	 * @param projection document describing the fields in the collection to return.
 	 * @throws DlabException if documents iterator have more than one document.
 	 */
-	protected Optional<Document> findOne(String collection,
-										 Bson condition,
-										 Bson projection) {
+	protected Optional<Document> findOne(String collection, Bson condition, Bson projection) {
 		FindIterable<Document> found = find(collection, condition, projection);
-			return limitOne(found);
+		return limitOne(found);
 	}
 
 	/**

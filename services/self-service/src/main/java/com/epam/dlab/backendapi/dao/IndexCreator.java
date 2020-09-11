@@ -33,7 +33,6 @@ public class IndexCreator extends BaseDAO implements Managed {
 	public void start() {
         mongoService.getCollection(USER_INSTANCES)
                 .createIndex(Indexes.ascending(USER, EXPLORATORY_NAME, PROJECT_FIELD), new IndexOptions().unique(true));
-        // TODO: Make refactoring and append indexes for other mongo collections
     }
 
     @Override

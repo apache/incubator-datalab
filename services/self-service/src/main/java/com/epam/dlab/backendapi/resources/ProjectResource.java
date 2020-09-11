@@ -39,7 +39,6 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
@@ -76,18 +75,16 @@ public class ProjectResource {
 
 
 	@Operation(summary = "Create project", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "201", description = "Project is successfully created",
-					headers =
-					@Header(required = true, name = "Location", description = "URI of created project resource",
-							schema = @Schema(type = "string"))),
-			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
-					MediaType.APPLICATION_JSON,
-					schema = @Schema(implementation = ErrorDTO.class))),
-			@ApiResponse(responseCode = "409", description = "Project with passed name already exist in system",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "201", description = "Project is successfully created",
+			headers =
+			@Header(required = true, name = "Location", description = "URI of created project resource",
+					schema = @Schema(type = "string")))
+	@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+			MediaType.APPLICATION_JSON,
+			schema = @Schema(implementation = ErrorDTO.class)))
+	@ApiResponse(responseCode = "409", description = "Project with passed name already exist in system",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project/create")
@@ -108,12 +105,10 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Start project", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "202", description = "Project is starting"),
-			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
-					MediaType.APPLICATION_JSON,
-					schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "202", description = "Project is starting")
+	@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+			MediaType.APPLICATION_JSON,
+			schema = @Schema(implementation = ErrorDTO.class)))
 	@Path("start")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -127,12 +122,10 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Stop project", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "202", description = "Project is stopping"),
-			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
-					MediaType.APPLICATION_JSON,
-					schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "202", description = "Project is stopping")
+	@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+			MediaType.APPLICATION_JSON,
+			schema = @Schema(implementation = ErrorDTO.class)))
 	@Path("stop")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -146,14 +139,12 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Get project info", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Return information about project",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
-					@Schema(implementation = ProjectDTO.class))),
-			@ApiResponse(responseCode = "404", description = "Project with passed name not found",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Return information about project",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+			@Schema(implementation = ProjectDTO.class)))
+	@ApiResponse(responseCode = "404", description = "Project with passed name not found",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@GET
 	@Path("{name}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -167,11 +158,9 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Get available projects", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Return information about projects",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
-					@Schema(implementation = ProjectDTO.class))),
-	})
+	@ApiResponse(responseCode = "200", description = "Return information about projects",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+			@Schema(implementation = ProjectDTO.class)))
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
@@ -182,11 +171,9 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Get projects assigned to user", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Return information about projects",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
-					@Schema(implementation = ProjectDTO.class))),
-	})
+	@ApiResponse(responseCode = "200", description = "Return information about projects",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+			@Schema(implementation = ProjectDTO.class)))
 	@GET
 	@Path("/me")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -198,15 +185,13 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Update project", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Project is successfully updated"),
-			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
-					MediaType.APPLICATION_JSON,
-					schema = @Schema(implementation = ErrorDTO.class))),
-			@ApiResponse(responseCode = "404", description = "Project with passed name not found",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Project is successfully updated")
+	@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+			MediaType.APPLICATION_JSON,
+			schema = @Schema(implementation = ErrorDTO.class)))
+	@ApiResponse(responseCode = "404", description = "Project with passed name not found",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@PUT
 	@RolesAllowed("/api/project")
 	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, UpdateProjectDTO projectDTO) {
@@ -215,12 +200,10 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Remove project", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Project is successfully removed"),
-			@ApiResponse(responseCode = "404", description = "Project with passed name not found",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Project is successfully removed")
+	@ApiResponse(responseCode = "404", description = "Project with passed name not found",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@POST
 	@Path("terminate")
 	@RolesAllowed("/api/project")
@@ -231,13 +214,11 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Updates project budget", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Project budget is successfully updated"),
-			@ApiResponse(responseCode = "404", description = "Project with specified name not found"),
-			@ApiResponse(responseCode = "400", description = "Validation error",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Project budget is successfully updated")
+	@ApiResponse(responseCode = "404", description = "Project with specified name not found")
+	@ApiResponse(responseCode = "400", description = "Validation error",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@PUT
 	@Path("/budget")
 	@RolesAllowed("/api/project")
@@ -249,9 +230,7 @@ public class ProjectResource {
 	}
 
 	@Operation(summary = "Generate keys for project", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Keys are successfully generated")
-	})
+	@ApiResponse(responseCode = "200", description = "Keys are successfully generated")
 	@POST
 	@Path("/keys")
 	@Consumes(MediaType.APPLICATION_JSON)
