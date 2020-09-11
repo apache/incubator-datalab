@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.modules;
 
-import com.epam.dlab.backendapi.resources.BucketResource;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.EdgeResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.ExploratoryResourceGcp;

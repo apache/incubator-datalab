@@ -303,7 +303,6 @@ public class AdapterS3File extends AdapterBase {
 		throw new AdapterException("Unimplemented method.");
 	}
 
-
 	/**
 	 * Return the current file name.
 	 */
@@ -376,7 +375,6 @@ public class AdapterS3File extends AdapterBase {
 			fileInputStream = null;
 		}
 	}
-
 
 	@Override
 	public ToStringHelper toStringHelper(Object self) {

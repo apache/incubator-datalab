@@ -156,8 +156,7 @@ public class AdapterMongoDb extends DBAdapterBase {
 			try {
 				resourceTypeDAO = new DlabResourceTypeDAO(connection);
 			} catch (InitializationException e) {
-				throw new AdapterException("Cannot initialize billing transformer to DLab format. " + e
-						.getLocalizedMessage(), e);
+				throw new AdapterException("Cannot initialize billing transformer to DLab format. " + e.getLocalizedMessage(), e);
 			}
 
 			connection.createBillingIndexes();

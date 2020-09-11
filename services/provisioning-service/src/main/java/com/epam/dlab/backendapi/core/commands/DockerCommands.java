@@ -25,40 +25,45 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
+@FunctionalInterface
 public interface DockerCommands {
-    String GET_IMAGES = new ImagesDockerCommand()
-            .pipe(UnixCommand.awk("{print $1\":\"$2}"))
-            .pipe(UnixCommand.sort())
-            .pipe(UnixCommand.uniq())
-            .pipe(UnixCommand.grep("dlab"))
-            .pipe(UnixCommand.grep("none", "-v"))
-            .pipe(UnixCommand.grep("base", "-v"))
-            .pipe(UnixCommand.grep("ssn", "-v"))
-            .pipe(UnixCommand.grep("edge", "-v"))
-            .pipe(UnixCommand.grep("project", "-v"))
-            .toCMD();
+	String GET_IMAGES = new ImagesDockerCommand()
+			.pipe(UnixCommand.awk("{print $1\":\"$2}"))
+			.pipe(UnixCommand.sort())
+			.pipe(UnixCommand.uniq())
+			.pipe(UnixCommand.grep("dlab"))
+			.pipe(UnixCommand.grep("none", "-v"))
+			.pipe(UnixCommand.grep("base", "-v"))
+			.pipe(UnixCommand.grep("ssn", "-v"))
+			.pipe(UnixCommand.grep("edge", "-v"))
+			.pipe(UnixCommand.grep("project", "-v"))
+			.toCMD();
 
-    String GET_RUNNING_CONTAINERS_FOR_USER = "docker ps --format \"{{.Names}}\" -f name=%s";
+	String GET_RUNNING_CONTAINERS_FOR_USER = "docker ps --format \"{{.Names}}\" -f name=%s";
 
-    ObjectMapper MAPPER = new ObjectMapper()
-            .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+	ObjectMapper MAPPER = new ObjectMapper()
+			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
-    static String generateUUID() {
-        return UUID.randomUUID().toString();
-    }
+	static String generateUUID() {
+		return UUID.randomUUID().toString();
+	}
 
-    static String extractUUID(String fileName) {
-        Integer beginIndex = fileName.lastIndexOf('_');
-        Integer endIndex = fileName.lastIndexOf('.');
-        beginIndex = beginIndex < 0 ? 0 : beginIndex + 1;
-        if (endIndex < 0) endIndex = fileName.length();
-        if (beginIndex > endIndex) beginIndex = endIndex;
-        return fileName.substring(beginIndex, endIndex);
-    }
+	static String extractUUID(String fileName) {
+		Integer beginIndex = fileName.lastIndexOf('_');
+		Integer endIndex = fileName.lastIndexOf('.');
+		beginIndex = beginIndex < 0 ? 0 : beginIndex + 1;
+		if (endIndex < 0) {
+			endIndex = fileName.length();
+		}
+		if (beginIndex > endIndex) {
+			beginIndex = endIndex;
+		}
+		return fileName.substring(beginIndex, endIndex);
+	}
 
-    default String nameContainer(String... names) {
-        return String.join("_", names) + "_" + System.currentTimeMillis();
-    }
+	default String nameContainer(String... names) {
+		return String.join("_", names) + "_" + System.currentTimeMillis();
+	}
 
-    String getResourceType();
+	String getResourceType();
 }

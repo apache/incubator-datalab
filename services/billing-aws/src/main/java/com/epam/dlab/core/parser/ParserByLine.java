@@ -171,76 +171,60 @@ public abstract class ParserByLine extends ParserBase {
 				String line;
 				List<String> row;
 				ReportLine reportLine;
-				do {
-					while ((line = getNextRow()) != null) {
-						if (getFilter() != null && (line = getFilter().canParse(line)) == null) {
-							getCurrentStatistics().incrRowFiltered();
-							continue;
-						}
+				LOGGER.info("Parsing {}", getAdapterIn().getEntryName());
 
-						row = parseRow(line);
-						if ((getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
-							getCurrentStatistics().incrRowFiltered();
-							continue;
-						}
-						try {
-							if (getCondition() != null && !getCondition().evaluate(row)) {
-								getCurrentStatistics().incrRowFiltered();
-								continue;
-							}
-						} catch (ParseException e) {
-							throw new ParseException(e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics
-									().getEntryName() +
-									SOURCE_LINE +
-									getCurrentStatistics().getRowReaded() + "]: " + line, e);
-						} catch (Exception e) {
-							throw new ParseException("Cannot evaluate condition " + getWhereCondition() + ". " +
-									e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics().getEntryName()
-									+ SOURCE_LINE + getCurrentStatistics().getRowReaded() + "]: " + line, e);
-						}
-
-						try {
-							reportLine = getCommonFormat().toCommonFormat(row);
-						} catch (ParseException e) {
-							throw new ParseException("Cannot cast row to common format. " +
-									e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics().getEntryName
-									() +
-									SOURCE_LINE + getCurrentStatistics().getRowReaded() + "]: " + line, e);
-						}
-						if (getFilter() != null && (reportLine = getFilter().canAccept(reportLine)) == null) {
-							getCurrentStatistics().incrRowFiltered();
-							continue;
-						}
-
-						getCurrentStatistics().incrRowParsed();
-						if (getAggregate() != AggregateGranularity.NONE) {
-							getAggregator().append(reportLine);
-						} else {
-							billingData.add(getAdapterOut().writeRow(reportLine));
-							getCurrentStatistics().incrRowWritten();
-						}
+				while ((line = getNextRow()) != null) {
+					if (getFilter() != null && (line = getFilter().canParse(line)) == null) {
+						getCurrentStatistics().incrRowFiltered();
+						continue;
 					}
 
+					row = parseRow(line);
+					if ((getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
+						getCurrentStatistics().incrRowFiltered();
+						continue;
+					}
+					try {
+						if (getCondition() != null && !getCondition().evaluate(row)) {
+							getCurrentStatistics().incrRowFiltered();
+							continue;
+						}
+					} catch (ParseException e) {
+						throw new ParseException(e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics().getEntryName() +
+								SOURCE_LINE + getCurrentStatistics().getRowReaded() + "]: " + line, e);
+					} catch (Exception e) {
+						throw new ParseException("Cannot evaluate condition " + getWhereCondition() + ". " +
+								e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics().getEntryName() +
+								SOURCE_LINE + getCurrentStatistics().getRowReaded() + "]: " + line, e);
+					}
+
+					try {
+						reportLine = getCommonFormat().toCommonFormat(row);
+					} catch (ParseException e) {
+						throw new ParseException("Cannot cast row to common format. " +
+								e.getLocalizedMessage() + ENTRY_NAME + getCurrentStatistics().getEntryName() +
+								SOURCE_LINE + getCurrentStatistics().getRowReaded() + "]: " + line, e);
+					}
+					if (getFilter() != null && (reportLine = getFilter().canAccept(reportLine)) == null) {
+						getCurrentStatistics().incrRowFiltered();
+						continue;
+					}
+
+					getCurrentStatistics().incrRowParsed();
 					if (getAggregate() != AggregateGranularity.NONE) {
-						for (int i = 0; i < getAggregator().size(); i++) {
-							billingData.add(getAdapterOut().writeRow(getAggregator().get(i)));
-							getCurrentStatistics().incrRowWritten();
-						}
+						getAggregator().append(reportLine);
+					} else {
+						billingData.add(getAdapterOut().writeRow(reportLine));
+						getCurrentStatistics().incrRowWritten();
 					}
+				}
 
-					if (getAdapterIn().hasMultyEntry()) {
-						if (getAdapterIn().openNextEntry()) {
-							// Search entry with data
-							while (!initEntry()) {
-								if (!getAdapterIn().openNextEntry()) {
-									break;
-								}
-							}
-						} else {
-							break;
-						}
+				if (getAggregate() != AggregateGranularity.NONE) {
+					for (int i = 0; i < getAggregator().size(); i++) {
+						billingData.add(getAdapterOut().writeRow(getAggregator().get(i)));
+						getCurrentStatistics().incrRowWritten();
 					}
-				} while (getAdapterIn().hasMultyEntry() && getAdapterIn().hasEntryData());
+				}
 			}
 		} catch (GenericException e) {
 			close(true);

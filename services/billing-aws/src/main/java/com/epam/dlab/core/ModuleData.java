@@ -143,8 +143,7 @@ public class ModuleData {
 	}
 
 	public void store() {
-		final Document document = new Document().append(ID_FIELD, id).append(MODIFICATION_DATE,
-				modificationDate).append(ENTRIES_FIELD, entries);
+		final Document document = new Document().append(ID_FIELD, id).append(MODIFICATION_DATE, modificationDate).append(ENTRIES_FIELD, entries);
 		connection.getCollection(MongoConstants.BILLING_DATA_COLLECTION)
 				.updateOne(eq(ID_FIELD, id), new Document("$set", document), new UpdateOptions().upsert(true));
 		modified = false;

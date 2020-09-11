@@ -38,17 +38,14 @@ import static com.epam.dlab.backendapi.core.Constants.JSON_EXTENSION;
  */
 public class FolderListener implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FolderListener.class);
-
 	/**
 	 * Timeout of the check the file creation in milliseconds.
 	 */
 	public static final long LISTENER_TIMEOUT_MILLLIS = 1000;
-
 	/**
 	 * Timeout of the idle for the folder listener in milliseconds.
 	 */
 	public static final long LISTENER_IDLE_TIMEOUT_MILLLIS = 600L * 1000L;
-
 	/**
 	 * Timeout of waiting for the directory creation in milliseconds.
 	 */
@@ -58,7 +55,36 @@ public class FolderListener implements Runnable {
 	 * List of the folder listeners.
 	 */
 	private static final List<FolderListener> listeners = new ArrayList<>();
+	/**
+	 * Thread of the folder listener.
+	 */
+	private Thread thread;
+	/**
+	 * List of the file handles.
+	 */
+	private WatchItemList itemList;
+	/**
+	 * Flag of listening status.
+	 */
+	private boolean isListen = false;
+	/**
+	 * Time when expired of idle for folder listener in milliseconds.
+	 */
+	private long expiredIdleMillis = 0;
 
+
+	private FolderListener() {
+	}
+
+	/**
+	 * Creates thread of the folder listener
+	 *
+	 * @param directoryName Name of directory.
+	 * @param dao
+	 */
+	private FolderListener(String directoryName, CallbackHandlerDao dao) {
+		itemList = new WatchItemList(directoryName, dao);
+	}
 
 	/**
 	 * Appends the file handler for processing to the folder listener and returns instance of the file handler.
@@ -144,38 +170,6 @@ public class FolderListener implements Runnable {
 		return listeners;
 	}
 
-
-	/**
-	 * Thread of the folder listener.
-	 */
-	private Thread thread;
-	/**
-	 * List of the file handles.
-	 */
-	private WatchItemList itemList;
-	/**
-	 * Flag of listening status.
-	 */
-	private boolean isListen = false;
-	/**
-	 * Time when expired of idle for folder listener in milliseconds.
-	 */
-	private long expiredIdleMillis = 0;
-
-
-	private FolderListener() {
-	}
-
-	/**
-	 * Creates thread of the folder listener
-	 *
-	 * @param directoryName Name of directory.
-	 * @param dao
-	 */
-	private FolderListener(String directoryName, CallbackHandlerDao dao) {
-		itemList = new WatchItemList(directoryName, dao);
-	}
-
 	/**
 	 * Starts the thread of the folder listener.
 	 */
@@ -198,7 +192,7 @@ public class FolderListener implements Runnable {
 	 * Returns <b>true</b> if the folder listener thread is running and is alive, otherwise <b>false</b>.
 	 */
 	public boolean isAlive() {
-		return (thread != null ? thread.isAlive() : false);
+		return (thread != null && thread.isAlive());
 	}
 
 	/**

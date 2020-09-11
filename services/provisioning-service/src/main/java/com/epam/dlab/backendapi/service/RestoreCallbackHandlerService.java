@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+@FunctionalInterface
 public interface RestoreCallbackHandlerService {
 	void restore();
 }
