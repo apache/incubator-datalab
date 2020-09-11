@@ -219,7 +219,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           return lib.name.toLowerCase() === item.name.substring(0, item.name.lastIndexOf(':')).toLowerCase();
         });
       }
-    } else if ( !this.autoComplete ) {
+    } else if ( this.autoComplete === 'NONE') {
       this.selectedLib = {
         name: this.lib.name,
         version: this.lib.version,
@@ -238,11 +238,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
     this.isLibSelected = false;
     if ( (!this.selectedLib && !this.isVersionInvalid) || (!this.selectedLib.isInSelectedList && !this.isVersionInvalid)) {
-      if ( this.selectedLib && this.group !== 'java') {
+      if ( this.group !== 'java') {
         this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version || 'N/A' });
       } else {
         this.model.selectedLibs.push({
-          group: this.group, name: item.name.substring(0, item.name.lastIndexOf(':')),
+          group: this.group,
+          name: item.name.substring(0, item.name.lastIndexOf(':')),
           version: item.name.substring(item.name.lastIndexOf(':') + 1) || 'N/A'
         });
       }
@@ -417,7 +418,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
               }
             });
       } else {
-        this.getMatchedLibs();
+        if (this.lib.name && this.lib.name.length > 1) {
+          this.getMatchedLibs();
+        }
       }
     }
   }
@@ -436,7 +439,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
             this.getMatchedLibs();
           });
         }
-        this.autoComplete = libs.autoComplete;
+        this.autoComplete = 'NONE';
         this.filteredList = libs.libraries;
         this.filteredList.forEach(lib => {
           lib.isInSelectedList = this.model.selectedLibs.some(el => el.name.toLowerCase() === lib.name.toLowerCase());

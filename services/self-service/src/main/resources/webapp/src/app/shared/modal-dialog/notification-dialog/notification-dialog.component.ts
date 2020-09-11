@@ -41,15 +41,15 @@ import {Endpoint} from '../../../administration/project/project.component';
                       Following notebook server<span *ngIf="data.template.notebook.length>1">s</span>&nbsp;<span *ngFor="let item of data.template.notebook">
                         <span class="strong blue">{{ item.exploratory_name}}</span> in project <span
                         class="strong blue">{{ item.project }}</span>
-                        <span *ngIf="data.template.notebook.length > 1"> , </span>
+                        <span *ngIf="data.template.notebook.length > 1">, </span>
                       </span> will be stopped and all computational resources will be stopped/terminated
                   </div>
 
                   <div *ngIf="data.template.cluster.length > 0">
                       <p *ngFor="let item of data.template.cluster">
-                          Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
+                          Computational resource<span *ngIf="data.template.cluster.length > 1">s</span>&nbsp;
                           <span class="strong blue">{{ item.computational_name }}</span> for <span
-                              class="strong blue">{{ item.exploratory_name }}</span> in project<span
+                              class="strong blue">{{ item.exploratory_name }}</span> in project <span
                         class="strong blue">{{ item.project }}</span>
                           will be stopped
                       </p>
