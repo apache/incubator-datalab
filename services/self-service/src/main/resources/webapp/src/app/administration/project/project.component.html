@@ -51,7 +51,7 @@
   </mat-card>
 
   <div [hidden]="!projectList.length">
-    <project-list (editItem)="editProject($event)" (toggleStatus)="toggleStatus($event)">
+    <project-list (editItem)="editProject($event)" (toggleStatus)="toggleStatus($event)" [isProjectAdmin]="!healthStatus?.admin && healthStatus?.projectAdmin">
     </project-list>
   </div>
 </div>
