@@ -1238,9 +1238,9 @@ def prepare_disk(os_user):
                     if 'Syncing disks' in out:
                         allow = True
                     elif 'The kernel still uses the old table.' in out:
-                        sudo('partprobe')
-                        #with settings(warn_only=True):
-                        reboot(wait=180)
+                        if sudo('partprobe'):
+                            with settings(warn_only=True):
+                                reboot(wait=180)
                         allow = True
                     else:
                         counter += 1
@@ -1252,6 +1252,7 @@ def prepare_disk(os_user):
                 disk_name))
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except Exception as err:
+            traceback.print_exc()
             print('Error:', str(err))
             sys.exit(1)
 
