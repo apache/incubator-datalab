@@ -93,6 +93,9 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             sudo('apt update')
             manage_pkg('-y install', 'remote', 'libcurl4-openssl-dev libssl-dev libreadline-dev')
             manage_pkg('-y install', 'remote', 'cmake')
+            #sudo('apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9')
+            #sudo("add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/'")
+            #manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
@@ -116,23 +119,23 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
         try:
             manage_pkg('-y install', 'remote', 'r-base')
             manage_pkg('-y install', 'remote', 'gdebi-core')
-            sudo('wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-{}-amd64.deb'.format(rstudio_version))
+            sudo('wget https://download2.rstudio.org/server/xenial/amd64/rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             http_proxy = run('echo $http_proxy')
             https_proxy = run('echo $https_proxy')
-            sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /etc/systemd/system/rstudio-server.service")
-            sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /etc/systemd/system/rstudio-server.service")
-            sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
+            sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /lib/systemd/system/rstudio-server.service")
+            sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /lib/systemd/system/rstudio-server.service")
+            sudo("sed -i '/ExecStart/s|$|\"|g' /lib/systemd/system/rstudio-server.service")
             sudo(
-                'sed -i \'/\[Service\]/a Environment=\"HTTP_PROXY={}\"\'  /etc/systemd/system/rstudio-server.service'.format(
+                'sed -i \'/\[Service\]/a Environment=\"HTTP_PROXY={}\"\'  /lib/systemd/system/rstudio-server.service'.format(
                     http_proxy))
             sudo(
-                'sed -i \'/\[Service\]/a Environment=\"HTTPS_PROXY={}\"\'  /etc/systemd/system/rstudio-server.service'.format(
+                'sed -i \'/\[Service\]/a Environment=\"HTTPS_PROXY={}\"\'  /lib/systemd/system/rstudio-server.service'.format(
                     https_proxy))
             java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
-            sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /etc/systemd/system/rstudio-server.service'.format(
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /lib/systemd/system/rstudio-server.service'.format(
                 java_home))
             sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
