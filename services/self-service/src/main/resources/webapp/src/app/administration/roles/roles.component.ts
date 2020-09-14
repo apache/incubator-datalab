@@ -51,6 +51,7 @@ export class RolesComponent implements OnInit {
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
   private startedGroups: Array<any>;
+  public noPermissionMessage: string = 'You have not permissions for groups which are not assigned to your projects.';
 
   constructor(
     public toastr: ToastrService,
@@ -67,7 +68,7 @@ export class RolesComponent implements OnInit {
   }
 
   openManageRolesDialog() {
-    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.progressBarService.startProgressBar();
     this.rolesService.getGroupsData().subscribe(groups => {
       this.rolesService.getRolesData().subscribe(
         (roles: any) => {
