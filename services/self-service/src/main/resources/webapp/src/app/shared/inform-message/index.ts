@@ -19,25 +19,12 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { MaterialModule } from '../../shared/material.module';
-import { FormControlsModule } from '../../shared/form-controls';
-import { RolesComponent, ConfirmDeleteUserAccountDialogComponent } from './roles.component';
-import { GroupNameValidationDirective } from './group-name-validarion.directive';
-import {InformMessageModule} from '../../shared/inform-message';
+import { MaterialModule } from '../material.module';
+import {InformMessageComponent} from './inform-message.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MaterialModule,
-        FormControlsModule,
-        InformMessageModule
-    ],
-  declarations: [RolesComponent, ConfirmDeleteUserAccountDialogComponent, GroupNameValidationDirective],
-  entryComponents: [ConfirmDeleteUserAccountDialogComponent],
-  exports: [RolesComponent]
+    imports: [CommonModule, MaterialModule],
+    declarations: [InformMessageComponent],
+    exports: [InformMessageComponent]
 })
-export class RolesModule { }
+export class InformMessageModule { }

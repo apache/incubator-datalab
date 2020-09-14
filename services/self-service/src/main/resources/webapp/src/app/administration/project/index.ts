@@ -31,17 +31,19 @@ import { ProjectListComponent } from './project-list/project-list.component';
 import { ProjectComponent, EditProjectComponent } from './project.component';
 import { ProjectDataService } from './project-data.service';
 import {BubbleModule} from "../../shared/bubble";
+import {InformMessageModule} from '../../shared/inform-message';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    FormControlsModule,
-    UnderscorelessPipeModule,
-    BubbleModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MaterialModule,
+        FormControlsModule,
+        UnderscorelessPipeModule,
+        BubbleModule,
+        InformMessageModule
+    ],
   declarations: [ProjectComponent, EditProjectComponent, ProjectFormComponent, ProjectListComponent],
   entryComponents: [EditProjectComponent],
   providers: [ProjectDataService],

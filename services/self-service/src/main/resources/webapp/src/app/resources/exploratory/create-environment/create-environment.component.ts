@@ -48,6 +48,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   resourceGrid: any;
   images: Array<any>;
   maxNotebookLength: number = 14;
+  public areShapes: boolean;
 
   @ViewChild('configurationNode', { static: false }) configuration;
 
@@ -99,6 +100,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public getTemplates(project, endpoint) {
     this.userResourceService.getExploratoryTemplates(project, endpoint)
       .pipe(tap(results => {
+
         results.sort((a, b) =>
           (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ?
             1 : -1);
@@ -129,6 +131,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes);
       this.getImagesList();
     }
+    this.areShapes = !!Object.keys(this.shapes).length;
   }
 
   public createExploratoryEnvironment(data) {

@@ -17,26 +17,17 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.dao;
-
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.Indexes;
-import io.dropwizard.lifecycle.Managed;
-
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
-import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
-
-/** Creates the indexes for mongo collections. */
-public class IndexCreator extends BaseDAO implements Managed {
-    private static final String PROJECT_FIELD = "project";
-    @Override
-	public void start() {
-        mongoService.getCollection(USER_INSTANCES)
-                .createIndex(Indexes.ascending(USER, EXPLORATORY_NAME, PROJECT_FIELD), new IndexOptions().unique(true));
-    }
-
-    @Override
-	public void stop() {
-		//Add some functionality if necessary
-    }
+.message-wrapper{
+  min-height: 200px;
+  width: 100%;
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+  transition: box-shadow 280ms cubic-bezier(.4,0,.2,1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  border-radius: 4px;
+  background: #fff;
+  color: rgba(0,0,0,.87);
 }
+

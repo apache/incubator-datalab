@@ -89,7 +89,7 @@
               Terminate edge node
             </a>
           </li>
-          <li class="project-seting-item" (click)="editProject(element)">
+          <li class="project-seting-item" (click)="editProject(element)" *ngIf="!isProjectAdmin">
             <i class="material-icons">mode_edit</i>
             <a >
               Edit project

@@ -17,26 +17,25 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.dao;
+import { Component, Input, Output, EventEmitter, HostBinding,
+         ChangeDetectorRef, ElementRef, OnInit, OnDestroy,
+         ViewEncapsulation, HostListener } from '@angular/core';
 
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.Indexes;
-import io.dropwizard.lifecycle.Managed;
 
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
-import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+@Component({
+  selector: 'inform-message',
+  templateUrl: './inform-message.component.html',
+  styleUrls: ['./inform-message.component.css'],
 
-/** Creates the indexes for mongo collections. */
-public class IndexCreator extends BaseDAO implements Managed {
-    private static final String PROJECT_FIELD = "project";
-    @Override
-	public void start() {
-        mongoService.getCollection(USER_INSTANCES)
-                .createIndex(Indexes.ascending(USER, EXPLORATORY_NAME, PROJECT_FIELD), new IndexOptions().unique(true));
-    }
 
-    @Override
-	public void stop() {
-		//Add some functionality if necessary
-    }
+})
+export class InformMessageComponent implements OnInit {
+  @Input() message: string;
+
+  constructor() {}
+
+  ngOnInit(): void {
+  }
+
+
 }

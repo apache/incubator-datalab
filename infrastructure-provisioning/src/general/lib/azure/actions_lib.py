@@ -1224,29 +1224,36 @@ def prepare_disk(os_user):
         try:
             allow = False
             counter = 0
+            remount_azure_disk()
+            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            with settings(warn_only=True):
+                sudo('umount -l /dev/{}1'.format(disk_name))
             while not allow:
                 if counter > 4:
                     print("Unable to prepare disk")
                     sys.exit(1)
                 else:
-                    remount_azure_disk()
-                    disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
-                    with settings(warn_only=True):
-                        sudo('umount -l /dev/{}1'.format(disk_name))
                     sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' 2>&1 | tee /tmp/tee.tmp '''.format(
                         disk_name), warn_only=True)
                     out = sudo('cat /tmp/tee.tmp')
                     if 'Syncing disks' in out:
                         allow = True
-                        sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-                        sudo('mount /dev/{}1 /opt/'.format(disk_name))
-                        sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
-                            disk_name))
-                        sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+                    elif 'The kernel still uses the old table.' in out:
+                        if sudo('partprobe'):
+                            with settings(warn_only=True):
+                                reboot(wait=180)
+                        allow = True
                     else:
                         counter += 1
                         time.sleep(5)
+            sudo('umount -l /dev/{}1'.format(disk_name), warn_only=True)
+            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
+                disk_name))
+            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except Exception as err:
+            traceback.print_exc()
             print('Error:', str(err))
             sys.exit(1)
 

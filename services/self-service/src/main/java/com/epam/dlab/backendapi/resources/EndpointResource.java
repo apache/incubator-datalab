@@ -32,7 +32,6 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
@@ -63,18 +62,16 @@ public class EndpointResource {
 	}
 
 	@Operation(summary = "Create endpoint", tags = "endpoint")
-	@ApiResponses({
-			@ApiResponse(responseCode = "201", description = "Endpoint is successfully created",
-					headers =
-					@Header(required = true, name = "Location", description = "URI of created endpoint resource",
-							schema = @Schema(type = "string"))),
-			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
-					MediaType.APPLICATION_JSON,
-					schema = @Schema(implementation = ErrorDTO.class))),
-			@ApiResponse(responseCode = "409", description = "Endpoint with passed name already exist in system",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "201", description = "Endpoint is successfully created",
+			headers =
+			@Header(required = true, name = "Location", description = "URI of created endpoint resource",
+					schema = @Schema(type = "string")))
+	@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+			MediaType.APPLICATION_JSON,
+			schema = @Schema(implementation = ErrorDTO.class)))
+	@ApiResponse(responseCode = "409", description = "Endpoint with passed name already exist in system",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@Consumes(MediaType.APPLICATION_JSON)
 	@POST
 	public Response createEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo, @Valid EndpointDTO endpointDTO) {
@@ -87,14 +84,12 @@ public class EndpointResource {
 	}
 
 	@Operation(summary = "Get endpoint info", tags = "endpoint")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Return information about endpoint",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
-					@Schema(implementation = EndpointDTO.class))),
-			@ApiResponse(responseCode = "404", description = "Endpoint with passed name not found",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Return information about endpoint",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+			@Schema(implementation = EndpointDTO.class)))
+	@ApiResponse(responseCode = "404", description = "Endpoint with passed name not found",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@GET
 	@Path("{name}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -105,11 +100,9 @@ public class EndpointResource {
 	}
 
 	@Operation(summary = "Get endpoints available in system", tags = "endpoint")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Return information about endpoints",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
-					@Schema(implementation = EndpointDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Return information about endpoints",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+			@Schema(implementation = EndpointDTO.class)))
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getEndpoints(@Parameter(hidden = true) @Auth UserInfo userInfo) {
@@ -117,11 +110,9 @@ public class EndpointResource {
 	}
 
 	@Operation(summary = "Get resources related to the endpoint", tags = "endpoint")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Return information about resources of endpoint",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
-					@Schema(implementation = EndpointResourcesDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Return information about resources of endpoint",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+			@Schema(implementation = EndpointResourcesDTO.class)))
 	@GET
 	@Path("{name}/resources")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -132,12 +123,10 @@ public class EndpointResource {
 	}
 
 	@Operation(summary = "Remove endpoint", tags = "endpoint")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Endpoint is successfully removed"),
-			@ApiResponse(responseCode = "404", description = "Endpoint with passed name not found",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON,
-							schema = @Schema(implementation = ErrorDTO.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "Endpoint is successfully removed")
+	@ApiResponse(responseCode = "404", description = "Endpoint with passed name not found",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
 	@DELETE
 	@Path("{name}")
 	public Response removeEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
@@ -148,10 +137,8 @@ public class EndpointResource {
 	}
 
 	@Operation(summary = "Check whether endpoint url is valid", tags = "endpoint")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Valid endpoint url"),
-			@ApiResponse(responseCode = "404", description = "Endpoint url is not valid"),
-	})
+	@ApiResponse(responseCode = "200", description = "Valid endpoint url")
+	@ApiResponse(responseCode = "404", description = "Endpoint url is not valid")
 	@GET
 	@Path("url/{url}")
 	@Produces(MediaType.APPLICATION_JSON)
