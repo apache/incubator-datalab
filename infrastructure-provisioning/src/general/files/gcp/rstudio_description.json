@@ -23,7 +23,7 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "RStudio 1.2.5033",
+      "template_name": "RStudio 1.3.1073",
       "description": "Base image with rstudio node creation routines",
       "environment_type": "exploratory",
       "version": "RStudio-1.2.5033",
