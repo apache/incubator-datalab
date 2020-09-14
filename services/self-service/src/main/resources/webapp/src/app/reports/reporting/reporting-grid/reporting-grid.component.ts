@@ -110,7 +110,6 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   refreshData(fullReport, report) {
     this.reportData = [...report];
     this.fullReport = fullReport;
-    console.log(fullReport);
     this.checkFilters();
   }
 
@@ -188,7 +187,6 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   }
 
   private checkMaxRight() {
-    console.log('check');
     if (this.reportData && this.reportData.length < 5) {
       const arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
       this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
