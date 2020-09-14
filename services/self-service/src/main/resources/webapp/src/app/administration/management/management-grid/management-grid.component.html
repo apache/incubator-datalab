@@ -232,7 +232,7 @@
     <ng-container matColumnDef="type-filter" sticky>
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
-          [value]="filterForm.type" (input)="filterForm.type = $event.target['value']"/>
+          [value]="filterForm.type" (input)="filterForm.type = $event.target['value']" (keyup)="checkFilters()"/>
       </th>
     </ng-container>
     <ng-container matColumnDef="project-filter" sticky>
@@ -277,11 +277,11 @@
 
 
     <ng-container matColumnDef="placeholder">
-      <td mat-footer-cell *matFooterCellDef colspan="8" class="info">
-        <div
+      <td mat-footer-cell *matFooterCellDef colspan="8">
+        <div class="info"
           *ngIf="(!allFilteredEnvironmentData) && !filtering || (allFilteredEnvironmentData?.length == 0) && !filtering">
           To start working, please, create new environment</div>
-        <div *ngIf="(allFilteredEnvironmentData?.length == 0) && filtering">No matches found</div>
+        <div *ngIf="(allFilteredEnvironmentData?.length == 0) && filtering" class="info">No matches found</div>
       </td>
     </ng-container>
 
