@@ -52,6 +52,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   healthStatus: any;
   activeFiltering: boolean = false;
   resources: any = [];
+  noPermissionMessage: string = 'You are not assigned to any project.';
 
   private subscriptions: Subscription = new Subscription();
 

@@ -167,6 +167,7 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-
   </div>
+
+  <inform-message [message]="noPermissionMessage" *ngIf="!healthStatus?.admin && healthStatus?.projectAdmin && !groupsData.length"></inform-message>
 </div>

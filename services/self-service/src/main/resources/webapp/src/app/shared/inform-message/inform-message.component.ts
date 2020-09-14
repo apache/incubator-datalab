@@ -17,8 +17,25 @@
  * under the License.
  */
 
-export * from './modal-dialog/confirmation-dialog';
-export * from './modal-dialog/progress-dialog';
+import { Component, Input, Output, EventEmitter, HostBinding,
+         ChangeDetectorRef, ElementRef, OnInit, OnDestroy,
+         ViewEncapsulation, HostListener } from '@angular/core';
 
-export * from './bubble';
-export * from './inform-message';
+
+@Component({
+  selector: 'inform-message',
+  templateUrl: './inform-message.component.html',
+  styleUrls: ['./inform-message.component.css'],
+
+
+})
+export class InformMessageComponent implements OnInit {
+  @Input() message: string;
+
+  constructor() {}
+
+  ngOnInit(): void {
+  }
+
+
+}
