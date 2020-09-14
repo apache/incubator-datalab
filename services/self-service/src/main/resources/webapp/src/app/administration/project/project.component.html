@@ -46,7 +46,7 @@
 
   <mat-divider></mat-divider>
 
-  <mat-card class="project-form" *ngIf="!projectList.length">
+  <mat-card class="project-form" *ngIf="!projectList.length && healthStatus?.admin">
     <project-form></project-form>
   </mat-card>
 
@@ -54,4 +54,6 @@
     <project-list (editItem)="editProject($event)" (toggleStatus)="toggleStatus($event)">
     </project-list>
   </div>
+
+  <inform-message [message]="noPermissionMessage" *ngIf="!healthStatus?.admin && healthStatus?.projectAdmin && !projectList.length"></inform-message>
 </div>
