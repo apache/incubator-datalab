@@ -60,24 +60,30 @@
             </mat-form-field>
           </div>
         </div>
-
         <div class="control-group">
           <label class="label">Select template</label>
-          <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !templates.length }">
-            <mat-form-field>
-              <mat-select formControlName="version" disableOptionCentering [disabled]="!templates.length"
-                panelClass="create-resources-dialog" placeholder="Select template">
-                <mat-option *ngFor="let template of templates"
-                  [value]="template.exploratory_environment_versions[0].version" (click)="getShapes(template)">
-                  {{ template.exploratory_environment_versions[0].template_name }}
-                </mat-option>
-                <mat-option *ngIf="!templates.length" class="multiple-select ml-10" disabled>Templates list is empty
-                </mat-option>
-              </mat-select>
-              <button class="caret">
-                <i class="material-icons">keyboard_arrow_down</i>
-              </button>
-            </mat-form-field>
+          <div class="control selector-wrapper"
+               [matTooltip]="'Notebook creations are not available. Please, check your permissions.'"
+               matTooltipPosition="above"
+               [matTooltipClass]="'bucket-item-tooltip'"
+               [matTooltipDisabled]="!(templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)"
+          >
+            <span class="form-field-wrapper"  [ngClass]="{ 'not-active' : !templates.length  || (templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)}">
+              <mat-form-field>
+                <mat-select formControlName="version" disableOptionCentering [disabled]="!templates.length || (templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)"
+                  panelClass="create-resources-dialog" placeholder="Select template">
+                  <mat-option *ngFor="let template of templates"
+                    [value]="template.exploratory_environment_versions[0].version" (click)="getShapes(template)">
+                    {{ template.exploratory_environment_versions[0].template_name }}
+                  </mat-option>
+                  <mat-option *ngIf="!templates.length" class="multiple-select ml-10" disabled>Templates list is empty
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </span>
           </div>
         </div>
 
@@ -118,10 +124,16 @@
 
         <div class="control-group">
           <label class="label">Instance size</label>
-          <div class="control selector-wrapper" [ngClass]="{ 'not-active': !currentTemplate }">
+          <div class="control selector-wrapper"
+               [matTooltip]="'Instance size are not available. Please, check your permissions.'"
+               matTooltipPosition="above"
+               [matTooltipClass]="'bucket-item-tooltip'"
+               [matTooltipDisabled]="!(!areShapes && currentTemplate)"
+          >
+            <span class="form-field-wrapper" [ngClass]="{ 'not-active': !currentTemplate || !areShapes && currentTemplate}">
             <mat-form-field>
               <mat-label>Select instance size</mat-label>
-              <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate"
+              <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate || !areShapes && currentTemplate"
                 panelClass="create-resources-shapes" placeholder="Instance size">
                 <mat-optgroup *ngFor="let item of (shapes | keys)" [label]="item.key | underscoreless">
                   <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
@@ -133,6 +145,7 @@
                 <i class="material-icons">keyboard_arrow_down</i>
               </button>
             </mat-form-field>
+            </span>
           </div>
         </div>
 

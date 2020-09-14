@@ -68,6 +68,10 @@
   overflow-y: auto;
 }
 
+.form-field-wrapper{
+  width: 100%;
+}
+
 @-moz-document url-prefix() {
   .create-environment form {
     padding-bottom: 30px;
