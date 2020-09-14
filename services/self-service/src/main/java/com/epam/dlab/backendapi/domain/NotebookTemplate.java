@@ -26,7 +26,7 @@ public enum NotebookTemplate {
 	DEEP_LEARNING("Deep Learning  2.4"),
 	TENSOR("Jupyter with TensorFlow 2.1.0"),
 	TENSOR_RSTUDIO("RStudio with TensorFlow 2.1.0"),
-	RSTUDIO("RStudio 1.2.5033");
+	RSTUDIO("RStudio 1.3.1073");
 
 	private String name;
 
