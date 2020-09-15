@@ -58,7 +58,16 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -150,18 +159,15 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public void updateRemoteBillingData(UserInfo userInfo) {
         List<EndpointDTO> endpoints = endpointService.getEndpoints();
-        Map<EndpointDTO, List<BillingData>> billingDataMap = new HashMap<>();
         if (CollectionUtils.isEmpty(endpoints)) {
             log.error("Cannot update billing info. There are no endpoints");
             throw new DlabException("Cannot update billing info. There are no endpoints");
         }
-        try {
-            billingDataMap = endpoints
-                    .stream()
-                    .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
-        } catch (Exception e) {
-            log.error("Billing data can't be retrieved");
-        }
+
+        Map<EndpointDTO, List<BillingData>> billingDataMap = endpoints
+                .stream()
+                .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
+
         billingDataMap.forEach((endpointDTO, billingData) -> {
             log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
             if (!billingData.isEmpty()) {
