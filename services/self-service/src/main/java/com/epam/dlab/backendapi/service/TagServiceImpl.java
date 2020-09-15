@@ -30,8 +30,7 @@ import java.util.Optional;
 public class TagServiceImpl implements TagService {
 
 	@Override
-	public Map<String, String> getResourceTags(UserInfo userInfo, String endpoint, String project,
-	                                           String customTag) {
+	public Map<String, String> getResourceTags(UserInfo userInfo, String endpoint, String project, String customTag) {
 		Map<String, String> tags = new HashMap<>();
 		tags.put("user_tag", userInfo.getName());
 		tags.put("endpoint_tag", endpoint);
