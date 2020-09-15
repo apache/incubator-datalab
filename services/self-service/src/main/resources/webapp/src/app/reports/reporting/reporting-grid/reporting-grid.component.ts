@@ -58,6 +58,8 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   isFilterSelected: boolean;
   isFilterChanged: boolean;
   public isScrollButtonsVisible: boolean;
+  public previousItem: string;
+  public previousDirection: string;
 
   @ViewChild('nameFilter', { static: false }) filter;
   @ViewChild('tableWrapper', { static: false }) tableWrapper;
@@ -121,7 +123,12 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   }
 
   sortBy(sortItem, direction) {
+  if (this.previousItem === sortItem && this.previousDirection === direction) {
+    return;
+  }
   let report: Array<object>;
+  this.previousItem = sortItem;
+  this.previousDirection = direction;
   if (direction === 'down') {
     report = this.reportData.sort((a, b) => {
       if (a[sortItem] === null) a[sortItem] = '';
