@@ -119,7 +119,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
         try:
             manage_pkg('-y install', 'remote', 'r-base')
             manage_pkg('-y install', 'remote', 'gdebi-core')
-            sudo('wget https://download2.rstudio.org/server/xenial/amd64/rstudio-server-{}-amd64.deb'.format(rstudio_version))
+            sudo('wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
