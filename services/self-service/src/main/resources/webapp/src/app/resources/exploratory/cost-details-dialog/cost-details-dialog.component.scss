@@ -32,22 +32,30 @@
 
 .billing-detail {
   .service {
-    width: 30%;
+    width: 35%;
   }
 
   .resource-type,
   .cost-currency {
-    width: 10%;
+    width: 11%;
   }
 
   .resource-name,
   .usage-date-start,
   .usage-date-end {
-    width: 20%;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 10px;
     white-space: nowrap;
+  }
+
+  .resource-name{
+    width: 20%;
+  }
+
+  .usage-date-start,
+  .usage-date-end{
+    width: 17%;
   }
 
   .wide-name-field {
