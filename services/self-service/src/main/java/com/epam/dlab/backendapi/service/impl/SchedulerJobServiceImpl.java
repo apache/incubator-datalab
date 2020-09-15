@@ -134,7 +134,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
     public void updateExploratorySchedulerData(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, SchedulerJobDTO dto) {
         validateExploratoryStatus(user.getName(), project, exploratoryName);
         populateDefaultSchedulerValues(dto);
-        log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...", exploratoryName, user,
+        log.info("Updating exploratory {} for user {} with new scheduler job data: {}...", exploratoryName, user,
                 dto);
         exploratoryDAO.updateSchedulerDataForUserAndExploratory(user.getName(), project, exploratoryName, dto);
 
@@ -225,7 +225,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String expName = job.getExploratoryName();
         final String compName = job.getComputationalName();
         final String user = job.getUser();
-		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+		log.info("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
 		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), user, project, expName, compName, String.format(AUDIT_MESSAGE, expName));
     }
 
@@ -389,12 +389,15 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private List<SchedulerJobData> getComputationalSchedulersForStopping(OffsetDateTime currentDateTime,
 																		 boolean checkInactivity) {
-		return schedulerJobDAO
+		log.info("Retrieving the computational resources to Stop, current date time: " + currentDateTime);
+		List<SchedulerJobData> computationalResources = schedulerJobDAO
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING)
 				.stream()
 				.filter(canSchedulerForStoppingBeApplied(currentDateTime, false)
 						.or(schedulerJobData -> checkInactivity && computationalInactivityCondition(schedulerJobData)))
 				.collect(Collectors.toList());
+		log.info("Computational resources to Stop: " + computationalResources);
+		return computationalResources;
 	}
 
 	private boolean computationalInactivityCondition(SchedulerJobData jobData) {
@@ -471,6 +474,14 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private boolean shouldSchedulerBeExecuted(SchedulerJobDTO dto, OffsetDateTime dateTime, List<DayOfWeek> daysRepeat,
 											  LocalTime time, boolean usingOffset) {
 		LocalDateTime convertedDateTime = localDateTimeAtZone(dateTime, dto.getTimeZoneOffset());
+		log.info("Check if scheduled event should be executed: Local Time -> " + time
+				+ ". Converted Users Date Time -> " + convertedDateTime
+				+ ". Start Users Time -> " + dto.getStartTime()
+				+ ". Saved Users time zone -> " + dto.getTimeZoneOffset()
+				+ ". End Users Time -> " + dto.getEndTime()
+				+ ". Finish Users date ->" + dto.getBeginDate()
+				+ ". Begin Users date -> " + dto.getFinishDate()
+				+ ". User current Date Time ->" + dateTime);
 		return isSchedulerActive(dto, convertedDateTime)
 				&& daysRepeat.contains(convertedDateTime.toLocalDate().getDayOfWeek())
 				&& timeFilter(time, convertedDateTime.toLocalTime(), usingOffset);

@@ -259,9 +259,10 @@ public class ComputationalServiceImpl implements ComputationalService {
 	@Override
 	public void stopSparkCluster(@User UserInfo userInfo, String resourceCreator, @Project String project, String expName, @ResourceName String compName, @Info String auditInfo) {
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(resourceCreator, project, expName, true);
+		log.info("Trying stop spark cluster. Scheduled End Time: " + userInstance.getSchedulerData().getEndTime());
 		final UserInstanceStatus requiredStatus = UserInstanceStatus.RUNNING;
 		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
-			log.debug("{} spark cluster {} for userInstance {}", STOPPING.toString(), compName, expName);
+			log.info("{} spark cluster {} for userInstance {}", STOPPING.toString(), compName, expName);
 			updateComputationalStatus(resourceCreator, project, expName, compName, STOPPING);
 			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 			final String uuid = provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
