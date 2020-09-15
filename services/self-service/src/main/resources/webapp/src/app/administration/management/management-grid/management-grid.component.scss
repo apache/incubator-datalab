@@ -49,6 +49,9 @@
 
     .shape {
       width: 17% !important;
+      .label{
+        position: absolute;
+      }
     }
 
     .status {
@@ -56,7 +59,7 @@
     }
 
     .type {
-      width: 13%;
+      width: 11%;
     }
 
     .resources {
@@ -124,6 +127,7 @@
 
       &.actions {
         z-index: 5 !important;
+        min-width: 100px !important;
       }
     }
 
@@ -141,10 +145,6 @@
       max-width: 250px;
     }
   }
-}
-
-.source .resource-wrap .resource-name .detailed-link {
-  cursor: default !important;
 }
 
 table.management {
@@ -188,6 +188,15 @@ table.management {
   .info{
     padding: 40px;
     text-align: center;
+  }
+
+  .source .resource-wrap {
+    .resource-actions{
+      padding-right: 0;
+    }
+    .resource-name .detailed-link {
+      cursor: default !important;
+    }
   }
 }
 
