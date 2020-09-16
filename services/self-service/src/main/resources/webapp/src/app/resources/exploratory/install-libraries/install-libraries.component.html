@@ -206,7 +206,7 @@
     </div>
 
     <div class="libs-info">
-      <mat-list>
+      <mat-list class="scrolling">
         <mat-list-item class="list-header">
           <div class="lib-name">Name
             <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
@@ -361,12 +361,13 @@
             </div>
           </mat-list-item>
           </ng-container>
-          <div *ngIf="!filtredNotebookLibs.length && notebookLibs?.length" class="scrollingList info message">
-            <p>No matches found</p>
-          </div>
+
         </div>
         <div *ngIf="!notebookLibs?.length" class="scrollingList info message">
           <p>You have no libraries installed</p>
+        </div>
+        <div *ngIf="!filtredNotebookLibs.length && notebookLibs?.length" class="scrollingList info message">
+          <p>No matches found</p>
         </div>
       </mat-list>
     </div>

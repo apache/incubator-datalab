@@ -30,7 +30,7 @@
       flex: initial;
       justify-content: center;
       flex-direction: initial;
-      margin-bottom: 25px;
+      margin-bottom: 10px;
       bottom: 30px;
       left: 0;
       right: 0;
@@ -72,7 +72,7 @@
 
 .install-libraries {
   height: 100%;
-  padding-bottom: 130px;
+  padding-bottom: 110px;
 
   .dialog-header {
     padding-left: 25px;
@@ -349,7 +349,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 .libs-info {
-  padding: 0 20px;
+  padding: 0 25px;
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
@@ -369,16 +369,32 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     }
   }
 
-
   .mat-list {
     width: 100%;
+    overflow-y: auto;
+    overflow-x: overlay;
+    position: relative;
+    height: 350px;
+    padding-top: 0;
+    margin-top: 8px;
+
+    .list-header{
+      line-height: 40px;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      background-color: #fff;
+    }
+
+    .filter-row{
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+      background-color: #fff;
+    }
+
 
     .scrollingList {
-      max-height: 300px;
-      height: 80%;
-      overflow-y: auto;
-      overflow-x: overlay;
-
       .info {
         p {
           text-align: center;
@@ -600,28 +616,40 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   }
 }
 
-  @media screen and (min-width: 1281px) {
+@media screen and (max-height: 840px) {
   .libs-info {
-    height: 60%;
-
     .mat-list {
-      .scrollingList {
-        max-height: 300px;
-        height: 80%;
-      }
+      height: 250px;
+
     }
   }
 }
 
-@media screen and (max-height: 800px) {
-  .libs-info {
-    height: 50%;
-
-    .mat-list {
-      .scrollingList {
-        max-height: 140px;
-        height: 60%;
+  @media screen and (max-height: 720px) {
+    .libs-info {
+      .mat-list {
+        height: 200px;
       }
     }
+  }
+
+@media screen and (max-height: 640px) {
+
+  .aligner>div.actions {
+    margin-bottom: 0;
+  }
+
+  .install-libraries {
+    padding-bottom: 90px;
+  }
+
+  .libs-info {
+    .mat-list {
+      height: 160px;
+    }
+  }
+
+  .message {
+    padding: 10px 20px;
   }
 }
