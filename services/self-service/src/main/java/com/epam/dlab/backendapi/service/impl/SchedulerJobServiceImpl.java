@@ -474,13 +474,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private boolean shouldSchedulerBeExecuted(SchedulerJobDTO dto, OffsetDateTime dateTime, List<DayOfWeek> daysRepeat,
 											  LocalTime time, boolean usingOffset) {
 		LocalDateTime convertedDateTime = localDateTimeAtZone(dateTime, dto.getTimeZoneOffset());
-		log.info("Check if scheduled event should be executed: Local Time -> " + time
+		log.info("Check if scheduled event should be executed: Time -> " + time
 				+ ". Converted Users Date Time -> " + convertedDateTime
+				+ ". Converted Users Date Time TO LOCAL time -> " + convertedDateTime.toLocalTime()
 				+ ". Start Users Time -> " + dto.getStartTime()
 				+ ". Saved Users time zone -> " + dto.getTimeZoneOffset()
 				+ ". End Users Time -> " + dto.getEndTime()
 				+ ". Finish Users date ->" + dto.getBeginDate()
 				+ ". Begin Users date -> " + dto.getFinishDate()
+				+ ". Is offset using -> " + usingOffset
+				+ ". Nodes time stamp -> " + LocalDateTime.now().toLocalTime()
 				+ ". User current Date Time ->" + dateTime);
 		return isSchedulerActive(dto, convertedDateTime)
 				&& daysRepeat.contains(convertedDateTime.toLocalDate().getDayOfWeek())
