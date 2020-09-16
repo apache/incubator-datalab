@@ -426,6 +426,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private getMatchedLibs() {
+    if (this.lib.name.length < 2) {
+      return;
+    }
     this.model.getLibrariesList(this.group, this.lib.name.toLowerCase())
       .pipe(
         takeUntil(this.unsubscribe$)
