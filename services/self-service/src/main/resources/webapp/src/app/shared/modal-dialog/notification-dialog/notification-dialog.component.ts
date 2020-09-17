@@ -36,25 +36,25 @@ import {Endpoint} from '../../../administration/project/project.component';
                 <span class="strong">{{ data.item.action.project_name }}</span> will be terminated.
               </div>
             </div>
-              <div *ngIf="data.type === 'list'" class="info">
-                  <div *ngIf="data.template.notebook.length > 0">
-                      Following notebook server<span *ngIf="data.template.notebook.length>1">s</span>&nbsp;<span *ngFor="let item of data.template.notebook">
-                        <span class="strong blue">{{ item.exploratory_name}}</span> in project <span
+              <div  *ngIf="data.type === 'list'" class="info pb-10">
+                  <div class="quota-message" *ngIf="data.template.notebook?.length > 0">
+                      Following notebook server<span *ngIf="data.template.notebook.length>1 || data.template.notebook[0].notebook.length>1">s</span><span *ngFor="let item of data.template.notebook">
+                        <span class="strong blue" *ngFor="let notebook of item.notebook; let i = index">{{i === 0 ? '' : ', '}} {{ notebook }}</span> in project <span
                         class="strong blue">{{ item.project }}</span>
                         <span *ngIf="data.template.notebook.length > 1">, </span>
                       </span> will be stopped and all computational resources will be stopped/terminated
                   </div>
 
-                  <div *ngIf="data.template.cluster.length > 0">
-                      <p *ngFor="let item of data.template.cluster">
-                          Computational resource<span *ngIf="data.template.cluster.length > 1">s</span>&nbsp;
-                          <span class="strong blue">{{ item.computational_name }}</span> for <span
-                              class="strong blue">{{ item.exploratory_name }}</span> in project <span
-                        class="strong blue">{{ item.project }}</span>
+                  <div class="quota-message" *ngIf="data.template.cluster?.length > 0">
+                      <p>
+                          Computational resource<span *ngIf="data.template.cluster.length > 1">s</span>&nbsp;<span *ngFor="let item of data.template.cluster; let i = index">{{i === 0 ? '' : ', '}}<span class="strong blue">{{ item.computational_name }}</span> for <span
+                                class="strong blue">{{ item.exploratory_name }}</span> in project <span
+                          class="strong blue">{{ item.project }}</span>
+                          </span>
                           will be stopped
                       </p>
                   </div>
-                  <span class="strong blue">by a schedule in less than 15 minutes.</span>
+                  <span class="strong blue pb-10">by a schedule in less than 15 minutes.</span>
               </div>
               <div class="alert" *ngIf="data.type === 'message'">
                 <span  class='highlight'[innerHTML]="data.template"></span>
@@ -79,7 +79,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                               <div class="resource-name">Resource</div>
                               <div class="project">Project</div>
                           </div>
-                          <div class="scrolling-content resource-heigth">
+                          <div class="scrolling-content resource-heigth scrolling">
                               <div class="resource-list-row sans node" *ngFor="let project of data.list">
                                   <div class="resource-name ellipsis">
                                       <div>Edge node</div>
@@ -104,7 +104,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                           <div class="endpoint">Edge node in endpoint</div>
                           <div class="status">Further status</div>
                       </mat-list-item>
-                      <div class="scrolling-content">
+                      <div class="scrolling-content scrolling">
                           <mat-list-item *ngFor="let endpoint of filterEndpoints()" class="sans node">
                               <div class="endpoint ellipsis">{{endpoint.name}}</div>
                               <div class="status terminated">Terminated</div>
@@ -172,6 +172,7 @@ import {Endpoint} from '../../../administration/project/project.component';
     .bottom-message{padding-top: 15px;}
     .table-header{padding-bottom: 10px;}
     .alert{text-align: left; line-height: 22px; padding-bottom: 25px;padding-top: 15px;}
+    .quota-message{padding-top: 10px}
   `]
 })
 export class NotificationDialogComponent {

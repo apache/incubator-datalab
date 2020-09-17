@@ -230,6 +230,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const memo = { notebook: [], cluster: [] };
     sheduler_data.map(item => !item.computational_name ? memo.notebook.push(item) : memo.cluster.push(item));
     memo.cluster = memo.cluster.filter(el => !memo.notebook.some(elm => el.exploratory_name === elm.exploratory_name));
+    memo.notebook = memo.notebook.reduce((acc, v) => {
+      const existedProject = acc.find(el => el.project === v.project);
+      if (existedProject) {
+        existedProject.notebook.push(v.exploratory_name);
+      } else {
+        acc.push({project: v.project, notebook: [v.exploratory_name]});
+      }
+      return acc;
+    }, []);
     return memo;
   }
 
