@@ -147,7 +147,7 @@ if __name__ == "__main__":
     ssn_conf['service_base_name'] = dlab.fab.replace_multi_symbols(os.environ['conf_service_base_name'][:20],
                                                                    '-', True)
     ssn_conf['resource_group_name'] = os.environ.get(
-            'azure_source_resource_group_name', '{}-resource-group'.format(ssn_conf['service_base_name']))
+            'azure_resource_group_name', '{}-resource-group'.format(ssn_conf['service_base_name']))
     ssn_conf['region'] = os.environ['azure_region']
     ssn_conf['vpc_name'] = os.environ['azure_vpc_name']
 
