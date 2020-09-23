@@ -44,12 +44,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class BucketServiceAzureImpl implements BucketService {
+
     private final AzureAuthFile azureAuthFile;
 
     @Inject
@@ -124,12 +124,11 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(String bucket, BlobItem blob) {
-        String lastModifiedDate = blob.getProperties().getLastModified().format(DateTimeFormatter.ofPattern(DATE_FORMAT));
         return BucketDTO.builder()
                 .bucket(bucket)
                 .object(blob.getName())
-                .lastModifiedDate(lastModifiedDate)
                 .size(String.valueOf(blob.getProperties().getContentLength()))
+                .lastModifiedDate(blob.getProperties().getLastModified().toEpochSecond())
                 .build();
     }
 

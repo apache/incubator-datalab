@@ -30,5 +30,5 @@ public class BucketDTO {
     private final String bucket;
     private final String object;
     private final String size;
-    private final String lastModifiedDate;
+    private final long lastModifiedDate;
 }

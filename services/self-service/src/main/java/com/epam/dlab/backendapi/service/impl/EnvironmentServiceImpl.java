@@ -197,6 +197,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 							.resourceType(ResourceEnum.EDGE_NODE)
 							.resourceStatus(e.getStatus().toString())
 							.project(projectDTO.getName())
+							.endpoint(e.getName())
 							.ip(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null)
 							.build());
 			return Stream.concat(edges, userResources).collect(toList());
@@ -214,6 +215,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.computationalResources(userInstance.getResources())
 				.user(userInstance.getUser())
 				.project(userInstance.getProject())
+				.endpoint(userInstance.getEndpoint())
 				.cloudProvider(userInstance.getCloudProvider())
 				.exploratoryUrls(userInstance.getResourceUrl())
 				.build();
