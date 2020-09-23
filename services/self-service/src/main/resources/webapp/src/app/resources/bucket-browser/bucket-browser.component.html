@@ -190,8 +190,7 @@
                 </span>
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
-              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
-<!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate}}</div>-->
+              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate | date: 'short' }}</div>
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
                   <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>

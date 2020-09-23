@@ -50,16 +50,16 @@
                 </div>
                 <div class="service">{{ item.product }}</div>
 <!--                <div class="resource-type" >{{ item.resourse_type }}</div>-->
-                <div class="usage-date-start">{{ item.from.join('/') | date }}</div>
-                <div class="usage-date-end">{{ item.to.join('/') | date }}</div>
-                <div class="cost-currency">{{ item.cost }} {{ item.currency }}</div>
+                <div class="usage-date-start">{{ item.from.join('/') | date : 'shortDate'}}</div>
+                <div class="usage-date-end">{{ item.to.join('/') | date : 'shortDate'}}</div>
+                <div class="cost-currency">{{ item.cost | currency: item.currency :'code' }}</div>
               </mat-list-item>
             </div>
 
         </mat-list>
         <div class="total">
-          <strong>Total: </strong>{{ notebook.cost }} {{ notebook.currency_code }}</div>
+          <strong>Total: </strong>{{ notebook.cost | currency: notebook.currency_code :'code' }}</div>
       </div>
     </div>
-  </div>
+  </div>:'USD':'code'
 </div>

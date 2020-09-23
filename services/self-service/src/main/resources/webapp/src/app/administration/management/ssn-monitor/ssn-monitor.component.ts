@@ -20,7 +20,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { HealthStatusService } from '../../../core/services';
 
