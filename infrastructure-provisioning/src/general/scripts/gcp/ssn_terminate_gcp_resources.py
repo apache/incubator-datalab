@@ -135,7 +135,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Removing SSN VPC")
-    if args.pre_defined_vpc != 'true':
+    if args.pre_defined_vpc != 'True':
         try:
             GCPActions().remove_vpc(args.vpc_name)
         except Exception as err:
