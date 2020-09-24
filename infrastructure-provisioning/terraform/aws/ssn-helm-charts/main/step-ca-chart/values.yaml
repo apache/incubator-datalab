@@ -52,7 +52,7 @@ service:
 # ca contains the certificate authority configuration.
 ca:
   # name is new public key infrastructure (PKI) names.
-  name: dlab-step-ca
+  name: datalab-step-ca
   # address is the HTTP listener address of step-certificates.
   address: :9000
   # dns is the comma separated dns names to use. Leave it empty to use the format:

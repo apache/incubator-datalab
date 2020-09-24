@@ -30,7 +30,7 @@ host: MONGO_HOST
 port: 27017
 username: admin
 password: MONGO_PASSWORD
-database: dlabdb
+database: datalabdb
 
 # Adapter for reading source data. Known types: file, s3file
 adapterIn:
@@ -44,12 +44,12 @@ adapterIn:
 
 # Adapter for writing converted data. Known types: console, file, s3file, mongodb
 adapterOut:
-  - type: mongodlab
+  - type: mongodatalab
     host: MONGO_HOST
     port: 27017
     username: admin
     password: MONGO_PASSWORD
-    database: dlabdb
+    database: datalabdb
 #    bufferSize: 10000
     upsert: true
     serviceBaseName: SERVICE_BASE_NAME
@@ -58,7 +58,7 @@ adapterOut:
 filter:
   - type: aws
     currencyCode: USD
-    columnDlabTag: CONF_BILLING_TAG
+    columnDatalabTag: CONF_BILLING_TAG
     serviceBaseName: SERVICE_BASE_NAME
 
 
@@ -68,7 +68,7 @@ parser:
     headerLineNo: 1
     skipLines: 1
     columnMapping: >-
-      dlab_id=DLAB_ID;usage_date=USAGE_DATE;product=PRODUCT;
+      datalab_id=DATA_LAB_ID;usage_date=USAGE_DATE;product=PRODUCT;
       usage_type=USAGE_TYPE;usage=USAGE;cost=COST;
       resource_id=RESOURCE_ID;tags=TAGS
     aggregate: day
@@ -88,7 +88,7 @@ logging:
   appenders:
     #- type: console
     - type: file
-      currentLogFilename: /var/opt/dlab/log/ssn/billing.log
+      currentLogFilename: /var/opt/datalab/log/ssn/billing.log
       archive: true
-      archivedLogFilenamePattern: /var/opt/dlab/log/ssn/billing-%d{yyyy-MM-dd}.log.gz
+      archivedLogFilenamePattern: /var/opt/datalab/log/ssn/billing-%d{yyyy-MM-dd}.log.gz
       archivedFileCount: 10

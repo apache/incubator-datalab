@@ -26,7 +26,7 @@ from fabric.api import *
 import logging
 import sys
 import os
-from dlab.fab import *
+from datalab.fab import *
 import traceback
 
 

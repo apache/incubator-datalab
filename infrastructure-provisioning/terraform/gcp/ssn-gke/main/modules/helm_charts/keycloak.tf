@@ -62,7 +62,7 @@ resource "helm_release" "keycloak" {
   name       = "keycloak"
   repository = data.helm_repository.codecentric.metadata.0.name
   chart      = "codecentric/keycloak"
-  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  namespace  = kubernetes_namespace.datalab-namespace.metadata[0].name
   wait       = true
   timeout    = 600
 
@@ -70,5 +70,5 @@ resource "helm_release" "keycloak" {
     data.template_file.keycloak_values.rendered
   ]
   depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret, helm_release.nginx,
-                helm_release.dlab_ui]
+                helm_release.datalab_ui]
 }

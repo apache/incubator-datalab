@@ -72,7 +72,7 @@ resource "kubernetes_role_binding" "tiller_rb" {
   }
 }
 
-resource "kubernetes_namespace" "dlab-namespace" {
+resource "kubernetes_namespace" "datalab-namespace" {
   metadata {
     annotations = {
       name = var.namespace_name

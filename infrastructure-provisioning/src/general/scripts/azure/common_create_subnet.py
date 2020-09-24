@@ -23,8 +23,8 @@
 
 import argparse
 import json
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 import sys
 import ipaddress
 
@@ -61,15 +61,15 @@ if __name__ == "__main__":
             else:
                 break
         if empty_vpc:
-            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
+            datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
         else:
-            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+            datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
         if args.subnet_name != '':
             if AzureMeta().get_subnet(args.resource_group_name, args.vpc_name, args.subnet_name):
                 print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
             else:
                 print("Creating Subnet {}".format(args.subnet_name))
-                AzureActions().create_subnet(args.resource_group_name, args.vpc_name, args.subnet_name, dlab_subnet_cidr)
+                AzureActions().create_subnet(args.resource_group_name, args.vpc_name, args.subnet_name, datalab_subnet_cidr)
         else:
             print("Subnet name can't be empty")
             sys.exit(1)

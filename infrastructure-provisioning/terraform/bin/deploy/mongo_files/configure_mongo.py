@@ -74,11 +74,11 @@ if __name__ == "__main__":
         command = ['service', 'mongod', 'start']
         subprocess.call(command, shell=False)
         time.sleep(5)
-        client.dlabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
-        client.dlabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
+        client.datalabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
+        client.datalabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
         # set_mongo_parameters(client, mongo_parameters)
 
-        # client.dlabdb.security.create_index("expireAt", expireAfterSeconds=7200)
+        # client.datalabdb.security.create_index("expireAt", expireAfterSeconds=7200)
         if add_2_yml_config(path,'security','authorization','enabled'):
             command = ['service', 'mongod', 'restart']
             subprocess.call(command, shell=False)

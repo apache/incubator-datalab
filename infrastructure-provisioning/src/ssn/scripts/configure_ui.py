@@ -29,14 +29,14 @@ import json
 import sys
 import os
 import traceback
-from dlab.ssn_lib import *
-from dlab.fab import *
+from datalab.ssn_lib import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
-parser.add_argument('--dlab_path', type=str, default='')
+parser.add_argument('--datalab_path', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--os_family', type=str, default='')
@@ -64,7 +64,7 @@ parser.add_argument('--subscription_id', type=str, default=None)
 parser.add_argument('--datalake_store_name', type=str, default=None)
 parser.add_argument('--validate_permission_scope', type=str, default=None)
 parser.add_argument('--cloud_params', type=str, default='')
-parser.add_argument('--dlab_id', type=str, default=None)
+parser.add_argument('--datalab_id', type=str, default=None)
 parser.add_argument('--usage_date', type=str, default=None)
 parser.add_argument('--product', type=str, default=None)
 parser.add_argument('--usage_type', type=str, default=None)
@@ -77,8 +77,8 @@ parser.add_argument('--keycloak_client_secret', type=str, default=None)
 parser.add_argument('--keycloak_auth_server_url', type=str, default=None)
 args = parser.parse_args()
 
-dlab_conf_dir = args.dlab_path + 'conf/'
-web_path = args.dlab_path + 'webapp/'
+datalab_conf_dir = args.datalab_path + 'conf/'
+web_path = args.datalab_path + 'webapp/'
 local_log_filename = "{}_UI.log".format(args.request_id)
 local_log_filepath = "/logs/" + args.resource + "/" + local_log_filename
 logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -90,13 +90,13 @@ keystore_passwd = id_generator()
 
 def copy_ssn_libraries():
     try:
-        sudo('mkdir -p /usr/lib/python2.7/dlab/')
-        run('mkdir -p /tmp/dlab_libs/')
-        local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
-        run('chmod a+x /tmp/dlab_libs/*')
-        sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+        sudo('mkdir -p /usr/lib/python2.7/datalab/')
+        run('mkdir -p /tmp/datalab_libs/')
+        local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+        run('chmod a+x /tmp/datalab_libs/*')
+        sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
         if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+            sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
     except Exception as err:
         traceback.print_exc()
         print('Failed to copy ssn libraries: ', str(err))
@@ -118,23 +118,23 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
                                                                                              env.host_string))
-        sudo('mv /tmp/resource_status.py ' + os.environ['ssn_dlab_path'] + 'tmp/')
+        sudo('mv /tmp/resource_status.py ' + os.environ['ssn_datalab_path'] + 'tmp/')
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
                                                                                              env.host_string))
-        sudo('mv /tmp/configure_mongo.py ' + args.dlab_path + 'tmp/')
+        sudo('mv /tmp/configure_mongo.py ' + args.datalab_path + 'tmp/')
         local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
                                                                                           env.host_string))
         local('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
                                                                                              env.host_string))
-        sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
+        sudo('mv /tmp/mongo_roles.json ' + args.datalab_path + 'tmp/')
         sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
         sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
             os.environ['conf_cloud_provider'].upper()))
-        sudo('mv /tmp/local_endpoint.json ' + args.dlab_path + 'tmp/')
-        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} ".format(
-            args.dlab_path))
+        sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
+        sudo("python " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
+            args.datalab_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure MongoDB: ', str(err))
@@ -144,7 +144,7 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
 def build_ui():
     try:
         # Building Front-end
-        with cd(args.dlab_path + '/sources/services/self-service/src/main/resources/webapp/'):
+        with cd(args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/'):
             sudo('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
 
             if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
@@ -153,41 +153,41 @@ def build_ui():
 
             sudo('echo "N" | npm install')
             manage_npm_pkg('run build.prod')
-            sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
+            sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        with cd(args.dlab_path + '/sources/'):
+        with cd(args.datalab_path + '/sources/'):
             sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
-        sudo('mkdir -p {}/webapp/'.format(args.dlab_path))
+        sudo('mkdir -p {}/webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:
-            sudo('mkdir -p {}/webapp/{}/lib/'.format(args.dlab_path, service))
-            sudo('mkdir -p {}/webapp/{}/conf/'.format(args.dlab_path, service))
+            sudo('mkdir -p {}/webapp/{}/lib/'.format(args.datalab_path, service))
+            sudo('mkdir -p {}/webapp/{}/conf/'.format(args.datalab_path, service))
         sudo('cp {0}/sources/services/self-service/self-service.yml {0}/webapp/self-service/conf/'.format(
-            args.dlab_path))
+            args.datalab_path))
         sudo('cp {0}/sources/services/self-service/target/self-service-*.jar {0}/webapp/self-service/lib/'.format(
-            args.dlab_path))
+            args.datalab_path))
         sudo('cp {0}/sources/services/provisioning-service/provisioning.yml {0}/webapp/provisioning-service/conf/'.format(
-            args.dlab_path))
+            args.datalab_path))
         sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
-             '{0}/webapp/provisioning-service/lib/'.format(args.dlab_path))
+             '{0}/webapp/provisioning-service/lib/'.format(args.datalab_path))
 
         if args.cloud_provider == 'azure':
-            sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
             sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/webapp/billing/lib/'.format(
-                args.dlab_path))
+                args.datalab_path))
         elif args.cloud_provider == 'aws':
-            sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
             sudo('cp {0}/sources/services/billing-aws/src/main/resources/application.yml '
-                 '{0}/webapp/billing/conf/billing_app.yml'.format(args.dlab_path))
+                 '{0}/webapp/billing/conf/billing_app.yml'.format(args.datalab_path))
             sudo(
                 'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
-                    args.dlab_path))
+                    args.datalab_path))
         elif args.cloud_provider == 'gcp':
-            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
             sudo(
                 'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/webapp/billing/lib/'.format(
-                    args.dlab_path))
+                    args.datalab_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to build UI: ', str(err))
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print("Copying DLab libraries to SSN")
+    print("Copying Data Lab libraries to SSN")
     copy_ssn_libraries()
 
     print("Installing Supervisor")
@@ -219,8 +219,8 @@ if __name__ == "__main__":
     print("Configuring MongoDB")
     configure_mongo(mongo_passwd, args.default_endpoint_name)
 
-    sudo('echo DLAB_CONF_DIR={} >> /etc/profile'.format(dlab_conf_dir))
-    sudo('echo export DLAB_CONF_DIR >> /etc/profile')
+    sudo('echo DATA_LAB_CONF_DIR={} >> /etc/profile'.format(datalab_conf_dir))
+    sudo('echo export DATA_LAB_CONF_DIR >> /etc/profile')
 
     print("Installing build dependencies for UI")
     install_build_dep()
@@ -229,13 +229,13 @@ if __name__ == "__main__":
     build_ui()
 
     print("Starting Self-Service(UI)")
-    start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path,
+    start_ss(args.keyfile, env.host_string, datalab_conf_dir, web_path,
              args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
              args.service_base_name, args.tag_resource_id, args.billing_tag, args.account_id,
-             args.billing_bucket, args.aws_job_enabled, args.dlab_path, args.billing_enabled, args.cloud_params,
+             args.billing_bucket, args.aws_job_enabled, args.datalab_path, args.billing_enabled, args.cloud_params,
              args.authentication_file, args.offer_number, args.currency, args.locale,
              args.region_info, args.ldap_login, args.tenant_id, args.application_id,
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
-             args.dlab_id, args.usage_date, args.product, args.usage_type,
+             args.datalab_id, args.usage_date, args.product, args.usage_type,
              args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
              args.keycloak_client_secret, args.keycloak_auth_server_url)

@@ -55,7 +55,7 @@ if __name__ == "__main__":
         with open("/response/{}.json".format(os.environ['request_id']), 'w') as response_file:
             response_file.write(json.dumps(reply))
     else:
-        reply['response']['log'] = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+        reply['response']['log'] = "/var/log/datalab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
                                                                               os.environ['project_name'],
                                                                               os.environ['request_id'])
 

@@ -19,12 +19,12 @@
 #
 # ******************************************************************************
 
-FROM docker.dlab-base:latest
+FROM docker.datalab-base:latest
 
 ARG OS
 
 COPY dataengine/ /root/
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/datalab/notebook_lib.py
 COPY general/scripts/os/dataengine_* /root/scripts/
 COPY general/scripts/os/update_inactivity_on_start.py /root/scripts/
 COPY general/scripts/os/reconfigure_spark.py /root/scripts/

@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
+from datalab.actions_lib import *
 from fabric.api import *
 import os
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     bucket_name = ('{0}-{1}-{2}-bucket'.format(service_base_name,
                                                project_name, endpoint_name)).lower().replace('_', '-')
     gitlab_certfile = os.environ['conf_gitlab_certfile']
-    if dlab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
+    if datalab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)
         sudo('chown root:root {}'.format(gitlab_certfile))
         print('{} has been downloaded'.format(gitlab_certfile))

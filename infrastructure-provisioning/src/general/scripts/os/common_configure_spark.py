@@ -26,9 +26,9 @@ import sys
 import time
 import ast
 import argparse
-from dlab.fab import *
+from datalab.fab import *
 from fabric.api import *
-from dlab.notebook_lib import *
+from datalab.notebook_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -45,7 +45,7 @@ def update_spark_defaults_conf(spark_conf):
         configs = sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
         for conf in filter(None, configs):
             sudo('''sed -i '/^# Updated/d' {0}'''.format(conf))
-            sudo('''echo "# Updated by DLab at {0} >> {1}'''.format(timestamp, conf))
+            sudo('''echo "# Updated by Data Lab at {0} >> {1}'''.format(timestamp, conf))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -54,7 +54,7 @@ def update_spark_defaults_conf(spark_conf):
 def add_custom_spark_properties(cluster_name):
     try:
         if os.path.exists('/opt/{0}'.format(cluster_name)):
-            dlab_header = sudo('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name))
+            datalab_header = sudo('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name))
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
             spark_defaults = sudo('cat /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
@@ -70,7 +70,7 @@ def add_custom_spark_properties(cluster_name):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo("echo '{0}' > /opt/{1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_name))
+            sudo("echo '{0}' > /opt/{1}/spark/conf/spark-defaults.conf".format(datalab_header, cluster_name))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 sudo('echo "{0}" >> /opt/{1}/spark/conf/spark-defaults.conf'.format(prop, cluster_name))

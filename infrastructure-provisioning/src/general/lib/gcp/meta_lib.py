@@ -24,7 +24,7 @@ from googleapiclient.discovery import build
 from google.cloud import storage
 from google.cloud import exceptions
 import google.auth
-from dlab.fab import *
+from datalab.fab import *
 import actions_lib
 import os, re
 from googleapiclient import errors

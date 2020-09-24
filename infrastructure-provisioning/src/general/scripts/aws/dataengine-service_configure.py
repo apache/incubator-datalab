@@ -24,16 +24,16 @@
 import json
 import time
 from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import traceback
 import sys
 import os
 import logging
 import argparse
 import multiprocessing
-from dlab.common_lib import manage_pkg
+from datalab.common_lib import manage_pkg
 
 
 parser = argparse.ArgumentParser()
@@ -44,8 +44,8 @@ args = parser.parse_args()
 def configure_dataengine_service(instance, emr_conf):
     emr_conf['instance_ip'] = instance.get('PrivateIpAddress')
     try:
-        logging.info('[CREATING DLAB SSH USER ON DATAENGINE SERVICE]')
-        print('[CREATING DLAB SSH USER ON DATAENGINE SERVICE]')
+        logging.info('[CREATING DATA LAB SSH USER ON DATAENGINE SERVICE]')
+        print('[CREATING DATA LAB SSH USER ON DATAENGINE SERVICE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (emr_conf['instance_ip'], emr_conf['key_path'], emr_conf['initial_user'],
              emr_conf['os_user'], emr_conf['sudo_group'])
@@ -55,8 +55,8 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create dlab ssh user.", str(err))
-        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        datalab.fab.append_result("Failed to create Data Lab ssh user.", str(err))
+        datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
     # configuring proxy on Data Engine service
@@ -73,15 +73,15 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure proxy.", str(err))
-        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        datalab.fab.append_result("Failed to configure proxy.", str(err))
+        datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
     try:
         logging.info('[CONFIGURE DATAENGINE SERVICE]')
         print('[CONFIGURE DATAENGINE SERVICE]')
         try:
-            dlab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
+            datalab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
                                                        emr_conf['key_path'], True)
             env['connection_attempts'] = 100
             env.key_filename = emr_conf['key_path']
@@ -93,8 +93,8 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure dataengine service.", str(err))
-        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        datalab.fab.append_result("Failed to configure dataengine service.", str(err))
+        datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
 
@@ -132,11 +132,11 @@ def configure_dataengine_service(instance, emr_conf):
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            dlab.fab.append_result("Failed edge reverse proxy template")
+            datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed edge reverse proxy template", str(err))
-        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        datalab.fab.append_result("Failed edge reverse proxy template", str(err))
+        datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
     try:
@@ -151,8 +151,8 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing users key", str(err))
-        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        datalab.fab.append_result("Failed installing users key", str(err))
+        datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        dlab.actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
         print('Generating infrastructure names and tags')
         emr_conf = dict()
         if 'exploratory_name' in os.environ:
@@ -187,7 +187,7 @@ if __name__ == "__main__":
         emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
         emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
         emr_conf['instance_count'] = os.environ['emr_instance_count']
-        emr_conf['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
+        emr_conf['notebook_ip'] = datalab.meta_lib.get_instance_ip_address(
             emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
         emr_conf['network_type'] = os.environ['conf_network_type']
         emr_conf['role_service_name'] = os.environ['emr_service_role']
@@ -209,7 +209,7 @@ if __name__ == "__main__":
                                                                emr_conf['endpoint_name']).lower().replace('_', '-')
         tag = {"Key": "{}-tag".format(emr_conf['service_base_name']), "Value": "{}-{}-{}-subnet".format(
             emr_conf['service_base_name'], emr_conf['project_name'], emr_conf['endpoint_name'])}
-        emr_conf['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        emr_conf['subnet_cidr'] = datalab.meta_lib.get_subnet_by_tag(tag)
         emr_conf['key_path'] = '{}/{}.pem'.format(os.environ['conf_key_dir'],
                                                   os.environ['conf_key_name'])
         emr_conf['all_ip_cidr'] = '0.0.0.0/0'
@@ -217,23 +217,23 @@ if __name__ == "__main__":
                                                                                    emr_conf['project_name'],
                                                                                    emr_conf['endpoint_name'])
         emr_conf['vpc_id'] = os.environ['aws_vpc_id']
-        emr_conf['cluster_id'] = dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])
-        emr_conf['cluster_instances'] = dlab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'])
-        emr_conf['cluster_master_instances'] = dlab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'], 'MASTER')
-        emr_conf['cluster_core_instances'] = dlab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'], 'CORE')
+        emr_conf['cluster_id'] = datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])
+        emr_conf['cluster_instances'] = datalab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'])
+        emr_conf['cluster_master_instances'] = datalab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'], 'MASTER')
+        emr_conf['cluster_core_instances'] = datalab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'], 'CORE')
         emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
                                                                    emr_conf['project_name'], emr_conf['endpoint_name'])
-        emr_conf['edge_instance_hostname'] = dlab.meta_lib.get_instance_private_ip_address(
+        emr_conf['edge_instance_hostname'] = datalab.meta_lib.get_instance_private_ip_address(
             emr_conf['tag_name'], emr_conf['edge_instance_name'])
-        emr_conf['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(emr_conf['tag_name'],
+        emr_conf['edge_instance_hostname'] = datalab.meta_lib.get_instance_hostname(emr_conf['tag_name'],
                                                                                  emr_conf['edge_instance_name'])
         emr_conf['user_keyname'] = emr_conf['project_name']
         emr_conf['os_user'] = os.environ['conf_os_user']
         emr_conf['initial_user'] = 'ec2-user'
         emr_conf['sudo_group'] = 'wheel'
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
-        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        datalab.fab.append_result("Failed to generate variables dictionary", str(err))
+        datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
     try:
@@ -262,7 +262,7 @@ if __name__ == "__main__":
         print('[SUMMARY]')
         print("Service base name: {}".format(emr_conf['service_base_name']))
         print("Cluster name: {}".format(emr_conf['cluster_name']))
-        print("Cluster id: {}".format(dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])))
+        print("Cluster id: {}".format(datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])))
         print("Key name: {}".format(emr_conf['key_name']))
         print("Region: {}".format(emr_conf['region']))
         print("EMR version: {}".format(emr_conf['release_label']))
@@ -273,7 +273,7 @@ if __name__ == "__main__":
         print("Bucket name: {}".format(emr_conf['bucket_name']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": emr_conf['cluster_name'],
-                   "instance_id": dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name']),
+                   "instance_id": datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name']),
                    "key_name": emr_conf['key_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
                    "Action": "Create new EMR cluster",
@@ -286,6 +286,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
-        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        datalab.fab.append_result("Error with writing results", str(err))
+        datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)

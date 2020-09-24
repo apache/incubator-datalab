@@ -21,9 +21,9 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import logging
 import os
 import sys
@@ -39,8 +39,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     try:
         GCPActions.start_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
-        dlab.fab.append_result("Failed to start edge.", str(err))
+        datalab.fab.append_result("Failed to start edge.", str(err))
         sys.exit(1)
 
     try:
@@ -82,6 +82,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)
 

@@ -24,7 +24,7 @@
 import argparse
 from fabric.api import *
 import boto3
-from dlab.meta_lib import *
+from datalab.meta_lib import *
 import os
 
 parser = argparse.ArgumentParser()
@@ -52,13 +52,13 @@ def configure_notebook(args):
         '/tmp/rstudio_dataengine-service_create_configs.py')
     sudo('\cp /tmp/rstudio_dataengine-service_create_configs.py /usr/local/bin/rstudio_dataengine-service_create_configs.py')
     sudo('chmod 755 /usr/local/bin/rstudio_dataengine-service_create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/dlab/')
-    run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/dlab_libs/*')
-    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+    sudo('mkdir -p /usr/lib/python2.7/datalab/')
+    run('mkdir -p /tmp/datalab_libs/')
+    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    run('chmod a+x /tmp/datalab_libs/*')
+    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
 
 
 if __name__ == "__main__":

@@ -24,9 +24,9 @@
 import logging
 import json
 import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import traceback
 import os
 import uuid
@@ -42,8 +42,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    AzureMeta = dlab.meta_lib.AzureMeta()
-    AzureActions = dlab.actions_lib.AzureActions()
+    AzureMeta = datalab.meta_lib.AzureMeta()
+    AzureActions = datalab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
@@ -61,7 +61,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to start notebook.", str(err))
+        datalab.fab.append_result("Failed to start notebook.", str(err))
         sys.exit(1)
 
     try:
@@ -78,7 +78,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to setup git credentials.", str(err))
+        datalab.fab.append_result("Failed to setup git credentials.", str(err))
         sys.exit(1)
 
     if os.environ['azure_datalake_enable'] == 'true':
@@ -101,7 +101,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to update storage credentials.", str(err))
+            datalab.fab.append_result("Failed to update storage credentials.", str(err))
             sys.exit(1)
 
     try:
@@ -115,7 +115,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to update last activity time.", str(err))
+        datalab.fab.append_result("Failed to update last activity time.", str(err))
         sys.exit(1)
 
     try:
@@ -132,7 +132,7 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)
 
 

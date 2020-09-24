@@ -29,9 +29,9 @@ import random
 import string
 import sys
 import os
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
+from datalab.notebook_lib import *
+from datalab.actions_lib import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

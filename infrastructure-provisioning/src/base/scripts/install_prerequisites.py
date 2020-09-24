@@ -24,8 +24,8 @@
 from fabric.api import *
 import argparse
 import json
-from dlab.fab import *
-from dlab.common_lib import *
+from datalab.fab import *
+from datalab.common_lib import *
 from fabric.contrib.files import exists
 import sys
 import os

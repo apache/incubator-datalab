@@ -21,9 +21,9 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import sys
 import json
 import os
@@ -31,8 +31,8 @@ import os
 
 if __name__ == "__main__":
     try:
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         image_conf = dict()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -48,5 +48,5 @@ if __name__ == "__main__":
                        "Action": "Delete existing notebook image"}
                 result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Failed to delete existing notebook image", str(err))
+        datalab.fab.append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)

@@ -26,10 +26,10 @@ import os
 import json
 from fabric.api import *
 from Crypto.PublicKey import RSA
-import dlab.ssn_lib
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.ssn_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import logging
 import traceback
 
@@ -41,8 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
             raise Exception('Not possible to deploy private environment without predefined resource_group_name '
                             'or source_group_name')
         # We need to cut service_base_name to 20 symbols do to the Azure Name length limitation
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         # Check azure predefined resources
         ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name',
@@ -94,11 +94,11 @@ if __name__ == "__main__":
                                            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['primary_disk_size'] = '32'
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if AzureMeta.get_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name']):
-        dlab.fab.append_result("Service base name should be unique and less or equal 20 symbols. Please try again.")
+        datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. Please try again.")
         sys.exit(1)
 
     try:
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
     except Exception as err:
         traceback.print_exc()
-        dlab.fab.append_result("Failed to create Resource Group.", str(err))
+        datalab.fab.append_result("Failed to create Resource Group.", str(err))
         sys.exit(1)
     
     try:
@@ -127,12 +127,12 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
     except Exception as err:
         traceback.print_exc()
-        dlab.fab.append_result("Failed to create VPC.", str(err))
+        datalab.fab.append_result("Failed to create VPC.", str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
         except Exception as err:
-            dlab.fab.append_result("Resources hasn't been removed.", str(err))
+            datalab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
   
     try:
@@ -148,7 +148,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
     except Exception as err:
         traceback.print_exc()
-        dlab.fab.append_result("Failed to create Subnet.", str(err))
+        datalab.fab.append_result("Failed to create Subnet.", str(err))
         try:
             if 'azure_vpc_name' not in os.environ:
                 AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
@@ -156,7 +156,7 @@ if __name__ == "__main__":
                 AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
         except Exception as err:
             print("Resources hasn't been removed: {}".format(str(err)))
-            dlab.fab.append_result("Resources hasn't been removed.", str(err))
+            datalab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
     
     try:
@@ -177,8 +177,8 @@ if __name__ == "__main__":
                 AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
-            dlab.fab.append_result("Resources hasn't been removed.", str(err))
-        dlab.fab.append_result("Failed to create VPC peering.", str(err))
+            datalab.fab.append_result("Resources hasn't been removed.", str(err))
+        datalab.fab.append_result("Failed to create VPC peering.", str(err))
         sys.exit(1)
 
     try:
@@ -240,7 +240,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
     except Exception as err:
         traceback.print_exc()
-        dlab.fab.append_result("Error creating Security group", str(err))
+        datalab.fab.append_result("Error creating Security group", str(err))
         try:
             if 'azure_subnet_name' not in os.environ:
                 AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
@@ -251,7 +251,7 @@ if __name__ == "__main__":
                 AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
-            dlab.fab.append_result("Resources hasn't been removed.", str(err))
+            datalab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
 
     if os.environ['azure_datalake_enable'] == 'true':
@@ -280,7 +280,7 @@ if __name__ == "__main__":
                 raise Exception
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to create Data Lake Store.", str(err))
+            datalab.fab.append_result("Failed to create Data Lake Store.", str(err))
             for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
@@ -307,7 +307,7 @@ if __name__ == "__main__":
         print('[CREATE SSN INSTANCE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
-            --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+            --datalab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
             --instance_type {} --instance_storage_account_type {} --image_name {} --tags '{}'".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'],
                    ssn_conf['vpc_name'], ssn_conf['network_interface_name'], ssn_conf['security_group_name'],
@@ -318,7 +318,7 @@ if __name__ == "__main__":
         local("~/scripts/{}.py {}".format('common_create_instance', params))
     except Exception as err:
         traceback.print_exc()
-        dlab.fab.append_result("Failed to create instance.", str(err))
+        datalab.fab.append_result("Failed to create instance.", str(err))
         try:
             AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         except:

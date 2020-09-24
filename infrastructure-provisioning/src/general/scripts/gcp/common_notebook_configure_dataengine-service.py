@@ -24,9 +24,9 @@
 import logging
 import json
 import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import os
 import traceback
 import uuid
@@ -49,8 +49,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         "name": notebook_config['cluster_name'],
         "sbn": notebook_config['service_base_name'],
         "notebook_name": os.environ['notebook_instance_name'],
-        "product": "dlab",
+        "product": "datalab",
         "computational_name": (os.environ['computational_name'].replace('_', '-').lower())
     }
 
@@ -114,7 +114,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed installing Dataproc kernels.", str(err))
+        datalab.fab.append_result("Failed installing Dataproc kernels.", str(err))
         sys.exit(1)
 
     try:
@@ -132,7 +132,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure Spark.", str(err))
+        datalab.fab.append_result("Failed to configure Spark.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -144,6 +144,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         clear_resources()
         sys.exit(1)

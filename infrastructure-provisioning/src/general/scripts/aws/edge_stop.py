@@ -21,9 +21,9 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import sys
 import os
 import logging
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -52,9 +52,9 @@ if __name__ == "__main__":
     logging.info('[STOP EDGE]')
     print('[STOP EDGE]')
     try:
-        dlab.actions_lib.stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        datalab.actions_lib.stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to stop edge.", str(err))
+        datalab.fab.append_result("Failed to stop edge.", str(err))
         sys.exit(1)
 
     try:
@@ -64,5 +64,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

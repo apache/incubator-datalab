@@ -26,7 +26,7 @@ import logging
 import os
 import sys
 from fabric.api import *
-from dlab.fab import *
+from datalab.fab import *
 import traceback
 import uuid
 

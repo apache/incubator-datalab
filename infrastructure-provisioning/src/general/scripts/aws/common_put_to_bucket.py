@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
+from datalab.actions_lib import *
 import sys
 
 parser = argparse.ArgumentParser()

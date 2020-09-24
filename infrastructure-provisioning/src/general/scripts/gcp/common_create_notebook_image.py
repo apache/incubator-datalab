@@ -21,9 +21,9 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import sys
 import json
 import uuid
@@ -33,13 +33,13 @@ import os
 if __name__ == "__main__":
     try:
         image_conf = dict()
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         try:
             image_conf['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
         except:
             image_conf['exploratory_name'] = ''
-        image_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        image_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True).lower()
         image_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
         image_conf['endpoint_tag'] = image_conf['endpoint_name']
@@ -88,5 +88,5 @@ if __name__ == "__main__":
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Failed to create image from notebook", str(err))
+        datalab.fab.append_result("Failed to create image from notebook", str(err))
         sys.exit(1)

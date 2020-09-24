@@ -21,9 +21,9 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import sys
 import logging
 import os
@@ -40,7 +40,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -53,15 +53,15 @@ if __name__ == "__main__":
     logging.info('[START EDGE]')
     print('[START EDGE]')
     try:
-        dlab.actions_lib.start_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        datalab.actions_lib.start_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
     except Exception as err:
         print('Error: {0}'.format(err))
-        dlab.fab.append_result("Failed to start edge.", str(err))
+        datalab.fab.append_result("Failed to start edge.", str(err))
         sys.exit(1)
 
     try:
-        instance_hostname = dlab.meta_lib.get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
-        addresses = dlab.meta_lib.get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name'])
+        instance_hostname = datalab.meta_lib.get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
+        addresses = datalab.meta_lib.get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name'])
         ip_address = addresses.get('Private')
         public_ip_address = addresses.get('Public')
         print('[SUMMARY]')
@@ -79,5 +79,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

@@ -28,9 +28,9 @@ import json
 import random
 import string
 import sys
-from dlab.notebook_lib import *
-from dlab.fab import *
-from dlab.common_lib import *
+from datalab.notebook_lib import *
+from datalab.fab import *
+from datalab.common_lib import *
 import backoff
 import os
 import re
@@ -125,7 +125,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             http_proxy = run('echo $http_proxy')
             https_proxy = run('echo $https_proxy')
-            sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /etc/systemd/system/rstudio-server.service")
+            sudo("sed -i '/Type=forking/a \Environment=USER=datalab-user' /etc/systemd/system/rstudio-server.service")
             sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /etc/systemd/system/rstudio-server.service")
             sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
             sudo(

@@ -26,7 +26,7 @@ from fabric.api import *
 import argparse
 import sys
 import os
-from dlab.edge_lib import install_nginx_ldap
+from datalab.edge_lib import install_nginx_ldap
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

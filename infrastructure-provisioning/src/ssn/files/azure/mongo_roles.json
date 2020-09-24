@@ -83,7 +83,7 @@
     "_id": "nbCreateDeeplearning",
     "description": "Create Notebook Deep Learning",
     "exploratories": [
-      "docker.dlab-deeplearning"
+      "docker.datalab-deeplearning"
     ],
     "groups": [
       "$anyuser"
@@ -93,7 +93,7 @@
     "_id": "nbCreateJupyter",
     "description": "Create Notebook Jupyter",
     "exploratories": [
-      "docker.dlab-jupyter"
+      "docker.datalab-jupyter"
     ],
     "groups": [
       "$anyuser"
@@ -103,7 +103,7 @@
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
     "exploratories": [
-      "docker.dlab-rstudio"
+      "docker.datalab-rstudio"
     ],
     "groups": [
       "$anyuser"
@@ -113,7 +113,7 @@
     "_id": "nbCreateTensor",
     "description": "Create Notebook Jupyter with TensorFlow",
     "exploratories": [
-      "docker.dlab-tensor"
+      "docker.datalab-tensor"
     ],
     "groups": [
       "$anyuser"
@@ -123,7 +123,7 @@
     "_id": "nbCreateZeppelin",
     "description": "Create Notebook Apache Zeppelin",
     "exploratories": [
-      "docker.dlab-zeppelin"
+      "docker.datalab-zeppelin"
     ],
     "groups": [
       "$anyuser"
@@ -133,7 +133,7 @@
     "_id": "nbCreateDataEngine",
     "description": "Create Data Engine",
     "computationals": [
-      "docker.dlab-dataengine"
+      "docker.datalab-dataengine"
     ],
     "groups": [
       "$anyuser"

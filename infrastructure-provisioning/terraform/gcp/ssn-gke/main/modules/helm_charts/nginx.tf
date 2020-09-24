@@ -26,7 +26,7 @@ data "template_file" "nginx-default-backend" {
 resource "helm_release" "nginx-default-backend" {
     name       = "nginx-default-backend"
     chart      = "./modules/helm_charts/nginx-default-backend"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    namespace  = kubernetes_namespace.datalab-namespace.metadata[0].name
     wait       = true
     depends_on = [null_resource.crd_delay]
     values     = [
@@ -41,7 +41,7 @@ data "template_file" "nginx-ingress" {
 resource "helm_release" "nginx" {
     name       = "nginx-ingress"
     chart      = "./modules/helm_charts/nginx-ingress"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    namespace  = kubernetes_namespace.datalab-namespace.metadata[0].name
     wait       = true
     depends_on = [helm_release.nginx-default-backend]
     values     = [
@@ -52,7 +52,7 @@ resource "helm_release" "nginx" {
 data "kubernetes_service" "nginx_service" {
     metadata {
         name       = helm_release.nginx.name
-        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+        namespace  = kubernetes_namespace.datalab-namespace.metadata[0].name
     }
     depends_on     = [helm_release.nginx]
 }

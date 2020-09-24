@@ -24,9 +24,9 @@
 import logging
 import json
 import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import traceback
 import os
 import uuid
@@ -34,10 +34,10 @@ from fabric.api import *
 
 
 def clear_resources():
-    dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
+    datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
     for i in range(notebook_config['instance_count'] - 1):
         slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], slave_name)
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], slave_name)
 
 
 if __name__ == "__main__":
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     try:
         # generating variables dictionary
-        dlab.actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
         print('Generating infrastructure names and tags')
         notebook_config = dict()
         if 'exploratory_name' in os.environ:
@@ -61,7 +61,7 @@ if __name__ == "__main__":
             notebook_config['computational_name'] = os.environ['computational_name']
         else:
             notebook_config['computational_name'] = ''
-        notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         notebook_config['region'] = os.environ['aws_region']
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-tag'
@@ -75,21 +75,21 @@ if __name__ == "__main__":
         notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-s'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['datalab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['instance_count'] = int(os.environ['dataengine_instance_count'])
         try:
-            notebook_config['spark_master_ip'] = dlab.meta_lib.get_instance_private_ip_address(
+            notebook_config['spark_master_ip'] = datalab.meta_lib.get_instance_private_ip_address(
                 notebook_config['tag_name'], notebook_config['master_node_name'])
-            notebook_config['notebook_ip'] = dlab.meta_lib.get_instance_private_ip_address(
+            notebook_config['notebook_ip'] = datalab.meta_lib.get_instance_private_ip_address(
                 notebook_config['tag_name'], notebook_config['notebook_name'])
         except Exception as err:
-            dlab.fab.append_result("Failed to get ip address", str(err))
+            datalab.fab.append_result("Failed to get ip address", str(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
+        datalab.fab.append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
 
     try:
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         params = "--cluster_name {0} --spark_version {1} --hadoop_version {2} --os_user {3} --spark_master {4}" \
                  " --keyfile {5} --notebook_ip {6} --spark_master_ip {7}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
-                   os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
+                   os.environ['notebook_hadoop_version'], notebook_config['datalab_ssh_user'],
                    notebook_config['spark_master_url'], notebook_config['key_path'],
                    notebook_config['notebook_ip'], notebook_config['spark_master_ip'])
         try:
@@ -108,7 +108,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed installing Dataengine kernels.", str(err))
+        datalab.fab.append_result("Failed installing Dataengine kernels.", str(err))
         sys.exit(1)
 
     try:
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                  "--cluster_name {3}" \
             .format(notebook_config['notebook_ip'],
                     notebook_config['key_path'],
-                    notebook_config['dlab_ssh_user'],
+                    notebook_config['datalab_ssh_user'],
                     notebook_config['cluster_name'])
         try:
             local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
@@ -129,7 +129,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to configure Spark.", str(err))
+        datalab.fab.append_result("Failed to configure Spark.", str(err))
         sys.exit(1)
 
     try:
@@ -139,6 +139,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         clear_resources()
         sys.exit(1)

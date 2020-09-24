@@ -24,8 +24,8 @@
 import argparse
 from fabric.api import *
 from fabric.contrib.files import exists
-from dlab.meta_lib import *
-from dlab.fab import *
+from datalab.meta_lib import *
+from datalab.fab import *
 import os
 
 parser = argparse.ArgumentParser()
@@ -60,12 +60,12 @@ def configure_notebook(keyfile, hoststring):
     if not exists('/usr/local/bin/jupyter_dataengine_create_configs.py'):
         put(scripts_dir + 'jupyter_dataengine_create_configs.py', '/usr/local/bin/jupyter_dataengine_create_configs.py', use_sudo=True)
         sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
-    if not exists('/usr/lib/python2.7/dlab/'):
-        sudo('mkdir -p /usr/lib/python2.7/dlab/')
-        put('/usr/lib/python2.7/dlab/*', '/usr/lib/python2.7/dlab/', use_sudo=True)
-        sudo('chmod a+x /usr/lib/python2.7/dlab/*')
+    if not exists('/usr/lib/python2.7/datalab/'):
+        sudo('mkdir -p /usr/lib/python2.7/datalab/')
+        put('/usr/lib/python2.7/datalab/*', '/usr/lib/python2.7/datalab/', use_sudo=True)
+        sudo('chmod a+x /usr/lib/python2.7/datalab/*')
         if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+            sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
 
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')

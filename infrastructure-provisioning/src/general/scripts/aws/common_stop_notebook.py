@@ -24,9 +24,9 @@
 import logging
 import json
 import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 from fabric.api import *
 import traceback
 import os
@@ -39,7 +39,7 @@ import sys
 def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
     print('Terminating EMR cluster and cleaning EMR config from S3 bucket')
     try:
-        clusters_list = dlab.meta_lib.get_emr_list(nb_tag_value, 'Value')
+        clusters_list = datalab.meta_lib.get_emr_list(nb_tag_value, 'Value')
         if clusters_list:
             for cluster_id in clusters_list:
                 computational_name = ''
@@ -51,11 +51,11 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
                 for tag in cluster.get('Tags'):
                     if tag.get('Key') == 'ComputationalName':
                         computational_name = tag.get('Value')
-                dlab.actions_lib.s3_cleanup(bucket_name, emr_name, os.environ['project_name'])
+                datalab.actions_lib.s3_cleanup(bucket_name, emr_name, os.environ['project_name'])
                 print("The bucket {} has been cleaned successfully".format(bucket_name))
-                dlab.actions_lib.terminate_emr(cluster_id)
+                datalab.actions_lib.terminate_emr(cluster_id)
                 print("The EMR cluster {} has been terminated successfully".format(emr_name))
-                dlab.actions_lib.remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version,
+                datalab.actions_lib.remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version,
                                                 computational_name)
                 print("{} kernels have been removed from notebook successfully".format(emr_name))
         else:
@@ -67,22 +67,22 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
     try:
         cluster_list = []
         master_ids = []
-        cluster_instances_list = dlab.meta_lib.get_ec2_list('dataengine_notebook_name', nb_tag_value)
+        cluster_instances_list = datalab.meta_lib.get_ec2_list('dataengine_notebook_name', nb_tag_value)
         for instance in cluster_instances_list:
             for tag in instance.tags:
                 if tag['Key'] == 'Type' and tag['Value'] == 'master':
                     master_ids.append(instance.id)
         for id in master_ids:
-            for tag in dlab.meta_lib.get_instance_attr(id, 'tags'):
+            for tag in datalab.meta_lib.get_instance_attr(id, 'tags'):
                 if tag['Key'] == 'Name':
                     cluster_list.append(tag['Value'].replace(' ', '')[:-2])
-        dlab.actions_lib.stop_ec2('dataengine_notebook_name', nb_tag_value)
+        datalab.actions_lib.stop_ec2('dataengine_notebook_name', nb_tag_value)
     except:
         sys.exit(1)
 
     print("Stopping notebook")
     try:
-        dlab.actions_lib.stop_ec2(tag_name, nb_tag_value)
+        datalab.actions_lib.stop_ec2(tag_name, nb_tag_value)
     except:
         sys.exit(1)
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -117,7 +117,7 @@ if __name__ == "__main__":
                       os.environ['conf_os_user'], notebook_config['key_path'])
     except Exception as err:
         print('Error: {0}'.format(err))
-        dlab.fab.append_result("Failed to stop notebook.", str(err))
+        datalab.fab.append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 
 
@@ -130,6 +130,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)
 

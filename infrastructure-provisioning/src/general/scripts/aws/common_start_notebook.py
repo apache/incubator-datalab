@@ -24,9 +24,9 @@
 import logging
 import json
 import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import traceback
 import os
 import uuid
@@ -42,7 +42,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -55,10 +55,10 @@ if __name__ == "__main__":
         params = "--tag_name {} --nb_tag_value {}".format(notebook_config['tag_name'], notebook_config['notebook_name'])
         try:
             print("Starting notebook")
-            dlab.actions_lib.start_ec2(notebook_config['tag_name'], notebook_config['notebook_name'])
+            datalab.actions_lib.start_ec2(notebook_config['tag_name'], notebook_config['notebook_name'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to start notebook.", str(err))
+            datalab.fab.append_result("Failed to start notebook.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print('[SETUP USER GIT CREDENTIALS]')
-        notebook_config['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
+        notebook_config['notebook_ip'] = datalab.meta_lib.get_instance_ip_address(
             notebook_config['tag_name'], notebook_config['notebook_name']).get('Private')
         notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to setup git credentials.", str(err))
+            datalab.fab.append_result("Failed to setup git credentials.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -89,15 +89,15 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to update last activity time.", str(err))
+            datalab.fab.append_result("Failed to update last activity time.", str(err))
             raise Exception
     except:
         sys.exit(1)
 
     try:
-        ip_address = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
+        ip_address = datalab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
                                                            notebook_config['notebook_name']).get('Private')
-        dns_name = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['notebook_name'])
+        dns_name = datalab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['notebook_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['notebook_name']))
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)
 
 

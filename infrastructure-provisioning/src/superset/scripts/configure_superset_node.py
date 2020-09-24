@@ -24,9 +24,9 @@
 import argparse
 import json
 import sys
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
+from datalab.notebook_lib import *
+from datalab.actions_lib import *
+from datalab.fab import *
 import os
 
 parser = argparse.ArgumentParser()
@@ -34,7 +34,7 @@ parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--dlab_path', type=str, default='')
+parser.add_argument('--datalab_path', type=str, default='')
 parser.add_argument('--keycloak_auth_server_url', type=str, default='')
 parser.add_argument('--keycloak_realm_name', type=str, default='')
 parser.add_argument('--keycloak_client_id', type=str, default='')

@@ -31,13 +31,13 @@
       }
       configure_keycloak () {
           # Create Realm
-          /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=${keycloak_realm_name} -s enabled=true -s loginTheme=dlab \
+          /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=${keycloak_realm_name} -s enabled=true -s loginTheme=datalab \
           -s sslRequired=none
           # Get realm ID
-          dlab_realm_id=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/${keycloak_realm_name} | /usr/bin/jq -r '.id')
+          datalab_realm_id=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/${keycloak_realm_name} | /usr/bin/jq -r '.id')
           # Create user federation
-          /opt/jboss/keycloak/bin/kcadm.sh create components -r ${keycloak_realm_name} -s name=dlab-ldap -s providerId=ldap \
-          -s providerType=org.keycloak.storage.UserStorageProvider -s parentId=$dlab_realm_id  -s 'config.priority=["1"]' \
+          /opt/jboss/keycloak/bin/kcadm.sh create components -r ${keycloak_realm_name} -s name=datalab-ldap -s providerId=ldap \
+          -s providerType=org.keycloak.storage.UserStorageProvider -s parentId=$datalab_realm_id  -s 'config.priority=["1"]' \
           -s 'config.fullSyncPeriod=["-1"]' -s 'config.changedSyncPeriod=["-1"]' -s 'config.cachePolicy=["DEFAULT"]' \
           -s config.evictionDay=[] -s config.evictionHour=[] -s config.evictionMinute=[] -s config.maxLifespan=[] -s \
           'config.batchSizeForSync=["1000"]' -s 'config.editMode=["READ_ONLY"]' -s 'config.syncRegistrations=["false"]' \
@@ -50,7 +50,7 @@
           -s 'config.useTruststoreSpi=["ldapsOnly"]' -s 'config.connectionPooling=["true"]' \
           -s 'config.pagination=["true"]' --server http://127.0.0.1:8080/auth
           # Get user federation ID
-          user_f_id=$(/opt/jboss/keycloak/bin/kcadm.sh get components -r ${keycloak_realm_name} --query name=dlab-ldap | /usr/bin/jq -er '.[].id')
+          user_f_id=$(/opt/jboss/keycloak/bin/kcadm.sh get components -r ${keycloak_realm_name} --query name=datalab-ldap | /usr/bin/jq -er '.[].id')
           # Create user federation email mapper
           /opt/jboss/keycloak/bin/kcadm.sh create components -r ${keycloak_realm_name} -s name=uid-attribute-to-email-mapper \
           -s providerId=user-attribute-ldap-mapper -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \

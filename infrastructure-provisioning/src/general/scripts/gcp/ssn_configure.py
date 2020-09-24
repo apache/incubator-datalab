@@ -26,10 +26,10 @@ from fabric.api import *
 import traceback
 import json
 import argparse
-import dlab.ssn_lib
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.ssn_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import logging
 
 parser = argparse.ArgumentParser()
@@ -56,8 +56,8 @@ if __name__ == "__main__":
             GCPActions.remove_vpc(ssn_conf['vpc_name'])
 
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         ssn_conf = dict()
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         ssn_conf['billing_enabled'] = True
 
         ssn_conf['ssn_unique_index'] = args.ssn_unique_index
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['role_name'] = '{}-{}-ssn-role'.format(ssn_conf['service_base_name'], ssn_conf['ssn_unique_index'])
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         except KeyError:
             ssn_conf['firewall_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
         ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        ssn_conf['datalab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
         ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             os.environ['aws_billing_bucket'] = 'None'
             os.environ['aws_report_path'] = 'None'
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Failed deriving names.", str(err))
+        datalab.fab.datalab.fab.append_result("Failed deriving names.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         ssn_conf['instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(ssn_conf['instance_name'])
         if os.environ['conf_stepcerts_enabled'] == 'true':
             ssn_conf['step_cert_sans'] = ' --san {0} --san {1}'.format(GCPMeta.get_instance_public_ip_by_name(
-                ssn_conf['instance_name']), dlab.meta_lib.get_instance_private_ip_address('ssn',
+                ssn_conf['instance_name']), datalab.meta_lib.get_instance_private_ip_address('ssn',
                                                                                           ssn_conf['instance_name']))
         else:
             ssn_conf['step_cert_sans'] = ''
@@ -138,11 +138,11 @@ if __name__ == "__main__":
             ssn_conf['initial_user'] = 'ec2-user'
             ssn_conf['sudo_group'] = 'wheel'
 
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
+        logging.info('[CREATING DATA LAB SSH USER]')
+        print('[CREATING DATA LAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'],
-            ssn_conf['dlab_ssh_user'], ssn_conf['sudo_group'])
+            ssn_conf['datalab_ssh_user'], ssn_conf['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -150,7 +150,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Failed creating ssh user 'dlab-user'.", str(err))
+        datalab.fab.datalab.fab.append_result("Failed creating ssh user 'datalab-user'.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -161,7 +161,7 @@ if __name__ == "__main__":
                  "'boto3 backoff argparse fabric==1.14.0 awscli pymongo pyyaml " \
                  "google-api-python-client google-cloud-storage pycrypto' --user {} --region {}". \
             format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'],
-                   ssn_conf['dlab_ssh_user'], ssn_conf['region'])
+                   ssn_conf['datalab_ssh_user'], ssn_conf['region'])
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -169,7 +169,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Failed installing software: pip, packages.", str(err))
+        datalab.fab.datalab.fab.append_result("Failed installing software: pip, packages.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -180,10 +180,10 @@ if __name__ == "__main__":
                              "service_base_name": ssn_conf['service_base_name'],
                              "security_group_id": ssn_conf['firewall_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --datalab_path {} " \
                  "--tag_resource_id {} --step_cert_sans '{}'". \
             format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'],
+                   ssn_conf['datalab_ssh_user'], os.environ['ssn_datalab_path'], ssn_conf['service_base_name'],
                    ssn_conf['step_cert_sans'])
 
         try:
@@ -192,7 +192,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Failed configuring ssn.", str(err))
+        datalab.fab.datalab.fab.append_result("Failed configuring ssn.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -212,10 +212,10 @@ if __name__ == "__main__":
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"}]
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} " \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --datalab_path {} " \
                  "--cloud_provider {} --region {}". \
             format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
+                   os.environ['conf_os_family'], ssn_conf['datalab_ssh_user'], os.environ['ssn_datalab_path'],
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
 
         try:
@@ -224,7 +224,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Unable to configure docker.", str(err))
+        datalab.fab.datalab.fab.append_result("Unable to configure docker.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -500,11 +500,11 @@ if __name__ == "__main__":
                     'key': 'LETS_ENCRYPT_EMAIL',
                     'value': ''
                 })
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \
+        params = "--hostname {} --keyfile {} --datalab_path {} --os_user {} --os_family {} --billing_enabled {} " \
                  "--request_id {} --billing_dataset_name {} \
                  --resource {} --service_base_name {} --cloud_provider {} --default_endpoint_name {} " \
                  "--cloud_params '{}' --keycloak_client_id {} --keycloak_client_secret {} --keycloak_auth_server_url {}". \
-            format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
+            format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], os.environ['ssn_datalab_path'], ssn_conf['datalab_ssh_user'],
                    os.environ['conf_os_family'], ssn_conf['billing_enabled'], os.environ['request_id'],
                    os.environ['billing_dataset_name'], os.environ['conf_resource'],
                    ssn_conf['service_base_name'], os.environ['conf_cloud_provider'], ssn_conf['default_endpoint_name'],
@@ -516,7 +516,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Unable to configure UI.", str(err))
+        datalab.fab.datalab.fab.append_result("Unable to configure UI.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -538,8 +538,8 @@ if __name__ == "__main__":
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_hostname'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
-        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instance_hostname']))
-        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instance_hostname']))
+        print("Data Lab UI HTTP URL: http://{}".format(ssn_conf['instance_hostname']))
+        print("Data Lab UI HTTPS URL: https://{}".format(ssn_conf['instance_hostname']))
         try:
             with open('jenkins_creds.txt') as f:
                 print(f.read())
@@ -562,10 +562,10 @@ if __name__ == "__main__":
 
         print('Upload response file')
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
-            format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'],
+            format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'],
                    ssn_conf['instance_hostname'])
         local("~/scripts/{}.py {}".format('upload_response_file', params))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results.", str(err))
+        datalab.fab.append_result("Error with writing results.", str(err))
         clear_resources()
         sys.exit(1)

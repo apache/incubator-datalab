@@ -87,7 +87,7 @@ under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; echo $rand; sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -e "conf_resource=notebook" -e "request_id=$rand"  -e "edge_user_name=$Username"  -e "notebook_instance_name=$Notebook_Name"  -e "libs=$Libs" -e "application=$notebook_app" docker.dlab-$notebook_app --action $Action
+      <command>rand=`openssl rand -hex 10`; echo $rand; sudo docker run -i -v /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response -e "conf_resource=notebook" -e "request_id=$rand"  -e "edge_user_name=$Username"  -e "notebook_instance_name=$Notebook_Name"  -e "libs=$Libs" -e "application=$notebook_app" docker.datalab-$notebook_app --action $Action
       </command>
     </hudson.tasks.Shell>
   </builders>

@@ -23,7 +23,7 @@
 
 import argparse
 from fabric.api import *
-from dlab.actions_lib import *
+from datalab.actions_lib import *
 import os
 
 

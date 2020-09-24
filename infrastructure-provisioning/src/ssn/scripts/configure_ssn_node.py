@@ -26,9 +26,9 @@ import argparse
 import json
 import sys
 import os
-from dlab.ssn_lib import *
-from dlab.common_lib import *
-from dlab.fab import *
+from datalab.ssn_lib import *
+from datalab.common_lib import *
+from datalab.fab import *
 import traceback
 
 parser = argparse.ArgumentParser()
@@ -36,7 +36,7 @@ parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--dlab_path', type=str, default='')
+parser.add_argument('--datalab_path', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default='')
 parser.add_argument('--step_cert_sans', type=str, default='')
 args = parser.parse_args()
@@ -71,9 +71,9 @@ def cp_key(keyfile, host_string, os_user):
         sys.exit(1)
 
 
-def cp_backup_scripts(dlab_path):
+def cp_backup_scripts(datalab_path):
     try:
-        with cd(dlab_path + "tmp/"):
+        with cd(datalab_path + "tmp/"):
             put('/root/scripts/backup.py', "backup.py")
             put('/root/scripts/restore.py', "restore.py")
             run('chmod +x backup.py restore.py')
@@ -83,11 +83,11 @@ def cp_backup_scripts(dlab_path):
         sys.exit(1)
 
 
-def cp_gitlab_scripts(dlab_path):
+def cp_gitlab_scripts(datalab_path):
     try:
-        if not exists('{}tmp/gitlab'.format(dlab_path)):
-            run('mkdir -p {}tmp/gitlab'.format(dlab_path))
-        with cd('{}tmp/gitlab'.format(dlab_path)):
+        if not exists('{}tmp/gitlab'.format(datalab_path)):
+            run('mkdir -p {}tmp/gitlab'.format(datalab_path))
+        with cd('{}tmp/gitlab'.format(datalab_path)):
             put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
             put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
             run('chmod +x gitlab_deploy.py configure_gitlab.py')
@@ -96,7 +96,7 @@ def cp_gitlab_scripts(dlab_path):
             run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
             run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
             run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
-            run('sed -i "s,CONF_DLAB_PATH,{},g" gitlab.ini'.format(dlab_path))
+            run('sed -i "s,CONF_DATA_LAB_PATH,{},g" gitlab.ini'.format(datalab_path))
             run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
     except Exception as err:
         traceback.print_exc()
@@ -104,25 +104,25 @@ def cp_gitlab_scripts(dlab_path):
         sys.exit(1)
 
 
-def creating_service_directories(dlab_path, os_user):
+def creating_service_directories(datalab_path, os_user):
     try:
-        if not exists(dlab_path):
-            sudo('mkdir -p ' + dlab_path)
-            sudo('mkdir -p ' + dlab_path + 'conf')
-            sudo('mkdir -p ' + dlab_path + 'webapp/static')
-            sudo('mkdir -p ' + dlab_path + 'template')
-            sudo('mkdir -p ' + dlab_path + 'tmp')
-            sudo('mkdir -p ' + dlab_path + 'tmp/result')
-            sudo('mkdir -p ' + dlab_path + 'sources')
-            sudo('mkdir -p /var/opt/dlab/log/ssn')
-            sudo('mkdir -p /var/opt/dlab/log/edge')
-            sudo('mkdir -p /var/opt/dlab/log/notebook')
-            sudo('mkdir -p /var/opt/dlab/log/dataengine-service')
-            sudo('mkdir -p /var/opt/dlab/log/dataengine')
-            sudo('ln -s ' + dlab_path + 'conf /etc/opt/dlab')
-            sudo('ln -s /var/opt/dlab/log /var/log/dlab')
-            sudo('chown -R ' + os_user + ':' + os_user + ' /var/opt/dlab/log')
-            sudo('chown -R ' + os_user + ':' + os_user + ' ' + dlab_path)
+        if not exists(datalab_path):
+            sudo('mkdir -p ' + datalab_path)
+            sudo('mkdir -p ' + datalab_path + 'conf')
+            sudo('mkdir -p ' + datalab_path + 'webapp/static')
+            sudo('mkdir -p ' + datalab_path + 'template')
+            sudo('mkdir -p ' + datalab_path + 'tmp')
+            sudo('mkdir -p ' + datalab_path + 'tmp/result')
+            sudo('mkdir -p ' + datalab_path + 'sources')
+            sudo('mkdir -p /var/opt/datalab/log/ssn')
+            sudo('mkdir -p /var/opt/datalab/log/edge')
+            sudo('mkdir -p /var/opt/datalab/log/notebook')
+            sudo('mkdir -p /var/opt/datalab/log/dataengine-service')
+            sudo('mkdir -p /var/opt/datalab/log/dataengine')
+            sudo('ln -s ' + datalab_path + 'conf /etc/opt/datalab')
+            sudo('ln -s /var/opt/datalab/log /var/log/datalab')
+            sudo('chown -R ' + os_user + ':' + os_user + ' /var/opt/datalab/log')
+            sudo('chown -R ' + os_user + ':' + os_user + ' ' + datalab_path)
     except Exception as err:
         traceback.print_exc()
         print('Failed to create service directories: ', str(err))
@@ -132,10 +132,10 @@ def creating_service_directories(dlab_path, os_user):
 def configure_ssl_certs(hostname, custom_ssl_cert):
     try:
         if custom_ssl_cert:
-            put('/root/certs/dlab.crt', 'dlab.crt')
-            put('/root/certs/dlab.key', 'dlab.key')
-            sudo('mv dlab.crt /etc/ssl/certs/dlab.crt')
-            sudo('mv dlab.key /etc/ssl/certs/dlab.key')
+            put('/root/certs/datalab.crt', 'datalab.crt')
+            put('/root/certs/datalab.key', 'datalab.key')
+            sudo('mv datalab.crt /etc/ssl/certs/datalab.crt')
+            sudo('mv datalab.key /etc/ssl/certs/datalab.key')
         else:
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 ensure_step(args.os_user)
@@ -154,7 +154,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                               os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'],
                               args.os_user, cn, sans))
                 token = sudo('cat /tmp/step_token')
-                sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+                sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
                 sudo('touch /var/log/renew_certificates.log')
@@ -169,8 +169,8 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
                 sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
                      '/usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/datalab.crt|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/datalab.key|g" /usr/local/bin/manage_step_certs.sh')
                 sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
                     os.environ['conf_stepcerts_ca_url']))
                 sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/manage_step_certs.sh')
@@ -187,8 +187,8 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 sudo('systemctl daemon-reload')
                 sudo('systemctl enable step-cert-manager.service')
             else:
-                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
-                     -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/datalab.key \
+                     -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}"'.format(hostname))
         sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
     except Exception as err:
         traceback.print_exc()
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     else:
         domain_created = False
 
-    if os.path.exists('/root/certs/dlab.crt') and os.path.exists('/root/certs/dlab.key'):
+    if os.path.exists('/root/certs/datalab.crt') and os.path.exists('/root/certs/datalab.key'):
         custom_ssl_cert = True
     else:
         custom_ssl_cert = False
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     set_resolve()
 
     print("Creating service directories.")
-    creating_service_directories(args.dlab_path, args.os_user)
+    creating_service_directories(args.datalab_path, args.os_user)
 
     if domain_created:
         print("Setting hostname")
@@ -241,7 +241,7 @@ if __name__ == "__main__":
         args.hostname = "{0}.{1}".format(os.environ['ssn_subdomain'], os.environ['ssn_hosted_zone_name'])
 
     print("Installing nginx as frontend.")
-    ensure_nginx(args.dlab_path)
+    ensure_nginx(args.datalab_path)
 
     print("Installing Java")
     ensure_java(args.os_user)
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     configure_ssl_certs(args.hostname, custom_ssl_cert)
 
     print("Configuring nginx.")
-    configure_nginx(deeper_config, args.dlab_path, args.hostname)
+    configure_nginx(deeper_config, args.datalab_path, args.hostname)
 
     if os.environ['conf_letsencrypt_enabled'] == 'true':
         print("Configuring letsencrypt certificates.")
@@ -262,19 +262,19 @@ if __name__ == "__main__":
         configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], 'ssn')
 
     #print("Installing jenkins.")
-    #ensure_jenkins(args.dlab_path)
+    #ensure_jenkins(args.datalab_path)
 
     #print("Configuring jenkins.")
-    #configure_jenkins(args.dlab_path, args.os_user, deeper_config, args.tag_resource_id)
+    #configure_jenkins(args.datalab_path, args.os_user, deeper_config, args.tag_resource_id)
 
     print("Copying key")
     cp_key(args.keyfile, env.host_string, args.os_user)
 
     print("Copying backup scripts")
-    cp_backup_scripts(args.dlab_path)
+    cp_backup_scripts(args.datalab_path)
 
     print("Copying gitlab scripts & files")
-    cp_gitlab_scripts(args.dlab_path)
+    cp_gitlab_scripts(args.datalab_path)
 
     print("Ensuring safest ssh ciphers")
     ensure_ciphers()

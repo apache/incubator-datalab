@@ -1,7 +1,7 @@
 # The automation tests
 
 ## What is it?
-This is the module with automation tests for dlab integration testing.
+This is the module with automation tests for Data Lab integration testing.
 
 ## How to run?
 
@@ -18,7 +18,7 @@ The Java parameters are key value pairs prefixed with "-D" passed to Java
 Required Java parameters are: "jenkins.buildNumber", "cluster.username", "cluster.os.family"
 
 Example:
-* -Djenkins.buildNumber=57 -Dcluster.username=dlab-user -Dcluster.os.family=debian
+* -Djenkins.buildNumber=57 -Dcluster.username=datalab-user -Dcluster.os.family=debian
 
 ## What are other required configurations?
 

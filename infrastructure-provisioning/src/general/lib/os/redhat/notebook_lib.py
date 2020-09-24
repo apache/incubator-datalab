@@ -28,10 +28,10 @@ import json
 import random
 import string
 import sys
-from dlab.notebook_lib import *
-from dlab.fab import *
+from datalab.notebook_lib import *
+from datalab.fab import *
 import os, time
-from dlab.common_lib import manage_pkg
+from datalab.common_lib import manage_pkg
 
 
 def enable_proxy(proxy_host, proxy_port):
@@ -112,7 +112,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             manage_pkg('-y install --nogpgcheck', 'remote', 'https://download2.rstudio.org/server/centos6/x86_64/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /etc/systemd/system/rstudio-server.service")
+            sudo("sed -i '/Type=forking/a \Environment=USER=datalab-user' /etc/systemd/system/rstudio-server.service")
             sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /etc/systemd/system/rstudio-server.service")
             sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
             sudo("systemctl daemon-reload")

@@ -26,8 +26,8 @@ from fabric.api import *
 import argparse
 import sys
 import os
-from dlab.common_lib import ensure_step
-from dlab.edge_lib import install_nginx_lua
+from datalab.common_lib import ensure_step
+from datalab.edge_lib import install_nginx_lua
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

@@ -1,4 +1,4 @@
-# Terraform module for deploying DLab SSN K8S cluster
+# Terraform module for deploying Data Lab SSN K8S cluster
 
 List of variables which should be provided:
 
@@ -6,7 +6,7 @@ List of variables which should be provided:
 |--------------------------|--------|-----------------------------------------------------------------------------------------------------------|
 | access\_key\_id          | string | **Required.** AWS Access Key ID.                                                                          |
 | secret\_access\_key      | string | **Required.** AWS Secret Access Key.                                                                      |
-| service\_base\_name      | string | Any infrastructure value (should be unique if multiple SSN’s have been deployed before). Default: dlab-k8s|
+| service\_base\_name      | string | Any infrastructure value (should be unique if multiple SSN’s have been deployed before). Default: datalab-k8s|
 | vpc\_id                  | string | ID of AWS VPC if you already have VPC created.                                                            | 
 | vpc\_cidr                | string | CIDR for VPC creation. Conflicts with _vpc\_id_. Default: 172.31.0.0/16                                   |
 | subnet\_id               | string | ID of AWS Subnet if you already have subnet created.                                                      |
@@ -22,4 +22,4 @@ List of variables which should be provided:
 | allowed\_cidrs           | list   | CIDR to allow acces to SSN K8S cluster. Default: 0.0.0.0/0                                                |
 | ssn\_k8s\_masters\_shape | string | Shape for SSN K8S masters. Default: t2.medium                                                             |
 | ssn\_k8s\_workers\_shape | string | Shape for SSN K8S workers. Default: t2.medium                                                             |
-| os\_user                 | string | Name of DLab service user. Default: dlab-user                                                             |
+| os\_user                 | string | Name of Data Lab service user. Default: datalab-user                                                             |

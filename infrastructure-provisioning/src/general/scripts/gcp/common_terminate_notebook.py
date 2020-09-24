@@ -24,9 +24,9 @@
 import logging
 import json
 import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import traceback
 import os
 import uuid
@@ -48,7 +48,7 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate dataproc", str(err))
+        datalab.fab.append_result("Failed to terminate dataproc", str(err))
         sys.exit(1)
 
     print("Terminating data engine cluster")
@@ -65,14 +65,14 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
             print("There are no data engine clusters to terminate.")
 
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate dataengine", str(err))
+        datalab.fab.append_result("Failed to terminate dataengine", str(err))
         sys.exit(1)
 
     print("Terminating notebook")
     try:
         GCPActions.remove_instance(instance_name, zone)
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate instance", str(err))
+        datalab.fab.append_result("Failed to terminate instance", str(err))
         sys.exit(1)
 
 
@@ -84,8 +84,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                          notebook_config['project_name'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to terminate notebook.", str(err))
+            datalab.fab.append_result("Failed to terminate notebook.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -120,5 +120,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

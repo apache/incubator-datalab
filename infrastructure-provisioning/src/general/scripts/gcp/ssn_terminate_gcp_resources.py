@@ -21,12 +21,12 @@
 #
 # ******************************************************************************
 
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+from datalab.meta_lib import *
+from datalab.actions_lib import *
 import boto3
 import argparse
 import sys
-from dlab.ssn_lib import *
+from datalab.ssn_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--zone', type=str)
