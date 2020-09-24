@@ -23,9 +23,9 @@
 
 
 import json
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import sys
 import time
 import os
@@ -42,8 +42,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    dlab.actions_lib.create_aws_config_files()
-    print('Getting statuses of DLAB resources')
+    datalab.actions_lib.create_aws_config_files()
+    print('Getting statuses of Data Lab resources')
 
     try:
         logging.info('[COLLECT DATA]')
@@ -55,5 +55,5 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to collect necessary information.", str(err))
+        datalab.fab.append_result("Failed to collect necessary information.", str(err))
         sys.exit(1)

@@ -89,7 +89,7 @@ under the License.
     <hudson.tasks.Shell>
       <command>
         rand=`openssl rand -hex 10`; creds=$git_creds;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_notebook_server/template.json | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-${notebook_app} --action $Action
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_notebook_server/template.json | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -v /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response  docker.datalab-${notebook_app} --action $Action
       </command>
     </hudson.tasks.Shell>
   </builders>

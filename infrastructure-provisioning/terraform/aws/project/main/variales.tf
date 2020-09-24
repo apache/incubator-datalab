@@ -56,7 +56,7 @@ variable "key_name" {}
 variable "edge_volume_size" {}
 
 variable "additional_tag" {
-  default = "product:dlab"
+  default = "product:datalab"
 }
 
 variable "tag_resource_id" {

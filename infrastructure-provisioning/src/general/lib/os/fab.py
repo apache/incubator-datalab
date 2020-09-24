@@ -27,12 +27,12 @@ import random
 import sys
 import string
 import json, uuid, time, datetime, csv
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-import dlab.actions_lib
+from datalab.meta_lib import *
+from datalab.actions_lib import *
+import datalab.actions_lib
 import re
 import traceback
-from dlab.common_lib import *
+from datalab.common_lib import *
 
 
 def ensure_pip(requisites):
@@ -179,12 +179,12 @@ def append_result(error, exception=''):
     print(data)
 
 
-def put_resource_status(resource, status, dlab_path, os_user, hostname):
+def put_resource_status(resource, status, datalab_path, os_user, hostname):
     env['connection_attempts'] = 100
     keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
-    sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
+    sudo('python ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
@@ -295,7 +295,7 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
             sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
             sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
-            sudo('chown dlab-user:dlab-user /opt')
+            sudo('chown datalab-user:datalab-user /opt')
             sudo('echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(edge_ip, os_user))
             sudo('echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(edge_ip, os_user))
 #            sudo('touch {}'.format(spark_script))
@@ -304,14 +304,14 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
 #                'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/pyspark_local_template.json" >> {}'.format(
 #                spark_script))
 #            sudo(
-#                'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
+#                'echo "sed -i \'14s/:",/:\\/home\\/datalab-user\\/caffe\\/python:\\/home\\/datalab-user\\/pytorch\\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
 #                    spark_script))
 #            sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/pyspark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
 #            sudo(
 #                'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/py3spark_local_template.json" >> {}'.format(
 #                spark_script))
 #            sudo(
-#                'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
+#                'echo "sed -i \'14s/:",/:\\/home\\/datalab-user\\/caffe\\/python:\\/home\\/datalab-user\\/pytorch\\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
 #                    spark_script))
 #            sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/py3spark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
 #            sudo('echo "cp /tmp/pyspark_local_template.json /home/{}/.local/share/jupyter/kernels/pyspark_local/kernel.json" >> {}'.format(os_user, spark_script))
@@ -507,7 +507,7 @@ def update_spark_jars(jars_dir='/opt/jars'):
                     des_path = '/'.join(conf.split('/')[:3])
                     all_jars = find_des_jars(all_jars, des_path)
                 sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
-                sudo('echo "# Generated spark.jars by DLab from {0}\nspark.jars {1}" >> {2}'
+                sudo('echo "# Generated spark.jars by Data Lab from {0}\nspark.jars {1}" >> {2}'
                      .format(','.join(filter(None, [jars_dir, des_path])), ','.join(all_jars), conf))
                 # sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
         else:
@@ -680,7 +680,7 @@ def set_git_proxy(os_user, hostname, keyfile, proxy_host):
 
 def set_mongo_parameters(client, mongo_parameters):
     for i in mongo_parameters:
-        client.dlabdb.settings.insert_one({"_id": i, "value": mongo_parameters[i]})
+        client.datalabdb.settings.insert_one({"_id": i, "value": mongo_parameters[i]})
 
 
 def install_r_packages(os_user):
@@ -950,25 +950,25 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
                 sudo('tar -xzf {}.tar.gz'.format(os.environ['notebook_superset_version']))
                 sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
         if not exists('/tmp/superset-notebook_installed'):
-            sudo('mkdir -p /opt/dlab/templates')
-            put('/root/templates', '/opt/dlab', use_sudo=True)
-            sudo('sed -i \'s/OS_USER/{}/g\' /opt/dlab/templates/.env'.format(os_user))
+            sudo('mkdir -p /opt/datalab/templates')
+            put('/root/templates', '/opt/datalab', use_sudo=True)
+            sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/.env'.format(os_user))
             proxy_string = '{}:3128'.format(edge_instance_private_ip)
-            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/dlab/templates/id_provider.json'.format(keycloak_auth_server_url))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_realm_name))
-            sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_id))
-            sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_secret))
-            sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/dlab/templates/docker-compose.yml'.format(proxy_string))
-            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/dlab/templates/superset_config.py'.format(keycloak_auth_server_url))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_realm_name))
-            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/superset_config.py'.format(edge_instance_public_ip))
-            sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(superset_name))
-            sudo('cp -f /opt/dlab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
-            sudo('cp -f /opt/dlab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(os_user))
-            sudo('cp -f /opt/dlab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(os_user))
-            sudo('cp -f /opt/dlab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(os_user))
-            sudo('cp -f /opt/dlab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(os_user))
-            sudo('cp -f /opt/dlab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/datalab/templates/id_provider.json'.format(keycloak_auth_server_url))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/id_provider.json'.format(keycloak_realm_name))
+            sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/datalab/templates/id_provider.json'.format(keycloak_client_id))
+            sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/datalab/templates/id_provider.json'.format(keycloak_client_secret))
+            sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/datalab/templates/docker-compose.yml'.format(proxy_string))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/datalab/templates/superset_config.py'.format(keycloak_auth_server_url))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(keycloak_realm_name))
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/superset_config.py'.format(edge_instance_public_ip))
+            sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(superset_name))
+            sudo('cp -f /opt/datalab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/datalab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/datalab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/datalab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/datalab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/datalab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(os_user))
             sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:
         print("Failed configure superset: " + str(err))

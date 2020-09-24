@@ -51,8 +51,8 @@ def update_resource_status(resource, status):
     mongo_ip = read_yml_conf(path, 'net', 'bindIp')
     mongo_port = read_yml_conf(path, 'net', 'port')
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
-    client = MongoClient("mongodb://admin:" + mongo_passwd + "@" + mongo_ip + ':' + str(mongo_port) + "/dlabdb")
-    client.dlabdb.statuses.save({"_id": resource, "value": status})
+    client = MongoClient("mongodb://admin:" + mongo_passwd + "@" + mongo_ip + ':' + str(mongo_port) + "/datalabdb")
+    client.datalabdb.statuses.save({"_id": resource, "value": status})
 
 
 if __name__ == "__main__":

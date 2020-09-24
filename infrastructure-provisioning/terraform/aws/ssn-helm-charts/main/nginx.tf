@@ -22,7 +22,7 @@
 resource "helm_release" "nginx" {
     name       = "nginx-ingress"
     chart      = "stable/nginx-ingress"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    namespace  = kubernetes_namespace.datalab-namespace.metadata[0].name
     wait       = true
 
     depends_on = [null_resource.step_ca_delay]

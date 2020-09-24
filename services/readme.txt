@@ -38,7 +38,7 @@ db.createUser(
    }
 )
 
-use dlabdb
+use datalabdb
 db.createUser(
    {
      user: "admin",
@@ -47,13 +47,13 @@ db.createUser(
    }
 )
 1.4. Load collections
-mongoimport -u admin -p <password> -d dlabdb -c settings mongo_settings.json
+mongoimport -u admin -p <password> -d datalabdb -c settings mongo_settings.json
 
 2.	Setting up environment options
 2.1. Set configuration file ..\..\infrastructure-provisioning\src\ssn\templates\ssn.yml
 # DEV_MODE="true"
 2.2. Add system environment variable
-DLAB_CONF_DIR=...\infrastructure-provisioning\src\ssn\templates
+DATA_LAB_CONF_DIR=...\infrastructure-provisioning\src\ssn\templates
 or create two symlinks to service\provisioning-service and service\self-service for
 ..\..\infrastructure-provisioning\src\ssn\templates\ssn.yml
 Unix
@@ -61,15 +61,15 @@ Unix
 Windows
   mklink ssn.yml ..\..\infrastructure-provisioning\src\ssn\templates\ssn.yml
 2.3 For Unix create two folders:
-  /var/opt/dlab/log/ssn
-  /opt/dlab/tmp/result
+  /var/opt/datalab/log/ssn
+  /opt/datalab/tmp/result
 
 3.	Install Node.js
 3.1. Install Node.js from https://nodejs.org/en/
 3.2. Add Node.js installation folder to environment variable PATH
 3.3. Install packages
 	npm install npm@latest -g
-4. Change folder to \dlab\services\self-service\src\main\resources\webapp and install
+4. Change folder to \datalab\services\self-service\src\main\resources\webapp and install
 	npm i
 5. Buid web application:
 	npm run build.prod

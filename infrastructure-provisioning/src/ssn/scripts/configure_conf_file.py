@@ -29,7 +29,7 @@ import json
 import ConfigParser
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dlab_dir', type=str, default='')
+parser.add_argument('--datalab_dir', type=str, default='')
 parser.add_argument('--variables_list', type=str, default='')
 args = parser.parse_args()
 
@@ -38,7 +38,7 @@ def modify_conf_file():
     try:
         variables_list = json.loads(args.variables_list)
         conf_list = []
-        conf_file = open('{}sources/infrastructure-provisioning/src/general/conf/dlab.ini'.format(args.dlab_dir), 'r')
+        conf_file = open('{}sources/infrastructure-provisioning/src/general/conf/datalab.ini'.format(args.datalab_dir), 'r')
         for line in conf_file:
             conf_list.append(line)
 
@@ -46,11 +46,11 @@ def modify_conf_file():
             if line[0:2] == '# ':
                 conf_list[conf_list.index(line)] = line.replace('# ', '')
 
-        with open('/tmp/dlab.ini.modified', 'w') as conf_file_modified:
+        with open('/tmp/datalab.ini.modified', 'w') as conf_file_modified:
             conf_file_modified.writelines(conf_list)
 
         config = ConfigParser.RawConfigParser()
-        config.read('/tmp/dlab.ini.modified')
+        config.read('/tmp/datalab.ini.modified')
         for section in config.sections():
             options = config.options(section)
             for option in options:
@@ -61,7 +61,7 @@ def modify_conf_file():
                     print('Such variable doesn`t exist!')
                     config.remove_option(section, option)
 
-        with open('{}sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.dlab_dir), 'w') as conf_file_final:
+        with open('{}sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.datalab_dir), 'w') as conf_file_final:
             config.write(conf_file_final)
     except Exception as error:
         print('Error with modifying conf files:')

@@ -76,7 +76,7 @@ under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/notebook_reconfigure_spark/template.json | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed "s|SPC|${Spark_configurations}|g" | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook docker.dlab-${notebook_app} --action $Action
+      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/notebook_reconfigure_spark/template.json | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed "s|SPC|${Spark_configurations}|g" | sudo docker run -i -v /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response -v /var/opt/datalab/log/notebook:/logs/notebook docker.datalab-${notebook_app} --action $Action
       </command>
     </hudson.tasks.Shell>
   </builders>

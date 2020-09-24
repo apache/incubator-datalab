@@ -23,9 +23,9 @@
 
 import argparse
 import sys
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
+from datalab.notebook_lib import *
+from datalab.actions_lib import *
+from datalab.fab import *
 from fabric.api import *
 import ast
 import os

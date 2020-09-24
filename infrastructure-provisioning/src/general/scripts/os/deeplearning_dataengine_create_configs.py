@@ -29,10 +29,10 @@ import time
 from fabric.api import lcd
 from fabric.contrib.files import exists
 from fabvenv import virtualenv
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
-from dlab.common_lib import *
+from datalab.notebook_lib import *
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.common_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')

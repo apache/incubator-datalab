@@ -25,8 +25,8 @@ import os
 import sys
 import argparse
 from fabric.api import *
-from dlab.fab import find_cluster_kernels
-from dlab.actions_lib import *
+from datalab.fab import find_cluster_kernels
+from datalab.actions_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

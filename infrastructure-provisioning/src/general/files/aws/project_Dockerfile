@@ -20,14 +20,14 @@
 # ******************************************************************************
 
 
-FROM docker.dlab-base:latest
+FROM docker.datalab-base:latest
 
 ARG OS
 
 COPY project/ /root/
 COPY general/scripts/aws/project_* /root/scripts/
 COPY general/scripts/aws/edge_* /root/scripts/
-COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python2.7/dlab/edge_lib.py
+COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python2.7/datalab/edge_lib.py
 COPY general/templates/aws/edge_s3_policy.json /root/templates/edge_s3_policy.json
 COPY general/templates/os/manage_step_certs.sh /root/templates/
 COPY general/templates/os/step-cert-manager.service /root/templates/

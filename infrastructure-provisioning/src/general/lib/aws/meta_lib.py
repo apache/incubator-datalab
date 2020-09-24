@@ -29,7 +29,7 @@ import sys
 import backoff
 import random
 import string
-from dlab.fab import *
+from datalab.fab import *
 import actions_lib
 
 

@@ -23,7 +23,7 @@
 
 from fabric.api import *
 from fabric.contrib.files import exists
-from dlab.edge_lib import configure_nftables
+from datalab.edge_lib import configure_nftables
 import argparse
 import json
 import sys

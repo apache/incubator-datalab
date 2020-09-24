@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-<#assign LOG_ROOT_DIR="/var/opt/dlab/log">
+<#assign LOG_ROOT_DIR="/var/opt/datalab/log">
 <#assign KEYS_DIR="/home/${sys['user.name']}/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/ssn.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
@@ -39,7 +39,7 @@ mongo:
   port: 27017
   username: admin
   password: MONGO_PASSWORD
-  database: dlabdb
+  database: datalabdb
 
 selfService:
   protocol: https

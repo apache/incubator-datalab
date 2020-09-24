@@ -26,9 +26,9 @@ import json
 import sys
 import time
 import os
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import logging
 from fabric.api import *
 import traceback
@@ -57,5 +57,5 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to collect necessary information.", str(err))
+        datalab.fab.append_result("Failed to collect necessary information.", str(err))
         sys.exit(1)

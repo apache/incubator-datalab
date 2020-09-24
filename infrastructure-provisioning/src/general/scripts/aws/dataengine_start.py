@@ -24,9 +24,9 @@
 import logging
 import json
 import os
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import sys
 import traceback
 from fabric.api import *
@@ -35,7 +35,7 @@ from fabric.api import *
 def start_data_engine(cluster_name):
     print("Start Data Engine")
     try:
-        dlab.actions_lib.start_ec2(os.environ['conf_tag_resource_id'], cluster_name)
+        datalab.actions_lib.start_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                                          data_engine['cluster_name']))
     except Exception as err:
         print('Error: {0}'.format(err))
-        dlab.fab.append_result("Failed to start Data Engine.", str(err))
+        datalab.fab.append_result("Failed to start Data Engine.", str(err))
         sys.exit(1)
 
     try:
@@ -87,9 +87,9 @@ if __name__ == "__main__":
         print('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
         data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
-        data_engine['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
+        data_engine['notebook_ip'] = datalab.meta_lib.get_instance_ip_address(
             data_engine['tag_name'], os.environ['notebook_instance_name']).get('Private')
-        data_engine['computational_ip'] = dlab.meta_lib.get_instance_ip_address(
+        data_engine['computational_ip'] = datalab.meta_lib.get_instance_ip_address(
             data_engine['tag_name'], data_engine['computational_id']).get('Private')
         data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
@@ -99,7 +99,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to update last activity time.", str(err))
+            datalab.fab.append_result("Failed to update last activity time.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -111,5 +111,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

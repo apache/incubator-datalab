@@ -29,17 +29,17 @@ import json
 import sys
 import os
 
-parser = argparse.ArgumentParser(description="Backup script for DLab configs, keys, certs, jars, database & logs")
-parser.add_argument('--user', type=str, default='dlab-user', help='System username')
-parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
+parser = argparse.ArgumentParser(description="Backup script for Data Lab configs, keys, certs, jars, database & logs")
+parser.add_argument('--user', type=str, default='datalab-user', help='System username')
+parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to Data Lab. Default: /opt/datalab/')
 parser.add_argument('--configs', type=str, default='skip', help='Comma separated names of config files, like "security.yml", etc. Default: skip. Also available: all')
 parser.add_argument('--keys', type=str, default='skip', help='Comma separated names of keys, like "user_name.pub". Default: skip. Also available: all')
-parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Default: skip. Also available: all')
+parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "datalab.crt", etc. Default: skip. Also available: all')
 parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Default: skip. Also available: all')
 parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
 parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). Key without arguments. Default: disable')
 parser.add_argument('--request_id', type=str, default='', help='Uniq request ID for response and backup')
-parser.add_argument('--result_path', type=str, default='/opt/dlab/tmp/result', help='Path to store backup and response files')
+parser.add_argument('--result_path', type=str, default='/opt/datalab/tmp/result', help='Path to store backup and response files')
 args = parser.parse_args()
 
 
@@ -68,10 +68,10 @@ def backup_configs():
         if args.configs == 'skip':
             print('Skipped config backup.')
         elif args.configs == 'all':
-            local("find {0}{2} -name '*yml' -exec cp {3} {1}{2} \;".format(args.dlab_path, temp_folder, conf_folder, "{}"))
+            local("find {0}{2} -name '*yml' -exec cp {3} {1}{2} \;".format(args.datalab_path, temp_folder, conf_folder, "{}"))
         else:
             for conf_file in args.configs.split(','):
-                local('cp {0}{2}{3} {1}{2}'.format(args.dlab_path, temp_folder, conf_folder, conf_file))
+                local('cp {0}{2}{3} {1}{2}'.format(args.datalab_path, temp_folder, conf_folder, conf_file))
     except:
         append_result(error='Backup configs failed.')
         sys.exit(1)
@@ -116,12 +116,12 @@ def backup_jars():
         if args.jars == 'skip':
             print('Skipped jars backup.')
         elif args.jars == 'all':
-            for root, dirs, files in os.walk('{0}{1}'.format(args.dlab_path, jars_folder)):
+            for root, dirs, files in os.walk('{0}{1}'.format(args.datalab_path, jars_folder)):
                 for service in dirs:
-                    local('cp -RP {0}{1}{2}* {3}jars'.format(args.dlab_path, jars_folder, service, temp_folder))
+                    local('cp -RP {0}{1}{2}* {3}jars'.format(args.datalab_path, jars_folder, service, temp_folder))
         else:
             for service in args.jars.split(','):
-                local('cp -RP {0}{1}{2}* {3}jars'.format(args.dlab_path, jars_folder, service, temp_folder))
+                local('cp -RP {0}{1}{2}* {3}jars'.format(args.datalab_path, jars_folder, service, temp_folder))
     except:
         append_result(error='Backup jars failed.')
         sys.exit(1)
@@ -131,7 +131,7 @@ def backup_database():
     try:
         print('Backup db: {}'.format(args.db))
         if args.db:
-            ssn_conf = open('{0}{1}ssn.yml'.format(args.dlab_path, conf_folder)).read()
+            ssn_conf = open('{0}{1}ssn.yml'.format(args.datalab_path, conf_folder)).read()
             data = yaml.load('mongo{}'.format(ssn_conf.split('mongo')[-1]))
             with settings(hide('running')):
                 local("mongodump --host {0} --port {1} --username {2} --password '{3}' --db={4} --archive={5}mongo.db" \
@@ -146,8 +146,8 @@ def backup_logs():
     try:
         print('Backup logs: {}'.format(args.logs))
         if args.logs:
-            print('Backup dlab logs')
-            local('cp -R {0}* {1}logs'.format(dlab_logs_folder, temp_folder))
+            print('Backup Data Lab logs')
+            local('cp -R {0}* {1}logs'.format(datalab_logs_folder, temp_folder))
             print('Backup docker logs')
             local("sudo find {0} -name '*log' -exec cp {2} {1}logs/docker \;".format(docker_logs_folder, temp_folder, "{}"))
             local('sudo chown -R {0}:{0} {1}logs/docker'.format(os_user, temp_folder))
@@ -191,13 +191,13 @@ def append_result(status='failed', error='', backup_file=''):
 if __name__ == "__main__":
     backup_time = strftime('%d_%b_%Y_%H-%M-%S', gmtime())
     os_user = args.user
-    temp_folder = '/tmp/dlab_backup-{}/'.format(backup_time)
+    temp_folder = '/tmp/datalab_backup-{}/'.format(backup_time)
     conf_folder = 'conf/'
     keys_folder = '/home/{}/keys/'.format(os_user)
     certs_folder = '/etc/ssl/certs/'
-    all_certs = ['dhparam.pem', 'dlab.crt', 'dlab.key']
+    all_certs = ['dhparam.pem', 'datalab.crt', 'datalab.key']
     jars_folder = 'webapp/lib/'
-    dlab_logs_folder = '/var/log/dlab/'
+    datalab_logs_folder = '/var/log/datalab/'
     docker_logs_folder = '/var/lib/docker/containers/'
     dest_result = '{0}/backup_{1}.json'.format(args.result_path, args.request_id)
     dest_file = '{0}/backup_{1}.tar.gz'.format(args.result_path, args.request_id)

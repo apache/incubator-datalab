@@ -23,9 +23,9 @@
 
 import argparse
 import json
-from dlab.fab import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+from datalab.fab import *
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 import sys
 
 parser = argparse.ArgumentParser()

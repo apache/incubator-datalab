@@ -24,9 +24,9 @@
 import json
 import time
 from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import traceback
 import sys
 import os
@@ -44,22 +44,22 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        dlab.actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
         data_engine['project_name'] = os.environ['project_name']
         data_engine['endpoint_name'] = os.environ['endpoint_name']
-        edge_status = dlab.meta_lib.get_instance_status(
+        edge_status = datalab.meta_lib.get_instance_status(
             data_engine['service_base_name'] + '-tag', '{0}-{1}-{2}-edge'.format(
                 data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = dlab.meta_lib.get_instance_hostname(data_engine['service_base_name'] + '-tag',
+            ssn_hostname = datalab.meta_lib.get_instance_hostname(data_engine['service_base_name'] + '-tag',
                                                                data_engine['service_base_name'] + '-ssn')
-            dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
+            datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'], os.environ['conf_os_user'],
                                          ssn_hostname)
-            dlab.fab.append_result("Edge node is unavailable")
+            datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
         print('Generating infrastructure names and tags')
         if 'exploratory_name' in os.environ:
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         tag = {"Key": data_engine['tag_name'],
                "Value": "{}-{}-{}-subnet".format(data_engine['service_base_name'], data_engine['project_name'],
                                                  data_engine['endpoint_name'])}
-        data_engine['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        data_engine['subnet_cidr'] = datalab.meta_lib.get_subnet_by_tag(tag)
         data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-{}-nb-de-profile' \
             .format(data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
@@ -120,9 +120,9 @@ if __name__ == "__main__":
                     x != 'None' and x != '')
             else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
-        data_engine['ami_id'] = dlab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(
+        data_engine['ami_id'] = datalab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(
             os.environ['conf_os_family'])])
-        image_id = dlab.meta_lib.get_ami_id_by_name(data_engine['notebook_image_name'], 'available')
+        image_id = datalab.meta_lib.get_ami_id_by_name(data_engine['notebook_image_name'], 'available')
         if image_id != '' and os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
             data_engine['ami_id'] = image_id
             print('Pre-configured image found. Using: {}'.format(data_engine['ami_id']))
@@ -131,7 +131,7 @@ if __name__ == "__main__":
             print('No pre-configured image found. Using default one: {}'.format(data_engine['ami_id']))
 
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     with open('/root/result.json', 'w') as f:
@@ -155,23 +155,23 @@ if __name__ == "__main__":
                  "--instance_class {}" \
             .format(data_engine['master_node_name'], data_engine['ami_id'], data_engine['master_size'],
                     data_engine['key_name'],
-                    dlab.meta_lib.get_security_group_by_name(data_engine['dataengine_master_security_group_name']),
-                    dlab.meta_lib.get_subnet_by_cidr(data_engine['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
+                    datalab.meta_lib.get_security_group_by_name(data_engine['dataengine_master_security_group_name']),
+                    datalab.meta_lib.get_subnet_by_cidr(data_engine['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
                     data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
                     data_engine['master_node_name'], data_engine['primary_disk_size'], data_engine['instance_class'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-            data_engine['master_id'] = dlab.meta_lib.get_instance_by_name(data_engine['tag_name'],
+            data_engine['master_id'] = datalab.meta_lib.get_instance_by_name(data_engine['tag_name'],
                                                                           data_engine['master_node_name'])
-            dlab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
-            dlab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
-            dlab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_billing_tag'], False)
-            dlab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
+            datalab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
+            datalab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
+            datalab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_billing_tag'], False)
+            datalab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create master instance.", str(err))
+        datalab.fab.append_result("Failed to create master instance.", str(err))
         sys.exit(1)
 
     try:
@@ -185,27 +185,27 @@ if __name__ == "__main__":
                      "--primary_disk_size {} --instance_class {}" \
                 .format(slave_name, data_engine['ami_id'], data_engine['slave_size'],
                         data_engine['key_name'],
-                        dlab.meta_lib.get_security_group_by_name(data_engine['dataengine_slave_security_group_name']),
-                        dlab.meta_lib.get_subnet_by_cidr(data_engine['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
+                        datalab.meta_lib.get_security_group_by_name(data_engine['dataengine_slave_security_group_name']),
+                        datalab.meta_lib.get_subnet_by_cidr(data_engine['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
                         data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
                         slave_name, data_engine['primary_disk_size'], data_engine['instance_class'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
-                data_engine['slave_id'] = dlab.meta_lib.get_instance_by_name(data_engine['tag_name'], slave_name)
-                dlab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
-                dlab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'], False)
-                dlab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_billing_tag'], False)
-                dlab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag_type'], False)
+                data_engine['slave_id'] = datalab.meta_lib.get_instance_by_name(data_engine['tag_name'], slave_name)
+                datalab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
+                datalab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'], False)
+                datalab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_billing_tag'], False)
+                datalab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        dlab.actions_lib.remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        datalab.actions_lib.remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:
-                dlab.actions_lib.remove_ec2(data_engine['tag_name'], slave_name)
+                datalab.actions_lib.remove_ec2(data_engine['tag_name'], slave_name)
             except:
                 print("The slave instance {} hasn't been created.".format(slave_name))
-        dlab.fab.append_result("Failed to create slave instances.", str(err))
+        datalab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

@@ -35,7 +35,7 @@ data "template_file" "mongo_values" {
 resource "helm_release" "mongodb" {
   name       = "mongo-ha"
   chart      = "stable/mongodb"
-  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  namespace  = kubernetes_namespace.datalab-namespace.metadata[0].name
   wait       = true
   values     = [
       data.template_file.mongo_values.rendered

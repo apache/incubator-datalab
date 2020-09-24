@@ -23,10 +23,10 @@
 
 
 import json
-from dlab.fab import *
-from dlab.meta_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
 import sys, time, os
-from dlab.actions_lib import *
+from datalab.actions_lib import *
 
 
 if __name__ == "__main__":
@@ -36,7 +36,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    print('Getting statuses of DLAB resources')
+    print('Getting statuses of Data Lab resources')
 
     try:
         logging.info('[COLLECT DATA]')
@@ -49,5 +49,5 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed to collect information about DLAB resources.", str(err))
+        append_result("Failed to collect information about Data Lab resources.", str(err))
         sys.exit(1)

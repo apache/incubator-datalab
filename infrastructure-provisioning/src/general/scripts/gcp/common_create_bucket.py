@@ -23,8 +23,8 @@
 
 import argparse
 import json
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 import sys
 
 

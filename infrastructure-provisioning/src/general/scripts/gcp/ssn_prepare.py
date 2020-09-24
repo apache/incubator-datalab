@@ -27,10 +27,10 @@ import json
 import argparse
 import logging
 import traceback
-import dlab.ssn_lib
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.ssn_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssn_unique_index', type=str, default='')
@@ -43,8 +43,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
         ssn_conf['pre_defined_vpc'] = False
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         ssn_conf['ssn_unique_index'] = args.ssn_unique_index
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
                 os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
@@ -77,11 +77,11 @@ if __name__ == "__main__":
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if GCPMeta.get_instance(ssn_conf['instance_name']):
-        dlab.fab.dlab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
+        datalab.fab.datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
                                         "Please try again.")
         sys.exit(1)
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create VPC.", str(err))
+            datalab.fab.append_result("Failed to create VPC.", str(err))
             if not ssn_conf['pre_defined_vpc']:
                 try:
                     GCPActions.remove_vpc(ssn_conf['vpc_name'])
@@ -132,7 +132,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create Subnet.", str(err))
+            datalab.fab.append_result("Failed to create Subnet.", str(err))
             if not ssn_conf['pre_defined_subnet']:
                 try:
                     GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
@@ -194,7 +194,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create Firewall.", str(err))
+            datalab.fab.append_result("Failed to create Firewall.", str(err))
             if not ssn_conf['pre_defined_subnet']:
                 GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
             if not ssn_conf['pre_defined_vpc']:
@@ -214,7 +214,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create Service account and role.", str(err))
+        datalab.fab.append_result("Unable to create Service account and role.", str(err))
         try:
             GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
             GCPActions.remove_role(ssn_conf['role_name'])
@@ -239,7 +239,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create static ip.", str(err))
+        datalab.fab.append_result("Failed to create static ip.", str(err))
         try:
             GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
@@ -284,7 +284,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create ssn instance.", str(err))
+        datalab.fab.append_result("Unable to create ssn instance.", str(err))
         GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions.remove_role(ssn_conf['role_name'])
         GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])

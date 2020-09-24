@@ -79,4 +79,4 @@ spec:
         - --provider=google
         - --google-project={{ .Values.project_id }}
         - --registry=txt
-        - --txt-owner-id=dlab-kubernetes-cluster
+        - --txt-owner-id=datalab-kubernetes-cluster

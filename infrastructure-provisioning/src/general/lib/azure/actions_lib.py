@@ -41,8 +41,8 @@ import logging
 import traceback
 import sys, time
 import os, json
-import dlab.fab
-import dlab.common_lib
+import datalab.fab
+import datalab.common_lib
 import ast
 
 
@@ -493,7 +493,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
+    def create_instance(self, region, instance_size, service_base_name, instance_name, datalab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
                         image_full_name, tags, project_name='', create_option='fromImage', disk_id='',
                         instance_storage_account_type='Premium_LRS', image_type='default'):
@@ -532,12 +532,12 @@ class AzureActions:
                     },
                     'os_profile': {
                         'computer_name': instance_name.replace('_', '-'),
-                        'admin_username': dlab_ssh_user_name,
+                        'admin_username': datalab_ssh_user_name,
                         'linux_configuration': {
                             'disable_password_authentication': True,
                             'ssh': {
                                 'public_keys': [{
-                                    'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                    'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
                                     'key_data': public_key
                                 }]
                             }
@@ -580,12 +580,12 @@ class AzureActions:
                         },
                         'os_profile': {
                             'computer_name': instance_name.replace('_', '-'),
-                            'admin_username': dlab_ssh_user_name,
+                            'admin_username': datalab_ssh_user_name,
                             'linux_configuration': {
                                 'disable_password_authentication': True,
                                 'ssh': {
                                     'public_keys': [{
-                                        'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                        'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
                                         'key_data': public_key
                                     }]
                                 }
@@ -687,12 +687,12 @@ class AzureActions:
                     'storage_profile': storage_profile,
                     'os_profile': {
                         'computer_name': instance_name.replace('_', '-'),
-                        'admin_username': dlab_ssh_user_name,
+                        'admin_username': datalab_ssh_user_name,
                         'linux_configuration': {
                             'disable_password_authentication': True,
                             'ssh': {
                                 'public_keys': [{
-                                    'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                    'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
                                     'key_data': public_key
                                 }]
                             }
@@ -751,12 +751,12 @@ class AzureActions:
                     'storage_profile': storage_profile,
                     'os_profile': {
                         'computer_name': instance_name.replace('_', '-'),
-                        'admin_username': dlab_ssh_user_name,
+                        'admin_username': datalab_ssh_user_name,
                         'linux_configuration': {
                             'disable_password_authentication': True,
                             'ssh': {
                                 'public_keys': [{
-                                    'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                    'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
                                     'key_data': public_key
                                 }]
                             }
@@ -998,7 +998,7 @@ class AzureActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
+                datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
             sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
@@ -1122,7 +1122,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
               /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
         sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
-            spark_memory = dlab.fab.get_spark_memory()
+            spark_memory = datalab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
             sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
@@ -1131,7 +1131,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         java_home = run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
         sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
-            dlab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
+            datalab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
             spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
@@ -1147,7 +1147,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(dlab_header))
+            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
@@ -1177,7 +1177,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
     else:
         local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
-        dlab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
+        datalab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
                             capture=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
@@ -1194,7 +1194,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                 new_spark_defaults.append(property + ' ' + config['Properties'][property])
                 new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_dir))
+        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(datalab_header, cluster_dir))
         for prop in new_spark_defaults:
             prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))
@@ -1282,7 +1282,7 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
                 sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
                 # Configuring Hadoop and Spark
-                java_path = dlab.common_lib.find_java_path_remote()
+                java_path = datalab.common_lib.find_java_path_remote()
                 sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
                 sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
                 sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
@@ -1318,7 +1318,7 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
             local('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir))
             local('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir))
             # Configuring Hadoop and Spark
-            java_path = dlab.common_lib.find_java_path_local()
+            java_path = datalab.common_lib.find_java_path_local()
             local('echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir))
             local("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir))
             local('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))

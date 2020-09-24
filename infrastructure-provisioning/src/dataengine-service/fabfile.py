@@ -24,9 +24,9 @@
 import json
 import time
 from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from datalab.actions_lib import *
 import sys
 import os
 import uuid

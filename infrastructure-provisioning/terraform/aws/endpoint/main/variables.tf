@@ -75,7 +75,7 @@ variable "ldap_bind_creds" {}
 variable "ldap_users_group" {}
 
 variable "additional_tag" {
-  default = "product:dlab"
+  default = "product:datalab"
 }
 
 variable "tag_resource_id" {

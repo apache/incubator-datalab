@@ -28,8 +28,8 @@ import re
 import time
 import sys
 from fabric.api import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+from datalab.meta_lib import *
+from datalab.actions_lib import *
 import json
 import traceback
 import logging

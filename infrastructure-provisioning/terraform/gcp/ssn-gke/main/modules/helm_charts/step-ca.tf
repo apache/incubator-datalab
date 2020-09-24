@@ -28,7 +28,7 @@ resource "kubernetes_service" "step_service_lb" {
   depends_on = [null_resource.cert_manager_delay]
   metadata {
     name = "step-certs"
-    namespace = kubernetes_namespace.dlab-namespace.metadata[0].name
+    namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
   }
   spec {
     selector = {
@@ -51,14 +51,14 @@ data "template_file" "step_ca_values" {
     step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
     step_ca_host                 = kubernetes_service.step_service_lb.load_balancer_ingress.0.ip
     step_chart_name              = local.step_ca_name
-    namespace                    = kubernetes_namespace.dlab-namespace.metadata[0].name
+    namespace                    = kubernetes_namespace.datalab-namespace.metadata[0].name
   }
 }
 
 resource "helm_release" "step_ca" {
   name       = local.step_ca_name
   chart      = "./modules/helm_charts/step-ca-chart"
-  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  namespace  = kubernetes_namespace.datalab-namespace.metadata[0].name
   # depends_on = [kubernetes_service.step_service_lb]
   wait       = false
   timeout    = 600

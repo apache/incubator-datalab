@@ -22,11 +22,11 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 import sys
 import boto3, botocore
-from dlab.ssn_lib import *
+from datalab.ssn_lib import *
 import time
 
 parser = argparse.ArgumentParser()

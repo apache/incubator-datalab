@@ -25,9 +25,9 @@ import argparse
 import json
 import datetime
 from fabric.api import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from dlab.fab import *
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from datalab.fab import *
 import traceback
 import sys
 import ast

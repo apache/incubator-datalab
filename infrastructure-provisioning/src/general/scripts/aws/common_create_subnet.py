@@ -24,8 +24,8 @@
 import argparse
 import json
 from botocore import exceptions
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 import sys
 import boto3
 import ipaddress
@@ -77,18 +77,18 @@ if __name__ == "__main__":
                 else:
                     break
 
-            dlab_subnet_cidr = ''
+            datalab_subnet_cidr = ''
             if previous_subnet_size < private_subnet_size:
                 while True:
                     try:
-                        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
-                        ipaddress.ip_network(dlab_subnet_cidr.decode('utf-8'))
+                        datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+                        ipaddress.ip_network(datalab_subnet_cidr.decode('utf-8'))
                         break
                     except ValueError:
                         last_ip = last_ip + 2
                         continue
             else:
-                dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+                datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
         else:
             pre_defined_subnet_list = []
             subnet_cidr = args.user_subnets_range.split('-')[0].replace(' ', '')
@@ -111,18 +111,18 @@ if __name__ == "__main__":
                 print("There is no available subnet to create. Aborting...")
                 sys.exit(1)
             else:
-                dlab_subnet_cidr = available_subnets[0]
+                datalab_subnet_cidr = available_subnets[0]
         if args.ssn:
-            subnet_id = get_subnet_by_cidr(dlab_subnet_cidr, args.vpc_id)
+            subnet_id = get_subnet_by_cidr(datalab_subnet_cidr, args.vpc_id)
             subnet_check = get_subnet_by_tag(tag, False, args.vpc_id)
         else:
-            subnet_id = get_subnet_by_cidr(dlab_subnet_cidr, args.vpc_id)
+            subnet_id = get_subnet_by_cidr(datalab_subnet_cidr, args.vpc_id)
             subnet_check = get_subnet_by_tag(tag, args.vpc_id)
         if not subnet_check:
             if subnet_id == '':
                 print("Creating subnet {0} in vpc {1} with tag {2}".
-                      format(dlab_subnet_cidr, args.vpc_id, json.dumps(tag)))
-                subnet_id = create_subnet(args.vpc_id, dlab_subnet_cidr, tag, args.zone)
+                      format(datalab_subnet_cidr, args.vpc_id, json.dumps(tag)))
+                subnet_id = create_subnet(args.vpc_id, datalab_subnet_cidr, tag, args.zone)
                 create_tag(subnet_id, tag_name)
         else:
             print("REQUESTED SUBNET ALREADY EXISTS. USING CIDR {}".format(subnet_check))

@@ -24,7 +24,7 @@
 import boto3
 import argparse
 import sys
-from dlab.ssn_lib import *
+from datalab.ssn_lib import *
 
 
 parser = argparse.ArgumentParser()

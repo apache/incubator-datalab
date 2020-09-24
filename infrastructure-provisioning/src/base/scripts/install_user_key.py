@@ -23,7 +23,7 @@
 
 from fabric.api import *
 from fabric.contrib.files import exists
-from dlab.fab import *
+from datalab.fab import *
 import argparse
 import json
 import sys

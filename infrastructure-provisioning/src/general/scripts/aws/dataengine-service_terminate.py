@@ -21,9 +21,9 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import boto3
 import logging
 import argparse
@@ -36,7 +36,7 @@ import json
 def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_user, key_path):
     print('Terminating EMR cluster and cleaning EMR config from S3 bucket')
     try:
-        clusters_list = dlab.meta_lib.get_emr_list(emr_name, 'Value')
+        clusters_list = datalab.meta_lib.get_emr_list(emr_name, 'Value')
         if clusters_list:
             for cluster_id in clusters_list:
                 computational_name = ''
@@ -48,12 +48,12 @@ def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_use
                 for tag in cluster.get('Tags'):
                     if tag.get('Key') == 'ComputationalName':
                         computational_name = tag.get('Value')
-                dlab.actions_lib.s3_cleanup(bucket_name, emr_name, os.environ['project_name'])
+                datalab.actions_lib.s3_cleanup(bucket_name, emr_name, os.environ['project_name'])
                 print("The bucket {} has been cleaned successfully".format(bucket_name))
-                dlab.actions_lib.terminate_emr(cluster_id)
+                datalab.actions_lib.terminate_emr(cluster_id)
                 print("The EMR cluster {} has been terminated successfully".format(emr_name))
                 print("Removing EMR kernels from notebook")
-                dlab.actions_lib.remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path,
+                datalab.actions_lib.remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path,
                                                 emr_version, computational_name)
         else:
             print("There are no EMR clusters to terminate.")
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     emr_conf = dict()
     emr_conf['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                                   emr_conf['notebook_name'], os.environ['conf_os_user'], emr_conf['key_path'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to terminate EMR cluster.", str(err))
+            datalab.fab.append_result("Failed to terminate EMR cluster.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -105,5 +105,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

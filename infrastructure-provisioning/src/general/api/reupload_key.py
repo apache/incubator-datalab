@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
 
 
-    log = "/var/log/dlab/edge/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+    log = "/var/log/datalab/edge/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
                                                                           os.environ['project_name'],
                                                                           os.environ['request_id'])
     try:

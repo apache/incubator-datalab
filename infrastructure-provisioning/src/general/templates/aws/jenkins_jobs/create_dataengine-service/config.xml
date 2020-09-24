@@ -193,18 +193,18 @@ sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Ti
 sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/NVPCID/&apos;${aws_notebook_vpc_id}&apos;/g&apos; | \
 sed &apos;s/EXN/&apos;${exploratory_name}&apos;/g&apos; | sed &apos;s/CON/&apos;${computational_name}&apos;/g&apos; | \
 sudo docker run -i -e &quot;conf_tag_resource_id=user:tag&quot; -e &quot;configurations=$configurations&quot; \
--v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response \
--v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service \
-docker.dlab-dataengine-service --action create;
+-v /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response \
+-v /var/opt/datalab/log/dataengine-service:/logs/dataengine-service \
+docker.datalab-dataengine-service --action create;
 
 rand=`openssl rand -hex 10`;
 sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_configure.json | \
 sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | \
 sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | \
 sudo docker run -i -e &quot;conf_tag_resource_id=user:tag&quot; \
--v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response \
--v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service \
-docker.dlab-${notebook_app} --action configure;
+-v /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response \
+-v /var/opt/datalab/log/dataengine-service:/logs/dataengine-service \
+docker.datalab-${notebook_app} --action configure;
         </command>
     </hudson.tasks.Shell>
   </builders>
