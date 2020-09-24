@@ -36,6 +36,8 @@ public class UserResourceInfo {
 	private String user;
 	@JsonProperty
 	private String project;
+	@JsonProperty
+	private String endpoint;
 	@JsonProperty("resource_type")
 	private ResourceEnum resourceType;
 	@JsonProperty("resource_name")

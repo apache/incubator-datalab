@@ -148,6 +148,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   public toggleSchedule($event) {
+    console.log(this.tzOffset);
     this.enableSchedule = $event.checked;
     this.timeReqiered = false;
     this.allowInheritView = this.destination.type === 'СOMPUTATIONAL' || this.checkIsActiveSpark();
@@ -280,11 +281,10 @@ export class SchedulerComponent implements OnInit {
           params.start_days_repeat.filter(key => (this.selectedStartWeekDays[key.toLowerCase()] = true));
           params.stop_days_repeat.filter(key => (this.selectedStopWeekDays[key.toLowerCase()] = true));
           this.inherit = params.sync_start_required;
-          this.tzOffset = params.timezone_offset;
+          this.tzOffset = params.timezone_offset ? params.timezone_offset : this.tzOffset;
           this.startTime = params.start_time ? SchedulerCalculations.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : null;
           this.formInit(params.begin_date, params.finish_date, params.terminate_datetime);
-          console.log();
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
           this.considerInactivity = params.consider_inactivity || false;

@@ -317,6 +317,7 @@ public class EnvironmentServiceImplTest {
 				.resourceType(ResourceEnum.EDGE_NODE)
 				.resourceStatus("running")
 				.project(PROJECT_NAME)
+				.endpoint(ENDPOINT_NAME)
 				.ip(null)
 				.build();
 	}
@@ -330,6 +331,7 @@ public class EnvironmentServiceImplTest {
 				.computationalResources(Collections.emptyList())
 				.user(USER)
 				.project(PROJECT_NAME)
+				.endpoint(ENDPOINT_NAME)
 				.cloudProvider("aws")
 				.exploratoryUrls(null)
 				.build();
@@ -345,10 +347,10 @@ public class EnvironmentServiceImplTest {
 
 	private List<UserInstanceDTO> getUserInstances() {
 		return Arrays.asList(
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject(PROJECT_NAME).withShape(SHAPE).withStatus("running")
-						.withResources(Collections.emptyList()).withCloudProvider("aws"),
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject(PROJECT_NAME).withShape(SHAPE).withStatus("running")
-						.withResources(Collections.emptyList()).withCloudProvider("aws"));
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject(PROJECT_NAME).withEndpoint(ENDPOINT_NAME)
+						.withShape(SHAPE).withStatus("running").withResources(Collections.emptyList()).withCloudProvider("aws"),
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject(PROJECT_NAME).withEndpoint(ENDPOINT_NAME)
+						.withShape(SHAPE).withStatus("running").withResources(Collections.emptyList()).withCloudProvider("aws"));
 	}
 
 	private ProjectDTO getProjectDTO() {

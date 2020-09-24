@@ -469,15 +469,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private boolean shouldSchedulerBeExecuted(SchedulerJobDTO dto, OffsetDateTime dateTime, List<DayOfWeek> daysRepeat,
-											  LocalTime time, boolean usingOffset) {
-		LocalDateTime convertedDateTime = localDateTimeAtZone(dateTime, dto.getTimeZoneOffset());
+	                                          LocalTime time, boolean usingOffset) {
+		ZoneOffset timeZoneOffset = dto.getTimeZoneOffset();
+		LocalDateTime convertedDateTime = localDateTimeAtZone(dateTime, timeZoneOffset);
 		return isSchedulerActive(dto, convertedDateTime)
 				&& daysRepeat.contains(convertedDateTime.toLocalDate().getDayOfWeek())
-				&& timeFilter(time, convertedDateTime.toLocalTime(), usingOffset);
+				&& timeFilter(time, convertedDateTime.toLocalTime(), timeZoneOffset, usingOffset);
 	}
 
-	private boolean timeFilter(LocalTime time, LocalTime convertedDateTime, boolean usingOffset) {
-		return usingOffset ? (time.isBefore(convertedDateTime) && time.isAfter(LocalDateTime.now().toLocalTime())) :
+	private boolean timeFilter(LocalTime time, LocalTime convertedDateTime, ZoneOffset timeZoneOffset, boolean usingOffset) {
+		return usingOffset ? (time.isBefore(convertedDateTime) && time.isAfter(LocalDateTime.now(timeZoneOffset).toLocalTime())) :
 				convertedDateTime.equals(time);
 	}
 
