@@ -42,8 +42,10 @@ export class LocalizationService {
   }
 
   public static registerCulture(culture: string) {
-    if (culture.indexOf('-') !== -1) {
+    console.log(culture);
+    if (culture === 'uk-UA') {
       culture = culture.substr(0, culture.indexOf('-'));
+      console.log('inside', culture);
     }
 
     /* webpackInclude: /(uk|sv)\.js$/ */
