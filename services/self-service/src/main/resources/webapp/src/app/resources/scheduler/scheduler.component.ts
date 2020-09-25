@@ -150,6 +150,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   public toggleSchedule($event) {
+    console.log(this.tzOffset);
     this.enableSchedule = $event.checked;
     this.timeReqiered = false;
     this.allowInheritView = this.destination.type === 'СOMPUTATIONAL' || this.checkIsActiveSpark();
@@ -293,6 +294,7 @@ export class SchedulerComponent implements OnInit {
           this.startTimeMilliseconds = SchedulerCalculations.setTimeInMiliseconds(this.startTime);
           this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : this.endTime;
           this.endTimeMilliseconds = SchedulerCalculations.setTimeInMiliseconds(this.endTime);
+
           this.formInit(params.begin_date, params.finish_date, params.terminate_datetime);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
