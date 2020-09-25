@@ -40,7 +40,7 @@
     }
     .name,
     .project {
-      width: 12%;
+      width: 10%;
 
       .list-menu li {
         text-transform: inherit;
@@ -48,18 +48,22 @@
     }
 
     .shape {
-      width: 17% !important;
+      width: 15% !important;
       .label{
         position: absolute;
       }
     }
 
+    .endpoint{
+      width: 10% !important;
+    }
+
     .status {
-      width: 12% !important;
+      width: 10% !important;
     }
 
     .type {
-      width: 11%;
+      width: 10%;
     }
 
     .resources {
@@ -113,20 +117,24 @@
         z-index: 9 !important;
       }
 
-      &.shape {
+      &.endpoint {
         z-index: 8 !important;
       }
 
-      &.status {
+      &.shape {
         z-index: 7 !important;
       }
 
-      &.resources {
+      &.status {
         z-index: 6 !important;
       }
 
-      &.actions {
+      &.resources {
         z-index: 5 !important;
+      }
+
+      &.actions {
+        z-index: 4 !important;
         min-width: 100px !important;
       }
     }

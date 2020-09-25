@@ -49,8 +49,8 @@ export class ManagementGridComponent implements OnInit {
   allEnvironmentData: Array<any>;
   allFilteredEnvironmentData: Array<any>;
   loading: boolean = false;
-  filterConfiguration: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
-  filterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
+  filterConfiguration: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
+  filterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
   filtering: boolean = false;
   collapsedFilterRow: boolean = false;
 
@@ -62,11 +62,11 @@ export class ManagementGridComponent implements OnInit {
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
   @Output() emitSelectedList: EventEmitter<ManageAction> = new EventEmitter();
 
-  displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
-  displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
+  displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'endpoint', 'shape', 'status', 'resources', 'actions'];
+  displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'endpoint-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
   private selected;
   private allActiveNotebooks: any;
-  private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
+  private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
   private isFilterSelected: boolean;
   private isFilterChanged: boolean;
 
@@ -146,6 +146,7 @@ export class ManagementGridComponent implements OnInit {
         const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
         const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
         const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
+        const isEndpoint = config.endpoints.length > 0 ? (config.endpoints.indexOf(item.endpoint) !== -1) : true;
 
         const modifiedResources = containsStatus(item.resources, config.resources);
         let isResources = config.resources.length > 0 ? (modifiedResources && modifiedResources.length > 0) : true;
@@ -157,7 +158,7 @@ export class ManagementGridComponent implements OnInit {
           isResources = true;
         }
 
-        return isUser && isTypeName && isStatus && isShape && isProject && isResources;
+        return isUser && isTypeName && isStatus && isShape && isProject && isResources && isEndpoint;
       });
     }
     this.allFilteredEnvironmentData = filteredData;
@@ -203,10 +204,11 @@ export class ManagementGridComponent implements OnInit {
 
 
   private getDefaultFilterConfiguration(data): void {
-    const users = [], projects = [], shapes = [], statuses = [], resources = [];
+    const users = [], projects = [], shapes = [], statuses = [], resources = [], endpoints = [];
 
     data && data.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1) users.push(item.user);
+      if (item.endpoint && endpoints.indexOf(item.endpoint) === -1) endpoints.push(item.endpoint);
       if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1) statuses.push(item.status.toLowerCase());
       if (item.project && projects.indexOf(item.project) === -1) projects.push(item.project);
       if (item.shape && shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
@@ -218,7 +220,7 @@ export class ManagementGridComponent implements OnInit {
       }
     });
 
-    this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources);
+    this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources, endpoints);
   }
 
   openNotebookDetails(data) {
@@ -356,7 +358,8 @@ export class ReconfirmationDialogComponent {
     if (data.notebooks && data.notebooks.length) {
       this.notebooks = JSON.parse(JSON.stringify(data.notebooks));
       this.notebooks = this.notebooks.map(notebook => {
-        notebook.resources = notebook.resources.filter(res => res.status !== 'failed' && res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
+        notebook.resources = notebook.resources.filter(res => res.status !== 'failed' &&
+          res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
         if (notebook.resources.length) {
           this.isClusterLength = true;
         }
