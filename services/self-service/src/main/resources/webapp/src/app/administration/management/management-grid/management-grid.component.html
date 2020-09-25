@@ -79,6 +79,18 @@
       <td mat-cell *matCellDef="let element">{{ element.project }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="endpoint">
+      <th mat-header-cell *matHeaderCellDef class="endpoint label-header">
+        <span class="label">Endpoint</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.endpoints.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.endpoints.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button> </th>
+      <td mat-cell *matCellDef="let element">{{ element.endpoint }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="type">
       <th mat-header-cell *matHeaderCellDef class="type label-header">
         <span class="label">Name</span>
@@ -239,6 +251,12 @@
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'projects'"
           [items]="filterConfiguration.projects" [model]="filterForm.projects"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="endpoint-filter" sticky>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+        <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'endpoints'"
+                               [items]="filterConfiguration.endpoints" [model]="filterForm.endpoints"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="shape-filter" sticky>

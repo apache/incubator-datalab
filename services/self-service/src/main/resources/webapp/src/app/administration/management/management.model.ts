@@ -27,6 +27,7 @@ export class EnvironmentModel {
     public ip: string,
     public type?: string,
     public project?: string,
+    public endpoint?: string,
     public cloud_provider?: string,
     public exploratory_urls?: Array<any>
   ) { }
@@ -42,6 +43,7 @@ export class EnvironmentModel {
         value.public_ip,
         value.resource_type,
         value.project,
+        value.endpoint,
         value.cloud_provider,
         value.exploratory_urls
       ));
@@ -85,7 +87,7 @@ export interface GeneralEnvironmentStatus {
 export class ManagementConfigModel {
 
   static getDefault(): ManagementConfigModel {
-    return new ManagementConfigModel([], '', [], [], [], []);
+    return new ManagementConfigModel([], '', [], [], [], [], []);
   }
 
   constructor(
@@ -95,6 +97,7 @@ export class ManagementConfigModel {
     public shapes: Array<string>,
     public statuses: Array<string>,
     public resources: Array<string>,
+    public endpoints: Array<string>,
 
   ) { }
 
@@ -105,5 +108,6 @@ export class ManagementConfigModel {
     this.shapes = [];
     this.statuses = [];
     this.resources = [];
+    this.endpoints = [];
   }
 }
