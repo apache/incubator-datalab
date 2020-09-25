@@ -222,17 +222,20 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        pre_defined_firewall = True
         logging.info('[CREATE FIREWALL FOR EDGE NODE]')
         print('[CREATE FIREWALL FOR EDGE NODE]')
         firewall_rules = dict()
         firewall_rules['ingress'] = []
         firewall_rules['egress'] = []
-
         ingress_rule = dict()
+        if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0':
+            ssn_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-ssn'.format(project_conf['service_base_name']))
+            project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], ssn_public_ip).split(', ')
+        else:
+            project_conf['allowed_ip_cidr'] = [project_conf['allowed_ip_cidr']]
         ingress_rule['name'] = project_conf['fw_edge_ingress_public']
         ingress_rule['targetTags'] = [project_conf['network_tag']]
-        ingress_rule['sourceRanges'] = [project_conf['allowed_ip_cidr']]
+        ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
                 'IPProtocol': 'tcp',
@@ -261,7 +264,7 @@ if __name__ == "__main__":
         egress_rule = dict()
         egress_rule['name'] = project_conf['fw_edge_egress_public']
         egress_rule['targetTags'] = [project_conf['network_tag']]
-        egress_rule['destinationRanges'] = [project_conf['allowed_ip_cidr']]
+        egress_rule['destinationRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
                 'IPProtocol': 'udp',
@@ -359,7 +362,7 @@ if __name__ == "__main__":
         egress_rule['targetTags'] = [
             project_conf['ps_firewall_target']
         ]
-        egress_rule['destinationRanges'] = [project_conf['allowed_ip_cidr']]
+        egress_rule['destinationRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
                 'IPProtocol': 'tcp',
