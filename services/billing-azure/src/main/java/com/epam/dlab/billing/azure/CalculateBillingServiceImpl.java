@@ -48,6 +48,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -155,6 +156,7 @@ public class CalculateBillingServiceImpl implements CalculateBillingService {
         if (!dailyInvoices.isEmpty()) {
             return dailyInvoices
                     .stream()
+                    .filter(Objects::nonNull)
                     .map(this::toBillingData)
                     .collect(Collectors.toList());
         } else {
