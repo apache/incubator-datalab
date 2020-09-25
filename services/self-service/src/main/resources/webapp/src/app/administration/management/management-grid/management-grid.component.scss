@@ -90,7 +90,6 @@
     .label-header{
       padding-left: 15px;
       height: 56px;
-
       .ar{
         left: 21px;
         top: 2px;
@@ -108,6 +107,7 @@
       }
       &.user{
         z-index: 11 !important;
+
       }
       &.type{
         z-index: 10 !important;
@@ -115,10 +115,16 @@
 
       &.project {
         z-index: 9 !important;
+        .label {
+          position: absolute;
+        }
       }
 
       &.endpoint {
         z-index: 8 !important;
+        .label {
+          position: absolute;
+        }
       }
 
       &.shape {
