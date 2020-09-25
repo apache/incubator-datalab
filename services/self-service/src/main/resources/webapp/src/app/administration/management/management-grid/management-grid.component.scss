@@ -90,31 +90,38 @@
     .label-header{
       padding-left: 15px;
       height: 56px;
+
       .ar{
         left: 21px;
         top: 2px;
       }
+
       .settings{
         min-width: 7%;
       }
+
       &.mat-column-checkbox{
         z-index: 12 !important;
         padding-left: 10px;
+
         .ar{
           position: absolute;
           top: 10px;
         }
       }
+
       &.user{
         z-index: 11 !important;
 
       }
+
       &.type{
         z-index: 10 !important;
       }
 
       &.project {
         z-index: 9 !important;
+
         .label {
           position: absolute;
         }
@@ -122,6 +129,7 @@
 
       &.endpoint {
         z-index: 8 !important;
+
         .label {
           position: absolute;
         }
@@ -146,6 +154,7 @@
     }
 
     .dashboard_table_body {
+
       td:first-child {
         cursor: default;
       }
