@@ -43,9 +43,8 @@ export class LocalizationService {
 
   public static registerCulture(culture: string) {
     console.log(culture);
-    if (culture === 'uk-UA') {
+    if (culture === 'uk-UA' || culture === 'en-US') {
       culture = culture.substr(0, culture.indexOf('-'));
-      console.log('inside', culture);
     }
 
     /* webpackInclude: /(uk|sv)\.js$/ */
