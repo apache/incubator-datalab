@@ -27,4 +27,4 @@ import { LocalCurrencyPipe } from './local-currency.pipe';
   exports: [LocalCurrencyPipe]
 })
 
-export class KeysPipeModule { }
+export class LocalCurrencyModule { }

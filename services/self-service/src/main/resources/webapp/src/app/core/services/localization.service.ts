@@ -28,32 +28,29 @@ import 'moment-timezone';
 })
 export class LocalizationService {
   public timezone = _moment().format('Z');
-  private _locale = 'en';
+  private _locale;
 
   constructor() { }
 
   get locale() {
-    this._locale = window.navigator.language;
+    if (!this._locale) {
+      let locale = window.navigator.language;
+      if (locale.indexOf('-') !== -1 && locale !== 'en-GB') {
+        locale = locale.substr(0, locale.indexOf('-'));
+      }
+      this._locale = locale;
+    }
     return this._locale;
-  }
-
-  public getTzOffset() {
-    return this.timezone;
   }
 
   public static registerCulture(culture: string) {
     console.log(culture);
-    if (culture === 'uk-UA' || culture === 'en-US') {
+    if (culture.indexOf('-') !== -1 && culture !== 'en-GB') {
       culture = culture.substr(0, culture.indexOf('-'));
     }
-
     /* webpackInclude: /(uk|sv)\.js$/ */
     import(
       `@angular/common/locales/${culture}.js`
       ).then(module => registerLocaleData(module.default));
-  }
-
-  public getLocale() {
-    return this.locale;
   }
 }

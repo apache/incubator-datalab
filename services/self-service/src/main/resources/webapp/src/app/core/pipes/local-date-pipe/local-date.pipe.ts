@@ -26,12 +26,9 @@ import {formatDate} from '@angular/common';
 export class LocalDatePipe implements PipeTransform {
   constructor(private localizationService: LocalizationService) { }
 
-  transform(value: any, format: string) {
+  transform(value: any, format: string = 'shortDate') {
+    if (!value) { return ; }
 
-
-    if (!value) { return ''; }
-    if (!format) { format = 'shortDate'; }
-
-    return formatDate(value, format, 'en', this.localizationService.getTzOffset());
+    return formatDate(value, format, this.localizationService.locale);
   }
 }

@@ -18,15 +18,31 @@
  */
 
 import { Pipe, PipeTransform } from '@angular/core';
+import {formatCurrency, getCurrencySymbol} from '@angular/common';
+import {LocalizationService} from '../../services/localization.service';
 
-@Pipe({ name: 'keys' })
+@Pipe({ name: 'localcurrency' })
 
 export class LocalCurrencyPipe implements PipeTransform {
-  transform(value): any {
-    const keys = [];
-    for (const key in value) {
-      keys.push({ key: key, value: value[key]});
-    }
-    return keys;
+  constructor(private localizationService: LocalizationService) { }
+  transform(
+    value: number,
+    currencyCode: string = 'USD',
+    display:
+      | 'code'
+      | 'symbol'
+      | 'symbol-narrow'
+      | string
+      | boolean = 'symbol',
+    digitsInfo: string = '',
+    locale: string = this.localizationService.locale,
+  ): string | null {
+    return formatCurrency(
+      value,
+      locale,
+      getCurrencySymbol(currencyCode, 'wide'),
+      currencyCode,
+      digitsInfo,
+    );
   }
 }
