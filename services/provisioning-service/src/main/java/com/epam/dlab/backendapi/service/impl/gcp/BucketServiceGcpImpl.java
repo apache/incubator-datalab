@@ -34,8 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -120,13 +118,11 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(BlobInfo blobInfo) {
-        Date date = new Date(blobInfo.getUpdateTime());
-        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(blobInfo.getBucket())
                 .object(blobInfo.getName())
                 .size(String.valueOf(blobInfo.getSize()))
-                .lastModifiedDate(formatter.format(date))
+                .lastModifiedDate(blobInfo.getUpdateTime())
                 .build();
     }
 }

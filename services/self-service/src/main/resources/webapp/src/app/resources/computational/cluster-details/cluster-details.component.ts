@@ -71,7 +71,8 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
 
     this.upTimeInHours = (this.resource.up_time) ? DateUtils.diffBetweenDatesInHours(this.resource.up_time) : 0;
-    this.upTimeSince = (this.resource.up_time) ? new Date(this.resource.up_time).toString() : '';
+    this.upTimeSince = (this.resource.up_time) ?
+      new Date(this.resource.up_time).toString().substr(0, new Date(this.resource.up_time).toString().indexOf('(')) : '';
     this.initFormModel();
 
     if (this.resource.image === 'docker.dlab-dataengine') this.getClusterConfiguration();
@@ -101,7 +102,13 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
-      .editClusterConfiguration(data.configuration_parameters, this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER)
+      .editClusterConfiguration(
+        data.configuration_parameters,
+        this.environment.project,
+        this.environment.name,
+        this.resource.computational_name,
+        this.PROVIDER
+      )
       .subscribe(result => {
         this.dialogRef.close();
       },
@@ -129,7 +136,9 @@ export class DetailComputationalResourcesComponent implements OnInit {
       clusterType: resource.dataEngineType === 'dataengine-service' ? 'Hadoop' : 'Master'
     };
 
-    this.auditService.sendDataToAudit({resource_name: resource.computational_name, info: JSON.stringify(clusterInfo), type: 'COMPUTE'}).subscribe();
+    this.auditService.sendDataToAudit(
+      {resource_name: resource.computational_name, info: JSON.stringify(clusterInfo), type: 'COMPUTE'}
+      ).subscribe();
   }
 
   copyBucketName(url: string) {

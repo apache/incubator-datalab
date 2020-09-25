@@ -38,8 +38,6 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -141,13 +139,11 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(String bucket, S3Object s3Object) {
-        Date date = Date.from(s3Object.lastModified());
-        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
-                .bucket(bucket)
-                .object(s3Object.key())
-                .size(String.valueOf(s3Object.size()))
-                .lastModifiedDate(formatter.format(date))
+		        .bucket(bucket)
+		        .object(s3Object.key())
+		        .size(String.valueOf(s3Object.size()))
+		        .lastModifiedDate(s3Object.lastModified().toEpochMilli())
                 .build();
     }
 }

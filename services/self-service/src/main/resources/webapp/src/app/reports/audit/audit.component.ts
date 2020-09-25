@@ -18,27 +18,17 @@
  */
 
 
-import {Component, OnInit, OnDestroy, ViewChild, Inject} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import {HealthStatusService} from '../../core/services';
 import { DICTIONARY} from '../../../dictionary/global.dictionary';
 import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
 import {AuditGridComponent} from './audit-grid/audit-grid.component';
-import {AuditService} from '../../core/services/audit.service';
-import {Endpoint} from '../../administration/project/project.component';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-
 
 @Component({
   selector: 'dlab-reporting',
   template: `
   <div class="base-retreat">
-<!--    <dlab-toolbar (rebuildReport)="rebuildBillingReport()"-->
-<!--                  (exportReport)="exportBillingReport()"-->
-<!--                  (setRangeOption)="setRangeOption($event)">-->
-<!--    </dlab-toolbar>-->
-<!--    <mat-divider></mat-divider>-->
-<!--    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>-->
     <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption)="setRangeOption($event)">
     </audit-toolbar>
     <mat-divider></mat-divider>
@@ -66,8 +56,6 @@ export class AuditComponent implements OnInit, OnDestroy {
 
   @ViewChild(AuditGridComponent, { static: true }) auditGrid: AuditGridComponent;
   @ViewChild(AuditToolbarComponent, { static: true }) auditToolbar: AuditToolbarComponent;
-
-  public availablePeriod: any;
 
   constructor(
     private healthStatusService: HealthStatusService,

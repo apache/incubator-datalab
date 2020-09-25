@@ -26,18 +26,22 @@ import { KeysPipeModule, LineBreaksPipeModule, ConvertActionPipeModule } from '.
 import {AuditComponent} from './audit.component';
 import {AuditGridComponent, AuditInfoDialogComponent} from './audit-grid/audit-grid.component';
 import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
+import {LocalDatePipeModule} from '../../core/pipes/local-date-pipe';
+import {LocalCurrencyModule} from '../../core/pipes/local-currency-pipe';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    FormControlsModule,
-    ConvertActionPipeModule,
-    KeysPipeModule,
-    LineBreaksPipeModule,
-    NgDateRangePickerModule,
-    MaterialModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        FormControlsModule,
+        ConvertActionPipeModule,
+        KeysPipeModule,
+        LineBreaksPipeModule,
+        NgDateRangePickerModule,
+        MaterialModule,
+        LocalDatePipeModule,
+        LocalCurrencyModule
+    ],
   declarations: [
     AuditGridComponent,
     AuditToolbarComponent,

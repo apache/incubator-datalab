@@ -42,6 +42,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,6 +59,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BucketServiceImplTest extends TestBase {
+
 	private static final String BUCKET_GET_OBJECTS = "%sbucket/%s";
 	private static final String BUCKET_UPLOAD_OBJECT = "%sbucket/upload";
 	private static final String BUCKET_UPLOAD_FOLDER = "%sbucket/folder/upload";
@@ -66,7 +68,7 @@ public class BucketServiceImplTest extends TestBase {
 	private static final String BUCKET = "bucket";
 	private static final String OBJECT = "object";
 	private static final String SIZE = "size";
-	private static final String DATE = "date";
+	private static final long DATE = LocalDate.now().toEpochDay();
 	private static final String FOLDER = "folder/";
 
 	@Mock

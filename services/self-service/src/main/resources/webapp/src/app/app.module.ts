@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
@@ -40,7 +40,9 @@ import { WebterminalModule } from './webterminal';
 import { CoreModule } from './core/core.module';
 import { SwaggerAPIModule } from './swagger';
 import {ReportsModule} from './reports/reports.module';
+import {LocalizationService} from './core/services/localization.service';
 
+LocalizationService.registerCulture(window.navigator.language);
 
 @NgModule({
   declarations: [AppComponent],
@@ -70,7 +72,11 @@ import {ReportsModule} from './reports/reports.module';
     provide: LocationStrategy,
     useClass: HashLocationStrategy,
     useValue: '/'
-  }],
+  },
+    // { provide: LOCALE_ID,
+    //   deps: [LocalizationService],
+    //   useFactory: (localizationService) => localizationService.getLocale() }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

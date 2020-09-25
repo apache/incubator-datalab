@@ -28,17 +28,19 @@ import { ReportingComponent } from './reporting.component';
 import { KeysPipeModule, LineBreaksPipeModule } from '../../core/pipes';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import {LocalCurrencyModule} from '../../core/pipes/local-currency-pipe';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    FormControlsModule,
-    KeysPipeModule,
-    LineBreaksPipeModule,
-    NgDateRangePickerModule,
-    MaterialModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        FormControlsModule,
+        KeysPipeModule,
+        LineBreaksPipeModule,
+        NgDateRangePickerModule,
+        MaterialModule,
+        LocalCurrencyModule
+    ],
   declarations: [
     ReportingComponent,
     ReportingGridComponent,

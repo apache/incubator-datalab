@@ -130,11 +130,11 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
 
 
   public toggleSelectedFile(file, type) {
-  type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
-  this.selected = this.folderItems.filter(item => item.isSelected);
-  this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
-  this.selectedItems = [...this.selected, ...this.selectedFolderForAction];
-  this.isActionsOpen = false;
+    type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
+    this.selected = this.folderItems.filter(item => item.isSelected);
+    this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
+    this.selectedItems = [...this.selected, ...this.selectedFolderForAction];
+    this.isActionsOpen = false;
   }
 
   filesPicked(files) {
@@ -464,11 +464,6 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.isFilterVisible = false;
     this.searchValue = '';
     this.filterObjects();
-  }
-
-  public convertDate(date) {
-    const utcDate = new Date(date);
-    return new Date(utcDate.setTime( utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000 ));
   }
 
 }

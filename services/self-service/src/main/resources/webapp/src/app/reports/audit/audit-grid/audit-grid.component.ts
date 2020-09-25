@@ -22,6 +22,7 @@ import {FilterAuditModel} from '../filter-audit.model';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {AuditService} from '../../../core/services/audit.service';
 import {SortUtils} from '../../../core/util';
+import {LocalizationService} from '../../../core/services/localization.service';
 
 
 export interface AuditItem {
@@ -64,6 +65,7 @@ export class AuditGridComponent implements OnInit {
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
     public dialog: MatDialog,
     private auditService: AuditService,
+    private localizationService: LocalizationService,
   ) {
   }
 

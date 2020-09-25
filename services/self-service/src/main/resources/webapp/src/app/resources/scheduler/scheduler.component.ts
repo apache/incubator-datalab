@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject, LOCALE_ID} from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -31,7 +31,6 @@ import { SchedulerModel, WeekdaysModel } from './scheduler.model';
 import { SchedulerCalculations } from './scheduler.calculations';
 import { HTTP_STATUS_CODES, CheckUtils } from '../../core/util';
 import { ScheduleSchema } from './scheduler.model';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'dlab-scheduler',
@@ -64,9 +63,12 @@ export class SchedulerComponent implements OnInit {
   public destination: any;
   public zones: {};
   public tzOffset: string = _moment().format('Z');
-  public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
-  public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
+  public startTime = SchedulerCalculations.convertTimeFormat('09:00');
+  public startTimeMilliseconds: number = SchedulerCalculations.setTimeInMiliseconds(this.startTime);
+  public endTime = SchedulerCalculations.convertTimeFormat('20:00');
+  public endTimeMilliseconds: number = SchedulerCalculations.setTimeInMiliseconds(this.endTime);
   public terminateTime = null;
+  public terminateTimeMilliseconds: number;
 
   public inactivityLimits = { min: 120, max: 10080 };
   public integerRegex: string = '^[0-9]*$';
@@ -158,8 +160,10 @@ export class SchedulerComponent implements OnInit {
       ? this.schedulerForm.get('startDate').enable()
       : this.schedulerForm.get('startDate').disable();
 
-    this.enableSchedule && this.destination.type !== 'СOMPUTATIONAL' ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
-    this.enableSchedule ? this.schedulerForm.get('terminateDate').enable() : this.schedulerForm.get('terminateDate').disable();
+    this.enableSchedule && this.destination.type !== 'СOMPUTATIONAL' ?
+      this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+    this.enableSchedule ?
+      this.schedulerForm.get('terminateDate').enable() : this.schedulerForm.get('terminateDate').disable();
 
     if (this.enableSchedule && $event.source) this.enableIdleTimeView = false;
   }
@@ -258,7 +262,11 @@ export class SchedulerComponent implements OnInit {
   }
 
   private setScheduleByInactivity() {
-    const data = { sync_start_required: this.parentInherit, check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
+    const data = {
+      sync_start_required: this.parentInherit,
+      check_inactivity_required: this.enableIdleTime,
+      max_inactivity: this.schedulerForm.controls.inactivityTime.value
+    };
     (this.destination.type === 'СOMPUTATIONAL')
       ? this.setInactivity(this.notebook.project, this.notebook.name, data, this.destination.computational_name)
       : this.setInactivity(this.notebook.project, this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });
@@ -282,8 +290,11 @@ export class SchedulerComponent implements OnInit {
           params.stop_days_repeat.filter(key => (this.selectedStopWeekDays[key.toLowerCase()] = true));
           this.inherit = params.sync_start_required;
           this.tzOffset = params.timezone_offset ? params.timezone_offset : this.tzOffset;
-          this.startTime = params.start_time ? SchedulerCalculations.convertTimeFormat(params.start_time) : null;
-          this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : null;
+          this.startTime = params.start_time ? SchedulerCalculations.convertTimeFormat(params.start_time) : this.startTime;
+          this.startTimeMilliseconds = SchedulerCalculations.setTimeInMiliseconds(this.startTime);
+          this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : this.endTime;
+          this.endTimeMilliseconds = SchedulerCalculations.setTimeInMiliseconds(this.endTime);
+
           this.formInit(params.begin_date, params.finish_date, params.terminate_datetime);
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
@@ -293,6 +304,7 @@ export class SchedulerComponent implements OnInit {
             const terminate_datetime = params.terminate_datetime.split(' ');
             this.schedulerForm.controls.terminateDate.setValue(terminate_datetime[0]);
             this.terminateTime = SchedulerCalculations.convertTimeFormat(terminate_datetime[1]);
+            this.terminateTimeMilliseconds = SchedulerCalculations.setTimeInMiliseconds(this.terminateTime);
           }
 
           (this.enableIdleTime && params.max_inactivity)

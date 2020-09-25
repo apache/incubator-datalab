@@ -32,18 +32,20 @@ import {BucketDataService} from './bucket-data.service';
 import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
 import {BucketTreeComponent} from './buckets-tree/bucket-tree.component';
 import {ConvertFileSizePipeModule} from '../../core/pipes/convert-file-size';
+import {LocalDatePipeModule} from '../../core/pipes/local-date-pipe';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ResourcesGridModule,
-    ExploratoryEnvironmentCreateModule,
-    MaterialModule,
-    MatTreeModule,
-    ConvertFileSizePipeModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ResourcesGridModule,
+        ExploratoryEnvironmentCreateModule,
+        MaterialModule,
+        MatTreeModule,
+        ConvertFileSizePipeModule,
+        LocalDatePipeModule
+    ],
   declarations: [
     BucketBrowserComponent,
     FolderTreeComponent,
