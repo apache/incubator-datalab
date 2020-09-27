@@ -91,7 +91,9 @@ public class OdahuServiceImpl implements OdahuService {
     @BudgetLimited
     @Override
     public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
-        Optional<OdahuDTO> odahuDTO = odahuDAO.getByProjectEndpoint(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint());
+        Optional<OdahuDTO> odahuDTO = odahuDAO
+                .getByProjectEndpoint(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint())
+                .filter(p -> p.getStatus().equals(UserInstanceStatus.FAILED));
         if (odahuDTO.isPresent()) {
             throw new ResourceConflictException(String.format("Odahu cluster already exist in system for project %s " +
                     "and endpoint %s", odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()));
