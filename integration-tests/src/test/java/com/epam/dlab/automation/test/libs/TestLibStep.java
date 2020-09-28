@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test.libs;
+package com.epam.datalab.automation.test.libs;
 
 import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;

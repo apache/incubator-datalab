@@ -17,9 +17,9 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test.libs.models;
+package com.epam.datalab.automation.test.libs.models;
 
-import com.epam.dlab.automation.model.Lib;
+import com.epam.datalab.automation.model.Lib;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 

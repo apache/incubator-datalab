@@ -17,22 +17,22 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test;
+package com.epam.datalab.automation.test;
 
-import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
-import com.epam.dlab.automation.cloud.aws.AmazonHelper;
-import com.epam.dlab.automation.docker.Docker;
-import com.epam.dlab.automation.helper.*;
-import com.epam.dlab.automation.http.ApiPath;
-import com.epam.dlab.automation.http.ContentType;
-import com.epam.dlab.automation.http.HttpRequest;
-import com.epam.dlab.automation.http.HttpStatusCode;
-import com.epam.dlab.automation.model.*;
-import com.epam.dlab.automation.test.libs.LibsHelper;
-import com.epam.dlab.automation.test.libs.TestLibGroupStep;
-import com.epam.dlab.automation.test.libs.TestLibInstallStep;
-import com.epam.dlab.automation.test.libs.TestLibListStep;
-import com.epam.dlab.automation.test.libs.models.LibToSearchData;
+import com.epam.datalab.automation.cloud.VirtualMachineStatusChecker;
+import com.epam.datalab.automation.cloud.aws.AmazonHelper;
+import com.epam.datalab.automation.docker.Docker;
+import com.epam.datalab.automation.helper.*;
+import com.epam.datalab.automation.http.ApiPath;
+import com.epam.datalab.automation.http.ContentType;
+import com.epam.datalab.automation.http.HttpRequest;
+import com.epam.datalab.automation.http.HttpStatusCode;
+import com.epam.datalab.automation.model.*;
+import com.epam.datalab.automation.test.libs.LibsHelper;
+import com.epam.datalab.automation.test.libs.TestLibGroupStep;
+import com.epam.datalab.automation.test.libs.TestLibInstallStep;
+import com.epam.datalab.automation.test.libs.TestLibListStep;
+import com.epam.datalab.automation.test.libs.models.LibToSearchData;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;

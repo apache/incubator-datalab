@@ -17,15 +17,15 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.cloud;
+package com.epam.datalab.automation.cloud;
 
-import com.epam.dlab.automation.cloud.aws.AmazonHelper;
-import com.epam.dlab.automation.cloud.aws.AmazonInstanceState;
-import com.epam.dlab.automation.cloud.azure.AzureHelper;
-import com.epam.dlab.automation.cloud.gcp.GcpHelper;
-import com.epam.dlab.automation.cloud.gcp.GcpInstanceState;
-import com.epam.dlab.automation.helper.CloudProvider;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.cloud.aws.AmazonHelper;
+import com.epam.datalab.automation.cloud.aws.AmazonInstanceState;
+import com.epam.datalab.automation.cloud.azure.AzureHelper;
+import com.epam.datalab.automation.cloud.gcp.GcpHelper;
+import com.epam.datalab.automation.cloud.gcp.GcpInstanceState;
+import com.epam.datalab.automation.helper.CloudProvider;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
 import com.microsoft.azure.management.compute.PowerState;
 import org.testng.Assert;
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.cloud.aws;
+package com.epam.datalab.automation.cloud.aws;
 
 public enum AmazonInstanceState {
     STARTING,

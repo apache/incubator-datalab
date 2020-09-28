@@ -26,10 +26,10 @@ spring:
     mongodb:
       username: admin
       password: MONGO_PASSWORD
-      database: dlabdb
+      database: datalabdb
       port: 27017
       host: MONGO_HOST
-dlab:
+datalab:
   sbn: SERVICE_BASE_NAME
   bigQueryDataset: DATASET_NAME
   cron: 0 0 * * * *
@@ -45,14 +45,14 @@ server.ssl.key-store-password: KEY_STORE_PASSWORD
 server.ssl.key-alias: ssn
 
 logging:
-  file: /var/opt/dlab/log/ssn/billing.log
+  file: /var/opt/datalab/log/ssn/billing.log
   level:
     com:
       epam: trace
 
 keycloak:
   bearer-only: true
-  realm: dlab
+  realm: datalab
   resource: KEYCLOAK_CLIENT_ID
   credentials.secret: KEYCLOAK_CLIENT_SECRET
   ssl-required: none

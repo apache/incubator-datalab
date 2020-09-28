@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.docker;
+package com.epam.datalab.automation.docker;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

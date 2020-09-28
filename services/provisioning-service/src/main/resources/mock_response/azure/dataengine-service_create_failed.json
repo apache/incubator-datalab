@@ -5,7 +5,7 @@
       "hostname": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-des-${EXPLORATORY_NAME}-${COMPUTATIONAL_NAME}-${NOTEBOOK_ID}",
       "error":"Cannot create EMR"
     },
-    "log": "/var/log/dlab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+    "log": "/var/log/datalab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },
   "request_id": "${REQUEST_ID}"
 }

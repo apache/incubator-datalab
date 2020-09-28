@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.model;
+package com.epam.datalab.automation.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;

@@ -17,9 +17,9 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.helper;
+package com.epam.datalab.automation.helper;
 
-import com.epam.dlab.automation.exceptions.LoadFailException;
+import com.epam.datalab.automation.exceptions.LoadFailException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

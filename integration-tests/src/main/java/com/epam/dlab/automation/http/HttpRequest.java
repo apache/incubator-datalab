@@ -17,9 +17,9 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.http;
+package com.epam.datalab.automation.http;
 
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 

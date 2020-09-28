@@ -17,9 +17,9 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.docker;
+package com.epam.datalab.automation.docker;
 
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
 import com.jcraft.jsch.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -17,11 +17,11 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test.libs;
+package com.epam.datalab.automation.test.libs;
 
-import com.epam.dlab.automation.helper.NamingHelper;
+import com.epam.datalab.automation.helper.NamingHelper;
 
-import static com.epam.dlab.automation.helper.NamingHelper.*;
+import static com.epam.datalab.automation.helper.NamingHelper.*;
 
 public class LibsHelper {
 

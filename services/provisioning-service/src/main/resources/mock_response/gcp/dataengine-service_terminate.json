@@ -7,7 +7,7 @@
          "Dataproc_name": "${DATAPROC_CLUSTER_NAME}",
          "notebook_name": "${NOTEBOOK_INSTANCE_NAME}"
       },
-      "log": "/var/log/dlab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+      "log": "/var/log/datalab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
    },
    "request_id": "${REQUEST_ID}"
 }
