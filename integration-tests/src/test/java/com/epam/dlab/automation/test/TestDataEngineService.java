@@ -17,14 +17,14 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test;
+package com.epam.datalab.automation.test;
 
-import com.epam.dlab.automation.docker.AckStatus;
-import com.epam.dlab.automation.docker.SSHConnect;
-import com.epam.dlab.automation.helper.CloudHelper;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.helper.PropertiesResolver;
+import com.epam.datalab.automation.docker.AckStatus;
+import com.epam.datalab.automation.docker.SSHConnect;
+import com.epam.datalab.automation.helper.CloudHelper;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.helper.NamingHelper;
+import com.epam.datalab.automation.helper.PropertiesResolver;
 import com.jcraft.jsch.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

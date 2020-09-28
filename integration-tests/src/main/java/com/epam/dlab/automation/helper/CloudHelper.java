@@ -17,18 +17,18 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.helper;
+package com.epam.datalab.automation.helper;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Tag;
-import com.epam.dlab.automation.cloud.aws.AmazonHelper;
-import com.epam.dlab.automation.cloud.azure.AzureHelper;
-import com.epam.dlab.automation.cloud.gcp.GcpHelper;
-import com.epam.dlab.automation.exceptions.CloudException;
-import com.epam.dlab.automation.model.DeployClusterDto;
-import com.epam.dlab.automation.model.DeployDataProcDto;
-import com.epam.dlab.automation.model.DeployEMRDto;
-import com.epam.dlab.automation.model.NotebookConfig;
+import com.epam.datalab.automation.cloud.aws.AmazonHelper;
+import com.epam.datalab.automation.cloud.azure.AzureHelper;
+import com.epam.datalab.automation.cloud.gcp.GcpHelper;
+import com.epam.datalab.automation.exceptions.CloudException;
+import com.epam.datalab.automation.model.DeployClusterDto;
+import com.epam.datalab.automation.model.DeployDataProcDto;
+import com.epam.datalab.automation.model.DeployEMRDto;
+import com.epam.datalab.automation.model.NotebookConfig;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;

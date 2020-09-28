@@ -16,7 +16,7 @@
         }
       ]
     },
-    "log": "/var/log/dlab/dataengine/dataengine_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+    "log": "/var/log/datalab/dataengine/dataengine_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },
   "request_id": "${REQUEST_ID}"
 }

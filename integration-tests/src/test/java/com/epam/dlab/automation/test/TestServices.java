@@ -17,19 +17,19 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test;
+package com.epam.datalab.automation.test;
 
-import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
-import com.epam.dlab.automation.docker.Docker;
-import com.epam.dlab.automation.helper.*;
-import com.epam.dlab.automation.http.ApiPath;
-import com.epam.dlab.automation.http.ContentType;
-import com.epam.dlab.automation.http.HttpRequest;
-import com.epam.dlab.automation.http.HttpStatusCode;
-import com.epam.dlab.automation.jenkins.JenkinsService;
-import com.epam.dlab.automation.model.Lib;
-import com.epam.dlab.automation.model.LoginDto;
-import com.epam.dlab.automation.model.NotebookConfig;
+import com.epam.datalab.automation.cloud.VirtualMachineStatusChecker;
+import com.epam.datalab.automation.docker.Docker;
+import com.epam.datalab.automation.helper.*;
+import com.epam.datalab.automation.http.ApiPath;
+import com.epam.datalab.automation.http.ContentType;
+import com.epam.datalab.automation.http.HttpRequest;
+import com.epam.datalab.automation.http.HttpStatusCode;
+import com.epam.datalab.automation.jenkins.JenkinsService;
+import com.epam.datalab.automation.model.Lib;
+import com.epam.datalab.automation.model.LoginDto;
+import com.epam.datalab.automation.model.NotebookConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;

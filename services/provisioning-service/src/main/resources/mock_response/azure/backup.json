@@ -1,5 +1,5 @@
 {
   "status": "created",
-  "backup_file": "/opt/dlab/tmp/dlab.tar.gz",
+  "backup_file": "/opt/datalab/tmp/datalab.tar.gz",
   "request_id": "${REQUEST_ID}"
 }

@@ -50,14 +50,14 @@
 
 
 	<Loggers>
-		<Root level="info">
-			<AppenderRef ref="file" />
-			<AppenderRef ref="console" />
-		</Root>
-		<Logger name="com.epam.dlab.automation" level="debug" additivity="false">
-			<AppenderRef ref="file" />
-			<AppenderRef ref="console" />
-    	</Logger>
-	</Loggers>
+        <Root level="info">
+            <AppenderRef ref="file"/>
+            <AppenderRef ref="console"/>
+        </Root>
+        <Logger name="com.epam.datalab.automation" level="debug" additivity="false">
+            <AppenderRef ref="file"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+    </Loggers>
 
 </Configuration>

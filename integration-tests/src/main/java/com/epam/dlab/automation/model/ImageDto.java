@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.model;
+package com.epam.datalab.automation.model;
 
 public class ImageDto {
 

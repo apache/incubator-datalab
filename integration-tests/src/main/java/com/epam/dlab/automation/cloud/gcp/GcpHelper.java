@@ -17,10 +17,10 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.cloud.gcp;
+package com.epam.datalab.automation.cloud.gcp;
 
-import com.epam.dlab.automation.exceptions.CloudException;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.exceptions.CloudException;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;

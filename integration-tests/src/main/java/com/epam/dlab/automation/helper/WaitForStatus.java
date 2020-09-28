@@ -17,11 +17,11 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.helper;
+package com.epam.datalab.automation.helper;
 
-import com.epam.dlab.automation.http.ContentType;
-import com.epam.dlab.automation.http.HttpRequest;
-import com.epam.dlab.automation.http.HttpStatusCode;
+import com.epam.datalab.automation.http.ContentType;
+import com.epam.datalab.automation.http.HttpRequest;
+import com.epam.datalab.automation.http.HttpStatusCode;
 import com.jayway.restassured.path.json.JsonPath;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;

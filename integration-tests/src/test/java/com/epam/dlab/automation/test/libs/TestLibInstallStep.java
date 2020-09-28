@@ -17,17 +17,17 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test.libs;
+package com.epam.datalab.automation.test.libs;
 
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.http.ContentType;
-import com.epam.dlab.automation.http.HttpRequest;
-import com.epam.dlab.automation.http.HttpStatusCode;
-import com.epam.dlab.automation.model.Lib;
-import com.epam.dlab.automation.test.libs.models.LibInstallRequest;
-import com.epam.dlab.automation.test.libs.models.LibStatusResponse;
-import com.epam.dlab.automation.test.libs.models.LibraryStatus;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.helper.NamingHelper;
+import com.epam.datalab.automation.http.ContentType;
+import com.epam.datalab.automation.http.HttpRequest;
+import com.epam.datalab.automation.http.HttpStatusCode;
+import com.epam.datalab.automation.model.Lib;
+import com.epam.datalab.automation.test.libs.models.LibInstallRequest;
+import com.epam.datalab.automation.test.libs.models.LibStatusResponse;
+import com.epam.datalab.automation.test.libs.models.LibraryStatus;
 import com.jayway.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

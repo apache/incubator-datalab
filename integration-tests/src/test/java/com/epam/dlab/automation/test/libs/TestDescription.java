@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.test.libs;
+package com.epam.datalab.automation.test.libs;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

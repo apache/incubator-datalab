@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.helper;
+package com.epam.datalab.automation.helper;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
