@@ -40,4 +40,12 @@ export class SchedulerCalculations {
     }
     return result;
   }
+
+  public static setTimeInMiliseconds(time) {
+    const minutes = (Number(time.minute) < 10) ? ('0' + time.minute) : time.minute;
+    const timeMilisec = new Date().setMinutes(+minutes);
+
+    if (time.meridiem === 'PM' && time.hour < 13) time.hour += 12;
+    return new Date(timeMilisec).setHours(time.hour);
+  }
 }

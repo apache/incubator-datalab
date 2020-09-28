@@ -19,23 +19,12 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MaterialModule } from '../material.module';
-
-import { TimeCoverComponent } from './time-cover.component';
-import { TickerComponent } from './ticker.component';
-import {
-  TimePickerComponent,
-  TimePickerDialogComponent
-} from './time-picker.component';
-import {LocalDatePipeModule} from '../../core/pipes/local-date-pipe';
-
-export * from './time-picker.component';
+import { LocalCurrencyPipe } from './local-currency.pipe';
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, LocalDatePipeModule],
-  declarations: [TimePickerComponent, TimePickerDialogComponent, TimeCoverComponent, TickerComponent],
-  entryComponents: [TimePickerDialogComponent],
-  exports: [TimePickerComponent]
+  imports: [CommonModule],
+  declarations: [LocalCurrencyPipe],
+  exports: [LocalCurrencyPipe]
 })
-export class TimePickerModule {}
+
+export class LocalCurrencyModule { }

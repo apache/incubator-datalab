@@ -73,7 +73,8 @@ export class DetailDialogComponent implements OnInit {
       this.tooltip = false;
 
       this.upTimeInHours = (this.notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
-      this.upTimeSince = (this.notebook.time) ? new Date(this.notebook.time).toString() : '';
+      this.upTimeSince = (this.notebook.time) ?
+        new Date(this.notebook.time).toString().substr(0, new Date(this.notebook.time).toString().indexOf('(')) : '';
       this.initFormModel();
       this.getClusterConfiguration();
     if (this.notebook.edgeNodeStatus === 'terminated' ||

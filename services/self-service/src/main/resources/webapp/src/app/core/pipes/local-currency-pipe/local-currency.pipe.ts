@@ -17,20 +17,32 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Pipe, PipeTransform } from '@angular/core';
+import {formatCurrency, getCurrencySymbol} from '@angular/common';
+import {LocalizationService} from '../../services/localization.service';
 
-import { MaterialModule } from '../../../shared/material.module';
-import { CostDetailsDialogComponent } from './cost-details-dialog.component';
-import {LocalCurrencyModule} from '../../../core/pipes/local-currency-pipe';
-import {LocalDatePipeModule} from '../../../core/pipes/local-date-pipe';
+@Pipe({ name: 'localcurrency' })
 
-export * from './cost-details-dialog.component';
-
-@NgModule({
-  imports: [CommonModule, MaterialModule, LocalCurrencyModule, LocalDatePipeModule],
-  declarations: [CostDetailsDialogComponent],
-  entryComponents: [CostDetailsDialogComponent],
-  exports: [CostDetailsDialogComponent]
-})
-export class CostDetailsDialogModule {}
+export class LocalCurrencyPipe implements PipeTransform {
+  constructor(private localizationService: LocalizationService) { }
+  transform(
+    value: number,
+    currencyCode: string = 'USD',
+    display:
+      | 'code'
+      | 'symbol'
+      | 'symbol-narrow'
+      | string
+      | boolean = 'symbol',
+    digitsInfo: string = '',
+    locale: string = this.localizationService.locale,
+  ): string | null {
+    return formatCurrency(
+      value,
+      locale,
+      getCurrencySymbol(currencyCode, 'wide'),
+      currencyCode,
+      digitsInfo,
+    );
+  }
+}

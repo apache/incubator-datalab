@@ -17,20 +17,18 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Pipe, PipeTransform } from '@angular/core';
+import {LocalizationService} from '../../services/localization.service';
+import {formatDate} from '@angular/common';
 
-import { MaterialModule } from '../../../shared/material.module';
-import { CostDetailsDialogComponent } from './cost-details-dialog.component';
-import {LocalCurrencyModule} from '../../../core/pipes/local-currency-pipe';
-import {LocalDatePipeModule} from '../../../core/pipes/local-date-pipe';
+@Pipe({ name: 'localDate' })
 
-export * from './cost-details-dialog.component';
+export class LocalDatePipe implements PipeTransform {
+  constructor(private localizationService: LocalizationService) { }
 
-@NgModule({
-  imports: [CommonModule, MaterialModule, LocalCurrencyModule, LocalDatePipeModule],
-  declarations: [CostDetailsDialogComponent],
-  entryComponents: [CostDetailsDialogComponent],
-  exports: [CostDetailsDialogComponent]
-})
-export class CostDetailsDialogModule {}
+  transform(value: any, format: string = 'shortDate') {
+    if (!value) { return ; }
+
+    return formatDate(value, format, this.localizationService.locale);
+  }
+}

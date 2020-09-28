@@ -153,6 +153,10 @@ if __name__ == "__main__":
         try:
             logging.info('[CREATE FIREWALL]')
             print('[CREATE FIREWALL]')
+            if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0':
+                ssn_conf['allowed_ip_cidr'] = ssn_conf['allowed_ip_cidr'].split(', ')
+            else:
+                ssn_conf['allowed_ip_cidr'] = [ssn_conf['allowed_ip_cidr']]
             firewall_rules = dict()
             firewall_rules['ingress'] = []
             firewall_rules['egress'] = []
@@ -160,7 +164,7 @@ if __name__ == "__main__":
             ingress_rule = dict()
             ingress_rule['name'] = '{}-ingress'.format(ssn_conf['firewall_name'])
             ingress_rule['targetTags'] = [ssn_conf['network_tag']]
-            ingress_rule['sourceRanges'] = [ssn_conf['allowed_ip_cidr']]
+            ingress_rule['sourceRanges'] = ssn_conf['allowed_ip_cidr']
             rules = [
                 {
                     'IPProtocol': 'tcp',
@@ -175,7 +179,7 @@ if __name__ == "__main__":
             egress_rule = dict()
             egress_rule['name'] = '{}-egress'.format(ssn_conf['firewall_name'])
             egress_rule['targetTags'] = [ssn_conf['network_tag']]
-            egress_rule['destinationRanges'] = [ssn_conf['allowed_ip_cidr']]
+            egress_rule['destinationRanges'] = ssn_conf['allowed_ip_cidr']
             rules = [
                 {
                     'IPProtocol': 'all',
