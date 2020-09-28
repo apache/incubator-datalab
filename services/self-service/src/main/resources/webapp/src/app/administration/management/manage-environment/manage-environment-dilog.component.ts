@@ -24,7 +24,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CheckUtils } from '../../../core/util';
 
 @Component({
-  selector: 'dlab-manage-env-dilog',
+  selector: 'data-lab-manage-env-dilog',
   templateUrl: './manage-environment-dilog.component.html',
   styleUrls: ['./manage-environment-dilog.component.scss'],
   encapsulation: ViewEncapsulation.None

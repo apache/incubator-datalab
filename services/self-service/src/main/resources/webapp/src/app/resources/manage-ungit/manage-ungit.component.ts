@@ -26,7 +26,7 @@ import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from '../../core/services';
 
 @Component({
-  selector: 'dlab-manage-ungit',
+  selector: 'data-lab-manage-ungit',
   templateUrl: './manage-ungit.component.html',
   styleUrls: ['./manage-ungit.component.scss',
     '../exploratory/install-libraries/install-libraries.component.scss']

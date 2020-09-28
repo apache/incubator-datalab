@@ -18,13 +18,13 @@
   -->
 
 <section class="guide-wrapper">
-  <h2>How to access DLAB user environment on different operation systems</h2>
+  <h2>How to access Data Lab user environment on different operation systems</h2>
 
   <ul>
     <h3>How to setup tunnel to EDGE instance via SSH on Microsoft Windows</h3>
     <li>Please download PuTTY program by using <a href="https://the.earth.li/~sgtatham/putty/latest/w32/putty.exe">this link</a>.</li>
     <li>Open the PuTTY program.</li>
-    <li>In the "HostName" field enter user and IP address of your Edge Node.<br>Please use "dlab-user" for logging in.</li>
+    <li>In the "HostName" field enter user and IP address of your Edge Node.<br>Please use "data-lab-user" for logging in.</li>
     <img src="./../assets/guides/1_1.png" alt="">
     <li>Open Connection &#8594; SSH &#8594; Auth tab and select a private key, corresponding to a public key, which you've specified during Initial Infrastructure setup.</li>
     <img src="./../assets/guides/1_2.png" alt="">
@@ -37,7 +37,7 @@
 
     <h3>How to access Notebook Server over SSH on Microsoft Windows</h3>
     <li>Tunnel to the Edge should be established. Run a second PuTTY session.</li>
-    <li>In the "HostName" field enter user and IP address of your Notebook instance.<br>Please use "dlab-user".</li>
+    <li>In the "HostName" field enter user and IP address of your Notebook instance.<br>Please use "data-lab-user".</li>
     <img src="./../assets/guides/2_1.png" alt="">
     <li>Open Connection &#8594; SSH &#8594; Auth tab and select a private key, corresponding to a public key, which you've specified during Initial Infrastructure setup.</li>
     <img src="./../assets/guides/2_2.png" alt="">
@@ -61,14 +61,14 @@
     <li>Open terminal.</li>
     <li>Enter following command:</li>
     <div class="code-block">ssh -D 3127 USER@EDGE_IP -i PATH_TO_PRIVATE_KEY</div>
-    <li>Please use "dlab-user" for logging in .<br>Also change "EDGE_IP" and "PATH_TO_KEY" to your value.</li>
+    <li>Please use "data-lab-user" for logging in .<br>Also change "EDGE_IP" and "PATH_TO_KEY" to your value.</li>
     <li>Tunnel to the Edge has been established. Do not close this terminal till you finished working with notebooks.</li>
 
     <h3>How to access Notebook Server over SSH on MacOS / Linux</h3>
     <li>Tunnel to the Edge should be established. Open new terminal.</li>
     <li>Enter following command:</li>
     <div class="code-block">ssh -o ProxyCommand='nc -x localhost:3127 %h %p' USER@NOTEBOOK_IP -i PATH_TO_PRIVATE_KEY</div>
-    <li>Please use "dlab-user" for logging in.<br>Also change "NOTEBOOK_IP" and "PATH_TO_PRIVATE_KEY" to your value.</li>
+    <li>Please use "data-lab-user" for logging in.<br>Also change "NOTEBOOK_IP" and "PATH_TO_PRIVATE_KEY" to your value.</li>
     <li>Now you are connected to notebook server via SSH.</li>
   </ul>
 </section>

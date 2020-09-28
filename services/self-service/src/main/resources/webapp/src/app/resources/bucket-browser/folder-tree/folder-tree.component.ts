@@ -38,7 +38,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 
 
 @Component({
-  selector: 'dlab-folder-tree',
+  selector: 'data-lab-folder-tree',
   templateUrl: './folder-tree.component.html',
   styleUrls: ['./folder-tree.component.scss']
 })

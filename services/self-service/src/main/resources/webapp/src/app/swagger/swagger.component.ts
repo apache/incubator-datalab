@@ -24,7 +24,7 @@ import {ToastrService} from 'ngx-toastr';
 declare const SwaggerUIBundle: any;
 
 @Component({
-  selector: 'dlab-swagger',
+  selector: 'data-lab-swagger',
   templateUrl: './swagger.component.html',
   styleUrls: ['./swagger.component.scss']
 })

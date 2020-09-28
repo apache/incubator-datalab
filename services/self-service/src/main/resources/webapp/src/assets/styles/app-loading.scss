@@ -33,7 +33,7 @@ html {
 
 .app-loading .spinner {
   height: 200px;
-  width: 200px;
+  width: 175px;
   animation: rotate 2s linear infinite;
   transform-origin: center center;
   position: absolute;
@@ -76,9 +76,9 @@ html {
 
 .app-loading {
   .logo {
-    width: 100px;
+    width: 150px;
     height: 100px;
-    // background: url(../img/logo.png);
+    //background: url(../img/logo.png);
     background-size: cover;
   }
 }

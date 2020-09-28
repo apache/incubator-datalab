@@ -39,8 +39,8 @@
             <div class="label"><span class="text"> Resource name</span></div>
             <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
               <i class="material-icons">
-                <span *ngIf="filteredReportData.dlab_id.length > 0; else dlab_id_filtered">filter_list</span>
-                <ng-template #dlab_id_filtered>more_vert</ng-template>
+                <span *ngIf="filteredReportData.data_lab_id.length > 0; else data_lab_id_filtered">filter_list</span>
+                <ng-template #data_lab_id_filtered>more_vert</ng-template>
               </i>
             </button>
           </th>
@@ -199,7 +199,7 @@
           <th mat-header-cell *matHeaderCellDef class="filter-row-item">
             <div class="input-wrapper">
               <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
-                     [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target['value']" (keyup)="checkFilters()"/>
+                     [value]="filtered?.data_lab_id" (input)="filteredReportData.data_lab_id = $event.target['value']" (keyup)="checkFilters()"/>
             </div>
           </th>
         </ng-container>

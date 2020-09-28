@@ -22,9 +22,9 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 
 import { CLOCK_TYPE, TimeFormat } from './ticker.component';
 type TimeFormatAlias = TimeFormat;
-     
+
 @Component({
-  selector: 'dlab-time-picker',
+  selector: 'data-lab-time-picker',
   template: `
     <div class="time-picker">
       <mat-form-field class="time-select">
@@ -58,7 +58,7 @@ export class TimePickerComponent implements OnInit {
         time: {
           hour: this.pickTime ? this.pickTime.hour : 0,
           minute: this.pickTime ? this.pickTime.minute : 0,
-          meridiem: this.pickTime ? this.pickTime.meridiem : 'AM' 
+          meridiem: this.pickTime ? this.pickTime.meridiem : 'AM'
         }
       }
     });

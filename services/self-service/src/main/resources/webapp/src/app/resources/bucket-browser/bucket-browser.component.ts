@@ -35,7 +35,7 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 @Component({
-  selector: 'dlab-bucket-browser',
+  selector: 'data-lab-bucket-browser',
   templateUrl: './bucket-browser.component.html',
   styleUrls: ['./bucket-browser.component.scss']
 })

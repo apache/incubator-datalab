@@ -34,7 +34,7 @@ import { ScheduleSchema } from './scheduler.model';
 import { map } from 'rxjs/operators';
 
 @Component({
-  selector: 'dlab-scheduler',
+  selector: 'data-lab-scheduler',
   templateUrl: './scheduler.component.html',
   styleUrls: ['./scheduler.component.scss'],
   encapsulation: ViewEncapsulation.None
