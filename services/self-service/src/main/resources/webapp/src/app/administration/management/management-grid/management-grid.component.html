@@ -151,7 +151,7 @@
               <span ngClass="{{resource.status || ''}}" class="resource-status">{{ resource.status }}</span>
               <div class="resource-actions">
                 <span class="not-allow">
-                  <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine'">
+                  <a class="start-stop-action" *ngIf="resource.image === 'docker.datalab-dataengine'">
                     <i class="material-icons" (click)="toggleResourceAction(element, 'stop', resource)"
                       [ngClass]="{'not-allowed' : resource.status !== 'running' || selected?.length }">pause_circle_outline</i>
                   </a>

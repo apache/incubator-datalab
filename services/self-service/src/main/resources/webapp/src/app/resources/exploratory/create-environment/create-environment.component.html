@@ -161,7 +161,7 @@
 
         <div *ngIf="currentTemplate">
           <div class="checkbox-group"
-            *ngIf="currentTemplate?.image !== 'docker.dlab-zeppelin' && currentTemplate?.image !== 'docker.dlab-superset' && currentTemplate?.image !== 'docker.dlab-jupyterlab'">
+            *ngIf="currentTemplate?.image !== 'docker.datalab-zeppelin' && currentTemplate?.image !== 'docker.datalab-superset' && currentTemplate?.image !== 'docker.datalab-jupyterlab'">
             <label>
               <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Spark configurations
             </label>
@@ -174,7 +174,7 @@
             </div>
           </div>
 
-          <small *ngIf="currentTemplate?.image === 'docker.dlab-zeppelin'">
+          <small *ngIf="currentTemplate?.image === 'docker.datalab-zeppelin'">
             Spark default configuration for Apache Zeppelin can not be changed from Data Lab UI. Currently it can be
             done directly through Apache Zeppelin interpreter menu.
             For more details please refer for Apache Zeppelin <a

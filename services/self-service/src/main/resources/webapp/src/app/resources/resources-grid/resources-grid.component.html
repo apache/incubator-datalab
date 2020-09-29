@@ -157,8 +157,8 @@
           <td class="settings">
             <span #settings (click)="actions.toggle($event, settings)" class="actions"
               [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating'
-              || (element.image === 'docker.dlab-superset' && element.status !== 'running' && element.status !== 'stopped')
-              || (element.image === 'docker.dlab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }">
+              || (element.image === 'docker.datalab-superset' && element.status !== 'running' && element.status !== 'stopped')
+              || (element.image === 'docker.datalab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }">
             </span>
 
             <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
@@ -198,7 +198,7 @@
                     </div>
                   </li>
                   <li
-                    *ngIf="element.status === 'running' && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'"
+                    *ngIf="element.status === 'running' && element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'"
                     matTooltip="Only one compute can be associated with analytical tool at a time"
                     matTooltipPosition="above" [matTooltipDisabled]="!element.activeCompute"
                     [matTooltipClass]="'bucket-item-tooltip'"
@@ -221,14 +221,14 @@
                   </li>
                 </div>
                 <li (click)="exploratoryAction(element, 'ami')"
-                  *ngIf="element.status === 'running'  && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
+                  *ngIf="element.status === 'running'  && element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'">
                   <div>
                     <i class="material-icons">view_module</i>
                     <span>Create AMI</span>
                   </div>
                 </li>
                 <li (click)="exploratoryAction(element, 'install')"
-                  *ngIf="element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
+                  *ngIf="element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'">
                   <div>
                     <i class="material-icons">developer_board</i>
                     <span>Manage libraries</span>

@@ -318,7 +318,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   private checkIsActiveSpark() {
-    return this.notebook.resources.length > 0 && this.notebook.resources.some(el => el.image === 'docker.dlab-dataengine'
+    return this.notebook.resources.length > 0 && this.notebook.resources.some(el => el.image === 'docker.datalab-dataengine'
       && (el.status !== 'terminated' && el.status !== 'terminating' && el.status !== 'failed'));
   }
 

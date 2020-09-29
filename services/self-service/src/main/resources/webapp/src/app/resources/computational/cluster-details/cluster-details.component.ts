@@ -74,7 +74,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
     this.upTimeSince = (this.resource.up_time) ? new Date(this.resource.up_time).toString() : '';
     this.initFormModel();
 
-    if (this.resource.image === 'docker.dlab-dataengine') this.getClusterConfiguration();
+    if (this.resource.image === 'docker.datalab-dataengine') this.getClusterConfiguration();
   }
 
   public isEllipsisActive($event): void {

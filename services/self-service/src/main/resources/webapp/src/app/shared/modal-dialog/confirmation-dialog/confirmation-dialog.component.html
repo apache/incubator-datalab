@@ -54,9 +54,9 @@
           <mat-list-item *ngFor="let resource of model.notebook.resources"
             [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || (resource.status === 'stopped' && !confirmationType)">
             <div class="cluster ellipsis">{{ resource.computational_name  }}</div>
-            <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
-                  'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">
-              {{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
+            <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.datalab-dataengine',
+                  'terminated': resource.image === 'docker.datalab-dataengine-service' || confirmationType }">
+              {{ (!confirmationType && resource.image === 'docker.datalab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
             <div class="size">{{ resource[DICTIONARY[notebook.cloud_provider.toLowerCase()][resource.image].master_node_shape] }} </div>
           </mat-list-item>
         </div>

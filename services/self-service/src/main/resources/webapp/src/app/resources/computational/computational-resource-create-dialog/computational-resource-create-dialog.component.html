@@ -26,7 +26,7 @@
     <div class="content-box mat-reset">
       <form [formGroup]="resourceForm" *ngIf="clusterTypes.length && resourceForm; else placeholder">
 
-        <div class="form-wrapper" [ngClass]="{ compress: selectedImage?.image === 'docker.dlab-dataengine' }">
+        <div class="form-wrapper" [ngClass]="{ compress: selectedImage?.image === 'docker.datalab-dataengine' }">
           <div class="col">
 
             <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="clusterTypes.length === 1">
@@ -121,7 +121,7 @@
             </div>
 
             <div class="control-group" *ngIf="selectedImage?.image"
-              [hidden]="selectedImage?.image === 'docker.dlab-dataengine'">
+              [hidden]="selectedImage?.image === 'docker.datalab-dataengine'">
               <label class="label">Slave instance size</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
@@ -145,7 +145,7 @@
         </div>
 
         <div class="preemptible checkbox-group control-group m-top-30 m-bott-10"
-          *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.dlab-dataengine-service'">
+          *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'">
           <label class="label">
             <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)" />
             <span>Preemptible node</span>
@@ -188,13 +188,13 @@
 
 
         <div class="checkbox-group m-top-20"
-          [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.dlab-dataengine-service'"
-          *ngIf="notebook_instance?.image !== 'docker.dlab-zeppelin'">
+          [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
+          *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
           </label>
           <div class="config-link" *ngIf="(configuration?.nativeElement['checked'] || false)
-            && selectedImage?.image === 'docker.dlab-dataengine-service'
+            && selectedImage?.image === 'docker.datalab-dataengine-service'
             && PROVIDER === 'aws'">
             To view example JSON of configurations refer for <a
               href="https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-configure-apps.html" target="_blank">AWS
@@ -210,7 +210,7 @@
               parameters is not in a valid format</span>
           </div>
         </div>
-        <div *ngIf="notebook_instance?.image === 'docker.dlab-zeppelin'">
+        <div *ngIf="notebook_instance?.image === 'docker.datalab-zeppelin'">
           <small>Spark default configuration for Apache Zeppelin can not be changed from Data Lab UI. Currently it can be
             done directly through Apache Zeppelin interpreter menu.
             For more details please refer for Apache Zeppelin <a
@@ -221,12 +221,12 @@
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
           <button mat-raised-button type="button" [disabled]="!resourceForm?.valid ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version)"
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave) ||
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version)"
             (click)="createComputationalResource(resourceForm.value)" class="butt butt-success action"
             [ngClass]="{'not-allowed': !resourceForm?.valid ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version) }">Create</button>
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave) ||
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version) }">Create</button>
         </div>
       </form>
 

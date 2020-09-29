@@ -34,14 +34,14 @@
           <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)">
             <span *ngIf="toggleSchedule" class="hold-label">Scheduler by time</span>
           </mat-slide-toggle>
-          <div class="idle" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
+          <div class="idle" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
             <mat-slide-toggle labelPosition="before" [checked]="enableIdleTime" (change)="toggleIdleTimes($event)">
               <span *ngIf="toggleSchedule" class="hold-label">Scheduler by inactivity</span>
             </mat-slide-toggle>
           </div>
         </div>
 
-        <div class="note m-bott-10" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
+        <div class="note m-bott-10" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
           NOTE: In case of turning on inactivity time-check, your schedule
           configuration will be decommissioned.</div>
 
@@ -58,8 +58,8 @@
           </div>
         </div>
         <div class="schedule-by-time" *ngIf="!enableIdleTimeView" [ngClass]="{ hide: enableIdleTimeView, resource: destination.type === 'СOMPUTATIONAL',
-                       des: destination.image === 'docker.dlab-dataengine-service' }">
-          <div class="row-wrap" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
+                       des: destination.image === 'docker.datalab-dataengine-service' }">
+          <div class="row-wrap" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
             <div class="col-3">
               <mat-form-field>
                 <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
@@ -99,7 +99,7 @@
             </ng-template>
           </div>
 
-          <div class="row-wrap" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
+          <div class="row-wrap" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
             <div class="control-group col-3 time-range">
               <data-lab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
                                     [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
@@ -123,7 +123,7 @@
           </div>
 
           <div class="row-wrap"
-            *ngIf="destination.type === 'СOMPUTATIONAL' && destination.image !== 'docker.dlab-dataengine-service'">
+            *ngIf="destination.type === 'СOMPUTATIONAL' && destination.image !== 'docker.datalab-dataengine-service'">
             <div class="col-3">
               <mat-form-field class="timezone-offset">
                 <mat-select placeholder="Select timezone" [(value)]="tzOffset"
@@ -135,7 +135,7 @@
               </mat-form-field>
             </div>
           </div>
-          <div class="control-group" *ngIf="destination && destination.image !== 'docker.dlab-dataengine-service'">
+          <div class="control-group" *ngIf="destination && destination.image !== 'docker.datalab-dataengine-service'">
             <label class="label repeat" for="options">Repeat on :</label>
             <div class="days-block">
               <label>Start date:</label>
@@ -155,7 +155,7 @@
             </div>
           </div>
 
-          <div class="des-block" *ngIf="destination.image === 'docker.dlab-dataengine-service'">
+          <div class="des-block" *ngIf="destination.image === 'docker.datalab-dataengine-service'">
             <div class="row-wrap">
               <div class="col-3">
                 <mat-form-field>
@@ -186,7 +186,7 @@
           </div>
 
           <div class="options"
-            *ngIf="destination && allowInheritView && destination.image !== 'docker.dlab-dataengine-service'">
+            *ngIf="destination && allowInheritView && destination.image !== 'docker.datalab-dataengine-service'">
             <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)"
               [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
               <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">

@@ -39,7 +39,7 @@
         </a>
 
         <a class="start-stop-action"
-          *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
+          *ngIf="resource.image === 'docker.datalab-dataengine' && environment.status === 'running'">
           <i class="material-icons" *ngIf="resource.status === 'running' || resource.status === 'stopping'"
             (click)="toggleResourceAction(resource, 'stop')"
             [ngClass]="{'not-allowed' : resource.status === 'stopping' }">pause_circle_outline</i>

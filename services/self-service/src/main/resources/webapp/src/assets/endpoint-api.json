@@ -7,9 +7,9 @@
   }
   ],
   "info": {
-    "description": "DLab cloud endpoint API",
+    "description": "Data Lab cloud endpoint API",
     "version": "0.0.1",
-    "title": "DLab cloud endpoint API",
+    "title": "Data Lab cloud endpoint API",
     "contact": {
       "email": "bohdan_hliva@epam.com"
     },

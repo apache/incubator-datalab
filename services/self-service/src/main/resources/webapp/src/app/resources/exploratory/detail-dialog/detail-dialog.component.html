@@ -222,8 +222,8 @@
             </p> -->
           </div>
 
-          <div class="checkbox-group" *ngIf="notebook.image !== 'docker.dlab-zeppelin'; else not_support"
-            [hidden]="notebook.status !== 'running' || notebook.image === 'docker.dlab-superset' || notebook.image === 'docker.dlab-jupyterlab'">
+          <div class="checkbox-group" *ngIf="notebook.image !== 'docker.datalab-zeppelin'; else not_support"
+            [hidden]="notebook.status !== 'running' || notebook.image === 'docker.datalab-superset' || notebook.image === 'docker.datalab-jupyterlab'">
             <label>
               <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
             </label>

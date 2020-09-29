@@ -44,7 +44,7 @@ export const NAMING_CONVENTION_AZURE = {
         'type': '',
         'resourceType': 'resource_type',
         'instance_size': 'size',
-        'dlabId': 'dlabId'
+        'data_lab_id': 'data_lab_id'
     },
     'service': 'Category',
     'type': '',
@@ -56,7 +56,7 @@ export const NAMING_CONVENTION_AZURE = {
     'datalake_name': 'datalake_name',
     'datalake_user_directory_name': 'datalake_user_directory_name',
     'datalake_shared_directory_name': 'datalake_shared_directory_name',
-    'docker.dlab-dataengine-service': {
+    'docker.datalab-dataengine-service': {
         'total_instance_number_min': 'min_emr_instance_count',
         'total_instance_number_max': 'max_emr_instance_count',
         'min_emr_spot_instance_bid_pct': 'min_emr_spot_instance_bid_pct',
@@ -65,7 +65,7 @@ export const NAMING_CONVENTION_AZURE = {
         'slave_node_shape': 'slave_node_shape',
         'total_instance_number': 'total_instance_number',
     },
-    'docker.dlab-dataengine': {
+    'docker.datalab-dataengine': {
         'total_instance_number_min': 'min_spark_instance_count',
         'total_instance_number_max': 'max_spark_instance_count',
         'data_engine_master_instance_size': 'Node size',
