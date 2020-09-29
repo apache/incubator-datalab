@@ -42,7 +42,7 @@ import java.io.IOException;
 @Slf4j
 public class GuacamoleServlet extends GuacamoleHTTPTunnelServlet {
 	private static final String UNAUTHORIZED_MSG = "User is not authenticated";
-	private static final String DATALAB_PREFIX = "DLab-";
+	private static final String DATALAB_PREFIX = "DataLab-";
 	private final GuacamoleService guacamoleService;
 	private final ObjectMapper mapper;
 	private final SecurityDAO securityDAO;
