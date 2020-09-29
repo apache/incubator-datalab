@@ -235,7 +235,7 @@ if __name__ == "__main__":
             endpoint_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
             project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], endpoint_public_ip).split(', ')
         else:
-            project_conf['allowed_ip_cidr'] = [project_conf['allowed_ip_cidr']]
+            project_conf['allowed_ip_cidr'] = [os.environ['conf_allowed_ip_cidr']]
         ingress_rule['name'] = project_conf['fw_edge_ingress_public']
         ingress_rule['targetTags'] = [project_conf['network_tag']]
         ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
