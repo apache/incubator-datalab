@@ -233,7 +233,7 @@ if __name__ == "__main__":
             project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], ssn_public_ip).split(', ')
         elif os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] != 'local':
             endpoint_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
-            project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], ssn_public_ip).split(', ')
+            project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], endpoint_public_ip).split(', ')
         else:
             project_conf['allowed_ip_cidr'] = [project_conf['allowed_ip_cidr']]
         ingress_rule['name'] = project_conf['fw_edge_ingress_public']
