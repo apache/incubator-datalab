@@ -37,7 +37,7 @@ public class ServiceUtils {
     private static String includePath = null;
 
     static {
-        includePath = System.getenv("DATA_LAB_CONF_DIR");
+        includePath = System.getenv("DATALAB_CONF_DIR");
         if (includePath == null || includePath.isEmpty()) {
             includePath = getUserDir();
         }
