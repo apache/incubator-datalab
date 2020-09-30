@@ -125,13 +125,20 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Removing security groups")
     try:
-        for sg in AzureMeta.network_client.network_security_groups.list(resource_group_name):
-            try:
-                if project_tag == sg.tags["project_tag"]:
-                    AzureActions.remove_security_group(resource_group_name, sg.name)
-                    print("Security group {} has been terminated".format(sg.name))
-            except:
-                pass
+        if 'azure_edge_security_group_name' in os.environ:
+            AzureActions.remove_security_rules(resource_group_name,
+                                               os.environ['azure_edge_security_group_name'],
+                                               '{}-{}-{}-rule'.format(project_conf['service_base_name'],
+                                                                      project_conf['project_name'],
+                                                                      project_conf['endpoint_name']))
+        else:
+            for sg in AzureMeta.network_client.network_security_groups.list(resource_group_name):
+                try:
+                    if project_tag == sg.tags["project_tag"]:
+                        AzureActions.remove_security_group(resource_group_name, sg.name)
+                        print("Security group {} has been terminated".format(sg.name))
+                except:
+                    pass
     except Exception as err:
         dlab.fab.append_result("Failed to remove security groups.", str(err))
         sys.exit(1)

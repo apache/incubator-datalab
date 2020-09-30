@@ -174,277 +174,305 @@ if __name__ == "__main__":
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
     try:
-        logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print('[CREATE SECURITY GROUP FOR EDGE]')
-        edge_list_rules = [
-            {
-                "name": "in-1",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": project_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 100,
-                "direction": "Inbound"
-            },
-            {
-                "name": "in-2",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "22",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 110,
-                "direction": "Inbound"
-            },
-            {
-                "name": "in-3",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "3128",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 120,
-                "direction": "Inbound"
-            },
-            {
-                "name": "in-4",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "80",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 130,
-                "direction": "Inbound"
-            },
-            {
-                "name": "in-5",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "443",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 140,
-                "direction": "Inbound"
-            },
-            {
-                "name": "out-1",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "22",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 100,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-2",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "8888",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 110,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-3",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "8080",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 120,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-4",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "8787",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 130,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-5",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "6006",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 140,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-6",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "20888",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 150,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-7",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "8088",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 160,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-8",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "18080",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 170,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-9",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "50070",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 180,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-10",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "8085",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 190,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-11",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "8081",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 200,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-12",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "4040-4140",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 210,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-13",
-                "protocol": "Udp",
-                "source_port_range": "*",
-                "destination_port_range": "53",
-                "source_address_prefix": '*',
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 220,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-14",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "80",
-                "source_address_prefix": '*',
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 230,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-15",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "443",
-                "source_address_prefix": '*',
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 240,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-16",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "389",
-                "source_address_prefix": '*',
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 250,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-17",
-                "protocol": "Tcp",
-                "source_port_range": "*",
-                "destination_port_range": "8042",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 260,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-18",
-                "protocol": "Udp",
-                "source_port_range": "*",
-                "destination_port_range": "123",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 270,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-19",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Deny",
-                "priority": 300,
-                "direction": "Outbound"
-            }
-        ]
-        params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
-            format(project_conf['resource_group_name'], project_conf['edge_security_group_name'],
-                   project_conf['region'], json.dumps(project_conf['instance_tags']), json.dumps(edge_list_rules))
+        if 'azure_edge_security_group_name' in os.environ:
+            logging.info('Security group predefined, adding new rule with endpoint IP')
+            print('Security group predefined, adding new rule with endpoint IP')
+            if project_conf['endpoint_name'] == 'local':
+                endpoint_ip = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                          '{}-ssn'.format(project_conf['service_base_name']))
+            else:
+                endpoint_ip = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                         '{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
+            edge_list_rules = [
+                {
+                    "name": '{}-{}-{}-rule'.format(project_conf['service_base_name'],
+                                                 project_conf['project_name'],
+                                                 project_conf['endpoint_tag']),
+                    "protocol": "*",
+                    "source_port_range": "*",
+                    "destination_port_range": "*",
+                    "source_address_prefix": endpoint_ip,
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Inbound"
+                }
+            ]
+            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'". \
+                format(project_conf['resource_group_name'], os.environ['azure_edge_security_group_name'],
+                       project_conf['region'], json.dumps(edge_list_rules))
+        else:
+            logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
+            print('[CREATE SECURITY GROUP FOR EDGE]')
+            edge_list_rules = [
+                {
+                    "name": "in-1",
+                    "protocol": "*",
+                    "source_port_range": "*",
+                    "destination_port_range": "*",
+                    "source_address_prefix": project_conf['private_subnet_cidr'],
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "in-2",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "22",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 110,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "in-3",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "3128",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 120,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "in-4",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "80",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 130,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "in-5",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "443",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 140,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "out-1",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "22",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-2",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "8888",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 110,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-3",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "8080",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 120,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-4",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "8787",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 130,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-5",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "6006",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 140,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-6",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "20888",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 150,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-7",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "8088",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 160,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-8",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "18080",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 170,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-9",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "50070",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 180,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-10",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "8085",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 190,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-11",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "8081",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 200,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-12",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "4040-4140",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 210,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-13",
+                    "protocol": "Udp",
+                    "source_port_range": "*",
+                    "destination_port_range": "53",
+                    "source_address_prefix": '*',
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 220,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-14",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "80",
+                    "source_address_prefix": '*',
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 230,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-15",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "443",
+                    "source_address_prefix": '*',
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 240,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-16",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "389",
+                    "source_address_prefix": '*',
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 250,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-17",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "8042",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": project_conf['private_subnet_cidr'],
+                    "access": "Allow",
+                    "priority": 260,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-18",
+                    "protocol": "Udp",
+                    "source_port_range": "*",
+                    "destination_port_range": "123",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 270,
+                    "direction": "Outbound"
+                },
+                {
+                    "name": "out-19",
+                    "protocol": "*",
+                    "source_port_range": "*",
+                    "destination_port_range": "*",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Deny",
+                    "priority": 300,
+                    "direction": "Outbound"
+                }
+            ]
+            params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
+                format(project_conf['resource_group_name'], project_conf['edge_security_group_name'],
+                       project_conf['region'], json.dumps(project_conf['instance_tags']), json.dumps(edge_list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:

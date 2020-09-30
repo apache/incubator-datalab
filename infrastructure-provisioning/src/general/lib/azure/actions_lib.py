@@ -226,6 +226,21 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def remove_security_rules(self, resource_group_name, network_security_group_name, security_rule_name):
+        try:
+            result = self.network_client.security_rules.delete(
+                network_security_group_name,
+                resource_group_name,
+                security_rule_name).wait()
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove security rule: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove security rule",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_security_group(self, resource_group_name, network_security_group_name):
         try:
             result = self.network_client.network_security_groups.delete(
