@@ -158,7 +158,9 @@ img {
   max-width: 100%;
   height: auto; }
 
-
+.logo-img{
+    width: 105px
+}
 
 p {
   padding-bottom: 20px; }
