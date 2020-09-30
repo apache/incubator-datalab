@@ -486,6 +486,7 @@ if __name__ == "__main__":
             dlab.fab.append_result("Failed creating security group for edge node.", str(err))
             raise Exception
     except:
+        traceback.print_exc()
         sys.exit(1)
 
     try:
