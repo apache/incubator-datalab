@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class InfrastructureInfoServiceImpl implements InfrastructureInfoService {
-	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s/RELEASE_NOTES.md";
+	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-datalab/blob/%s/RELEASE_NOTES.md";
 	private static final String PERMISSION_VIEW = "/api/bucket/view";
 	private static final String PERMISSION_UPLOAD = "/api/bucket/upload";
 	private static final String PERMISSION_DOWNLOAD = "/api/bucket/download";

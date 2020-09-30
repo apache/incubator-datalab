@@ -201,7 +201,7 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
                 .branch("branch")
                 .commit("commit")
                 .version("version")
-                .releaseNotes("https://github.com/apache/incubator-dlab/blob/branch/RELEASE_NOTES.md")
+                .releaseNotes("https://github.com/apache/incubator-datalab/blob/branch/RELEASE_NOTES.md")
                 .build();
     }
 
