@@ -7,7 +7,7 @@
 
 $primary-green: #1CBC79;
 $dark-grey: #262E36;
-$light: #fff;
+$light: #404040;
 
 html {
     font: 300 #{$font-base}/1.4 $font;
@@ -240,6 +240,10 @@ header {
             }
         }
     }
+}
+
+.logo-img{
+    width: 105px
 }
 
 .content-desc {
