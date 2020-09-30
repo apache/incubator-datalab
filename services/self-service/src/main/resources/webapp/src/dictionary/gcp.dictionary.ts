@@ -43,7 +43,7 @@ export const NAMING_CONVENTION_GCP = {
         'type': 'data_lab_resource_type',
         'resourceType': 'data_lab_resource_type',
         'instance_size': 'shapes',
-        'data_lab_id': 'data_lab_id'
+        'datalab_id': 'datalab_id'
     },
     'service': 'Product',
     'type': 'Resource',
