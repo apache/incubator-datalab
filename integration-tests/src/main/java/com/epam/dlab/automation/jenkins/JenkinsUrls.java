@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.jenkins;
+package com.epam.datalab.automation.jenkins;
 
 public class JenkinsUrls {
 	public static final String API = "api/xml";

@@ -21,16 +21,13 @@
 #
 # ******************************************************************************
 
-import sys
-import os
+import datalab.ssn_lib
+import json
 import logging
+import os
+import sys
 import traceback
 from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import dlab.ssn_lib
-import json
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -40,13 +37,13 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
-        dlab.actions_lib.create_aws_config_files(generate_full_config=True)
+        datalab.actions_lib.create_aws_config_files(generate_full_config=True)
     else:
-        dlab.actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'][:20], '-', True)
+    ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
+        os.environ['conf_service_base_name'][:20], '-', True)
     ssn_conf['tag_name'] = ssn_conf['service_base_name'] + '-tag'
     ssn_conf['edge_sg'] = ssn_conf['service_base_name'] + "*" + '-edge'
     ssn_conf['nb_sg'] = ssn_conf['service_base_name'] + "*" + '-nb'
@@ -66,7 +63,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        dlab.fab.append_result("Failed to terminate ssn.", str(err))
+        datalab.fab.append_result("Failed to terminate ssn.", str(err))
         sys.exit(1)
 
     try:
@@ -76,5 +73,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

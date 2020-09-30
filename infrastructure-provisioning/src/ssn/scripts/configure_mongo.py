@@ -21,19 +21,20 @@
 #
 # ******************************************************************************
 
-from pymongo import MongoClient
-import yaml, json, sys
+import argparse
+import json
 import subprocess
 import time
-import argparse
-from dlab.fab import *
+import yaml
+from datalab.fab import *
+from pymongo import MongoClient
 
 path = "/etc/mongod.conf"
 outfile = "/etc/mongo_params.yml"
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dlab_path', type=str, default='')
-#parser.add_argument('--mongo_parameters', type=str, default='')
+parser.add_argument('--datalab_path', type=str, default='')
+# parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
 
 
@@ -82,15 +83,15 @@ if __name__ == "__main__":
         command = ['service', 'mongod', 'start']
         subprocess.call(command, shell=False)
         time.sleep(5)
-        client.dlabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
-        client.dlabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
+        client.datalabdb.add_user('admin', mongo_passwd, roles=[{'role': 'userAdminAnyDatabase', 'db': 'admin'}])
+        client.datalabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
         # set_mongo_parameters(client, mongo_parameters)
-        with open(args.dlab_path + 'tmp/local_endpoint.json', 'r') as data:
+        with open(args.datalab_path + 'tmp/local_endpoint.json', 'r') as data:
             json_data = json.load(data)
         for i in json_data:
-            client.dlabdb.endpoints.insert_one(i)
-        # client.dlabdb.security.create_index("expireAt", expireAfterSeconds=7200)
-        if add_2_yml_config(path,'security','authorization','enabled'):
+            client.datalabdb.endpoints.insert_one(i)
+        # client.datalabdb.security.create_index("expireAt", expireAfterSeconds=7200)
+        if add_2_yml_config(path, 'security', 'authorization', 'enabled'):
             command = ['service', 'mongod', 'restart']
             subprocess.call(command, shell=False)
     except:

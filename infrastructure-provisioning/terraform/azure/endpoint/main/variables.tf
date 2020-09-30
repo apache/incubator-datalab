@@ -34,7 +34,7 @@ variable "service_base_name" {}
 variable "endpoint_id" {}
 
 variable "additional_tag" {
-  default = "product:dlab"
+  default = "product:datalab"
 }
 
 variable "vpc_cidr" {}

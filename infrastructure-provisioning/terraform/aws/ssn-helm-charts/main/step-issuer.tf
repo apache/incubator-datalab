@@ -47,8 +47,8 @@ data "template_file" "step_ca_issuer_values" {
   template = file("./step-ca-issuer-chart/values.yaml")
   vars     = {
     step_ca_url      = "https://${var.ssn_k8s_nlb_dns_name}:443"
-    step_ca_bundle   = lookup(data.external.step-ca-config-values.result, "rootCa")
-    namespace        = kubernetes_namespace.dlab-namespace.metadata[0].name
+    step_ca_bundle = lookup(data.external.step-ca-config-values.result, "rootCa")
+    namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
     step_ca_kid_name = lookup(data.external.step-ca-config-values.result, "kidName")
     step_ca_kid      = lookup(data.external.step-ca-config-values.result, "kid")
   }

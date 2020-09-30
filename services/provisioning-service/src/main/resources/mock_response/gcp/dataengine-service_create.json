@@ -14,7 +14,7 @@
           }
         ]
       },
-      "log": "/var/log/dlab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+      "log": "/var/log/datalab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
    },
    "request_id": "${REQUEST_ID}"
 }

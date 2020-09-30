@@ -22,8 +22,8 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
 import sys
+from datalab.actions_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')

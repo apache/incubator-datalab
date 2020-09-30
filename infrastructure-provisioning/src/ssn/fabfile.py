@@ -21,14 +21,13 @@
 #
 # ******************************************************************************
 
-import json
 import logging
 import os
 import sys
-from fabric.api import *
-from dlab.fab import *
 import traceback
 import uuid
+from datalab.fab import *
+from fabric.api import *
 
 
 def run():

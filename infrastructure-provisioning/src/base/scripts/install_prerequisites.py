@@ -21,20 +21,19 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
 import argparse
 import json
-from dlab.fab import *
-from dlab.common_lib import *
-from fabric.contrib.files import exists
-import sys
 import os
-
+from datalab.common_lib import *
+from datalab.fab import *
+from fabric.api import *
+from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--pip_packages', type=str, default='boto3 argparse fabric==1.14.0 awscli google-api-python-client google-auth-httplib2 google-cloud-storage pycrypto azure==2.0.0')
+parser.add_argument('--pip_packages', type=str,
+                    default='boto3 argparse fabric==1.14.0 awscli google-api-python-client google-auth-httplib2 google-cloud-storage pycrypto azure==2.0.0')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--user', type=str, default='')
 parser.add_argument('--edge_private_ip', type=str, default='')

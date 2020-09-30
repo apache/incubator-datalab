@@ -21,11 +21,10 @@
 #
 # ******************************************************************************
 
-import sys
 import argparse
 import logging
-from dlab.ssn_lib import *
-
+import sys
+from datalab.ssn_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--instance_name', type=str, default='')
@@ -42,9 +41,10 @@ def upload_response_file(instance_name, local_log_filepath, os_user):
     env.host_string = '{}@{}'.format(os_user, args.instance_hostname)
     try:
         put('/root/result.json', '/home/{}/{}.json'.format(os_user, os.environ['request_id']))
-        sudo('mv /home/{}/{}.json {}tmp/result/'.format(os_user, os.environ['request_id'], os.environ['ssn_dlab_path']))
+        sudo('mv /home/{}/{}.json {}tmp/result/'.format(os_user, os.environ['request_id'],
+                                                        os.environ['ssn_datalab_path']))
         put(local_log_filepath, '/home/{}/ssn.log'.format(os_user))
-        sudo('mv /home/{}/ssn.log /var/opt/dlab/log/ssn/'.format(os_user))
+        sudo('mv /home/{}/ssn.log /var/opt/datalab/log/ssn/'.format(os_user))
         return True
     except:
         print('Failed to upload response file')

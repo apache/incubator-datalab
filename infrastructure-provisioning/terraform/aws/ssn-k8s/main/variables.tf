@@ -45,7 +45,7 @@ variable "allowed_cidrs" {
   default = ["0.0.0.0/0"]
 }
 variable "os_user" {
-  default = "dlab-user"
+  default = "datalab-user"
 }
 
 variable "project_tag" {
@@ -53,7 +53,7 @@ variable "project_tag" {
 }
 
 variable "additional_tag" {
-  default = "product:dlab"
+  default = "product:datalab"
 }
 
 variable "tag_resource_id" {
@@ -62,7 +62,7 @@ variable "tag_resource_id" {
 
 // SSN
 variable "service_base_name" {
-  default = "dlab-k8s"
+  default = "datalab-k8s"
 }
 variable "vpc_id" {
   default = ""

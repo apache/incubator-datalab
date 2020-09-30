@@ -21,19 +21,14 @@
 #
 # ******************************************************************************
 
+import datalab.meta_lib
 import json
-import sys
-import time
+import logging
 import os
-import re
+import sys
 import traceback
 from Crypto.PublicKey import RSA
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import logging
 from fabric.api import *
-
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -45,10 +40,10 @@ if __name__ == "__main__":
 
     try:
         print('Generating infrastructure names and tags')
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         project_conf = dict()
-        project_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        project_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         project_conf['project_name'] = (os.environ['project_name'])
         project_conf['project_tag'] = project_conf['project_name']
@@ -145,7 +140,7 @@ if __name__ == "__main__":
             project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(project_conf))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     try:
@@ -165,7 +160,7 @@ if __name__ == "__main__":
                                        project_conf['private_subnet_name'])
         except:
             print("Subnet hasn't been created.")
-        dlab.fab.append_result("Failed to create subnet.", str(err))
+        datalab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     project_conf['private_subnet_cidr'] = AzureMeta.get_subnet(project_conf['resource_group_name'],
@@ -456,7 +451,7 @@ if __name__ == "__main__":
             except:
                 print("Edge Security group hasn't been created.")
             traceback.print_exc()
-            dlab.fab.append_result("Failed creating security group for edge node.", str(err))
+            datalab.fab.append_result("Failed creating security group for edge node.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -556,7 +551,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed creating security group for private subnet.", str(err))
+        datalab.fab.append_result("Failed creating security group for private subnet.", str(err))
         AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                    project_conf['private_subnet_name'])
         AzureActions.remove_security_group(project_conf['resource_group_name'],
@@ -674,7 +669,7 @@ if __name__ == "__main__":
                                                project_conf['master_security_group_name'])
         except:
             print("Master Security group hasn't been created.")
-        dlab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
+        datalab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
@@ -702,7 +697,7 @@ if __name__ == "__main__":
                                                project_conf['slave_security_group_name'])
         except:
             print("Slave Security group hasn't been created.")
-        dlab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
+        datalab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
     try:
@@ -713,7 +708,7 @@ if __name__ == "__main__":
                    project_conf['resource_group_name'], project_conf['region'])
         local("~/scripts/{}.py {}".format('common_create_storage_account', params))
     except Exception as err:
-        dlab.fab.append_result("Failed to create storage account.", str(err))
+        datalab.fab.append_result("Failed to create storage account.", str(err))
         AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                    project_conf['private_subnet_name'])
         AzureActions.remove_security_group(project_conf['resource_group_name'],
@@ -742,7 +737,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create storage account.", str(err))
+        datalab.fab.append_result("Failed to create storage account.", str(err))
         AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                    project_conf['private_subnet_name'])
         AzureActions.remove_security_group(project_conf['resource_group_name'],
@@ -776,7 +771,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create Data Lake Store directory.", str(err))
+            datalab.fab.append_result("Failed to create Data Lake Store directory.", str(err))
             AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                        project_conf['private_subnet_name'])
             AzureActions.remove_security_group(project_conf['resource_group_name'],
@@ -813,7 +808,7 @@ if __name__ == "__main__":
         print('[CREATE EDGE INSTANCE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
-            --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+            --datalab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
             --instance_type {} --project_name {} --instance_storage_account_type {} --image_name {} --tags '{}'".\
             format(project_conf['instance_name'], os.environ['azure_edge_instance_size'], project_conf['region'],
                    project_conf['vpc_name'], project_conf['network_interface_name'],
@@ -853,5 +848,5 @@ if __name__ == "__main__":
                 if project_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions.remove_datalake_directory(datalake.name,
                                                            project_conf['datalake_user_directory_name'])
-        dlab.fab.append_result("Failed to create instance. Exception:" + str(err))
+        datalab.fab.append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

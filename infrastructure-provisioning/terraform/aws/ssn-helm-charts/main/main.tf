@@ -27,7 +27,7 @@ provider "helm" {
 
 provider "kubernetes" {}
 
-resource "kubernetes_namespace" "dlab-namespace" {
+resource "kubernetes_namespace" "datalab-namespace" {
   metadata {
     annotations = {
       name = var.namespace_name
@@ -50,12 +50,12 @@ resource "kubernetes_namespace" "cert-manager-namespace" {
   }
 }
 
-resource "kubernetes_storage_class" "dlab-storage-class" {
+resource "kubernetes_storage_class" "datalab-storage-class" {
   metadata {
     name = "aws-ebs"
   }
   storage_provisioner = "kubernetes.io/aws-ebs"
-  reclaim_policy      = "Delete"
+  reclaim_policy = "Delete"
   parameters = {
     type = "gp2"
   }

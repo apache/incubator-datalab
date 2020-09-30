@@ -29,21 +29,21 @@ import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dic
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
-  selector: 'dlab-reporting',
+  selector: 'datalab-reporting',
   template: `
-  <div class="base-retreat">
-    <dlab-toolbar (rebuildReport)="rebuildBillingReport()"
-                  (exportReport)="exportBillingReport()"
-                  (setRangeOption)="setRangeOption($event)">
-    </dlab-toolbar>
-    <mat-divider></mat-divider>
-    <dlab-reporting-grid
-      (filterReport)="filterReport($event)"
-      (resetRangePicker)="resetRangePicker()"
-      [filteredReportData]="reportData"
-      [previousFilterData]="this.cashedFilterData"
-    ></dlab-reporting-grid>
-  </div>
+    <div class="base-retreat">
+      <datalab-toolbar (rebuildReport)="rebuildBillingReport()"
+                        (exportReport)="exportBillingReport()"
+                        (setRangeOption)="setRangeOption($event)">
+      </datalab-toolbar>
+      <mat-divider></mat-divider>
+      <datalab-reporting-grid
+        (filterReport)="filterReport($event)"
+        (resetRangePicker)="resetRangePicker()"
+        [filteredReportData]="reportData"
+        [previousFilterData]="this.cashedFilterData"
+      ></datalab-reporting-grid>
+    </div>
 
   `,
   styles: [`

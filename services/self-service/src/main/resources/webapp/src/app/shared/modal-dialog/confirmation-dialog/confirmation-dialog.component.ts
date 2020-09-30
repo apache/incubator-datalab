@@ -91,7 +91,7 @@ export class ConfirmationDialogComponent implements OnInit {
         (resource.status !== 'failed' && resource.status !== 'terminated'
           && resource.status !== 'terminating' && resource.status !== 'stopped'))
       .forEach(resource => {
-        (resource.image === 'docker.dlab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource);
+        (resource.image === 'docker.datalab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource);
       });
   }
 }

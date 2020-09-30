@@ -22,17 +22,12 @@
 # ******************************************************************************
 
 
-import json
-import sys
-import time
-import os
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.meta_lib
 import logging
-from fabric.api import *
+import os
+import sys
 import traceback
-
+from fabric.api import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
@@ -57,5 +52,5 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to collect necessary information.", str(err))
+        datalab.fab.append_result("Failed to collect necessary information.", str(err))
         sys.exit(1)

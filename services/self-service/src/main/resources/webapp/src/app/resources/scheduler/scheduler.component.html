@@ -34,16 +34,17 @@
           <mat-slide-toggle labelPosition="after" [checked]="enableSchedule" (change)="toggleSchedule($event)">
             <span *ngIf="toggleSchedule" class="hold-label">Scheduler by time</span>
           </mat-slide-toggle>
-          <div class="idle" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
-            <mat-slide-toggle labelPosition="before" [checked]="enableIdleTime" (change)="toggleIdleTimes($event)">
-              <span *ngIf="toggleSchedule" class="hold-label">Scheduler by inactivity</span>
-            </mat-slide-toggle>
+          <div class="idle" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
+              <mat-slide-toggle labelPosition="before" [checked]="enableIdleTime" (change)="toggleIdleTimes($event)">
+                  <span *ngIf="toggleSchedule" class="hold-label">Scheduler by inactivity</span>
+              </mat-slide-toggle>
           </div>
         </div>
 
-        <div class="note m-bott-10" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
-          NOTE: In case of turning on inactivity time-check, your schedule
-          configuration will be decommissioned.</div>
+          <div class="note m-bott-10" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
+              NOTE: In case of turning on inactivity time-check, your schedule
+              configuration will be decommissioned.
+          </div>
 
         <div class="control-group idle-control" [ngClass]="{ show: enableIdleTimeView }">
           <label class="label">Scheduler by inactivity, min</label>
@@ -57,19 +58,21 @@
             </span>
           </div>
         </div>
-        <div class="schedule-by-time" *ngIf="!enableIdleTimeView" [ngClass]="{ hide: enableIdleTimeView, resource: destination.type === 'СOMPUTATIONAL',
-                       des: destination.image === 'docker.dlab-dataengine-service' }">
-          <div class="row-wrap" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
-            <div class="col-3">
-              <mat-form-field>
-                <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
-                <mat-datepicker-toggle
+          <div class="schedule-by-time" *ngIf="!enableIdleTimeView" [ngClass]="{ hide: enableIdleTimeView, resource: destination.type === 'СOMPUTATIONAL',
+                       des: destination.image === 'docker.datalab-dataengine-service' }">
+              <div class="row-wrap" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
+                  <div class="col-3">
+                      <mat-form-field>
+                          <input matInput [matDatepicker]="startDate" placeholder="Choose start date"
+                                 formControlName="startDate">
+                          <mat-datepicker-toggle
 
-                  matSuffix [for]="startDate" [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }"></mat-datepicker-toggle>
-                <mat-datepicker #startDate></mat-datepicker>
-              </mat-form-field>
-            </div>
-            <div class="col-3">
+                                  matSuffix [for]="startDate"
+                                  [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }"></mat-datepicker-toggle>
+                          <mat-datepicker #startDate></mat-datepicker>
+                      </mat-form-field>
+                  </div>
+                  <div class="col-3">
               <mat-form-field>
                 <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date"
                   formControlName="finishDate">
@@ -99,21 +102,25 @@
             </ng-template>
           </div>
 
-          <div class="row-wrap" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
-            <div class="control-group col-3 time-range">
-              <dlab-time-picker [(pickTime)]="startTime" [(milisecTime)]="startTimeMilliseconds" [label]="'Choose start time'"
-                [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-                {{destination.type}}
-              </dlab-time-picker>
-            </div>
-            <div class="control-group col-3 time-range">
-              <dlab-time-picker [(pickTime)]="endTime" [(milisecTime)]="endTimeMilliseconds" [label]="'Choose finish time'" [disable]="destination.type === 'СOMPUTATIONAL' && inherit ||!enableSchedule">
-              </dlab-time-picker>
-            </div>
-            <div class="control-group col-3 time-range" *ngIf="destination.type === 'СOMPUTATIONAL'">
-              <dlab-time-picker [(pickTime)]="terminateTime" [(milisecTime)]="terminateTimeMilliseconds" [label]="'Choose terminate time'"
-                [disable]="!enableSchedule"></dlab-time-picker>
-            </div>
+              <div class="row-wrap" *ngIf="destination.image !== 'docker.datalab-dataengine-service'">
+                  <div class="control-group col-3 time-range">
+                      <datalab-time-picker [(pickTime)]="startTime" [(milisecTime)]="startTimeMilliseconds"
+                                           [label]="'Choose start time'"
+                                           [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
+                          {{destination.type}}
+                      </datalab-time-picker>
+                  </div>
+                  <div class="control-group col-3 time-range">
+                      <datalab-time-picker [(pickTime)]="endTime" [(milisecTime)]="endTimeMilliseconds"
+                                           [label]="'Choose finish time'"
+                                           [disable]="destination.type === 'СOMPUTATIONAL' && inherit ||!enableSchedule">
+                      </datalab-time-picker>
+                  </div>
+                  <div class="control-group col-3 time-range" *ngIf="destination.type === 'СOMPUTATIONAL'">
+                      <datalab-time-picker [(pickTime)]="terminateTime" [(milisecTime)]="terminateTimeMilliseconds"
+                                           [label]="'Choose terminate time'"
+                                           [disable]="!enableSchedule"></datalab-time-picker>
+                  </div>
             <div *ngIf="timeReqiered" class="error term m-bott-10 mt-5"><span>At least one of time range fields
                 should be selected</span>
             </div>
@@ -122,30 +129,33 @@
             </div>
           </div>
 
-          <div class="row-wrap"
-            *ngIf="destination.type === 'СOMPUTATIONAL' && destination.image !== 'docker.dlab-dataengine-service'">
-            <div class="col-3">
-              <mat-form-field class="timezone-offset">
-                <mat-select placeholder="Select timezone" [(value)]="tzOffset"
-                  [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-                  <mat-option *ngFor="let zone of zones | keys" [value]="zone.key" matTooltip="{{ zone.value }}"
-                    matTooltipShowDelay="1000" matTooltipPosition="above"> GMT {{zone.key}} {{ zone.value }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
+              <div class="row-wrap"
+                   *ngIf="destination.type === 'СOMPUTATIONAL' && destination.image !== 'docker.datalab-dataengine-service'">
+                  <div class="col-3">
+                      <mat-form-field class="timezone-offset">
+                          <mat-select placeholder="Select timezone" [(value)]="tzOffset"
+                                      [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
+                              <mat-option *ngFor="let zone of zones | keys" [value]="zone.key"
+                                          matTooltip="{{ zone.value }}"
+                                          matTooltipShowDelay="1000" matTooltipPosition="above"> GMT {{zone.key}} {{
+                                  zone.value }}
+                              </mat-option>
+                          </mat-select>
+                      </mat-form-field>
+                  </div>
           </div>
-          <div class="control-group" *ngIf="destination && destination.image !== 'docker.dlab-dataengine-service'">
-            <label class="label repeat" for="options">Repeat on :</label>
-            <div class="days-block">
-              <label>Start date:</label>
-              <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
-                (change)="onDaySelect($event, day, 'start')"
-                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
-                [checked]="selectedStartWeekDays[day.toLowerCase()]">{{ day[0] }}
-              </mat-button-toggle>
-            </div>
-            <div class="days-block">
+              <div class="control-group"
+                   *ngIf="destination && destination.image !== 'docker.datalab-dataengine-service'">
+                  <label class="label repeat" for="options">Repeat on :</label>
+                  <div class="days-block">
+                      <label>Start date:</label>
+                      <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
+                                         (change)="onDaySelect($event, day, 'start')"
+                                         [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
+                                         [checked]="selectedStartWeekDays[day.toLowerCase()]">{{ day[0] }}
+                      </mat-button-toggle>
+                  </div>
+                  <div class="days-block">
               <label>Stop date:</label>
               <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
                 (change)="onDaySelect($event, day, 'stop')"
@@ -155,20 +165,21 @@
             </div>
           </div>
 
-          <div class="des-block" *ngIf="destination.image === 'docker.dlab-dataengine-service'">
-            <div class="row-wrap">
-              <div class="col-3">
-                <mat-form-field>
-                  <input matInput [matDatepicker]="terminateDate" placeholder="Choose terminate date"
-                    formControlName="terminateDate">
-                  <mat-datepicker-toggle matSuffix [for]="terminateDate"></mat-datepicker-toggle>
-                  <mat-datepicker #terminateDate></mat-datepicker>
-                </mat-form-field>
-              </div>
-              <div class="control-group col-3 time-range" *ngIf="destination.type === 'СOMPUTATIONAL'">
-                <dlab-time-picker [(pickTime)]="terminateTime" [(milisecTime)]="terminateTimeMilliseconds" [label]="'Choose terminate time'"
-                  [disable]="!enableSchedule"></dlab-time-picker>
-              </div>
+              <div class="des-block" *ngIf="destination.image === 'docker.datalab-dataengine-service'">
+                  <div class="row-wrap">
+                      <div class="col-3">
+                          <mat-form-field>
+                              <input matInput [matDatepicker]="terminateDate" placeholder="Choose terminate date"
+                                     formControlName="terminateDate">
+                              <mat-datepicker-toggle matSuffix [for]="terminateDate"></mat-datepicker-toggle>
+                              <mat-datepicker #terminateDate></mat-datepicker>
+                          </mat-form-field>
+                      </div>
+                      <div class="control-group col-3 time-range" *ngIf="destination.type === 'СOMPUTATIONAL'">
+                          <datalab-time-picker [(pickTime)]="terminateTime" [(milisecTime)]="terminateTimeMilliseconds"
+                                               [label]="'Choose terminate time'"
+                                               [disable]="!enableSchedule"></datalab-time-picker>
+                      </div>
               <div class="col-3">
                 <mat-form-field class="timezone-offset">
                   <mat-select placeholder="Select timezone" [(value)]="tzOffset"
@@ -185,18 +196,18 @@
             </div>
           </div>
 
-          <div class="options"
-            *ngIf="destination && allowInheritView && destination.image !== 'docker.dlab-dataengine-service'">
-            <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)"
-              [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
+              <div class="options"
+                   *ngIf="destination && allowInheritView && destination.image !== 'docker.datalab-dataengine-service'">
+                  <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)"
+                                    [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
               <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
                 <span>Start all spark clusters associated with current notebook based on notebook start
                   schedule</span>
               </span>
-              <ng-template #resourcePropagation>
-                <span class="hold-label">Inherit notebook schedule settings</span>
-              </ng-template>
-            </mat-slide-toggle>
+                      <ng-template #resourcePropagation>
+                          <span class="hold-label">Inherit notebook schedule settings</span>
+                      </ng-template>
+                  </mat-slide-toggle>
           </div>
         </div>
 

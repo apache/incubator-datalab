@@ -3,9 +3,9 @@
   "response": {
     "result": {
       "Action": "Get list of all available libraries",
-      "file": "/opt/dlab/tmp/result/notebook_${REQUEST_ID}_all_pkgs.json"
+      "file": "/opt/datalab/tmp/result/notebook_${REQUEST_ID}_all_pkgs.json"
     },
-    "log": "/var/log/dlab/notebook/notebook_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+    "log": "/var/log/datalab/notebook/notebook_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },
   "request_id": "${REQUEST_ID}"
 }

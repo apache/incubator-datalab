@@ -21,14 +21,11 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import dlab.ssn_lib
-import sys
-import os
-import logging
+import datalab.ssn_lib
 import json
+import logging
+import os
+import sys
 import traceback
 from fabric.api import *
 
@@ -41,7 +38,7 @@ if __name__ == "__main__":
     # generating variables dictionary
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = dlab.fab.replace_multi_symbols(
+    ssn_conf['service_base_name'] = datalab.fab.replace_multi_symbols(
         os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
@@ -66,7 +63,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate ssn.", str(err))
+        datalab.fab.append_result("Failed to terminate ssn.", str(err))
         sys.exit(1)
 
     try:
@@ -76,5 +73,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

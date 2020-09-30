@@ -21,18 +21,13 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import logging
 import os
-import uuid
-import argparse
+import sys
+import traceback
 from fabric.api import *
-
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -42,8 +37,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -58,7 +53,7 @@ if __name__ == "__main__":
             GCPActions.start_instance(notebook_config['notebook_name'], notebook_config['zone'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to start notebook.", str(err))
+            datalab.fab.append_result("Failed to start notebook.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -74,7 +69,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to setup git credentials.", str(err))
+            datalab.fab.append_result("Failed to setup git credentials.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -88,7 +83,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to update last activity time.", str(err))
+            datalab.fab.append_result("Failed to update last activity time.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -106,5 +101,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

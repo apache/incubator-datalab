@@ -22,12 +22,13 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+import boto3
+import botocore
 import sys
-import boto3, botocore
-from dlab.ssn_lib import *
 import time
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from datalab.ssn_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_id', type=str, default='')
@@ -35,7 +36,6 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}

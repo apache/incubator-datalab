@@ -21,16 +21,13 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.meta_lib
 import json
-import sys
+import logging
 import os
+import sys
 import traceback
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
 from fabric.api import *
-
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -41,8 +38,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         notebook_config = dict()
         notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -61,9 +58,10 @@ if __name__ == "__main__":
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = GCPMeta.get_private_ip_address(notebook_config['service_base_name'] + '-ssn')
-            dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                         ssn_hostname)
-            dlab.fab.append_result("Edge node is unavailable")
+            datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
+                                            os.environ['conf_os_user'],
+                                            ssn_hostname)
+            datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
 
         try:
@@ -160,7 +158,7 @@ if __name__ == "__main__":
         print('Additional tags will be added: {}'.format(additional_tags))
         notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                      "sbn": notebook_config['service_base_name'],
-                                     "product": "dlab"
+                                     "product": "datalab"
                                      }
 
         for tag in additional_tags.split(','):
@@ -171,7 +169,7 @@ if __name__ == "__main__":
             if label_value != '':
                 notebook_config['labels'].update({label_key: label_value})
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
     # launching instance for notebook server
     try:
@@ -196,7 +194,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create instance.", str(err))
+        datalab.fab.append_result("Failed to create instance.", str(err))
         GCPActions.remove_disk(notebook_config['instance_name'], notebook_config['zone'])
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)

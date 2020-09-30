@@ -180,7 +180,7 @@
     </dependencies>
 
     <build>
-    	<finalName>${project.artifactId}-${dlab.version}</finalName>
+        <finalName>${project.artifactId}-${datalab.version}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -188,7 +188,7 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    
+
                 </configuration>
             </plugin>
             
@@ -247,18 +247,18 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-<!--                                     <mainClass>com.epam.dlab.automation</mainClass> -->
-									<manifestEntries>
-										<Created-By>&lt;EPAM&gt; Systems</Created-By>
-										<Name>com/epam/dlab/automation</Name>
-										<Implementation-Title>DLab Integration Tests</Implementation-Title>
-										<Implementation-Version>${dlab.version}</Implementation-Version>
-										<Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
-										<Build-Time>${maven.build.timestamp}</Build-Time>
-										<Build-OS>${os.name}</Build-OS>
-										<GIT-Branch>${scmBranch}</GIT-Branch>
-										<GIT-Commit>${buildNumber}</GIT-Commit>
-									</manifestEntries>
+                                    <!--                                     <mainClass>com.epam.dlab.automation</mainClass> -->
+                                    <manifestEntries>
+                                        <Created-By>&lt;EPAM&gt; Systems</Created-By>
+                                        <Name>com/epam/dlab/automation</Name>
+                                        <Implementation-Title>DLab Integration Tests</Implementation-Title>
+                                        <Implementation-Version>${datalab.version}</Implementation-Version>
+                                        <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
+                                        <Build-Time>${maven.build.timestamp}</Build-Time>
+                                        <Build-OS>${os.name}</Build-OS>
+                                        <GIT-Branch>${scmBranch}</GIT-Branch>
+                                        <GIT-Commit>${buildNumber}</GIT-Commit>
+                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                             <filters>

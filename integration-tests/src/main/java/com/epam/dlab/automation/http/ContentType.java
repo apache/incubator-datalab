@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.http;
+package com.epam.datalab.automation.http;
 
 public class ContentType{
     public static final String FORMDATA = "multipart/form-data";

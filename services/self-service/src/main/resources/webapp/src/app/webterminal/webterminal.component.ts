@@ -31,7 +31,7 @@ import { StorageService } from '../core/services';
 import { FileUtils } from '../core/util';
 
 @Component({
-  selector: 'dlab-webterminal',
+  selector: 'datalab-webterminal',
   templateUrl: './webterminal.component.html',
   styleUrls: ['./webterminal.component.scss'],
   encapsulation: ViewEncapsulation.None
@@ -62,7 +62,7 @@ export class WebterminalComponent implements OnInit {
     const url = environment.production ? window.location.origin : API_URL;
     const tunnel = new Guacamole.HTTPTunnel(
       `${url}/api/tunnel`, false,
-      { 'DLab-Authorization': `Bearer ${this.storageService.getToken()}` }
+      { 'DataLab-Authorization': `Bearer ${this.storageService.getToken()}` }
     );
 
     const guac = new Guacamole.Client(tunnel);

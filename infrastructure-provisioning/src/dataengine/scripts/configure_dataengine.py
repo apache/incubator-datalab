@@ -22,13 +22,11 @@
 # ******************************************************************************
 
 import argparse
-import json
-import sys
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
 import os
-
+import sys
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.notebook_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

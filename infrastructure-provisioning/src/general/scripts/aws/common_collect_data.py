@@ -22,21 +22,18 @@
 # ******************************************************************************
 
 import argparse
-import json
-import datetime
-from fabric.api import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from dlab.fab import *
-import traceback
-import sys
 import ast
-
+import json
+import sys
+import traceback
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--list_resources', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     data = ast.literal_eval(args.list_resources.replace('\'', '"'))

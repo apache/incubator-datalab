@@ -1,7 +1,7 @@
 Configuration syntax:
 
 # Working file for store billing report variables.
-workingFile: /opt/dlab/tmp/result/billing-data.json
+workingFile: /opt/datalab/tmp/result/billing-data.json
 
 scheduler:
 # Schedule is comma separated values of time in format hh[:mm[:ss]]. hh - in the 24-hour clock, at 8:15PM is 20:15.

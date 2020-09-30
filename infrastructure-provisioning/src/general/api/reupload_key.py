@@ -21,11 +21,10 @@
 #
 # ******************************************************************************
 
-import os
 import json
+import os
 import sys
 from fabric.api import local
-
 
 if __name__ == "__main__":
     success = True
@@ -49,11 +48,9 @@ if __name__ == "__main__":
             result = {"error": "Failed to open result.json"}
             reply['error_message'] = 'Failed to open result.json'
 
-
-
-    log = "/var/log/dlab/edge/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
-                                                                          os.environ['project_name'],
-                                                                          os.environ['request_id'])
+    log = "/var/log/datalab/edge/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+                                                         os.environ['project_name'],
+                                                         os.environ['request_id'])
     try:
         with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['project_name'],
                                                    os.environ['request_id']), 'w') as response_file:

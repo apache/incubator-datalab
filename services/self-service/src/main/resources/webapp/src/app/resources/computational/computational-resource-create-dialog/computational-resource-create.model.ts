@@ -31,7 +31,7 @@ export class ComputationalResourceModel {
   public createComputationalResource(parameters, image, env, spot, provider): Observable<{}> {
     const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
 
-    if (provider === 'aws' && image.image === 'docker.dlab-dataengine-service') {
+    if (provider === 'aws' && image.image === 'docker.datalab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: parameters.cluster_alias_name,
         emr_instance_count: parameters.instance_number,
@@ -47,7 +47,7 @@ export class ComputationalResourceModel {
         project: env.project,
         custom_tag: parameters.custom_tag
       }, provider);
-    } else if (provider === 'gcp' && image.image === 'docker.dlab-dataengine-service') {
+    } else if (provider === 'gcp' && image.image === 'docker.datalab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         template_name: image.template_name,
         image: image.image,

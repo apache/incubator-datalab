@@ -22,8 +22,8 @@
 data "template_file" "step_ca_values" {
   template = file("./step-ca-chart/values.yaml")
   vars = {
-    storage_class_name           = kubernetes_storage_class.dlab-storage-class.metadata[0].name
-    ssn_k8s_nlb_dns_name         = var.ssn_k8s_nlb_dns_name
+    storage_class_name = kubernetes_storage_class.datalab-storage-class.metadata[0].name
+    ssn_k8s_nlb_dns_name = var.ssn_k8s_nlb_dns_name
     step_ca_password             = random_string.step_ca_password.result
     step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
   }
@@ -31,9 +31,10 @@ data "template_file" "step_ca_values" {
 
 resource "helm_release" "step_ca" {
   name       = "step-certificates"
-  chart      = "./step-ca-chart"
-  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-  depends_on = [null_resource.cert_manager_delay]
+  chart = "./step-ca-chart"
+  namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
+  depends_on = [
+    null_resource.cert_manager_delay]
   wait       = false
   timeout    = 600
 

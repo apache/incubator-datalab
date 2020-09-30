@@ -21,13 +21,10 @@
 #
 # ******************************************************************************
 
-import json
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
 import sys
-from botocore.exceptions import ClientError
-
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--nat_route_name', type=str)
@@ -35,7 +32,6 @@ parser.add_argument('--vpc', type=str)
 parser.add_argument('--tag', type=str)
 parser.add_argument('--edge_instance', type=str)
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     if GCPMeta().get_route(args.nat_route_name):

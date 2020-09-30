@@ -21,11 +21,11 @@
 # ******************************************************************************
 
 
-from fabric.api import *
 import argparse
 import json
-import sys
 import os
+import sys
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -67,16 +67,17 @@ def create_user(os_user):
 
 def prepare_config():
     try:
-        with lcd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
-            if os.path.exists('{}tmp/gitlab/gitlab.rb.bak'.format(os.environ['conf_dlab_path'])):
+        with lcd('{}tmp/gitlab'.format(os.environ['conf_datalab_path'])):
+            if os.path.exists('{}tmp/gitlab/gitlab.rb.bak'.format(os.environ['conf_datalab_path'])):
                 local('cp gitlab.rb.bak gitlab.rb')
             else:
                 local('cp gitlab.rb gitlab.rb.bak')
             if json.loads(os.environ['gitlab_ssl_enabled']):
                 local('sed -i "s,EXTERNAL_URL,https://{}:443,g" gitlab.rb'.format(os.environ['instance_hostname']))
                 local('sed -i "s/.*NGINX_ENABLED/nginx[\'enable\'] = true/g" gitlab.rb')
-                local('sed -i "s,.*NGINX_SSL_CERTIFICATE_KEY,nginx[\'ssl_certificate_key\'] = \'{}\',g" gitlab.rb'.format(
-                    os.environ['gitlab_ssl_certificate_key']))
+                local(
+                    'sed -i "s,.*NGINX_SSL_CERTIFICATE_KEY,nginx[\'ssl_certificate_key\'] = \'{}\',g" gitlab.rb'.format(
+                        os.environ['gitlab_ssl_certificate_key']))
                 local('sed -i "s,.*NGINX_SSL_CERTIFICATE,nginx[\'ssl_certificate\'] = \'{}\',g" gitlab.rb'.format(
                     os.environ['gitlab_ssl_certificate']))
                 local('sed -i "s,.*NGINX_SSL_DHPARAMS.*,nginx[\'ssl_dhparam\'] = \'{}\',g" gitlab.rb'.format(
@@ -116,7 +117,7 @@ def install_gitlab():
             print('Failed to install gitlab.')
             raise Exception
 
-        with lcd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
+        with lcd('{}tmp/gitlab'.format(os.environ['conf_datalab_path'])):
             put('gitlab.rb', '/tmp/gitlab.rb')
             local('rm gitlab.rb')
         sudo('rm /etc/gitlab/gitlab.rb')
@@ -125,11 +126,12 @@ def install_gitlab():
         if json.loads(os.environ['gitlab_ssl_enabled']):
             sudo('mkdir -p /etc/gitlab/ssl')
             sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {0} \
-                    -out {1} -subj "/C=US/ST=US/L=US/O=dlab/CN={2}"'.format(os.environ['gitlab_ssl_certificate_key'],
-                                                                            os.environ['gitlab_ssl_certificate'],
-                                                                            os.environ['instance_hostname']))
+                    -out {1} -subj "/C=US/ST=US/L=US/O=datalab/CN={2}"'.format(os.environ['gitlab_ssl_certificate_key'],
+                                                                               os.environ['gitlab_ssl_certificate'],
+                                                                               os.environ['instance_hostname']))
             sudo('openssl dhparam -out {} 2048'.format(os.environ['gitlab_ssl_dhparams']))
-            get('{}'.format(os.environ['gitlab_ssl_certificate']), '{}tmp/gitlab'.format(os.environ['conf_dlab_path']))
+            get('{}'.format(os.environ['gitlab_ssl_certificate']),
+                '{}tmp/gitlab'.format(os.environ['conf_datalab_path']))
 
         sudo('gitlab-ctl reconfigure')
     except Exception as err:
@@ -178,7 +180,7 @@ def summary():
     for key in data:
         print('{0}: {1}'.format(key, data[key]))
 
-    with open('{}tmp/result/gitlab.json'.format(os.environ['conf_dlab_path']), 'w') as result:
+    with open('{}tmp/result/gitlab.json'.format(os.environ['conf_datalab_path']), 'w') as result:
         result.write(json.dumps(data))
 
 

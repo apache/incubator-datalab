@@ -21,11 +21,10 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
 import argparse
-from dlab.fab import *
 import sys
-
+from datalab.fab import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -33,7 +32,6 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--rstudio_pass', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     print("Configure connections")

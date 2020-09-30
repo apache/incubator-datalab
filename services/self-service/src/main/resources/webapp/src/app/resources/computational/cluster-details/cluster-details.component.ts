@@ -30,7 +30,7 @@ import {AuditService} from '../../../core/services/audit.service';
 import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 
 @Component({
-  selector: 'dlab-cluster-details',
+  selector: 'datalab-cluster-details',
   templateUrl: 'cluster-details.component.html',
   styleUrls: ['./cluster-details.component.scss']
 })
@@ -75,7 +75,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
       new Date(this.resource.up_time).toString().substr(0, new Date(this.resource.up_time).toString().indexOf('(')) : '';
     this.initFormModel();
 
-    if (this.resource.image === 'docker.dlab-dataengine') this.getClusterConfiguration();
+    if (this.resource.image === 'docker.datalab-dataengine') this.getClusterConfiguration();
   }
 
   public isEllipsisActive($event): void {

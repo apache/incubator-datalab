@@ -21,14 +21,13 @@
 #
 # ******************************************************************************
 
-import sys
 import argparse
-from dlab.notebook_lib import *
-from dlab.fab import *
-from fabric.api import *
 import json
+import sys
 import xmlrpclib
-
+from datalab.fab import *
+from datalab.notebook_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--os_user', type=str, default='')

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.cloud.gcp;
+package com.epam.datalab.automation.cloud.gcp;
 
 public enum GcpInstanceState {
 	STARTING,

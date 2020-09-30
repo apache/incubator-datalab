@@ -22,13 +22,10 @@
 # ******************************************************************************
 
 import argparse
-import json
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-import sys
-import boto3
 import ipaddress
-
+import sys
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--subnet_name', type=str, default='')
@@ -75,21 +72,21 @@ if __name__ == "__main__":
             else:
                 break
 
-        dlab_subnet_cidr = ''
+        datalab_subnet_cidr = ''
         if empty_vpc:
-            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
+            datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
         else:
             if previous_subnet_size < private_subnet_size:
                 while True:
                     try:
-                        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
-                        ipaddress.ip_network(dlab_subnet_cidr.decode('utf-8'))
+                        datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+                        ipaddress.ip_network(datalab_subnet_cidr.decode('utf-8'))
                         break
                     except ValueError:
                         last_ip = last_ip + 2
                         continue
             else:
-                dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+                datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
     else:
         pre_defined_subnet_list = []
         subnet_cidr = args.user_subnets_range.split('-')[0].replace(' ', '')
@@ -111,14 +108,14 @@ if __name__ == "__main__":
             print("There is no available subnet to create. Aborting...")
             sys.exit(1)
         else:
-            dlab_subnet_cidr = available_subnets[0]
+            datalab_subnet_cidr = available_subnets[0]
 
     if args.subnet_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):
             print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
         else:
             print("Creating Subnet {}".format(args.subnet_name))
-            GCPActions().create_subnet(args.subnet_name, dlab_subnet_cidr, args.vpc_selflink, args.region)
+            GCPActions().create_subnet(args.subnet_name, datalab_subnet_cidr, args.vpc_selflink, args.region)
     else:
         print("Subnet name can't be empty")
         sys.exit(1)

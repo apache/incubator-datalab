@@ -1,0 +1,105 @@
+{{- /*
+  # *****************************************************************************
+  #
+  # Licensed to the Apache Software Foundation (ASF) under one
+  # or more contributor license agreements.  See the NOTICE file
+  # distributed with this work for additional information
+  # regarding copyright ownership.  The ASF licenses this file
+  # to you under the Apache License, Version 2.0 (the
+  # "License"); you may not use this file except in compliance
+  # with the License.  You may obtain a copy of the License at
+  #
+  #   http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing,
+  # software distributed under the License is distributed on an
+  # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  # KIND, either express or implied.  See the License for the
+  # specific language governing permissions and limitations
+  # under the License.
+  #
+  # ******************************************************************************
+  */ -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "datalab-billing.fullname" . }}-billing-conf
+data:
+  billing.yml: |
+    # Specify the parameters enclosed in angle brackets.
+    # Run the follows command to get help for details of configuration:
+    # java -jar billing-1.0.jar --help conf
+    # java -jar billing-1.0.jar --help {adapter | parser | filter | logappender} [name]
+
+    billingEnabled: true
+
+    host: {{ .Values.billing.mongo.host }}
+    port: {{ .Values.billing.mongo.port }}
+    username: {{ .Values.billing.mongo.username }}
+    password: ${MONGO_DB_PASSWORD}
+    database: {{ .Values.billing.mongo.db_name }}
+
+    scheduler:
+    # Schedule is comma separated values of time in format hh[:mm[:ss]]. hh - in the 24-hour clock, at 8:15PM is 20:15.
+      schedule: 8:40, 8:50, 9:00, 9:10, 9:20, 9:30, 16:00, 16:30, 17:00, 17:30, 18:00, 15:45, 16:45, 17:45, 17:15, 18:15, 18:00, 21:00
+
+    # Adapter for reading source data. Known types: file, s3file
+    adapterIn:
+      - type: s3file
+        bucket: {{ .Values.billing.bucket }}
+        path: {{ .Values.billing.path }}
+        awsJobEnabled: {{ .Values.billing.aws_job_enabled }}
+        accountId: {{ .Values.billing.account_id }}
+        accessKeyId:
+        secretAccessKey:
+
+    # Adapter for writing converted data. Known types: console, file, s3file, mongodb
+    adapterOut:
+      - type: mongodatalab
+        host: {{ .Values.billing.mongo.host }}
+        port: {{ .Values.billing.mongo.port }}
+        username: {{ .Values.billing.mongo.username }}
+        password: ${MONGO_DB_PASSWORD}
+        database: {{ .Values.billing.mongo.db_name }}
+    #    bufferSize: 10000
+        upsert: true
+
+    # Filter for source and converted data.
+    filter:
+      - type: aws
+        currencyCode: USD
+        columndatalabTag: {{ .Values.billing.tag }}
+        serviceBaseName: {{ .Values.billing.service_base_name }}
+
+
+    # Parser of source data to common format.
+    parser:
+      - type: csv
+        headerLineNo: 1
+        skipLines: 1
+        columnMapping: >-
+          datalab_id={{ .Values.billing.datalab_id }};usage_date={{ .Values.billing.usage_date }};product={{ .Values.billing.product }};
+          usage_type={{ .Values.billing.usage_type }};usage={{ .Values.billing.usage }};cost={{ .Values.billing.cost }};
+          resource_id={{ .Values.billing.resource_id }};tags={{ .Values.billing.tags }}
+        aggregate: day
+
+
+    # Logging configuration.
+    logging:
+     # Default logging level
+      level: INFO
+      # Logging levels for appenders.
+      loggers:
+        com.epam: DEBUG
+        org.apache.http: WARN
+        org.mongodb.driver: WARN
+        org.hibernate: WARN
+     # Logging appenders
+      appenders:
+        - type: console
+        - type: file
+          currentLogFilename: /root/billing.log
+          archive: true
+          archivedLogFilenamePattern: /root/billing-%d{yyyy-MM-dd}.log.gz
+          archivedFileCount: 10

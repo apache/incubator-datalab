@@ -19,23 +19,23 @@
 #
 # ******************************************************************************
 
-<#include "ssn.yml">
+  <#include "ssn.yml">
 
-backupScriptPath: /opt/dlab/tmp/backup.py
-backupDirectory: /opt/dlab/tmp/result
+backupScriptPath: /opt/datalab/tmp/backup.py
+backupDirectory: /opt/datalab/tmp/result
 keyDirectory: ${KEYS_DIR}
-responseDirectory: /opt/dlab/tmp
-handlerDirectory: /opt/dlab/handlers
+responseDirectory: /opt/datalab/tmp
+handlerDirectory: /opt/datalab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 2m
 resourceStatusPollTimeout: 400m
 keyLoaderPollTimeout: 30m
 requestEnvStatusTimeout: 50s
 adminKey: KEYNAME
-edgeImage: docker.dlab-edge
+edgeImage: docker.datalab-edge
 fileLengthCheckDelay: 500ms
 
-<#if CLOUD_TYPE == "aws">
+  <#if CLOUD_TYPE == "aws">
 emrEC2RoleDefault: EMR_EC2_DefaultRole
 emrServiceRoleDefault: EMR_DefaultRole
 </#if>

@@ -28,7 +28,7 @@ import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
 
 @Component({
-  selector: 'dlab-roles',
+  selector: 'datalab-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['../../resources/resources-grid/resources-grid.component.scss', './roles.component.scss']
 })

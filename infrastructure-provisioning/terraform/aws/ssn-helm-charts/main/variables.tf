@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 variable "namespace_name" {
-    default = "dlab"
+    default = "datalab"
 }
 
 variable "ssn_k8s_nlb_dns_name" {
@@ -28,7 +28,7 @@ variable "ssn_k8s_nlb_dns_name" {
 }
 
 variable "keycloak_user" {
-    default = "dlab-admin"
+  default = "datalab-admin"
 }
 
 variable "mysql_keycloak_user" {
@@ -80,7 +80,7 @@ variable "mongo_db_username" {
 }
 
 variable "mongo_dbname" {
-    default = "dlabdb"
+  default = "datalabdb"
 }
 
 variable "mongo_image_tag" {
@@ -131,11 +131,11 @@ variable "billing_aws_account_id" {
 }
 
 variable "billing_tag" {
-    default = "dlab"
+  default = "datalab"
 }
 
-variable "billing_dlab_id" {
-    default = "resource_tags_user_user_tag"
+variable "billing_datalab_id" {
+  default = "resource_tags_user_user_tag"
 }
 
 variable "billing_usage_date" {
@@ -187,9 +187,9 @@ variable "custom_certs_host" {
 }
 
 variable "keycloak_realm_name" {
-  default = "dlab"
+  default = "datalab"
 }
 
 variable "keycloak_client_id" {
-  default = "dlab-ui"
+  default = "datalab-ui"
 }

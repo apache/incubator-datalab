@@ -113,22 +113,22 @@
         <div class="button-wrapper" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
           <i (click)="toggleBucketSelection()" class="material-icons close" *ngIf="!isSelectionOpened" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">chevron_right</i>
         </div>
-        <dlab-bucket-tree
-          [hidden] = "!isSelectionOpened"
-          (emitActiveBucket)=openBucket($event)
-          [buckets]='buckets'
-          [openedBucket]=this.bucketName
+        <datalab-bucket-tree
+                [hidden]="!isSelectionOpened"
+                (emitActiveBucket)=openBucket($event)
+                [buckets]='buckets'
+                [openedBucket]=this.bucketName
         >
-        </dlab-bucket-tree>
+        </datalab-bucket-tree>
       </div>
       <div class="navigation" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
-        <dlab-folder-tree
-          (showFolderContent)=onFolderClick($event)
-          (disableAll)=dissableAll($event)
-          [folders]=folders
-          [endpoint]=endpoint
-          [cloud]="cloud"
-        > </dlab-folder-tree>
+          <datalab-folder-tree
+                  (showFolderContent)=onFolderClick($event)
+                  (disableAll)=dissableAll($event)
+                  [folders]=folders
+                  [endpoint]=endpoint
+                  [cloud]="cloud"
+          ></datalab-folder-tree>
       </div>
       <div class="directory" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
         <div class="folder-item t_header">
@@ -204,7 +204,7 @@
       </div>
       <div class="loading-block" *ngIf="!path">
         <div class="uploading">
-          <p>Please wait until DLab loads bucket: <span class="strong">{{bucketName}}</span>...</p>
+            <p>Please wait until DataLab loads bucket: <span class="strong">{{bucketName}}</span>...</p>
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
       </div>

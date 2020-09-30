@@ -22,17 +22,15 @@
 # ******************************************************************************
 
 import argparse
-from fabric.api import *
-from dlab.actions_lib import *
 import os
-
+from datalab.actions_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     env.hosts = "{}".format(args.notebook_ip)

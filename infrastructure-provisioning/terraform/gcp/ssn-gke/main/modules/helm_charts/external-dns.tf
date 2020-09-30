@@ -22,17 +22,17 @@
 data "template_file" "external_dns_values" {
     template = file("./modules/helm_charts/external-dns/values.yaml")
     vars     = {
-        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-        project_id = var.project_id
+        namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
+      project_id = var.project_id
         domain     = var.domain
     }
 }
 
 resource "helm_release" "external_dns" {
     name       = "external-dns"
-    chart      = "./modules/helm_charts/external-dns"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    wait       = true
+  chart = "./modules/helm_charts/external-dns"
+  namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
+  wait = true
     depends_on = [helm_release.nginx]
     values     = [
         data.template_file.external_dns_values.rendered

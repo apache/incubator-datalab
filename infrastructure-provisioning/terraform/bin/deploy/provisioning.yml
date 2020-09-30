@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-<#assign LOG_ROOT_DIR="/var/opt/dlab/log">
+<#assign LOG_ROOT_DIR="/var/opt/datalab/log">
 <#assign KEYS_DIR="/home/OS_USER/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/endpoint.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
@@ -40,7 +40,7 @@ mongo:
   port: MONGO_PORT
   username: admin
   password: MONGO_PASSWORD
-  database: dlabdb
+  database: datalabdb
 
 selfService:
   protocol: https
@@ -80,21 +80,21 @@ billingService:
 # Log out user on inactivity
 inactiveUserTimeoutMillSec: 7200000
 
-backupScriptPath: /opt/dlab/tmp/backup.py
-backupDirectory: /opt/dlab/tmp/result
+backupScriptPath: /opt/datalab/tmp/backup.py
+backupDirectory: /opt/datalab/tmp/result
 keyDirectory: ${KEYS_DIR}
-responseDirectory: /opt/dlab/tmp
-handlerDirectory: /opt/dlab/handlers
+responseDirectory: /opt/datalab/tmp
+handlerDirectory: /opt/datalab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 2m
 resourceStatusPollTimeout: 400m
 keyLoaderPollTimeout: 30m
 requestEnvStatusTimeout: 50s
 adminKey: KEYNAME
-edgeImage: docker.dlab-edge
+edgeImage: docker.datalab-edge
 fileLengthCheckDelay: 500ms
 
-<#if CLOUD_TYPE == "aws">
+  <#if CLOUD_TYPE == "aws">
 emrEC2RoleDefault: EMR_EC2_DefaultRole
 emrServiceRoleDefault: EMR_DefaultRole
 </#if>
@@ -150,7 +150,7 @@ logging:
       archivedFileCount: 10
 
 keycloakConfiguration:
-  realm: dlab
+  realm: datalab
   bearer-only: true
   auth-server-url: KEYCLOAK_AUTH_SERVER_URL
   ssl-required: none

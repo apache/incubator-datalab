@@ -23,10 +23,9 @@
 
 import argparse
 import json
-from dlab.actions_lib import *
-from dlab.meta_lib import *
 import sys
-
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--instance_name', type=str, default='')
@@ -36,7 +35,7 @@ parser.add_argument('--vpc_name', type=str, default='')
 parser.add_argument('--network_interface_name', type=str, default='')
 parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
-parser.add_argument('--dlab_ssh_user_name', type=str, default='')
+parser.add_argument('--datalab_ssh_user_name', type=str, default='')
 parser.add_argument('--public_ip_name', type=str, default='')
 parser.add_argument('--public_key', type=str, default='')
 parser.add_argument('--primary_disk_size', type=str, default='')
@@ -89,9 +88,10 @@ if __name__ == "__main__":
                     disk_id = disk.id
                 print("Creating instance {}".format(args.instance_name))
                 AzureActions().create_instance(args.region, args.instance_size, args.service_base_name,
-                                               args.instance_name, args.dlab_ssh_user_name, args.public_key,
+                                               args.instance_name, args.datalab_ssh_user_name, args.public_key,
                                                network_interface_id, args.resource_group_name, args.primary_disk_size,
-                                               args.instance_type, args.image_name, json.loads(args.tags), args.project_name,
+                                               args.instance_type, args.image_name, json.loads(args.tags),
+                                               args.project_name,
                                                create_option, disk_id, args.instance_storage_account_type,
                                                args.image_type)
         except Exception as err:

@@ -53,7 +53,10 @@ under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/terminate_edge_node/template.json | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-edge --action $Action ;</command>
+          sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/terminate_edge_node/template.json | sed
+          &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v
+          /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response docker.datalab-edge --action $Action ;
+      </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

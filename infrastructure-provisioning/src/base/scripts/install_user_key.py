@@ -21,13 +21,11 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
-from fabric.contrib.files import exists
-from dlab.fab import *
 import argparse
 import json
 import sys
-import os
+from datalab.fab import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

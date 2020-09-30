@@ -89,7 +89,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-deeplearning"
+      "docker.datalab-deeplearning"
     ],
     "groups": [
       "$anyuser"
@@ -101,7 +101,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-jupyter"
+      "docker.datalab-jupyter"
     ],
     "groups": [
       "$anyuser"
@@ -113,7 +113,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-jupyterlab"
+      "docker.datalab-jupyterlab"
     ],
     "groups": [
       "$anyuser"
@@ -125,7 +125,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-superset"
+      "docker.datalab-superset"
     ],
     "groups": [
       "$anyuser"
@@ -137,7 +137,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-rstudio"
+      "docker.datalab-rstudio"
     ],
     "groups": [
       "$anyuser"
@@ -149,7 +149,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-tensor"
+      "docker.datalab-tensor"
     ],
     "groups": [
       "$anyuser"
@@ -161,7 +161,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-tensor-rstudio"
+      "docker.datalab-tensor-rstudio"
     ],
     "groups": [
       "$anyuser"
@@ -173,7 +173,7 @@
     "type": "NOTEBOOK",
     "cloud": "GCP",
     "exploratories": [
-      "docker.dlab-zeppelin"
+      "docker.datalab-zeppelin"
     ],
     "groups": [
       "$anyuser"
@@ -185,7 +185,7 @@
     "type": "COMPUTATIONAL",
     "cloud": "GCP",
     "computationals": [
-      "docker.dlab-dataengine"
+      "docker.datalab-dataengine"
     ],
     "groups": [
       "$anyuser"
@@ -197,7 +197,7 @@
     "type": "COMPUTATIONAL",
     "cloud": "GCP",
     "computationals": [
-      "docker.dlab-dataengine-service"
+      "docker.datalab-dataengine-service"
     ],
     "groups": [
       "$anyuser"

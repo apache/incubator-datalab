@@ -1,21 +1,21 @@
-# DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
+# DataLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
 ## New features in v2.2
 **All Cloud platforms:**
-- added concept of Projects into DLab. Now users can unite under Projects and collaborate
-- for ease of use we've added web terminal for all DLab Notebooks
+- added concept of Projects into DataLab. Now users can unite under Projects and collaborate
+- for ease of use we've added web terminal for all DataLab Notebooks
 - updated versions of installed software:
 	* angular 8.2.7
 
 **GCP:**
-- added billing report to monitor Cloud resources usage into DLab, including ability to manage billing quotas
+- added billing report to monitor Cloud resources usage into DataLab, including ability to manage billing quotas
 - updated versions of installed software:
 	* Dataproc 1.3
 
 ## Improvements in v2.2
 **All Cloud platforms:**
 - implemented login via KeyCloak to support integration with multiple SAML and OAUTH2 identity providers
-- added DLab version into WebUI
+- added DataLab version into WebUI
 - augmented ‘Environment management’ page
 - added possibility to tag Notebook from UI
 - added possibility to terminate computational resources via scheduler
@@ -41,12 +41,12 @@
 - Notebook name should be unique per project for different users in another case it is impossible to operate Notebook with the same name after the first instance creation
 
 **Microsoft Azure:**
-- DLab deployment  is unavailable if Data Lake is enabled
+- DataLab deployment  is unavailable if Data Lake is enabled
 - custom image creation from Notebook fails and deletes existed Notebook
 
 **Refer to the following link in order to view the other major/minor issues in v2.2:**
 
-[Apache DLab: known issues](https://issues.apache.org/jira/issues/?filter=12347602 "Apache DLab: known issues")
+[Apache DataLab: known issues](https://issues.apache.org/jira/issues/?filter=12347602 "Apache DataLab: known issues")
 
 ## Known issues caused by cloud provider limitations in v2.2
 **Microsoft Azure:**
@@ -57,4 +57,4 @@
 **GCP:**
 - resource name length should not exceed 64 chars
 - billing data is not available
-- **NOTE:** DLab has not been tested on GCP for Red Hat Enterprise Linux
+- **NOTE:** DataLab has not been tested on GCP for Red Hat Enterprise Linux

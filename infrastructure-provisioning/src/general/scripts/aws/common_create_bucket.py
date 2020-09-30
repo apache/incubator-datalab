@@ -22,11 +22,9 @@
 # ******************************************************************************
 
 import argparse
-import json
-from dlab.actions_lib import *
-from dlab.meta_lib import *
 import sys
-
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
@@ -34,7 +32,6 @@ parser.add_argument('--bucket_tags', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--bucket_name_tag', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     if args.bucket_name != '':

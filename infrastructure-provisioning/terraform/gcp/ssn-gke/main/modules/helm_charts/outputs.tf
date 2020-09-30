@@ -24,7 +24,7 @@ output "keycloak_client_secret" {
 }
 
 output "keycloak_client_id" {
-    value = "dlab-ui"
+    value = "datalab-ui"
 }
 
 output "keycloak_user_password" {

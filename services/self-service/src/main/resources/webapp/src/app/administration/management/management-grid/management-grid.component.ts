@@ -302,8 +302,8 @@ export class ManagementGridComponent implements OnInit {
             <div class="clusters-list-item" *ngFor="let cluster of notebook?.resources">
               <div class="cluster">{{cluster.computational_name}}</div>
               <div class="status" [ngClass]="{
-              'stopped': (data.action==='stop' && cluster.image==='docker.dlab-dataengine'), 'terminated': data.action === 'terminate' || (data.action==='stop' && cluster.image!=='docker.dlab-dataengine')
-              }">{{data.action  === 'stop' && cluster.image === "docker.dlab-dataengine" ? 'Stopped' : 'Terminated'}}</div>
+              'stopped': (data.action==='stop' && cluster.image==='docker.datalab-dataengine'), 'terminated': data.action === 'terminate' || (data.action==='stop' && cluster.image!=='docker.datalab-dataengine')
+              }">{{data.action  === 'stop' && cluster.image === "docker.datalab-dataengine" ? 'Stopped' : 'Terminated'}}</div>
             </div>
           </div>
         </div>

@@ -43,7 +43,7 @@ export class ReportingConfigModel {
     public shapes: Array<string>,
     public date_start: string,
     public date_end: string,
-    public dlab_id: string,
+    public datalab_id: string,
     public projects: Array<string>
   ) { }
 
@@ -55,7 +55,7 @@ export class ReportingConfigModel {
     this.shapes = [];
     this.date_start = '';
     this.date_end = '';
-    this.dlab_id = '';
+    this.datalab_id = '';
     this.projects = [];
   }
 }

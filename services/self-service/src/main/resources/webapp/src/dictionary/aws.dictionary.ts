@@ -41,9 +41,9 @@ export const NAMING_CONVENTION_AWS = {
         'service': 'product',
         'service_filter_key': 'product',
         'type': 'resource_type',
-        'resourceType': 'dlab_resource_type',
+        'resourceType': 'data_lab_resource_type',
         'instance_size': 'shape',
-        'dlabId': 'dlab_id'
+        'datalab_id': 'datalab_id'
     },
     'service': 'Service',
     'type': 'Type',
@@ -55,7 +55,7 @@ export const NAMING_CONVENTION_AWS = {
     'datalake_name': '',
     'datalake_user_directory_name': '',
     'datalake_shared_directory_name': '',
-    'docker.dlab-dataengine-service': {
+    'docker.datalab-dataengine-service': {
         'total_instance_number_min': 'min_emr_instance_count',
         'total_instance_number_max': 'max_emr_instance_count',
         'min_emr_spot_instance_bid_pct': 'min_emr_spot_instance_bid_pct',
@@ -64,7 +64,7 @@ export const NAMING_CONVENTION_AWS = {
         'slave_node_shape': 'slave_node_shape',
         'total_instance_number': 'total_instance_number',
     },
-    'docker.dlab-dataengine': {
+    'docker.datalab-dataengine': {
         'total_instance_number_min': 'min_spark_instance_count',
         'total_instance_number_max': 'max_spark_instance_count',
         'data_engine_master_instance_size': 'Node shape',

@@ -22,21 +22,20 @@
 # ******************************************************************************
 
 
-from os.path import exists
-from fabric.api import *
 import sys
-import os
 import traceback
+from fabric.api import *
+from os.path import exists
 
-src_path = '/opt/dlab/sources/infrastructure-provisioning/src/'
+src_path = '/opt/datalab/sources/infrastructure-provisioning/src/'
 if sys.argv[1] == 'all':
     node = [
-            'edge',
-            'project',
-            'jupyter',
-            'jupyterlab',
-            'rstudio',
-            'zeppelin',
+        'edge',
+        'project',
+        'jupyter',
+        'jupyterlab',
+        'rstudio',
+        'zeppelin',
             'tensor',
             'tensor-rstudio',
             'deeplearning',
@@ -58,14 +57,18 @@ def image_build(src_path, node):
         elif local("uname -r | awk -F '-' '{print $3}'", capture=True).stdout == 'azure':
             cloud_provider = 'azure'
             if not exists('{}base/azure_auth.json'.format(src_path)):
-                local('cp /home/dlab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path))
+                local('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path))
         else:
             cloud_provider = 'gcp'
         with lcd(src_path):
-            local('docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.dlab-base:latest .'.format(os_family, cloud_provider))
+            local(
+                'docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.datalab-base:latest .'.format(
+                    os_family, cloud_provider))
             try:
                 for i in range(len(node)):
-                    local('docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.dlab-{2} .'.format(os_family, cloud_provider, node[i]))
+                    local(
+                        'docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.datalab-{2} .'.format(
+                            os_family, cloud_provider, node[i]))
             except Exception as err:
                 print("Failed to build {} image".format(node[i]), str(err))
                 raise Exception

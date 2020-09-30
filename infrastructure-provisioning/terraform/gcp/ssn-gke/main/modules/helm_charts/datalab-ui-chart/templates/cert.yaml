@@ -1,0 +1,64 @@
+{{- /*
+  # *****************************************************************************
+  #
+  # Licensed to the Apache Software Foundation (ASF) under one
+  # or more contributor license agreements.  See the NOTICE file
+  # distributed with this work for additional information
+  # regarding copyright ownership.  The ASF licenses this file
+  # to you under the Apache License, Version 2.0 (the
+  # "License"); you may not use this file except in compliance
+  # with the License.  You may obtain a copy of the License at
+  #
+  #   http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing,
+  # software distributed under the License is distributed on an
+  # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  # KIND, either express or implied.  See the License for the
+  # specific language governing permissions and limitations
+  # under the License.
+  #
+  # ******************************************************************************
+  */ -}}
+
+  {{- if not .Values.ui.custom_certs.enabled -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: datalab-ui
+  namespace: {{ .Values.namespace }}
+spec:
+  # The secret name to store the signed certificate
+  secretName: {{ include "datalab-ui.fullname" . }}-tls
+  # Common Name
+  commonName: datalab-kubernetes-cluster
+  # DNS SAN
+  dnsNames:
+    - localhost
+    - {{ .Values.ui.ingress.host }}
+  # IP Address SAN
+  ipAddresses:
+    - "127.0.0.1"
+  # Duration of the certificate
+  duration: 24h
+  # Renew 8 hours before the certificate expiration
+  renewBefore: 8h
+  # The reference to the step issuer
+  issuerRef:
+    group: certmanager.step.sm
+    kind: Issuer
+    name: step-issuer
+  {{- end }}
+---
+  {{- if .Values.ui.custom_certs.enabled -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "datalab-ui.fullname" . }}-tls
+  namespace: {{ .Values.namespace }}
+type: kubernetes.io/tls
+data:
+  ca.crt: {{ .Values.ui.custom_certs.ca }}
+  tls.crt: {{ .Values.ui.custom_certs.crt }}
+  tls.key: {{ .Values.ui.custom_certs.key }}
+  {{- end }}

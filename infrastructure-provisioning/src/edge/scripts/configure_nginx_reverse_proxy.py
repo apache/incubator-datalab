@@ -21,12 +21,12 @@
 #
 # ******************************************************************************
 
-import logging
-from fabric.api import *
 import argparse
-import sys
+import logging
 import os
-from dlab.edge_lib import install_nginx_ldap
+import sys
+from datalab.edge_lib import install_nginx_ldap
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

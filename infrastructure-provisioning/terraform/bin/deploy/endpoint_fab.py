@@ -81,13 +81,13 @@ def ensure_dir_endpoint():
 
 
 def ensure_logs_endpoint():
-    log_root_dir = "/var/opt/dlab/log"
+    log_root_dir = "/var/opt/datalab/log"
     supervisor_log_file = "/var/log/application/provision-service.log"
     try:
         if not exists(conn, '/home/' + args.os_user + '/.ensure_dir/logs_ensured'):
-            if not exists(conn, args.dlab_path):
-                conn.sudo("mkdir -p " + args.dlab_path)
-                conn.sudo("chown -R " + args.os_user + ' ' + args.dlab_path)
+            if not exists(conn, args.datalab_path):
+                conn.sudo("mkdir -p " + args.datalab_path)
+                conn.sudo("chown -R " + args.os_user + ' ' + args.datalab_path)
             if not exists(conn, log_root_dir):
                 conn.sudo('mkdir -p ' + log_root_dir + '/provisioning')
                 conn.sudo('touch ' + log_root_dir + '/provisioning/provisioning.log')
@@ -97,7 +97,7 @@ def ensure_logs_endpoint():
             conn.sudo("chown -R {0} {1}".format(args.os_user, log_root_dir))
             conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/logs_ensured')
     except Exception as err:
-        print('Failed to configure logs and dlab directory: ', str(err))
+        print('Failed to configure logs and datalab directory: ', str(err))
         traceback.print_exc()
         sys.exit(1)
 
@@ -167,7 +167,7 @@ def ensure_step_certs():
                       '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
                                args.step_kid, args.step_ca_url, args.os_user, cn, sans))
             token = conn.sudo('cat /tmp/step_token').stdout.replace('\n', '')
-            conn.sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+            conn.sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
                       '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token, args.step_kid))
             conn.put('./renew_certificates.sh', '/tmp/renew_certificates.sh')
             conn.sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
@@ -182,8 +182,8 @@ def ensure_step_certs():
             conn.sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
             conn.sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
                       '/usr/local/bin/manage_step_certs.sh')
-            conn.sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
-            conn.sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/datalab.crt|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/datalab.key|g" /usr/local/bin/manage_step_certs.sh')
             conn.sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(args.step_ca_url))
             conn.sudo('sed -i "s|RESOURCE_TYPE|endpoint|g" /usr/local/bin/manage_step_certs.sh')
             conn.sudo('sed -i "s|SANS|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(sans))
@@ -232,14 +232,14 @@ def ensure_docker_endpoint():
             conn.sudo('apt-cache policy docker-ce')
             conn.sudo('apt-get install -y docker-ce={}'
                       .format(args.docker_version))
-            if not exists(conn, '{}/tmp'.format(args.dlab_path)):
-                conn.run('mkdir -p {}/tmp'.format(args.dlab_path))
+            if not exists(conn, '{}/tmp'.format(args.datalab_path)):
+                conn.run('mkdir -p {}/tmp'.format(args.datalab_path))
             conn.put('./daemon.json',
-                     '{}/tmp/daemon.json'.format(args.dlab_path))
+                     '{}/tmp/daemon.json'.format(args.datalab_path))
             conn.sudo('sed -i "s|REPOSITORY|{}:{}|g" {}/tmp/daemon.json'
                       .format(args.repository_address,
                               args.repository_port,
-                              args.dlab_path))
+                              args.datalab_path))
             if args.cloud_provider == "aws":
                 dns_ip_resolve = (conn.run("systemd-resolve --status "
                                            "| grep -A 5 'Current Scopes: DNS' "
@@ -247,13 +247,13 @@ def ensure_docker_endpoint():
                                            "| awk '{print $3}'")
                                   .stdout.rstrip("\n\r"))
                 conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
-                          .format(dns_ip_resolve, args.dlab_path))
+                          .format(dns_ip_resolve, args.datalab_path))
             elif args.cloud_provider == "gcp" or args.cloud_provider == "azure":
                 dns_ip_resolve = ""
                 conn.sudo('sed -i "s|DNS_IP_RESOLVE||g" {1}/tmp/daemon.json'
-                          .format(dns_ip_resolve, args.dlab_path))
+                          .format(dns_ip_resolve, args.datalab_path))
             conn.sudo('mv {}/tmp/daemon.json /etc/docker'
-                      .format(args.dlab_path))
+                      .format(args.datalab_path))
             conn.sudo('usermod -a -G docker ' + args.os_user)
             conn.sudo('update-rc.d docker defaults')
             conn.sudo('update-rc.d docker enable')
@@ -315,16 +315,16 @@ def create_key_dir_endpoint():
 
 def configure_keystore_endpoint(os_user, endpoint_keystore_password):
     try:
-        conn.sudo('openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey '
-                  '/etc/ssl/certs/dlab.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
+        conn.sudo('openssl pkcs12 -export -in /etc/ssl/certs/datalab.crt -inkey '
+                  '/etc/ssl/certs/datalab.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
                   '-password pass:{1}'.format(os_user, endpoint_keystore_password))
         conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
                   '-alias endpoint -destkeystore /home/{0}/keys/endpoint.keystore.jks -deststorepass "{1}" '
                   '-srcstorepass "{1}"'.format(os_user, endpoint_keystore_password))
         conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias step-ca -import -file '
                   '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
-                   os_user, endpoint_keystore_password))
-        conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /etc/ssl/certs/dlab.crt -noprompt '
+            os_user, endpoint_keystore_password))
+        conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /etc/ssl/certs/datalab.crt -noprompt '
                   '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_home))
         conn.sudo('keytool -importcert -trustcacerts -file /etc/ssl/certs/root_ca.crt -noprompt '
                   '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_home))
@@ -341,13 +341,13 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
         if not exists(conn,
                       '/home/{}/.ensure_dir/configure_supervisor_ensured'.format(args.os_user)):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
-            if not exists(conn, '{}/tmp'.format(args.dlab_path)):
-                conn.run('mkdir -p {}/tmp'.format(args.dlab_path))
-            conn.put('./supervisor_svc.conf', '{}/tmp/supervisor_svc.conf'.format(args.dlab_path))
-            dlab_conf_dir = '{}/conf/'.format(args.dlab_path)
-            if not exists(conn, dlab_conf_dir):
-                conn.run('mkdir -p {}'.format(dlab_conf_dir))
-            web_path = '{}/webapp'.format(args.dlab_path)
+            if not exists(conn, '{}/tmp'.format(args.datalab_path)):
+                conn.run('mkdir -p {}/tmp'.format(args.datalab_path))
+            conn.put('./supervisor_svc.conf', '{}/tmp/supervisor_svc.conf'.format(args.datalab_path))
+            datalab_conf_dir = '{}/conf/'.format(args.datalab_path)
+            if not exists(conn, datalab_conf_dir):
+                conn.run('mkdir -p {}'.format(datalab_conf_dir))
+            web_path = '{}/webapp'.format(args.datalab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
             if args.cloud_provider == 'aws':
@@ -358,21 +358,22 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                                            'subnet-id'.format(interface)).stdout
                 args.vpc2_id = args.vpc_id
                 args.subnet2_id = args.subnet_id
-                conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location={0}billing_app.yml --conf |g" {1}/tmp/supervisor_svc.conf'
-                          .format(dlab_conf_dir, args.dlab_path))
+                conn.sudo(
+                    'sed -i "s|CONF_PARAMETER|--spring.config.location={0}billing_app.yml --conf |g" {1}/tmp/supervisor_svc.conf'
+                    .format(datalab_conf_dir, args.datalab_path))
             elif args.cloud_provider == 'gcp' or args.cloud_provider == 'azure':
                 conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
-                          .format(args.dlab_path))
+                          .format(args.datalab_path))
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
-                      .format(args.os_user, args.dlab_path))
+                      .format(args.os_user, args.datalab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
-                      .format(dlab_conf_dir, args.dlab_path))
+                      .format(datalab_conf_dir, args.datalab_path))
             conn.sudo('sed -i \'s=WEB_APP_DIR={}=\' {}/tmp/supervisor_svc.conf'
-                      .format(web_path, args.dlab_path))
+                      .format(web_path, args.datalab_path))
             conn.sudo('cp {}/tmp/supervisor_svc.conf {}'
-                      .format(args.dlab_path, supervisor_conf))
+                      .format(args.datalab_path, supervisor_conf))
             conn.put('./provisioning.yml', '{}provisioning.yml'
-                     .format(dlab_conf_dir))
+                     .format(datalab_conf_dir))
             if args.resource_group_name == '':
                 args.resource_group_name = '{}-{}-resource-group'.format(args.service_base_name, args.endpoint_id)
             if args.cloud_provider == 'azure':
@@ -569,7 +570,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
             ]
             for param in cloud_properties:
                 conn.sudo('sed -i "s|{0}|{1}|g" {2}provisioning.yml'
-                          .format(param['key'], param['value'], dlab_conf_dir))
+                          .format(param['key'], param['value'], datalab_conf_dir))
 
             conn.sudo('touch /home/{}/.ensure_dir/configure_supervisor_ensured'
                       .format(args.os_user))
@@ -584,7 +585,7 @@ def ensure_jar_endpoint():
         ensure_file = ('/home/{}/.ensure_dir/backend_jar_ensured'
                        .format(args.os_user))
         if not exists(conn, ensure_file):
-            web_path = '{}/webapp'.format(args.dlab_path)
+            web_path = '{}/webapp'.format(args.datalab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
             conn.run('wget -P {}  --user={} --password={} '
@@ -619,9 +620,9 @@ def start_supervisor_endpoint():
 
 def get_sources():
     try:
-        conn.run("git clone https://github.com/apache/incubator-dlab.git {0}/sources".format(args.dlab_path))
+        conn.run("git clone https://github.com/apache/incubator-dlab.git {0}/sources".format(args.datalab_path))
         if args.branch_name != "":
-            conn.run("cd {0}/sources && git checkout {1} && cd".format(args.dlab_path, args.branch_name))
+            conn.run("cd {0}/sources && git checkout {1} && cd".format(args.datalab_path, args.branch_name))
     except Exception as err:
         logging.error('Failed to download sources: ', str(err))
         traceback.print_exc()
@@ -647,11 +648,11 @@ def pull_docker_images():
                               args.repository_address,
                               args.repository_port))
             for image in list_images[args.cloud_provider]:
-                conn.sudo('docker pull {0}:{1}/docker.dlab-{3}-{2}'
+                conn.sudo('docker pull {0}:{1}/docker.datalab-{3}-{2}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
-                conn.sudo('docker tag {0}:{1}/docker.dlab-{3}-{2} docker.dlab-{3}'
+                conn.sudo('docker tag {0}:{1}/docker.datalab-{3}-{2} docker.datalab-{3}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
-                conn.sudo('docker rmi {0}:{1}/docker.dlab-{3}-{2}'
+                conn.sudo('docker rmi {0}:{1}/docker.datalab-{3}-{2}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
             conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
                       .format(args.os_user))
@@ -690,18 +691,18 @@ def configure_guacamole():
                   " -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}'"
                   " -d -p 8080:8080 guacamole/guacamole".format(mysql_pass))
         # create cronjob for run containers on reboot
-        conn.sudo('mkdir -p /opt/dlab/cron')
-        conn.sudo('touch /opt/dlab/cron/mysql.sh')
-        conn.sudo('chmod 755 /opt/dlab/cron/mysql.sh')
-        conn.sudo('chown {0}:{0} //opt/dlab/cron/mysql.sh'.format(args.os_user))
-        conn.sudo('echo "docker start guacd" >> /opt/dlab/cron/mysql.sh')
-        conn.sudo('echo "docker start guac-mysql" >> /opt/dlab/cron/mysql.sh')
-        conn.sudo('echo "docker rm guacamole" >> /opt/dlab/cron/mysql.sh')
-        conn.sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd""" 
+        conn.sudo('mkdir -p /opt/datalab/cron')
+        conn.sudo('touch /opt/datalab/cron/mysql.sh')
+        conn.sudo('chmod 755 /opt/datalab/cron/mysql.sh')
+        conn.sudo('chown {0}:{0} //opt/datalab/cron/mysql.sh'.format(args.os_user))
+        conn.sudo('echo "docker start guacd" >> /opt/datalab/cron/mysql.sh')
+        conn.sudo('echo "docker start guac-mysql" >> /opt/datalab/cron/mysql.sh')
+        conn.sudo('echo "docker rm guacamole" >> /opt/datalab/cron/mysql.sh')
+        conn.sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd"""
                   """ --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' """
                   """-e MYSQL_PASSWORD='{}' -d -p 8080:8080 guacamole/guacamole" >> """
-                  """/opt/dlab/cron/mysql.sh""".format(mysql_pass))
-        conn.sudo('''/bin/bash -c '(crontab -l 2>/dev/null; echo "@reboot sh /opt/dlab/cron/mysql.sh") |''' 
+                  """/opt/datalab/cron/mysql.sh""".format(mysql_pass))
+        conn.sudo('''/bin/bash -c '(crontab -l 2>/dev/null; echo "@reboot sh /opt/datalab/cron/mysql.sh") |'''
                   ''' crontab - ' ''')
     except Exception as err:
         traceback.print_exc()
@@ -712,13 +713,13 @@ def configure_billing_endpoint(endpoint_keystore_password):
     try:
         if args.billing_enable:
             conn.put('./billing_{}.yml'.format(args.cloud_provider), '{}/conf/billing.yml'
-                     .format(args.dlab_path))
-            billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
+                     .format(args.datalab_path))
+            billing_yml_path = "{}/conf/billing.yml".format(args.datalab_path)
             if args.cloud_provider == 'aws':
 
                 conn.put('./billing_app_{}.yml'.format(args.cloud_provider), '{}/conf/billing_app.yml'
-                         .format(args.dlab_path))
-                billing_app_yml_path = "{}/conf/billing_app.yml".format(args.dlab_path)
+                         .format(args.datalab_path))
+                billing_app_yml_path = "{}/conf/billing_app.yml".format(args.datalab_path)
                 billing_app_properties = [
                     {
                         'key': "MONGO_HOST",
@@ -804,8 +805,8 @@ def configure_billing_endpoint(endpoint_keystore_password):
                         'value': args.service_base_name
                     },
                     {
-                        'key': "DLAB_ID",
-                        'value': args.billing_dlab_id
+                        'key': "DATALAB_ID",
+                        'value': args.billing_datalab_id
                     },
                     {
                         'key': "USAGE_DATE",
@@ -965,13 +966,13 @@ def configure_billing_endpoint(endpoint_keystore_password):
 def init_args():
     global args
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dlab_path', type=str, default='/opt/dlab')
+    parser.add_argument('--datalab_path', type=str, default='/opt/datalab')
     parser.add_argument('--key_name', type=str, default='', help='Name of admin key without .pem extension')
     parser.add_argument('--endpoint_eip_address', type=str)
     parser.add_argument('--endpoint_id', type=str, default='')
     parser.add_argument('--pkey', type=str, default='')
     parser.add_argument('--hostname', type=str, default='')
-    parser.add_argument('--os_user', type=str, default='dlab-user')
+    parser.add_argument('--os_user', type=str, default='datalab-user')
     parser.add_argument('--cloud_provider', type=str, default='')
     parser.add_argument('--mongo_host', type=str, default='localhost')
     parser.add_argument('--mongo_port', type=str, default='27017')
@@ -1028,7 +1029,7 @@ def init_args():
     parser.add_argument('--image_enabled', type=str, default='true')
     parser.add_argument('--auth_file_path', type=str, default='')
 
-    #Billing parameter
+    # Billing parameter
     parser.add_argument('--billing_enable', type=bool, default=False)
     parser.add_argument('--aws_job_enabled', type=str, default='false')
     parser.add_argument('--billing_bucket', type=str, default='')
@@ -1036,8 +1037,8 @@ def init_args():
     parser.add_argument('--billing_aws_account_id', type=str, default='')
     parser.add_argument('--access_key_id', type=str, default='')
     parser.add_argument('--secret_access_key', type=str, default='')
-    parser.add_argument('--billing_tag', type=str, default='dlab')
-    parser.add_argument('--billing_dlab_id', type=str, default='resource_tags_user_user_tag')
+    parser.add_argument('--billing_tag', type=str, default='datalab')
+    parser.add_argument('--billing_datalab_id', type=str, default='resource_tags_user_user_tag')
     parser.add_argument('--billing_usage_date', type=str, default='line_item_usage_start_date')
     parser.add_argument('--billing_product', type=str, default='product_product_name')
     parser.add_argument('--billing_usage_type', type=str, default='line_item_usage_type')
@@ -1067,8 +1068,8 @@ def update_system():
     conn.sudo('apt-get install -y jq')
 
 
-def init_dlab_connection(ip=None, user=None,
-                         pkey=None):
+def init_datalab_connection(ip=None, user=None,
+                            pkey=None):
     global conn
     if not ip:
         ip = args.hostname
@@ -1079,7 +1080,7 @@ def init_dlab_connection(ip=None, user=None,
     try:
         conn = Connection(ip, user, connect_kwargs={'key_filename': pkey})
     except Exception as err:
-        logging.error('Failed connect as dlab-user: ', str(err))
+        logging.error('Failed connect as datalab-user: ', str(err))
         traceback.print_exc()
         sys.exit(1)
 
@@ -1108,10 +1109,10 @@ def start_deploy():
     time.sleep(40)
 
     print(args)
-    logging.info("Creating dlab-user")
+    logging.info("Creating datalab-user")
     create_user()
 
-    init_dlab_connection()
+    init_datalab_connection()
     update_system()
 
     logging.info("Configuring ensure dir")

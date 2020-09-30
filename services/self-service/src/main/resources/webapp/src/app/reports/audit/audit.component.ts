@@ -26,14 +26,14 @@ import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
 import {AuditGridComponent} from './audit-grid/audit-grid.component';
 
 @Component({
-  selector: 'dlab-reporting',
+  selector: 'datalab-reporting',
   template: `
-  <div class="base-retreat">
-    <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption)="setRangeOption($event)">
-    </audit-toolbar>
-    <mat-divider></mat-divider>
-    <dlab-audit-grid (resetDateFilter)="resetDatepicker()"></dlab-audit-grid>
-  </div>
+    <div class="base-retreat">
+      <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption)="setRangeOption($event)">
+      </audit-toolbar>
+      <mat-divider></mat-divider>
+      <datalab-audit-grid (resetDateFilter)="resetDatepicker()"></datalab-audit-grid>
+    </div>
 
   `,
   styles: [`

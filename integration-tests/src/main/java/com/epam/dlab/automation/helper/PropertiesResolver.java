@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.helper;
+package com.epam.datalab.automation.helper;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;

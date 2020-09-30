@@ -1,88 +1,69 @@
-/*!
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
-body,
-html {
-  height: 100%;
-}
-
-.app-loading {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.app-loading .spinner {
-  height: 200px;
-  width: 200px;
-  animation: rotate 2s linear infinite;
-  transform-origin: center center;
-  position: absolute;
-  top: calc(50% - 100px);
-  left: calc(50% - 100px);
-  margin: 0;
-}
-
-.app-loading .spinner .path {
-  stroke-dasharray: 20, 200;
-  stroke-dashoffset: 0;
-  animation: dash 1.5s ease-in-out infinite;
-  stroke-linecap: round;
-  stroke: #35afd5;
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes dash {
-  0% {
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: 0;
-  }
-
-  50% {
-    stroke-dasharray: 89, 200;
-    stroke-dashoffset: -35px;
-  }
-
-  100% {
-    stroke-dasharray: 89, 200;
-    stroke-dashoffset: -124px;
-  }
-}
-
-
-.app-loading {
-  .logo {
-    width: 100px;
-    height: 100px;
-    // background: url(../img/logo.png);
-    background-size: cover;
-  }
-}
-
+//body,
+//html {
+//  height: 100%;
+//}
+//
+//.app-loading {
+//  position: relative;
+//  display: flex;
+//  flex-direction: column;
+//  align-items: center;
+//  justify-content: center;
+//  height: 100%;
+//}
+//
+//.app-loading .spinner {
+//  height: 300px;
+//  width: 225px;
+//  animation: rotate 2s linear infinite;
+//  transform-origin: center center;
+//  position: absolute;
+//  top: calc(50% - 125px);
+//  left: calc(50% - 125px);
+//  margin: 0;
+//}
+//
+//.app-loading .spinner .path {
+//  stroke-dasharray: 20, 200;
+//  stroke-dashoffset: 0;
+//  animation: dash 1.5s ease-in-out infinite;
+//  stroke-linecap: round;
+//  stroke: #35afd5;
+//}
+//
+//@keyframes rotate {
+//  100% {
+//    transform: rotate(360deg);
+//  }
+//}
+//
+//@keyframes dash {
+//  0% {
+//    stroke-dasharray: 1, 200;
+//    stroke-dashoffset: 0;
+//  }
+//
+//  50% {
+//    stroke-dasharray: 89, 200;
+//    stroke-dashoffset: -35px;
+//  }
+//
+//  100% {
+//    stroke-dasharray: 89, 200;
+//    stroke-dashoffset: -124px;
+//  }
+//}
+//
+//
+//.app-loading {
+//  .logo {
+//    width: 150px;
+//    height: 100px;
+//    // background: url(../img/logo.png);
+//    background-size: cover;
+//  }
+//}
+//
 .nav-bar .mat-progress-bar {
   position: absolute;
   height: 2px;

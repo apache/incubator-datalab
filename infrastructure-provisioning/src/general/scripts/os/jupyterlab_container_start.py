@@ -22,9 +22,8 @@
 # ******************************************************************************
 
 import sys
-import os
-from dlab.notebook_lib import *
-from dlab.fab import *
+from datalab.fab import *
+from datalab.notebook_lib import *
 from fabric.api import *
 
 parser = argparse.ArgumentParser()

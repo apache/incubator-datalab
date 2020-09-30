@@ -140,11 +140,11 @@ variable "path_to_pub_key" {
 }
 
 variable "product" {
-  default = "dlab"
+  default = "datalab"
 }
 
 variable "additional_tag" {
-  default = "product:dlab"
+  default = "product:datalab"
 }
 
 variable "ldap_host" {}

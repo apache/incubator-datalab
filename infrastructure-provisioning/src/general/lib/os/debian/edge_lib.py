@@ -23,12 +23,12 @@
 
 import os
 import sys
+from datalab.common_lib import configure_nginx_LE
+from datalab.common_lib import install_certbot
+from datalab.common_lib import manage_pkg
+from datalab.common_lib import run_certbot
 from fabric.api import *
 from fabric.contrib.files import exists
-from dlab.common_lib import manage_pkg
-from dlab.common_lib import install_certbot
-from dlab.common_lib import run_certbot
-from dlab.common_lib import configure_nginx_LE
 
 
 def configure_http_proxy_server(config):
@@ -84,9 +84,9 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 cn = edge_ip
                 sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
-                      os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'], user, cn, sans))
+                    os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'], user, cn, sans))
                 token = sudo('cat /tmp/step_token')
-                sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+                sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
                 sudo('touch /var/log/renew_certificates.log')
@@ -94,8 +94,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
                 sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
                      '/usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/datalab.crt|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/datalab.key|g" /usr/local/bin/manage_step_certs.sh')
                 sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
                     os.environ['conf_stepcerts_ca_url']))
                 sudo('sed -i "s|RESOURCE_TYPE|edge|g" /usr/local/bin/manage_step_certs.sh')
@@ -112,8 +112,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('systemctl daemon-reload')
                 sudo('systemctl enable step-cert-manager.service')
             else:
-                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
-                     -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/datalab.key \
+                     -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}"'.format(hostname))
 
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
@@ -134,21 +134,21 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
 
             sudo('useradd -r nginx')
 
-            sudo('mkdir -p /opt/dlab/templates')
-            put('/root/templates', '/opt/dlab', use_sudo=True)
-            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
-            sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+            sudo('mkdir -p /opt/datalab/templates')
+            put('/root/templates', '/opt/datalab', use_sudo=True)
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(edge_ip))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
                 keycloak_auth_server_url))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
                 keycloak_realm_name))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
                 keycloak_client_id))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
                 keycloak_client_secret))
 
-            sudo('cp /opt/dlab/templates/nginx.conf /usr/local/openresty/nginx/conf')
+            sudo('cp /opt/datalab/templates/nginx.conf /usr/local/openresty/nginx/conf')
             sudo('mkdir /usr/local/openresty/nginx/conf/conf.d')
-            sudo('cp /opt/dlab/templates/conf.d/proxy.conf /usr/local/openresty/nginx/conf/conf.d/')
+            sudo('cp /opt/datalab/templates/conf.d/proxy.conf /usr/local/openresty/nginx/conf/conf.d/')
             sudo('mkdir /usr/local/openresty/nginx/conf/locations')
             sudo('systemctl start openresty')
             sudo('touch /tmp/nginx_installed')
@@ -176,10 +176,11 @@ def configure_nftables(config):
             elif os.environ['conf_cloud_provider'] == 'gcp':
                 interface = 'ens4'
             sudo('sed -i \'s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g\' /etc/sysctl.conf')
-            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/nftables.conf'.format(config['edge_ip']))
-            sudo('sed -i "s|INTERFACE|{}|g" /opt/dlab/templates/nftables.conf'.format(interface))
-            sudo('sed -i "s|SUBNET_CIDR|{}|g" /opt/dlab/templates/nftables.conf'.format(config['exploratory_subnet']))
-            sudo('cp /opt/dlab/templates/nftables.conf /etc/')
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/nftables.conf'.format(config['edge_ip']))
+            sudo('sed -i "s|INTERFACE|{}|g" /opt/datalab/templates/nftables.conf'.format(interface))
+            sudo(
+                'sed -i "s|SUBNET_CIDR|{}|g" /opt/datalab/templates/nftables.conf'.format(config['exploratory_subnet']))
+            sudo('cp /opt/datalab/templates/nftables.conf /etc/')
             sudo('systemctl restart nftables')
             sudo('touch /tmp/nftables_ensured')
     except Exception as err:

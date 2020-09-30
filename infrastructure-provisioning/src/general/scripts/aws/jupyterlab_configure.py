@@ -21,15 +21,13 @@
 #
 # ******************************************************************************
 
-import logging
+import argparse
+import datalab.meta_lib
 import json
+import logging
+import os
 import sys
 import traceback
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import os
-import argparse
 from fabric.api import *
 
 parser = argparse.ArgumentParser()
@@ -81,25 +79,26 @@ if __name__ == "__main__":
                                                                          notebook_config['project_name'],
                                                                          notebook_config['endpoint_name'])
         notebook_config['tag_name'] = '{}-tag'.format(notebook_config['service_base_name'])
-        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-        notebook_config['ip_address'] = dlab.meta_lib.get_instance_ip_address(
+        notebook_config['datalab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['ip_address'] = datalab.meta_lib.get_instance_ip_address(
             notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
 
         # generating variables regarding EDGE proxy on Notebook instance
-        instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
-                                                                notebook_config['instance_name'])
+        instance_hostname = datalab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
+                                                                   notebook_config['instance_name'])
         edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
                                                     notebook_config['project_name'], notebook_config['endpoint_name'])
-        edge_instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
-        edge_instance_private_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
-                                                                         edge_instance_name).get('Private')
-        notebook_config['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
-                                                                                        edge_instance_name)
+        edge_instance_hostname = datalab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+        edge_instance_private_ip = datalab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
+                                                                            edge_instance_name).get('Private')
+        notebook_config['edge_instance_hostname'] = datalab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
+                                                                                           edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        edge_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
+        edge_ip = datalab.meta_lib.get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get(
+            'Private')
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -110,11 +109,11 @@ if __name__ == "__main__":
             notebook_config['initial_user'] = 'ec2-user'
             notebook_config['sudo_group'] = 'wheel'
 
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname,  "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
-             notebook_config['initial_user'], notebook_config['dlab_ssh_user'], notebook_config['sudo_group'])
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
+            (instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
+             notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -122,8 +121,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed creating ssh user 'datalab'.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # configuring proxy on Notebook instance
@@ -133,31 +132,31 @@ if __name__ == "__main__":
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
-                    notebook_config['dlab_ssh_user'])
+                    notebook_config['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure proxy.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to configure proxy.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # updating repositories & installing python packages
     try:
         logging.info('[INSTALLING PREREQUISITES TO JUPYTERLAB NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO JUPYTERLAB NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {}". \
+            format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed installing apps: apt & pip.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # installing and configuring jupiter and all dependencies
@@ -181,7 +180,7 @@ if __name__ == "__main__":
                    os.environ['aws_region'],
                    os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'],
-                   notebook_config['dlab_ssh_user'],
+                   notebook_config['datalab_ssh_user'],
                    os.environ['notebook_scala_version'],
                    os.environ['notebook_r_mirror'],
                    notebook_config['ip_address'],
@@ -192,8 +191,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure jupyterlab.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to configure jupyterlab.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -202,31 +201,31 @@ if __name__ == "__main__":
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
-            dlab.fab.append_result("Failed installing users key")
+            datalab.fab.append_result("Failed installing users key")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing users key.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed installing users key.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
         print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
-            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+            .format(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name)
         try:
             local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
-            dlab.fab.append_result("Failed setup git credentials")
+            datalab.fab.append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to setup git credentials.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to setup git credentials.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -234,7 +233,7 @@ if __name__ == "__main__":
         print('[POST CONFIGURING PROCESS')
         if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None']:
             params = "--hostname {} --keyfile {} --os_user {} --nb_tag_name {} --nb_tag_value {}" \
-                .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
+                .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
                         notebook_config['tag_name'], notebook_config['instance_name'])
             try:
                 local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
@@ -242,8 +241,8 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to post configuring instance.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to post configuring instance.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -261,34 +260,34 @@ if __name__ == "__main__":
                  "--additional_info '{}'"\
             .format(edge_instance_hostname,
                     keyfile_name,
-                    notebook_config['dlab_ssh_user'],
+                    notebook_config['datalab_ssh_user'],
                     'jupyter',
                     notebook_config['exploratory_name'],
                     json.dumps(additional_info))
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            dlab.fab.append_result("Failed edge reverse proxy template")
+            datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
-            ami_id = dlab.meta_lib.get_ami_id_by_name(notebook_config['expected_image_name'])
+            ami_id = datalab.meta_lib.get_ami_id_by_name(notebook_config['expected_image_name'])
             if ami_id == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
-                image_id = dlab.actions_lib.create_image_from_instance(
+                image_id = datalab.actions_lib.create_image_from_instance(
                     tag_name=notebook_config['tag_name'], instance_name=notebook_config['instance_name'],
                     image_name=notebook_config['expected_image_name'])
                 if image_id != '':
                     print("Image was successfully created. It's ID is {}".format(image_id))
         except Exception as err:
-            dlab.fab.append_result("Failed creating image.", str(err))
-            dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+            datalab.fab.append_result("Failed creating image.", str(err))
+            datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
             sys.exit(1)
 
     try:
@@ -299,15 +298,15 @@ if __name__ == "__main__":
                  "--os_user {} ". \
             format(instance_hostname,
                    keyfile_name,
-                   notebook_config['dlab_ssh_user'])
+                   notebook_config['datalab_ssh_user'])
         try:
             local("~/scripts/configure_proxy_for_docker.py {}".format(params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure proxy for docker.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to configure proxy for docker.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -318,22 +317,22 @@ if __name__ == "__main__":
                  "--os_user {} ". \
             format(instance_hostname,
                    keyfile_name,
-                   notebook_config['dlab_ssh_user'])
+                   notebook_config['datalab_ssh_user'])
         try:
            local("~/scripts/jupyterlab_container_start.py {}".format(params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to start Jupyter container.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Failed to start Jupyter container.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
         # generating output information
-        ip_address = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
-                                                           notebook_config['instance_name']).get('Private')
-        dns_name = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
+        ip_address = datalab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
+                                                              notebook_config['instance_name']).get('Private')
+        dns_name = datalab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
         jupyter_dns_url = "http://" + dns_name + ":8888/{}/".format(notebook_config['exploratory_name'])
         jupyter_notebook_acces_url = "http://{}/{}/".format(notebook_config['edge_instance_hostname'],
@@ -346,8 +345,8 @@ if __name__ == "__main__":
         print("Instance name: {}".format(notebook_config['instance_name']))
         print("Private DNS: {}".format(dns_name))
         print("Private IP: {}".format(ip_address))
-        print("Instance ID: {}".format(dlab.meta_lib.get_instance_by_name(notebook_config['tag_name'],
-                                                                          notebook_config['instance_name'])))
+        print("Instance ID: {}".format(datalab.meta_lib.get_instance_by_name(notebook_config['tag_name'],
+                                                                             notebook_config['instance_name'])))
         print("Instance type: {}".format(notebook_config['instance_type']))
         print("Key name: {}".format(notebook_config['key_name']))
         print("User key name: {}".format(notebook_config['user_keyname']))
@@ -360,15 +359,15 @@ if __name__ == "__main__":
         print("ReverseProxyNotebook".format(jupyter_notebook_acces_url))
         print("ReverseProxyUngit".format(jupyter_ungit_acces_url))
         print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
-              format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
+              format(notebook_config['key_name'], notebook_config['datalab_ssh_user'], ip_address))
         print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.
-              format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], dns_name))
+              format(notebook_config['key_name'], notebook_config['datalab_ssh_user'], dns_name))
 
         with open("/root/result.json", 'w') as result:
             res = {"hostname": dns_name,
                    "ip": ip_address,
-                   "instance_id": dlab.meta_lib.get_instance_by_name(notebook_config['tag_name'],
-                                                                     notebook_config['instance_name']),
+                   "instance_id": datalab.meta_lib.get_instance_by_name(notebook_config['tag_name'],
+                                                                        notebook_config['instance_name']),
                    "master_keyname": os.environ['conf_key_name'],
                    "notebook_name": notebook_config['instance_name'],
                    "notebook_image_name": notebook_config['notebook_image_name'],
@@ -385,6 +384,6 @@ if __name__ == "__main__":
                    ]}
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results.", str(err))
-        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.fab.append_result("Error with writing results.", str(err))
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)

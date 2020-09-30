@@ -21,18 +21,14 @@
 #
 # ******************************************************************************
 
+import datalab.meta_lib
 import json
-import sys
-import time
-import os
-import traceback
 import logging
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import os
+import sys
+import traceback
 import uuid
 from fabric.api import *
-
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -42,8 +38,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['edge_unique_index'] = str(uuid.uuid4())[:5]
@@ -120,7 +116,7 @@ if __name__ == "__main__":
                                            "sbn": project_conf['service_base_name'],
                                            "project_tag": project_conf['project_tag'],
                                            "endpoint_tag": project_conf['endpoint_tag'],
-                                           "product": "dlab"}
+                                           "product": "datalab"}
         project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
         project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
         if 'conf_user_subnets_range' in os.environ:
@@ -144,7 +140,7 @@ if __name__ == "__main__":
             project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(project_conf))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
+        datalab.fab.append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
 
     try:
@@ -166,7 +162,7 @@ if __name__ == "__main__":
             GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         except:
             print("Subnet hasn't been created.")
-        dlab.fab.append_result("Failed to create subnet.", str(err))
+        datalab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
@@ -191,7 +187,7 @@ if __name__ == "__main__":
         except:
             print("Service account or role hasn't been created")
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
-        dlab.fab.append_result("Failed to creating service account and role.", str(err))
+        datalab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
     try:
@@ -218,7 +214,7 @@ if __name__ == "__main__":
                                           project_conf['service_base_name'])
         GCPActions.remove_role(project_conf['edge_role_name'])
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
-        dlab.fab.append_result("Failed to creating service account and role.", str(err))
+        datalab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
     try:
@@ -311,7 +307,7 @@ if __name__ == "__main__":
         GCPActions.remove_service_account(project_conf['edge_service_account_name'],
                                           project_conf['service_base_name'])
         GCPActions.remove_role(project_conf['edge_role_name'])
-        dlab.fab.append_result("Failed to create firewall for Edge node.", str(err))
+        datalab.fab.append_result("Failed to create firewall for Edge node.", str(err))
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
 
@@ -384,7 +380,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create firewall for private subnet.", str(err))
+        datalab.fab.append_result("Failed to create firewall for private subnet.", str(err))
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
@@ -430,7 +426,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create bucket.", str(err))
+        datalab.fab.append_result("Unable to create bucket.", str(err))
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
@@ -454,7 +450,7 @@ if __name__ == "__main__":
         GCPActions.set_bucket_owner(project_conf['shared_bucket_name'], project_conf['ps_service_account_name'],
                                     project_conf['service_base_name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to set bucket permissions.", str(err))
+        datalab.fab.append_result("Failed to set bucket permissions.", str(err))
         GCPActions.remove_bucket(project_conf['bucket_name'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
@@ -481,7 +477,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create static ip.", str(err))
+        datalab.fab.append_result("Failed to create static ip.", str(err))
         try:
             GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
         except:
@@ -528,7 +524,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create instance.", str(err))
+        datalab.fab.append_result("Failed to create instance.", str(err))
         GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
         GCPActions.remove_bucket(project_conf['bucket_name'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
@@ -564,7 +560,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create nat route.", str(err))
+            datalab.fab.append_result("Failed to create nat route.", str(err))
             GCPActions.remove_instance(project_conf['instance_name'], project_conf['zone'])
             GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
             GCPActions.remove_bucket(project_conf['bucket_name'])

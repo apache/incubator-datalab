@@ -6,7 +6,7 @@
       "full_edge_conf": {
         "edge_service_account_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge",
         "fw_edge_egress_internal": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-egress-internal",
-        "dlab_ssh_user": "dlab-user",
+        "datalab_ssh_user": "datalab-user",
         "ps_role_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-ps",
         "fw_ps_egress_public": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-ps-egress-public",
         "private_ip": "10.10.0.3",
@@ -36,7 +36,7 @@
         "edge_user_name": "${EDGE_USER_NAME}",
         "private_subnet_cidr": "10.10.16.0/24",
         "fw_edge_ingress_internal": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-ingress-internal",
-        "vpc_selflink": "https://www.googleapis.com/compute/v1/projects/or2-msq-epmc-dlab-t1iylu/global/networks/${CONF_SERVICE_BASE_NAME}-ssn-vpc",
+        "vpc_selflink": "https://www.googleapis.com/compute/v1/projects/or2-msq-epmc-datalab-t1iylu/global/networks/${CONF_SERVICE_BASE_NAME}-ssn-vpc",
         "instance_size": "n1-standard-1",
         "notebook_firewall_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-firewall"
       },
@@ -49,9 +49,9 @@
       "socks_port": "1080",
       "notebook_subnet": "10.10.16.0/24",
       "project_name": "${PROJECT_NAME}",
-      "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure"
+      "@class": "com.epam.datalab.dto.azure.edge.EdgeInfoAzure"
     },
-    "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+    "log": "/var/log/datalab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },
   "request_id": "${REQUEST_ID}"
 }
