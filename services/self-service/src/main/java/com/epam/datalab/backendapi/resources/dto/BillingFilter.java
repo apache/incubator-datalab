@@ -36,7 +36,7 @@ public class BillingFilter {
     @NonNull
     private List<String> users;
     @NonNull
-    @JsonProperty("data_lab_id")
+    @JsonProperty("datalab_id")
     private String datalabId;
     @NonNull
     @JsonProperty("date_start")
