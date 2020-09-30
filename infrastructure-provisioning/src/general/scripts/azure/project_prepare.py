@@ -194,7 +194,6 @@ if __name__ == "__main__":
                     "source_address_prefix": endpoint_ip,
                     "destination_address_prefix": "*",
                     "access": "Allow",
-                    "priority": 100,
                     "direction": "Inbound"
                 }
             ]
