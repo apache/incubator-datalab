@@ -178,8 +178,8 @@ if __name__ == "__main__":
         else:
             ssn_conf['step_cert_sans'] = ''
 
-        logging.info('[CREATING DATA LAB SSH USER]')
-        print('[CREATING DATA LAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             ssn_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
             ssn_conf['initial_user'], ssn_conf['datalab_ssh_user'], ssn_conf['sudo_group'])
@@ -645,9 +645,9 @@ if __name__ == "__main__":
             ssn_conf['tag_name'], ssn_conf['instance_name']))
         print("Jenkins URL: {}".format(ssn_conf['jenkins_url']))
         print("Jenkins URL HTTPS: {}".format(ssn_conf['jenkins_url_https']))
-        print("Data Lab UI HTTP URL: http://{}".format(datalab.meta_lib.get_instance_hostname(
+        print("DataLab UI HTTP URL: http://{}".format(datalab.meta_lib.get_instance_hostname(
             ssn_conf['tag_name'], ssn_conf['instance_name'])))
-        print("Data Lab UI HTTPS URL: https://{}".format(datalab.meta_lib.get_instance_hostname(
+        print("DataLab UI HTTPS URL: https://{}".format(datalab.meta_lib.get_instance_hostname(
             ssn_conf['tag_name'], ssn_conf['instance_name'])))
         try:
             with open('jenkins_creds.txt') as f:

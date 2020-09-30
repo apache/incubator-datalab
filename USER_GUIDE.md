@@ -1,7 +1,7 @@
-What is Data Lab?
+What is DataLab?
 =============
 
-Data Lab is an essential toolset for analytics. It is a self-service Web Console, used to create and manage exploratory environments. It allows teams to spin up analytical environments with best of breed open-source tools just with a single click of the mouse. Once established, environment can be managed by an analytical team itself, leveraging simple and easy-to-use Web Interface.
+DataLab is an essential toolset for analytics. It is a self-service Web Console, used to create and manage exploratory environments. It allows teams to spin up analytical environments with best of breed open-source tools just with a single click of the mouse. Once established, environment can be managed by an analytical team itself, leveraging simple and easy-to-use Web Interface.
 <p>See more at <a href="http://dlab.opensource.epam.com/" rel="nofollow">dlab.opensource.epam.com</a>.</p>
 
 ------------
@@ -50,11 +50,11 @@ Data Lab is an essential toolset for analytics. It is a self-service Web Console
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Multiple Cloud endpoints](#multiple_cloud_endpoints)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage Data Lab quotas](#manage_dlab_quotas)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DataLab quotas](#manage_dlab_quotas)
 
-[Data Lab billing report](#billing_page)
+[DataLab billing report](#billing_page)
 
-[Data Lab audit report](#audit_page)
+[DataLab audit report](#audit_page)
 
 [Web UI filters](#filter)
 
@@ -62,9 +62,9 @@ Data Lab is an essential toolset for analytics. It is a self-service Web Console
 ---------
 # Login <a name="login"></a>
 
-As soon as Data Lab is deployed by an infrastructure provisioning team and you received Data Lab URL, your username and password – open Data Lab login page, fill in your credentials and hit Login.
+As soon as DataLab is deployed by an infrastructure provisioning team and you received DataLab URL, your username and password – open DataLab login page, fill in your credentials and hit Login.
 
-Data Lab Web Application authenticates users against:
+DataLab Web Application authenticates users against:
 
 -   OpenLdap;
 -   Cloud Identity and Access Management service user validation;
@@ -80,7 +80,7 @@ Data Lab Web Application authenticates users against:
 
 \* Please refer to official documentation from Amazon to figure out how to manage Access Keys for your AWS Account: http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html
 
-To stop working with Data Lab - click on Log Out link at the top right corner of Data Lab.
+To stop working with DataLab - click on Log Out link at the top right corner of DataLab.
 
 After login user sees warning in case of exceeding quota or close to this limit.
 
@@ -95,7 +95,7 @@ After login user sees warning in case of exceeding quota or close to this limit.
 ----------------------------------
 # Create project <a name="setup_edge_node"></a>
 
-When you log into Data Lab Web interface, the first thing you need to do is to create a new project.
+When you log into DataLab Web interface, the first thing you need to do is to create a new project.
 
 To do this click on “Upload” button on “Projects” page, select your personal public key (or click on "Generate" button), endpoint, group and hit “Create” button. Do not forget to save your private key.
 
@@ -103,9 +103,9 @@ To do this click on “Upload” button on “Projects” page, select your pers
     <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="100%">
 </p>
 
-Please note, that you need to have a key pair combination (public and private key) to work with Data Lab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. Data Lab build-in wiki page guides Windows, MasOS and Linux on how to generate SSH key pairs quickly.
+Please note, that you need to have a key pair combination (public and private key) to work with DataLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. DataLab build-in wiki page guides Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for Data Lab to setup initial infrastructure for you. During this process project is in status "Creating".
+Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DataLab to setup initial infrastructure for you. During this process project is in status "Creating".
 
 As soon as Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” is appeared on “List of Resources” page:
 
@@ -120,7 +120,7 @@ As soon as Project is created, Data Scientist can create  notebook server on “
 To create new analytical environment from “List of Resources” page click on "Create new" button.
 
 The "Create analytical tool" popup shows up. Data Scientist can choose the preferred project, endpoint and analytical tool. Adding new analytical toolset is supported by architecture, so you can expect new templates to show up in upcoming releases.
-Currently by means of Data Lab, Data Scientists can select between any of the following templates:
+Currently by means of DataLab, Data Scientists can select between any of the following templates:
 
 -   Jupyter
 -   Apache Zeppelin
@@ -147,11 +147,11 @@ Instance shape dropdown, contains configurable list of shapes, which should be c
 
 These groups have T-Shirt based shapes (configurable), that can help Data Scientist to either save money\* and leverage not very powerful shapes (for working with relatively small datasets), or that could boost the performance of analytics by selecting more powerful instance shape.
 
-\* Please refer to official documentation from Amazon that helps you to understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) are the most preferable in your particular Data Lab setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
+\* Please refer to official documentation from Amazon that helps you to understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) are the most preferable in your particular DataLab setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
 
-\* Please refer to official documentation from GCP that helps you to understand what [instance shapes](https://cloud.google.com/compute/docs/machine-types) are the most preferable in your particular Data Lab setup. Also, you can use [GCP calculator](https://cloud.google.com/products/calculator) to roughly estimate the cost of your environment.
+\* Please refer to official documentation from GCP that helps you to understand what [instance shapes](https://cloud.google.com/compute/docs/machine-types) are the most preferable in your particular DataLab setup. Also, you can use [GCP calculator](https://cloud.google.com/products/calculator) to roughly estimate the cost of your environment.
 
-\* Please refer to official documentation from Microsoft Azure that helps you to understand what [virtual machine shapes](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/) are the most preferable in your particular Data Lab setup. Also, you can use [Microsoft Azure calculator](https://azure.microsoft.com/en-us/pricing/calculator/?&ef_id=EAIaIQobChMItPmK5uj-6AIVj-iaCh0BFgVYEAAYASAAEgJ4KfD_BwE:G:s&OCID=AID2000606_SEM_UOMYUjFz&MarinID=UOMYUjFz_364338000380_microsoft%20azure%20calculator_e_c__76882726955_kwd-300666827690&lnkd=Google_Azure_Brand&dclid=CLC65Ojo_ugCFUWEsgodm18GNA) to roughly estimate the cost of your environment.
+\* Please refer to official documentation from Microsoft Azure that helps you to understand what [virtual machine shapes](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/) are the most preferable in your particular DataLab setup. Also, you can use [Microsoft Azure calculator](https://azure.microsoft.com/en-us/pricing/calculator/?&ef_id=EAIaIQobChMItPmK5uj-6AIVj-iaCh0BFgVYEAAYASAAEgJ4KfD_BwE:G:s&OCID=AID2000606_SEM_UOMYUjFz&MarinID=UOMYUjFz_364338000380_microsoft%20azure%20calculator_e_c__76882726955_kwd-300666827690&lnkd=Google_Azure_Brand&dclid=CLC65Ojo_ugCFUWEsgodm18GNA) to roughly estimate the cost of your environment.
 
 You can override the default configurations of local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in the text box.
 
@@ -201,7 +201,7 @@ You need to wait for a while after resource and group choosing till list of all 
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
-**Note:** Apt or Yum packages depend on your Data Lab OS family.
+**Note:** Apt or Yum packages depend on your DataLab OS family.
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
@@ -330,13 +330,13 @@ This picture shows menu for creating Standalone Apache Spark cluster for Azure, 
 
 On top of that you can override the default spark configurations for Standalone Apache Spark cluster by supplying a configuration object for applications when you create a cluster or have already created. The configuration object is referenced as a JSON file. To tune spark configuration check off "Cluster configurations" check box and insert JSON format in text box.
 
-If you click on "Create" button Computational resource creation kicks off. You see corresponding record on Data Lab Web UI in status "Creating":
+If you click on "Create" button Computational resource creation kicks off. You see corresponding record on DataLab Web UI in status "Creating":
 
 ![Creating Computational resource](doc/emr_creating.png)
 
 Once Computational resources are provisioned, their status changes to "Running".
 
-After clicking on Computational resource name in Data Lab dashboard you see Computational resource details popup:
+After clicking on Computational resource name in DataLab dashboard you see Computational resource details popup:
 
 <p align="center"> 
     <img src="doc/emr_info.png" alt="Computational resource info" width="480">
@@ -455,7 +455,7 @@ After login user is notified  that corresponding resources are about to be stopp
 
 ### Manage Git credentials <a name="git_creds"></a>
 
-To work with Git (pull, push) via UI tool (ungit) you could add multiple credentials in Data Lab UI, which are set on all running instances with analytical tools.
+To work with Git (pull, push) via UI tool (ungit) you could add multiple credentials in DataLab UI, which are set on all running instances with analytical tools.
 
 When you click on the button "Git credentials" – following popup shows up:
 
@@ -518,7 +518,7 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 ### Bucket browser <a name="bucket"></a>
 
-You are able to access to cloud buckets via Data Lab Web UI.
+You are able to access to cloud buckets via DataLab Web UI.
 There are two ways to open bucket browser:
 - clicking on Notebook name on the "List of resources" page, where there is an "Open bucket browser" link;
 - clicking on "Bucket browser" bucket on the "List of resources" page.
@@ -553,7 +553,7 @@ To do it click on "Add group" button. "Add group" popup shows up:
 </p>
 
 Roles consist of:
-- Administration - allow to execute administrative operation for the whole Data Lab or administrative operation only per project;
+- Administration - allow to execute administrative operation for the whole DataLab or administrative operation only per project;
 - Billing - allow to view billing only the own resources or all users;
 - Bucket browser actions - allow to set permissions for cloud buckets if user only accesses via bucket browser
 - Compute - list of Compute types which are supposed for creation;
@@ -600,7 +600,7 @@ To terminate Edge node hit "Terminate edge node". After that confirm "OK" in con
 
 ## Environment management <a name="environment_management"></a>
 
-Data Lab Environment Management page is an administration page allowing adminstrator to see the list of all users environments and to stop/terminate all of them.
+DataLab Environment Management page is an administration page allowing adminstrator to see the list of all users environments and to stop/terminate all of them.
 
 To access Environment management page either navigate to it via main menu:
 
@@ -645,16 +645,16 @@ Once all fields are filled in and you click on "Connect" button, you are able to
 
 Administrator can deactivate whole analytical environment via bin icon <img src="doc/bin_icon.png" alt="bin" width="15">. And all related instances change its satuses to "Terminating" and soon become "Terminated".
 
-### Manage Data Lab quotas <a name="manage_dlab_quotas"></a>
+### Manage DataLab quotas <a name="manage_dlab_quotas"></a>
 
-Administrator can set quotas per project (monthly or total period) and for the whole Data Lab. To do it click on "Manage Data Lab quotas" button. "Manage Data Lab quotas" popup shows up. Administrator can see all active project:
+Administrator can set quotas per project (monthly or total period) and for the whole DataLab. To do it click on "Manage DataLab quotas" button. "Manage DataLab quotas" popup shows up. Administrator can see all active project:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="520">
 </p>
 
-After filling fields and clicking on "Apply" button, new quotas are used for project and Data Lab.
-If project and Data Lab quotas are exceeded the warning shows up during login.
+After filling fields and clicking on "Apply" button, new quotas are used for project and DataLab.
+If project and DataLab quotas are exceeded the warning shows up during login.
 
 <p align="center" class="facebox-popup"> 
     <img src="doc/project_quota.png" alt="Exceeded project quota" width="400">
@@ -664,7 +664,7 @@ In such case user cannot create new instance and already "Running" instance chan
 
 --------------------------------
 
-# Data Lab Billing report <a name="billing_page"></a>
+# DataLab Billing report <a name="billing_page"></a>
 
 On this page you can see all billing information, including all costs assosiated with service base name of SSN.
 
@@ -690,7 +690,7 @@ In the footer of billing report, you can see "Total" cost for all environments.
 
 --------------------------------
 
-# Data Lab Audit report <a name="audit_page"></a>
+# DataLab Audit report <a name="audit_page"></a>
 
 On this page you can see change history, which have been done by any user.
 

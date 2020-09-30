@@ -60,7 +60,7 @@ parser.add_argument('--efs_enabled', type=str, default='False', help="True - use
 parser.add_argument('--efs_id', type=str, default='', help="ID of AWS EFS")
 parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk size of primary volume")
 parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
-parser.add_argument('--datalab_conf_file_path', type=str, default='', help="Full path to Data Lab conf file")
+parser.add_argument('--datalab_conf_file_path', type=str, default='', help="Full path to DataLab conf file")
 parser.add_argument('--nexus_admin_password', type=str, default='', help="Password for Nexus admin user")
 parser.add_argument('--nexus_service_user_name', type=str, default='dlab-nexus', help="Nexus service user name")
 parser.add_argument('--nexus_service_user_password', type=str, default='', help="Nexus service user password")
@@ -1695,7 +1695,7 @@ if __name__ == "__main__":
         env.host_string = 'ubuntu@' + ec2_ip_address
         print("CONFIGURE LOCAL REPOSITORY")
         try:
-            print('CREATING DATA LAB USER')
+            print('CREATING DATALAB USER')
             ensure_ssh_user('ubuntu')
             env.host_string = configuration['conf_os_user'] + '@' + ec2_ip_address
 
@@ -1723,7 +1723,7 @@ if __name__ == "__main__":
             print('INSTALLING DOCKER')
             install_docker()
 
-            print('PREPARING DATA LAB DOCKER IMAGES')
+            print('PREPARING DATALAB DOCKER IMAGES')
             prepare_images()
 
             print('INSTALLING SQUID')

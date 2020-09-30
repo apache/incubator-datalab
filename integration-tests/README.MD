@@ -1,7 +1,7 @@
 # The automation tests
 
 ## What is it?
-This is the module with automation tests for Data Lab integration testing.
+This is the module with automation tests for DataLab integration testing.
 
 ## How to run?
 

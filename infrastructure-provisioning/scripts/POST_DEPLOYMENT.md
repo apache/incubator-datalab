@@ -1,4 +1,4 @@
-### Prerequisites for Data Lab post-deployment
+### Prerequisites for DataLab post-deployment
 
 - Service account with following roles:
 ```
@@ -14,7 +14,7 @@ BigQuery Data Viewer
 BigQuery Job User
 ```
 - Google Cloud Storage JSON API should be enabled
-- Keycloak server with specific client for Data Lab UI (could be dpeloyed with Kecylaok deployment script)
+- Keycloak server with specific client for DataLab UI (could be dpeloyed with Kecylaok deployment script)
 
 Service account should be created manually and attached to the instance with post-deployment script.
 
@@ -38,7 +38,7 @@ List of parameters for SSN node post-deployment script:
 |-------------------------------|-------------------------------------------------------------------------------------|
 | keycloak\_realm\_name         | Keycloak realm name                                                                 |
 | keycloak\_auth\_server\_url   | Url of Keycloak auth server                                                         |
-| keycloak\_client\_name        | Name of client for Data Lab UI                                                          |
-| keycloak\_client\_secret      | Secret of client for Data Lab UI                                                        |
+| keycloak\_client\_name        | Name of client for DataLab UI                                                          |
+| keycloak\_client\_secret      | Secret of client for DataLab UI                                                        |
 | kkeycloak\_user               | Keycloak user with administrator permissions                                        |
 | keycloak\_admin\_password     | Password for Keycloak user with administrator permissions                           |

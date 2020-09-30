@@ -29,9 +29,9 @@ import json
 import sys
 import os
 
-parser = argparse.ArgumentParser(description="Backup script for Data Lab configs, keys, certs, jars, database & logs")
+parser = argparse.ArgumentParser(description="Backup script for DataLab configs, keys, certs, jars, database & logs")
 parser.add_argument('--user', type=str, default='datalab-user', help='System username')
-parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to Data Lab. Default: /opt/datalab/')
+parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to DataLab. Default: /opt/datalab/')
 parser.add_argument('--configs', type=str, default='skip', help='Comma separated names of config files, like "security.yml", etc. Default: skip. Also available: all')
 parser.add_argument('--keys', type=str, default='skip', help='Comma separated names of keys, like "user_name.pub". Default: skip. Also available: all')
 parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "datalab.crt", etc. Default: skip. Also available: all')
@@ -146,7 +146,7 @@ def backup_logs():
     try:
         print('Backup logs: {}'.format(args.logs))
         if args.logs:
-            print('Backup Data Lab logs')
+            print('Backup DataLab logs')
             local('cp -R {0}* {1}logs'.format(datalab_logs_folder, temp_folder))
             print('Backup docker logs')
             local("sudo find {0} -name '*log' -exec cp {2} {1}logs/docker \;".format(docker_logs_folder, temp_folder, "{}"))

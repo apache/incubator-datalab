@@ -176,7 +176,7 @@ if __name__ == "__main__":
     if not ensure_docker_daemon(args.datalab_path, args.os_user, args.region):
         sys.exit(1)
 
-    print("Building Data Lab images")
+    print("Building DataLab images")
     count = 0
     while not build_docker_images(deeper_config, args.region, args.datalab_path) and count < 5:
         count += 1

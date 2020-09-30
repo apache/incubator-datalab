@@ -95,7 +95,7 @@ def ensure_logs_endpoint():
             conn.sudo("chown -R {0} {1}".format(args.os_user, log_root_dir))
             conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/logs_ensured')
     except Exception as err:
-        print('Failed to configure logs and Data Lab directory: ', str(err))
+        print('Failed to configure logs and DataLab directory: ', str(err))
         traceback.print_exc()
         sys.exit(1)
 

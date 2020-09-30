@@ -44,8 +44,8 @@ args = parser.parse_args()
 def configure_dataengine_service(instance, emr_conf):
     emr_conf['instance_ip'] = instance.get('PrivateIpAddress')
     try:
-        logging.info('[CREATING DATA LAB SSH USER ON DATAENGINE SERVICE]')
-        print('[CREATING DATA LAB SSH USER ON DATAENGINE SERVICE]')
+        logging.info('[CREATING DATALAB SSH USER ON DATAENGINE SERVICE]')
+        print('[CREATING DATALAB SSH USER ON DATAENGINE SERVICE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (emr_conf['instance_ip'], emr_conf['key_path'], emr_conf['initial_user'],
              emr_conf['os_user'], emr_conf['sudo_group'])
@@ -55,7 +55,7 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.append_result("Failed to create Data Lab ssh user.", str(err))
+        datalab.fab.append_result("Failed to create DataLab ssh user.", str(err))
         datalab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 

@@ -102,9 +102,9 @@ data:
     # Timeout for check the status of environment via provisioning service
     checkEnvStatusTimeout: 5m
 
-    # Restrict access to Data Lab features using roles policy
+    # Restrict access to DataLab features using roles policy
     rolePolicyEnabled: true
-    # Default access to Data Lab features using roles policy
+    # Default access to DataLab features using roles policy
     roleDefaultAccess: true
 
     # Set to true to enable the scheduler of billing report.

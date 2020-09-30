@@ -53,7 +53,7 @@ mongoimport -u admin -p <password> -d datalabdb -c settings mongo_settings.json
 2.1. Set configuration file ..\..\infrastructure-provisioning\src\ssn\templates\ssn.yml
 # DEV_MODE="true"
 2.2. Add system environment variable
-DATA_LAB_CONF_DIR=...\infrastructure-provisioning\src\ssn\templates
+DATALAB_CONF_DIR=...\infrastructure-provisioning\src\ssn\templates
 or create two symlinks to service\provisioning-service and service\self-service for
 ..\..\infrastructure-provisioning\src\ssn\templates\ssn.yml
 Unix

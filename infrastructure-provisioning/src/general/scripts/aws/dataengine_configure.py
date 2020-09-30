@@ -40,8 +40,8 @@ def configure_slave(slave_number, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave_number + 1)
     slave_hostname = datalab.meta_lib.get_instance_private_ip_address(data_engine['tag_name'], slave_name)
     try:
-        logging.info('[CREATING DATA LAB SSH USER ON SLAVE NODE]')
-        print('[CREATING DATA LAB SSH USER ON SLAVE NODE]')
+        logging.info('[CREATING DATALAB SSH USER ON SLAVE NODE]')
+        print('[CREATING DATALAB SSH USER ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             master_node_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], data_engine['key_name']),
             data_engine['initial_user'], data_engine['datalab_ssh_user'], data_engine['sudo_group'])
@@ -224,8 +224,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        logging.info('[CREATING DATA LAB SSH USER ON MASTER NODE]')
-        print('[CREATING DATA LAB SSH USER ON MASTER NODE]')
+        logging.info('[CREATING DATALAB SSH USER ON MASTER NODE]')
+        print('[CREATING DATALAB SSH USER ON MASTER NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             master_node_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], data_engine['key_name']),
             data_engine['initial_user'], data_engine['datalab_ssh_user'], data_engine['sudo_group'])

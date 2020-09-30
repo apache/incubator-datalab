@@ -1,4 +1,4 @@
-# Terraform module for deploying Data Lab SSN K8S cluster
+# Terraform module for deploying DataLab SSN K8S cluster
 
 List of variables which should be provided:
 
@@ -22,4 +22,4 @@ List of variables which should be provided:
 | allowed\_cidrs           | list   | CIDR to allow acces to SSN K8S cluster. Default: 0.0.0.0/0                                                |
 | ssn\_k8s\_masters\_shape | string | Shape for SSN K8S masters. Default: t2.medium                                                             |
 | ssn\_k8s\_workers\_shape | string | Shape for SSN K8S workers. Default: t2.medium                                                             |
-| os\_user                 | string | Name of Data Lab service user. Default: datalab-user                                                             |
+| os\_user                 | string | Name of DataLab service user. Default: datalab-user                                                             |

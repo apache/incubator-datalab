@@ -85,7 +85,7 @@ if __name__ == "__main__":
     if deployment_subnetId == 'default':
         local('sudo sed -i "s|# user_subnets_range|user_subnets_range|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini')
 
-    local('sudo sed -i "s|DATA_LAB_SBN|{}|g" /opt/datalab/conf/self-service.yml'.format(datalab_sbn))
+    local('sudo sed -i "s|DATALAB_SBN|{}|g" /opt/datalab/conf/self-service.yml'.format(datalab_sbn))
     local('sudo sed -i "s|KEYCLOAK_REDIRECTURI|{}|g" /opt/datalab/conf/self-service.yml'.format(keycloak_redirectUri))
     local('sudo sed -i "s|KEYCLOAK_REALM_NAME|{}|g" /opt/datalab/conf/self-service.yml'.format(args.keycloak_realm_name))
     local('sudo sed -i "s|KEYCLOAK_AUTH_SERVER_URL|{}|g" /opt/datalab/conf/self-service.yml'.format(
@@ -100,22 +100,22 @@ if __name__ == "__main__":
     local('sudo sed -i "s|KEYCLOAK_CLIENT_NAME|{}|g" /opt/datalab/conf/provisioning.yml'.format(args.keycloak_client_name))
     local('sudo sed -i "s|KEYCLOAK_CLIENT_SECRET|{}|g" /opt/datalab/conf/provisioning.yml'.format(
         args.keycloak_client_secret))
-    local('sudo sed -i "s|DATA_LAB_SBN|{}|g" /opt/datalab/conf/provisioning.yml'.format(datalab_sbn))
+    local('sudo sed -i "s|DATALAB_SBN|{}|g" /opt/datalab/conf/provisioning.yml'.format(datalab_sbn))
     local('sudo sed -i "s|SUBNET_ID|{}|g" /opt/datalab/conf/provisioning.yml'.format(deployment_subnetId))
-    local('sudo sed -i "s|DATA_LAB_REGION|{}|g" /opt/datalab/conf/provisioning.yml'.format(datalab_region))
-    local('sudo sed -i "s|DATA_LAB_ZONE|{}|g" /opt/datalab/conf/provisioning.yml'.format(datalab_zone))
+    local('sudo sed -i "s|DATALAB_REGION|{}|g" /opt/datalab/conf/provisioning.yml'.format(datalab_region))
+    local('sudo sed -i "s|DATALAB_ZONE|{}|g" /opt/datalab/conf/provisioning.yml'.format(datalab_zone))
     local('sudo sed -i "s|SSN_VPC_ID|{}|g" /opt/datalab/conf/provisioning.yml'.format(deployment_vpcId))
     local('sudo sed -i "s|GCP_PROJECT_ID|{}|g" /opt/datalab/conf/provisioning.yml'.format(gcp_projectId))
     local('sudo sed -i "s|KEYCLOAK_USER|{}|g" /opt/datalab/conf/provisioning.yml'.format(args.keycloak_user))
     local('sudo sed -i "s|KEYCLOAK_ADMIN_PASSWORD|{}|g" /opt/datalab/conf/provisioning.yml'.format(
         args.keycloak_admin_password))
 
-    local('sudo sed -i "s|DATA_LAB_SBN|{}|g" /opt/datalab/conf/billing.yml'.format(datalab_sbn))
+    local('sudo sed -i "s|DATALAB_SBN|{}|g" /opt/datalab/conf/billing.yml'.format(datalab_sbn))
 
-    local('sudo sed -i "s|DATA_LAB_SBN|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(datalab_sbn))
+    local('sudo sed -i "s|DATALAB_SBN|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(datalab_sbn))
     local('sudo sed -i "s|GCP_PROJECT_ID|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(gcp_projectId))
-    local('sudo sed -i "s|DATA_LAB_REGION|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(datalab_region))
-    local('sudo sed -i "s|DATA_LAB_ZONE|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(datalab_zone))
+    local('sudo sed -i "s|DATALAB_REGION|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(datalab_region))
+    local('sudo sed -i "s|DATALAB_ZONE|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(datalab_zone))
     local('sudo sed -i "s|KEYCLOAK_REALM_NAME|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_realm_name))
     local('sudo sed -i "s|KEYCLOAK_AUTH_SERVER_URL|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_auth_server_url))
     local('sudo sed -i "s|KEYCLOAK_CLIENT_NAME|{}|g" /opt/datalab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_client_name))

@@ -135,8 +135,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        logging.info('[CREATING DATA LAB SSH USER]')
-        print('[CREATING DATA LAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
             notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
