@@ -43,7 +43,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     datalab.actions_lib.create_aws_config_files()
-    print('Getting statuses of Data Lab resources')
+    print('Getting statuses of DataLab resources')
 
     try:
         logging.info('[COLLECT DATA]')

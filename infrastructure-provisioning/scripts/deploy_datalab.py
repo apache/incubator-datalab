@@ -26,8 +26,8 @@ import argparse
 import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--conf_service_base_name', type=str, help='unique name for Data Lab environment')
-parser.add_argument('--conf_network_type', type=str, default='', help='Define in which network Data Lab will be deployed. '
+parser.add_argument('--conf_service_base_name', type=str, help='unique name for DataLab environment')
+parser.add_argument('--conf_network_type', type=str, default='', help='Define in which network DataLab will be deployed. '
                                                                       'Possible options: public|private')
 parser.add_argument('--conf_vpc_cidr', type=str, default='', help='CIDR of VPC')
 parser.add_argument('--conf_vpc2_cidr', type=str, default='', help='CIDR of secondary VPC')
@@ -52,7 +52,7 @@ parser.add_argument('--gcp_zone', type=str, default='', help='GCP zone')
 parser.add_argument('--conf_os_family', type=str, default='',
                     help='Operating system type. Available options: debian, redhat')
 parser.add_argument('--conf_cloud_provider', type=str, default='',
-                    help='Where Data Lab should be deployed. Available options: aws, azure, gcp')
+                    help='Where DataLab should be deployed. Available options: aws, azure, gcp')
 parser.add_argument('--ssn_hosted_zone_name', type=str, default='', help='Name of hosted zone')
 parser.add_argument('--ssn_hosted_zone_id', type=str, default='', help='ID of hosted zone')
 parser.add_argument('--ssn_subdomain', type=str, default='', help='Subdomain name')
@@ -100,7 +100,7 @@ parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
 parser.add_argument('--azure_application_id', type=str, default='', help='Azure login application ID')
 parser.add_argument('--azure_validate_permission_scope', type=str, default='true', help='Azure permission scope '
                                                                                         'validation(true|false).')
-parser.add_argument('--azure_oauth2_enabled', type=str, default='false', help='Using OAuth2 for logging in Data Lab')
+parser.add_argument('--azure_oauth2_enabled', type=str, default='false', help='Using OAuth2 for logging in DataLab')
 parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
 parser.add_argument('--azure_source_vpc_name', type=str, default='', help='Azure VPC source Name')
 parser.add_argument('--azure_source_resource_group_name', type=str, default='', help='Azure source resource group')

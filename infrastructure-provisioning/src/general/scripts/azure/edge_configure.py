@@ -150,8 +150,8 @@ if __name__ == "__main__":
             edge_conf['initial_user'] = 'ec2-user'
             edge_conf['sudo_group'] = 'wheel'
 
-        logging.info('[CREATING DATA LAB SSH USER]')
-        print('[CREATING DATA LAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             edge_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
             edge_conf['initial_user'], edge_conf['datalab_ssh_user'], edge_conf['sudo_group'])

@@ -96,7 +96,7 @@ def cp_gitlab_scripts(datalab_path):
             run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
             run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
             run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
-            run('sed -i "s,CONF_DATA_LAB_PATH,{},g" gitlab.ini'.format(datalab_path))
+            run('sed -i "s,CONF_DATALAB_PATH,{},g" gitlab.ini'.format(datalab_path))
             run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
     except Exception as err:
         traceback.print_exc()

@@ -45,7 +45,7 @@ def update_spark_defaults_conf(spark_conf):
         configs = sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
         for conf in filter(None, configs):
             sudo('''sed -i '/^# Updated/d' {0}'''.format(conf))
-            sudo('''echo "# Updated by Data Lab at {0} >> {1}'''.format(timestamp, conf))
+            sudo('''echo "# Updated by DATALAB at {0} >> {1}'''.format(timestamp, conf))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

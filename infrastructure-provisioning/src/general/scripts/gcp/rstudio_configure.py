@@ -107,8 +107,8 @@ if __name__ == "__main__":
             notebook_config['initial_user'] = 'ec2-user'
             notebook_config['sudo_group'] = 'wheel'
 
-        logging.info('[CREATING DATA LAB SSH USER]')
-        print('[CREATING DATA LAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             instance_hostname, notebook_config['ssh_key_path'], notebook_config['initial_user'],
             notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])

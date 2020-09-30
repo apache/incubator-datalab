@@ -507,7 +507,7 @@ def update_spark_jars(jars_dir='/opt/jars'):
                     des_path = '/'.join(conf.split('/')[:3])
                     all_jars = find_des_jars(all_jars, des_path)
                 sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
-                sudo('echo "# Generated spark.jars by Data Lab from {0}\nspark.jars {1}" >> {2}'
+                sudo('echo "# Generated spark.jars by DataLab from {0}\nspark.jars {1}" >> {2}'
                      .format(','.join(filter(None, [jars_dir, des_path])), ','.join(all_jars), conf))
                 # sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
         else:

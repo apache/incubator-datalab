@@ -138,8 +138,8 @@ if __name__ == "__main__":
             ssn_conf['initial_user'] = 'ec2-user'
             ssn_conf['sudo_group'] = 'wheel'
 
-        logging.info('[CREATING DATA LAB SSH USER]')
-        print('[CREATING DATA LAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'],
             ssn_conf['datalab_ssh_user'], ssn_conf['sudo_group'])
@@ -538,8 +538,8 @@ if __name__ == "__main__":
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_hostname'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
-        print("Data Lab UI HTTP URL: http://{}".format(ssn_conf['instance_hostname']))
-        print("Data Lab UI HTTPS URL: https://{}".format(ssn_conf['instance_hostname']))
+        print("DataLab UI HTTP URL: http://{}".format(ssn_conf['instance_hostname']))
+        print("DataLab UI HTTPS URL: https://{}".format(ssn_conf['instance_hostname']))
         try:
             with open('jenkins_creds.txt') as f:
                 print(f.read())

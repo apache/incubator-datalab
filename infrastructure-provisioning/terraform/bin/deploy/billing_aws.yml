@@ -68,7 +68,7 @@ parser:
     headerLineNo: 1
     skipLines: 1
     columnMapping: >-
-      datalab_id=DATA_LAB_ID;usage_date=USAGE_DATE;product=PRODUCT;
+      datalab_id=DATALAB_ID;usage_date=USAGE_DATE;product=PRODUCT;
       usage_type=USAGE_TYPE;usage=USAGE;cost=COST;
       resource_id=RESOURCE_ID;tags=TAGS
     aggregate: day

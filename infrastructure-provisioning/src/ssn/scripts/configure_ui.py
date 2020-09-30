@@ -207,7 +207,7 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print("Copying Data Lab libraries to SSN")
+    print("Copying DataLab libraries to SSN")
     copy_ssn_libraries()
 
     print("Installing Supervisor")
@@ -219,8 +219,8 @@ if __name__ == "__main__":
     print("Configuring MongoDB")
     configure_mongo(mongo_passwd, args.default_endpoint_name)
 
-    sudo('echo DATA_LAB_CONF_DIR={} >> /etc/profile'.format(datalab_conf_dir))
-    sudo('echo export DATA_LAB_CONF_DIR >> /etc/profile')
+    sudo('echo DATALAB_CONF_DIR={} >> /etc/profile'.format(datalab_conf_dir))
+    sudo('echo export DATALAB_CONF_DIR >> /etc/profile')
 
     print("Installing build dependencies for UI")
     install_build_dep()

@@ -19,14 +19,14 @@ too old-fashioned, create a PR and move us to [Gradle](https://www.gradle.org/)!
 If you're interested in making it better, check-out `gh-pages` branch and dig in.
 If you are not familiar with the [Github Pages](https://dlab.apache.org/) - check it out,
 it's pretty simple yet powerful!
-* __giving feedback__ : Tell us how you use Data Lab, what was great and what was not 
+* __giving feedback__ : Tell us how you use DataLab, what was great and what was not 
 so much. Also, what are you expecting from it and what would you like to see in 
 the future? Opening [an issue](https://github.com/apache/incubator-dlab/issues) will grab our
 attention. Seriously, this is the great way to contribute!
 
 #### Roles
 Much like projects in [ASF](https://www.apache.org/foundation/how-it-works.html#roles), 
-Data Lab recognizes a few roles. Unlike ASF's projects, our structure is a way simpler.
+DataLab recognizes a few roles. Unlike ASF's projects, our structure is a way simpler.
 There are only two types:
   * __A Contributor__ is a user who contributes to a project in the form of code 
   	or documentation. Developers take extra steps to participate in a project,
@@ -45,7 +45,7 @@ There are only two types:
 
 #### RTC model
 
-Data Lab supports Review-Then-Commit model of development. The following rules are 
+DataLab supports Review-Then-Commit model of development. The following rules are 
 used in the RTC process:
   * a developer should seek peer-review and/or feedback from other developers
   	through the PR mechanism (aka code review).

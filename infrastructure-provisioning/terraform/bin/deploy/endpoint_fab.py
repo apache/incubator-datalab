@@ -804,7 +804,7 @@ def configure_billing_endpoint(endpoint_keystore_password):
                         'value': args.service_base_name
                     },
                     {
-                        'key': "DATA_LAB_ID",
+                        'key': "DATALAB_ID",
                         'value': args.billing_datalab_id
                     },
                     {

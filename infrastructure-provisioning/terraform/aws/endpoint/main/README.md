@@ -1,4 +1,4 @@
-# Terraform module for deploying Data Lab Endpoint instance
+# Terraform module for deploying DataLab Endpoint instance
 
 List of variables which should be provided:
 

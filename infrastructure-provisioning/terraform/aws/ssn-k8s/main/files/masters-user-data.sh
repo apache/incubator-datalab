@@ -34,7 +34,7 @@ RUN=$(aws elbv2 describe-target-health --target-group-arn ${k8s-tg-arn} --region
 sleep 5
 }
 
-# Creating Data Lab user
+# Creating DataLab user
 sudo useradd -m -G sudo -s /bin/bash ${k8s_os_user}
 sudo bash -c 'echo "${k8s_os_user} ALL = NOPASSWD:ALL" >> /etc/sudoers'
 sudo mkdir /home/${k8s_os_user}/.ssh

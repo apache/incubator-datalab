@@ -90,12 +90,12 @@ under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>DATA_LAB_PATH=&quot;/opt/datalab&quot;
-GITLAB_CONFIG_FILE=&quot;$DATA_LAB_PATH/tmp/gitlab/gitlab.ini&quot;
-if [ ! -f $DATA_LAB_PATH/tmp/gitlab/gitlab.ini.bak ]; then
-        sudo cp $GITLAB_CONFIG_FILE $DATA_LAB_PATH/tmp/gitlab/gitlab.ini.bak
+      <command>DATALAB_PATH=&quot;/opt/datalab&quot;
+GITLAB_CONFIG_FILE=&quot;$DATALAB_PATH/tmp/gitlab/gitlab.ini&quot;
+if [ ! -f $DATALAB_PATH/tmp/gitlab/gitlab.ini.bak ]; then
+        sudo cp $GITLAB_CONFIG_FILE $DATALAB_PATH/tmp/gitlab/gitlab.ini.bak
 fi
-sudo cp $DATA_LAB_PATH/tmp/gitlab/gitlab.ini.bak $GITLAB_CONFIG_FILE
+sudo cp $DATALAB_PATH/tmp/gitlab/gitlab.ini.bak $GITLAB_CONFIG_FILE
 
 sudo sed -i &quot;s/AWS_REGION/$Region/g&quot; $GITLAB_CONFIG_FILE
 sudo sed -i &quot;s/AWS_SUBNET_ID/$subnet_id/g&quot; $GITLAB_CONFIG_FILE
@@ -105,7 +105,7 @@ sudo sed -i &quot;s/LDAP_USER/$ldap_user/g&quot; $GITLAB_CONFIG_FILE
 sudo sed -i &quot;s/LDAP_PASS/$ldap_pass/g&quot; $GITLAB_CONFIG_FILE
 sudo sed -i &quot;s/GITLAB_ROOT_PASSWORD/$root_password/g&quot; $GITLAB_CONFIG_FILE
 
-sudo /usr/bin/python $DATA_LAB_PATH/tmp/gitlab/gitlab_deploy.py --action $Action</command>
+sudo /usr/bin/python $DATALAB_PATH/tmp/gitlab/gitlab_deploy.py --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

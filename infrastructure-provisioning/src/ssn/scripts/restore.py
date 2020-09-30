@@ -28,8 +28,8 @@ import yaml
 import sys
 import os
 
-parser = argparse.ArgumentParser(description="Restore script for Data Lab configs, keys, certs, jars & database")
-parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to Data Lab. Default: /opt/datalab/')
+parser = argparse.ArgumentParser(description="Restore script for DataLab configs, keys, certs, jars & database")
+parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to DataLab. Default: /opt/datalab/')
 parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Also available: skip. Default: all')
 parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
 parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "datalab.crt", etc. Also available: skip. Default: all')

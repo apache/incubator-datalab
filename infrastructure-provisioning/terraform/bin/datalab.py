@@ -592,7 +592,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   choices=['debian', 'redhat'], group=('k8s'))
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='k8s')
-         .add_str('--os_user', 'Name of Data Lab service user.',
+         .add_str('--os_user', 'Name of DataLab service user.',
                   default='datalab-user', group='k8s')
          .add_str('--pkey', 'path to key', required=True, group='service')
          .add_str('--region', 'Name of AWS region.', default='us-west-2',
@@ -834,7 +834,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                                                     '-json ssn_vpc_id'))
 
         logging.info("""
-        Data Lab SSN K8S cluster has been deployed successfully!
+        DataLab SSN K8S cluster has been deployed successfully!
         Summary:
         VPC ID: {}
         Subnet ID:  {}
