@@ -36,7 +36,7 @@ export interface AuditItem {
 }
 
 @Component({
-  selector: 'data-lab-audit-grid',
+  selector: 'datalab-audit-grid',
   templateUrl: './audit-grid.component.html',
   styleUrls: ['./audit-grid.component.scss', '../../../resources/resources-grid/resources-grid.component.scss'],
 

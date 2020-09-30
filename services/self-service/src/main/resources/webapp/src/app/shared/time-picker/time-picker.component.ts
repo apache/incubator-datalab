@@ -24,7 +24,7 @@ import { CLOCK_TYPE, TimeFormat } from './ticker.component';
 type TimeFormatAlias = TimeFormat;
 
 @Component({
-  selector: 'data-lab-time-picker',
+  selector: 'datalab-time-picker',
   template: `
     <div class="time-picker">
       <mat-form-field class="time-select">

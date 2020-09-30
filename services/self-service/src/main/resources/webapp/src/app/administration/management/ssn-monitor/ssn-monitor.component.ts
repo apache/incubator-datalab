@@ -25,7 +25,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { HealthStatusService } from '../../../core/services';
 
 @Component({
-  selector: 'data-lab-ssn-monitor',
+  selector: 'datalab-ssn-monitor',
   templateUrl: './ssn-monitor.component.html',
   styleUrls: ['./ssn-monitor.component.scss'],
   encapsulation: ViewEncapsulation.None

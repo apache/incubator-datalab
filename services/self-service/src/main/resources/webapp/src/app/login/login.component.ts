@@ -25,7 +25,7 @@ import { AppRoutingService, HealthStatusService, ApplicationSecurityService } fr
 import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
-  selector: 'data-lab-login',
+  selector: 'datalab-login',
   templateUrl: 'login.component.html',
   styleUrls: ['./login.component.css']
 })

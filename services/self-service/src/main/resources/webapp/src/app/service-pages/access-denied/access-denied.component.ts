@@ -19,7 +19,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'data-lab-access-denied',
+  selector: 'datalab-access-denied',
   template: `
     <div class="no-access-page">
       <div class="content">

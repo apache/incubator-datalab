@@ -26,7 +26,7 @@ import {HealthStatusService} from '../../../core/services';
 import {GeneralEnvironmentStatus} from '../../../administration/management/management.model';
 
 @Component({
-  selector: 'data-lab-toolbar',
+  selector: 'datalab-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss'],
   encapsulation: ViewEncapsulation.None

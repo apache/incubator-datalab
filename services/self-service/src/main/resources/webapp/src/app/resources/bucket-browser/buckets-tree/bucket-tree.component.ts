@@ -36,7 +36,7 @@ interface BucketFlatNode {
 }
 
 @Component({
-  selector: 'data-lab-bucket-tree',
+  selector: 'datalab-bucket-tree',
   templateUrl: './bucket-tree.component.html',
   styleUrls: ['./bucket-tree.component.scss']
 })

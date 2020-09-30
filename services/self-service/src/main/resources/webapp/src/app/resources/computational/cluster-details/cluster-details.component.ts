@@ -30,7 +30,7 @@ import {AuditService} from '../../../core/services/audit.service';
 import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 
 @Component({
-  selector: 'data-lab-cluster-details',
+  selector: 'datalab-cluster-details',
   templateUrl: 'cluster-details.component.html',
   styleUrls: ['./cluster-details.component.scss']
 })

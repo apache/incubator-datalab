@@ -31,7 +31,7 @@ import { StorageService } from '../core/services';
 import { FileUtils } from '../core/util';
 
 @Component({
-  selector: 'data-lab-webterminal',
+  selector: 'datalab-webterminal',
   templateUrl: './webterminal.component.html',
   styleUrls: ['./webterminal.component.scss'],
   encapsulation: ViewEncapsulation.None

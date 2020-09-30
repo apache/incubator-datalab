@@ -48,7 +48,7 @@ interface Quota {
   totalQuotaUsed: number;
 }
 @Component({
-  selector: 'data-lab-navbar',
+  selector: 'datalab-navbar',
   templateUrl: 'navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
   animations: [trigger('fadeAnimation', [
@@ -254,45 +254,45 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private selectAlert(type: string, total_quota?: number, exideedProjects?: string[], informProjects?: string[]): string {
     const alerts = {
       total_quota_and_project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          Data Lab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          DataLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
           Once quota is depleted all your analytical environment will be stopped.<br /><br />
           Quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
           Quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
           If quota is depleted all your analytical environment will be stopped.<br /><br />
-          To proceed working with environment you'll have to request increase of quota from Data Lab administrator. `,
+          To proceed working with environment you'll have to request increase of quota from DataLab administrator. `,
 
       total_quota_and_project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          Data Lab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          DataLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
           Once quota is depleted all your analytical environment will be stopped.<br /><br />
           Quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
-          To proceed working with environment you'll have to request increase of quota from Data Lab administrator. `,
+          To proceed working with environment you'll have to request increase of quota from DataLab administrator. `,
 
       project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          Data Lab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          DataLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
           Quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
           If quota is depleted all your analytical environment will be stopped.<br /><br />
-          To proceed working with environment, request increase of project quota from Data Lab administrator.`,
+          To proceed working with environment, request increase of project quota from DataLab administrator.`,
       project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          Data Lab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded.
+          DataLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded.
           All your analytical environment will be stopped.<br /><br />
           To proceed working with environment,
-          request increase of project(s) quota from Data Lab administrator.`,
+          request increase of project(s) quota from DataLab administrator.`,
       total_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          Data Lab cloud infrastructure usage quota has been exceeded.
+          DataLab cloud infrastructure usage quota has been exceeded.
           All your analytical environment will be stopped.<br /><br />
           To proceed working with environment,
-          request increase application quota from Data Lab administrator.`,
+          request increase application quota from DataLab administrator.`,
       project_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
           Cloud infrastructure usage quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
           Once quota is depleted all your analytical environment will be stopped.<br /><br />
-          To proceed working with environment you'll have to request increase of project(s) quota from Data Lab administrator.`,
+          To proceed working with environment you'll have to request increase of project(s) quota from DataLab administrator.`,
       total_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
-          Data Lab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          DataLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
           Once quota is depleted all your analytical environment will be stopped.<br /><br />
-          To proceed working with environment you'll have to request increase of total quota from Data Lab administrator. `,
+          To proceed working with environment you'll have to request increase of total quota from DataLab administrator. `,
       permissions: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
           Currently, you are not assigned to any project. To start working with the environment
-          request permission from Data Lab administrator.`
+          request permission from DataLab administrator.`
     };
 
     return alerts[type];

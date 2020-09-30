@@ -35,7 +35,7 @@ import {logger} from 'codelyzer/util/logger';
 import {take} from 'rxjs/operators';
 
 @Component({
-  selector: 'data-lab-reporting-grid',
+  selector: 'datalab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
     '../../../resources/resources-grid/resources-grid.component.scss'],

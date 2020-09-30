@@ -30,7 +30,7 @@ import { Project } from './../administration/project/project.component';
 import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
 
 @Component({
-  selector: 'data-lab-resources',
+  selector: 'datalab-resources',
   templateUrl: 'resources.component.html',
   styleUrls: ['./resources.component.scss']
 })

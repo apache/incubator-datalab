@@ -30,13 +30,13 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 
 @Component({
-  selector: 'data-lab-reporting',
+  selector: 'datalab-reporting',
   template: `
     <div class="base-retreat">
       <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption)="setRangeOption($event)">
       </audit-toolbar>
       <mat-divider></mat-divider>
-      <data-lab-audit-grid (resetDateFilter)="resetDatepicker()"></data-lab-audit-grid>
+      <datalab-audit-grid (resetDateFilter)="resetDatepicker()"></datalab-audit-grid>
     </div>
 
   `,

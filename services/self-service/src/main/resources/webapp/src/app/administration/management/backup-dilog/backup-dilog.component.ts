@@ -26,7 +26,7 @@ import { BackupOptionsModel } from '../management.model';
 import { BackupService } from '../../../core/services';
 
 @Component({
-  selector: 'data-lab-backup-dilog',
+  selector: 'datalab-backup-dilog',
   templateUrl: './backup-dilog.component.html',
   styleUrls: ['./backup-dilog.component.scss']
 })
