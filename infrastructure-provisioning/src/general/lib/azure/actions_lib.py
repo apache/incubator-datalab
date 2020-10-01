@@ -200,16 +200,18 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name, region, tags, list_rules):
+    def create_security_group(self, resource_group_name, network_security_group_name, region, tags, list_rules, preexisting_sg = False):
         try:
-            result = self.network_client.network_security_groups.create_or_update(
-                resource_group_name,
-                network_security_group_name,
-                {
-                    'location': region,
-                    'tags': tags,
-                }
-            ).wait()
+            result = ''
+            if not preexisting_sg:
+                result = self.network_client.network_security_groups.create_or_update(
+                    resource_group_name,
+                    network_security_group_name,
+                    {
+                        'location': region,
+                        'tags': tags,
+                    }
+                ).wait()
             for rule in list_rules:
                 self.network_client.security_rules.create_or_update(
                     resource_group_name,
@@ -217,7 +219,8 @@ class AzureActions:
                     security_rule_name=rule['name'],
                     security_rule_parameters=rule
                 ).wait()
-            return result
+            if result:
+                return result
         except Exception as err:
             logging.info(
                 "Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -226,7 +229,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def remove_security_rules(self, resource_group_name, network_security_group_name, security_rule_name):
+    def remove_security_rules(self, network_security_group_name, resource_group_name, security_rule_name):
         try:
             result = self.network_client.security_rules.delete(
                 network_security_group_name,
