@@ -56,7 +56,7 @@ auditEnabled: true
   <#if DEV_MODE == "true">
 billingConfFile: ${sys['user.dir']}/../billing/billing.yml
 <#else>
-billingConfFile: ${DATA_LAB_CONF_DIR}/billing.yml
+billingConfFile: ${DATALAB_CONF_DIR}/billing.yml
 </#if>
 
 ssnInstanceSize: <SSN_INSTANCE_SIZE>
