@@ -22,10 +22,11 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+import boto3
+import botocore
 import sys
-import boto3, botocore
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')

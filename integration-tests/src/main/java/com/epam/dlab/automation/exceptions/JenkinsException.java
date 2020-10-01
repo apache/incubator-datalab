@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.exceptions;
+package com.epam.datalab.automation.exceptions;
 
 public class JenkinsException extends RuntimeException {
 

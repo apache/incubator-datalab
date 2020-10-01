@@ -21,15 +21,12 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import logging
 import os
-import uuid
+import sys
+import traceback
 from fabric.api import *
 
 
@@ -49,8 +46,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         # generating variables dictionary
         print('Generating infrastructure names and tags')
         notebook_config = dict()
@@ -76,19 +73,19 @@ if __name__ == "__main__":
         notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-s'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['key_path'] = '{}/{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['datalab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['instance_count'] = int(os.environ['dataengine_instance_count'])
         try:
             notebook_config['spark_master_ip'] = GCPMeta.get_private_ip_address(notebook_config['master_node_name'])
             notebook_config['notebook_ip'] = GCPMeta.get_private_ip_address(notebook_config['notebook_name'])
         except Exception as err:
-            dlab.fab.append_result("Failed to get instance IP address", str(err))
+            datalab.fab.append_result("Failed to get instance IP address", str(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
+        datalab.fab.append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
 
     try:
@@ -97,7 +94,7 @@ if __name__ == "__main__":
         params = "--cluster_name {0} --spark_version {1} --hadoop_version {2} --os_user {3} --spark_master {4}" \
                  " --keyfile {5} --notebook_ip {6} --spark_master_ip {7}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
-                   os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
+                   os.environ['notebook_hadoop_version'], notebook_config['datalab_ssh_user'],
                    notebook_config['spark_master_url'], notebook_config['key_path'],
                    notebook_config['notebook_ip'], notebook_config['spark_master_ip'])
         try:
@@ -107,7 +104,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed installing Dataengine kernels.", str(err))
+        datalab.fab.append_result("Failed installing Dataengine kernels.", str(err))
         sys.exit(1)
 
     try:
@@ -119,7 +116,7 @@ if __name__ == "__main__":
                  "--cluster_name {3}" \
             .format(notebook_config['notebook_ip'],
                     notebook_config['key_path'],
-                    notebook_config['dlab_ssh_user'],
+                    notebook_config['datalab_ssh_user'],
                     notebook_config['cluster_name'])
         try:
             local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
@@ -128,7 +125,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to configure Spark.", str(err))
+        datalab.fab.append_result("Failed to configure Spark.", str(err))
         sys.exit(1)
 
     try:
@@ -138,6 +135,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         clear_resources()
         sys.exit(1)

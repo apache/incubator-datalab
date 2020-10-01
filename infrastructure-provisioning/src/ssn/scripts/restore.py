@@ -21,22 +21,29 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
 import argparse
 import filecmp
-import yaml
-import sys
 import os
+import sys
+import yaml
+from fabric.api import *
 
-parser = argparse.ArgumentParser(description="Restore script for DLab configs, keys, certs, jars & database")
-parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
-parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Also available: skip. Default: all')
-parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
-parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Also available: skip. Default: all')
-parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service", etc. Default: skip')
-parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
-parser.add_argument('--file', type=str, default='', required=True, help='Full or relative path to backup file or folder. Required field')
-parser.add_argument('--force', action='store_true', default=False, help='Force mode. Without any questions. Key without arguments. Default: disable')
+parser = argparse.ArgumentParser(description="Restore script for DataLab configs, keys, certs, jars & database")
+parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to DataLab. Default: /opt/datalab/')
+parser.add_argument('--configs', type=str, default='all',
+                    help='Comma separated names of config files, like "security.yml", etc. Also available: skip. Default: all')
+parser.add_argument('--keys', type=str, default='all',
+                    help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
+parser.add_argument('--certs', type=str, default='all',
+                    help='Comma separated names of SSL certificates and keys, like "datalab.crt", etc. Also available: skip. Default: all')
+parser.add_argument('--jars', type=str, default='skip',
+                    help='Comma separated names of jar application, like "self-service", etc. Default: skip')
+parser.add_argument('--db', action='store_true', default=False,
+                    help='Mongo DB. Key without arguments. Default: disable')
+parser.add_argument('--file', type=str, default='', required=True,
+                    help='Full or relative path to backup file or folder. Required field')
+parser.add_argument('--force', action='store_true', default=False,
+                    help='Force mode. Without any questions. Key without arguments. Default: disable')
 args = parser.parse_args()
 
 
@@ -118,9 +125,9 @@ def restore_configs():
                 if not os.path.isfile("{0}{1}{2}".format(temp_folder, conf_folder, filename)):
                     print("Config {} are not available in this backup.".format(filename))
                 else:
-                    if os.path.isfile("{0}{1}{2}".format(args.dlab_path, conf_folder, filename)):
+                    if os.path.isfile("{0}{1}{2}".format(args.datalab_path, conf_folder, filename)):
                         backupfile = "{0}{1}{2}".format(temp_folder, conf_folder, filename)
-                        destfile = "{0}{1}{2}".format(args.dlab_path, conf_folder, filename)
+                        destfile = "{0}{1}{2}".format(args.datalab_path, conf_folder, filename)
                         if not filecmp.cmp(backupfile, destfile):
                             if ask("Config {} was changed, rewrite it?".format(filename)):
                                 local("cp -f {0} {1}".format(backupfile, destfile))
@@ -130,7 +137,7 @@ def restore_configs():
                             print("Config {} was not changed. Skipped.".format(filename))
                     else:
                         print("Config {} does not exist. Creating.".format(filename))
-                        local("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.dlab_path))
+                        local("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.datalab_path))
     except:
         print("Restore configs failed.")
 
@@ -225,9 +232,10 @@ def restore_jars():
                 else:
                     for root, dirs, files in os.walk("{0}jars/{1}".format(temp_folder, service)):
                         for filename in files:
-                            if os.path.isfile("{0}{1}{2}/{3}".format(args.dlab_path, jars_folder, service, filename)):
+                            if os.path.isfile(
+                                    "{0}{1}{2}/{3}".format(args.datalab_path, jars_folder, service, filename)):
                                 backupfile = "{0}jars/{1}/{2}".format(temp_folder, service, filename)
-                                destfile = "{0}{1}{2}/{3}".format(args.dlab_path, jars_folder, service, filename)
+                                destfile = "{0}{1}{2}/{3}".format(args.datalab_path, jars_folder, service, filename)
                                 if not filecmp.cmp(backupfile, destfile):
                                     if ask("Jar {} was changed, rewrite it?".format(filename)):
                                         local("cp -fP {0} {1}".format(backupfile, destfile))
@@ -237,7 +245,8 @@ def restore_jars():
                                     print("Jar {} was not changed. Skipped.".format(filename))
                             else:
                                 print("Jar {} does not exist. Creating.".format(filename))
-                                local("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
+                                local("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename,
+                                                                               args.datalab_path, jars_folder))
     except:
         print("Restore jars failed.")
 
@@ -251,7 +260,7 @@ def restore_database():
                 raise Exception
             else:
                 if ask("Do you want to drop existing database and restore another from backup?"):
-                    ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
+                    ssn_conf = open(args.datalab_path + conf_folder + 'ssn.yml').read()
                     data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
                     print("Restoring database from backup")
                     local("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \

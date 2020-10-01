@@ -17,12 +17,12 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.jenkins;
+package com.epam.datalab.automation.jenkins;
 
-import com.epam.dlab.automation.exceptions.JenkinsException;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.http.HttpStatusCode;
+import com.epam.datalab.automation.exceptions.JenkinsException;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.helper.NamingHelper;
+import com.epam.datalab.automation.http.HttpStatusCode;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.authentication.FormAuthConfig;
 import com.jayway.restassured.http.ContentType;

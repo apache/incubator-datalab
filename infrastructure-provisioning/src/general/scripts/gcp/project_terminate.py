@@ -21,16 +21,15 @@
 #
 # ******************************************************************************
 
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
 import json
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import sys
-import time
-import os
 import logging
-import traceback
+import os
 import requests
+import sys
+import traceback
 
 
 def terminate_edge_node(endpoint_name, project_name, service_base_name, region, zone):
@@ -48,7 +47,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate dataengine-service", str(err))
+        datalab.fab.append_result("Failed to terminate dataengine-service", str(err))
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
@@ -62,7 +61,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
                 if 'project_tag' in i['labels'] and project_name == i['labels']['project_tag']:
                     GCPActions.remove_instance(i['name'], zone)
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate instances", str(err))
+        datalab.fab.append_result("Failed to terminate instances", str(err))
         sys.exit(1)
 
     print("Removing static addresses")
@@ -73,7 +72,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
                 if bool(set(targets) & set([i['name']])):
                     GCPActions.remove_static_address(i['name'], region)
     except Exception as err:
-        dlab.fab.append_result("Failed to remove static addresses", str(err))
+        datalab.fab.append_result("Failed to remove static addresses", str(err))
         sys.exit(1)
 
     print("Removing storage bucket")
@@ -84,7 +83,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
                 if bool(set(targets) & set([i['name']])):
                     GCPActions.remove_bucket(i['name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to remove storage buckets", str(err))
+        datalab.fab.append_result("Failed to remove storage buckets", str(err))
         sys.exit(1)
 
     print("Removing project specific images")
@@ -106,7 +105,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
                 if bool(set(targets) & set(i['targetTags'])):
                     GCPActions.remove_firewall(i['name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to remove security groups", str(err))
+        datalab.fab.append_result("Failed to remove security groups", str(err))
         sys.exit(1)
 
     print("Removing Service accounts and roles")
@@ -123,7 +122,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
         for role in (set(role_targets) & set(list_roles_names)):
             GCPActions.remove_role(role)
     except Exception as err:
-        dlab.fab.append_result("Failed to remove service accounts and roles", str(err))
+        datalab.fab.append_result("Failed to remove service accounts and roles", str(err))
         sys.exit(1)
 
     print("Removing subnets")
@@ -137,7 +136,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
                 if bool(set(targets) & set([i['name']])):
                     GCPActions.remove_subnet(i['name'], region)
     except Exception as err:
-        dlab.fab.append_result("Failed to remove subnets", str(err))
+        datalab.fab.append_result("Failed to remove subnets", str(err))
         sys.exit(1)
 
 
@@ -150,8 +149,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     project_conf = dict()
     project_conf['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -170,7 +169,7 @@ if __name__ == "__main__":
                                 project_conf['region'], project_conf['zone'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to terminate edge.", str(err))
+            datalab.fab.append_result("Failed to terminate edge.", str(err))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -221,5 +220,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

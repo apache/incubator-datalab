@@ -33,7 +33,7 @@ import { HTTP_STATUS_CODES, CheckUtils } from '../../core/util';
 import { ScheduleSchema } from './scheduler.model';
 
 @Component({
-  selector: 'dlab-scheduler',
+  selector: 'datalab-scheduler',
   templateUrl: './scheduler.component.html',
   styleUrls: ['./scheduler.component.scss'],
   encapsulation: ViewEncapsulation.None
@@ -330,7 +330,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   private checkIsActiveSpark() {
-    return this.notebook.resources.length > 0 && this.notebook.resources.some(el => el.image === 'docker.dlab-dataengine'
+    return this.notebook.resources.length > 0 && this.notebook.resources.some(el => el.image === 'docker.datalab-dataengine'
       && (el.status !== 'terminated' && el.status !== 'terminating' && el.status !== 'failed'));
   }
 

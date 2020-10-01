@@ -21,16 +21,16 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import dlab.ssn_lib
-import sys
-import os
-from fabric.api import *
-import logging
-import traceback
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
+import datalab.ssn_lib
 import json
+import logging
+import os
+import sys
+import traceback
+from fabric.api import *
 
 
 def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region):
@@ -41,7 +41,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.remove_instance(resource_group_name, vm.name)
                 print("Instance {} has been terminated".format(vm.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate instances", str(err))
+        datalab.fab.append_result("Failed to terminate instances", str(err))
         sys.exit(1)
 
     print("Removing network interfaces")
@@ -51,7 +51,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.delete_network_if(resource_group_name, network_interface.name)
                 print("Network interface {} has been removed".format(network_interface.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove network interfaces", str(err))
+        datalab.fab.append_result("Failed to remove network interfaces", str(err))
         sys.exit(1)
 
     print("Removing static public IPs")
@@ -61,7 +61,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.delete_static_public_ip(resource_group_name, static_public_ip.name)
                 print("Static public IP {} has been removed".format(static_public_ip.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove static IPs", str(err))
+        datalab.fab.append_result("Failed to remove static IPs", str(err))
         sys.exit(1)
 
     print("Removing disks")
@@ -71,7 +71,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.remove_disk(resource_group_name, disk.name)
                 print("Disk {} has been removed".format(disk.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove disks", str(err))
+        datalab.fab.append_result("Failed to remove disks", str(err))
         sys.exit(1)
 
     print("Removing storage accounts")
@@ -81,7 +81,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.remove_storage_account(resource_group_name, storage_account.name)
                 print("Storage account {} has been terminated".format(storage_account.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove storage accounts", str(err))
+        datalab.fab.append_result("Failed to remove storage accounts", str(err))
         sys.exit(1)
 
     print("Removing Data Lake Store")
@@ -91,7 +91,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.delete_datalake_store(resource_group_name, datalake.name)
                 print("Data Lake Store {} has been terminated".format(datalake.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove Data Lake", str(err))
+        datalab.fab.append_result("Failed to remove Data Lake", str(err))
         sys.exit(1)
 
     print("Removing images")
@@ -101,7 +101,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.remove_image(resource_group_name, image.name)
                 print("Image {} has been removed".format(image.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove images", str(err))
+        datalab.fab.append_result("Failed to remove images", str(err))
         sys.exit(1)
 
     print("Removing security groups")
@@ -111,7 +111,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                 AzureActions.remove_security_group(resource_group_name, sg.name)
                 print("Security group {} has been terminated".format(sg.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove security groups", str(err))
+        datalab.fab.append_result("Failed to remove security groups", str(err))
         sys.exit(1)
 
     print("Removing VPC")
@@ -120,7 +120,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             AzureActions.remove_vpc(resource_group_name, vpc_name)
             print("VPC {} has been terminated".format(vpc_name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove VPC", str(err))
+        datalab.fab.append_result("Failed to remove VPC", str(err))
         sys.exit(1)
 
     print("Removing Resource Group")
@@ -129,7 +129,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             AzureActions.remove_resource_group(resource_group_name, region)
             print("Resource group {} has been terminated".format(resource_group_name))
     except Exception as err:
-        dlab.fab.append_result("Failed to remove resource group", str(err))
+        datalab.fab.append_result("Failed to remove resource group", str(err))
         sys.exit(1)
 
 
@@ -140,14 +140,14 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    AzureMeta = dlab.meta_lib.AzureMeta()
-    AzureActions = dlab.actions_lib.AzureActions()
+    AzureMeta = datalab.meta_lib.AzureMeta()
+    AzureActions = datalab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = dlab.fab.replace_multi_symbols(os.environ['conf_service_base_name'][:20],
-                                                                   '-', True)
+    ssn_conf['service_base_name'] = datalab.fab.replace_multi_symbols(os.environ['conf_service_base_name'][:20],
+                                                                      '-', True)
     ssn_conf['resource_group_name'] = os.environ.get(
-            'azure_resource_group_name', '{}-resource-group'.format(ssn_conf['service_base_name']))
+        'azure_resource_group_name', '{}-resource-group'.format(ssn_conf['service_base_name']))
     ssn_conf['region'] = os.environ['azure_region']
     ssn_conf['vpc_name'] = os.environ['azure_vpc_name']
 
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate ssn.", str(err))
+        datalab.fab.append_result("Failed to terminate ssn.", str(err))
         sys.exit(1)
 
     try:
@@ -171,5 +171,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

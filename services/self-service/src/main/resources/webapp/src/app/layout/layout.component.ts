@@ -20,7 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'dlab-layout',
+  selector: 'datalab-layout',
   templateUrl: './layout.component.html',
   styles: [`main { height: 100%;}`]
 })

@@ -19,27 +19,27 @@
 #
 # ******************************************************************************
 
-from pprint import pprint
-from googleapiclient.discovery import build
+import ast
+import backoff
+import datalab.common_lib
+import datalab.fab
+import google.auth
+import json
+import logging
+import meta_lib
+import os
+import random
+import sys
+import time
+import traceback
+import urllib2
+from Crypto.PublicKey import RSA
+from datalab.fab import *
+from fabric.api import *
 from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors
-import google.auth
-from dlab.fab import *
-import meta_lib
-import os
-import json
-import logging
-import traceback
-import sys, time
-from Crypto.PublicKey import RSA
-from fabric.api import *
-import urllib2
-import dlab.fab
-import dlab.common_lib
-import backoff
-import ast
-import random
+from googleapiclient.discovery import build
 
 
 class GCPActions:
@@ -1185,7 +1185,7 @@ class GCPActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                dlab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
+                datalab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
             sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
@@ -1409,7 +1409,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
         sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
-            spark_memory = dlab.fab.get_spark_memory()
+            spark_memory = datalab.fab.get_spark_memory()
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
             sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
@@ -1418,7 +1418,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         java_home = run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
         sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
-            dlab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
+            datalab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
             spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
@@ -1434,7 +1434,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(dlab_header))
+            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
@@ -1497,7 +1497,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
+            datalab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
@@ -1530,8 +1530,8 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                                                                                         cluster_dir))
     local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
-        dlab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
-                            capture=True)
+        datalab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
+                               capture=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
         spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
@@ -1547,7 +1547,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                 new_spark_defaults.append(property + ' ' + config['Properties'][property])
                 new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_dir))
+        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(datalab_header, cluster_dir))
         for prop in new_spark_defaults:
             prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))

@@ -22,16 +22,12 @@
 # ******************************************************************************
 
 
-import boto3
-from botocore.client import Config
 import argparse
-import re
-import time
-import sys
-from fabric.api import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
 import json
+import sys
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--dry_run', action='store_true', help='Print all variables')

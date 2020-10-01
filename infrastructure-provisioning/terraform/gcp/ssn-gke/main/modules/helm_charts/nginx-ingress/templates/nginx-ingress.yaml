@@ -54,8 +54,8 @@ spec:
         image: gcr.io/google_containers/nginx-ingress-controller:0.9.0-beta.3
         args:
         - /nginx-ingress-controller
-        - --default-backend-service=dlab/nginx-default-backend
-        - --publish-service=dlab/nginx-ingress
+        - --default-backend-service=datalab/nginx-default-backend
+        - --publish-service=datalab/nginx-ingress
         env:
           - name: POD_NAME
             valueFrom:

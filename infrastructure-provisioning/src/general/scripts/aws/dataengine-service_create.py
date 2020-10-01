@@ -21,19 +21,18 @@
 #
 # ******************************************************************************
 
-import boto3
-from botocore.client import Config
 import argparse
-import re
-import time
-import sys
-from fabric.api import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-import json
-import traceback
-import logging
 import ast
+import boto3
+import logging
+import re
+import sys
+import time
+import traceback
+from botocore.client import Config
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')
@@ -41,8 +40,10 @@ parser.add_argument('--dry_run', action='store_true', help='Print all variables'
 parser.add_argument('--name', type=str, default='', help='Name to be applied to Cluster ( MANDATORY !!! )')
 parser.add_argument('--applications', type=str, default='',
                     help='Set of applications to be installed on EMR (Default are: "Hadoop Hive Hue Spark Livy")')
-parser.add_argument('--master_instance_type', type=str, default='', help='EC2 instance size for Master-Node (Default: m3.xlarge)')
-parser.add_argument('--slave_instance_type', type=str, default='', help='EC2 instance size for Worker-Nodes (Default: m3.xlarge)')
+parser.add_argument('--master_instance_type', type=str, default='',
+                    help='EC2 instance size for Master-Node (Default: m3.xlarge)')
+parser.add_argument('--slave_instance_type', type=str, default='',
+                    help='EC2 instance size for Worker-Nodes (Default: m3.xlarge)')
 parser.add_argument('--instance_count', type=int, default='',
                     help='Number of nodes the cluster will consist of (Default: 3)')
 parser.add_argument('--release_label', type=str, default='', help='EMR release version (Default: "emr-4.8.0")')

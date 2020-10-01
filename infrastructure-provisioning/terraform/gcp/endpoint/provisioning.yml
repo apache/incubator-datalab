@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-<#assign LOG_ROOT_DIR="/var/opt/dlab/log">
+<#assign LOG_ROOT_DIR="/var/opt/datalab/log">
 <#assign KEYS_DIR="/home/${sys['user.name']}/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/endpoint.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
@@ -40,7 +40,7 @@ mongo:
   port: MONGO_PORT
   username: admin
   password: MONGO_PASSWORD
-  database: dlabdb
+  database: datalabdb
 
 selfService:
   protocol: https
@@ -70,21 +70,21 @@ provisioningService:
 # Log out user on inactivity
 inactiveUserTimeoutMillSec: 7200000
 
-backupScriptPath: /opt/dlab/tmp/backup.py
-backupDirectory: /opt/dlab/tmp/result
+backupScriptPath: /opt/datalab/tmp/backup.py
+backupDirectory: /opt/datalab/tmp/result
 keyDirectory: ${KEYS_DIR}
-responseDirectory: /opt/dlab/tmp
-handlerDirectory: /opt/dlab/handlers
+responseDirectory: /opt/datalab/tmp
+handlerDirectory: /opt/datalab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 2m
 resourceStatusPollTimeout: 400m
 keyLoaderPollTimeout: 30m
 requestEnvStatusTimeout: 50s
 adminKey: KEYNAME
-edgeImage: docker.dlab-edge
+edgeImage: docker.datalab-edge
 fileLengthCheckDelay: 500ms
 
-<#if CLOUD_TYPE == "aws">
+  <#if CLOUD_TYPE == "aws">
 emrEC2RoleDefault: EMR_EC2_DefaultRole
 emrServiceRoleDefault: EMR_DefaultRole
 </#if>
@@ -107,7 +107,7 @@ server:
 #    - type: http
     - type: https
       port: 8084
-      certAlias: dlab
+      certAlias: datalab
       validateCerts: true
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
@@ -117,7 +117,7 @@ server:
 #    - type: http
     - type: https
       port: 8085
-      certAlias: dlab
+      certAlias: datalab
       validateCerts: true
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
@@ -140,13 +140,13 @@ logging:
       archivedFileCount: 10
 
 keycloakConfiguration:
-  realm: dlab
+  realm: datalab
   bearer-only: true
   auth-server-url: http://KEYCLOACK_HOST/auth
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600
-  resource: dlab-ui
+  resource: datalab-ui
   credentials:
     secret: CLIENT_SECRET
 

@@ -22,11 +22,11 @@
 # ******************************************************************************
 
 import argparse
+import os
+from datalab.fab import *
+from datalab.meta_lib import *
 from fabric.api import *
 from fabric.contrib.files import exists
-from dlab.meta_lib import *
-import os
-from dlab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
@@ -45,19 +45,22 @@ def configure_notebook(keyfile, hoststring):
     scripts_dir = '/root/scripts/'
     templates_dir = '/root/templates/'
     run('mkdir -p /tmp/{}/'.format(args.cluster_name))
-    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
+    put(templates_dir + 'notebook_spark-defaults_local.conf',
+        '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
-    run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
+    run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory,
+                                                                                                  args.cluster_name))
     if not exists('/usr/local/bin/tensor-rstudio_dataengine_create_configs.py'):
-        put(scripts_dir + 'tensor-rstudio_dataengine_create_configs.py', '/usr/local/bin/tensor-rstudio_dataengine_create_configs.py', use_sudo=True)
+        put(scripts_dir + 'tensor-rstudio_dataengine_create_configs.py',
+            '/usr/local/bin/tensor-rstudio_dataengine_create_configs.py', use_sudo=True)
         sudo('chmod 755 /usr/local/bin/tensor-rstudio_dataengine_create_configs.py')
-    if not exists('/usr/lib/python2.7/dlab/'):
-        sudo('mkdir -p /usr/lib/python2.7/dlab/')
-        put('/usr/lib/python2.7/dlab/*', '/usr/lib/python2.7/dlab/', use_sudo=True)
-        sudo('chmod a+x /usr/lib/python2.7/dlab/*')
+    if not exists('/usr/lib/python2.7/datalab/'):
+        sudo('mkdir -p /usr/lib/python2.7/datalab/')
+        put('/usr/lib/python2.7/datalab/*', '/usr/lib/python2.7/datalab/', use_sudo=True)
+        sudo('chmod a+x /usr/lib/python2.7/datalab/*')
         if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+            sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
 
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')

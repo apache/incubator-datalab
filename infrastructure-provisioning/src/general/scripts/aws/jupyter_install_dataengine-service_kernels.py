@@ -22,10 +22,10 @@
 # ******************************************************************************
 
 import argparse
-from fabric.api import *
 import boto3
-from dlab.meta_lib import *
 import os
+from datalab.meta_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -51,23 +51,24 @@ def configure_notebook(args):
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
     put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
-    #put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
-    #put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
-    #put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
+    # put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
+    # put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
+    # put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
     put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
         '/tmp/jupyter_dataengine-service_create_configs.py')
-    #put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
-    #put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
-    #put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
-    sudo('\cp /tmp/jupyter_dataengine-service_create_configs.py /usr/local/bin/jupyter_dataengine-service_create_configs.py')
+    # put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
+    # put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
+    # put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
+    sudo(
+        '\cp /tmp/jupyter_dataengine-service_create_configs.py /usr/local/bin/jupyter_dataengine-service_create_configs.py')
     sudo('chmod 755 /usr/local/bin/jupyter_dataengine-service_create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/dlab/')
-    run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/dlab_libs/*')
-    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+    sudo('mkdir -p /usr/lib/python2.7/datalab/')
+    run('mkdir -p /tmp/datalab_libs/')
+    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    run('chmod a+x /tmp/datalab_libs/*')
+    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
 
 
 if __name__ == "__main__":

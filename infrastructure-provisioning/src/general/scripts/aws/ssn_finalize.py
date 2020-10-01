@@ -21,11 +21,10 @@
 #
 # ******************************************************************************
 
-import boto3
 import argparse
+import boto3
 import sys
-from dlab.ssn_lib import *
-
+from datalab.ssn_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--key_id', type=str, default='')

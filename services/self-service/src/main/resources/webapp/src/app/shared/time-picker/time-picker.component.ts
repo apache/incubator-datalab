@@ -25,7 +25,7 @@ import {SchedulerCalculations} from '../../resources/scheduler/scheduler.calcula
 type TimeFormatAlias = TimeFormat;
 
 @Component({
-  selector: 'dlab-time-picker',
+  selector: 'datalab-time-picker',
   template: `
     <div class="time-picker">
       <mat-form-field class="time-select">

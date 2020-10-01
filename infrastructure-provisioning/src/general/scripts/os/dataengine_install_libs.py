@@ -21,22 +21,22 @@
 #
 # ******************************************************************************
 
+import logging
+import multiprocessing
 import os
 import sys
-import logging
 import traceback
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
 from fabric.api import *
-import multiprocessing
 
 
 def install_libs_on_slaves(slave, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave + 1)
     data_engine['slave_ip'] = get_instance_private_ip_address(
         data_engine['tag_name'], slave_name)
-    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"'\
+    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"' \
         .format(data_engine['os_user'], data_engine['slave_ip'],
                 data_engine['keyfile'], data_engine['libs'])
     try:

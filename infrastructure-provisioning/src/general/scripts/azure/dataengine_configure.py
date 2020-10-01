@@ -21,30 +21,28 @@
 #
 # ******************************************************************************
 
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
 import json
-import time
-from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
-import sys
-import os
-import uuid
 import logging
-from Crypto.PublicKey import RSA
 import multiprocessing
+import os
+import sys
+import traceback
+from Crypto.PublicKey import RSA
+from fabric.api import *
 
 
 def configure_slave(slave_number, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave_number + 1)
     slave_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'], slave_name)
     try:
-        logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
-        print('[CREATING DLAB SSH USER ON SLAVE NODE]')
+        logging.info('[CREATING DATALAB SSH USER ON SLAVE NODE]')
+        print('[CREATING DATALAB SSH USER ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", initial_user,
-             data_engine['dlab_ssh_user'], sudo_group)
+             data_engine['datalab_ssh_user'], sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -53,7 +51,7 @@ def configure_slave(slave_number, data_engine):
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to create ssh user on slave.", str(err))
+        datalab.fab.append_result("Failed to create ssh user on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -62,7 +60,8 @@ def configure_slave(slave_number, data_engine):
         additional_config = {"user_keyname": data_engine['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem",
+            json.dumps(additional_config), data_engine['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -70,14 +69,14 @@ def configure_slave(slave_number, data_engine):
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to install user ssh key on slave.", str(err))
+        datalab.fab.append_result("Failed to install user ssh key on slave.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
         print('[CLEANING INSTANCE FOR MASTER NODE]')
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
-            .format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], os.environ['application'])
+            .format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
             local("~/scripts/{}.py {}".format('common_clean_instance', params))
         except:
@@ -85,7 +84,7 @@ def configure_slave(slave_number, data_engine):
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to clean slave instance..", str(err))
+        datalab.fab.append_result("Failed to clean slave instance..", str(err))
         sys.exit(1)
 
     try:
@@ -94,7 +93,7 @@ def configure_slave(slave_number, data_engine):
         additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
-                    data_engine['dlab_ssh_user'])
+                    data_engine['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
@@ -102,14 +101,14 @@ def configure_slave(slave_number, data_engine):
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to configure proxy on slave.", str(err))
+        datalab.fab.append_result("Failed to configure proxy on slave.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[INSTALLING PREREQUISITES ON SLAVE NODE]')
         print('[INSTALLING PREREQUISITES ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
-            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+            format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], data_engine['region'],
                    edge_instance_private_hostname)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -118,7 +117,7 @@ def configure_slave(slave_number, data_engine):
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to install prerequisites on slave.", str(err))
+        datalab.fab.append_result("Failed to install prerequisites on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -127,7 +126,7 @@ def configure_slave(slave_number, data_engine):
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
                  "--scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
             format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
-                   os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
+                   os.environ['notebook_hadoop_version'], data_engine['datalab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
                    'slave')
         try:
@@ -137,7 +136,7 @@ def configure_slave(slave_number, data_engine):
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to configure slave node.", str(err))
+        datalab.fab.append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
 
@@ -157,8 +156,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
         if 'exploratory_name' in os.environ:
@@ -199,7 +198,7 @@ if __name__ == "__main__":
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
-        data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
+        data_engine['datalab_ssh_user'] = os.environ['conf_os_user']
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
         master_node_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
                                                                 data_engine['master_node_name'])
@@ -226,15 +225,15 @@ if __name__ == "__main__":
             sudo_group = 'wheel'
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     try:
-        logging.info('[CREATING DLAB SSH USER ON MASTER NODE]')
-        print('[CREATING DLAB SSH USER ON MASTER NODE]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
+        logging.info('[CREATING DATA ATA LAB SSH USER ON MASTER NODE]')
+        print('[CREATING DATALAB SSH USER ON MASTER NODE]')
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", initial_user,
-             data_engine['dlab_ssh_user'], sudo_group)
+             data_engine['datalab_ssh_user'], sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -243,7 +242,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to create ssh user on master.", str(err))
+        datalab.fab.append_result("Failed to create ssh user on master.", str(err))
         sys.exit(1)
 
     try:
@@ -253,7 +252,7 @@ if __name__ == "__main__":
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(
-                additional_config), data_engine['dlab_ssh_user'])
+                additional_config), data_engine['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -261,7 +260,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to install ssh user key on master.", str(err))
+        datalab.fab.append_result("Failed to install ssh user key on master.", str(err))
         sys.exit(1)
 
 
@@ -269,7 +268,7 @@ if __name__ == "__main__":
         logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
         print('[CLEANING INSTANCE FOR MASTER NODE]')
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
-            .format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], os.environ['application'])
+            .format(master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
             local("~/scripts/{}.py {}".format('common_clean_instance', params))
         except:
@@ -277,7 +276,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to clean master instance.", str(err))
+        datalab.fab.append_result("Failed to clean master instance.", str(err))
         sys.exit(1)
 
     try:
@@ -286,7 +285,7 @@ if __name__ == "__main__":
         additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
-                    data_engine['dlab_ssh_user'])
+                    data_engine['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
@@ -294,14 +293,14 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to configure proxy on master.", str(err))
+        datalab.fab.append_result("Failed to configure proxy on master.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[INSTALLING PREREQUISITES ON MASTER NODE]')
         print('[INSTALLING PREREQUISITES ON MASTER NODE]')
-        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
-            format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
+            format(master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'], data_engine['region'],
                    edge_instance_private_hostname)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -310,7 +309,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed to install prerequisites on master.", str(err))
+        datalab.fab.append_result("Failed to install prerequisites on master.", str(err))
         sys.exit(1)
 
     try:
@@ -319,7 +318,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
                  "--scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
             format(master_node_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
-                   os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
+                   os.environ['notebook_hadoop_version'], data_engine['datalab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
                    'master')
         try:
@@ -328,7 +327,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure master node", str(err))
+        datalab.fab.append_result("Failed to configure master node", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -344,7 +343,7 @@ if __name__ == "__main__":
             if job.exitcode != 0:
                 raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure slave nodes", str(err))
+        datalab.fab.append_result("Failed to configure slave nodes", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -370,17 +369,17 @@ if __name__ == "__main__":
                  "--additional_info '{}'"\
             .format(edge_instance_private_hostname,
                     keyfile_name,
-                    data_engine['dlab_ssh_user'],
+                    data_engine['datalab_ssh_user'],
                     'spark',
                     data_engine['exploratory_name'],
                     json.dumps(additional_info))
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            dlab.fab.append_result("Failed edge reverse proxy template")
+            datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure reverse proxy", str(err))
+        datalab.fab.append_result("Failed to configure reverse proxy", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -413,6 +412,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         clear_resources()
         sys.exit(1)

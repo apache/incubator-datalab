@@ -22,11 +22,10 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from fabric.api import *
 import os
-
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')

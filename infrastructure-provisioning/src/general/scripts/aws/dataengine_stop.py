@@ -21,18 +21,18 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.actions_lib
+import datalab.fab
 import json
+import logging
 import os
-import dlab.fab
-import dlab.actions_lib
 import sys
 
 
 def stop_data_engine(cluster_name):
     print("Stop Data Engine")
     try:
-        dlab.actions_lib.stop_ec2(os.environ['conf_tag_resource_id'], cluster_name)
+        datalab.actions_lib.stop_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     data_engine_config = dict()
     try:
@@ -74,7 +74,7 @@ if __name__ == "__main__":
                                         data_engine_config['cluster_name']))
     except Exception as err:
         print('Error: {0}'.format(err))
-        dlab.fab.append_result("Failed to stop Data Engine.", str(err))
+        datalab.fab.append_result("Failed to stop Data Engine.", str(err))
         sys.exit(1)
 
     try:
@@ -84,5 +84,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

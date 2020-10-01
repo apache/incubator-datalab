@@ -56,7 +56,7 @@
             ]
           }
         ],
-        "image": "docker.dlab-dataengine-service",
+        "image": "docker.datalab-dataengine-service",
         "image_type": "COMPUTATIONAL",
         "template_name": "EMR cluster",
         "environment_type": "computational",
@@ -142,7 +142,7 @@
       {
         "description": "Spark standalone cluster",
         "templates": [],
-        "image": "docker.dlab-dataengine",
+        "image": "docker.datalab-dataengine",
         "image_type": "COMPUTATIONAL",
         "template_name": "Spark cluster",
         "environment_type": "computational",

@@ -21,15 +21,12 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import logging
 import os
-import argparse
+import sys
+import traceback
 from fabric.api import *
 
 if __name__ == "__main__":
@@ -41,8 +38,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -61,9 +58,10 @@ if __name__ == "__main__":
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = GCPMeta.get_private_ip_address(data_engine['service_base_name'] + '-ssn')
-            dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                         ssn_hostname)
-            dlab.fab.append_result("Edge node is unavailable")
+            datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
+                                            os.environ['conf_os_user'],
+                                            ssn_hostname)
+            datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
 
         try:
@@ -159,12 +157,12 @@ if __name__ == "__main__":
                                        "sbn": data_engine['service_base_name'],
                                        "type": "slave",
                                        "notebook_name": data_engine['notebook_name'],
-                                       "product": "dlab"}
+                                       "product": "datalab"}
         data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                         "sbn": data_engine['service_base_name'],
                                         "type": "master",
                                         "notebook_name": data_engine['notebook_name'],
-                                        "product": "dlab"}
+                                        "product": "datalab"}
 
         for tag in additional_tags.split(','):
             label_key = tag.split(':')[0]
@@ -175,7 +173,7 @@ if __name__ == "__main__":
                 data_engine['slave_labels'].update({label_key: label_value})
                 data_engine['master_labels'].update({label_key: label_value})
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
     try:
@@ -199,7 +197,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create instance.", str(err))
+        datalab.fab.append_result("Failed to create instance.", str(err))
         GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
         sys.exit(1)
 
@@ -234,5 +232,5 @@ if __name__ == "__main__":
             except:
                 print("The slave instance {} hasn't been created.".format(slave_name))
         GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        dlab.fab.append_result("Failed to create slave instances.", str(err))
+        datalab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

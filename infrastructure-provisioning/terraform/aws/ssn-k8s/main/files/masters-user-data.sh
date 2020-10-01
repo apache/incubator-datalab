@@ -34,7 +34,7 @@ RUN=$(aws elbv2 describe-target-health --target-group-arn ${k8s-tg-arn} --region
 sleep 5
 }
 
-# Creating DLab user
+# Creating DataLab user
 sudo useradd -m -G sudo -s /bin/bash ${k8s_os_user}
 sudo bash -c 'echo "${k8s_os_user} ALL = NOPASSWD:ALL" >> /etc/sudoers'
 sudo mkdir /home/${k8s_os_user}/.ssh
@@ -143,9 +143,9 @@ sudo rm -f /tmp/cert_key
 cat <<EOF > /tmp/get_configmap_values.sh
 #!/bin/bash
 
-ROOT_CA=\$(kubectl get -o jsonpath="{.data['root_ca\.crt']}" configmaps/step-certificates-certs -ndlab | base64 | tr -d '\n')
-KID=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndlab | jq -r .authority.provisioners[].key.kid)
-KID_NAME=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndlab | jq -r .authority.provisioners[].name)
+ROOT_CA=\$(kubectl get -o jsonpath="{.data['root_ca\.crt']}" configmaps/step-certificates-certs -ndatalab | base64 | tr -d '\n')
+KID=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndatalab | jq -r .authority.provisioners[].key.kid)
+KID_NAME=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndatalab | jq -r .authority.provisioners[].name)
 jq -n --arg rootCa "\$ROOT_CA" --arg kid "\$KID" --arg kidName "\$KID_NAME" '{rootCa: \$rootCa, kid: \$kid, kidName: \$kidName}'
 EOF
 chown ${k8s_os_user}:${k8s_os_user} /tmp/get_configmap_values.sh

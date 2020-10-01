@@ -21,10 +21,9 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
-import sys
 import argparse
-
+import sys
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -50,7 +49,7 @@ if __name__ == "__main__":
         sudo('mkdir /home/{}/.docker'.format(args.os_user))
         sudo('touch /home/{}/.docker/config.json'.format(args.os_user))
         sudo(
-            'echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
+            'echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/datalab-user/.docker/config.json')
         sudo('usermod -a -G docker ' + args.os_user)
         sudo('update-rc.d docker defaults')
         sudo('update-rc.d docker enable')

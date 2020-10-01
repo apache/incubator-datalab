@@ -22,11 +22,10 @@
 # ******************************************************************************
 
 import argparse
-import json
-from dlab.fab import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
 import sys
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')

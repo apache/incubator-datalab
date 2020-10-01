@@ -110,11 +110,11 @@
   "defaultProject": "webapp",
   "schematics": {
     "@schematics/angular:component": {
-      "prefix": "dlab",
+      "prefix": "datalab",
       "styleext": "scss"
     },
     "@schematics/angular:directive": {
-      "prefix": "dlab"
+      "prefix": "datalab"
     }
   }
 }

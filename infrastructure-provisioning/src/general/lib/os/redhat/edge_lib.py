@@ -23,9 +23,9 @@
 
 import os
 import sys
+from datalab.common_lib import manage_pkg
 from fabric.api import *
 from fabric.contrib.files import exists
-from dlab.common_lib import manage_pkg
 
 
 def configure_http_proxy_server(config):
@@ -83,9 +83,9 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 cn = edge_ip
                 sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
-                      os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'], user, cn, sans))
+                    os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'], user, cn, sans))
                 token = sudo('cat /tmp/step_token')
-                sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+                sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
                 sudo('touch /var/log/renew_certificates.log')
@@ -93,8 +93,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
                 sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
                      '/usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/datalab.crt|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/datalab.key|g" /usr/local/bin/manage_step_certs.sh')
                 sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
                     os.environ['conf_stepcerts_ca_url']))
                 sudo('sed -i "s|RESOURCE_TYPE|edge|g" /usr/local/bin/manage_step_certs.sh')
@@ -112,9 +112,10 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('systemctl enable step-cert-manager.service')
             else:
                 if os.environ['conf_letsencrypt_enabled'] == 'true':
-                    print('Lets Encrypt certificates are not supported for redhat in dlab. Using self signed certificates')
-                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
-                     -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+                    print(
+                        'Lets Encrypt certificates are not supported for redhat in DataLab. Using self signed certificates')
+                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/datalab.key \
+                     -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}"'.format(hostname))
             sudo('mkdir -p /tmp/lua')
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
@@ -166,19 +167,23 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
 
             sudo('useradd -r nginx')
             sudo('rm -f /etc/nginx/nginx.conf')
-            sudo('mkdir -p /opt/dlab/templates')
-            put('/root/templates', '/opt/dlab', use_sudo=True)
-            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
-            sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_auth_server_url))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_realm_name))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_id))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_secret))
+            sudo('mkdir -p /opt/datalab/templates')
+            put('/root/templates', '/opt/datalab', use_sudo=True)
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(edge_ip))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
+                keycloak_auth_server_url))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
+                keycloak_realm_name))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
+                keycloak_client_id))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
+                keycloak_client_secret))
 
-            sudo('cp /opt/dlab/templates/nginx.conf /etc/nginx/')
+            sudo('cp /opt/datalab/templates/nginx.conf /etc/nginx/')
             sudo('mkdir /etc/nginx/conf.d')
-            sudo('cp /opt/dlab/templates/conf.d/proxy.conf /etc/nginx/conf.d/')
+            sudo('cp /opt/datalab/templates/conf.d/proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir /etc/nginx/locations')
-            sudo('cp /opt/dlab/templates/nginx_redhat /etc/init.d/nginx')
+            sudo('cp /opt/datalab/templates/nginx_redhat /etc/init.d/nginx')
             sudo('chmod +x /etc/init.d/nginx')
             sudo('chkconfig --add nginx')
             sudo('chkconfig --level 345 nginx on')

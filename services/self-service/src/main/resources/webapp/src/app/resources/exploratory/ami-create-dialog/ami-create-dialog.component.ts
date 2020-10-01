@@ -27,7 +27,7 @@ import {HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-  selector: 'dlab-ami-create-dialog',
+  selector: 'datalab-ami-create-dialog',
   templateUrl: './ami-create-dialog.component.html',
   styleUrls: ['./ami-create-dialog.component.scss']
 })

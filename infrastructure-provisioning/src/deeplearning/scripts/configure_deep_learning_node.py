@@ -21,15 +21,14 @@
 #
 # ******************************************************************************
 
-from dlab.actions_lib import *
-from dlab.common_lib import *
-from dlab.notebook_lib import *
-from dlab.fab import *
-from fabric.api import *
-from fabric.contrib.files import exists
 import argparse
 import os
-
+from datalab.actions_lib import *
+from datalab.common_lib import *
+from datalab.fab import *
+from datalab.notebook_lib import *
+from fabric.api import *
+from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

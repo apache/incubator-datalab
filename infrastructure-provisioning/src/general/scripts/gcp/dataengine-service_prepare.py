@@ -21,19 +21,15 @@
 #
 # ******************************************************************************
 
+import datalab.meta_lib
 import json
-import time
-from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
-import sys
-import os
-import uuid
 import logging
+import os
+import sys
+import time
+import traceback
 from Crypto.PublicKey import RSA
-
+from fabric.api import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -43,8 +39,8 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         dataproc_conf = dict()
         if 'exploratory_name' in os.environ:
@@ -89,7 +85,7 @@ if __name__ == "__main__":
             "name": dataproc_conf['cluster_name'],
             "sbn": dataproc_conf['service_base_name'],
             "notebook_name": os.environ['notebook_instance_name'],
-            "product": "dlab",
+            "product": "datalab",
             "computational_name": dataproc_conf['computational_name']
         }
 
@@ -111,9 +107,9 @@ if __name__ == "__main__":
         dataproc_conf['edge_instance_hostname'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                             dataproc_conf['project_name'],
                                                                             dataproc_conf['endpoint_name'])
-        dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        dataproc_conf['datalab_ssh_user'] = os.environ['conf_os_user']
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
     edge_status = GCPMeta.get_instance_status(dataproc_conf['edge_instance_hostname'])
@@ -121,9 +117,10 @@ if __name__ == "__main__":
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
         ssn_hostname = GCPMeta.get_private_ip_address(dataproc_conf['service_base_name'] + '-ssn')
-        dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                     ssn_hostname)
-        dlab.fab.append_result("Edge node is unavailable")
+        datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
+                                        os.environ['conf_os_user'],
+                                        ssn_hostname)
+        datalab.fab.append_result("Edge node is unavailable")
         sys.exit(1)
 
     print("Will create exploratory environment with edge node as access point as following: ".format(
@@ -135,7 +132,7 @@ if __name__ == "__main__":
         local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         traceback.print_exc()
-        dlab.fab.append_result("Dataproc waiter fail.", str(err))
+        datalab.fab.append_result("Dataproc waiter fail.", str(err))
         sys.exit(1)
 
     local("echo Waiting for changes to propagate; sleep 10")
@@ -164,7 +161,7 @@ if __name__ == "__main__":
     key = RSA.importKey(open(dataproc_conf['key_path'], 'rb').read())
     ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
     dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(
-        dataproc_conf['dlab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
+        dataproc_conf['datalab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
     dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']
     with open('/root/result.json', 'w') as f:
         data = {"hostname": dataproc_conf['cluster_name'], "error": ""}
@@ -186,6 +183,6 @@ if __name__ == "__main__":
         keyfile_name = "/root/keys/{}.pem".format(dataproc_conf['key_name'])
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
-        dlab.fab.append_result("Failed to create Dataproc Cluster.", str(err))
+        datalab.fab.append_result("Failed to create Dataproc Cluster.", str(err))
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
         sys.exit(1)

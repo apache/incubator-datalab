@@ -21,23 +21,19 @@
 #
 # ******************************************************************************
 
-import json
-import time
-from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
 import argparse
-import sys
-import os
+import datalab.meta_lib
+import json
 import logging
-
+import os
+import sys
+import time
+import traceback
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -54,24 +50,24 @@ if __name__ == "__main__":
             emr_conf['exploratory_name'] = ''
         if os.path.exists('/response/.emr_creating_{}'.format(emr_conf['exploratory_name'])):
             time.sleep(30)
-        dlab.actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
         emr_conf['service_base_name'] = os.environ['conf_service_base_name']
         emr_conf['project_name'] = os.environ['project_name']
         emr_conf['endpoint_name'] = os.environ['endpoint_name']
-        edge_status = dlab.meta_lib.get_instance_status(
+        edge_status = datalab.meta_lib.get_instance_status(
             '{}-tag'.format(emr_conf['service_base_name']),
             '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'], emr_conf['project_name'],
                                       emr_conf['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = dlab.meta_lib.get_instance_hostname(
+            ssn_hostname = datalab.meta_lib.get_instance_hostname(
                 emr_conf['service_base_name'] + '-tag',
                 emr_conf['service_base_name'] + '-ssn')
-            dlab.fab.put_resource_status('edge', 'Unavailable',
-                                         os.environ['ssn_dlab_path'],
-                                         os.environ['conf_os_user'], ssn_hostname)
-            dlab.fab.append_result("Edge node is unavailable")
+            datalab.fab.put_resource_status('edge', 'Unavailable',
+                                            os.environ['ssn_datalab_path'],
+                                            os.environ['conf_os_user'], ssn_hostname)
+            datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
         print('Generating infrastructure names and tags')
         if 'computational_name' in os.environ:
@@ -91,7 +87,7 @@ if __name__ == "__main__":
         emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
         emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
         emr_conf['instance_count'] = os.environ['emr_instance_count']
-        emr_conf['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
+        emr_conf['notebook_ip'] = datalab.meta_lib.get_instance_ip_address(
             emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
         emr_conf['role_service_name'] = os.environ['emr_service_role']
         emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
@@ -122,7 +118,7 @@ if __name__ == "__main__":
         tag = {"Key": "{}-tag".format(emr_conf['service_base_name']),
                "Value": "{}-{}-{}-subnet".format(emr_conf['service_base_name'], emr_conf['project_name'],
                                                  emr_conf['endpoint_name'])}
-        emr_conf['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        emr_conf['subnet_cidr'] = datalab.meta_lib.get_subnet_by_tag(tag)
         emr_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         emr_conf['all_ip_cidr'] = '0.0.0.0/0'
         emr_conf['additional_emr_sg_name'] = '{}-{}-{}-de-se-additional-sg'\
@@ -131,14 +127,14 @@ if __name__ == "__main__":
         emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
         emr_conf['provision_instance_ip'] = None
         try:
-            emr_conf['provision_instance_ip'] = dlab.meta_lib.get_instance_ip_address(
+            emr_conf['provision_instance_ip'] = datalab.meta_lib.get_instance_ip_address(
                 emr_conf['tag_name'], '{0}-{1}-endpoint'.format(emr_conf['service_base_name'],
                                                                 emr_conf['endpoint_name'])).get('Private') + "/32"
         except:
-            emr_conf['provision_instance_ip'] = dlab.meta_lib.get_instance_ip_address(
+            emr_conf['provision_instance_ip'] = datalab.meta_lib.get_instance_ip_address(
                 emr_conf['tag_name'], '{0}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"
         if os.environ['emr_slave_instance_spot'] == 'True':
-            ondemand_price = float(dlab.meta_lib.get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region']))
+            ondemand_price = float(datalab.meta_lib.get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region']))
             emr_conf['slave_bid_price'] = (ondemand_price * int(os.environ['emr_slave_instance_spot_pct_price'])) / 100
         else:
             emr_conf['slave_bid_price'] = 0
@@ -147,7 +143,7 @@ if __name__ == "__main__":
         else:
             emr_conf['emr_timeout'] = "1200"
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary", str(err))
         sys.exit(1)
 
     print("Will create exploratory environment with edge node as access point as following: {}".format(
@@ -159,11 +155,11 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        dlab.meta_lib.emr_waiter(emr_conf['tag_name'], os.environ['notebook_instance_name'])
+        datalab.meta_lib.emr_waiter(emr_conf['tag_name'], os.environ['notebook_instance_name'])
         local('touch /response/.emr_creating_{}'.format(emr_conf['exploratory_name']))
     except Exception as err:
         traceback.print_exc()
-        dlab.fab.append_result("EMR waiter fail.", str(err))
+        datalab.fab.append_result("EMR waiter fail.", str(err))
         sys.exit(1)
 
     with open('/root/result.json', 'w') as f:
@@ -173,8 +169,8 @@ if __name__ == "__main__":
     logging.info('[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]')
     print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
     try:
-        edge_group_id = dlab.meta_lib.check_security_group(emr_conf['edge_security_group_name'])
-        cluster_sg_ingress = dlab.meta_lib.format_sg([
+        edge_group_id = datalab.meta_lib.check_security_group(emr_conf['edge_security_group_name'])
+        cluster_sg_ingress = datalab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -194,7 +190,7 @@ if __name__ == "__main__":
                 "PrefixListIds": []
             }
         ])
-        cluster_sg_egress = dlab.meta_lib.format_sg([
+        cluster_sg_egress = datalab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -249,7 +245,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create sg.", str(err))
+        datalab.fab.append_result("Failed to create sg.", str(err))
         sys.exit(1)
 
     local("echo Waiting for changes to propagate; sleep 10")
@@ -312,8 +308,8 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], emr_conf['key_name'])
         local('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']))
     except Exception as err:
-        dlab.fab.append_result("Failed to create EMR Cluster.", str(err))
+        datalab.fab.append_result("Failed to create EMR Cluster.", str(err))
         local('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']))
-        emr_id = dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])
-        dlab.actions_lib.terminate_emr(emr_id)
+        emr_id = datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])
+        datalab.actions_lib.terminate_emr(emr_id)
         sys.exit(1)

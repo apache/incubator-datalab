@@ -22,14 +22,13 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     if args.resource_group_name != '':

@@ -32,10 +32,10 @@
       "edge_sg": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-SG",
       "socks_port": "1080",
       "notebook_subnet": "172.31.48.0/24",
-      "@class": "com.epam.dlab.dto.aws.edge.EdgeInfoAws",
+      "@class": "com.epam.datalab.dto.aws.edge.EdgeInfoAws",
       "shared_bucket_name": "${CONF_SERVICE_BASE_NAME}-shared-bucket"
     },
-    "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+    "log": "/var/log/datalab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },
   "request_id": "${REQUEST_ID}"
 }

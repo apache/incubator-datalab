@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.cloud.aws;
+package com.epam.datalab.automation.cloud.aws;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -30,9 +30,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Grant;
-import com.epam.dlab.automation.exceptions.CloudException;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.NamingHelper;
+import com.epam.datalab.automation.exceptions.CloudException;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.helper.NamingHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;

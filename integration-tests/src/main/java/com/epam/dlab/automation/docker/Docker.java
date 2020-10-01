@@ -17,10 +17,10 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.docker;
+package com.epam.datalab.automation.docker;
 
-import com.epam.dlab.automation.exceptions.DockerException;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.exceptions.DockerException;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcraft.jsch.ChannelExec;

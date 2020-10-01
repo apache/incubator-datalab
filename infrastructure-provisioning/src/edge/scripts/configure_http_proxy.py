@@ -21,12 +21,11 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
-from fabric.contrib.files import exists
-from dlab.edge_lib import configure_http_proxy_server
 import argparse
 import json
 import sys
+from datalab.edge_lib import configure_http_proxy_server
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

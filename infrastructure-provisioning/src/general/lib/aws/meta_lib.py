@@ -19,18 +19,16 @@
 #
 # ******************************************************************************
 
-import boto3
-from botocore.client import Config
-import json, urllib2
-import time
-import logging
-import traceback
-import sys
-import backoff
-import random
-import string
-from dlab.fab import *
 import actions_lib
+import backoff
+import boto3
+import json
+import logging
+import sys
+import time
+import traceback
+from botocore.client import Config
+from datalab.fab import *
 
 
 def get_instance_hostname(tag_name, instance_name):

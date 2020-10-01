@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.automation.helper;
+package com.epam.datalab.automation.helper;
 
 public class CloudProvider {
 

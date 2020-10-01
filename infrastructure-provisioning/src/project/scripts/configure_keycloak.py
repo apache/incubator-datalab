@@ -21,15 +21,12 @@
 #
 # ******************************************************************************
 
-import logging
-import json
-import sys
-import requests
 import argparse
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-import os
+import logging
+import requests
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_base_name', type=str, default='')

@@ -21,17 +21,13 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.meta_lib
 import json
+import logging
+import os
 import sys
 import traceback
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import os
-import traceback
 from fabric.api import *
-
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -42,8 +38,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         notebook_config = dict()
         try:
             notebook_config['exploratory_name'] = os.environ['exploratory_name']
@@ -93,7 +89,7 @@ if __name__ == "__main__":
         notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                          notebook_config['project_name'],
                                                                          notebook_config['endpoint_name'])
-        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['datalab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
                                    "User": notebook_config['user_name'],
@@ -130,16 +126,16 @@ if __name__ == "__main__":
             notebook_config['initial_user'] = 'ec2-user'
             notebook_config['sudo_group'] = 'wheel'
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
-            notebook_config['initial_user'], notebook_config['dlab_ssh_user'], notebook_config['sudo_group'])
+            notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -147,7 +143,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
+        datalab.fab.append_result("Failed creating ssh user 'datalab'.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -158,14 +154,14 @@ if __name__ == "__main__":
         additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
-                    notebook_config['dlab_ssh_user'])
+                    notebook_config['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result('Unable to configure proxy on zeppelin notebook. Exception: ' + str(err))
+        datalab.fab.append_result('Unable to configure proxy on zeppelin notebook. Exception: ' + str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -174,7 +170,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}" \
-            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['azure_region'],
+            .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['azure_region'],
                     edge_instance_private_hostname)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -182,7 +178,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
+        datalab.fab.append_result("Failed installing apps: apt & pip.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -204,7 +200,7 @@ if __name__ == "__main__":
                  "--r_mirror {14} --endpoint_url {15} " \
                  "--ip_address {16} --exploratory_name {17} --edge_ip {18} " \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['azure_region'],
-                    json.dumps(additional_config), notebook_config['dlab_ssh_user'],
+                    json.dumps(additional_config), notebook_config['datalab_ssh_user'],
                     os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
                     edge_instance_private_hostname, '3128', os.environ['notebook_zeppelin_version'],
                     os.environ['notebook_scala_version'], os.environ['notebook_livy_version'],
@@ -212,13 +208,13 @@ if __name__ == "__main__":
                     notebook_config['ip_address'], notebook_config['exploratory_name'], edge_hostname)
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
-            dlab.actions_lib.remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
-                                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
+            datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,
+                                                   os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure zeppelin.", str(err))
+        datalab.fab.append_result("Failed to configure zeppelin.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -228,14 +224,14 @@ if __name__ == "__main__":
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['datalab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing users key.", str(err))
+        datalab.fab.append_result("Failed installing users key.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -243,14 +239,14 @@ if __name__ == "__main__":
         print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
-            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+            .format(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name)
         try:
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
-            dlab.fab.append_result("Failed setup git credentials")
+            datalab.fab.append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to setup git credentials.", str(err))
+        datalab.fab.append_result("Failed to setup git credentials.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -259,7 +255,7 @@ if __name__ == "__main__":
         print('[POST CONFIGURING PROCESS')
         if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None']:
             params = "--hostname {} --keyfile {} --os_user {} --resource_group_name {} --notebook_name {}" \
-                .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
+                .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
                         notebook_config['resource_group_name'], notebook_config['instance_name'])
             try:
                 local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
@@ -267,7 +263,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to post configuring instance.", str(err))
+        datalab.fab.append_result("Failed to post configuring instance.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -278,8 +274,8 @@ if __name__ == "__main__":
                                         notebook_config['expected_image_name'])
             if image == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
-                dlab.actions_lib.prepare_vm_for_image(True, notebook_config['dlab_ssh_user'], instance_hostname,
-                                                      keyfile_name)
+                datalab.actions_lib.prepare_vm_for_image(True, notebook_config['datalab_ssh_user'], instance_hostname,
+                                                         keyfile_name)
                 AzureActions.create_image_from_instance(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'],
                                                         os.environ['azure_region'],
@@ -294,17 +290,17 @@ if __name__ == "__main__":
                         instance_running = True
                 instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                                      notebook_config['instance_name'])
-                dlab.actions_lib.remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
-                                                    keyfile_name)
-                dlab.fab.set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
-                                       'http://{}:3128'.format(edge_instance_private_hostname))
+                datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,
+                                                       keyfile_name)
+                datalab.fab.set_git_proxy(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name,
+                                          'http://{}:3128'.format(edge_instance_private_hostname))
                 additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
-                            json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+                            json.dumps(additional_config), notebook_config['datalab_ssh_user'])
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except Exception as err:
-            dlab.fab.append_result("Failed creating image.", str(err))
+            datalab.fab.append_result("Failed creating image.", str(err))
             AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
 
@@ -323,17 +319,17 @@ if __name__ == "__main__":
                  "--additional_info '{}'"\
             .format(edge_instance_private_hostname,
                     keyfile_name,
-                    notebook_config['dlab_ssh_user'],
+                    notebook_config['datalab_ssh_user'],
                     'zeppelin',
                     notebook_config['exploratory_name'],
                     json.dumps(additional_info))
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            dlab.fab.append_result("Failed edge reverse proxy template")
+            datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
+        datalab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -358,7 +354,7 @@ if __name__ == "__main__":
         print("Zeppelin URL: {}".format(zeppelin_ip_url))
         print("Ungit URL: {}".format(ungit_ip_url))
         print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
-              format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
+              format(notebook_config['key_name'], notebook_config['datalab_ssh_user'], ip_address))
 
         with open("/root/result.json", 'w') as result:
             res = {"ip": ip_address,
@@ -379,6 +375,6 @@ if __name__ == "__main__":
                    ]}
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate output information.", str(err))
+        datalab.fab.append_result("Failed to generate output information.", str(err))
         AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)

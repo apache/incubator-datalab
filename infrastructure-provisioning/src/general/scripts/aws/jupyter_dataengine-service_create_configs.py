@@ -21,20 +21,13 @@
 #
 # ******************************************************************************
 
-import boto3
-from botocore.client import Config
-from fabric.api import *
 import argparse
-import os
 import sys
-import time
-from fabric.api import lcd
-from fabric.contrib.files import exists
-from fabvenv import virtualenv
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
-from dlab.common_lib import *
+from datalab.actions_lib import *
+from datalab.common_lib import *
+from datalab.fab import *
+from datalab.notebook_lib import *
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')

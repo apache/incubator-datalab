@@ -43,7 +43,7 @@ export interface Project {
 }
 
 @Component({
-  selector: 'dlab-project',
+  selector: 'datalab-project',
   templateUrl: './project.component.html'
 })
 

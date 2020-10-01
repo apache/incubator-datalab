@@ -21,15 +21,14 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import logging
 import os
+import sys
 import traceback
-import uuid
 
 
 def stop_data_engine(resource_group_name, cluster_name):
@@ -41,7 +40,7 @@ def stop_data_engine(resource_group_name, cluster_name):
                     AzureActions.stop_instance(resource_group_name, vm.name)
                     print("Instance {} has been stopped".format(vm.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to stop dataengine", str(err))
+        datalab.fab.append_result("Failed to stop dataengine", str(err))
         sys.exit(1)
 
 
@@ -53,8 +52,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    AzureMeta = dlab.meta_lib.AzureMeta()
-    AzureActions = dlab.actions_lib.AzureActions()
+    AzureMeta = datalab.meta_lib.AzureMeta()
+    AzureActions = datalab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
@@ -81,7 +80,7 @@ if __name__ == "__main__":
             stop_data_engine(data_engine['resource_group_name'], data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to stop Data Engine.", str(err))
+            datalab.fab.append_result("Failed to stop Data Engine.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -93,5 +92,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

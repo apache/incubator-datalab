@@ -26,17 +26,19 @@
     <div class="content-box mat-reset">
       <form [formGroup]="resourceForm" *ngIf="clusterTypes.length && resourceForm; else placeholder">
 
-        <div class="form-wrapper" [ngClass]="{ compress: selectedImage?.image === 'docker.dlab-dataengine' }">
-          <div class="col">
+        <div class="form-wrapper" [ngClass]="{ compress: selectedImage?.image === 'docker.datalab-dataengine' }">
+            <div class="col">
 
-            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="clusterTypes.length === 1">
-              <label class="label">Select cluster type</label>
-              <div class="control selector-wrapper">
-                <mat-form-field>
-<!--                  <mat-label>Select cluster type</mat-label>-->
-                  <mat-select formControlName="template_name" disableOptionCentering placeholder="Select cluster type">
-                    <mat-option *ngFor="let type of clusterTypes" [value]="type.template_name"
-                      (click)="selectImage(type)">{{ type.template_name }}</mat-option>
+                <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="clusterTypes.length === 1">
+                    <label class="label">Select cluster type</label>
+                    <div class="control selector-wrapper">
+                        <mat-form-field>
+                            <!--                  <mat-label>Select cluster type</mat-label>-->
+                            <mat-select formControlName="template_name" disableOptionCentering
+                                        placeholder="Select cluster type">
+                                <mat-option *ngFor="let type of clusterTypes" [value]="type.template_name"
+                                            (click)="selectImage(type)">{{ type.template_name }}
+                                </mat-option>
                     <mat-option *ngIf="!clusterTypes.length" class="multiple-select ml-10" disabled>Clusters types list
                       is empty</mat-option>
                   </mat-select>
@@ -120,18 +122,19 @@
               </div>
             </div>
 
-            <div class="control-group" *ngIf="selectedImage?.image"
-              [hidden]="selectedImage?.image === 'docker.dlab-dataengine'">
-              <label class="label">Slave instance size</label>
-              <div class="control selector-wrapper">
-                <mat-form-field>
-                  <mat-label>Select instance size</mat-label>
-                  <mat-select formControlName="shape_slave" disableOptionCentering>
-                    <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
-                      [label]="item.key | underscoreless">
-                      <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
-                        <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Type }}
-                      </mat-option>
+              <div class="control-group" *ngIf="selectedImage?.image"
+                   [hidden]="selectedImage?.image === 'docker.datalab-dataengine'">
+                  <label class="label">Slave instance size</label>
+                  <div class="control selector-wrapper">
+                      <mat-form-field>
+                          <mat-label>Select instance size</mat-label>
+                          <mat-select formControlName="shape_slave" disableOptionCentering>
+                              <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
+                                            [label]="item.key | underscoreless">
+                                  <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
+                                      <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{
+                                      list_item.Type }}
+                                  </mat-option>
                     </mat-optgroup>
                   </mat-select>
                   <button class="caret">
@@ -144,18 +147,19 @@
           </div>
         </div>
 
-        <div class="preemptible checkbox-group control-group m-top-30 m-bott-10"
-          *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.dlab-dataengine-service'">
-          <label class="label">
-            <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)" />
-            <span>Preemptible node</span>
-            <span class="align" [hidden]="!preemptible?.nativeElement['checked']"> count</span>
-          </label>
-          <div *ngIf="preemptible?.nativeElement['checked']" class="preemptible-details control"
-            [ngClass]="{ show: preemptible?.nativeElement['checked'] || false}">
-            <input type="text" class="form-control" formControlName="preemptible_instance_number"
-              (keypress)="CheckUtils.isNumberKey($event)" (keydown.arrowup)="preemptibleCounter($event, 'increment')"
-              (keydown.arrowdown)="preemptibleCounter($event, 'decrement')" />
+          <div class="preemptible checkbox-group control-group m-top-30 m-bott-10"
+               *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'">
+              <label class="label">
+                  <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)"/>
+                  <span>Preemptible node</span>
+                  <span class="align" [hidden]="!preemptible?.nativeElement['checked']"> count</span>
+              </label>
+              <div *ngIf="preemptible?.nativeElement['checked']" class="preemptible-details control"
+                   [ngClass]="{ show: preemptible?.nativeElement['checked'] || false}">
+                  <input type="text" class="form-control" formControlName="preemptible_instance_number"
+                         (keypress)="CheckUtils.isNumberKey($event)"
+                         (keydown.arrowup)="preemptibleCounter($event, 'increment')"
+                         (keydown.arrowdown)="preemptibleCounter($event, 'decrement')"/>
             <span class="error" *ngIf="!resourceForm?.controls.preemptible_instance_number.valid">
               <span *ngIf="minPreemptibleInstanceNumber !== maxPreemptibleInstanceNumber; else equal">
                 Only integer values greater than or equal to {{ minPreemptibleInstanceNumber }} and less than
@@ -187,46 +191,49 @@
         </div>
 
 
-        <div class="checkbox-group m-top-20"
-          [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.dlab-dataengine-service'"
-          *ngIf="notebook_instance?.image !== 'docker.dlab-zeppelin'">
-          <label>
-            <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
-          </label>
-          <div class="config-link" *ngIf="(configuration?.nativeElement['checked'] || false)
-            && selectedImage?.image === 'docker.dlab-dataengine-service'
+          <div class="checkbox-group m-top-20"
+               [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
+               *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
+              <label>
+                  <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
+              </label>
+              <div class="config-link" *ngIf="(configuration?.nativeElement['checked'] || false)
+            && selectedImage?.image === 'docker.datalab-dataengine-service'
             && PROVIDER === 'aws'">
-            To view example JSON of configurations refer for <a
-              href="https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-configure-apps.html" target="_blank">AWS
-              official documentation</a>
+                  To view example JSON of configurations refer for <a
+                      href="https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-configure-apps.html"
+                      target="_blank">AWS
+                  official documentation</a>
+              </div>
           </div>
-        </div>
-        <div class="checkbox-group">
-          <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
+          <div class="checkbox-group">
+              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
             <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON"
-              data-gramm_editor="false"></textarea>
-            <span class="error"
-              *ngIf="!resourceForm?.controls.configuration_parameters.valid && resourceForm?.controls['configuration_parameters'].dirty">Configuration
+                      data-gramm_editor="false"></textarea>
+                  <span class="error"
+                        *ngIf="!resourceForm?.controls.configuration_parameters.valid && resourceForm?.controls['configuration_parameters'].dirty">Configuration
               parameters is not in a valid format</span>
+              </div>
           </div>
-        </div>
-        <div *ngIf="notebook_instance?.image === 'docker.dlab-zeppelin'">
-          <small>Spark default configuration for Apache Zeppelin can not be changed from DLab UI. Currently it can be
-            done directly through Apache Zeppelin interpreter menu.
-            For more details please refer for Apache Zeppelin <a
-              href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
-              documentation</a>.
-          </small>
-        </div>
-        <div class="text-center m-top-30">
-          <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
-          <button mat-raised-button type="button" [disabled]="!resourceForm?.valid ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version)"
-            (click)="createComputationalResource(resourceForm.value)" class="butt butt-success action"
-            [ngClass]="{'not-allowed': !resourceForm?.valid ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
-              (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version) }">Create</button>
+          <div *ngIf="notebook_instance?.image === 'docker.datalab-zeppelin'">
+              <small>Spark default configuration for Apache Zeppelin can not be changed from DataLab UI. Currently it
+                  can be
+                  done directly through Apache Zeppelin interpreter menu.
+                  For more details please refer for Apache Zeppelin <a
+                          href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
+                      documentation</a>.
+              </small>
+          </div>
+          <div class="text-center m-top-30">
+              <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
+              <button mat-raised-button type="button" [disabled]="!resourceForm?.valid ||
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave) ||
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version)"
+                      (click)="createComputationalResource(resourceForm.value)" class="butt butt-success action"
+                      [ngClass]="{'not-allowed': !resourceForm?.valid ||
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave) ||
+              (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version) }">Create
+              </button>
         </div>
       </form>
 

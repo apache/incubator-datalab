@@ -21,8 +21,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.epam.dlab</groupId>
-        <artifactId>dlab</artifactId>
+        <groupId>com.epam.datalab</groupId>
+        <artifactId>datalab</artifactId>
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
@@ -50,7 +50,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
+            <groupId>com.epam.datalab</groupId>
             <artifactId>common</artifactId>
         </dependency>
         <dependency>
@@ -63,18 +63,18 @@
             <artifactId>dropwizard-template-config</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-model</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-utils</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-webapp-common</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-webapp-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -162,12 +162,12 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.epam.dlab.backendapi.ProvisioningServiceApplication</mainClass>
+                                    <mainClass>com.epam.datalab.backendapi.ProvisioningServiceApplication</mainClass>
                                     <manifestEntries>
                                         <Created-By>&lt;EPAM&gt; Systems</Created-By>
-                                        <Name>com/epam/dlab</Name>
-                                        <Implementation-Title>DLab Provisioning Service</Implementation-Title>
-                                        <Implementation-Version>${dlab.version}</Implementation-Version>
+                                        <Name>com/epam/datalab</Name>
+                                        <Implementation-Title>DataLab Provisioning Service</Implementation-Title>
+                                        <Implementation-Version>${datalab.version}</Implementation-Version>
                                         <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
                                         <Build-Time>${maven.build.timestamp}</Build-Time>
                                         <Build-OS>${os.name}</Build-OS>
@@ -188,9 +188,9 @@
                         <exclude>**/*Configuration.*</exclude>
                         <exclude>**/*Module.*</exclude>
                         <exclude>**/*Form.*</exclude>
-                        <exclude>com/epam/dlab/process/**/*</exclude>
-                        <exclude>com/epam/dlab/backendapi/modules/**/*</exclude>
-                        <exclude>com/epam/dlab/backendapi/validation/**/*</exclude>
+                        <exclude>com/epam/datalab/process/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/modules/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/validation/**/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>

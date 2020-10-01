@@ -21,17 +21,17 @@
 #
 # ******************************************************************************
 
-import json
-from fabric.api import *
 import logging
-import sys
 import os
-from dlab.fab import *
+import sys
 import traceback
+from datalab.fab import *
+from fabric.api import *
 
 
 def status():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,

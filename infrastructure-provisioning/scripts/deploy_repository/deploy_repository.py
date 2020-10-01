@@ -20,17 +20,17 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
-from fabric.contrib.files import exists
 import argparse
 import boto3
-import traceback
-import sys
 import json
-import time
-import string
 import random
+import string
+import sys
+import time
+import traceback
 from ConfigParser import SafeConfigParser
+from fabric.api import *
+from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_base_name', required=True, type=str, default='',
@@ -42,9 +42,9 @@ parser.add_argument('--vpc_cidr', type=str, default='172.31.0.0/16', help='Cidr 
 parser.add_argument('--subnet_id', type=str, default='', help='AWS Subnet ID')
 parser.add_argument('--subnet_cidr', type=str, default='172.31.0.0/24', help='Cidr of subnet')
 parser.add_argument('--sg_id', type=str, default='', help='AWS VPC ID')
-parser.add_argument('--billing_tag', type=str, default='product:dlab', help='Tag in format: "Key1:Value1"')
+parser.add_argument('--billing_tag', type=str, default='product:datalab', help='Tag in format: "Key1:Value1"')
 parser.add_argument('--additional_tags', type=str, default='', help='Tags in format: "Key1:Value1;Key2:Value2"')
-parser.add_argument('--tag_resource_id', type=str, default='dlab', help='The name of user tag')
+parser.add_argument('--tag_resource_id', type=str, default='datalab', help='The name of user tag')
 parser.add_argument('--allowed_ip_cidr', type=str, default='', help='Comma-separated CIDR of IPs which will have '
                                                                     'access to the instance')
 parser.add_argument('--key_name', type=str, default='', help='Key name (WITHOUT ".pem")')
@@ -60,7 +60,7 @@ parser.add_argument('--efs_enabled', type=str, default='False', help="True - use
 parser.add_argument('--efs_id', type=str, default='', help="ID of AWS EFS")
 parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk size of primary volume")
 parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
-parser.add_argument('--dlab_conf_file_path', type=str, default='', help="Full path to DLab conf file")
+parser.add_argument('--datalab_conf_file_path', type=str, default='', help="Full path to DataLab conf file")
 parser.add_argument('--nexus_admin_password', type=str, default='', help="Password for Nexus admin user")
 parser.add_argument('--nexus_service_user_name', type=str, default='dlab-nexus', help="Nexus service user name")
 parser.add_argument('--nexus_service_user_password', type=str, default='', help="Nexus service user password")
@@ -794,7 +794,7 @@ def ensure_ssh_user(initial_user):
             sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
-        print('Error with creating dlab-user: {}'.format(str(err)))
+        print('Error with creating datalab-user: {}'.format(str(err)))
         raise Exception
 
 
@@ -1116,7 +1116,7 @@ def configure_ssl():
             sudo('echo "[ subject_alt_name ]" >> /tmp/openssl.cnf')
             sudo('echo "{}" >> /tmp/openssl.cnf'.format(subject_alt_name))
             sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/repository.key '
-                 '-out /etc/ssl/certs/repository.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}" -config '
+                 '-out /etc/ssl/certs/repository.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}" -config '
                  '/tmp/openssl.cnf -extensions subject_alt_name'.format(hostname))
             sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
             sudo('touch /home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user']))
@@ -1276,8 +1276,8 @@ def prepare_images():
                 sudo('docker build --file Dockerfile -t pre-base .')
             sudo('docker login -u {0} -p {1} localhost:8083'.format(args.nexus_service_user_name,
                                                                     args.nexus_service_user_password))
-            sudo('docker tag pre-base localhost:8083/dlab-pre-base')
-            sudo('docker push localhost:8083/dlab-pre-base')
+            sudo('docker tag pre-base localhost:8083/datalab-pre-base')
+            sudo('docker push localhost:8083/datalab-pre-base')
             sudo('touch /home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
@@ -1327,12 +1327,12 @@ if __name__ == "__main__":
     pre_defined_subnet = True
     pre_defined_sg = True
     pre_defined_efs = True
-    if args.action != 'terminate' and args.dlab_conf_file_path == '':
-        print('Please provide argument --dlab_conf_file_path ! Aborting... ')
+    if args.action != 'terminate' and args.datalab_conf_file_path == '':
+        print('Please provide argument --datalab_conf_file_path ! Aborting... ')
         sys.exit(1)
     configuration = dict()
     config = SafeConfigParser()
-    config.read(args.dlab_conf_file_path)
+    config.read(args.datalab_conf_file_path)
     for section in config.sections():
         for option in config.options(section):
             varname = "{0}_{1}".format(section, option)
@@ -1695,7 +1695,7 @@ if __name__ == "__main__":
         env.host_string = 'ubuntu@' + ec2_ip_address
         print("CONFIGURE LOCAL REPOSITORY")
         try:
-            print('CREATING DLAB-USER')
+            print('CREATING DATALAB USER')
             ensure_ssh_user('ubuntu')
             env.host_string = configuration['conf_os_user'] + '@' + ec2_ip_address
 
@@ -1723,7 +1723,7 @@ if __name__ == "__main__":
             print('INSTALLING DOCKER')
             install_docker()
 
-            print('PREPARING DLAB DOCKER IMAGES')
+            print('PREPARING DATALAB DOCKER IMAGES')
             prepare_images()
 
             print('INSTALLING SQUID')

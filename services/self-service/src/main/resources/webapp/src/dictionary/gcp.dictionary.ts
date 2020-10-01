@@ -40,10 +40,10 @@ export const NAMING_CONVENTION_GCP = {
         'dateTo': 'to',
         'service': 'product',
         'service_filter_key': 'product',
-        'type': 'dlab_resource_type',
-        'resourceType': 'dlab_resource_type',
+        'type': 'data_lab_resource_type',
+        'resourceType': 'data_lab_resource_type',
         'instance_size': 'shapes',
-        'dlabId': 'dlab_id'
+        'datalab_id': 'datalab_id'
     },
     'service': 'Product',
     'type': 'Resource',
@@ -55,7 +55,7 @@ export const NAMING_CONVENTION_GCP = {
     'datalake_name': '',
     'datalake_user_directory_name': '',
     'datalake_shared_directory_name': '',
-    'docker.dlab-dataengine-service': {
+    'docker.datalab-dataengine-service': {
         'total_instance_number_min': 'min_instance_count',
         'total_instance_number_max': 'max_instance_count',
         'min_emr_spot_instance_bid_pct': 'min_emr_spot_instance_bid_pct',
@@ -67,7 +67,7 @@ export const NAMING_CONVENTION_GCP = {
         'total_instance_number': 'total_master_instance_number',
         'total_slave_instance_number': 'total_slave_instance_number',
     },
-    'docker.dlab-dataengine': {
+    'docker.datalab-dataengine': {
         'total_instance_number_min': 'min_spark_instance_count',
         'total_instance_number_max': 'max_spark_instance_count',
         'data_engine_master_instance_size': 'Machine type',

@@ -8,7 +8,7 @@
          "Action": "Start up notebook server",
          "ip": "172.31.2.250"
       },
-      "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+      "log": "/var/log/datalab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
    },
    "request_id": "${REQUEST_ID}"
 }

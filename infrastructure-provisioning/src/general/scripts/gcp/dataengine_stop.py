@@ -21,15 +21,14 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import logging
 import os
-import uuid
+import sys
+import traceback
 
 
 def stop_data_engine(zone, cluster_name):
@@ -40,7 +39,7 @@ def stop_data_engine(zone, cluster_name):
             for i in instances['items']:
                 GCPActions.stop_instance(i['name'], zone)
     except Exception as err:
-        dlab.fab.append_result("Failed to stop dataengine", str(err))
+        datalab.fab.append_result("Failed to stop dataengine", str(err))
         sys.exit(1)
 
 
@@ -52,8 +51,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
@@ -80,7 +79,7 @@ if __name__ == "__main__":
             stop_data_engine(data_engine['zone'], data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to stop Data Engine.", str(err))
+            datalab.fab.append_result("Failed to stop Data Engine.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -91,5 +90,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

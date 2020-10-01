@@ -213,27 +213,27 @@
 <!--              </div>-->
 <!--            </div>-->
 
-            <!-- <p>
-              <a href="#/help/accessnotebookguide" target="_blank">
-                <small class="helper_instruction">
-                  <i class="material-icons">help_outline</i>
-                  Read instruction how to create the tunnel</small>
-              </a>
-            </p> -->
+              <!-- <p>
+                <a href="#/help/accessnotebookguide" target="_blank">
+                  <small class="helper_instruction">
+                    <i class="material-icons">help_outline</i>
+                    Read instruction how to create the tunnel</small>
+                </a>
+              </p> -->
           </div>
 
-          <div class="checkbox-group" *ngIf="notebook.image !== 'docker.dlab-zeppelin'; else not_support"
-            [hidden]="notebook.status !== 'running' || notebook.image === 'docker.dlab-superset' || notebook.image === 'docker.dlab-jupyterlab'">
-            <label>
-              <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
-            </label>
-            <div class="checkbox-group">
-              <form [formGroup]="configurationForm" novalidate>
-                <div class="config-details" *ngIf="configuration?.nativeElement['checked'] || false">
+            <div class="checkbox-group" *ngIf="notebook.image !== 'docker.datalab-zeppelin'; else not_support"
+                 [hidden]="notebook.status !== 'running' || notebook.image === 'docker.datalab-superset' || notebook.image === 'docker.datalab-jupyterlab'">
+                <label>
+                    <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
+                </label>
+                <div class="checkbox-group">
+                    <form [formGroup]="configurationForm" novalidate>
+                        <div class="config-details" *ngIf="configuration?.nativeElement['checked'] || false">
                   <textarea formControlName="configuration_parameters" id="config"
-                    placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
-                  <span class="danger_color"
-                    *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
+                            placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
+                            <span class="danger_color"
+                                  *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
                     parameters is not in a valid format</span>
                 </div>
               </form>
@@ -241,8 +241,8 @@
           </div>
           <ng-template #not_support>
             <small [hidden]="notebook.status !== 'running'">Spark default configuration for Apache Zeppelin can not be
-              changed from DLab UI. Currently it can be done directly through Apache Zeppelin interpreter menu.
-              For more details please refer for Apache Zeppelin <a
+                changed from DataLab UI. Currently it can be done directly through Apache Zeppelin interpreter menu.
+                For more details please refer for Apache Zeppelin <a
                 href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
                 documentation</a>.
             </small>

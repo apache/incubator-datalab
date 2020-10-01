@@ -23,11 +23,10 @@
 
 
 import argparse
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
 from fabric.api import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from dlab.fab import *
-import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf_resource', type=str, default='')

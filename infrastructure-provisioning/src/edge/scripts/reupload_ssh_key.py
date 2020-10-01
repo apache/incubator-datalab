@@ -21,15 +21,14 @@
 #
 # ******************************************************************************
 
+import logging
 import os
 import sys
-import logging
 import traceback
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
 from fabric.api import *
-import multiprocessing
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
