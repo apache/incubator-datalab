@@ -2,7 +2,7 @@ What is DataLab?
 =============
 
 DataLab is an essential toolset for analytics. It is a self-service Web Console, used to create and manage exploratory environments. It allows teams to spin up analytical environments with best of breed open-source tools just with a single click of the mouse. Once established, environment can be managed by an analytical team itself, leveraging simple and easy-to-use Web Interface.
-<p>See more at <a href="http://dlab.opensource.epam.com/" rel="nofollow">dlab.opensource.epam.com</a>.</p>
+<p>See more at <a href="https://datalab.apache.org/" rel="nofollow">https://datalab.apache.org/</a>.</p>
 
 ------------
 ## CONTENTS
@@ -50,7 +50,7 @@ DataLab is an essential toolset for analytics. It is a self-service Web Console,
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Multiple Cloud endpoints](#multiple_cloud_endpoints)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DataLab quotas](#manage_dlab_quotas)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DataLab quotas](#manage_datalab_quotas)
 
 [DataLab billing report](#billing_page)
 
@@ -645,7 +645,7 @@ Once all fields are filled in and you click on "Connect" button, you are able to
 
 Administrator can deactivate whole analytical environment via bin icon <img src="doc/bin_icon.png" alt="bin" width="15">. And all related instances change its satuses to "Terminating" and soon become "Terminated".
 
-### Manage DataLab quotas <a name="manage_dlab_quotas"></a>
+### Manage DataLab quotas <a name="manage_datalab_quotas"></a>
 
 Administrator can set quotas per project (monthly or total period) and for the whole DataLab. To do it click on "Manage DataLab quotas" button. "Manage DataLab quotas" popup shows up. Administrator can see all active project:
 
