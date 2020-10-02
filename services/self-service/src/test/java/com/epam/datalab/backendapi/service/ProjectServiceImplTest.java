@@ -64,8 +64,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectServiceImplTest extends TestBase {
+
     private static final String CREATE_PRJ_API = "infrastructure/project/create";
-    private static final String TERMINATE_PRJ_API = "infrastructure/project/terminate";
+	private static final String RECREATE_PRJ_API = "infrastructure/project/recreate";
+	private static final String TERMINATE_PRJ_API = "infrastructure/project/terminate";
     private static final String START_PRJ_API = "infrastructure/project/start";
     private static final String STOP_PRJ_API = "infrastructure/project/stop";
 
@@ -172,24 +174,43 @@ public class ProjectServiceImplTest extends TestBase {
 
     @Test(expected = ResourceConflictException.class)
     public void createWithException() {
-        when(projectDAO.get(anyString())).thenReturn(Optional.of(getProjectCreatingDTO()));
+	    when(projectDAO.get(anyString())).thenReturn(Optional.of(getProjectCreatingDTO()));
 
-        ProjectDTO projectDTO = getProjectCreatingDTO();
-        projectService.create(getUserInfo(), projectDTO, projectDTO.getName());
+	    ProjectDTO projectDTO = getProjectCreatingDTO();
+	    projectService.create(getUserInfo(), projectDTO, projectDTO.getName());
 
-        verify(projectDAO).get(NAME1);
-        verifyNoMoreInteractions(projectDAO);
+	    verify(projectDAO).get(NAME1);
+	    verifyNoMoreInteractions(projectDAO);
     }
 
-    @Test
-    public void get() {
-        ProjectDTO projectMock = getProjectCreatingDTO();
-        when(projectDAO.get(anyString())).thenReturn(Optional.of(projectMock));
+	@Test
+	public void recreate() {
+		ProjectDTO projectDTO = getProjectCreatingDTO();
+		when(projectDAO.get(anyString())).thenReturn(Optional.of(projectDTO));
+		when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
+		when(provisioningService.post(anyString(), anyString(), any(), any())).thenReturn(UUID);
+		when(requestBuilder.newProjectCreate(any(UserInfo.class), any(ProjectDTO.class), any(EndpointDTO.class))).thenReturn(newProjectCreate());
 
-        ProjectDTO project = projectService.get(NAME1);
+		projectService.recreate(getUserInfo(), ENDPOINT_NAME, projectDTO.getName());
 
-        assertEquals(projectMock, project);
-        verify(projectDAO).get(NAME1);
+		verify(projectDAO).get(NAME1);
+		verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.CREATING);
+		verify(endpointService).get(ENDPOINT_NAME);
+		verify(requestBuilder).newProjectCreate(getUserInfo(), projectDTO, getEndpointDTO());
+		verify(provisioningService).post(ENDPOINT_URL + RECREATE_PRJ_API, TOKEN, newProjectCreate(), String.class);
+		verify(requestId).put(USER.toLowerCase(), UUID);
+		verifyNoMoreInteractions(projectDAO, endpointService, provisioningService, requestBuilder);
+	}
+
+	@Test
+	public void get() {
+		ProjectDTO projectMock = getProjectCreatingDTO();
+		when(projectDAO.get(anyString())).thenReturn(Optional.of(projectMock));
+
+		ProjectDTO project = projectService.get(NAME1);
+
+		assertEquals(projectMock, project);
+		verify(projectDAO).get(NAME1);
         verifyNoMoreInteractions(projectDAO);
     }
 

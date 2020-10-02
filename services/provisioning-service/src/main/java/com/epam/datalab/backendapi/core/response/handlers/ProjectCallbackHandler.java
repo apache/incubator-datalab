@@ -28,6 +28,7 @@ import com.epam.datalab.rest.client.RESTService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResult> {
 
@@ -54,18 +55,18 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 
     @Override
     protected ProjectResult parseOutResponse(JsonNode resultNode, ProjectResult baseStatus) {
-        baseStatus.setProjectName(projectName);
-        baseStatus.setEndpointName(endpointName);
-        if (resultNode != null && getAction() == DockerAction.CREATE
-                && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
-            try {
-                final EdgeInfo projectEdgeInfo = mapper.readValue(resultNode.toString(), clazz);
-                baseStatus.setEdgeInfo(projectEdgeInfo);
-            } catch (IOException e) {
-                throw new DatalabException("Cannot parse the EDGE info in JSON: " + e.getLocalizedMessage(), e);
-            }
-        }
+	    baseStatus.setProjectName(projectName);
+	    baseStatus.setEndpointName(endpointName);
+	    if (resultNode != null && Arrays.asList(DockerAction.CREATE, DockerAction.RECREATE).contains(getAction()) &&
+			    UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
+		    try {
+			    final EdgeInfo projectEdgeInfo = mapper.readValue(resultNode.toString(), clazz);
+			    baseStatus.setEdgeInfo(projectEdgeInfo);
+		    } catch (IOException e) {
+			    throw new DatalabException("Cannot parse the EDGE info in JSON: " + e.getLocalizedMessage(), e);
+		    }
+	    }
 
-        return baseStatus;
+	    return baseStatus;
     }
 }

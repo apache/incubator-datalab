@@ -61,6 +61,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECREATE;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.STOP;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
@@ -77,6 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
     private static final String TERMINATE_PRJ_API = "infrastructure/project/terminate";
     private static final String START_PRJ_API = "infrastructure/project/start";
     private static final String STOP_PRJ_API = "infrastructure/project/stop";
+    private static final String RECREATE_PRJ_API = "infrastructure/project/recreate";
     private static final String STOP_ACTION = "stop";
     private static final String TERMINATE_ACTION = "terminate";
     private static final String TOTAL_BUDGET_PERIOD = "Total";
@@ -87,6 +89,7 @@ public class ProjectServiceImpl implements ProjectService {
     private static final String AUDIT_REMOVE_GROUP = "Remove group(s): %s\n";
     private static final String AUDIT_UPDATE_BUDGET = "Update quota: %d->%d\nUpdate period: %s->%s";
     private static final String AUDIT_ADD_EDGE_NODE = "Create edge node for endpoint %s, requested in project %s";
+    private static final String AUDIT_RECREATE_EDGE_NODE = "Recreate edge node for endpoint %s, requested in project %s";
 
     private final ProjectDAO projectDAO;
     private final ExploratoryService exploratoryService;
@@ -139,15 +142,21 @@ public class ProjectServiceImpl implements ProjectService {
         return projectDAO.getProjectsByEndpoint(endpointName);
     }
 
-    @BudgetLimited
     @Override
-    public void create(UserInfo user, ProjectDTO projectDTO, String resourceName) {
+    public void create(UserInfo user, ProjectDTO projectDTO, String projectName) {
         if (!projectDAO.get(projectDTO.getName()).isPresent()) {
             projectDAO.create(projectDTO);
             createProjectOnCloud(user, projectDTO);
         } else {
             throw new ResourceConflictException("Project with passed name already exist in system");
         }
+    }
+
+    @BudgetLimited
+    @Override
+    public void recreate(UserInfo userInfo, String endpoint, @Project String name) {
+        projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.CREATING);
+        recreateEndpoint(userInfo, get(name), endpoint, name, String.format(AUDIT_RECREATE_EDGE_NODE, endpoint, name));
     }
 
     @Override
@@ -237,7 +246,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.getEndpoints().addAll(endpointsToBeCreated);
         projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
                 project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
-        endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
+        endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, project, e.getName(), projectName, String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
     }
 
     @Override
@@ -276,7 +285,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private void createProjectOnCloud(UserInfo user, ProjectDTO project) {
         try {
-            project.getEndpoints().forEach(e -> createEndpoint(user, project.getName(), project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
+            project.getEndpoints().forEach(e -> createEndpoint(user, project, e.getName(), project.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
         } catch (Exception e) {
             log.error("Can not create project due to: {}", e.getMessage(), e);
             projectDAO.updateStatus(project.getName(), ProjectDTO.Status.FAILED);
@@ -284,9 +293,20 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Audit(action = CREATE, type = EDGE_NODE)
-    public void createEndpoint(@User UserInfo user, @Project String projectName, ProjectDTO projectDTO, @ResourceName String endpointName, @Info String auditInfo) {
+    public void createEndpoint(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String endpointName, @Project String projectName,
+                               @Info String auditInfo) {
+        createEdgeNode(user, projectDTO, endpointName, CREATE_PRJ_API);
+    }
+
+    @Audit(action = RECREATE, type = EDGE_NODE)
+    public void recreateEndpoint(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String endpointName, @Project String projectName,
+                                 @Info String auditInfo) {
+        createEdgeNode(user, projectDTO, endpointName, RECREATE_PRJ_API);
+    }
+
+    private void createEdgeNode(UserInfo user, ProjectDTO projectDTO, String endpointName, String provisioningApiUri) {
         EndpointDTO endpointDTO = endpointService.get(endpointName);
-        String uuid = provisioningService.post(endpointDTO.getUrl() + CREATE_PRJ_API, user.getAccessToken(),
+        String uuid = provisioningService.post(endpointDTO.getUrl() + provisioningApiUri, user.getAccessToken(),
                 requestBuilder.newProjectCreate(user, projectDTO, endpointDTO), String.class);
         requestId.put(user.getName(), uuid);
     }
@@ -298,7 +318,7 @@ public class ProjectServiceImpl implements ProjectService {
                     requestBuilder.newProjectAction(user, projectName, endpointDTO), String.class);
             requestId.put(user.getName(), uuid);
         } catch (Exception e) {
-            log.error("Can not terminate project due to: {}", e.getMessage(), e);
+            log.error("Can not post to {} project due to: {}", provisioningApiUri, e.getMessage(), e);
             projectDAO.updateStatus(projectName, ProjectDTO.Status.FAILED);
         }
     }

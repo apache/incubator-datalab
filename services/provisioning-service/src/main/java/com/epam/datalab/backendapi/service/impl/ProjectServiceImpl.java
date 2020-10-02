@@ -58,28 +58,31 @@ public class ProjectServiceImpl implements ProjectService {
     @Inject
     public ProjectServiceImpl(RESTService selfService, ProvisioningServiceApplicationConfiguration configuration,
                               FolderListenerExecutor folderListenerExecutor, ICommandExecutor commandExecutor, CommandBuilder commandBuilder) {
-        this.selfService = selfService;
-        this.configuration = configuration;
-        this.folderListenerExecutor = folderListenerExecutor;
-        this.commandExecutor = commandExecutor;
-        this.commandBuilder = commandBuilder;
+	    this.selfService = selfService;
+	    this.configuration = configuration;
+	    this.folderListenerExecutor = folderListenerExecutor;
+	    this.commandExecutor = commandExecutor;
+	    this.commandBuilder = commandBuilder;
     }
 
-    @Override
-    public String create(UserInfo userInfo, ProjectCreateDTO dto) {
-        return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), "project", PROJECT_IMAGE,
-                dto.getEndpoint());
-    }
+	@Override
+	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
+		return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), "project", PROJECT_IMAGE, dto.getEndpoint());
+	}
 
-    @Override
-    public String terminate(UserInfo userInfo, ProjectActionDTO dto) {
-        return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), "project", PROJECT_IMAGE,
-                dto.getEndpoint());
-    }
+	@Override
+	public String recreate(UserInfo userInfo, ProjectCreateDTO dto) {
+		return executeDocker(userInfo, dto, DockerAction.RECREATE, dto.getName(), "project", PROJECT_IMAGE, dto.getEndpoint());
+	}
 
-    @Override
-    public String start(UserInfo userInfo, ProjectActionDTO dto) {
-        return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), "edge", EDGE_IMAGE, dto.getEndpoint());
+	@Override
+	public String terminate(UserInfo userInfo, ProjectActionDTO dto) {
+		return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), "project", PROJECT_IMAGE, dto.getEndpoint());
+	}
+
+	@Override
+	public String start(UserInfo userInfo, ProjectActionDTO dto) {
+		return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), "edge", EDGE_IMAGE, dto.getEndpoint());
     }
 
     @Override

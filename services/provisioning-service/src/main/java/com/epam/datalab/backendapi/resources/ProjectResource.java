@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 
 @Path("infrastructure/project")
 public class ProjectResource {
+
     private final ProjectService projectService;
 
     @Inject
@@ -42,23 +43,31 @@ public class ProjectResource {
         this.projectService = projectService;
     }
 
-    @Path("/create")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createProject(@Auth UserInfo userInfo, ProjectCreateDTO dto) {
-        return Response.ok(projectService.create(userInfo, dto)).build();
-    }
+	@Path("/create")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createProject(@Auth UserInfo userInfo, ProjectCreateDTO dto) {
+		return Response.ok(projectService.create(userInfo, dto)).build();
+	}
 
-    @Path("/terminate")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response terminateProject(@Auth UserInfo userInfo, ProjectActionDTO dto) {
-        return Response.ok(projectService.terminate(userInfo, dto)).build();
-    }
+	@Path("/recreate")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response recreateProject(@Auth UserInfo userInfo, ProjectCreateDTO dto) {
+		return Response.ok(projectService.recreate(userInfo, dto)).build();
+	}
 
-    @Path("/start")
+	@Path("/terminate")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response terminateProject(@Auth UserInfo userInfo, ProjectActionDTO dto) {
+		return Response.ok(projectService.terminate(userInfo, dto)).build();
+	}
+
+	@Path("/start")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

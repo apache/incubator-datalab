@@ -104,6 +104,24 @@ public class ProjectResource {
                 .build();
     }
 
+    @Operation(summary = "Recreate project edge", tags = "project")
+    @ApiResponse(responseCode = "202", description = "Project edge is recreating")
+    @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+            MediaType.APPLICATION_JSON,
+            schema = @Schema(implementation = ErrorDTO.class)))
+    @Path("recreate")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed("/api/project")
+    public Response recreateProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
+                                    @NotNull @Valid ProjectActionFormDTO startProjectDto) {
+        startProjectDto.getEndpoints()
+                .forEach(endpoint -> projectService.recreate(userInfo, endpoint, startProjectDto.getProjectName()));
+        return Response
+                .accepted()
+                .build();
+    }
+
     @Operation(summary = "Start project", tags = "project")
     @ApiResponse(responseCode = "202", description = "Project is starting")
     @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
