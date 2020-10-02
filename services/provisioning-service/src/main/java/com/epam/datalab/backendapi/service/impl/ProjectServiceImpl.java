@@ -45,19 +45,21 @@ import java.util.Objects;
 
 @Slf4j
 public class ProjectServiceImpl implements ProjectService {
-    private static final String PROJECT_IMAGE = "docker.datalab-project";
-    private static final String EDGE_IMAGE = "docker.datalab-edge";
-    private static final String CALLBACK_URI = "/api/project/status";
+	private static final String PROJECT_IMAGE = "docker.datalab-project";
+	private static final String EDGE_IMAGE = "docker.datalab-edge";
+	private static final String CALLBACK_URI = "/api/project/status";
+	private static final String PROJECT_RESOURCE_TYPE = "project";
+	private static final String EDGE_RESOURCE_TYPE = "edge";
 
-    protected final RESTService selfService;
-    private final ProvisioningServiceApplicationConfiguration configuration;
-    private final FolderListenerExecutor folderListenerExecutor;
-    private final ICommandExecutor commandExecutor;
-    private final CommandBuilder commandBuilder;
+	protected final RESTService selfService;
+	private final ProvisioningServiceApplicationConfiguration configuration;
+	private final FolderListenerExecutor folderListenerExecutor;
+	private final ICommandExecutor commandExecutor;
+	private final CommandBuilder commandBuilder;
 
-    @Inject
-    public ProjectServiceImpl(RESTService selfService, ProvisioningServiceApplicationConfiguration configuration,
-                              FolderListenerExecutor folderListenerExecutor, ICommandExecutor commandExecutor, CommandBuilder commandBuilder) {
+	@Inject
+	public ProjectServiceImpl(RESTService selfService, ProvisioningServiceApplicationConfiguration configuration,
+	                          FolderListenerExecutor folderListenerExecutor, ICommandExecutor commandExecutor, CommandBuilder commandBuilder) {
 	    this.selfService = selfService;
 	    this.configuration = configuration;
 	    this.folderListenerExecutor = folderListenerExecutor;
@@ -67,27 +69,27 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), "project", PROJECT_IMAGE, dto.getEndpoint());
+		return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
 	}
 
 	@Override
 	public String recreate(UserInfo userInfo, ProjectCreateDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.RECREATE, dto.getName(), "project", PROJECT_IMAGE, dto.getEndpoint());
+		return executeDocker(userInfo, dto, DockerAction.RECREATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
 	}
 
 	@Override
 	public String terminate(UserInfo userInfo, ProjectActionDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), "project", PROJECT_IMAGE, dto.getEndpoint());
+		return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
 	}
 
 	@Override
 	public String start(UserInfo userInfo, ProjectActionDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), "edge", EDGE_IMAGE, dto.getEndpoint());
-    }
+		return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), EDGE_RESOURCE_TYPE, EDGE_IMAGE, dto.getEndpoint());
+	}
 
     @Override
     public String stop(UserInfo userInfo, ProjectActionDTO dto) {
-        return executeDocker(userInfo, dto, DockerAction.STOP, dto.getName(), "edge", EDGE_IMAGE, dto.getEndpoint());
+	    return executeDocker(userInfo, dto, DockerAction.STOP, dto.getName(), EDGE_RESOURCE_TYPE, EDGE_IMAGE, dto.getEndpoint());
     }
 
     private String executeDocker(UserInfo userInfo, ResourceBaseDTO dto, DockerAction action, String projectName,
