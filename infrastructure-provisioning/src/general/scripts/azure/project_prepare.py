@@ -179,6 +179,7 @@ if __name__ == "__main__":
                 endpoint_ip = AzureMeta.get_instance_public_ip_address(project_conf['resource_group_name'],
                                                          '{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
             priority = 110
+            priorities = list()
             rules_list = AzureMeta.get_security_group(project_conf['resource_group_name'], os.environ['azure_edge_security_group_name'])
             for rule in rules_list.as_dict()['security_rules']:
                 priorities.append(rule['priority'])
