@@ -228,12 +228,12 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def remove_security_rules(self, network_security_group_name, resource_group_name, security_rule_name):
+    def remove_security_rules(self, network_security_group, resource_group, security_rule):
         try:
             result = self.network_client.security_rules.delete(
-                network_security_group_name,
-                resource_group_name,
-                security_rule_name).wait()
+                network_security_group_name = network_security_group,
+                resource_group_name = resource_group,
+                security_rule_name = security_rule).wait()
             return result
         except Exception as err:
             logging.info(
