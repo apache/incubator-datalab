@@ -289,7 +289,7 @@ export class SchedulerComponent implements OnInit {
           params.start_days_repeat.filter(key => (this.selectedStartWeekDays[key.toLowerCase()] = true));
           params.stop_days_repeat.filter(key => (this.selectedStopWeekDays[key.toLowerCase()] = true));
           this.inherit = params.sync_start_required;
-          this.tzOffset = params.timezone_offset ? params.timezone_offset : this.tzOffset;
+          this.tzOffset = params.timezone_offset && params.timezone_offset !== 'Z' ? params.timezone_offset : this.tzOffset;
           this.startTime = params.start_time ? SchedulerCalculations.convertTimeFormat(params.start_time) : this.startTime;
           this.startTimeMilliseconds = SchedulerCalculations.setTimeInMiliseconds(this.startTime);
           this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : this.endTime;

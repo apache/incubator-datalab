@@ -34,45 +34,45 @@ public class ConfigPropertyValue {
 	private static final Logger LOGGER = LogManager.getLogger(ConfigPropertyValue.class);
 	private static final String CONFIG_FILE_NAME;
 
-    public static final String JENKINS_USERNAME="JENKINS_USERNAME";
+	public static final String JENKINS_USERNAME = "JENKINS_USERNAME";
 	public static final String JENKINS_PASS = "JENKINS_PASSWORD";
-	private static final String USERNAME="USERNAME";
+	private static final String USERNAME = "USERNAME";
 	private static final String PASS = "PASSWORD";
-	private static final String NOT_IAM_USERNAME="NOT_IAM_USERNAME";
+	private static final String NOT_IAM_USERNAME = "NOT_IAM_USERNAME";
 	private static final String NOT_IAM_PASS = "NOT_IAM_PASSWORD";
-	private static final String NOT_DLAB_USERNAME="NOT_DLAB_USERNAME";
-	private static final String NOT_DLAB_PASS = "NOT_DLAB_PASSWORD";
-	private static final String JENKINS_JOB_URL="JENKINS_JOB_URL";
-	private static final String USER_FOR_ACTIVATE_KEY="USER_FOR_ACTIVATE_KEY";
+	private static final String NOT_DATALAB_USERNAME = "NOT_DATALAB_USERNAME";
+	private static final String NOT_DATALAB_PASS = "NOT_DATALAB_PASSWORD";
+	private static final String JENKINS_JOB_URL = "JENKINS_JOB_URL";
+	private static final String USER_FOR_ACTIVATE_KEY = "USER_FOR_ACTIVATE_KEY";
 	private static final String PASS_FOR_ACTIVATE_KEY = "PASSWORD_FOR_ACTIVATE_KEY";
-	private static final String ACCESS_KEY_PRIV_FILE_NAME="ACCESS_KEY_PRIV_FILE_NAME";
-	private static final String ACCESS_KEY_PUB_FILE_NAME="ACCESS_KEY_PUB_FILE_NAME";
+	private static final String ACCESS_KEY_PRIV_FILE_NAME = "ACCESS_KEY_PRIV_FILE_NAME";
+	private static final String ACCESS_KEY_PUB_FILE_NAME = "ACCESS_KEY_PUB_FILE_NAME";
 
-	private static final  String CLOUD_PROVIDER="CLOUD_PROVIDER";
-    
-    private static final String AWS_ACCESS_KEY_ID="AWS_ACCESS_KEY_ID";
-    private static final String AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY";
-    private static final String AWS_REGION="AWS_REGION";
-    private static final String AWS_REQUEST_TIMEOUT="AWS_REQUEST_TIMEOUT";
+	private static final String CLOUD_PROVIDER = "CLOUD_PROVIDER";
 
-    private static final String AZURE_REGION="AZURE_REGION";
-    private static final String AZURE_REQUEST_TIMEOUT="AZURE_REQUEST_TIMEOUT";
-    private static final String AZURE_DATALAKE_ENABLED="AZURE_DATALAKE_ENABLED";
-    private static final String AZURE_DATALAKE_SHARED_ACCOUNT="AZURE_DATALAKE_SHARED_ACCOUNT";
-    private static final String AZURE_STORAGE_SHARED_ACCOUNT="AZURE_STORAGE_SHARED_ACCOUNT";
+	private static final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
+	private static final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";
+	private static final String AWS_REGION = "AWS_REGION";
+	private static final String AWS_REQUEST_TIMEOUT = "AWS_REQUEST_TIMEOUT";
+
+	private static final String AZURE_REGION = "AZURE_REGION";
+	private static final String AZURE_REQUEST_TIMEOUT = "AZURE_REQUEST_TIMEOUT";
+	private static final String AZURE_DATALAKE_ENABLED = "AZURE_DATALAKE_ENABLED";
+	private static final String AZURE_DATALAKE_SHARED_ACCOUNT = "AZURE_DATALAKE_SHARED_ACCOUNT";
+	private static final String AZURE_STORAGE_SHARED_ACCOUNT = "AZURE_STORAGE_SHARED_ACCOUNT";
 	private static final String AZURE_AUTHENTICATION_FILE = "AZURE_AUTHENTICATION_FILE";
 
-	private static final String GCP_DLAB_PROJECT_ID = "GCP_DLAB_PROJECT_ID";
-    private static final String GCP_REGION="GCP_REGION";
+	private static final String GCP_DATALAB_PROJECT_ID = "GCP_DATALAB_PROJECT_ID";
+	private static final String GCP_REGION = "GCP_REGION";
 	private static final String GCP_REQUEST_TIMEOUT = "GCP_REQUEST_TIMEOUT";
 	private static final String GCP_AUTHENTICATION_FILE = "GCP_AUTHENTICATION_FILE";
 
-    private static final String TIMEOUT_JENKINS_AUTOTEST="TIMEOUT_JENKINS_AUTOTEST";
-    private static final String TIMEOUT_UPLOAD_KEY="TIMEOUT_UPLOAD_KEY";
-    private static final String TIMEOUT_SSN_STARTUP="TIMEOUT_SSN_STARTUP";
+	private static final String TIMEOUT_JENKINS_AUTOTEST = "TIMEOUT_JENKINS_AUTOTEST";
+	private static final String TIMEOUT_UPLOAD_KEY = "TIMEOUT_UPLOAD_KEY";
+	private static final String TIMEOUT_SSN_STARTUP = "TIMEOUT_SSN_STARTUP";
 
-    private static final String CLUSTER_OS_USERNAME = "CLUSTER_OS_USERNAME";
-    private static final String CLUSTER_OS_FAMILY = "CLUSTER_OS_FAMILY";
+	private static final String CLUSTER_OS_USERNAME = "CLUSTER_OS_USERNAME";
+	private static final String CLUSTER_OS_FAMILY = "CLUSTER_OS_FAMILY";
     private static final String CONF_TAG_RESOURCE_ID = "CONF_TAG_RESOURCE_ID";
 
 	private static final String JUPYTER_SCENARIO_FILES = "JUPYTER_SCENARIO_FILES";
@@ -143,47 +143,47 @@ public class ConfigPropertyValue {
 	private static void loadProperties() {
         try (FileReader fin = new FileReader(new File(CONFIG_FILE_NAME))) {
 
-            props.load(fin);
+	        props.load(fin);
 
-            PropertiesResolver.overlapProperty(props, CLUSTER_OS_USERNAME, true);
-            PropertiesResolver.overlapProperty(props, CLUSTER_OS_FAMILY, true);
-            PropertiesResolver.overlapProperty(props, AWS_REGION, true);
-            PropertiesResolver.overlapProperty(props, AZURE_REGION, true);
-			PropertiesResolver.overlapProperty(props, GCP_DLAB_PROJECT_ID, true);
-            PropertiesResolver.overlapProperty(props, GCP_REGION, true);
-            PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
-			PropertiesResolver.overlapProperty(props, SKIPPED_LIBS, true);
-			PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
-            PropertiesResolver.overlapProperty(props, JENKINS_JOB_URL, !isUseJenkins());
-            PropertiesResolver.overlapProperty(props, SSN_URL, isUseJenkins());
-            PropertiesResolver.overlapProperty(props, SERVICE_BASE_NAME, isUseJenkins());
-            PropertiesResolver.overlapProperty(props, RUN_MODE_LOCAL, true);
-            
-            setKeyProperty(ACCESS_KEY_PRIV_FILE_NAME);
+	        PropertiesResolver.overlapProperty(props, CLUSTER_OS_USERNAME, true);
+	        PropertiesResolver.overlapProperty(props, CLUSTER_OS_FAMILY, true);
+	        PropertiesResolver.overlapProperty(props, AWS_REGION, true);
+	        PropertiesResolver.overlapProperty(props, AZURE_REGION, true);
+	        PropertiesResolver.overlapProperty(props, GCP_DATALAB_PROJECT_ID, true);
+	        PropertiesResolver.overlapProperty(props, GCP_REGION, true);
+	        PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
+	        PropertiesResolver.overlapProperty(props, SKIPPED_LIBS, true);
+	        PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
+	        PropertiesResolver.overlapProperty(props, JENKINS_JOB_URL, !isUseJenkins());
+	        PropertiesResolver.overlapProperty(props, SSN_URL, isUseJenkins());
+	        PropertiesResolver.overlapProperty(props, SERVICE_BASE_NAME, isUseJenkins());
+	        PropertiesResolver.overlapProperty(props, RUN_MODE_LOCAL, true);
+
+	        setKeyProperty(ACCESS_KEY_PRIV_FILE_NAME);
             setKeyProperty(ACCESS_KEY_PUB_FILE_NAME);
         } catch (Exception e) {
         	LOGGER.fatal("Load properties from file {} fails.", CONFIG_FILE_NAME, e);
-			throw new LoadFailException("Load properties from \"" + CONFIG_FILE_NAME + "\" fails. " +
-					e.getLocalizedMessage(), e);
+	        throw new LoadFailException("Load properties from \"" + CONFIG_FILE_NAME + "\" fails. " +
+			        e.getLocalizedMessage(), e);
         }
-        
-        printProperty(JENKINS_USERNAME);
+
+		printProperty(JENKINS_USERNAME);
 		printProperty(JENKINS_PASS);
-        printProperty(USERNAME);
+		printProperty(USERNAME);
 		printProperty(PASS);
-        printProperty(NOT_IAM_USERNAME);
+		printProperty(NOT_IAM_USERNAME);
 		printProperty(NOT_IAM_PASS);
-        printProperty(NOT_DLAB_USERNAME);
-		printProperty(NOT_DLAB_PASS);
-        printProperty(JENKINS_JOB_URL);
-        printProperty(USER_FOR_ACTIVATE_KEY);
+		printProperty(NOT_DATALAB_USERNAME);
+		printProperty(NOT_DATALAB_PASS);
+		printProperty(JENKINS_JOB_URL);
+		printProperty(USER_FOR_ACTIVATE_KEY);
 		printProperty(PASS_FOR_ACTIVATE_KEY);
-        printProperty(ACCESS_KEY_PRIV_FILE_NAME);
-        printProperty(ACCESS_KEY_PUB_FILE_NAME);
-        
-        printProperty(TIMEOUT_JENKINS_AUTOTEST);
-        printProperty(TIMEOUT_UPLOAD_KEY);
-        printProperty(TIMEOUT_SSN_STARTUP);
+		printProperty(ACCESS_KEY_PRIV_FILE_NAME);
+		printProperty(ACCESS_KEY_PUB_FILE_NAME);
+
+		printProperty(TIMEOUT_JENKINS_AUTOTEST);
+		printProperty(TIMEOUT_UPLOAD_KEY);
+		printProperty(TIMEOUT_SSN_STARTUP);
 
         printProperty(JUPYTER_SCENARIO_FILES);
         printProperty(CLOUD_PROVIDER);
@@ -233,29 +233,29 @@ public class ConfigPropertyValue {
 		return get(PASS);
     }
 
-    public static String getNotIAMUsername() {
-    	return get(NOT_IAM_USERNAME);
-    }
+	public static String getNotIAMUsername() {
+		return get(NOT_IAM_USERNAME);
+	}
 
-    public static String getNotIAMPassword() {
+	public static String getNotIAMPassword() {
 		return get(NOT_IAM_PASS);
-    }
+	}
 
-    public static String getNotDLabUsername() {
-    	return get(NOT_DLAB_USERNAME);
-    }
+	public static String getNotDataLabUsername() {
+		return get(NOT_DATALAB_USERNAME);
+	}
 
-    public static String getNotDLabPassword() {
-		return get(NOT_DLAB_PASS);
-    }
+	public static String getNotDataLabPassword() {
+		return get(NOT_DATALAB_PASS);
+	}
 
-    public static String getJenkinsJobURL() {
-    	return get(JENKINS_JOB_URL);
-    }
+	public static String getJenkinsJobURL() {
+		return get(JENKINS_JOB_URL);
+	}
 
-    public static String getUserForActivateKey() {
-    	return get(USER_FOR_ACTIVATE_KEY);
-    }
+	public static String getUserForActivateKey() {
+		return get(USER_FOR_ACTIVATE_KEY);
+	}
 
     public static String getPasswordForActivateKey() {
 		return get(PASS_FOR_ACTIVATE_KEY);
@@ -310,21 +310,21 @@ public class ConfigPropertyValue {
         return get(AZURE_DATALAKE_ENABLED);
     }
 
-    public static String getAzureDatalakeSharedAccount() {
-        return get(AZURE_DATALAKE_SHARED_ACCOUNT);
-    }
-
-    public static String getAzureStorageSharedAccount() {
-        return get(AZURE_STORAGE_SHARED_ACCOUNT);
-    }
-
-	public static String getGcpDlabProjectId() {
-		return get(GCP_DLAB_PROJECT_ID);
+	public static String getAzureDatalakeSharedAccount() {
+		return get(AZURE_DATALAKE_SHARED_ACCOUNT);
 	}
 
-    public static String getGcpRegion() {
-        return get(GCP_REGION);
-    }
+	public static String getAzureStorageSharedAccount() {
+		return get(AZURE_STORAGE_SHARED_ACCOUNT);
+	}
+
+	public static String getGcpDataLabProjectId() {
+		return get(GCP_DATALAB_PROJECT_ID);
+	}
+
+	public static String getGcpRegion() {
+		return get(GCP_REGION);
+	}
 
 	public static Duration getGcpRequestTimeout() {
 		return getDuration(get(GCP_REQUEST_TIMEOUT, "10s"));

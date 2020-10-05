@@ -135,6 +135,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
                         describe();
                         break;
                     case CREATE:
+                    case RECREATE:
                     case START:
                     case STOP:
                     case TERMINATE:

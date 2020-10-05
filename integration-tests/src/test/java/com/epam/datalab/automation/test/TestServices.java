@@ -21,7 +21,12 @@ package com.epam.datalab.automation.test;
 
 import com.epam.datalab.automation.cloud.VirtualMachineStatusChecker;
 import com.epam.datalab.automation.docker.Docker;
-import com.epam.datalab.automation.helper.*;
+import com.epam.datalab.automation.helper.CloudHelper;
+import com.epam.datalab.automation.helper.CloudProvider;
+import com.epam.datalab.automation.helper.ConfigPropertyValue;
+import com.epam.datalab.automation.helper.NamingHelper;
+import com.epam.datalab.automation.helper.PropertiesResolver;
+import com.epam.datalab.automation.helper.WaitForStatus;
 import com.epam.datalab.automation.http.ApiPath;
 import com.epam.datalab.automation.http.ContentType;
 import com.epam.datalab.automation.http.HttpRequest;
@@ -176,14 +181,14 @@ public class TestServices {
 		// administrator to create corresponding IAM User");
 		// }
 
-		responseBody = login(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(),
-				HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
+		responseBody = login(ConfigPropertyValue.getNotDataLabUsername(), ConfigPropertyValue.getNotDataLabPassword(),
+				HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDataLabUsername());
 
 		Assert.assertEquals(responseBody.path("message"), "Username or password is invalid");
 
 		if (!ConfigPropertyValue.isRunModeLocal()) {
 			responseBody = login(ConfigPropertyValue.getUsername(), ".", HttpStatusCode.UNAUTHORIZED,
-					"Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
+					"Unauthorized user " + ConfigPropertyValue.getNotDataLabUsername());
 			Assert.assertEquals(responseBody.path("message"), "Username or password is invalid");
 		}
 

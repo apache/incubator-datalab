@@ -176,7 +176,8 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
                 case CREATE_IMAGE:
                     return UserInstanceStatus.CREATED; // Any status besides failed
                 case CREATE:
-                case CONFIGURE:
+	            case RECREATE:
+	            case CONFIGURE:
                 case START:
                 case RECONFIGURE_SPARK:
                     return UserInstanceStatus.RUNNING;

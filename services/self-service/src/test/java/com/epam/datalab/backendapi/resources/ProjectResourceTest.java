@@ -106,6 +106,19 @@ public class ProjectResourceTest extends TestBase {
     }
 
     @Test
+    public void recreateProject() {
+        final Response response = resources.getJerseyTest()
+                .target("project/recreate")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(getProjectActionDTO()));
+
+        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+        verify(projectService).recreate(getUserInfo(), ENDPOINT_NAME, PROJECT_NAME);
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
     public void startProject() {
         final Response response = resources.getJerseyTest()
                 .target("project/start")
@@ -114,7 +127,7 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService).start(getUserInfo(), Collections.singletonList("https://localhost:8083/"), PROJECT_NAME);
+        verify(projectService).start(getUserInfo(), Collections.singletonList(ENDPOINT_NAME), PROJECT_NAME);
         verifyNoMoreInteractions(projectService);
     }
 
@@ -127,7 +140,7 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService).stopWithResources(getUserInfo(), Collections.singletonList("https://localhost:8083/"), PROJECT_NAME);
+        verify(projectService).stopWithResources(getUserInfo(), Collections.singletonList(ENDPOINT_NAME), PROJECT_NAME);
         verifyNoMoreInteractions(projectService);
     }
 
@@ -275,7 +288,7 @@ public class ProjectResourceTest extends TestBase {
     }
 
     private ProjectActionFormDTO getProjectActionDTO() {
-        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList("https://localhost:8083/"));
+        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList(ENDPOINT_NAME));
     }
 
     private UpdateProjectDTO prepareUpdateProjectDTO() {
@@ -283,7 +296,7 @@ public class ProjectResourceTest extends TestBase {
     }
 
     private ProjectActionFormDTO prepareProjectActionFormDTO() {
-        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList("https://localhost:8083/"));
+        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList(ENDPOINT_NAME));
     }
 
     private List<UpdateProjectBudgetDTO> prepareUpdateProjectBudgetDTOs() {

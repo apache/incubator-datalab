@@ -25,7 +25,11 @@ import com.epam.datalab.automation.helper.CloudHelper;
 import com.epam.datalab.automation.helper.ConfigPropertyValue;
 import com.epam.datalab.automation.helper.NamingHelper;
 import com.epam.datalab.automation.helper.PropertiesResolver;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,7 +44,10 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 class TestDataEngineService {
     private final static Logger LOGGER = LogManager.getLogger(TestDataEngineService.class);

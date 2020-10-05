@@ -21,7 +21,11 @@ package com.epam.datalab.automation.test.libs;
 
 import com.epam.datalab.automation.helper.NamingHelper;
 
-import static com.epam.datalab.automation.helper.NamingHelper.*;
+import static com.epam.datalab.automation.helper.NamingHelper.DEEPLEARNING;
+import static com.epam.datalab.automation.helper.NamingHelper.JUPYTER;
+import static com.epam.datalab.automation.helper.NamingHelper.RSTUDIO;
+import static com.epam.datalab.automation.helper.NamingHelper.TENSOR;
+import static com.epam.datalab.automation.helper.NamingHelper.ZEPPELIN;
 
 public class LibsHelper {
 

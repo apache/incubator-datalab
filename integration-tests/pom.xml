@@ -20,7 +20,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.epam.dlab</groupId>
+    <groupId>com.epam.datalab</groupId>
     <artifactId>integration-tests</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
@@ -247,11 +247,11 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <!--                                     <mainClass>com.epam.dlab.automation</mainClass> -->
+                                    <!--                                     <mainClass>com.epam.datalab.automation</mainClass> -->
                                     <manifestEntries>
                                         <Created-By>&lt;EPAM&gt; Systems</Created-By>
-                                        <Name>com/epam/dlab/automation</Name>
-                                        <Implementation-Title>DLab Integration Tests</Implementation-Title>
+                                        <Name>com/epam/datalab/automation</Name>
+                                        <Implementation-Title>DataLab Integration Tests</Implementation-Title>
                                         <Implementation-Version>${datalab.version}</Implementation-Version>
                                         <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
                                         <Build-Time>${maven.build.timestamp}</Build-Time>
