@@ -372,7 +372,7 @@ def start_supervisor_endpoint():
 
 def get_sources():
     try:
-        conn.run("git clone https://github.com/apache/incubator-dlab.git {0}/sources".format(args.datalab_path))
+        conn.run("git clone https://github.com/apache/incubator-datalab.git {0}/sources".format(args.datalab_path))
         if args.branch_name != "":
             conn.run("cd {0}/sources && git checkout {1} && cd".format(args.datalab_path, args.branch_name))
     except Exception as err:

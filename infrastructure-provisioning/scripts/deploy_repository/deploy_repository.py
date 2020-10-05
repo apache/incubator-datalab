@@ -62,7 +62,7 @@ parser.add_argument('--primary_disk_size', type=str, default='30', help="Disk si
 parser.add_argument('--additional_disk_size', type=str, default='50', help="Disk size of additional volume")
 parser.add_argument('--datalab_conf_file_path', type=str, default='', help="Full path to DataLab conf file")
 parser.add_argument('--nexus_admin_password', type=str, default='', help="Password for Nexus admin user")
-parser.add_argument('--nexus_service_user_name', type=str, default='dlab-nexus', help="Nexus service user name")
+parser.add_argument('--nexus_service_user_name', type=str, default='datalab-nexus', help="Nexus service user name")
 parser.add_argument('--nexus_service_user_password', type=str, default='', help="Nexus service user password")
 parser.add_argument('--action', required=True, type=str, default='', help='Action: create or terminate')
 args = parser.parse_args()

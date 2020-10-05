@@ -99,7 +99,7 @@ if __name__ == "__main__":
     if args.cloud == 'aws':
         upload_aws()
     elif args.cloud == 'azure':
-        os.environ['AZURE_AUTH_LOCATION'] = '/home/dlab-user/keys/azure_auth.json'
+        os.environ['AZURE_AUTH_LOCATION'] = '/home/datalab-user/keys/azure_auth.json'
         if args.azure_datalake_account:
             upload_azure_datalake()
         else:
