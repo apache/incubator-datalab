@@ -5,7 +5,7 @@ DataLab Overview
 CONTENTS
 -------
 
-[What is DataLab?](#What_is_DLAB)
+[What is DataLab?](#What_is_DataLab)
 
 &nbsp; &nbsp; [How to Contribute](CONTRIBUTING.md)
 
@@ -13,13 +13,13 @@ CONTENTS
 
 [Physical architecture](#Physical_architecture)
 
-[DataLab Deployment](#DLab_Deployment)
+[DataLab Deployment](#DataLab_Deployment)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Structure of main DataLab directory](#DLab_directory)
+&nbsp; &nbsp; &nbsp; &nbsp; [Structure of main DataLab directory](#DataLab_directory)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of log directory](#log_directory)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DataLab deployment](#Env_for_DLab)
+&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DataLab deployment](#Env_for_DataLab)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Keycloak server](#Keycloak_server)
 
@@ -66,13 +66,13 @@ CONTENTS
 &nbsp; &nbsp; &nbsp; &nbsp; [Azure OAuth2 Authentication](#Azure_OAuth2_Authentication)
 
 ---------------
-# What is DataLab? <a name="What_is_DLAB"></a>
+# What is DataLab? <a name="What_is_DataLab"></a>
 
 DataLab is an essential toolset for analytics. It is a self-service Web Console, used to create and manage exploratory 
 environments. It allows teams to spin up analytical environments with best of breed open-source tools just with a 
 single click of the mouse. Once established, environment can be managed by an analytical team itself, leveraging simple 
 and easy-to-use Web Interface.
-<p>See more at <a href="https://dlab.apache.org/" rel="nofollow">dlab.apache.org</a>.</p>
+<p>See more at <a href="https://datalab.apache.org/" rel="nofollow">datalab.apache.org</a>.</p>
 
 ----------------------------
 # Logical architecture <a name="Logical_architecture"></a>
@@ -193,9 +193,9 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for 
 job execution.
 ----------------------
-# DataLab Deployment <a name="DLab_Deployment"></a>
+# DataLab Deployment <a name="DataLab_Deployment"></a>
 
-### Structure of main DataLab directory <a name="DLab_directory"></a>
+### Structure of main DataLab directory <a name="DataLab_directory"></a>
 
 DataLab’s SSN node main directory structure is as follows:
 
@@ -253,7 +253,7 @@ These directories contain the log files for each template and for DataLab back-e
 | keycloak_user            |Keycloak user                  |
 | keycloak_user_password   |Keycloak user password         |
 
-### Preparing environment for Keycloak deployment <a name="Env_for_DLab"></a>
+### Preparing environment for Keycloak deployment <a name="Env_for_DataLab"></a>
 Keycloak can be deployed with Nginx proxy on instance using *deploy_keycloak.py* script. Currently it only works with HTTP.
 
 Preparation steps for deployment:
@@ -294,7 +294,7 @@ List of parameters for Keycloak node deployment:
 
 ## Self-Service Node <a name="Self_Service_Node"></a>
 
-### Preparing environment for DataLab deployment <a name="Env_for_DLab"></a>
+### Preparing environment for DataLab deployment <a name="Env_for_DataLab"></a>
 
 Deployment of DataLab starts from creating Self-Service(SSN) node. DataLab can be deployed in AWS, Azure and Google cloud.
 
@@ -490,7 +490,7 @@ To build SSN node, following steps should be executed:
 sudo su
 apt-get update
 apt-get install git
-git clone https://github.com/apache/incubator-dlab.git -b develop
+git clone https://github.com/apache/incubator-datalab.git -b develop
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
@@ -499,7 +499,7 @@ apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
 usermod -a -G docker *username*
 apt-get install -y python-pip
 pip install fabric==1.14.0
-cd incubator-dlab
+cd incubator-datalab
 ```
 - Go to *datalab* directory
 - Run *infrastructure-provisioning/scripts/deploy_datalab.py* deployment script:
@@ -1799,7 +1799,7 @@ sudo supervisorctl {start | stop | status} [all | provserv | secserv | ui]
 -   secserv – execute command for Security Service;
 -   ui – execute command for Self-Service.
 
-## DataLab Web UI <a name="DLab_Web_UI"></a>
+## DataLab Web UI <a name="DataLab_Web_UI"></a>
 
 DataLab self service is listening to the secure 8443 port. This port is used for secure local communication with 
 provisioning service.
@@ -2175,7 +2175,7 @@ mklink ssn.yml ..\\..\\infrastructure-provisioning\\src\\ssn\\templates\\ssn.yml
   * For Unix system create two folders and grant permission for writing:
 
 ```
-/var/opt/dlab/log/ssn
+/var/opt/datalab/log/ssn
 /opt/datalab/tmp/result
 ```
 
@@ -2754,11 +2754,11 @@ DataLab supports client credentials(username + password) and authorization code 
         tenant: xxxx-xxxx-xxxx-xxxx
         authority: https://login.microsoftonline.com/
         clientId: xxxx-xxxx-xxxx-xxxx
-        redirectUrl: https://dlab.azure.cloudapp.azure.com/
+        redirectUrl: https://datalab.azure.cloudapp.azure.com/
         responseMode: query
         prompt: consent
         silent: true
-        loginPage: https://dlab.azure.cloudapp.azure.com/
+        loginPage: https://datalab.azure.cloudapp.azure.com/
         maxSessionDurabilityMilliseconds: 288000000
 
 where:
@@ -2787,10 +2787,10 @@ To get more info about *responseMode*, *prompt* parameters please visit
         tenant: xxxx-xxxx-xxxx-xxxx
         authority: https://login.microsoftonline.com/
         clientId: xxxx-xxxx-xxxx-xxxx
-        redirectUrl: https://dlab.azure.cloudapp.azure.com/
+        redirectUrl: https://datalab.azure.cloudapp.azure.com/
         validatePermissionScope: true
         permissionScope: subscriptions/xxxx-xxxx-xxxx-xxxx/resourceGroups/xxxx-xxxx/providers/Microsoft.DataLakeStore/accounts/xxxx/providers/Microsoft.Authorization/
-        managementApiAuthFile: /dlab/keys/azure_authentication.json
+        managementApiAuthFile: /datalab/keys/azure_authentication.json
 
 where:
 - **useLdap** - defines if LDAP authentication is enabled(true/false). If false Azure OAuth2 takes place with 

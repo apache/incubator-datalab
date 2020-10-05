@@ -17,11 +17,11 @@ too old-fashioned, create a PR and move us to [Gradle](https://www.gradle.org/)!
 * __doc__ : Have you seen a project that doesn't need to improve its documentation?!
 * __website__ : We are using GH pages to build and manage the site's content. 
 If you're interested in making it better, check-out `gh-pages` branch and dig in.
-If you are not familiar with the [Github Pages](https://dlab.apache.org/) - check it out,
+If you are not familiar with the [Github Pages](https://datalab.apache.org/) - check it out,
 it's pretty simple yet powerful!
 * __giving feedback__ : Tell us how you use DataLab, what was great and what was not 
 so much. Also, what are you expecting from it and what would you like to see in 
-the future? Opening [an issue](https://github.com/apache/incubator-dlab/issues) will grab our
+the future? Opening [an issue](https://github.com/apache/incubator-datalab/issues) will grab our
 attention. Seriously, this is the great way to contribute!
 
 #### Roles
