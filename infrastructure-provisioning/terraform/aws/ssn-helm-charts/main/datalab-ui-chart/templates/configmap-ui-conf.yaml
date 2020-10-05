@@ -113,7 +113,7 @@ data:
     <#if DEV_MODE == "true">
     billingConfFile: ${sys['user.dir']}/../billing/billing.yml
     <#else>
-    billingConfFile: ${DLAB_CONF_DIR}/billing.yml
+    billingConfFile: ${DATALAB_CONF_DIR}/billing.yml
     </#if>
 
     <#if CLOUD_TYPE == "azure">
