@@ -70,6 +70,13 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
       this.projectList = value;
+      if (this.projectList) {
+        this.projectList.forEach(project => {
+          project.areRunningNode = this.areStartedEndpoints(project);
+          project.areStoppedNode = this.areStoppedEndpoints(project);
+          project.areTerminatedNode = this.areTerminatedOrFailedEndpoints(project);
+        });
+      }
       if (value) this.dataSource = new MatTableDataSource(value);
       this.progressBarService.stopProgressBar();
     }, () => this.progressBarService.stopProgressBar()));
@@ -117,6 +124,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
         if (action === 'terminate') {
           return endpoint.status === 'RUNNING' || endpoint.status === 'STOPPED';
         }
+        if (action === 'recreate') {
+          return endpoint.status === 'TERMINATED' || endpoint.status === 'FAILED';
+        }
       });
       this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
         .afterClosed().subscribe(endpoint => {
@@ -133,5 +143,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public areStoppedEndpoints(project) {
     return project.endpoints.filter(endpoint => endpoint.status === 'STOPPED').length > 0;
+  }
+  public areTerminatedOrFailedEndpoints(project) {
+    return project.endpoints.filter(endpoint => endpoint.status === 'TERMINATED' || endpoint.status === 'FAILED').length > 0;
   }
 }

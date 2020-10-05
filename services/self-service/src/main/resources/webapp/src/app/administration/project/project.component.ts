@@ -40,6 +40,9 @@ export interface Project {
   tag: string;
   groups: string[];
   shared_image_enabled?: boolean;
+  areStoppedNode?: boolean;
+  areTerminatedNode?: boolean;
+  areRunningNode?: boolean;
 }
 
 @Component({

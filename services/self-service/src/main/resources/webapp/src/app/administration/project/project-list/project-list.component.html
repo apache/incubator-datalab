@@ -71,19 +71,25 @@
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
           <div class="active-items"></div>
-          <li class="project-seting-item" *ngIf="areStoppedEndpoints(element)" (click)="openEdgeDialog('start', element)">
+          <li class="project-seting-item" *ngIf="element.areStoppedNode" (click)="openEdgeDialog('start', element)">
             <i class="material-icons">play_circle_outline</i>
             <a class="action">
               Start edge node
             </a>
           </li>
-          <li class="project-seting-item" *ngIf="areStartedEndpoints(element)" (click)="openEdgeDialog('stop', element )">
+          <li class="project-seting-item" *ngIf="element.areRunningNode" (click)="openEdgeDialog('stop', element )">
             <i class="material-icons">pause_circle_outline</i>
             <a class="action" >
               Stop edge node
             </a>
           </li>
-          <li class="project-seting-item " *ngIf="areStoppedEndpoints(element) || areStartedEndpoints(element)" (click)="openEdgeDialog('terminate', element)">
+          <li class="project-seting-item " *ngIf="element.areTerminatedNode" (click)="openEdgeDialog('recreate', element)">
+            <i class="material-icons">refresh</i>
+            <a class="action">
+              Recreate edge node
+            </a>
+          </li>
+          <li class="project-seting-item " *ngIf="element.areStoppedNode || element.areRunningNode" (click)="openEdgeDialog('terminate', element)">
             <i class="material-icons">phonelink_off</i>
             <a class="action">
               Terminate edge node
