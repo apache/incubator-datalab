@@ -491,7 +491,7 @@ if __name__ == "__main__":
                 except:
                     print("Edge Security group hasn't been created.")
                 traceback.print_exc()
-                dlab.fab.append_result("Failed creating security group for edge node.", str(err))
+                datalab.fab.append_result("Failed creating security group for edge node.", str(err))
                 raise Exception
     except:
         traceback.print_exc()
