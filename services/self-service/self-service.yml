@@ -161,7 +161,7 @@ guacamole:
   connectionProtocol: ssh
   serverPort: 4822
   port: 22
-  username: dlab-user
+  username: datalab-user
 
 keycloakConfiguration:
   redirectUri: KEYCLOAK_REDIRECT_URI

@@ -276,7 +276,7 @@
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>2.0.10</version>
                 <configuration>
-                    <outputFileName>dlab-api</outputFileName>
+                    <outputFileName>datalab-api</outputFileName>
                     <outputPath>${project.build.directory}/classes/webapp/dist/assets</outputPath>
                     <outputFormat>JSONANDYAML</outputFormat>
                     <resourcePackages>
