@@ -49,9 +49,9 @@ public class CloudHelper {
                 } else return null;
             case CloudProvider.GCP_PROVIDER:
                 List<com.google.api.services.compute.model.Instance> instanceList =
-                        GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectId(),
+                        GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDataLabProjectId(),
                                 restrictionMode,
-                                GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                                GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDataLabProjectId()));
                 if (instanceList != null && !GcpHelper.getInstancePublicIps(instanceList.get(0)).isEmpty()) {
                     return GcpHelper.getInstancePublicIps(instanceList.get(0)).get(0);
                 } else return null;
@@ -71,8 +71,8 @@ public class CloudHelper {
                 } else return null;
             case CloudProvider.GCP_PROVIDER:
                 List<com.google.api.services.compute.model.Instance> instanceList =
-                        GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectId(), restrictionMode,
-                                GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                        GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDataLabProjectId(), restrictionMode,
+                                GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDataLabProjectId()));
                 if (instanceList != null && !GcpHelper.getInstancePrivateIps(instanceList.get(0)).isEmpty()) {
                     return GcpHelper.getInstancePrivateIps(instanceList.get(0)).get(0);
                 } else return null;
@@ -92,18 +92,17 @@ public class CloudHelper {
                 }
                 throw new CloudException("Could not detect name for instance " + name);
             case CloudProvider.AZURE_PROVIDER:
-                if(AzureHelper.getVirtualMachinesByName(name, restrictionMode) != null){
+                if (AzureHelper.getVirtualMachinesByName(name, restrictionMode) != null) {
                     return AzureHelper.getVirtualMachinesByName(name, restrictionMode).get(0).name();
                 } else return null;
             case CloudProvider.GCP_PROVIDER:
-                if (GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectId(), restrictionMode,
-                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId())) != null) {
-                    return GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectId(),
+                if (GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDataLabProjectId(), restrictionMode,
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDataLabProjectId())) != null) {
+                    return GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDataLabProjectId(),
                             restrictionMode,
-                            GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()))
+                            GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDataLabProjectId()))
                             .get(0).getName();
-                }
-                else return null;
+                } else return null;
             default:
                 return null;
         }

@@ -1,8 +1,8 @@
 {
-  "image" : "docker.dlab-dataengine",
-  "name" : "set the name",
-  "dataengine_instance_count" : "2",
+  "image": "docker.datalab-dataengine",
+  "name": "set the name",
+  "dataengine_instance_count": "2",
   "dataengine_instance_shape": "Standard_NC6",
-  "notebook_name" : "set notebook name",
+  "notebook_name": "set notebook name",
   "template_name": "Apache Spark cluster"
 }

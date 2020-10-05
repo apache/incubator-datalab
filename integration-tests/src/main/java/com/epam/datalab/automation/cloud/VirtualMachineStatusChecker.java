@@ -48,9 +48,9 @@ public class VirtualMachineStatusChecker {
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.RUNNING, restrictionMode);
                 break;
             case CloudProvider.GCP_PROVIDER:
-                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDataLabProjectId(),
                         GcpInstanceState.RUNNING, restrictionMode,
-                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDataLabProjectId()));
                 break;
             default:
                 Assert.fail(UNKNOWN_CLOUD_PROVIDER);
@@ -69,9 +69,9 @@ public class VirtualMachineStatusChecker {
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED, restrictionMode);
                 break;
             case CloudProvider.GCP_PROVIDER:
-                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDataLabProjectId(),
                         GcpInstanceState.TERMINATED, restrictionMode,
-                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDataLabProjectId()));
                 break;
             default:
                 Assert.fail(UNKNOWN_CLOUD_PROVIDER);
@@ -90,9 +90,9 @@ public class VirtualMachineStatusChecker {
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.DEALLOCATED, restrictionMode);
                 break;
             case CloudProvider.GCP_PROVIDER:
-                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDataLabProjectId(),
                         GcpInstanceState.TERMINATED, restrictionMode,
-                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDataLabProjectId()));
                 break;
             default:
                 Assert.fail(UNKNOWN_CLOUD_PROVIDER);
