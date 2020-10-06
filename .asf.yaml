@@ -1,4 +1,6 @@
 github:
   ghp_branch:  gh-pages
+  labels:
+    - datalab
 publish:
   whoami: gh-pages
