@@ -72,8 +72,10 @@ parser.add_argument('--azure_subnet_name', type=str, default='', help='Azure Sub
 parser.add_argument('--gcp_subnet_name', type=str, default='', help='GCP Subnet Name')
 parser.add_argument('--aws_security_groups_ids', type=str, default='', help='One of more comma-separated Security '
                                                                             'groups IDs for SSN')
-parser.add_argument('--azure_security_group_name', type=str, default='', help='One of more comma-separated Security '
-                                                                              'groups names for SSN')
+parser.add_argument('--azure_security_group_name', type=str, default='', help='One Security'
+                                                                              'group name for SSN')
+parser.add_argument('--azure_edge_security_group_name', type=str, default='', help='One Security '
+                                                                              'group name for Edge node')
 parser.add_argument('--gcp_firewall_name', type=str, default='', help='One of more comma-separated GCP Firewall rules '
                                                                       'for SSN')
 parser.add_argument('--key_path', type=str, default='', help='Path to admin key (WITHOUT KEY NAME)')

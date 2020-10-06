@@ -157,7 +157,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages " \
-                 "'boto3 backoff argparse fabric==1.14.0 awscli pymongo pyyaml " \
+                 "'boto3 bcrypt==3.1.7 backoff argparse fabric==1.14.0 awscli pymongo pyyaml " \
                  "google-api-python-client google-cloud-storage pycrypto' --user {} --region {}". \
             format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'],
                    ssn_conf['datalab_ssh_user'], ssn_conf['region'])

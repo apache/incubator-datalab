@@ -17,7 +17,21 @@
  * under the License.
  */
 
+.managment-wrapper{
+  height: calc(100vh - 130px);
+  scroll-behavior: smooth;
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  overflow: auto;
+  .ani{
+    max-height: calc(100vh - 130px);
+  }
+}
+
 .data-grid {
+
   &.management {
     .filter-row-item{
       padding: 5px;
@@ -37,11 +51,12 @@
     }
     .user{
       width: 15%;
+      min-width: 180px;
     }
     .name,
     .project {
       width: 10%;
-
+      min-width: 140px;
       .list-menu li {
         text-transform: inherit;
       }
@@ -52,22 +67,27 @@
       .label{
         position: absolute;
       }
+      min-width: 150px;
     }
 
     .endpoint{
       width: 10% !important;
+      min-width: 140px;
     }
 
     .status {
       width: 10% !important;
+      min-width: 140px;
     }
 
     .type {
       width: 10%;
+      min-width: 110px;
     }
 
     .resources {
       width: 24%;
+      min-width: 225px;
     }
 
     .settings {
@@ -78,6 +98,7 @@
     .actions {
       margin-top: 0px;
       padding-right: 10px;
+      position: sticky;
       .label{
         padding-right: 5px;
       }
@@ -201,6 +222,13 @@ table.management {
 
   .filter-row {
     background: inherit;
+
+    .filter-row-item{
+      left: auto !important;
+       &.actions-col{
+         right: -15px;
+       }
+    }
 
     .filter-field{
       font-size: 13px;
