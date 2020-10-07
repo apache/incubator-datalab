@@ -48,9 +48,15 @@ export class LocalizationService {
     if (culture.indexOf('-') !== -1 && culture !== 'en-GB') {
       culture = culture.substr(0, culture.indexOf('-'));
     }
-    /* webpackInclude: /(uk|sv)\.js$/ */
+
     import(
       `@angular/common/locales/${culture}.js`
       ).then(module => registerLocaleData(module.default));
+
+    if (culture !== 'en' && culture !== 'en-GB') {
+      import(
+        `@angular/common/locales/en-GB.js`
+        ).then(module => registerLocaleData(module.default));
+    }
   }
 }

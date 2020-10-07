@@ -17,21 +17,18 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Pipe, PipeTransform } from '@angular/core';
+import {LocalizationService} from '../../services/localization.service';
+import {formatDate} from '@angular/common';
 
-import { MaterialModule } from '../../../shared/material.module';
-import { DetailComputationalResourcesComponent } from './cluster-details.component';
-import {LongDatePipeModule} from '../../../core/pipes/long-date-pipe';
+@Pipe({ name: 'longDate' })
 
-export * from './cluster-details.component';
+export class LongDatePipe implements PipeTransform {
+  constructor(private localizationService: LocalizationService) { }
 
-@NgModule({
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, LongDatePipeModule],
-  declarations: [DetailComputationalResourcesComponent],
-  entryComponents: [DetailComputationalResourcesComponent],
-  exports: [DetailComputationalResourcesComponent],
-})
+  transform(value: any, format: string = 'full') {
+    if (!value) { return ; }
 
-export class DetailComputationalResourcesModule { }
+    return formatDate(value, format, (this.localizationService.locale  === 'en') ? 'en' : 'en-GB');
+  }
+}
