@@ -18,6 +18,7 @@
  */
 
 .audit-table-wrapper {
+  position: relative;
   width: 100%;
   max-height: calc(100vh - 130px);
   max-height: -moz-calc(100vh - 130px);
@@ -309,6 +310,7 @@
 
 .table-footer {
   position: sticky;
+  position: -webkit-sticky;
   bottom: -1px;
   background: inherit;
   border-top: 1px solid #E0E0E0;
