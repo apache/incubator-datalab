@@ -43,7 +43,7 @@ export const NAMING_CONVENTION_AWS = {
         'type': 'resource_type',
         'resourceType': 'data_lab_resource_type',
         'instance_size': 'shape',
-        'datalab_id': 'datalab_id'
+        'datalabId': 'datalabId'
     },
     'service': 'Service',
     'type': 'Type',
