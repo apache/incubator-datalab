@@ -44,7 +44,7 @@ export const NAMING_CONVENTION_AZURE = {
         'type': '',
         'resourceType': 'resource_type',
         'instance_size': 'size',
-        'datalab_id': 'datalab_id'
+        'datalabId': 'datalabId'
     },
     'service': 'Category',
     'type': '',
