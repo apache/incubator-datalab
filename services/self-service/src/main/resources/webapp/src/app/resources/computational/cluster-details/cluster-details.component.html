@@ -98,7 +98,9 @@
 
         <div *ngIf="resource.status === 'running'">
           <div class="row-wrap">
-            <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
+            <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{resource.up_time ? (resource.up_time | longDate) : "not specified."
+              }}
+            </p>
           </div>
           <div class="m-top-10">
             <p *ngFor="let item of resource.computational_url" class="ellipsis flex" (mouseleave)="hideCopyIcon()">
