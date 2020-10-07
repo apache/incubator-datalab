@@ -22,6 +22,8 @@
 # ******************************************************************************
 
 import argparse
+import datalab.fab
+import datalab.actions_lib
 import datalab.meta_lib
 import json
 import logging
