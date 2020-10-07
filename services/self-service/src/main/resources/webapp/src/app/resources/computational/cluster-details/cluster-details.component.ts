@@ -44,7 +44,6 @@ export class DetailComputationalResourcesComponent implements OnInit {
   @ViewChild('configurationNode', { static: false }) configuration;
 
   upTimeInHours: number;
-  upTimeSince: string = '';
   tooltip: boolean = false;
   config: Array<{}> = [];
   public configurationForm: FormGroup;
@@ -71,8 +70,6 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
 
     this.upTimeInHours = (this.resource.up_time) ? DateUtils.diffBetweenDatesInHours(this.resource.up_time) : 0;
-    this.upTimeSince = (this.resource.up_time) ?
-      new Date(this.resource.up_time).toString().substr(0, new Date(this.resource.up_time).toString().indexOf('(')) : '';
     this.initFormModel();
 
     if (this.resource.image === 'docker.datalab-dataengine') this.getClusterConfiguration();
