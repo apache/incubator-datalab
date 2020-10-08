@@ -986,5 +986,15 @@ mat-progress-bar {
 
 .alert .highlight .strong{ color: #35afd5}
 
+.audit-table-wrapper,
+.billing-page-wrapper{
+  tfoot{
+    position: sticky;
+    z-index: 101;
+    bottom: 0;
+  }
+}
+
+
 
 
