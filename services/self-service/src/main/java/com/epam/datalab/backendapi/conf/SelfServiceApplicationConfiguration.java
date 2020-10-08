@@ -79,6 +79,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     private boolean billingSchedulerEnabled = false;
 
     @JsonProperty
+    private int billingPort;
+
+    @JsonProperty
     private boolean auditEnabled = false;
 
     @NotEmpty
@@ -203,6 +206,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
      */
     public boolean isBillingSchedulerEnabled() {
         return billingSchedulerEnabled;
+    }
+
+    public int getBillingPort() {
+        return billingPort;
     }
 
     public boolean isAuditEnabled() {

@@ -116,6 +116,7 @@ public class BillingServiceImplTest extends TestBase {
     private static final String COMPUTE_SLAVE_2_VOLUME_PRIMARY_ID = COMPUTE_ID + "-s2" + "-volume-primary";
     private static final String COMPUTE_SLAVE_2_VOLUME_SECONDARY_ID = COMPUTE_ID + "-s2" + "-volume-secondary";
     private static final String IMAGE_ID = SERVICE_BASE_NAME + "-" + PROJECT + "-" + ENDPOINT + "-" + IMAGE_APPLICATION + "-" + IMAGE_NAME;
+	private static final Integer BILLING_PORT = 8088;
 
     @Mock
     private SelfServiceApplicationConfiguration configuration;
@@ -209,8 +210,9 @@ public class BillingServiceImplTest extends TestBase {
 
     @Test
     public void updateGCPRemoteBillingData() {
-        when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
-        when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
+	    when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
+	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+	    when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
         when(endpointService.getEndpoints()).thenReturn(getGCPEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenReturn(getBillingData());
         when(projectService.getProjects()).thenReturn(getProjectDTOs());
@@ -232,8 +234,9 @@ public class BillingServiceImplTest extends TestBase {
 
     @Test
     public void updateAWSRemoteBillingData() {
-        when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
-        when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
+	    when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
+	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+	    when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
         when(endpointService.getEndpoints()).thenReturn(getAWSEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenReturn(getBillingData());
         when(projectService.getProjects()).thenReturn(getProjectDTOs());
@@ -255,8 +258,9 @@ public class BillingServiceImplTest extends TestBase {
 
     @Test
     public void updateAzureRemoteBillingData() {
-        when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
-        when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
+	    when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
+	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+	    when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
         when(endpointService.getEndpoints()).thenReturn(getAzureEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenReturn(getBillingData());
         when(projectService.getProjects()).thenReturn(getProjectDTOs());
@@ -284,7 +288,8 @@ public class BillingServiceImplTest extends TestBase {
 
     @Test
     public void updateRemoteBillingDataWithException2() {
-        when(endpointService.getEndpoints()).thenReturn(getAWSEndpointDTO());
+	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+	    when(endpointService.getEndpoints()).thenReturn(getAWSEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenThrow(new DatalabException("Exception message"));
 
         billingService.updateRemoteBillingData(getUserInfo());

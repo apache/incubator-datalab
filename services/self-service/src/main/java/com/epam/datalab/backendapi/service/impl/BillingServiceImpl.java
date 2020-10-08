@@ -311,9 +311,9 @@ public class BillingServiceImpl implements BillingService {
             throw new DatalabException("Wrong URI syntax");
         }
         return new URIBuilder()
-                .setScheme(uri.getScheme())
-                .setHost(uri.getHost())
-                .setPort(8088)
+		        .setScheme(uri.getScheme())
+		        .setHost(uri.getHost())
+		        .setPort(configuration.getBillingPort())
                 .setPath(path)
                 .toString();
     }
