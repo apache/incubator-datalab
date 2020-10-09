@@ -765,11 +765,16 @@ ul.list-points {
         }
 
         .screen-slider-thumbs {
-            padding: 30px 0;
+            padding: 30px 5px;
             z-index: 0;
             display: inline-flex;
             font-size: 12px;
-
+            overflow: auto;
+             max-width: 90%;
+            &::-webkit-scrollbar {
+  display: none;
+}
+            
             .swiper-wrapper {
                 margin-left: calc(-25% + 164.5px);
             }
@@ -1134,6 +1139,10 @@ footer {
     }
 }
 
+.w-0{
+    width: 0 !important;
+}
+
 @media only screen and (min-width: 767px) {
     .social {
         .social-twitter {
@@ -1294,7 +1303,7 @@ footer {
     }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 900px) {
     #wrap>section {
         position: relative;
         padding-top: 60px;
@@ -1457,6 +1466,8 @@ footer {
             }
         }
     }
+}
+@media (max-width: 767px) {    
 
     .content-desc {
         padding-top: .5rem;
