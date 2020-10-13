@@ -36,7 +36,8 @@ provider "helm" {
     client_key             = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key)
     cluster_ca_certificate = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)
   }
-  version = "~> 0.9"
+  debug   = true
+  version = "~> 1.0.0"
   install_tiller = true
   service_account = kubernetes_service_account.tiller_sa.metadata.0.name
 }
