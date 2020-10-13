@@ -64,7 +64,7 @@ variable "ssn_k8s_workers_count" {
 }
 
 variable "gke_cluster_version" {
-  default = "0.17.2-gke.1"
+  default = "0.14.0-gke.10"
 }
 
 // Couldn't assign in GCP
