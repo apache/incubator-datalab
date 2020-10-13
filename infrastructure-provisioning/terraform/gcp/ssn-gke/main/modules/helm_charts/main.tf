@@ -55,6 +55,8 @@ resource "kubernetes_service_account" "tiller_sa" {
     name = "tiller"
     namespace = "kube-system"
   }
+
+  automount_service_account_token = true
 }
 
 resource "kubernetes_role_binding" "tiller_rb" {
