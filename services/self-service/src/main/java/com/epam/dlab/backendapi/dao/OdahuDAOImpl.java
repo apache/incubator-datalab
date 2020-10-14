@@ -46,7 +46,8 @@ import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.push;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+
 
 public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
 
