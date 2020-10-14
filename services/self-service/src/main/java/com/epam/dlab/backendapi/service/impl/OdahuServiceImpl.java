@@ -134,14 +134,20 @@ public class OdahuServiceImpl implements OdahuService {
 
     @Override
     public void terminate(String name, String project, String endpoint, UserInfo user) {
-        Optional<OdahuDTO> odahuDTO = get(project, endpoint);
-        if (odahuDTO.isPresent() && UserInstanceStatus.RUNNING == odahuDTO.get().getStatus()) {
-            odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
-            actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
-        } else {
-            log.error("Cannot terminate odahu cluster {}", odahuDTO);
-            throw new DlabException(String.format("Cannot terminate odahu cluster %s", odahuDTO));
-        }
+        List<OdahuDTO> odahuDTOS = findOdahu();
+        odahuDTOS.stream()
+                .filter(odahuDTO -> name.equals(odahuDTO.getName())//TODO: probably, the Predicate can be implemented
+                        && endpoint.equals(endpoint)
+                        && !odahuDTO.getStatus().equals(UserInstanceStatus.FAILED))
+                .forEach(odahuDTO -> {
+                    if (UserInstanceStatus.RUNNING == odahuDTO.getStatus()) {
+                        odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
+                        actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
+                    } else {
+                        log.error("Cannot terminate odahu cluster {}", odahuDTO);
+                        throw new DlabException(String.format("Cannot terminate odahu cluster %s", odahuDTO));
+                    }
+                });
     }
 
     @Override

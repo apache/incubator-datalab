@@ -25,8 +25,10 @@ import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
+import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -44,7 +46,7 @@ import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.push;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
 
@@ -77,15 +79,20 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
 
     @Override
     public OdahuFieldsDTO getFields(String name, String project, String endpoint) {
-        Optional<Document> one = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(name, project, endpoint),
-                fields(include(ODAHU_FIELD), excludeId()));
-        OdahuFieldsDTO odahuFields = null;
-        if (one.isPresent()) {
-            List<OdahuFieldsDTO> list = convertFromDocument(one.get().get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {
-            });
-            odahuFields = list.get(0);
-        }
-        return odahuFields;
+        FindIterable<Document> odahuDoc = find(PROJECTS_COLLECTION,
+                odahuProjectEndpointCondition(name, project, endpoint),
+                fields(include(ODAHU_FIELD), excludeId())); //TODO: Potentially, method can be improved by filtering the Documents
+
+        Optional<OdahuFieldsDTO> odahuFields;
+        List<OdahuFieldsDTO> odahuFieldsDTOList;
+
+        odahuFieldsDTOList = convertFromDocument(odahuDoc.first().get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {});
+        odahuFields = odahuFieldsDTOList.stream()
+                .filter(oDTO -> oDTO.getName().equals(name))
+                .findAny();
+        if (odahuFields.isPresent()){
+            return odahuFields.get();
+        } else throw new DlabException("Unable to find the " + name + " cluster properties");
     }
 
     @Override
