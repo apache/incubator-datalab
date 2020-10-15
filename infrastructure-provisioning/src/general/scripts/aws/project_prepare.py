@@ -22,6 +22,8 @@
 # ******************************************************************************
 
 import boto3
+import datalab.fab
+import datalab.actions_lib
 import datalab.meta_lib
 import json
 import logging
@@ -251,194 +253,201 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print('[CREATE SECURITY GROUPS FOR EDGE]')
-        edge_sg_ingress = datalab.meta_lib.format_sg([
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 3128,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
-                "UserIdGroupPairs": [],
-                "PrefixListIds": []
-            }
-        ])
-        edge_sg_egress = datalab.meta_lib.format_sg([
-            {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8888,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8080,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8787,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8787, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 6006,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 6006, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 20888,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8042,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8042, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8088,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8081,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8081, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 4040,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 4140, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 18080,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 18080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 50070,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 50070, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 53,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 123,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 123, "IpProtocol": "udp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8085,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 389,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": -1,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
-            }
-        ])
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
-            --egress '{}' --force {} --nb_sg_name {} --resource {}".\
-            format(project_conf['edge_security_group_name'], project_conf['vpc_id'], json.dumps(edge_sg_ingress),
-                   project_conf['service_base_name'], project_conf['edge_instance_name'], json.dumps(edge_sg_egress),
-                   True, project_conf['notebook_instance_name'], 'edge')
+        if os.environ['aws_security_groups_ids'] == '':
+            raise KeyError
+    except KeyError:
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
-        except Exception as err:
-            traceback.print_exc()
-            datalab.fab.append_result("Failed creating security group for edge node.", str(err))
-            raise Exception
+            logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
+            print('[CREATE SECURITY GROUPS FOR EDGE]')
+            edge_sg_ingress = datalab.meta_lib.format_sg([
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "UserIdGroupPairs": [], "PrefixListIds": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 22,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 3128,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 80,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 443,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
+                    "UserIdGroupPairs": [],
+                    "PrefixListIds": []
+                }
+            ])
+            edge_sg_egress = datalab.meta_lib.format_sg([
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 22,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8888,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8888, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8080,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8787,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8787, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 6006,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 6006, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 20888,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8042,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8042, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8088,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8081,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8081, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 4040,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 4140, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 18080,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 18080, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 50070,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 50070, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 53,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 80,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 123,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 123, "IpProtocol": "udp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 443,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8085,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 389,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": -1,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
+                }
+            ])
+            params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
+                --egress '{}' --force {} --nb_sg_name {} --resource {}".\
+                format(project_conf['edge_security_group_name'], project_conf['vpc_id'], json.dumps(edge_sg_ingress),
+                       project_conf['service_base_name'], project_conf['edge_instance_name'], json.dumps(edge_sg_egress),
+                       True, project_conf['notebook_instance_name'], 'edge')
+            try:
+                local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            except Exception as err:
+                traceback.print_exc()
+                datalab.fab.append_result("Failed creating security group for edge node.", str(err))
+                raise Exception
 
-        with hide('stderr', 'running', 'warnings'):
-            print('Waiting for changes to propagate')
-            time.sleep(10)
-    except:
-        datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        sys.exit(1)
+            with hide('stderr', 'running', 'warnings'):
+                print('Waiting for changes to propagate')
+                time.sleep(10)
+        except:
+            datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+            datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+            sys.exit(1)
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        project_group_id = datalab.meta_lib.check_security_group(project_conf['edge_security_group_name'])
-        sg_list = project_conf['sg_ids'].replace(" ", "").split(',')
         rules_list = []
-        for i in sg_list:
-            rules_list.append({"GroupId": i})
+        sg_list = project_conf['sg_ids'].replace(" ", "").split(',')
+        if os.environ['aws_security_groups_ids'] == '':
+            project_group_id = datalab.meta_lib.check_security_group(project_conf['edge_security_group_name'])
+            rules_list.append({"GroupId": project_group_id})
+        else:
+            for i in sg_list:
+                rules_list.append({"GroupId": i})
         private_sg_ingress = datalab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [],
-                "UserIdGroupPairs": [{"GroupId": project_group_id}],
+                "UserIdGroupPairs": rules_list,
                 "PrefixListIds": []
             },
             {
@@ -471,7 +480,7 @@ if __name__ == "__main__":
             {
                 "IpProtocol": "-1",
                 "IpRanges": [],
-                "UserIdGroupPairs": [{"GroupId": project_group_id}],
+                "UserIdGroupPairs": rules_list,
                 "PrefixListIds": []
             },
             {
@@ -614,12 +623,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        if os.environ['aws_security_groups_ids'] == '':
+            edge_group_id = datalab.meta_lib.check_security_group(project_conf['edge_security_group_name'])
+        else:
+            edge_group_id = os.environ['aws_security_groups_ids']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE EDGE INSTANCE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
                  "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
             .format(project_conf['edge_instance_name'], project_conf['ami_id'], project_conf['instance_size'],
-                    project_conf['key_name'], project_group_id, project_conf['public_subnet_id'],
+                    project_conf['key_name'], edge_group_id, project_conf['public_subnet_id'],
                     project_conf['edge_role_profile_name'], project_conf['tag_name'],
                     project_conf['edge_instance_name'])
         try:
