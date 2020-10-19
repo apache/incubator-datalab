@@ -763,6 +763,25 @@ ul.list-points {
                 }
             }
         }
+        
+        .thumbs-wrapper{
+            position: relative;
+           .nav-arrows{
+               position: absolute;
+               width: 100%;
+               top: 50%;
+               
+               .swiper-button-next{
+                   right: 20px;
+                   transform: scale(0.6);
+               }
+               
+               .swiper-button-prev{
+                   left: 20px;
+                   transform: scale(0.6);
+               }
+            } 
+        }
 
         .screen-slider-thumbs {
             padding: 30px 5px;
@@ -770,10 +789,15 @@ ul.list-points {
             display: inline-flex;
             font-size: 12px;
             overflow: auto;
-             max-width: 90%;
+            max-width: 90%;
+            scrollbar-width: none !important;
+            scroll-behavior: smooth;
             &::-webkit-scrollbar {
-  display: none;
-}
+              display: none;
+                    
+            }            
+           
+            
             
             .swiper-wrapper {
                 margin-left: calc(-25% + 164.5px);
@@ -1139,9 +1163,11 @@ footer {
     }
 }
 
-.w-0{
+.last-thumb{
     width: 0 !important;
+    opacity: 0;
 }
+
 
 @media only screen and (min-width: 767px) {
     .social {
@@ -1267,7 +1293,7 @@ footer {
 
     .features {
         .mac-screen-wrap {
-            .screen-slider-thumbs {
+            .screen-slider-thumbs, .thumbs-wrapper {
                 display: none;
             }
 

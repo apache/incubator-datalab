@@ -104,9 +104,38 @@ $(document).ready(function () {
     });
 });
 
+var thumbsSlider = $('.screen-slider-thumbs');
+var thumbsSliderPrevBtn = $('.nav-arrows .swiper-button-prev');
+var thumbsSliderNextBtn = $('.nav-arrows .swiper-button-next');
+
+thumbsSliderNextBtn.on('click', function () {
+     thumbsSlider.scrollLeft(1000); 
+     
+    });
+
+thumbsSliderPrevBtn.on('click', function () {
+     thumbsSlider.scrollLeft(0);     
+    });
+
+thumbsSlider.on('scroll', function(){
+    var maxScrollLeft = thumbsSlider.get(0).scrollWidth - thumbsSlider.get(0).clientWidth;
+    var scrollLeft = thumbsSlider.scrollLeft();
+        if(scrollLeft === 0) {
+            thumbsSliderPrevBtn.addClass('swiper-button-disabled');            
+        }else{
+            thumbsSliderPrevBtn.removeClass('swiper-button-disabled');
+        }
+        if(maxScrollLeft === scrollLeft){
+            thumbsSliderNextBtn.addClass('swiper-button-disabled');
+        } else{
+            thumbsSliderNextBtn.removeClass('swiper-button-disabled');
+        }        
+     })
+
+
 $(document).ready(function () {
     'use strict';
-
+    
     macSwiper = new Swiper('.mac-wrap .swiper-container', {
         lazyLoadingInPrevNext: true,
         preloadImages: true,
@@ -140,7 +169,15 @@ $(document).ready(function () {
 
     screenSliderTop.on('slideChange', function () {
         $('div', screenThumbsNavigation).removeClass('swiper-slide-active');
-        $('[data-slide="' + this.activeIndex + '"]', screenThumbsNavigation).addClass('swiper-slide-active');
+        $('[data-slide="' + this.activeIndex + '"]', screenThumbsNavigation).addClass('swiper-slide-active');        
+        if (this.activeIndex > 7){
+            thumbsSlider.scrollLeft(1000); 
+        }
+        
+        if (this.activeIndex < 6){
+            thumbsSlider.scrollLeft(0); 
+        }
+        
     });
 
     $(this).on('resize', function () {
