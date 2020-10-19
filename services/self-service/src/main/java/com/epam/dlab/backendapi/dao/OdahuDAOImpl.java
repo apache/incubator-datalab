@@ -76,13 +76,13 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
                 .findAny());
     }
 
+    @Override
     public List<OdahuDTO> getOdahuProjectClusters(String project, String endpoint) {
         Optional<ProjectDTO> projectDTO = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(project, endpoint),
                 fields(include(ODAHU_FIELD), excludeId()),
                 ProjectDTO.class);
 
-        return projectDTO.map(p -> p.getOdahu()
-                .stream()
+        return projectDTO.map(p -> p.getOdahu().stream()
                 .filter(odahu -> project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
                 .collect(Collectors.toList()))
                 .orElseThrow(() -> new DlabException("Unable to find the odahu clusters in the " + project));
