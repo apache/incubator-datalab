@@ -26,7 +26,6 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OdahuFieldsDTO {
-    @JsonProperty("name")
     private String name;
     @JsonProperty("grafana_admin")
     private String grafanaAdmin;

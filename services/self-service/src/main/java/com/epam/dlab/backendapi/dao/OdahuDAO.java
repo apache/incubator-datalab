@@ -39,4 +39,6 @@ public interface OdahuDAO {
     void updateStatus(String name, String project, String endpoint, UserInstanceStatus status);
 
     void updateStatusAndUrls(OdahuResult result, UserInstanceStatus status);
+
+    List<OdahuDTO> getOdahuProjectClusters(String project, String endpoint);
 }

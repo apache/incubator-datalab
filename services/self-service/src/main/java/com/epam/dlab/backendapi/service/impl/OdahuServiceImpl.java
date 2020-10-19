@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
+import clojure.java.javadoc$add_local_javadoc$fn__9398;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class OdahuServiceImpl implements OdahuService {
@@ -91,10 +93,9 @@ public class OdahuServiceImpl implements OdahuService {
     @BudgetLimited
     @Override
     public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
-        Optional<OdahuDTO> odahuDTO = odahuDAO
-                .getByProjectEndpoint(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint())
-                .filter(p -> p.getStatus().equals(UserInstanceStatus.FAILED));
-        if (odahuDTO.isPresent()) {
+        boolean activeCluster = odahuDAO.getOdahuProjectClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
+                .noneMatch(o -> !o.getStatus().equals(UserInstanceStatus.FAILED) && !o.getStatus().equals(UserInstanceStatus.TERMINATED));
+        if (!activeCluster) {
             throw new ResourceConflictException(String.format("Odahu cluster already exist in system for project %s " +
                     "and endpoint %s", odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()));
         }
@@ -134,10 +135,8 @@ public class OdahuServiceImpl implements OdahuService {
 
     @Override
     public void terminate(String name, String project, String endpoint, UserInfo user) {
-        List<OdahuDTO> odahuDTOS = findOdahu();
-        odahuDTOS.stream()
-                .filter(odahuDTO -> name.equals(odahuDTO.getName())//TODO: probably, the Predicate can be implemented
-                        && endpoint.equals(endpoint)
+        odahuDAO.getOdahuProjectClusters(project, endpoint).stream()
+                .filter(odahuDTO -> name.equals(odahuDTO.getName())
                         && !odahuDTO.getStatus().equals(UserInstanceStatus.FAILED))
                 .forEach(odahuDTO -> {
                     if (UserInstanceStatus.RUNNING == odahuDTO.getStatus()) {
