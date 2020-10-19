@@ -50,6 +50,7 @@ roleDefaultAccess: false
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
+billingPort: 8088
 # Set to true to enable audit
 auditEnabled: true
 # Name of configuration file for billing report.
