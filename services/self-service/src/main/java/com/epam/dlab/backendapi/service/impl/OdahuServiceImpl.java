@@ -92,7 +92,7 @@ public class OdahuServiceImpl implements OdahuService {
     @BudgetLimited
     @Override
     public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
-        boolean activeCluster = odahuDAO.getOdahuProjectClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
+        boolean activeCluster = odahuDAO.findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
                 .noneMatch(o -> !o.getStatus().equals(UserInstanceStatus.FAILED) && !o.getStatus().equals(UserInstanceStatus.TERMINATED));
         if (!activeCluster) {
             throw new ResourceConflictException(String.format("Odahu cluster already exist in system for project %s " +
@@ -134,7 +134,7 @@ public class OdahuServiceImpl implements OdahuService {
 
     @Override
     public void terminate(String name, String project, String endpoint, UserInfo user) {
-        odahuDAO.getOdahuProjectClusters(project, endpoint).stream()
+        odahuDAO.findOdahuClusters(project, endpoint).stream()
                 .filter(odahuDTO -> name.equals(odahuDTO.getName())
                         && !odahuDTO.getStatus().equals(UserInstanceStatus.FAILED))
                 .forEach(odahuDTO -> {

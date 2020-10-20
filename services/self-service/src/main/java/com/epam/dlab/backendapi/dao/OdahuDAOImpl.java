@@ -77,7 +77,7 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     }
 
     @Override
-    public List<OdahuDTO> getOdahuProjectClusters(String project, String endpoint) {
+    public List<OdahuDTO> findOdahuClusters(String project, String endpoint) {
         Optional<ProjectDTO> projectDTO = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(project, endpoint),
                 fields(include(ODAHU_FIELD), excludeId()),
                 ProjectDTO.class);
@@ -92,7 +92,7 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     public OdahuFieldsDTO getFields(String name, String project, String endpoint) {
         Document odahuDocument = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(name, project, endpoint),
                 fields(include(ODAHU_FIELD), excludeId()))
-                .orElseThrow(() -> new DlabException(project.toString() + "{} does not contain odahu {}" + name.toString() + "cluster"));
+                .orElseThrow(() -> new DlabException(project.toString() + " does not contain odahu " + name.toString() + " cluster"));
 
         List<OdahuFieldsDTO> list = convertFromDocument(odahuDocument.get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {});
         return list.stream()
