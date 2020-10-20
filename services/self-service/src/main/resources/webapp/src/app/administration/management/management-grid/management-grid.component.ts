@@ -254,8 +254,12 @@ export class ManagementGridComponent implements OnInit {
     const statuses = ['terminating', 'stopping', 'starting', 'creating', 'configuring', 'reconfiguring'];
     return resources.filter(resource => statuses.includes(resource.status)).length;
   }
-}
 
+  public onFilterNameUpdate(targetElement: any) {
+    this.filterForm.type = targetElement;
+    this.checkFilters();
+  }
+}
 
 @Component({
   selector: 'confirm-dialog',

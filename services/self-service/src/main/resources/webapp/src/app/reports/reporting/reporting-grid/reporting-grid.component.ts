@@ -203,6 +203,10 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
         this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
       return this.isMaxRight.next(arg);
     }
+  }
 
+  public onFilterNameUpdate(targetElement: any) {
+    this.filteredReportData.datalabId = targetElement;
+    this.checkFilters();
   }
 }

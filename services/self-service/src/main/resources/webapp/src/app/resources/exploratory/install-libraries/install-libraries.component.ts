@@ -526,6 +526,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       this.isVersionInvalid = false;
     }
   }
+
+  public onFilterNameUpdate(targetElement: any) {
+    this.filterModel.name = targetElement;
+    this.checkFilters();
+  }
 }
 
 @Component({

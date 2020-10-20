@@ -244,7 +244,7 @@
       <ng-container matColumnDef="type-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
           <input placeholder="Filter by name" type="text" class="form-control filter-field"
-            [value]="filterForm.type" (input)="filterForm.type = $event.target['value']" (keyup)="checkFilters()"/>
+            [value]="filterForm.type" (input)="onFilterNameUpdate($event.target['value'])"/>
         </th>
       </ng-container>
       <ng-container matColumnDef="project-filter" sticky>

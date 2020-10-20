@@ -259,7 +259,7 @@
       <th mat-header-cell *matHeaderCellDef class="name-col filter-row-item">
         <div class="input-wrapper">
           <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
-            [value]="filterForm.name" (input)="filterForm.name = $event.target['value']" (keyup)="checkFilters()"/>
+            [value]="filterForm.name" (input)="onFilterNameUpdate($event.target['value'])"/>
         </div>
       </th>
     </ng-container>
