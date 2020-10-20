@@ -79,13 +79,13 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
     configure_notebook(args)
-    spark_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
+    spark_version = GCPActions().get_cluster_app_version(args.bucket, args.project_name,
                                                                      args.cluster_name, 'spark')
-    python_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
+    python_version = GCPActions().get_cluster_app_version(args.bucket, args.project_name,
                                                                      args.cluster_name, 'python')
-    hadoop_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
+    hadoop_version = GCPActions().get_cluster_app_version(args.bucket, args.project_name,
                                                                       args.cluster_name, 'hadoop')
-    r_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
+    r_version = GCPActions().get_cluster_app_version(args.bucket, args.project_name,
                                                                  args.cluster_name, 'r')
     r_enabled = os.environ['notebook_r_enabled']
     master_host = '{}-m'.format(args.cluster_name)

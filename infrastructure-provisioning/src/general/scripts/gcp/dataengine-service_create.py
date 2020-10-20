@@ -38,14 +38,14 @@ args = parser.parse_args()
 
 
 def upload_jars_parser(args):
-    if not actions_lib.GCPActions().put_to_bucket(args.bucket, '/root/scripts/dataengine-service_jars_parser.py', 'jars_parser.py'):
+    if not datalab.actions_lib.GCPActions().put_to_bucket(args.bucket, '/root/scripts/dataengine-service_jars_parser.py', 'jars_parser.py'):
         print('Failed to upload jars_parser script')
         raise Exception
 
 
 def build_dataproc_cluster(args, cluster_name):
     print("Will be created cluster: {}".format(json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))))
-    return actions_lib.GCPActions().create_dataproc_cluster(cluster_name, args.region, params)
+    return datalab.actions_lib.GCPActions().create_dataproc_cluster(cluster_name, args.region, params)
 
 
 def send_parser_job(args, cluster_name, cluster_version):
@@ -57,7 +57,7 @@ def send_parser_job(args, cluster_name, cluster_version):
     job_body['job']['pysparkJob']['args'][5] = cluster_name
     job_body['job']['pysparkJob']['args'][7] = cluster_version
     job_body['job']['pysparkJob']['args'][9] = os.environ['conf_os_user']
-    actions_lib.GCPActions().submit_dataproc_job(job_body)
+    datalab.actions_lib.GCPActions().submit_dataproc_job(job_body)
 
 
 ##############
