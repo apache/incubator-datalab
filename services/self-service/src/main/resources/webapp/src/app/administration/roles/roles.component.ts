@@ -22,7 +22,7 @@ import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import {RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService} from '../../core/services';
-import { CheckUtils } from '../../core/util';
+import {CheckUtils, SortUtils} from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
@@ -76,8 +76,7 @@ export class RolesComponent implements OnInit {
           this.rolesList = roles.map((role) => {
               return {role: role.description, type: role.type, cloud: role.cloud};
           });
-          this.rolesList = this.rolesList.sort((a, b) => (a.cloud > b.cloud) ? 1 : ((b.cloud > a.cloud) ? -1 : 0));
-          this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
+          this.rolesList = SortUtils.sortByKeys(this.rolesList, ['role', 'cloud', 'type']);
           this.updateGroupData(groups);
           this.stepperView = false;
         },
