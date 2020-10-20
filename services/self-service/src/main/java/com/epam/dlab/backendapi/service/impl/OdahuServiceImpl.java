@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class OdahuServiceImpl implements OdahuService {
@@ -91,8 +92,9 @@ public class OdahuServiceImpl implements OdahuService {
     @BudgetLimited
     @Override
     public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
-        Optional<OdahuDTO> odahuDTO = odahuDAO.getByProjectEndpoint(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint());
-        if (odahuDTO.isPresent()) {
+        boolean activeCluster = odahuDAO.findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
+                .noneMatch(o -> !o.getStatus().equals(UserInstanceStatus.FAILED) && !o.getStatus().equals(UserInstanceStatus.TERMINATED));
+        if (!activeCluster) {
             throw new ResourceConflictException(String.format("Odahu cluster already exist in system for project %s " +
                     "and endpoint %s", odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()));
         }
@@ -132,14 +134,18 @@ public class OdahuServiceImpl implements OdahuService {
 
     @Override
     public void terminate(String name, String project, String endpoint, UserInfo user) {
-        Optional<OdahuDTO> odahuDTO = get(project, endpoint);
-        if (odahuDTO.isPresent() && UserInstanceStatus.RUNNING == odahuDTO.get().getStatus()) {
-            odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
-            actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
-        } else {
-            log.error("Cannot terminate odahu cluster {}", odahuDTO);
-            throw new DlabException(String.format("Cannot terminate odahu cluster %s", odahuDTO));
-        }
+        odahuDAO.findOdahuClusters(project, endpoint).stream()
+                .filter(odahuDTO -> name.equals(odahuDTO.getName())
+                        && !odahuDTO.getStatus().equals(UserInstanceStatus.FAILED))
+                .forEach(odahuDTO -> {
+                    if (UserInstanceStatus.RUNNING == odahuDTO.getStatus()) {
+                        odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
+                        actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
+                    } else {
+                        log.error("Cannot terminate odahu cluster {}", odahuDTO);
+                        throw new DlabException(String.format("Cannot terminate odahu cluster %s", odahuDTO));
+                    }
+                });
     }
 
     @Override

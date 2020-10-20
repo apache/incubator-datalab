@@ -34,6 +34,8 @@ public interface OdahuDAO {
 
     List<OdahuDTO> findOdahuClusters();
 
+    List<OdahuDTO> findOdahuClusters(String project, String endpoint);
+
     boolean create(OdahuDTO odahuDTO);
 
     void updateStatus(String name, String project, String endpoint, UserInstanceStatus status);

@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
+import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
@@ -36,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -69,23 +71,34 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
                 fields(include(ODAHU_FIELD), excludeId()),
                 ProjectDTO.class);
 
-        return projectDTO.flatMap(p -> p.getOdahu()
-                .stream()
+        return projectDTO.flatMap(p -> p.getOdahu().stream()
                 .filter(odahu -> project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
                 .findAny());
     }
 
     @Override
+    public List<OdahuDTO> findOdahuClusters(String project, String endpoint) {
+        Optional<ProjectDTO> projectDTO = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(project, endpoint),
+                fields(include(ODAHU_FIELD), excludeId()),
+                ProjectDTO.class);
+
+        return projectDTO.map(p -> p.getOdahu().stream()
+                .filter(odahu -> project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
+                .collect(Collectors.toList()))
+                .orElseThrow(() -> new DlabException("Unable to find the odahu clusters in the " + project));
+    }
+
+    @Override
     public OdahuFieldsDTO getFields(String name, String project, String endpoint) {
-        Optional<Document> one = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(name, project, endpoint),
-                fields(include(ODAHU_FIELD), excludeId()));
-        OdahuFieldsDTO odahuFields = null;
-        if (one.isPresent()) {
-            List<OdahuFieldsDTO> list = convertFromDocument(one.get().get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {
-            });
-            odahuFields = list.get(0);
-        }
-        return odahuFields;
+        Document odahuDocument = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(name, project, endpoint),
+                fields(include(ODAHU_FIELD), excludeId()))
+                .orElseThrow(() -> new DlabException(project.toString() + " does not contain odahu " + name.toString() + " cluster"));
+
+        List<OdahuFieldsDTO> list = convertFromDocument(odahuDocument.get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {});
+        return list.stream()
+                .filter(odahuFieldsDTO -> name.equals(odahuFieldsDTO.getName()))
+                .findAny()
+                .orElseThrow(() -> new DlabException("Unable to find the " + name + " cluster fields"));
     }
 
     @Override
