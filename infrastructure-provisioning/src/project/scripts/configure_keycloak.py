@@ -24,6 +24,7 @@
 import argparse
 import logging
 import requests
+import uuid
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
