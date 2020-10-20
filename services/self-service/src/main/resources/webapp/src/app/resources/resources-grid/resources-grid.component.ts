@@ -453,4 +453,8 @@ export class ResourcesGridComponent implements OnInit {
     return null;
   }
 
+  public onFilterNameUpdate(targetElement: any) {
+    this.filterForm.name = targetElement;
+    this.checkFilters();
+  }
 }

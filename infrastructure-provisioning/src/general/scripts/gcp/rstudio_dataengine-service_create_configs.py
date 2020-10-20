@@ -85,9 +85,9 @@ if __name__ == "__main__":
     else:
         result = prepare(dataproc_dir, yarn_dir)
         if result == False :
-            actions_lib.GCPActions().jars(args, dataproc_dir)
-        actions_lib.GCPActions().yarn(args, yarn_dir)
-        actions_lib.GCPActions().install_dataproc_spark(args)
-        actions_lib.GCPActions().spark_defaults(args)
+            datalab.actions_lib.GCPActions().jars(args, dataproc_dir)
+        datalab.actions_lib.GCPActions().yarn(args, yarn_dir)
+        datalab.actions_lib.GCPActions().install_dataproc_spark(args)
+        datalab.actions_lib.GCPActions().spark_defaults(args)
         configuring_notebook(args.dataproc_version)
         configure_rstudio()

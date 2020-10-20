@@ -250,8 +250,7 @@
             <input
               placeholder="Filter by library name"
               [value]="filterModel.name"
-              (input)="filterModel.name = $event.target['value']"
-              (keyup)="checkFilters()"
+              (input)="onFilterNameUpdate($event.target['value'])"
               type="text"
               class="form-control filter-field"
             />

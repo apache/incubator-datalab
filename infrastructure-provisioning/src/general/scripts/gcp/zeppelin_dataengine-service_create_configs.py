@@ -72,14 +72,14 @@ if __name__ == "__main__":
     else:
         result = prepare(dataproc_dir, yarn_dir)
         if result == False :
-            actions_lib.GCPActions().jars(args, dataproc_dir)
-        actions_lib.GCPActions().yarn(args, yarn_dir)
-        actions_lib.GCPActions().install_dataproc_spark(args)
-        actions_lib.GCPActions().spark_defaults(args)
+            datalab.actions_lib.GCPActions().jars(args, dataproc_dir)
+        datalab.actions_lib.GCPActions().yarn(args, yarn_dir)
+        datalab.actions_lib.GCPActions().install_dataproc_spark(args)
+        datalab.actions_lib.GCPActions().spark_defaults(args)
         configuring_notebook(args.dataproc_version)
         if args.multiple_clusters == 'true':
             install_remote_livy(args)
         installing_python(args.region, args.bucket, args.user_name, args.cluster_name, args.application, args.pip_mirror)
-        actions_lib.GCPActions().configure_zeppelin_dataproc_interpreter(args.dataproc_version, args.cluster_name, spark_dir, args.os_user,
+        datalab.actions_lib.GCPActions().configure_zeppelin_dataproc_interpreter(args.dataproc_version, args.cluster_name, spark_dir, args.os_user,
                                                                          yarn_dir, args.bucket, args.user_name, args.multiple_clusters)
         update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)

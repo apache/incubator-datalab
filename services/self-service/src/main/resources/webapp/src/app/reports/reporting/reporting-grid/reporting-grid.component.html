@@ -186,8 +186,8 @@
             <div class="input-wrapper">
                 <input #nameFilter type="text" placeholder="Filter by environment name"
                        class="form-control filter-field"
-                       [value]="filtered?.datalabId" (input)="filteredReportData.datalabId = $event.target['value']"
-                       (keyup)="checkFilters()"/>
+                       [value]="filtered?.datalabId" (input)="onFilterNameUpdate($event.target['value'])"
+                />
             </div>
           </th>
         </ng-container>
