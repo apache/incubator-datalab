@@ -59,4 +59,12 @@ export class SortUtils {
     return d > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? this.flatDeep(val, d - 1) : val), [])
       : arr.slice();
   }
+
+  public static sortByKeys(array, keys) {
+    keys.forEach(key => {
+      array = array.sort((a, b) => (a[key] > b[key]) ? 1 : ((b[key] > a[key]) ? -1 : 0));
+    });
+    return array;
+  }
+
 }
