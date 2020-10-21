@@ -73,7 +73,8 @@
           </ng-template>
           <div class="col">
             <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'aws'">{{ resource.totalInstanceCount > 0 ? resource.totalInstanceCount : resource.dataengine_instance_count}}</span>
-            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' || DICTIONARY[PROVIDER].cloud_provider === 'azure'">{{resource.dataengine_instance_count}}</span>
+            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' && resource.image === 'docker.datalab-dataengine' || DICTIONARY[PROVIDER].cloud_provider === 'azure'">{{resource.dataengine_instance_count}}</span>
+            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' && resource.image === 'docker.datalab-dataengine-service'">1</span>
           </div>
         </div>
           <div class="row-wrap"
