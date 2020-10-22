@@ -35,18 +35,6 @@ export class ReportingConfigModel {
     return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
   }
 
-  constructor(
-    public users: Array<string>,
-    public products: Array<string>,
-    public resource_type: Array<string>,
-    public statuses: Array<string>,
-    public shapes: Array<string>,
-    public date_start: string,
-    public date_end: string,
-    public datalabId: string,
-    public projects: Array<string>
-  ) { }
-
   defaultConfigurations(): void {
     this.users = [];
     this.products = [];
@@ -58,6 +46,19 @@ export class ReportingConfigModel {
     this.datalabId = '';
     this.projects = [];
   }
+
+  constructor(
+    public users: Array<string>,
+    public products: Array<string>,
+    public resource_type: Array<string>,
+    public statuses: Array<string>,
+    public shapes: Array<string>,
+    public date_start: string,
+    public date_end: string,
+    public datalabId: string,
+    public projects: Array<string>,
+    public locale?: string
+  ) { }
 }
 
 
