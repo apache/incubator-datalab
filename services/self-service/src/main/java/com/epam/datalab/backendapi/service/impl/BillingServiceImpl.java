@@ -31,6 +31,7 @@ import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.datalab.backendapi.resources.dto.BillingFilter;
+import com.epam.datalab.backendapi.resources.dto.ExportBillingFilter;
 import com.epam.datalab.backendapi.resources.dto.QuotaUsageDTO;
 import com.epam.datalab.backendapi.roles.RoleType;
 import com.epam.datalab.backendapi.roles.UserRoles;
@@ -125,17 +126,17 @@ public class BillingServiceImpl implements BillingService {
                 .build();
     }
 
-    @Override
-    public String downloadReport(UserInfo user, BillingFilter filter) {
-        BillingReport report = getBillingReport(user, filter);
-        boolean isReportComplete = report.isReportHeaderCompletable();
-        StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
-        String stringOfAdjustedHeader = BillingUtils.getHeader(isReportComplete);
-        reportHead.append(stringOfAdjustedHeader);
-        report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isReportComplete)));
-        reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
-        return reportHead.toString();
-    }
+	@Override
+	public String downloadReport(UserInfo user, ExportBillingFilter filter, String locale) {
+		BillingReport report = getBillingReport(user, filter);
+		boolean isReportComplete = report.isReportHeaderCompletable();
+		StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo(), locale));
+		String stringOfAdjustedHeader = BillingUtils.getHeader(isReportComplete);
+		reportHead.append(stringOfAdjustedHeader);
+		report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isReportComplete)));
+		reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
+		return reportHead.toString();
+	}
 
     @Override
     public BillingReport getExploratoryBillingData(String project, String endpoint, String exploratoryName, List<String> compNames) {

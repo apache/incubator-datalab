@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.BillingFilter;
+import com.epam.datalab.backendapi.resources.dto.ExportBillingFilter;
 import com.epam.datalab.backendapi.service.BillingService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -64,8 +65,8 @@ public class BillingResource {
     @POST
     @Path("/report/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
-        return Response.ok(billingService.downloadReport(userInfo, filter))
+    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull ExportBillingFilter filter) {
+        return Response.ok(billingService.downloadReport(userInfo, filter, filter.getLocale()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"billing-report.csv\"")
                 .build();
     }
