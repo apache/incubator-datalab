@@ -2,7 +2,7 @@ What is DataLab?
 =============
 
 DataLab is an essential toolset for analytics. It is a self-service Web Console, used to create and manage exploratory environments. It allows teams to spin up analytical environments with best of breed open-source tools just with a single click of the mouse. Once established, environment can be managed by an analytical team itself, leveraging simple and easy-to-use Web Interface.
-<p>See more at <a href="https://datalab.apache.org/" rel="nofollow">https://datalab.apache.org/</a>.</p>
+<p>See more at <a href="https://datalab.incubator.apache.org/" rel="nofollow">https://datalab.incubator.apache.org/</a>.</p>
 
 ------------
 ## CONTENTS
