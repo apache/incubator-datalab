@@ -18,7 +18,10 @@
  */
 
 .confirmation-dialog {
-  h3{
+  .content-box{
+    font-family: "Open Sans", sans-serif;
+  }
+  h4{
     margin-bottom: 20px;
   }
   color: #718ba6;
@@ -61,3 +64,27 @@
     width: 100%;
   }
 }
+
+.content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; }
+.info { color: #35afd5; }
+.info .confirm-dialog { color: #607D8B; }
+header { display: flex; justify-content: space-between; color: #607D8B; }
+header h4 i { vertical-align: bottom; }
+header a i { font-size: 20px; }
+header a:hover i { color: #35afd5; cursor: pointer; }
+.plur { font-style: normal; }
+.scrolling-content{overflow-y: auto; max-height: 200px; }
+.cluster { width: 50%; text-align: left;}
+.status { width: 50%;text-align: left;}
+.label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
+.node { font-weight: 300;}
+.resource-name { width: 40%;text-align: left; padding: 10px 0;line-height: 26px;}
+.clusters-list { width: 60%;text-align: left; padding: 10px 0;line-height: 26px;}
+.clusters-list-item { width: 100%;text-align: left;display: flex}
+.resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
+.resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
+.resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
+.confirm-resource-terminating{text-align: left; padding: 10px 20px;}
+.confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center; padding-top: 20px}
+.checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
+label{cursor: pointer}
