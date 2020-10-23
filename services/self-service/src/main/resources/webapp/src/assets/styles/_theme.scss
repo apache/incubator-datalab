@@ -494,6 +494,15 @@ span.mat-slide-toggle-content {
     position: absolute;
     transform: rotate(45deg);
   }
+
+  .line-checkbox {
+    top: 0;
+    left: 2px;
+    width: 8px;
+    height: 7px;
+    border-bottom: 2px solid white;
+    position: absolute;
+  }
 }
 .none-select{
   user-select: none;

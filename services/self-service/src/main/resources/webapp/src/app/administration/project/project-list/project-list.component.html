@@ -69,7 +69,7 @@
     <td mat-cell *matCellDef="let element" class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
-        <ul class="list-unstyled">
+        <ul class="list-unstyled actions-list">
           <div class="active-items"></div>
           <li class="project-seting-item" *ngIf="element.areStoppedNode" (click)="openEdgeDialog('start', element)">
             <i class="material-icons">play_circle_outline</i>

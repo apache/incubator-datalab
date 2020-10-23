@@ -41,6 +41,7 @@ import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 import {AuditService} from '../../core/services/audit.service';
 import {JAN} from '@angular/material/core';
+import {ReconfirmationDialogComponent} from '../../administration/management/management-grid/management-grid.component';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -233,7 +234,6 @@ export class ResourcesGridComponent implements OnInit {
 
   public exploratoryAction(data, action: string): void {
     const resource = this.getResourceByName(data.name, data.project);
-
     if (action === 'deploy') {
       this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
         .afterClosed().subscribe((res) => {
@@ -246,6 +246,9 @@ export class ResourcesGridComponent implements OnInit {
           () => this.buildGrid(),
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
+      // this.dialog.open(ReconfirmationDialogComponent, {
+      //   data: { notebooks: [data], type: 'notebook', action }, width: '550px', panelClass: 'error-modalbox'
+      // })
       this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe((res) => {
         res && this.buildGrid();

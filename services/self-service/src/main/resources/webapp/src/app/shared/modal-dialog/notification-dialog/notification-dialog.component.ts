@@ -42,7 +42,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                         <span class="strong blue" *ngFor="let notebook of item.notebook; let i = index">{{i === 0 ? '' : ', '}} {{ notebook }}</span> in project <span
                         class="strong blue">{{ item.project }}</span>
                         <span *ngIf="data.template.notebook.length > 1">, </span>
-                      </span> will be stopped and all computational resources will be stopped/terminated
+                      </span> will be stopped and all computes will be stopped/terminated
                   </div>
 
                   <div class="quota-message" *ngIf="data.template.cluster?.length > 0">
@@ -155,7 +155,7 @@ import {Endpoint} from '../../../administration/project/project.component';
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
     .plur { font-style: normal; }
-    .scrolling-content{overflow-y: auto; max-height: 200px; }
+    .scrolling-content{overflow-y: auto; max-height: 200px; border-bottom: 1px solid #edf1f5; }
     .endpoint { width: 70%; text-align: left; color: #577289;}
     .status { width: 30%;text-align: left;}
     .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
@@ -163,8 +163,9 @@ import {Endpoint} from '../../../administration/project/project.component';
     .resource-name { width: 280px;text-align: left; padding: 10px 0;line-height: 26px;}
     .project { width: 30%;text-align: left; padding: 10px 0;line-height: 26px;}
     .resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
-    .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
+    .resource-list-header{display: flex; font-weight: 600; font-size: 14px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
     .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
+    .resource-list-row:last-child{border-bottom: none}
     .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
     .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center; padding-top: 20px}
     .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
@@ -173,6 +174,7 @@ import {Endpoint} from '../../../administration/project/project.component';
     .table-header{padding-bottom: 10px;}
     .alert{text-align: left; line-height: 22px; padding-bottom: 25px;padding-top: 15px;}
     .quota-message{padding-top: 10px}
+    .mat-list-base .mat-list-item { font-size: 15px}
   `]
 })
 export class NotificationDialogComponent {
