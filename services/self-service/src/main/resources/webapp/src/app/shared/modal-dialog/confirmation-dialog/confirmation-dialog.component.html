@@ -22,7 +22,7 @@
     <h4 class="modal-title">
 
       <span *ngIf="data.type !== 5 && model.notebook.name && model.notebook.name !== 'edge node'">
-        <span>{{ confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
+        <span>{{ data.type === 1 ? 'Terminate' : 'Stop' }} resource</span>
       </span>
       <span *ngIf="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node' || data.type === 4 && data.notebook.length || data.type === 5 ">
         <i class="material-icons">priority_high</i>Warning
@@ -35,7 +35,7 @@
   </header>
   <div class="dialog-content">
     <div class="content-box">
-      <p *ngIf="data.type !== 4 && data.type !== 5" class="info text-center">{{ model.title }}</p>
+<!--      <p *ngIf="data.type !== 4 && data.type !== 5" class="info text-center">{{ model.title }}</p>-->
       <div *ngIf="data.type === 4" class="text-center m-bot-20">
         <h4 class="strong">Group data will be updated.</h4>
       </div>
@@ -87,20 +87,21 @@
                   <div class="cluster"></div>
                   <div class="status"
                        [ngClass]="{
-                   'stopped': data.action==='stop', 'terminated': data.action === 'terminate'
+                   'stopped': data.type === 0, 'terminated': data.type === 1
                     }"
                   >
-                    {{data.action  === 'stop' ? 'Stopped' : 'Terminated'}}
+                    {{data.type  === 0 ? 'Stopped' : 'Terminated'}}
                   </div>
                 </div>
                 <div class="clusters-list-item" *ngFor="let cluster of notebook?.resources">
                   <div class="cluster">{{cluster.computational_name}}</div>
                   <div class="status" [ngClass]="{
-              'stopped': (data.action==='stop' && cluster.image==='docker.datalab-dataengine'), 'terminated': data.action === 'terminate' || (data.action==='stop' && cluster.image!=='docker.datalab-dataengine')
-              }">{{data.action  === 'stop' && cluster.image === "docker.datalab-dataengine" ? 'Stopped' : 'Terminated'}}</div>
+              'stopped': (data.type === 0 && cluster.image==='docker.datalab-dataengine'), 'terminated': data.type === 1 || (data.type===0 && cluster.image!=='docker.datalab-dataengine')
+              }">{{data.type  === 0 && cluster.image === "docker.datalab-dataengine" ? 'Stopped' : 'Terminated'}}</div>
                 </div>
               </div>
-
+            </div>
+          </div>
 
 
       <div class="text-center m-top-20">
@@ -111,6 +112,7 @@
         <button *ngIf="data.type !== 4 && data.type !== 5" mat-raised-button type="button" class="butt butt-success action" (click)="confirm()">Yes</button>
         <button *ngIf="data.type === 4 || data.type === 5" mat-raised-button type="button" class="butt butt-success action" (click)="dialogRef.close(true)">Yes</button>
       </div>
+    </div>
     </div>
   </div>
 </div>

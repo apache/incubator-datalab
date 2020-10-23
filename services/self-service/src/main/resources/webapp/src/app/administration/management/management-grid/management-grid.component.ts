@@ -359,19 +359,15 @@ export class ReconfirmationDialogComponent {
     public dialogRef: MatDialogRef<ReconfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log(data.notebooks);
-    console.log(data.notebooks.length);
     if (data.notebooks && data.notebooks.length) {
       this.notebooks = JSON.parse(JSON.stringify(data.notebooks));
-      console.log(this.notebooks);
       this.notebooks = this.notebooks.map(notebook => {
         notebook.resources = notebook.resources.filter(res => res.status !== 'failed' &&
           res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
         if (notebook.resources.length) {
           this.isClusterLength = true;
         }
-        console.log(notebook);
-        return notebook;
+          return notebook;
       });
     }
   }

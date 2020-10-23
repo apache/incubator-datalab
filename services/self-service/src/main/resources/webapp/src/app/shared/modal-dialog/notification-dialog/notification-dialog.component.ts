@@ -96,7 +96,7 @@ import {Endpoint} from '../../../administration/project/project.component';
 <!--                          </label>-->
 <!--                      </div>-->
                       <p class="confirm-message">
-                          <span *ngIf="!willNotTerminate">All connected computational resources will be terminated as well.</span>
+                          <span *ngIf="!willNotTerminate">All connected computes will be terminated as well.</span>
                       </p>
                   </div>
                   <mat-list *ngIf="data.item.endpoints?.length">
@@ -133,7 +133,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                      </div>
                    </mat-list>
                    <div mat-dialog-content class="bottom-message" *ngIf="data.item.resources.length > 0">
-                     <span class="confirm-message">All connected computational resources will be terminated as well.</span>
+                     <span class="confirm-message">All connected computes will be terminated as well.</span>
                    </div>
                  <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
                  <div class="text-center m-top-30 m-bott-10">

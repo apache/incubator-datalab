@@ -60,7 +60,7 @@ export class ConfirmationDialogComponent implements OnInit {
     this.model = ConfirmationDialogModel.getDefault();
   }
 
-  ngOnInit() {   
+  ngOnInit() {
     if (this.data.type !== 5) {
       this.confirmationType = this.data.type;
       this.notebook = this.data.notebook;
@@ -81,17 +81,10 @@ export class ConfirmationDialogComponent implements OnInit {
         : false;
     }
 
-    if (this.data.type === 0 || this.data.type === 1) {      
+    if (this.data.type === 0 || this.data.type === 1) {
       if (this.notebook.resources.length) {
         this.isClusterLength = true;
       }
-      // this.notebook = this.notebook.map(notebook => {
-      //   notebook.resources = notebook.resources.filter(res => res.status !== 'failed' &&
-      //     res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
-      //  
-      //   console.log(notebook);
-      //   return notebook;
-      // });
     }
   }
 
