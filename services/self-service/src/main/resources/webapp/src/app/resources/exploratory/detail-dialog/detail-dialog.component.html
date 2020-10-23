@@ -116,7 +116,7 @@
             <p class="m-top-30">{{ 'Project bucket' }}: &nbsp;</p>
             <!--                 (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
             <div class="links_block" (mouseleave)="hideCopyIcon()">
-                <p *ngIf="PROVIDER === 'azure' && notebook.account_name">
+                <p *ngIf="PROVIDER === 'azure' && notebook.account_name" class="bucket-info-wrapper">
                   <span
                     class="bucket-info"
                     (mouseover)="showCopyIcon('bucket')"
