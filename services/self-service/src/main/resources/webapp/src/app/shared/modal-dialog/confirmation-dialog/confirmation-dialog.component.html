@@ -22,7 +22,7 @@
     <h4 class="modal-title">
 
       <span *ngIf="data.type !== 5 && model.notebook.name && model.notebook.name !== 'edge node'">
-        <span>{{ confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
+        <span>{{ data.type === 1 ? 'Terminate' : 'Stop' }} resource</span>
       </span>
       <span *ngIf="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node' || data.type === 4 && data.notebook.length || data.type === 5 ">
         <i class="material-icons">priority_high</i>Warning
@@ -35,35 +35,74 @@
   </header>
   <div class="dialog-content">
     <div class="content-box">
-      <p *ngIf="data.type !== 4 && data.type !== 5" class="info text-center">{{ model.title }}</p>
+<!--      <p *ngIf="data.type !== 4 && data.type !== 5" class="info text-center">{{ model.title }}</p>-->
       <div *ngIf="data.type === 4" class="text-center m-bot-20">
-        <h3 class="strong">Group data will be updated.</h3>
+        <h4 class="strong">Group data will be updated.</h4>
       </div>
       <p *ngIf="data.type === 4 && data.notebook.length" class="text-center delete-user">User<span *ngIf="data.notebook.length>1">s</span>  <span class="strong"> {{data.notebook.join(', ')}} </span>will be removed from this group. Removing may prevent the user<span *ngIf="data.notebook.length>1">s</span> to access {{data.notebook.length>1 ? 'their' : 'his/her'}} resources</p>
       <p *ngIf="data.type === 5" class="text-center delete-user">Removing the group<span *ngIf="data.notebook.length>1">s</span> <span class="strong">{{' ' + data.notebook}}</span> from the project may prevent the users from this group<span *ngIf="data.notebook.length>1">s</span> to access their resources</p>
 <!--        All <span *ngIf="data.notebook.length===1">his</span><span *ngIf="data.notebook.length>1">their</span> resources authorized within this group will be terminated.-->
-      <mat-list class="resources"
-        [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'
-                                  || !model.notebook.resources || model.notebook.resources.length === 0 || (!isAliveResources && !confirmationType) || onlyKilled">
-        <mat-list-item class="list-header">
-          <div class="cluster">Cluster</div>
-          <div class="status">Further status</div>
-          <div class="size">Size</div>
-        </mat-list-item>
-        <div class="scrolling-content" id="scrolling">
-          <mat-list-item *ngFor="let resource of model.notebook.resources"
-                         [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || (resource.status === 'stopped' && !confirmationType)">
-              <div class="cluster ellipsis">{{ resource.computational_name }}</div>
-              <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.datalab-dataengine',
-                  'terminated': resource.image === 'docker.datalab-dataengine-service' || confirmationType }">
-                  {{ (!confirmationType && resource.image === 'docker.datalab-dataengine') ? 'Stopped' : 'Terminated' }}
+<!--      <mat-list class="resources"-->
+<!--        [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'-->
+<!--                                  || !model.notebook.resources || model.notebook.resources.length === 0 || (!isAliveResources && !confirmationType) || onlyKilled">-->
+<!--        <mat-list-item class="list-header">-->
+<!--          <div class="cluster">Cluster</div>-->
+<!--          <div class="status">Further status</div>-->
+<!--          <div class="size">Size</div>-->
+<!--        </mat-list-item>-->
+<!--        <div class="scrolling-content" id="scrolling">-->
+<!--          <mat-list-item *ngFor="let resource of model.notebook.resources"-->
+<!--                         [hidden]="resource.status === 'failed' || resource.status === 'terminated' || resource.status === 'terminating' || (resource.status === 'stopped' && !confirmationType)">-->
+<!--              <div class="cluster ellipsis">{{ resource.computational_name }}</div>-->
+<!--              <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.datalab-dataengine',-->
+<!--                  'terminated': resource.image === 'docker.datalab-dataengine-service' || confirmationType }">-->
+<!--                  {{ (!confirmationType && resource.image === 'docker.datalab-dataengine') ? 'Stopped' : 'Terminated' }}-->
+<!--              </div>-->
+<!--              <div class="size">{{-->
+<!--                  resource[DICTIONARY[notebook.cloud_provider.toLowerCase()][resource.image].master_node_shape] }}-->
+<!--              </div>-->
+<!--          </mat-list-item>-->
+<!--        </div>-->
+<!--      </mat-list>-->
+
+        <div class="resource-list" *ngIf="data.type === 0 || data.type === 1">
+          <div class="resource-list-header">
+            <div class="resource-name">Notebook</div>
+            <div class="clusters-list">
+              <div class="clusters-list-item">
+                <div class="cluster"><span *ngIf="isClusterLength">Cluster</span></div>
+                <div class="status">Further status</div>
               </div>
-              <div class="size">{{
-                  resource[DICTIONARY[notebook.cloud_provider.toLowerCase()][resource.image].master_node_shape] }}
+            </div>
+
+          </div>
+          <div class="scrolling-content resource-heigth">
+            <div class="resource-list-row sans node">
+              <div class="resource-name ellipsis">
+                {{notebook.name}}
               </div>
-          </mat-list-item>
-        </div>
-      </mat-list>
+
+              <div class="clusters-list">
+                <div class="clusters-list-item">
+                  <div class="cluster"></div>
+                  <div class="status"
+                       [ngClass]="{
+                   'stopped': data.type === 0, 'terminated': data.type === 1
+                    }"
+                  >
+                    {{data.type  === 0 ? 'Stopped' : 'Terminated'}}
+                  </div>
+                </div>
+                <div class="clusters-list-item" *ngFor="let cluster of notebook?.resources">
+                  <div class="cluster">{{cluster.computational_name}}</div>
+                  <div class="status" [ngClass]="{
+              'stopped': (data.type === 0 && cluster.image==='docker.datalab-dataengine'), 'terminated': data.type === 1 || (data.type===0 && cluster.image!=='docker.datalab-dataengine')
+              }">{{data.type  === 0 && cluster.image === "docker.datalab-dataengine" ? 'Stopped' : 'Terminated'}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
       <div class="text-center m-top-20">
         <p class="strong">Do you want to proceed?</p>
@@ -73,6 +112,7 @@
         <button *ngIf="data.type !== 4 && data.type !== 5" mat-raised-button type="button" class="butt butt-success action" (click)="confirm()">Yes</button>
         <button *ngIf="data.type === 4 || data.type === 5" mat-raised-button type="button" class="butt butt-success action" (click)="dialogRef.close(true)">Yes</button>
       </div>
+    </div>
     </div>
   </div>
 </div>

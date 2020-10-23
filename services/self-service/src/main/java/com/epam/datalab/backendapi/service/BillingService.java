@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.service;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.domain.BillingReport;
 import com.epam.datalab.backendapi.resources.dto.BillingFilter;
+import com.epam.datalab.backendapi.resources.dto.ExportBillingFilter;
 import com.epam.datalab.backendapi.resources.dto.QuotaUsageDTO;
 
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
 public interface BillingService {
     BillingReport getBillingReport(UserInfo userInfo, BillingFilter filter);
 
-    String downloadReport(UserInfo userInfo, BillingFilter filter);
+	String downloadReport(UserInfo userInfo, ExportBillingFilter filter, String locale);
 
     BillingReport getExploratoryBillingData(String project, String endpoint, String exploratoryName, List<String> compNames);
 

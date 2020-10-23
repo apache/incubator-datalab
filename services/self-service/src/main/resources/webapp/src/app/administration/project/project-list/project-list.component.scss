@@ -124,6 +124,9 @@ td.settings {
   border-bottom: 1px solid #edf1f5;
   cursor: pointer;
   color: #577289;
+  &:last-child{
+    border-bottom: none;
+  }
   &:hover{
     color: #36afd5;
     transition: all .45s ease-in-out;
@@ -143,6 +146,10 @@ td.settings {
 
 .project-endpoint-name{
    color: #577289;
+}
+
+.actions-list{
+  padding: 10px 15px;
 }
 
 

@@ -27,6 +27,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { FileUtils } from '../../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
+import {LocalizationService} from '../../core/services/localization.service';
 
 @Component({
   selector: 'datalab-reporting',
@@ -79,7 +80,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
     private progressBarService: ProgressBarService,
-    private applicationSecurityService: ApplicationSecurityService,
+    private localizationService: LocalizationService,
   ) { }
 
   ngOnInit() {
@@ -131,6 +132,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   exportBillingReport(): void {
+    this.reportData.locale = this.localizationService.locale;
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),

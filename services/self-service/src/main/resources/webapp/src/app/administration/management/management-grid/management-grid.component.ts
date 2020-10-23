@@ -367,7 +367,7 @@ export class ReconfirmationDialogComponent {
         if (notebook.resources.length) {
           this.isClusterLength = true;
         }
-        return notebook;
+          return notebook;
       });
     }
   }

@@ -30,9 +30,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -183,19 +185,20 @@ public class BillingUtils {
         return list.stream();
     }
 
-    /**
-     * @param sbn  Service Base Name
-     * @param from formatted date, like 2020-04-07
-     * @param to   formatted date, like 2020-05-07
-     * @return line, like:
-     * "Service base name: SERVICE_BASE_NAME. Available reporting period from: 2020-04-07 to: 2020-04-07"
-     */
-    public static String getFirstLine(String sbn, LocalDate from, LocalDate to) {
-        return CSVFormatter.formatLine(Lists.newArrayList(String.format(REPORT_FIRST_LINE, sbn,
-                Optional.ofNullable(from).map(date -> date.format(DateTimeFormatter.ISO_DATE)).orElse(StringUtils.EMPTY),
-                Optional.ofNullable(to).map(date -> date.format(DateTimeFormatter.ISO_DATE)).orElse(StringUtils.EMPTY))),
-                CSVFormatter.SEPARATOR, '\"');
-    }
+	/**
+	 * @param sbn    Service Base Name
+	 * @param from   formatted date, like 2020-04-07
+	 * @param to     formatted date, like 2020-05-07
+	 * @param locale user's locale
+	 * @return line, like:
+	 * "Service base name: SERVICE_BASE_NAME. Available reporting period from: 2020-04-07 to: 2020-04-07"
+	 */
+	public static String getFirstLine(String sbn, LocalDate from, LocalDate to, String locale) {
+		return CSVFormatter.formatLine(Lists.newArrayList(String.format(REPORT_FIRST_LINE, sbn,
+				Optional.ofNullable(from).map(date -> date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.forLanguageTag(locale)))).orElse(StringUtils.EMPTY),
+				Optional.ofNullable(to).map(date -> date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.forLanguageTag(locale)))).orElse(StringUtils.EMPTY))),
+				CSVFormatter.SEPARATOR, '\"');
+	}
 
     /**
      * headerType there are two types of header according user role

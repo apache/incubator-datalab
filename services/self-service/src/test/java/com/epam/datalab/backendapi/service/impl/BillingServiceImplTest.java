@@ -32,6 +32,7 @@ import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.datalab.backendapi.resources.TestBase;
 import com.epam.datalab.backendapi.resources.dto.BillingFilter;
+import com.epam.datalab.backendapi.resources.dto.ExportBillingFilter;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.datalab.backendapi.resources.dto.QuotaUsageDTO;
 import com.epam.datalab.backendapi.service.EndpointService;
@@ -176,11 +177,11 @@ public class BillingServiceImplTest extends TestBase {
         when(exploratoryService.getUserInstance(anyString(), anyString(), anyString())).thenReturn(Optional.of(getUserInstanceDTO()));
         when(exploratoryService.getUserInstance(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(Optional.of(getUserInstanceDTOWithCompute()));
 
-        String actualBillingReport = billingService.downloadReport(getUserInfo(), new BillingFilter());
+	    String actualBillingReport = billingService.downloadReport(getUserInfo(), new ExportBillingFilter(), "en-US");
 
-        assertEquals("reports should be equal", getDownloadReport(), actualBillingReport);
-        verify(billingDAO).aggregateBillingData(new BillingFilter());
-        verify(projectService).get(PROJECT);
+	    assertEquals("reports should be equal", getDownloadReport(), actualBillingReport);
+	    verify(billingDAO).aggregateBillingData(new ExportBillingFilter());
+	    verify(projectService).get(PROJECT);
         verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME);
         verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME, Boolean.TRUE);
         verifyNoMoreInteractions(billingDAO);
@@ -676,18 +677,18 @@ public class BillingServiceImplTest extends TestBase {
     }
 
     private String getDownloadReport() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\"Service base name: ").append(SERVICE_BASE_NAME).append(". Available reporting period from: ").append(LocalDate.parse("2020-01-01"))
-                .append(" to: ").append(LocalDate.parse("2020-05-01")).append("\"\n");
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("\"Service base name: ").append(SERVICE_BASE_NAME).append(". Available reporting period from: ").append("Jan 1, 2020")
+			    .append(" to: ").append("May 1, 2020").append("\"\n");
 
-        sb.append(new StringJoiner(",").add("DataLab ID").add("User").add("Project").add("DataLab Resource Type").add("Status").add("Shape").add("Product")
-                .add("Cost\n").toString());
+	    sb.append(new StringJoiner(",").add("DataLab ID").add("User").add("Project").add("DataLab Resource Type").add("Status").add("Shape").add("Product")
+			    .add("Cost\n").toString());
 
-        sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + "\n"));
-        sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + "\n"));
-        sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + "\n"));
+	    sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + "\n"));
+	    sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + "\n"));
+	    sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + "\n"));
 
-        sb.append(",,,,,,,Total: 4.0 currency\n");
+	    sb.append(",,,,,,,Total: 4.0 currency\n");
 
         return sb.toString();
     }
