@@ -22,6 +22,7 @@
 # ******************************************************************************
 
 import sys
+import argparse
 from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric.api import *
