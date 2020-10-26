@@ -84,7 +84,7 @@ public class OdahuServiceImpl implements OdahuService {
         return odahuDAO.findOdahuClusters();
     }
 
-    @Override
+    @Override//TODO:method should be refactored
     public Optional<OdahuDTO> get(String project, String endpoint) {
         return odahuDAO.getByProjectEndpoint(project, endpoint);
     }
@@ -102,7 +102,7 @@ public class OdahuServiceImpl implements OdahuService {
         boolean isAdded = odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
                         odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags(odahuCreateDTO)));
 
-        if (isAdded) {
+        if (isAdded) {//TODO: Reason of the IF statement?
             String url = null;
             EndpointDTO endpointDTO = endpointService.get(odahuCreateDTO.getEndpoint());
             try {
