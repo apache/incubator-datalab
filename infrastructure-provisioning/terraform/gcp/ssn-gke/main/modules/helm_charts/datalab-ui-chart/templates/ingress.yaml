@@ -55,4 +55,3 @@ spec:
           servicePort: {{ $servicePort }}
           path: /
   {{- end }}
-{{- end }}
