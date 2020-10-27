@@ -102,7 +102,7 @@ public class OdahuServiceImpl implements OdahuService {
         boolean isAdded = odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
                         odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags(odahuCreateDTO)));
 
-        if (isAdded) {//TODO: Reason of the IF statement?
+        if (isAdded) {
             String url = null;
             EndpointDTO endpointDTO = endpointService.get(odahuCreateDTO.getEndpoint());
             try {
@@ -116,6 +116,8 @@ public class OdahuServiceImpl implements OdahuService {
                 odahuDAO.updateStatus(odahuCreateDTO.getName(), odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint(),
                         UserInstanceStatus.FAILED);
             }
+        } else {
+            throw new DlabException("The odahu project " + project + " can not be created.");
         }
     }
 
