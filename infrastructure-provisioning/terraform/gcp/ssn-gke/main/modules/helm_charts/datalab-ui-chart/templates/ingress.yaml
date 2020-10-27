@@ -24,7 +24,7 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-  - host: mbod-gke-q2710-ssn.k8s-gcp.dlabanalytics.com
+  - host: mbod-gke-r2710-ssn.k8s-gcp.dlabanalytics.com
     http:
       paths:
       - path: /
