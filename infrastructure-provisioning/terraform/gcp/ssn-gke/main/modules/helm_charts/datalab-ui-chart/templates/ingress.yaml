@@ -32,7 +32,7 @@ metadata:
   labels: {{ include "datalab-ui.labels" . | nindent 4 }}
 annotations:
   {{- with .Values.ui.ingress.annotations }}
-  {{ toYaml . | indent 4 }}
+  {{ toYaml . | nindent 4 }}
   {{- end }}
 spec:
   {{- if .Values.ui.ingress.tls }}
