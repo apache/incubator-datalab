@@ -46,12 +46,12 @@ spec:
       secretName: {{ .secretName }}
     {{- end }}
   {{- end }}
-  rules:
-    - host: {{ $host }}
-        http:
-          paths:
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $servicePort }}
-            path: /
-  {{- end }}
+rules:
+  - host: {{ $host }}
+      http:
+        paths:
+          backend:
+            serviceName: {{ $fullName }}
+            servicePort: {{ $servicePort }}
+          path: /
+{{- end }}
