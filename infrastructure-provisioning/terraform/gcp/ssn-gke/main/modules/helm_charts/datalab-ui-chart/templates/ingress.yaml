@@ -24,14 +24,14 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-  - host: "mbod-gke-r2710-ssn.k8s-gcp.dlabanalytics.com"
+  - host: "mbod-gke-s2710-ssn.k8s-gcp.dlabanalytics.com"
     http:
       paths:
       - path: "/"
           pathType: Prefix
           backend:
             service:
-              name: "mbod-gke-r2710-ssn"
+              name: "mbod-gke-s2710-ssn"
               port:
                 number: 80
 {{- end }}
