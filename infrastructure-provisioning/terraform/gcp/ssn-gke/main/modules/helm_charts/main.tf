@@ -28,6 +28,7 @@ data "google_container_cluster" "ssn_k8s_gke_cluster" {
 data "google_client_config" "current" {}
 
 provider "helm" {
+  version = "0.10"
 
   kubernetes {
     host                   = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
@@ -36,12 +37,13 @@ provider "helm" {
     client_key             = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key)
     cluster_ca_certificate = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)
   }
-  version         = "~> 0.10.5"
+
   install_tiller = true
   service_account = kubernetes_service_account.tiller_sa.metadata.0.name
 }
 
 provider "kubernetes" {
+  version = "1.10.0"
   load_config_file = false
   host = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
 

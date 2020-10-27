@@ -19,25 +19,25 @@
 #
 # ******************************************************************************
 
-  {{- if .Release.IsInstall -}}
+{{- if .Release.IsInstall -}}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ include "step-certificates.fullname" . }}-config
-  namespace: {{.Release.Namespace}}
+  namespace: {{ .Release.Namespace }}
   labels:
-  {{ include "step-certificates.labels" . | indent 4 }}
+    {{- include "step-certificates.labels" . | nindent 4 }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{.Release.Name}}"
+  name: "{{ .Release.Name }}"
   labels:
-{{ include "step-certificates.labels" . | indent 4 }}
+    {{- include "step-certificates.labels" . | nindent 4 }}
 spec:
   template:
     metadata:
-      name: "{{.Release.Name}}"
+      name: "{{ .Release.Name }}"
       labels:
         app.kubernetes.io/name: {{ include "step-certificates.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
@@ -45,16 +45,16 @@ spec:
       serviceAccountName: {{ include "step-certificates.fullname" . }}-config
       restartPolicy: Never
       volumes:
-        - name: bootstrap
-          configMap:
-            name: {{ include "step-certificates.fullname" . }}-bootstrap
+      - name: bootstrap
+        configMap:
+          name: {{ include "step-certificates.fullname" . }}-bootstrap
       containers:
-        - name: config
-          image: "{{ .Values.bootstrapImage.repository }}:{{ .Values.bootstrapImage.tag }}"
-          imagePullPolicy: {{ .Values.bootstrapImage.pullPolicy }}
-          command: ["/bin/sh", "/home/step/bootstrap/bootstrap.sh"]
-          volumeMounts:
-            - name: bootstrap
-              mountPath: /home/step/bootstrap
-              readOnly: true
-{{- end -}}
+      - name: config
+        image: "{{ .Values.bootstrapImage.repository }}:{{ .Values.bootstrapImage.tag }}"
+        imagePullPolicy: {{ .Values.bootstrapImage.pullPolicy }}
+        command: ["/bin/sh", "/home/step/bootstrap/bootstrap.sh"]
+        volumeMounts:
+          - name: bootstrap
+            mountPath: /home/step/bootstrap
+            readOnly: true
+{{- end }}

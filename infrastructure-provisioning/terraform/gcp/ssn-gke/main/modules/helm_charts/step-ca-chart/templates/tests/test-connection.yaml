@@ -24,9 +24,9 @@ kind: Pod
 metadata:
   name: "{{ include "step-certificates.fullname" . }}-test-connection"
   labels:
-  {{ include "step-certificates.labels" . | indent 4 }}
-annotations:
-  "helm.sh/hook": test-success
+    {{- include "step-certificates.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
 spec:
   containers:
     - name: wget
