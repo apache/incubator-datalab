@@ -23,12 +23,12 @@ spec:
       secretName: {{ .secretName }}
     {{- end }}
   {{- end }}
-rules:
+  rules:
   - host: {{ $host }}
     http:
       paths:
-        backend:
-          serviceName: {{ $fullName }}
-          servicePort: {{ $servicePort }}
-        path: /
+      - path: /
+          backend:
+            serviceName: {{ $fullName }}
+            servicePort: {{ $servicePort }}
 {{- end }}
