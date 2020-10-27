@@ -47,11 +47,14 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-  - host: {{ $host }}
-    http:
-      paths:
-        - backend:
-          serviceName: {{ $fullName }}
-          servicePort: {{ $servicePort }}
-          path: /
+    - host: {{ .host | quote }}
+        http:
+          paths:
+            {{- range .paths }}
+            - path: {{ . }}
+              backend:
+                serviceName: {{ $fullName }}
+                servicePort: {{ $servicePort }}
+                path: /
+            {{- end }}
   {{- end }}
