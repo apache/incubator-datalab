@@ -29,10 +29,10 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
-  labels: {{ include "datalab-ui.labels" . | nindent 4 }}
+  labels: {{ include "datalab-ui.labels" . | indent 4 }}
 annotations:
   {{- with .Values.ui.ingress.annotations }}
-  {{ toYaml . | nindent 4 }}
+  {{ toYaml . | indent 4 }}
   {{- end }}
 spec:
   {{- if .Values.ui.ingress.tls }}
