@@ -54,7 +54,7 @@ spec:
             - path: {{ . }}
               backend:
                 serviceName: {{ $fullName }}
-                servicePort: {{ $servicePort }}
+                servicePort: https
                 path: /
             {{- end }}
   {{- end }}
