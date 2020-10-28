@@ -61,11 +61,11 @@ resource "helm_release" "datalab_ui" {
     values = [data.template_file.datalab_ui_values.rendered]
 }
 
-#data "kubernetes_service" "ui_service" {
-#  metadata {
-#    name = helm_release.datalab_ui.name
-#    namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
-#  }
-#  depends_on = [
-#    helm_release.datalab_ui]
-#}
+data "kubernetes_service" "ui_service" {
+  metadata {
+    name = helm_release.datalab_ui.name
+    namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
+  }
+  depends_on = [
+    helm_release.datalab_ui]
+}
