@@ -154,9 +154,9 @@
           <td mat-cell *matCellDef="let element">
           </td>
           <td mat-footer-cell *matFooterCellDef class="table-footer total-cost" [colSpan]="2" [ngClass]="{'right-sticky': reportData?.length < 5}">
-        <span class="strong">
-            Total <span *ngIf="reportData?.length">{{fullReport['total_cost'] | localcurrency}}</span>
-        </span>
+            <span class="strong">
+                Total <span *ngIf="reportData?.length">{{fullReport['total_cost'] | localcurrency}}</span>
+            </span>
           </td>
         </ng-container>
 
@@ -286,6 +286,4 @@
       </div>
     </div>
   </div>
-
-
 </div>

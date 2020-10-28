@@ -42,7 +42,7 @@ import {take} from 'rxjs/operators';
   // changeDetection: ChangeDetectionStrategy.OnPush
 
 })
-export class ReportingGridComponent implements OnInit, AfterViewInit {
+export class ReportingGridComponent implements OnInit {
   tableEl = {};
   filterConfiguration: ReportingConfigModel;
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
@@ -93,10 +93,6 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
       this.tableEl = this.table._elementRef.nativeElement;
     }, 1000);
     this.checkFilters();
-  }
-
-  ngAfterViewInit() {
-
   }
 
   onUpdate($event): void {
