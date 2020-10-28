@@ -142,7 +142,9 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
     print("Removing nat route")
     try:
         nat_route_name = '{0}-{1}-{2}-nat-route'.format(service_base_name, project_name, endpoint_name)
-        GCPActions.delete_nat_route(nat_route_name)
+        route = GCPMeta.get_route(nat_route_name)
+        if route:
+            GCPActions.delete_nat_route(nat_route_name)
     except Exception as err:
         datalab.fab.append_result("Failed to remove nat route", str(err))
         sys.exit(1)

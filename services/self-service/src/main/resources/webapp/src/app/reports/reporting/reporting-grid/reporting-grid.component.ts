@@ -42,7 +42,7 @@ import {take} from 'rxjs/operators';
   // changeDetection: ChangeDetectionStrategy.OnPush
 
 })
-export class ReportingGridComponent implements OnInit, AfterViewInit {
+export class ReportingGridComponent implements OnInit {
   tableEl = {};
   filterConfiguration: ReportingConfigModel;
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
@@ -95,10 +95,6 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
     this.checkFilters();
   }
 
-  ngAfterViewInit() {
-
-  }
-
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
     this.checkFilters();
@@ -106,7 +102,7 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
 
   private checkFilters() {
     this.isFilterChanged = JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
-    this.isFilterSelected = Object.keys(this.filteredReportData).filter(v => this.filteredReportData[v].length > 0).length > 0;
+    this.isFilterSelected = Object.keys(this.filteredReportData).filter(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0).length > 0;
   }
 
   refreshData(fullReport, report) {

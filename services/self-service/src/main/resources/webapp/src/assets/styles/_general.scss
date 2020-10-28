@@ -189,8 +189,7 @@ input[type=file]::-webkit-file-upload-button {
   justify-content: space-around;
   z-index: 102;
   bottom: 9px;
-  left: 0;
-  right: 0;
+  width: 100%;
 
   .mat-mini-fab {
     height: 25px;
