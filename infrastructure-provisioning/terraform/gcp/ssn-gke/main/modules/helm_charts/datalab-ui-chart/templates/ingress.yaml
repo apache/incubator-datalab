@@ -22,11 +22,11 @@ spec:
   {{- end }}
   {{- end }}
   rules:
-  - host: mbod-gke-d2810-ssn.k8s-gcp.dlabanalytics.com
+  - host: {{ $host }}
     http:
       paths:
       - path: /
         backend:
-          serviceName: mbod-gke-d2810-ssn
-          servicePort: 80
+          serviceName: {{ $fullName }}
+          servicePort: {{ $servicePort }}
 {{- end }}
