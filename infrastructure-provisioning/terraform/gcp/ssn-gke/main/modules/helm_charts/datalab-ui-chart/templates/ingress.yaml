@@ -1,7 +1,7 @@
 {{- if .Values.ui.ingress.enabled -}}
 {{- $fullName := include "datalab-ui.fullname" . -}}
-{{ $servicePort := .Values.ui.service.http_port }}
-{{ $host := .Values.ui.ingress.host }}
+{{- $servicePort := .Values.ui.service.http_port -}}
+{{- $host := .Values.ui.ingress.host -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
