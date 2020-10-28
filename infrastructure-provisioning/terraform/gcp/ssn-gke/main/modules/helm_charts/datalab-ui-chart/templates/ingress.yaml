@@ -6,32 +6,30 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
-  labels:
-    {{ include "datalab-ui.labels" . | nindent 4 }}
+  labels: {{ include "datalab-ui.labels" . | nindent 4 }}
   {{- with .Values.ui.ingress.annotations }}
-  annotations:
-    {{ toYaml . | nindent 4 }}
+  annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
 spec:
   {{- if .Values.ui.ingress.tls }}
   tls:
-    {{- range .Values.ui.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
+  {{- range .Values.ui.ingress.tls }}
+  - hosts:
+      {{- range .hosts }}
+      - {{ . | quote }}
+      {{- end }}
+    secretName: {{ .secretName }}
+  {{- end }}
   {{- end }}
   rules:
   - host: mbod-gke-2810-ssn.k8s-gcp.dlabanalytics.com
     http:
       paths:
       - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: "mbod-gke-2810-ssn"
-              port:
-                number: 80
+        pathType: Prefix
+        backend:
+          service:
+            name: mbod-gke-2810-ssn
+            port:
+              number: 80
 {{- end }}
