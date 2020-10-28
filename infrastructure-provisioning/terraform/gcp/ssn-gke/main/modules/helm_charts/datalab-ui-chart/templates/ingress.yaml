@@ -2,7 +2,7 @@
 {{- $fullName := include "datalab-ui.fullname" . -}}
 {{ $servicePort := .Values.ui.service.http_port }}
 {{ $host := .Values.ui.ingress.host }}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -22,14 +22,14 @@ spec:
   {{- end }}
   {{- end }}
   rules:
-  - host: mbod-gke-a2810-ssn.k8s-gcp.dlabanalytics.com
+  - host: mbod-gke-b2810-ssn.k8s-gcp.dlabanalytics.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: mbod-gke-a2810-ssn
+            name: mbod-gke-b2810-ssn
             port:
               number: 80
 {{- end }}
