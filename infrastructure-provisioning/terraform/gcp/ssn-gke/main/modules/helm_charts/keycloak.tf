@@ -72,6 +72,6 @@ resource "helm_release" "keycloak" {
   depends_on = [
     helm_release.keycloak-mysql,
     kubernetes_secret.keycloak_password_secret,
-    helm_release.nginx,
-    helm_release.datalab_ui]
+    helm_release.nginx]
+#    helm_release.datalab_ui]
 }
