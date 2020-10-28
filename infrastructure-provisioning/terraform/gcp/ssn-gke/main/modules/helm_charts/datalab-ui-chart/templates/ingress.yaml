@@ -26,7 +26,6 @@ spec:
     http:
       paths:
       - path: /
-        pathType: Prefix
         backend:
           serviceName: mbod-gke-c2810-ssn
           servicePort: 80
