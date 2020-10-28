@@ -1,5 +1,5 @@
 {{- if .Values.ui.ingress.enabled -}}
-{{- $fullName := include "dlab-ui.fullname" . -}}
+{{- $fullName := include "datalab-ui.fullname" . -}}
 {{ $servicePort := .Values.ui.service.http_port }}
 {{ $host := .Values.ui.ingress.host }}
 apiVersion: extensions/v1beta1
@@ -7,7 +7,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-{{ include "dlab-ui.labels" . | indent 4 }}
+{{ include "datalab-ui.labels" . | indent 4 }}
   annotations:
 {{- with .Values.ui.ingress.annotations }}
 {{ toYaml . | indent 4 }}
