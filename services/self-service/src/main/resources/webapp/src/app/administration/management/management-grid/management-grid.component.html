@@ -16,9 +16,10 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<div class="managment-wrapper scrolling">
-  <div class="ani">
-    <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6">
+<div class="managment-wrapper scrolling" #pageWrapper (scroll)="scrollTable($event)" (resize)="onResize($event)">
+  <div class="ani scrolling" #wrapper>
+    <div class="wrapper" #tableWrapper (scroll)="scrollTable($event)">
+      <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6" #table >
       <ng-container matColumnDef="checkbox">
         <th mat-header-cell *matHeaderCellDef class="checkbox label-header">
           <div  class="empty-checkbox header-checkbox"
@@ -303,6 +304,30 @@
         </td>
       </ng-container>
 
+      <ng-container matColumnDef="scrollButtons">
+          <td mat-footer-cell *matFooterCellDef colspan="9" class="buttons-wrap">
+            <div class="buttons" [ngStyle]="{'width.px': wrapper.offsetWidth}" [hidden]="!tableEl['offsetWidth']">
+              <div class="button-container">
+                <button mat-mini-fab aria-label="Scroll left"
+                        (click)="sctollTo('left')"
+                        [ngClass]="{'not-allowed': pageWrapper.scrollLeft === 0 }"
+                >
+                  <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0 || pageWrapper.scrollLeft !== 0}">keyboard_arrow_left</mat-icon>
+                </button>
+              </div>
+              <div class="button-container" [ngClass]="{'not-allowed': checkMaxRight()}">
+                <button mat-mini-fab aria-label="Scroll right"
+                        (click)="sctollTo('right')"
+
+                        [ngClass]="{'not-allowed': !(isMaxRight | async)}"
+                >
+                  <mat-icon [ngClass]="{'highlight': isMaxRight | async }">keyboard_arrow_right</mat-icon>
+                </button>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
       <tr [hidden]="!collapsedFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
         class="filter-row"></tr>
@@ -310,6 +335,9 @@
 
 
       <tr [hidden]="allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['placeholder']" class="info"></tr>
+      <tr [hidden]="tableWrapper.offsetWidth - tableEl['offsetWidth'] > -1 || !allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['scrollButtons']; sticky: true" class="info"></tr>
     </table>
+
+    </div>
   </div>
 </div>

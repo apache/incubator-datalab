@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
+import {Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject, HostListener} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -29,6 +29,7 @@ import { EnvironmentsDataService } from '../management-data.service';
 import { EnvironmentModel, ManagementConfigModel } from '../management.model';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {DetailDialogComponent} from '../../../resources/exploratory/detail-dialog';
+import {BehaviorSubject, Subject, timer} from 'rxjs';
 
 export interface ManageAction {
   action: string;
@@ -53,6 +54,8 @@ export class ManagementGridComponent implements OnInit {
   filterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
   filtering: boolean = false;
   collapsedFilterRow: boolean = false;
+  isMaxRight: Subject<boolean> = new BehaviorSubject(false);
+  tableEl = {};
 
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
@@ -62,6 +65,22 @@ export class ManagementGridComponent implements OnInit {
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
   @Output() emitSelectedList: EventEmitter<ManageAction> = new EventEmitter();
 
+  @ViewChild('tableWrapper', { static: false }) tableWrapper;
+  @ViewChild('wrapper', { static: false }) wrapper;
+  @ViewChild('pageWrapper', { static: false }) pageWrapper;
+  @ViewChild('table', { static: false }) table;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
+    this.checkMaxRight();
+  }
+
+  @HostListener('scroll', ['$event'])
+  scrollTable($event: Event) {
+    this.checkMaxRight();
+  }
+
   displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'endpoint', 'shape', 'status', 'resources', 'actions'];
   displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'endpoint-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
   private selected;
@@ -69,6 +88,7 @@ export class ManagementGridComponent implements OnInit {
   private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
   private isFilterSelected: boolean;
   private isFilterChanged: boolean;
+  private isScrollButtonsVisible: boolean;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -80,6 +100,12 @@ export class ManagementGridComponent implements OnInit {
 
   ngOnInit() {
   this.getEnvironmentData();
+    timer(1000)
+      .subscribe(() => {
+      this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
+      this.checkMaxRight();
+      this.tableEl = this.table._elementRef.nativeElement;
+    });
   }
 
   getEnvironmentData() {
@@ -258,6 +284,25 @@ export class ManagementGridComponent implements OnInit {
   public onFilterNameUpdate(targetElement: any) {
     this.filterForm.type = targetElement;
     this.checkFilters();
+  }
+
+  public sctollTo(direction: string) {
+    if (direction === 'left') {
+      this.tableWrapper.nativeElement.scrollLeft = 0;
+      this.pageWrapper.nativeElement.scrollLeft = 0;
+    } else {
+      this.tableWrapper.nativeElement.scrollLeft = this.tableWrapper.nativeElement.offsetWidth;
+      this.pageWrapper.nativeElement.scrollLeft = this.pageWrapper.nativeElement.offsetWidth;
+    }
+  }
+
+  public checkMaxRight() {
+    let arg;
+      if (this.pageWrapper && this.table) {
+        arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
+          this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+      }
+      return this.isMaxRight.next(arg);
   }
 }
 
