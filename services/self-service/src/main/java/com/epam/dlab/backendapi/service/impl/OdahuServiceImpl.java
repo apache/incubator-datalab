@@ -92,6 +92,7 @@ public class OdahuServiceImpl implements OdahuService {
     @BudgetLimited
     @Override
     public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
+
         boolean activeCluster = odahuDAO.findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
                 .noneMatch(o -> !o.getStatus().equals(UserInstanceStatus.FAILED) && !o.getStatus().equals(UserInstanceStatus.TERMINATED));
         if (!activeCluster) {
@@ -101,7 +102,6 @@ public class OdahuServiceImpl implements OdahuService {
         ProjectDTO projectDTO = projectService.get(project);
         boolean isAdded = odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
                         odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags(odahuCreateDTO)));
-
         if (isAdded) {
             String url = null;
             EndpointDTO endpointDTO = endpointService.get(odahuCreateDTO.getEndpoint());
