@@ -59,7 +59,7 @@
             </activation>
             <properties>
                 <sonar.host.url>
-                    http://localhost:9000/sonar
+                    http://localhost:80/sonar
                 </sonar.host.url>
                 <sonar.coverage.exclusions>
                     **/*Exception.java,

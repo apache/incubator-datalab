@@ -28,7 +28,7 @@ TOKEN = sys.argv[2]
 
 
 def get_sonarqube_status():
-    response = requests.get('http://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
+    response = requests.get('http://localhost:80/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
                             auth=(TOKEN, '')).json()
     return response['projectStatus']['status']
 
