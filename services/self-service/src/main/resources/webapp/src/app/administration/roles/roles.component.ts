@@ -105,7 +105,7 @@ export class RolesComponent implements OnInit {
         {
           action, type, value: {
             name: this.setupGroup,
-            users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()) : [],
+            users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()).filter(el => !!el) : [],
             roleIds: this.extractIds(this.roles, this.setupRoles.map(v => v.role))
           }
         });
@@ -213,8 +213,6 @@ export class RolesComponent implements OnInit {
 
     return obj;
   }
-
-
 
   public updateGroupData(groups) {
     this.groupsData = groups.map(v => {
