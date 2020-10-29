@@ -321,7 +321,7 @@
 
                         [ngClass]="{'not-allowed': !(isMaxRight | async)}"
                 >
-                  <mat-icon [ngClass]="{'highlight': isMaxRight | async }">keyboard_arrow_right</mat-icon>
+                  <mat-icon [ngClass]="{'highlight': (isMaxRight | async) || false}">keyboard_arrow_right</mat-icon>
                 </button>
               </div>
             </div>
@@ -335,7 +335,7 @@
 
 
       <tr [hidden]="allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['placeholder']" class="info"></tr>
-      <tr [hidden]="tableWrapper.offsetWidth - tableEl['offsetWidth'] > -1 || !allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['scrollButtons']; sticky: true" class="info"></tr>
+      <tr [hidden]="!tableEl['offsetWidth'] || tableWrapper.offsetWidth - tableEl['offsetWidth'] > -1 || !allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['scrollButtons']; sticky: true" class="info"></tr>
     </table>
 
     </div>
