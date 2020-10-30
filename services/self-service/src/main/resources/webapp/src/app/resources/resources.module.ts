@@ -26,7 +26,7 @@ import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateModule } from './exploratory/create-environment';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
-import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
+import { ConfirmDeleteAccountDialogComponent } from './manage-ungit/manage-ungit.component';
 import {MatTreeModule} from '@angular/material/tree';
 import {BucketDataService} from './bucket-browser/bucket-data.service';
 import {ConvertFileSizePipeModule} from '../core/pipes/convert-file-size';
@@ -47,10 +47,10 @@ import {BucketBrowserModule} from './bucket-browser/bucket-browser.module';
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
-    ConfirmDeleteAccountDialog,
+    ConfirmDeleteAccountDialogComponent,
 
   ],
-  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog],
+  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialogComponent],
   providers: [BucketDataService],
   exports: [ResourcesComponent]
 })

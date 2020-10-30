@@ -65,10 +65,10 @@ export class ManagementGridComponent implements OnInit {
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
   @Output() emitSelectedList: EventEmitter<ManageAction> = new EventEmitter();
 
-  @ViewChild('tableWrapper', { static: false }) tableWrapper;
-  @ViewChild('wrapper', { static: false }) wrapper;
-  @ViewChild('pageWrapper', { static: false }) pageWrapper;
-  @ViewChild('table', { static: false }) table;
+  @ViewChild('tableWrapper') tableWrapper;
+  @ViewChild('wrapper') wrapper;
+  @ViewChild('pageWrapper') pageWrapper;
+  @ViewChild('table') table;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {

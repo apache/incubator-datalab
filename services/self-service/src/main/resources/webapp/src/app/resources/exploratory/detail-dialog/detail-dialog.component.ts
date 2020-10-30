@@ -49,7 +49,7 @@ export class DetailDialogComponent implements OnInit {
   isCopyIconVissible: {bucket} = {bucket: false};
 
   public configurationForm: FormGroup;
-  @ViewChild('configurationNode', { static: false }) configuration;
+  @ViewChild('configurationNode') configuration;
 
 
   constructor(

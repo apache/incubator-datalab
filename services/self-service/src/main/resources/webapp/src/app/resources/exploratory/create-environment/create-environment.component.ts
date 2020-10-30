@@ -50,7 +50,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   maxNotebookLength: number = 14;
   public areShapes: boolean;
 
-  @ViewChild('configurationNode', { static: false }) configuration;
+  @ViewChild('configurationNode') configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

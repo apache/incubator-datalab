@@ -22,13 +22,15 @@
       ]
     }
   },
+  "files": [
+    "main.ts",
+    "polyfills.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ],
   "typeRoots": [
     "node_modules/@types"
   ],
-  "types": ["jest"],
-  "exclude": [
-    "test.ts",
-    "**/*.spec.ts",
-    "..node_modules",
-  ]
+  "types": ["jest"]
 }

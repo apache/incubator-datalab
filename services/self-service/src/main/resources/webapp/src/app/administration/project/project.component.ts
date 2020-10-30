@@ -59,7 +59,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
-  @ViewChild(ProjectListComponent, { static: false }) list: ProjectListComponent;
+  @ViewChild(ProjectListComponent) list: ProjectListComponent;
 
   constructor(
     public dialog: MatDialog,

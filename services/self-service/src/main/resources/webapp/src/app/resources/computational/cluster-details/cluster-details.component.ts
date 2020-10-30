@@ -41,7 +41,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   resource: any;
   environment: any;
-  @ViewChild('configurationNode', { static: false }) configuration;
+  @ViewChild('configurationNode') configuration;
 
   upTimeInHours: number;
   tooltip: boolean = false;

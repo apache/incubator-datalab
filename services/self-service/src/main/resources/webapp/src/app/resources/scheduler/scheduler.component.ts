@@ -73,7 +73,7 @@ export class SchedulerComponent implements OnInit {
   public inactivityLimits = { min: 120, max: 10080 };
   public integerRegex: string = '^[0-9]*$';
 
-  @ViewChild('resourceSelect', { static: false }) resource_select;
+  @ViewChild('resourceSelect') resource_select;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
