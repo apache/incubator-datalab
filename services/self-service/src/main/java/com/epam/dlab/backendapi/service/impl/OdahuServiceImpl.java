@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class OdahuServiceImpl implements OdahuService {
@@ -84,7 +83,7 @@ public class OdahuServiceImpl implements OdahuService {
         return odahuDAO.findOdahuClusters();
     }
 
-    @Override//TODO:method should be refactored
+    @Override
     public Optional<OdahuDTO> get(String project, String endpoint) {
         return odahuDAO.getByProjectEndpoint(project, endpoint);
     }
@@ -92,7 +91,7 @@ public class OdahuServiceImpl implements OdahuService {
     @BudgetLimited
     @Override
     public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
-
+        log.info("Trying to create odahu cluster for project: " + project);
         boolean activeCluster = odahuDAO.findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
                 .noneMatch(o -> !o.getStatus().equals(UserInstanceStatus.FAILED) && !o.getStatus().equals(UserInstanceStatus.TERMINATED));
         if (!activeCluster) {
@@ -117,7 +116,7 @@ public class OdahuServiceImpl implements OdahuService {
                         UserInstanceStatus.FAILED);
             }
         } else {
-            throw new DlabException("The odahu project " + project + " can not be created.");
+            throw new DlabException("The odahu fields of the " + project + " can not be updated in DB.");
         }
     }
 
