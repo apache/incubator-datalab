@@ -37,45 +37,45 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "datalab-billing.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-    spec:
-    {{- with .Values.imagePullSecrets }}
-    imagePullSecrets:
-      {{- toYaml . | nindent 8 }}
-    {{- end }}
-    containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        env:
-          - name: MONGO_DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: mongo-db-password
-                key: password
-        ports:
-          - name: mongo
-            containerPort: 21017
-            protocol: TCP
-        resources:
-          {{- toYaml .Values.resources | nindent 12 }}
-        volumeMounts:
+      spec:
+        {{- with .Values.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        containers:
+          - name: {{ .Chart.Name }}
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            env:
+              - name: MONGO_DB_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: mongo-db-password
+                    key: password
+            ports:
+              - name: mongo
+                containerPort: 21017
+                protocol: TCP
+            resources:
+              {{- toYaml .Values.resources | nindent 12 }}
+            volumeMounts:
+              - name: billing-yml
+                mountPath: /root/billing.yml
+                subPath: billing
+                readOnly: true
+        volumes:
           - name: billing-yml
-            mountPath: /root/billing.yml
-            subPath: billing
-            readOnly: true
-    volumes:
-      - name: billing-yml
-        configMap:
-          name: {{ include "datalab-billing.fullname" . }}-billing-conf
-          defaultMode: 0644
-          items:
-            - key: billing.yml
-              path: billing
-    {{- with .Values.nodeSelector }}
-    nodeSelector:
-      {{- toYaml . | nindent 8 }}
-    {{- end }}
-    {{- with .Values.affinity }}
+            configMap:
+              name: {{ include "datalab-billing.fullname" . }}-billing-conf
+              defaultMode: 0644
+              items:
+                - key: billing.yml
+                  path: billing
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
     affinity:
       {{- toYaml . | nindent 8 }}
     {{- end }}
