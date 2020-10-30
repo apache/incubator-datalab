@@ -1002,6 +1002,16 @@ mat-progress-bar {
     z-index: 101;
     bottom: 0;
   }
+
+  .dropdown-multiselect{
+    &.resources {
+      .list-menu {
+        .list-item {
+          text-transform: unset !important;
+        }
+      }
+    }
+  }
 }
 
 

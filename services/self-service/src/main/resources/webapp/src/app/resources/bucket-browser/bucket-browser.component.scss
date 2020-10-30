@@ -109,7 +109,7 @@
       direction: rtl;
 
      &-folder{
-       padding-left: 20px;
+       padding-left: 5px;
        padding-right: 5px;
        color: #00bcd4;
        cursor: pointer;
@@ -119,11 +119,8 @@
        }
      }
 
-      &-icon i{
-        transform: translateY(1px);
-        font-size: 15px;
-        position: absolute;
-        left: 0;
+      &-icon{
+        color: lightgrey;
       }
     }
   }
@@ -608,7 +605,7 @@ input[type='file'] {
         display: flex;
         span{
           position: absolute;
-          width: calc(100% + 30px);
+          max-width: calc(100% + 30px);
         }
       }
 
