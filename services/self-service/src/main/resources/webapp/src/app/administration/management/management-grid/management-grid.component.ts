@@ -325,7 +325,7 @@ export class ManagementGridComponent implements OnInit {
         <div class="resource-name">Notebook</div>
         <div class="clusters-list">
           <div class="clusters-list-item">
-            <div class="cluster"><span *ngIf="isClusterLength">Cluster</span></div>
+            <div class="cluster"><span *ngIf="isClusterLength">Compute</span></div>
             <div class="status">Further status</div>
           </div>
         </div>

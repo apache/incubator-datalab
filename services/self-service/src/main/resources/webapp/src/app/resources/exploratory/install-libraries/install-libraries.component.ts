@@ -152,7 +152,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
-        item['title'] = `${item.computational_name} <em class="capt">cluster</em>`;
+        item['title'] = `${item.computational_name} <em class="capt">compute</em>`;
         item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
