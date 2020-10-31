@@ -33,6 +33,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.rest.client.RESTService;
 import org.junit.BeforeClass;
@@ -95,12 +96,8 @@ public class OdahuServiceImplTest {
 
     @Test
     public void createTest() {
-        EndpointDTO endpointDTO = new EndpointDTO(END_POINT_NAME, END_POINT_URL, "testAccount", tag, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.GCP);
-        ProjectDTO projectDTO = new ProjectDTO(PROJECT,
-                Collections.emptySet(),
-                "ssh-testKey\n", tag, 200,
-                singletonList(new ProjectEndpointDTO(END_POINT_NAME, UserInstanceStatus.RUNNING, new EdgeInfo())),
-                true);
+        EndpointDTO endpointDTO = getEndpointDTO();
+        ProjectDTO projectDTO = getProjectDTO();
         OdahuCreateDTO odahuCreateDTO = getOdahuCreateDTO();
 
         when(projectService.get(PROJECT)).thenReturn(projectDTO);
@@ -133,12 +130,48 @@ public class OdahuServiceImplTest {
         verifyNoMoreInteractions(odahuDAO);
     }
 
+    @Test(expected = DlabException.class)
+    public void createIfDBissue() {
+        EndpointDTO endpointDTO = getEndpointDTO();
+        ProjectDTO projectDTO = getProjectDTO();
+        OdahuCreateDTO odahuCreateDTO = getOdahuCreateDTO();
+
+        when(projectService.get(PROJECT)).thenReturn(projectDTO);
+        when(odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
+                odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags()))).thenReturn(false);
+        when(endpointService.get(odahuCreateDTO.getEndpoint())).thenReturn(endpointDTO);
+        when(requestId.put(userInfo.getName(), uuid)).thenReturn(uuid);
+
+        odahuService.create(PROJECT, odahuCreateDTO, userInfo);
+
+        verify(odahuDAO).findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint());
+        verify(odahuDAO).create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
+                odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags()));
+        verify(endpointService).get(odahuCreateDTO.getEndpoint());
+        verify(projectService).get(PROJECT);
+        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu" , userInfo.getAccessToken(),
+                requestBuilder.newOdahuCreate(userInfo, odahuCreateDTO, projectDTO, endpointDTO), String.class);
+        verifyNoMoreInteractions(odahuDAO, provisioningService, endpointService, projectService);
+    }
+
     private Map<String, String> getTags() {
         Map<String, String> tags = new HashMap<>();
         tags.put("custom_tag", getOdahuCreateDTO().getCustomTag());
         tags.put("project_tag", getOdahuCreateDTO().getProject());
         tags.put("endpoint_tag", getOdahuCreateDTO().getEndpoint());
         return tags;
+    }
+
+    private EndpointDTO getEndpointDTO() {
+        return new EndpointDTO(END_POINT_NAME, END_POINT_URL, "testAccount", tag, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.GCP);
+    }
+
+    private ProjectDTO getProjectDTO() {
+        return new ProjectDTO(PROJECT,
+                Collections.emptySet(),
+                "ssh-testKey\n", tag, 200,
+                singletonList(new ProjectEndpointDTO(END_POINT_NAME, UserInstanceStatus.RUNNING, new EdgeInfo())),
+                true);
     }
 
     private OdahuDTO getOdahuDTO(UserInstanceStatus instanceStatus) {
