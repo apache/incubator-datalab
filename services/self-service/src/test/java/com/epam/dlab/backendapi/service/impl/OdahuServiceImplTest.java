@@ -20,6 +20,8 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.OdahuDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
@@ -152,6 +154,17 @@ public class OdahuServiceImplTest {
         verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu" , userInfo.getAccessToken(),
                 requestBuilder.newOdahuCreate(userInfo, odahuCreateDTO, projectDTO, endpointDTO), String.class);
         verifyNoMoreInteractions(odahuDAO, provisioningService, endpointService, projectService);
+    }
+
+    @Test
+    public void startTest() {
+        when(endpointService.get(END_POINT_URL)).thenReturn(getEndpointDTO());
+
+        odahuService.start(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+        verify(endpointService).get(END_POINT_URL);
+        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.STARTING);
+        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
+        verifyNoMoreInteractions(endpointService, odahuDAO);
     }
 
     private Map<String, String> getTags() {
