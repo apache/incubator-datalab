@@ -116,7 +116,7 @@ public class OdahuServiceImpl implements OdahuService {
                         UserInstanceStatus.FAILED);
             }
         } else {
-            throw new DlabException("The odahu fields of the " + project + " can not be updated in DB.");
+            throw new DlabException(String.format("The odahu fields of the %s can not be updated in DB.", project));
         }
     }
 

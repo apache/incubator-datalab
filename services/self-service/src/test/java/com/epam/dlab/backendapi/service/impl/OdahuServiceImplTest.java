@@ -197,6 +197,19 @@ public class OdahuServiceImplTest {
         verifyNoMoreInteractions(odahuDAO, endpointService, provisioningService);
     }
 
+    @Test(expected = DlabException.class)
+    public void terminateIfIncorrectStatusTest() {
+        List<OdahuDTO> odahuDTOS = Arrays.asList(
+                getOdahuDTO(UserInstanceStatus.TERMINATING),
+                getOdahuDTO(UserInstanceStatus.FAILED));
+        when(odahuDAO.findOdahuClusters(PROJECT, END_POINT_URL)).thenReturn(odahuDTOS);
+
+        odahuService.terminate(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+
+        verify(odahuDAO).findOdahuClusters(PROJECT, END_POINT_URL);
+        verifyNoMoreInteractions(odahuDAO, endpointService, provisioningService);
+    }
+
     private Map<String, String> getTags() {
         Map<String, String> tags = new HashMap<>();
         tags.put("custom_tag", getOdahuCreateDTO().getCustomTag());
