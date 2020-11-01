@@ -123,18 +123,21 @@ public class OdahuServiceImpl implements OdahuService {
     @BudgetLimited
     @Override
     public void start(String name, @Project String project, String endpoint, UserInfo user) {
+        log.info("Trying to start odahu cluster for project: " + project);
         odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.STARTING);
         actionOnCloud(user, START_ODAHU_API, name, project, endpoint);
     }
 
     @Override
     public void stop(String name, String project, String endpoint, UserInfo user) {
+        log.info("Trying to stop odahu cluster for project: " + project);
         odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.STOPPING);
         actionOnCloud(user, STOP_ODAHU_API, name, project, endpoint);
     }
 
     @Override
     public void terminate(String name, String project, String endpoint, UserInfo user) {
+        log.info("Trying to terminate odahu cluster for project: " + project);
         odahuDAO.findOdahuClusters(project, endpoint).stream()
                 .filter(odahuDTO -> name.equals(odahuDTO.getName())
                         && !odahuDTO.getStatus().equals(UserInstanceStatus.FAILED))

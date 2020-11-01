@@ -20,8 +20,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.annotation.BudgetLimited;
-import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.OdahuDAO;
 import com.epam.dlab.backendapi.domain.*;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -33,7 +31,6 @@ import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.rest.client.RESTService;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +43,6 @@ import java.util.*;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OdahuServiceImplTest {
@@ -55,7 +51,7 @@ public class OdahuServiceImplTest {
     private static final String TOKEN = "testToken";
     private static final String PROJECT = "testProject";
     private static final String END_POINT_URL = "https://localhsot:8080/";
-    private static final String END_POINT_NAME = "endpoint";
+    private static final String END_POINT_NAME = "testEndpoint";
     private static final String tag = "testTag";
     private static final String uuid = "34dsr324";
     private static final String ODAHU_NAME = "odahuTest";
