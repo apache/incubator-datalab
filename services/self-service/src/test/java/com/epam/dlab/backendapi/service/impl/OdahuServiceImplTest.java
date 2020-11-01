@@ -167,6 +167,18 @@ public class OdahuServiceImplTest {
         verifyNoMoreInteractions(endpointService, odahuDAO);
     }
 
+    @Test
+    public void stopTest() {
+        when(endpointService.get(END_POINT_URL)).thenReturn(getEndpointDTO());
+
+        odahuService.stop(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+
+        verify(endpointService).get(END_POINT_URL);
+        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.STOPPING);
+        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
+        verifyNoMoreInteractions(endpointService, odahuDAO);
+    }
+
     private Map<String, String> getTags() {
         Map<String, String> tags = new HashMap<>();
         tags.put("custom_tag", getOdahuCreateDTO().getCustomTag());
