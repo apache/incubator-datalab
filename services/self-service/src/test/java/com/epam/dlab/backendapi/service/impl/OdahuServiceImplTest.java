@@ -23,12 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.OdahuDAO;
-import com.epam.dlab.backendapi.domain.EndpointDTO;
-import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
-import com.epam.dlab.backendapi.domain.OdahuDTO;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
-import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
-import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.domain.*;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -38,6 +33,7 @@ import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +46,7 @@ import java.util.*;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OdahuServiceImplTest {
@@ -99,7 +96,7 @@ public class OdahuServiceImplTest {
     @Test
     public void createTest() {
         EndpointDTO endpointDTO = getEndpointDTO();
-        ProjectDTO projectDTO = getProjectDTO();
+        ProjectDTO projectDTO = getProjectDTO(UserInstanceStatus.RUNNING);
         OdahuCreateDTO odahuCreateDTO = getOdahuCreateDTO();
 
         when(projectService.get(PROJECT)).thenReturn(projectDTO);
@@ -135,7 +132,7 @@ public class OdahuServiceImplTest {
     @Test(expected = DlabException.class)
     public void createIfDBissue() {
         EndpointDTO endpointDTO = getEndpointDTO();
-        ProjectDTO projectDTO = getProjectDTO();
+        ProjectDTO projectDTO = getProjectDTO(UserInstanceStatus.RUNNING);
         OdahuCreateDTO odahuCreateDTO = getOdahuCreateDTO();
 
         when(projectService.get(PROJECT)).thenReturn(projectDTO);
@@ -161,9 +158,12 @@ public class OdahuServiceImplTest {
         when(endpointService.get(END_POINT_URL)).thenReturn(getEndpointDTO());
 
         odahuService.start(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+
         verify(endpointService).get(END_POINT_URL);
         verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.STARTING);
         verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
+        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu/start", userInfo.getAccessToken(),
+                requestBuilder.newOdahuAction(userInfo, ODAHU_NAME, getProjectDTO(UserInstanceStatus.STARTING), getEndpointDTO(), new OdahuFieldsDTO()), String.class);
         verifyNoMoreInteractions(endpointService, odahuDAO);
     }
 
@@ -176,7 +176,29 @@ public class OdahuServiceImplTest {
         verify(endpointService).get(END_POINT_URL);
         verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.STOPPING);
         verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
-        verifyNoMoreInteractions(endpointService, odahuDAO);
+        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu/stop", userInfo.getAccessToken(),
+                requestBuilder.newOdahuAction(userInfo, ODAHU_NAME, getProjectDTO(UserInstanceStatus.STOPPING), getEndpointDTO(), new OdahuFieldsDTO()), String.class);
+        verifyNoMoreInteractions(endpointService, odahuDAO, provisioningService);
+    }
+
+    @Test
+    public void terminateTest() {
+        List<OdahuDTO> odahuDTOS = Arrays.asList(
+                getOdahuDTO(UserInstanceStatus.RUNNING),
+                getOdahuDTO(UserInstanceStatus.FAILED));
+        when(odahuDAO.findOdahuClusters(PROJECT, END_POINT_URL)).thenReturn(odahuDTOS);
+        when(endpointService.get(END_POINT_URL)).thenReturn(getEndpointDTO());
+        when(odahuDAO.getFields(ODAHU_NAME, PROJECT, END_POINT_URL)).thenReturn(new OdahuFieldsDTO());
+
+        odahuService.terminate(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+
+        verify(odahuDAO).findOdahuClusters(PROJECT, END_POINT_URL);
+        verify(endpointService).get(END_POINT_URL);
+        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.TERMINATING);
+        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
+        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu/terminate", userInfo.getAccessToken(),
+                requestBuilder.newOdahuAction(userInfo, PROJECT, getProjectDTO(UserInstanceStatus.TERMINATING), getEndpointDTO(), new OdahuFieldsDTO()), String.class);
+        verifyNoMoreInteractions(odahuDAO, endpointService, provisioningService);
     }
 
     private Map<String, String> getTags() {
@@ -191,11 +213,11 @@ public class OdahuServiceImplTest {
         return new EndpointDTO(END_POINT_NAME, END_POINT_URL, "testAccount", tag, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.GCP);
     }
 
-    private ProjectDTO getProjectDTO() {
+    private ProjectDTO getProjectDTO(UserInstanceStatus instanceStatus) {
         return new ProjectDTO(PROJECT,
                 Collections.emptySet(),
                 "ssh-testKey\n", tag, 200,
-                singletonList(new ProjectEndpointDTO(END_POINT_NAME, UserInstanceStatus.RUNNING, new EdgeInfo())),
+                singletonList(new ProjectEndpointDTO(END_POINT_NAME, instanceStatus, new EdgeInfo())),
                 true);
     }
 
