@@ -88,8 +88,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public selectedLib: any = null;
   public isLibSelected: boolean = false;
   public isVersionInvalid: boolean = false;
-  private isFilterChanged: boolean;
-  private isFilterSelected: boolean;
+  public isFilterChanged: boolean;
+  public isFilterSelected: boolean;
   private cashedFilterForm: FilterLibsModel;
 
   constructor(
@@ -520,7 +520,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.isLibSelected = false;
   }
 
-  private validateVersion(version) {
+  public validateVersion(version) {
     if (version.length) {
       this.isVersionInvalid = !PATTERNS.libVersion.test(version);
     } else {

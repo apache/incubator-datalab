@@ -190,7 +190,7 @@ export class ReportingGridComponent implements OnInit {
     }
   }
 
-  private checkMaxRight() {
+  public checkMaxRight() {
     if (this.reportData && this.reportData.length < 5) {
       const arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
       this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;

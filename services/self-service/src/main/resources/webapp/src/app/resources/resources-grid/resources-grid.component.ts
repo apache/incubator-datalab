@@ -446,7 +446,7 @@ export class ResourcesGridComponent implements OnInit {
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
   }
 
-  private logAction(name) {
+  public logAction(name) {
     this.auditService.sendDataToAudit({
       resource_name: name, info: `Open terminal, requested for notebook`, type: 'WEB_TERMINAL'
     }).subscribe();

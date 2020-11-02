@@ -63,7 +63,7 @@ export class BucketTreeComponent implements OnInit {
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   private activeBucketName: string;
-  private activeBacket: any;
+  public activeBacket: any;
 
   constructor() {
   }

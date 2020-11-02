@@ -125,7 +125,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
         : null;
   }
 
-  private logAction(resource: any, environment, copy?: string) {
+  public logAction(resource: any, environment, copy?: string) {
     const clusterInfo = {
       action: copy,
       cluster: resource.computational_name,
@@ -142,10 +142,10 @@ export class DetailComputationalResourcesComponent implements OnInit {
     CopyPathUtils.copyPath(url);
   }
 
-  protected showCopyIcon(element) {
+  public showCopyIcon(element) {
     this.isCopyIconVissible[element] = true;
   }
-  protected hideCopyIcon() {
+  public hideCopyIcon() {
     for (const key in this.isCopyIconVissible) {
       this.isCopyIconVissible[key] = false;
     }

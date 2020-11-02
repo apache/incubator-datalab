@@ -108,7 +108,7 @@
         <div class="control-group name-control">
           <label class="label">Name</label>
           <div class="control">
-            <input [class.danger_field]="notebookExist || !createExploratoryForm?.controls['name'].valid
+            <input [class.danger_field]=" !createExploratoryForm?.controls['name'].valid
                     && createExploratoryForm?.controls['name'].dirty
                     && createExploratoryForm?.controls['name'].hasError('duplication')" type="text"
               class="form-control" placeholder="Enter Name" formControlName="name">

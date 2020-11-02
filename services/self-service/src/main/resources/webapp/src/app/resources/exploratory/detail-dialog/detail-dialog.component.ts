@@ -39,7 +39,7 @@ import {AuditService} from '../../../core/services/audit.service';
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   readonly PROVIDER = this.data.notebook.cloud_provider.toLowerCase();
-  private isCopied: boolean = true;
+  public isCopied: boolean = true;
   notebook: any;
   upTimeInHours: number;
   tooltip: boolean = false;
@@ -145,21 +145,21 @@ export class DetailDialogComponent implements OnInit {
     .afterClosed().subscribe();
   }
 
-  protected showCopyIcon(element) {
+  public showCopyIcon(element) {
     this.isCopyIconVissible[element] = true;
   }
-  protected hideCopyIcon() {
+  public hideCopyIcon() {
     for (const key in this.isCopyIconVissible) {
       this.isCopyIconVissible[key] = false;
     }
     this.isCopied = true;
   }
 
-  protected copyBucketName(copyValue) {
+  public copyBucketName(copyValue) {
     CopyPathUtils.copyPath(copyValue);
   }
 
-  private logAction(name: any, description: string, copy?: string) {
+  public logAction(name: any, description: string, copy?: string) {
     if (copy) {
       this.auditService.sendDataToAudit({resource_name: name, info: `Copy ${description} link`, type: 'NOTEBOOK'}).subscribe();
     } else {

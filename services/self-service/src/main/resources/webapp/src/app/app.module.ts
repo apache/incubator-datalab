@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import {LOCALE_ID, NgModule} from '@angular/core';
+import {NgModule} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import {LocationStrategy, HashLocationStrategy, APP_BASE_HREF} from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -73,6 +73,7 @@ LocalizationService.registerCulture(window.navigator.language);
     useClass: HashLocationStrategy,
     useValue: '/'
   },
+    { provide: APP_BASE_HREF, useValue: ''}
     // { provide: LOCALE_ID,
     //   deps: [LocalizationService],
     //   useFactory: (localizationService) => localizationService.getLocale() }

@@ -15,8 +15,9 @@
     "suppressImplicitAnyIndexErrors": true
   },
   "angularCompilerOptions": {
-    // "fullTemplateTypeCheck": true,
+     //"fullTemplateTypeCheck": true,
     // "preserveWhitespaces": true
+    "annotationsAs": "decorators"
   },
   "skipLibCheck": true
 }
