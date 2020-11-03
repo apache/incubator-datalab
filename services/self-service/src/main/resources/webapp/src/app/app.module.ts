@@ -73,7 +73,7 @@ LocalizationService.registerCulture(window.navigator.language);
     useClass: HashLocationStrategy,
     useValue: '/'
   },
-    { provide: APP_BASE_HREF, useValue: ''}
+
     // { provide: LOCALE_ID,
     //   deps: [LocalizationService],
     //   useFactory: (localizationService) => localizationService.getLocale() }
