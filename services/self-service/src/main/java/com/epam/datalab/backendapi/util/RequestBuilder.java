@@ -34,6 +34,7 @@ import com.epam.datalab.dto.LibListComputationalDTO;
 import com.epam.datalab.dto.LibListExploratoryDTO;
 import com.epam.datalab.dto.ResourceBaseDTO;
 import com.epam.datalab.dto.ResourceSysBaseDTO;
+import com.epam.datalab.dto.UserEnvironmentResources;
 import com.epam.datalab.dto.UserInstanceDTO;
 import com.epam.datalab.dto.aws.AwsCloudSettings;
 import com.epam.datalab.dto.aws.computational.AwsComputationalTerminateDTO;
@@ -72,6 +73,7 @@ import com.epam.datalab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.datalab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.datalab.dto.project.ProjectActionDTO;
 import com.epam.datalab.dto.project.ProjectCreateDTO;
+import com.epam.datalab.dto.status.EnvResourceList;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.model.exploratory.Exploratory;
 import com.epam.datalab.util.UsernameUtils;
@@ -616,25 +618,30 @@ public class RequestBuilder {
                 .key(projectDTO.getKey().replace("\n", ""))
                 .name(projectDTO.getName())
                 .tag(projectDTO.getTag())
-                .endpoint(endpointDTO.getName())
-                .build()
-                .withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
+		        .endpoint(endpointDTO.getName())
+		        .build()
+		        .withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
     }
 
-    public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, EndpointDTO endpointDTO) {
-        return new ProjectActionDTO(project, endpointDTO.getName())
-                .withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
-    }
+	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, EndpointDTO endpointDTO) {
+		return new ProjectActionDTO(project, endpointDTO.getName())
+				.withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
+	}
 
-    /**
-     * Returns application name basing on docker image
-     *
-     * @param imageName docker image name
-     * @return application name
-     */
-    private String getApplicationNameFromImage(String imageName) {
-        if (imageName != null) {
-            int pos = imageName.indexOf('-');
+	public UserEnvironmentResources newInfrastructureStatus(String user, CloudProvider cloudProvider, EnvResourceList resourceList) {
+		return newResourceSysBaseDTO(user, cloudProvider, UserEnvironmentResources.class)
+				.withResourceList(resourceList);
+	}
+
+	/**
+	 * Returns application name basing on docker image
+	 *
+	 * @param imageName docker image name
+	 * @return application name
+	 */
+	private String getApplicationNameFromImage(String imageName) {
+		if (imageName != null) {
+			int pos = imageName.indexOf('-');
             if (pos > 0) {
                 return imageName.substring(pos + 1);
             }

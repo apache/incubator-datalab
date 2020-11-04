@@ -42,6 +42,8 @@ import java.util.Map;
 public class UserInstanceDTO {
     @JsonProperty("_id")
     private String id;
+    @JsonProperty("instance_id")
+    private String instanceId;
     @JsonProperty
     private String user;
     @JsonProperty("exploratory_name")

@@ -41,16 +41,14 @@ import static com.epam.datalab.rest.contracts.ApiCallbacks.STATUS_URI;
 @Slf4j
 public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvStatusDTO> {
 
+    private EnvResourceList datalabResourceList;
+
     @JsonCreator
     public ResourcesStatusCallbackHandler(
-            @JacksonInject RESTService selfService, @JsonProperty("action") DockerAction
-            action, @JsonProperty("uuid") String uuid, @JsonProperty("user") String user) {
+            @JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action, @JsonProperty("uuid") String uuid,
+            @JsonProperty("user") String user, EnvResourceList resourceList) {
         super(selfService, user, uuid, action);
-    }
-
-    @Override
-    protected String getCallbackURI() {
-        return INFRASTRUCTURE + STATUS_URI;
+        this.datalabResourceList = resourceList;
     }
 
     @Override
@@ -59,15 +57,15 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
             return baseStatus;
         }
 
-        EnvResourceList resourceList;
+        EnvResourceList cloudResourceList;
         try {
-            resourceList = mapper.readValue(resultNode.toString(), EnvResourceList.class);
+            cloudResourceList = mapper.readValue(resultNode.toString(), EnvResourceList.class);
         } catch (IOException e) {
-            throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage()
-                    , e);
+            throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
 
-        baseStatus.withResourceList(resourceList)
+        baseStatus
+                .withResourceList(cloudResourceList)
                 .withUptime(Date.from(Instant.now()));
 
         log.trace("Inner status {}", baseStatus);
@@ -76,14 +74,19 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     @Override
-    public boolean handle(String fileName, byte[] content) throws Exception {
+    public boolean handle(String fileName, byte[] content) {
         try {
             return super.handle(fileName, content);
         } catch (Exception e) {
-            log.warn("Could not retrive the status of resources for UUID {} and user {}: {}",
+            log.warn("Could not retrieve the status of resources for UUID {} and user {}: {}",
                     getUUID(), getUser(), e.getLocalizedMessage(), e);
         }
         return true; // Always necessary return true for status response
+    }
+
+    @Override
+    protected String getCallbackURI() {
+        return INFRASTRUCTURE + STATUS_URI;
     }
 
     @Override
