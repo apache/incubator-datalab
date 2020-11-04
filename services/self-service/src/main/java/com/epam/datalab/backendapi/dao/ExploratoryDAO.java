@@ -208,27 +208,39 @@ public class ExploratoryDAO extends BaseDAO {
 
     public List<UserInstanceDTO> fetchProjectExploratoriesWhereStatusNotIn(String project, String endpoint,
                                                                            UserInstanceStatus... statuses) {
-        final List<String> statusList = statusList(statuses);
-        return getUserInstances(
-                and(
-                        eq(PROJECT, project),
-                        eq(ENDPOINT, endpoint),
-                        not(in(STATUS, statusList))
-                ),
-                false);
+	    final List<String> statusList = statusList(statuses);
+	    return getUserInstances(
+			    and(
+					    eq(PROJECT, project),
+					    eq(ENDPOINT, endpoint),
+					    not(in(STATUS, statusList))
+			    ),
+			    false);
     }
 
-    public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusNotIn(String endpoint,
-                                                                              List<UserInstanceStatus> statuses) {
-        final List<String> exploratoryStatusList = statusList(statuses);
+	public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusIn(List<String> endpoint, List<UserInstanceStatus> statuses,
+	                                                                       boolean computationalFieldsRequired) {
+		final List<String> exploratoryStatusList = statusList(statuses);
 
-        return getUserInstances(
-                and(
-                        eq(ENDPOINT, endpoint),
-                        not(in(STATUS, exploratoryStatusList))
-                ),
-                false);
-    }
+		return getUserInstances(
+				and(
+						eq(ENDPOINT, endpoint),
+						in(STATUS, exploratoryStatusList)
+				),
+				computationalFieldsRequired);
+	}
+
+	public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusNotIn(String endpoint, List<UserInstanceStatus> statuses,
+	                                                                          boolean computationalFieldsRequired) {
+		final List<String> exploratoryStatusList = statusList(statuses);
+
+		return getUserInstances(
+				and(
+						eq(ENDPOINT, endpoint),
+						not(in(STATUS, exploratoryStatusList))
+				),
+				computationalFieldsRequired);
+	}
 
     private List<UserInstanceDTO> getUserInstances(Bson condition, boolean computationalFieldsRequired) {
         return stream(getCollection(USER_INSTANCES)

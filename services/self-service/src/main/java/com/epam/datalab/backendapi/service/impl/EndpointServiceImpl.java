@@ -89,7 +89,7 @@ public class EndpointServiceImpl implements EndpointService {
     @Override
     public EndpointResourcesDTO getEndpointResources(String endpoint) {
         List<UserInstanceDTO> exploratories = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusNotIn(endpoint,
-                Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED));
+		        Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED), Boolean.FALSE);
 
         List<ProjectDTO> projects = projectService.getProjectsByEndpoint(endpoint);
 

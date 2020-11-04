@@ -21,9 +21,7 @@ package com.epam.datalab.backendapi.resources.callback;
 
 import com.epam.datalab.backendapi.dao.EnvDAO;
 import com.epam.datalab.backendapi.domain.RequestId;
-import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.status.EnvStatusDTO;
-import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -55,17 +53,18 @@ public class EnvironmentStatusCallback {
     @POST
     @Path(ApiCallbacks.STATUS_URI)
     public Response status(EnvStatusDTO dto) {
-        log.trace("Updating the status of resources for user {}: {}", dto.getUser(), dto);
-        requestId.checkAndRemove(dto.getRequestId());
-        try {
-            if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
-                log.warn("Request for the status of resources for user {} fails: {}", dto.getUser(), dto.getErrorMessage());
-            } else {
-                envDAO.updateEnvStatus(dto.getUser(), null, dto.getResourceList());
-            }
-        } catch (DatalabException e) {
-            log.warn("Could not update status of resources for user {}: {}", dto.getUser(), e.getLocalizedMessage(), e);
-        }
+        log.info("EnvStatusDTO__ {} ", dto);
+//        log.trace("Updating the status of resources for user {}: {}", dto.getUser(), dto);
+//        requestId.checkAndRemove(dto.getRequestId());
+//        try {
+//            if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
+//                log.warn("Request for the status of resources for user {} fails: {}", dto.getUser(), dto.getErrorMessage());
+//            } else {
+//                envDAO.updateEnvStatus(dto.getUser(), null, dto.getResourceList());
+//            }
+//        } catch (DatalabException e) {
+//            log.warn("Could not update status of resources for user {}: {}", dto.getUser(), e.getLocalizedMessage(), e);
+//        }
         return Response.ok().build();
     }
 }
