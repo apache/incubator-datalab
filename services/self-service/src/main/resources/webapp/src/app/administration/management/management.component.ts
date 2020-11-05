@@ -53,7 +53,7 @@ export class ManagementComponent implements OnInit {
   public healthStatus: GeneralEnvironmentStatus;
   // public anyEnvInProgress: boolean = false;
   public dialogRef: any;
-  private selected: any[] = [];
+  public selected: any[] = [];
   public isActionsOpen: boolean = false;
   public selectedRunning: any[];
   public selectedStopped: any[];

@@ -47,7 +47,7 @@ export class ConfirmationDialogComponent implements OnInit {
   @Input() manageAction: boolean = false;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-  private isClusterLength: boolean;
+  public isClusterLength: boolean;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

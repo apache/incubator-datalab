@@ -65,10 +65,10 @@ export class ManagementGridComponent implements OnInit {
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
   @Output() emitSelectedList: EventEmitter<ManageAction> = new EventEmitter();
 
-  @ViewChild('tableWrapper', { static: false }) tableWrapper;
-  @ViewChild('wrapper', { static: false }) wrapper;
-  @ViewChild('pageWrapper', { static: false }) pageWrapper;
-  @ViewChild('table', { static: false }) table;
+  @ViewChild('tableWrapper') tableWrapper;
+  @ViewChild('wrapper') wrapper;
+  @ViewChild('pageWrapper') pageWrapper;
+  @ViewChild('table') table;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -83,11 +83,11 @@ export class ManagementGridComponent implements OnInit {
 
   displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'endpoint', 'shape', 'status', 'resources', 'actions'];
   displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'endpoint-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
-  private selected;
-  private allActiveNotebooks: any;
+  public selected;
+  public allActiveNotebooks: any;
   private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
-  private isFilterSelected: boolean;
-  private isFilterChanged: boolean;
+  public isFilterSelected: boolean;
+  public isFilterChanged: boolean;
   private isScrollButtonsVisible: boolean;
 
   constructor(
@@ -398,8 +398,8 @@ export class ManagementGridComponent implements OnInit {
 })
 
 export class ReconfirmationDialogComponent {
-  private notebooks;
-  private isClusterLength;
+  public notebooks;
+  public isClusterLength;
   constructor(
     public dialogRef: MatDialogRef<ReconfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any

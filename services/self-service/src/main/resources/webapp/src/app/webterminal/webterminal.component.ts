@@ -41,7 +41,7 @@ export class WebterminalComponent implements OnInit {
   public endpoint: string;
   public state: string = '';
   public layer;
-  @ViewChild('terminal', { read: ElementRef, static: false }) terminal: ElementRef;
+  @ViewChild('terminal', { read: ElementRef }) terminal: ElementRef;
   @ViewChild('clip', { static: true }) clip;
 
 
@@ -85,7 +85,7 @@ export class WebterminalComponent implements OnInit {
       //   mouseState.y = mouseState.y + 65;
       // }
       guac.sendMouseState(mouseState);
-    }
+    };
 
     const keyboard = new Guacamole.Keyboard(document);
     keyboard.onkeydown = (keysym) => guac.sendKeyEvent(1, keysym);

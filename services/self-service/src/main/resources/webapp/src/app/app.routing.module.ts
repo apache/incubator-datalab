@@ -98,4 +98,4 @@ const routes: Routes = [{
   component: NotFoundComponent
 }];
 
-export const AppRoutingModule: ModuleWithProviders = RouterModule.forRoot(routes, { useHash: true });
+export const AppRoutingModule: ModuleWithProviders<RouterModule> = RouterModule.forRoot(routes, { useHash: true });
