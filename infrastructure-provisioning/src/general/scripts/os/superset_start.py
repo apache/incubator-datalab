@@ -21,6 +21,7 @@
 #
 # ******************************************************************************
 
+import argparse
 import sys
 from datalab.fab import *
 from datalab.notebook_lib import *
