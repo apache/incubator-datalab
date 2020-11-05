@@ -19,15 +19,15 @@
 
 import { Injectable } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
-// import * as _moment from 'moment';
-// import 'moment-timezone';
+import * as _moment from 'moment';
+import 'moment-timezone';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocalizationService {
-  // public timezone = _moment().format('Z');
+  public timezone = _moment().format('Z');
   private _locale;
 
   constructor() { }

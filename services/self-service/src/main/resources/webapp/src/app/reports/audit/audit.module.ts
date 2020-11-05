@@ -19,7 +19,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-// import { NgDateRangePickerModule } from 'ng-daterangepicker';
+import { NgDateRangePickerModule } from 'ng-daterangepicker';
 import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
 import { KeysPipeModule, LineBreaksPipeModule, ConvertActionPipeModule } from '../../core/pipes';
@@ -37,7 +37,7 @@ import {LocalCurrencyModule} from '../../core/pipes/local-currency-pipe';
         ConvertActionPipeModule,
         KeysPipeModule,
         LineBreaksPipeModule,
-        // NgDateRangePickerModule,
+        NgDateRangePickerModule,
         MaterialModule,
         LocalDatePipeModule,
         LocalCurrencyModule

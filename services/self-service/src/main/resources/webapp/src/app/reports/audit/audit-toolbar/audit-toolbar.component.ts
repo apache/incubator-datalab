@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
-// import { NgDateRangePickerOptions } from 'ng-daterangepicker';
+import { NgDateRangePickerOptions } from 'ng-daterangepicker';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import {skip} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
@@ -41,7 +41,7 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
   healthStatus: GeneralEnvironmentStatus;
 
   rangeOptions = { 'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report' };
-  // options: NgDateRangePickerOptions;
+  options: NgDateRangePickerOptions;
   rangeLabels: any;
 
   @Output() rebuildAudit: EventEmitter<{}> = new EventEmitter();
@@ -49,15 +49,15 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
   @Output() setRangeOption: EventEmitter<{}> = new EventEmitter();
 
   constructor(private healthStatusService: HealthStatusService) {
-    // this.options = {
-    //   theme: 'default',
-    //   range: 'tm',
-    //   dayNames: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    //   presetNames: ['This Month', 'Last Month', 'This Week', 'Last Week', 'This Year', 'Last Year', 'From', 'To'],
-    //   dateFormat: 'dd MMM y',
-    //   outputFormat: 'YYYY/MM/DD',
-    //   startOfWeek: 1
-    // };
+    this.options = {
+      theme: 'default',
+      range: 'tm',
+      dayNames: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      presetNames: ['This Month', 'Last Month', 'This Week', 'Last Week', 'This Year', 'Last Year', 'From', 'To'],
+      dateFormat: 'dd MMM y',
+      outputFormat: 'YYYY/MM/DD',
+      startOfWeek: 1
+    };
   }
 
   ngOnInit() {
@@ -71,11 +71,13 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
   private setInitDatapickerConfig() {
     const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
     const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
-    labels[0].innerHTML = 'From date';
-    labels[1].innerHTML = 'To date';
-    for (let label = 0; label < rangeLabels.length; ++label) {
-      rangeLabels[label].classList.add('d-none');
-      rangeLabels[label].classList.add('untouched');
+    if (labels && rangeLabels) {
+      labels[0].innerHTML = 'From date';
+      labels[1].innerHTML = 'To date';
+      for (let label = 0; label < rangeLabels.length; ++label) {
+        rangeLabels[label].classList.add('d-none');
+        rangeLabels[label].classList.add('untouched');
+      }
     }
   }
 
