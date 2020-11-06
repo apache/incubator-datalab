@@ -34,7 +34,7 @@ type TimeFormatAlias = TimeFormat;
                [value]="(selectedTime | localDate : 'shortTime') || null"
                (input)="checkEmpty($event.target['value'])"
                [disabled]="disable"
-        >
+        />
         <mat-icon matSuffix [ngClass]="{'not-allowed': disable}" (click)="openDatePickerDialog($event)" disabled="disable">access_time</mat-icon>
       </mat-form-field>
     </div>`,
