@@ -23,6 +23,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.domain.UpdateProjectBudgetDTO;
 import com.epam.datalab.backendapi.domain.UpdateProjectDTO;
+import com.epam.datalab.dto.UserInstanceStatus;
 
 import java.util.List;
 
@@ -51,13 +52,15 @@ public interface ProjectService {
 
     void stop(UserInfo userInfo, String endpoint, String name, String auditInfo);
 
-    void stopWithResources(UserInfo userInfo, List<String> endpoints, String projectName);
+	void stopWithResources(UserInfo userInfo, List<String> endpoints, String projectName);
 
-    void update(UserInfo userInfo, UpdateProjectDTO projectDTO, String projectName);
+	void update(UserInfo userInfo, UpdateProjectDTO projectDTO, String projectName);
 
-    void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> projects);
+	void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> projects);
 
-    boolean isAnyProjectAssigned(UserInfo userInfo);
+	boolean isAnyProjectAssigned(UserInfo userInfo);
 
-    boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints);
+	boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints);
+
+	void updateAfterStatusCheck(UserInfo userInfo, String project, String endpoint, String instanceID, UserInstanceStatus status, String auditInfo);
 }

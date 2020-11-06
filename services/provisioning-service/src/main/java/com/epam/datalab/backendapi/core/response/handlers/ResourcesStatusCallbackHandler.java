@@ -21,6 +21,7 @@
 package com.epam.datalab.backendapi.core.response.handlers;
 
 import com.epam.datalab.backendapi.core.commands.DockerAction;
+import com.epam.datalab.dto.status.EnvResource;
 import com.epam.datalab.dto.status.EnvResourceList;
 import com.epam.datalab.dto.status.EnvStatusDTO;
 import com.epam.datalab.exceptions.DatalabException;
@@ -30,10 +31,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.epam.datalab.rest.contracts.ApiCallbacks.INFRASTRUCTURE;
 import static com.epam.datalab.rest.contracts.ApiCallbacks.STATUS_URI;
@@ -41,14 +47,13 @@ import static com.epam.datalab.rest.contracts.ApiCallbacks.STATUS_URI;
 @Slf4j
 public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvStatusDTO> {
 
-    private EnvResourceList datalabResourceList;
+    private Map<String, EnvResource> datalabHostResources;
 
     @JsonCreator
-    public ResourcesStatusCallbackHandler(
-            @JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action, @JsonProperty("uuid") String uuid,
-            @JsonProperty("user") String user, EnvResourceList resourceList) {
+    public ResourcesStatusCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
+                                          @JsonProperty("uuid") String uuid, @JsonProperty("user") String user, EnvResourceList resourceList) {
         super(selfService, user, uuid, action);
-        this.datalabResourceList = resourceList;
+        this.datalabHostResources = getEnvResources(resourceList.getHostList());
     }
 
     @Override
@@ -64,8 +69,15 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
             throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
 
+        EnvResourceList envResourceList = new EnvResourceList();
+        if (CollectionUtils.isNotEmpty(cloudResourceList.getHostList())) {
+            envResourceList.withHostList(getChangedEnvResources(cloudResourceList.getHostList()));
+        } else {
+            envResourceList.withHostList(Collections.emptyList());
+        }
+
         baseStatus
-                .withResourceList(cloudResourceList)
+                .withResourceList(envResourceList)
                 .withUptime(Date.from(Instant.now()));
 
         log.trace("Inner status {}", baseStatus);
@@ -92,5 +104,20 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     @Override
     public void handleError(String errorMessage) {
         // Nothing action for status response
+    }
+
+    private List<EnvResource> getChangedEnvResources(List<EnvResource> envResources) {
+        return envResources
+                .stream()
+                .filter(e -> !e.getStatus().equals(datalabHostResources.get(e.getId()).getStatus()))
+                .map(e -> datalabHostResources.get(e.getId())
+                        .withStatus(e.getStatus()))
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, EnvResource> getEnvResources(List<EnvResource> envResources) {
+        return envResources
+                .stream()
+                .collect(Collectors.toMap(EnvResource::getId, e -> e));
     }
 }

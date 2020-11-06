@@ -364,6 +364,12 @@ public class ExploratoryDAO extends BaseDAO {
                 set(STATUS, newStatus.toString()));
     }
 
+    public UpdateResult updateExploratoryStatus(String project, String endpoint, String name, String instanceId, UserInstanceStatus status) {
+        return updateOne(USER_INSTANCES,
+                and(eq(ENDPOINT, endpoint), eq(PROJECT, project), eq(EXPLORATORY_NAME, name), eq(INSTANCE_ID, instanceId)),
+                set(STATUS, status.toString()));
+    }
+
     /**
      * Updates the scheduler's data for exploratory in Mongo database.
      *

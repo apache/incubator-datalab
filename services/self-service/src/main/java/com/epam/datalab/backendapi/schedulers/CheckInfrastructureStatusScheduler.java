@@ -23,6 +23,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
+import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.datalab.backendapi.schedulers.internal.Scheduled;
 import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.InfrastructureInfoService;
@@ -50,6 +51,7 @@ import java.util.stream.Stream;
 public class CheckInfrastructureStatusScheduler implements Job {
 
 	private static final List<UserInstanceStatus> statusesToCheck = Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STOPPED);
+
 	private final InfrastructureInfoService infrastructureInfoService;
 	private final SecurityService securityService;
 	private final EndpointService endpointService;
@@ -98,6 +100,8 @@ public class CheckInfrastructureStatusScheduler implements Job {
 				.map(r -> new EnvResource()
 						.withId(r.getInstanceId())
 						.withName(r.getComputationalName())
+						.withProject(userInstanceDTO.getProject())
+						.withEndpoint(userInstanceDTO.getEndpoint())
 						.withStatus(r.getStatus())
 						.withResourceType(ResourceType.COMPUTATIONAL))
 				.collect(Collectors.toList());
@@ -105,6 +109,8 @@ public class CheckInfrastructureStatusScheduler implements Job {
 		instances.add(new EnvResource()
 				.withId(userInstanceDTO.getInstanceId())
 				.withName(userInstanceDTO.getExploratoryName())
+				.withProject(userInstanceDTO.getProject())
+				.withEndpoint(userInstanceDTO.getEndpoint())
 				.withStatus(userInstanceDTO.getStatus())
 				.withResourceType(ResourceType.EXPLORATORY));
 
@@ -114,14 +120,25 @@ public class CheckInfrastructureStatusScheduler implements Job {
 	private List<EnvResource> getEdgeInstances(String endpoint) {
 		return projectService.getProjectsByEndpoint(endpoint)
 				.stream()
-				.map(ProjectDTO::getEndpoints)
+				.collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
+				.entrySet()
+				.stream()
+				.map(entry -> getEdgeInstances(endpoint, entry))
 				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+	}
+
+	private List<EnvResource> getEdgeInstances(String endpoint, Map.Entry<String, List<ProjectEndpointDTO>> entry) {
+		return entry.getValue()
+				.stream()
 				.filter(e -> statusesToCheck.contains(e.getStatus()))
 				.filter(e -> e.getName().equals(endpoint))
 				.filter(e -> Objects.nonNull(e.getEdgeInfo()))
 				.map(e -> new EnvResource()
 						.withId(e.getEdgeInfo().getInstanceId())
 						.withName(e.getName())
+						.withProject(entry.getKey())
+						.withEndpoint(endpoint)
 						.withStatus(e.getStatus().toString())
 						.withResourceType(ResourceType.EDGE)
 				)

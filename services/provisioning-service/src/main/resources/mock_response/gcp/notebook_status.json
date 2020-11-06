@@ -1,10 +1,8 @@
 {
   "status": "ok",
   "response": {
-    "result": ${
-  LIST_RESOURCES
-},
-"log": "/var/log/datalab/status/status_${EDGE_USER_NAME}_${REQUEST_ID}.log"
-},
-"request_id": "${REQUEST_ID}"
+    "result": {},
+    "log": "/var/log/datalab/status/status_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+  },
+  "request_id": "${REQUEST_ID}"
 }

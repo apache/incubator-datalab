@@ -23,6 +23,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ComputationalTemplatesDTO;
 import com.epam.datalab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
+import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.computational.UserComputationalResource;
 
@@ -71,4 +72,6 @@ public interface ComputationalService {
                                                                  String computationalName);
 
     List<ClusterConfig> getClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName);
+
+    void updateAfterStatusCheck(UserInfo systemUser, String project, String endpoint, String name, String instanceID, UserInstanceStatus status, String auditInfo);
 }

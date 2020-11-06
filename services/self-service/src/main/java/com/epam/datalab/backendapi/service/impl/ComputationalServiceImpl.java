@@ -74,6 +74,7 @@ import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.STOP;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.UPDATE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
 import static com.epam.datalab.dto.UserInstanceStatus.CREATING;
 import static com.epam.datalab.dto.UserInstanceStatus.FAILED;
@@ -272,7 +273,6 @@ public class ComputationalServiceImpl implements ComputationalService {
         } else {
             throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT, requiredStatus.toString(), compName, expName));
         }
-
     }
 
     @BudgetLimited
@@ -323,7 +323,6 @@ public class ComputationalServiceImpl implements ComputationalService {
                 .withStatus(RECONFIGURING.toString())
                 .withUser(userName));
         requestId.put(userName, uuid);
-
     }
 
     /**
@@ -348,6 +347,13 @@ public class ComputationalServiceImpl implements ComputationalService {
     @Override
     public List<ClusterConfig> getClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName) {
         return computationalDAO.getClusterConfig(userInfo.getName(), project, exploratoryName, computationalName);
+    }
+
+    @Audit(action = UPDATE, type = COMPUTE)
+    @Override
+    public void updateAfterStatusCheck(@User UserInfo systemUser, @Project String project, String endpoint, @ResourceName String name, String instanceID,
+                                       UserInstanceStatus status, @Info String auditInfo) {
+        computationalDAO.updateComputeStatus(project, endpoint, name, instanceID, status);
     }
 
     /**

@@ -68,7 +68,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
     private static final String PERMISSION_UPLOAD = "/api/bucket/upload";
     private static final String PERMISSION_DOWNLOAD = "/api/bucket/download";
     private static final String PERMISSION_DELETE = "/api/bucket/delete";
-    private static final String INFRASTRUCTURE_STAUS = "infrastructure/status";
+    private static final String INFRASTRUCTURE_STATUS = "infrastructure/status";
 
     private final ExploratoryDAO expDAO;
     private final SelfServiceApplicationConfiguration configuration;
@@ -152,7 +152,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                 .withHostList(hostInstances);
 
         EndpointDTO endpointDTO = endpointService.get(endpoint);
-        String uuid = provisioningService.post(endpointDTO.getUrl() + INFRASTRUCTURE_STAUS, user.getAccessToken(),
+        String uuid = provisioningService.post(endpointDTO.getUrl() + INFRASTRUCTURE_STATUS, user.getAccessToken(),
                 requestBuilder.newInfrastructureStatus(user.getName(), endpointDTO.getCloudProvider(), envResourceList),
                 String.class);
         requestId.put(user.getName(), uuid);
