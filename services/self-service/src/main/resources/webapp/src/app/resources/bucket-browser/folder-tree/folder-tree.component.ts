@@ -147,7 +147,7 @@ export class FolderTreeComponent implements OnDestroy {
     }
   }
 
-  private showItem(el) {
+  public showItem(el) {
     if (el) {
       this.treeControl.expand(el);
       this.selectedFolder = el;
@@ -221,7 +221,7 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
   }, 0);
   }
 
-  private removeItem(node: TodoItemFlatNode) {
+  public removeItem(node: TodoItemFlatNode) {
     const parentNode = this.flatNodeMap.get(this.getParentNode(node));
     const childNode = this.flatNodeMap.get(node);
     this.bucketDataService.emptyFolder = null;
@@ -229,7 +229,7 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     this.resetForm();
   }
 
-  private createFolder(node: TodoItemFlatNode, itemValue: string) {
+  public createFolder(node: TodoItemFlatNode, itemValue: string) {
     this.folderCreating = true;
     const parent = this.getParentNode(node);
     const flatParent = this.flatNodeMap.get(parent);

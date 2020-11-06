@@ -59,9 +59,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
 
-  @ViewChild('spotInstancesCheck', { static: false }) spotInstancesSelect;
-  @ViewChild('preemptibleNode', { static: false }) preemptible;
-  @ViewChild('configurationNode', { static: false }) configuration;
+  @ViewChild('spotInstancesCheck') spotInstancesSelect;
+  @ViewChild('preemptibleNode') preemptible;
+  @ViewChild('configurationNode') configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

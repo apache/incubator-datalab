@@ -61,12 +61,12 @@ export class ReportingGridComponent implements OnInit {
   public previousItem: string;
   public previousDirection: string;
 
-  @ViewChild('nameFilter', { static: false }) filter;
-  @ViewChild('tableWrapper', { static: false }) tableWrapper;
-  @ViewChild('wrapper', { static: false }) wrapper;
+  @ViewChild('nameFilter') filter;
+  @ViewChild('tableWrapper') tableWrapper;
+  @ViewChild('wrapper') wrapper;
 
-  @ViewChild('pageWrapper', { static: false }) pageWrapper;
-  @ViewChild('table', { static: false }) table;
+  @ViewChild('pageWrapper') pageWrapper;
+  @ViewChild('table') table;
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   @Input() filteredReportData: ReportingConfigModel;
@@ -102,7 +102,8 @@ export class ReportingGridComponent implements OnInit {
 
   private checkFilters() {
     this.isFilterChanged = JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
-    this.isFilterSelected = Object.keys(this.filteredReportData).filter(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0).length > 0;
+    this.isFilterSelected = Object.keys(this.filteredReportData)
+      .filter(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0).length > 0;
   }
 
   refreshData(fullReport, report) {
@@ -189,7 +190,7 @@ export class ReportingGridComponent implements OnInit {
     }
   }
 
-  private checkMaxRight() {
+  public checkMaxRight() {
     if (this.reportData && this.reportData.length < 5) {
       const arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
       this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;

@@ -245,7 +245,7 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  private isGroupChanded(currGroup) {
+  public isGroupChanded(currGroup) {
     const currGroupSource = this.startedGroups.filter(cur => cur.group === currGroup.group)[0];
    if (currGroup.users.length !== currGroupSource.users.length &&
      currGroup.selected_roles.length !== currGroupSource.selected_roles.length) {

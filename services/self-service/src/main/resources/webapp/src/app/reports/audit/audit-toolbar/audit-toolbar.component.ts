@@ -71,11 +71,13 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
   private setInitDatapickerConfig() {
     const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
     const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
-    labels[0].innerHTML = 'From date';
-    labels[1].innerHTML = 'To date';
-    for (let label = 0; label < rangeLabels.length; ++label) {
-      rangeLabels[label].classList.add('d-none');
-      rangeLabels[label].classList.add('untouched');
+    if (labels && rangeLabels) {
+      labels[0].innerHTML = 'From date';
+      labels[1].innerHTML = 'To date';
+      for (let label = 0; label < rangeLabels.length; ++label) {
+        rangeLabels[label].classList.add('d-none');
+        rangeLabels[label].classList.add('untouched');
+      }
     }
   }
 

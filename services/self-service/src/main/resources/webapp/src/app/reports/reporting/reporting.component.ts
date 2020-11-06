@@ -65,7 +65,7 @@ import {LocalizationService} from '../../core/services/localization.service';
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
 
-  @ViewChild(ReportingGridComponent, { static: false }) reportingGrid: ReportingGridComponent;
+  @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent, { static: true }) reportingToolbar: ToolbarComponent;
 
   reportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);

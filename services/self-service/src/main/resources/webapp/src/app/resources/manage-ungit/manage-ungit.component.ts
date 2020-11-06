@@ -44,7 +44,7 @@ export class ManageUngitComponent implements OnInit {
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
-  @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
+  @ViewChild('tabGroupGit') tabGroupGit;
 
   constructor(
     public toastr: ToastrService,
@@ -91,7 +91,9 @@ export class ManageUngitComponent implements OnInit {
     this.currentEditableItem = item;
 
     this.updateAccountCredentialsForm = this._fb.group({
-      'hostname': [item.hostname, Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)])],
+      'hostname': [item.hostname, Validators.compose(
+        [Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)]
+      )],
       'username': [item.username, Validators.compose([Validators.required, Validators.pattern(this.acceptance_pattern)])],
       'email': [item.email, Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': [item.login, Validators.compose([Validators.required, Validators.pattern(this.login_acceptance_pattern)])],
@@ -101,8 +103,8 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(
-      ConfirmDeleteAccountDialog,
+    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialogComponent> = this.dialog.open(
+      ConfirmDeleteAccountDialogComponent,
       { data: item, width: '550px', panelClass: 'error-modalbox' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -135,7 +137,9 @@ export class ManageUngitComponent implements OnInit {
 
   private initFormModel(): void {
     this.updateAccountCredentialsForm = this._fb.group({
-      'hostname': ['', Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)])],
+      'hostname': ['', Validators.compose(
+        [Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)]
+      )],
       'username': ['', Validators.compose([Validators.required, Validators.pattern(this.acceptance_pattern)])],
       'email': ['', Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': ['', Validators.compose([Validators.required, Validators.pattern(this.login_acceptance_pattern)])],
@@ -185,9 +189,9 @@ export class ManageUngitComponent implements OnInit {
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
   `]
 })
-export class ConfirmDeleteAccountDialog {
+export class ConfirmDeleteAccountDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ConfirmDeleteAccountDialog>,
+    public dialogRef: MatDialogRef<ConfirmDeleteAccountDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

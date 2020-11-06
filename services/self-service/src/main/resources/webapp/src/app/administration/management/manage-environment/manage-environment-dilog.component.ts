@@ -38,7 +38,7 @@ export class ManageEnvironmentComponent implements OnInit {
 
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
   private initialFormState: any;
-  private isFormChanged: boolean = true;
+  public isFormChanged: boolean = true;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

@@ -21,7 +21,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgDateRangePickerModule } from 'ng-daterangepicker';
-
 import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
 import { ReportingComponent } from './reporting.component';

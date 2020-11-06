@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 .folder{
   padding-left: 5px;
   max-width: 350px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-
 }
 
 .mat-tree{
@@ -45,8 +45,6 @@
   i{
     color: #00bcd4;
   }
-
-
 }
 
 .add-folder-form{
@@ -64,8 +62,10 @@
     height: 25px;
     line-height: 28px;
   }
+
   &:hover{
     color: #00bcd4;
+
     i{
       color: #00bcd4;
     }
@@ -109,11 +109,6 @@
   .mat-error {
     background-color: #ffffff;
   }
-
-  .d-none{
-    display: none;
-  }
-
 }
 
 

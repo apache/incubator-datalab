@@ -81,15 +81,15 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public filtered: boolean;
   public autoComplete: string;
   public filtredNotebookLibs: Array<any> = [];
-  @ViewChild('groupSelect', { static: false }) group_select;
-  @ViewChild('resourceSelect', { static: false }) resource_select;
-  @ViewChild('trigger', { static: false }) matAutoComplete;
+  @ViewChild('groupSelect') group_select;
+  @ViewChild('resourceSelect') resource_select;
+  @ViewChild('trigger') matAutoComplete;
   public lib: Library = {name: '', version: ''};
   public selectedLib: any = null;
   public isLibSelected: boolean = false;
   public isVersionInvalid: boolean = false;
-  private isFilterChanged: boolean;
-  private isFilterSelected: boolean;
+  public isFilterChanged: boolean;
+  public isFilterSelected: boolean;
   private cashedFilterForm: FilterLibsModel;
 
   constructor(
@@ -491,7 +491,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       const isGroup = this.cashedFilterForm.group.length ? this.cashedFilterForm.group.includes(this.groupsListMap[lib.group]) : true;
       lib.filteredStatus = lib.status.filter(status => {
         const isResource = this.cashedFilterForm.resource.length ? this.cashedFilterForm.resource.includes(status.resource) : true;
-        const isResourceType = this.cashedFilterForm.resource_type.length ? this.cashedFilterForm.resource_type.includes(status.resourceType) : true;
+        const isResourceType = this.cashedFilterForm.resource_type.length ?
+          this.cashedFilterForm.resource_type.includes(status.resourceType) : true;
         const isStatus = this.cashedFilterForm.status.length ? this.cashedFilterForm.status.includes(status.status) : true;
         return isResource && isResourceType && isStatus;
       });
@@ -519,7 +520,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.isLibSelected = false;
   }
 
-  private validateVersion(version) {
+  public validateVersion(version) {
     if (version.length) {
       this.isVersionInvalid = !PATTERNS.libVersion.test(version);
     } else {

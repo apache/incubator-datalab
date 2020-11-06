@@ -136,7 +136,7 @@ export class AuditGridComponent implements OnInit {
     }
   }
 
-  private setItemsPrPage(item: number): void {
+  public setItemsPrPage(item: number): void {
     window.localStorage.setItem('audit_per_page', item.toString());
     this.firstItem = 1;
     if (this.lastItem !== item) {

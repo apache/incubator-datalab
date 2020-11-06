@@ -40,7 +40,7 @@ export interface Endpoint {
 })
 export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
-  private maxEndpointNameLength: number = 6;
+  public maxEndpointNameLength: number = 6;
   endpoints: Endpoint[] = [];
   displayedColumns: string[] = ['name', 'url', 'account', 'endpoint_tag', 'actions'];
 
@@ -229,7 +229,7 @@ export class EndpointTestResultDialogComponent {
         return;
       });
   }
-  private cutToLongUrl(url) {
+  public cutToLongUrl(url) {
     return url.length > 25 ? url.slice(0, 25) + '...' : url;
   }
 

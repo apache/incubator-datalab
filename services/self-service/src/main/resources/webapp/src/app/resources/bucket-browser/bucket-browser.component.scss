@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 .dialog-header {
   padding-left: 33px !important;
 }
@@ -23,7 +24,6 @@
 .bucket-browser {
   font-size: 14px;
   font-weight: 400;
-
 
   .loading-block{
     width: 80%;
@@ -187,10 +187,7 @@
     position: relative;
     opacity: 0;
   }
-
-
 }
-
 
 .bucket-wrapper{
   height: 57vh;
@@ -229,14 +226,13 @@
        top: 9px;
        text-align: center;
 
-
        i{
          cursor: pointer;
          font-size: 18px;
 
          &:hover{
            color:  #00bcd4;
-       }
+         }
        }
      }
 
@@ -266,6 +262,7 @@
        }
      }
    }
+
   .navigation{
     transition: .2s;
     width: 31.3%;
