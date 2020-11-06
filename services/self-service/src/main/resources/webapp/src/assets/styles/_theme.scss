@@ -350,6 +350,13 @@ span.mat-slide-toggle-content {
     }
 }
 
+.mat-chip-list {
+  pointer-events: none;
+  .mat-chip{
+    pointer-events: all;
+  }
+}
+
 .manage-roles,
 .project-form,
 .selection,
