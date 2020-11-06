@@ -92,7 +92,7 @@ export class ManageUngitComponent implements OnInit {
 
     this.updateAccountCredentialsForm = this._fb.group({
       'hostname': [item.hostname, Validators.compose(
-        [Validators.required,  this.containsHostname.bind(this)]
+        [Validators.required,  Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)]
       )],
       'username': [item.username, Validators.compose([Validators.required, Validators.pattern(this.acceptance_pattern)])],
       'email': [item.email, Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
