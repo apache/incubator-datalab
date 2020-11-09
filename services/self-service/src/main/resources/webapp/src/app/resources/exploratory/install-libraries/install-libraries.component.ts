@@ -194,7 +194,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         ? this.model.computational_name = this.destination.name
         : this.model.computational_name = null;
       this.resetDialog();
-      // this.getInstalledLibsByResource();
       this.libSearch.disable();
     }
     this.filterList();
@@ -288,6 +287,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       () => {
         this.getInstalledLibrariesList(true);
         this.changeDetector.detectChanges();
+
         this.selectorsReset();
       },
       this.librariesInstallationService);
@@ -426,7 +426,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private getMatchedLibs() {
-    if (this.lib.name.length < 2) {
+    if (!this.lib.name || this.lib.name.length < 2) {
       return;
     }
     this.model.getLibrariesList(this.group, this.lib.name.toLowerCase())
