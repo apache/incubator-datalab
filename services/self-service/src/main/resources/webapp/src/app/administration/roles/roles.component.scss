@@ -346,6 +346,14 @@ table {
 
   .name {
     width: 15%;
+    max-width: 200px;
+    padding-right: 10px;
+    overflow: hidden;
+    span{
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
   }
 
   .roles {

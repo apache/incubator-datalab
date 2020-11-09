@@ -234,6 +234,10 @@ export class RolesComponent implements OnInit {
   public groupValidation(): ValidatorFn {
     const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
+      if (control.value && control.value.length > 50) {
+        return { long: true };
+      }
+
       if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
         return { duplicate: true };
       }
