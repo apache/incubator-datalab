@@ -42,26 +42,6 @@
   }
 }
 
-.loading-block {
-  height: 40%;
-  display: flex;
-  justify-content: center;
-
-  .uploading {
-    padding-top: 200px;
-    flex-direction: column;
-    align-items: center;
-    align-self: center;
-    list-style: none;
-    display: flex;
-
-    p {
-      font-size: 16px;
-      ;
-    }
-  }
-}
-
 .info {
   height: 30%;
 }
@@ -92,7 +72,9 @@
   .mat-list-item {
     height: auto !important;
     font-family: "Open Sans", sans-serif;
-    font-weight: 400;
+    color: #718ba6 !important;
+    font-size: 13px !important;
+    font-weight: 300;
 
     .mat-list-item-content {
       height: auto !important;
@@ -135,6 +117,30 @@
       padding: 3px;
     }
   }
+
+  .loading-block {
+    height: 40%;
+    display: flex;
+    justify-content: center;
+
+    .uploading {
+      padding-top: 200px;
+      flex-direction: column;
+      align-items: center;
+      align-self: center;
+      list-style: none;
+      display: flex;
+
+      p {
+        font-size: 16px;
+      ;
+      }
+    }
+  }
+
+  .list-header{
+    line-height: 40px;
+  }
 }
 
 .list-item{
@@ -154,38 +160,8 @@
   width: 30%;
 }
 
-.scrolling-content.delete-list {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.empty-list {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  color: #35afd5;
-  padding: 14px;
-}
-
 ul.resources{
   padding-left: 10px;
-}
-
-.dependency-list-header {
-  color: #577289;
-  width: 100%;
-  padding: 15px 0 5px 0;
-  font-weight: 600;
-}
-
-.add-icon{
-  cursor: pointer;
-  position: absolute;
-  top: -13px;
-  right: 10px;
-  .mat-icon{
-    font-size: 24px;
-  }
 }
 
 .search-box {
@@ -324,12 +300,6 @@ ul.resources{
   }
 }
 
-.mat-list-item {
-  color: #718ba6 !important;
-  font-size: 13px !important;
-  font-weight: 300;
-}
-
 mat-chip.mat-chip:not(.mat-basic-chip) {
   margin: 2px !important;
   background-color: rgba(47, 174, 215, .2) !important;
@@ -337,12 +307,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 /* Tab info */
-
-.install-libraries{
-  .list-header{
-    line-height: 40px;
-  }
-}
 
 .mat-dialog-container {
   position: relative;
@@ -499,22 +463,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   }
 }
 
-.reinstall-all {
-  margin: 10px 5px;
-  position: fixed;
-  right: 0;
-  bottom: 0;
-}
-
-.mat-tab-labels .mat-ink-bar {
-  background-color: #35afd5;
-}
-
-.dropdown-multiselect button span {
-  padding-top: 7px;
-  padding-bottom: 3px;
-}
-
 .mat-dialog-container.mat-dialog-container .install-libraries#dialog-box {
   .mat-header-cell{
     padding: 0;
@@ -540,14 +488,20 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   }
 }
 
-.install-libraries .dropdown-multiselect .list-menu li {
+.install-libraries .dropdown-multiselect {
+  .list-menu li {
+    a {
+      font-size: 13px;
 
-  a{
-    font-size: 13px;
-
-    &.list-item{
-      color: #4a5c89 !important;
+      &.list-item {
+        color: #4a5c89 !important;
+      }
     }
+  }
+
+  button span {
+    padding-top: 7px;
+    padding-bottom: 3px;
   }
 }
 
