@@ -90,11 +90,4 @@ public class InfrastructureInfoResource {
         return Response.ok(infrastructureInfoService.getInfrastructureMetaInfo())
                 .build();
     }
-
-//    @GET
-//    @Path("/s")
-//    public Response getStatus(@Auth UserInfo userInfo, @QueryParam("s") StringList list) {
-//        infrastructureInfoService.updateInfrastructureStatuses(userInfo, "local", list);
-//        return Response.ok().build();
-//    }
 }
