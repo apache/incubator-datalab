@@ -218,17 +218,29 @@ public class ExploratoryDAO extends BaseDAO {
                 false);
     }
 
-    public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusNotIn(String endpoint,
-                                                                              List<UserInstanceStatus> statuses) {
+    public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusIn(List<String> endpoints, List<UserInstanceStatus> statuses,
+                                                                           boolean computationalFieldsRequired) {
         final List<String> exploratoryStatusList = statusList(statuses);
 
         return getUserInstances(
                 and(
-                        eq(ENDPOINT, endpoint),
-                        not(in(STATUS, exploratoryStatusList))
+                        in(ENDPOINT, endpoints),
+                        in(STATUS, exploratoryStatusList)
                 ),
-                false);
+                computationalFieldsRequired);
     }
+
+	public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusNotIn(String endpoint, List<UserInstanceStatus> statuses,
+	                                                                          boolean computationalFieldsRequired) {
+		final List<String> exploratoryStatusList = statusList(statuses);
+
+		return getUserInstances(
+				and(
+						eq(ENDPOINT, endpoint),
+						not(in(STATUS, exploratoryStatusList))
+				),
+				computationalFieldsRequired);
+	}
 
     private List<UserInstanceDTO> getUserInstances(Bson condition, boolean computationalFieldsRequired) {
         return stream(getCollection(USER_INSTANCES)
@@ -350,6 +362,12 @@ public class ExploratoryDAO extends BaseDAO {
         return updateOne(USER_INSTANCES,
                 exploratoryCondition(user, exploratoryName, project),
                 set(STATUS, newStatus.toString()));
+    }
+
+    public UpdateResult updateExploratoryStatus(String project, String endpoint, String name, String instanceId, UserInstanceStatus status) {
+        return updateOne(USER_INSTANCES,
+                and(eq(ENDPOINT, endpoint), eq(PROJECT, project), eq(EXPLORATORY_NAME, name), eq(INSTANCE_ID, instanceId)),
+                set(STATUS, status.toString()));
     }
 
     /**

@@ -59,4 +59,6 @@ public interface ExploratoryService {
     List<ClusterConfig> getClusterConfig(UserInfo user, String project, String exploratoryName);
 
     ExploratoryCreatePopUp getUserInstances(UserInfo user);
+
+    void updateAfterStatusCheck(UserInfo userInfo, String project, String endpoint, String name, String instanceID, UserInstanceStatus status, String auditInfo);
 }

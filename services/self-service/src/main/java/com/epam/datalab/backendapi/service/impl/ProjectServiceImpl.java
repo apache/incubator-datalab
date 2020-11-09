@@ -283,6 +283,13 @@ public class ProjectServiceImpl implements ProjectService {
                 UserInstanceStatus.TERMINATING).isEmpty();
     }
 
+    @Audit(action = UPDATE, type = EDGE_NODE)
+    @Override
+    public void updateAfterStatusCheck(@User UserInfo userInfo, @Project String project, @ResourceName String endpoint, String instanceID,
+                                       UserInstanceStatus status, @Info String auditInfo) {
+        projectDAO.updateEdgeStatus(project, endpoint, status);
+    }
+
     private void createProjectOnCloud(UserInfo user, ProjectDTO project) {
         try {
             project.getEndpoints().forEach(e -> createEndpoint(user, project, e.getName(), project.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));

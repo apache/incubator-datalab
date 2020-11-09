@@ -23,6 +23,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.datalab.backendapi.resources.dto.ProjectInfrastructureInfo;
 import com.epam.datalab.dto.InfrastructureMetaInfoDTO;
+import com.epam.datalab.dto.status.EnvResource;
 
 import java.util.List;
 
@@ -32,4 +33,6 @@ public interface InfrastructureInfoService {
     HealthStatusPageDTO getHeathStatus(UserInfo user);
 
     InfrastructureMetaInfoDTO getInfrastructureMetaInfo();
+
+    void updateInfrastructureStatuses(UserInfo user, String endpoint, List<EnvResource> hostInstanceIds, List<EnvResource> clusterInstanceIds);
 }

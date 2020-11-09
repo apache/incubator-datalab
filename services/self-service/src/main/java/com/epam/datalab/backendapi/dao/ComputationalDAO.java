@@ -76,6 +76,7 @@ public class ComputationalDAO extends BaseDAO {
     static final String COMPUTATIONAL_NAME = "computational_name";
     static final String COMPUTATIONAL_ID = "computational_id";
     static final String PROJECT = "project";
+    static final String ENDPOINT = "endpoint";
 
     static final String IMAGE = "image";
     private static final String COMPUTATIONAL_URL = "computational_url";
@@ -399,5 +400,12 @@ public class ComputationalDAO extends BaseDAO {
                 computationalCondition(user, project, exploratoryName, computationalName),
                 set(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY),
                         Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
+    }
+
+    public void updateComputeStatus(String project, String endpoint, String computeName, String instanceId, UserInstanceStatus status) {
+        updateOne(USER_INSTANCES,
+                and(eq(PROJECT, project), eq(ENDPOINT, endpoint), eq(COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, instanceId),
+                        eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computeName)),
+                set(computationalFieldFilter(STATUS), status.toString()));
     }
 }

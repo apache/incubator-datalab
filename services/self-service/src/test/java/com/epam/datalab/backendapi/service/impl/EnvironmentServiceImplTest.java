@@ -34,9 +34,12 @@ import com.epam.datalab.backendapi.service.SecurityService;
 import com.epam.datalab.dto.UserInstanceDTO;
 import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.base.edge.EdgeInfo;
+import com.epam.datalab.dto.status.EnvResource;
+import com.epam.datalab.dto.status.EnvResourceList;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.exceptions.ResourceConflictException;
 import com.epam.datalab.model.ResourceEnum;
+import com.epam.datalab.model.ResourceType;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -66,12 +69,14 @@ import static org.mockito.Mockito.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentServiceImplTest {
 
     private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
+    private static final String AUDIT_UPDATE_STATUS = "Sync up with console status";
     private static final String AUDIT_MESSAGE = "Notebook name %s";
     private static final String DATALAB_SYSTEM_USER = "DataLab system user";
     private static final String DATALAB_SYSTEM_USER_TOKEN = "token";
@@ -83,6 +88,12 @@ public class EnvironmentServiceImplTest {
     private static final String PROJECT_NAME = "projectName";
     private static final String ENDPOINT_NAME = "endpointName";
     private static final String SHAPE = "shape";
+
+    private static final String INSTANCE_ID = "instance_id";
+    private static final String NAME = "name";
+    private static final String PROJECT = "project";
+    private static final String ENDPOINT = "endpoint";
+    private static final String STATUS = "running";
 
     @Mock
     private EnvDAO envDAO;
@@ -310,6 +321,45 @@ public class EnvironmentServiceImplTest {
         verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
                 eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1)));
         verifyNoMoreInteractions(securityService, computationalService);
+    }
+
+    @Test
+    public void updateEnvironmentStatuses() {
+        environmentService.updateEnvironmentStatuses(getEnvResourceList());
+
+        verify(projectService).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
+        verify(exploratoryService).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, NAME, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
+        verify(computationalService).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, NAME, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
+        verifyNoMoreInteractions(projectService, exploratoryService, computationalService);
+    }
+
+    @Test
+    public void updateEnvironmentStatusesWithUnknownStatus() {
+        EnvResourceList envResourceList = new EnvResourceList().withHostList(Collections.singletonList(new EnvResource().withStatus("unknown status")));
+        environmentService.updateEnvironmentStatuses(envResourceList);
+
+        verifyZeroInteractions(projectService, exploratoryService, computationalService);
+    }
+
+    private UserInfo getSystemUser() {
+        return new UserInfo(DATALAB_SYSTEM_USER, null);
+    }
+
+    private EnvResourceList getEnvResourceList() {
+        List<EnvResource> hostList = Arrays.asList(getEnvResource(ResourceType.EDGE), getEnvResource(ResourceType.EXPLORATORY),
+                getEnvResource(ResourceType.COMPUTATIONAL));
+        return new EnvResourceList()
+                .withHostList(hostList);
+    }
+
+    private EnvResource getEnvResource(ResourceType resourceType) {
+        return new EnvResource()
+                .withId(INSTANCE_ID)
+                .withName(NAME)
+                .withProject(PROJECT)
+                .withEndpoint(ENDPOINT)
+                .withStatus(STATUS)
+                .withResourceType(resourceType);
     }
 
     private UserResourceInfo getUserResourceInfoEdge() {

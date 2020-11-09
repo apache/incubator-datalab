@@ -33,6 +33,7 @@ import com.epam.datalab.backendapi.core.response.handlers.ResourcesStatusCallbac
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.UserEnvironmentResources;
 import com.epam.datalab.dto.status.EnvResource;
+import com.epam.datalab.dto.status.EnvResourceList;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.process.model.ProcessInfo;
 import com.epam.datalab.rest.client.RESTService;
@@ -68,7 +69,7 @@ public abstract class InfrastructureService implements DockerCommands {
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getRequestEnvStatusTimeout(),
-                getFileHandlerCallback(dockerAction, uuid, iamUser));
+                getFileHandlerCallback(dockerAction, uuid, iamUser, dto.getResourceList()));
         try {
 
             removeResourcesWithRunningContainers(username, dto);
@@ -143,8 +144,8 @@ public abstract class InfrastructureService implements DockerCommands {
         return runningContainerNames.stream().noneMatch(container -> container.matches(regex));
     }
 
-    protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user) {
-        return new ResourcesStatusCallbackHandler(selfService, action, uuid, user);
+    protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, EnvResourceList resourceList) {
+        return new ResourcesStatusCallbackHandler(selfService, action, uuid, user, resourceList);
     }
 
     private String nameContainer(String user, DockerAction action, String name) {

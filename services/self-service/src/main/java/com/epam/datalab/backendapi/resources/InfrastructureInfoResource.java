@@ -46,7 +46,7 @@ import java.util.List;
 @Slf4j
 public class InfrastructureInfoResource {
 
-    private InfrastructureInfoService infrastructureInfoService;
+    private final InfrastructureInfoService infrastructureInfoService;
 
     @Inject
     public InfrastructureInfoResource(InfrastructureInfoService infrastructureInfoService) {
@@ -82,7 +82,6 @@ public class InfrastructureInfoResource {
     @Path("/info")
     public List<ProjectInfrastructureInfo> getUserResources(@Auth UserInfo userInfo) {
         return infrastructureInfoService.getUserResources(userInfo);
-
     }
 
     @GET
@@ -90,6 +89,5 @@ public class InfrastructureInfoResource {
     public Response getVersion(@Auth UserInfo userInfo) {
         return Response.ok(infrastructureInfoService.getInfrastructureMetaInfo())
                 .build();
-
     }
 }

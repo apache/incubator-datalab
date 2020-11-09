@@ -35,6 +35,9 @@ import com.epam.datalab.backendapi.service.ExploratoryService;
 import com.epam.datalab.backendapi.service.ProjectService;
 import com.epam.datalab.backendapi.service.SecurityService;
 import com.epam.datalab.dto.UserInstanceDTO;
+import com.epam.datalab.dto.UserInstanceStatus;
+import com.epam.datalab.dto.status.EnvResource;
+import com.epam.datalab.dto.status.EnvResourceList;
 import com.epam.datalab.exceptions.ResourceConflictException;
 import com.epam.datalab.model.ResourceEnum;
 import com.google.inject.Inject;
@@ -44,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -61,6 +65,7 @@ import static java.util.stream.Collectors.toList;
 public class EnvironmentServiceImpl implements EnvironmentService {
     private static final String ERROR_MSG_FORMAT = "Can not %s environment because on of user resource is in status CREATING or STARTING";
     private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
+    private static final String AUDIT_UPDATE_STATUS = "Sync up with console status";
     private static final String DATALAB_SYSTEM_USER = "DataLab system user";
 
     private final EnvDAO envDAO;
@@ -165,6 +170,39 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     @Override
     public void terminateComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String computationalName) {
         computationalService.terminateComputational(userInfo, user, project, exploratoryName, computationalName, String.format(AUDIT_MESSAGE, exploratoryName));
+    }
+
+    @Override
+    public void updateEnvironmentStatuses(EnvResourceList resourceList) {
+        resourceList.getHostList()
+                .forEach(this::updateHostStatuses);
+    }
+
+    private void updateHostStatuses(EnvResource envResource) {
+        final UserInstanceStatus status = UserInstanceStatus.of(envResource.getStatus());
+        if (Objects.nonNull(status)) {
+            UserInfo systemUser = new UserInfo(DATALAB_SYSTEM_USER, null);
+            final String endpoint = envResource.getEndpoint();
+            final String instanceID = envResource.getId();
+            final String name = envResource.getName();
+            final String project = envResource.getProject();
+
+            switch (envResource.getResourceType()) {
+                case EDGE:
+                    projectService.updateAfterStatusCheck(systemUser, project, endpoint, instanceID, status, AUDIT_UPDATE_STATUS);
+                    break;
+                case EXPLORATORY:
+                    exploratoryService.updateAfterStatusCheck(systemUser, project, endpoint, name, instanceID, status, AUDIT_UPDATE_STATUS);
+                    break;
+                case COMPUTATIONAL:
+                    computationalService.updateAfterStatusCheck(systemUser, project, endpoint, name, instanceID, status, AUDIT_UPDATE_STATUS);
+                    break;
+                default:
+                    log.warn("Resource {} has unknown resource type {}", envResource, envResource.getResourceType());
+            }
+        } else {
+            log.warn("Resource {} has unknown status {}", envResource, envResource.getStatus());
+        }
     }
 
     private UserDTO toUserDTO(String u, UserDTO.Status status) {
