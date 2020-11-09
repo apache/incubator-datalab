@@ -26,13 +26,17 @@ import com.epam.datalab.backendapi.domain.BillingReport;
 import com.epam.datalab.backendapi.domain.BillingReportLine;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.resources.TestBase;
 import com.epam.datalab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.datalab.backendapi.resources.dto.ProjectInfrastructureInfo;
 import com.epam.datalab.backendapi.service.BillingService;
 import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.ProjectService;
+import com.epam.datalab.backendapi.util.RequestBuilder;
+import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.InfrastructureMetaInfoDTO;
+import com.epam.datalab.dto.UserEnvironmentResources;
 import com.epam.datalab.dto.UserInstanceDTO;
 import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.aws.edge.EdgeInfoAws;
@@ -41,6 +45,9 @@ import com.epam.datalab.dto.base.DataEngineType;
 import com.epam.datalab.dto.billing.BillingResourceType;
 import com.epam.datalab.dto.computational.UserComputationalResource;
 import com.epam.datalab.dto.gcp.edge.EdgeInfoGcp;
+import com.epam.datalab.dto.status.EnvResource;
+import com.epam.datalab.dto.status.EnvResourceList;
+import com.epam.datalab.rest.client.RESTService;
 import com.jcabi.manifests.Manifests;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,6 +78,8 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private static final String EXPLORATORY_NAME = "exploratoryName";
     private static final String COMPUTE_NAME = "computeName";
     private static final String CURRENCY = "currency";
+    private static final String UUID = "uuid";
+    private static final String INFRASTRUCTURE_STATUS = "infrastructure/status";
 
     @Mock
     private ExploratoryDAO expDAO;
@@ -82,6 +91,12 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private EndpointService endpointService;
     @Mock
     private BillingService billingService;
+    @Mock
+    private RESTService provisioningService;
+    @Mock
+    private RequestBuilder requestBuilder;
+    @Mock
+    private RequestId requestId;
 
     @InjectMocks
     private InfrastructureInfoServiceImpl infoService;
@@ -194,6 +209,25 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
         InfrastructureMetaInfoDTO actualInfrastructureMetaInfo = infoService.getInfrastructureMetaInfo();
 
         assertEquals("InfrastructureMetaInfoDTO should be equal", getInfrastructureMetaInfoDTO(), actualInfrastructureMetaInfo);
+    }
+
+    @Test
+    public void updateInfrastructureStatuses() {
+        List<EnvResource> envResources = Collections.singletonList(new EnvResource().withId("id"));
+        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
+        when(provisioningService.post(anyString(), anyString(), any(UserEnvironmentResources.class), any())).thenReturn(UUID);
+        when(requestBuilder.newInfrastructureStatus(anyString(), any(CloudProvider.class), any(EnvResourceList.class))).thenReturn(
+                new UserEnvironmentResources());
+
+        infoService.updateInfrastructureStatuses(getUserInfo(), ENDPOINT_NAME, envResources, envResources);
+
+        verify(endpointService).get(ENDPOINT_NAME);
+        verify(requestBuilder).newInfrastructureStatus(USER.toLowerCase(), CloudProvider.AWS, new EnvResourceList()
+                .withHostList(envResources)
+                .withClusterList(envResources));
+        verify(provisioningService).post(ENDPOINT_URL + INFRASTRUCTURE_STATUS, TOKEN, new UserEnvironmentResources(), String.class);
+        verify(requestId).put(USER.toLowerCase(), UUID);
+        verifyNoMoreInteractions(endpointService, provisioningService, requestBuilder, requestId);
     }
 
     private InfrastructureMetaInfoDTO getInfrastructureMetaInfoDTO() {

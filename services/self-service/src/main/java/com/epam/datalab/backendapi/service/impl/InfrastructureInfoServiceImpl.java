@@ -26,6 +26,7 @@ import com.epam.datalab.backendapi.domain.BillingReport;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.datalab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.datalab.backendapi.resources.dto.ProjectInfrastructureInfo;
@@ -35,6 +36,8 @@ import com.epam.datalab.backendapi.service.BillingService;
 import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.InfrastructureInfoService;
 import com.epam.datalab.backendapi.service.ProjectService;
+import com.epam.datalab.backendapi.util.RequestBuilder;
+import com.epam.datalab.constants.ServiceConsts;
 import com.epam.datalab.dto.InfrastructureMetaInfoDTO;
 import com.epam.datalab.dto.UserInstanceDTO;
 import com.epam.datalab.dto.aws.edge.EdgeInfoAws;
@@ -42,7 +45,11 @@ import com.epam.datalab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.datalab.dto.base.edge.EdgeInfo;
 import com.epam.datalab.dto.computational.UserComputationalResource;
 import com.epam.datalab.dto.gcp.edge.EdgeInfoGcp;
+import com.epam.datalab.dto.status.EnvResource;
+import com.epam.datalab.dto.status.EnvResourceList;
+import com.epam.datalab.rest.client.RESTService;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,26 +62,36 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class InfrastructureInfoServiceImpl implements InfrastructureInfoService {
+
     private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-datalab/blob/%s/RELEASE_NOTES.md";
     private static final String PERMISSION_VIEW = "/api/bucket/view";
     private static final String PERMISSION_UPLOAD = "/api/bucket/upload";
     private static final String PERMISSION_DOWNLOAD = "/api/bucket/download";
     private static final String PERMISSION_DELETE = "/api/bucket/delete";
+    private static final String INFRASTRUCTURE_STATUS = "infrastructure/status";
 
     private final ExploratoryDAO expDAO;
     private final SelfServiceApplicationConfiguration configuration;
     private final ProjectService projectService;
     private final EndpointService endpointService;
     private final BillingService billingService;
+    private final RequestBuilder requestBuilder;
+    private final RESTService provisioningService;
+    private final RequestId requestId;
+
 
     @Inject
     public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, SelfServiceApplicationConfiguration configuration, ProjectService projectService,
-                                         EndpointService endpointService, BillingService billingService) {
+                                         EndpointService endpointService, BillingService billingService, RequestBuilder requestBuilder,
+                                         @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService, RequestId requestId) {
         this.expDAO = expDAO;
         this.configuration = configuration;
         this.projectService = projectService;
         this.endpointService = endpointService;
         this.billingService = billingService;
+        this.requestBuilder = requestBuilder;
+        this.provisioningService = provisioningService;
+        this.requestId = requestId;
     }
 
     @Override
@@ -126,6 +143,19 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                 .version(Manifests.read("DataLab-Version"))
                 .releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
                 .build();
+    }
+
+    @Override
+    public void updateInfrastructureStatuses(UserInfo user, String endpoint, List<EnvResource> hostInstances, List<EnvResource> clusterInstances) {
+        EnvResourceList envResourceList = new EnvResourceList()
+                .withClusterList(clusterInstances)
+                .withHostList(hostInstances);
+
+        EndpointDTO endpointDTO = endpointService.get(endpoint);
+        String uuid = provisioningService.post(endpointDTO.getUrl() + INFRASTRUCTURE_STATUS, user.getAccessToken(),
+                requestBuilder.newInfrastructureStatus(user.getName(), endpointDTO.getCloudProvider(), envResourceList),
+                String.class);
+        requestId.put(user.getName(), uuid);
     }
 
     private List<BillingReport> getExploratoryBillingData(List<UserInstanceDTO> exploratories) {

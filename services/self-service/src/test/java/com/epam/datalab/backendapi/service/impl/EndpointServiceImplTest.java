@@ -50,6 +50,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -105,18 +106,19 @@ public class EndpointServiceImplTest extends TestBase {
 
     @Test
     public void getEndpointResources() {
-        List<UserInstanceDTO> userInstances = getUserInstances();
-        List<ProjectDTO> projectDTOs = getProjectDTOs();
-        when(exploratoryDAO.fetchExploratoriesByEndpointWhereStatusNotIn(anyString(), anyListOf(UserInstanceStatus.class)))
-                .thenReturn(userInstances);
-        when(projectService.getProjectsByEndpoint(anyString())).thenReturn(projectDTOs);
+	    List<UserInstanceDTO> userInstances = getUserInstances();
+	    List<ProjectDTO> projectDTOs = getProjectDTOs();
+	    when(exploratoryDAO.fetchExploratoriesByEndpointWhereStatusNotIn(anyString(), anyListOf(UserInstanceStatus.class), anyBoolean()))
+			    .thenReturn(userInstances);
+	    when(projectService.getProjectsByEndpoint(anyString())).thenReturn(projectDTOs);
 
-        EndpointResourcesDTO actualEndpointResources = endpointService.getEndpointResources(ENDPOINT_NAME);
+	    EndpointResourcesDTO actualEndpointResources = endpointService.getEndpointResources(ENDPOINT_NAME);
 
-        assertEquals("objects should be equal", new EndpointResourcesDTO(userInstances, projectDTOs), actualEndpointResources);
-        verify(exploratoryDAO).fetchExploratoriesByEndpointWhereStatusNotIn(ENDPOINT_NAME, Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED));
-        verify(projectService).getProjectsByEndpoint(ENDPOINT_NAME);
-        verifyNoMoreInteractions(exploratoryDAO, projectService);
+	    assertEquals("objects should be equal", new EndpointResourcesDTO(userInstances, projectDTOs), actualEndpointResources);
+	    verify(exploratoryDAO).fetchExploratoriesByEndpointWhereStatusNotIn(ENDPOINT_NAME, Arrays.asList(UserInstanceStatus.TERMINATED,
+			    UserInstanceStatus.FAILED), Boolean.FALSE);
+	    verify(projectService).getProjectsByEndpoint(ENDPOINT_NAME);
+	    verifyNoMoreInteractions(exploratoryDAO, projectService);
     }
 
     @Test

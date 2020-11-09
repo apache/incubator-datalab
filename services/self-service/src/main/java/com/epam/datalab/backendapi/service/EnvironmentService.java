@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.service;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.UserDTO;
 import com.epam.datalab.backendapi.resources.dto.UserResourceInfo;
+import com.epam.datalab.dto.status.EnvResourceList;
 
 import java.util.List;
 
@@ -43,4 +44,6 @@ public interface EnvironmentService {
     void terminateExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
 
     void terminateComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName);
+
+    void updateEnvironmentStatuses(EnvResourceList resourceList);
 }

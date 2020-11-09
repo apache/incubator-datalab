@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.time.LocalDateTime;
  * Describe the resource (host, cluster, storage) for check status in Cloud.
  */
 @NoArgsConstructor
+@EqualsAndHashCode
 public class EnvResource {
     @JsonProperty
     private String id;
@@ -141,8 +143,30 @@ public class EnvResource {
         return this;
     }
 
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
+
+    public EnvResource withProject(String project) {
+        setProject(project);
+        return this;
+    }
+
     public String getEndpoint() {
         return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public EnvResource withEndpoint(String endpoint) {
+        setEndpoint(endpoint);
+        return this;
     }
 
     public ToStringHelper toStringHelper(Object self) {
@@ -150,6 +174,8 @@ public class EnvResource {
                 .add("id", id)
                 .add("status", status)
                 .add("name", name)
+                .add("project", project)
+                .add("endpoint", endpoint)
                 .add("resourceType", resourceType)
                 .add("lastActivity", lastActivity);
     }

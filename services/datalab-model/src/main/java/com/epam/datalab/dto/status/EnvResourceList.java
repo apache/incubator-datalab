@@ -22,12 +22,14 @@ package com.epam.datalab.dto.status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 /**
  * Describe the lists of resources (host, cluster, storage) for check status in Cloud.
  */
+@EqualsAndHashCode
 public class EnvResourceList {
     @JsonProperty("host")
     private List<EnvResource> hostList;

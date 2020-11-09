@@ -79,6 +79,7 @@ import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.STOP;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.UPDATE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
 import static com.epam.datalab.dto.UserInstanceStatus.CREATING;
 import static com.epam.datalab.dto.UserInstanceStatus.FAILED;
@@ -269,6 +270,13 @@ public class ExploratoryServiceImpl implements ExploratoryService {
         Map<String, List<String>> collect = userProjects.stream()
                 .collect(Collectors.toMap(ProjectDTO::getName, this::getProjectExploratoryNames));
         return new ExploratoryCreatePopUp(userProjects, collect);
+    }
+
+    @Audit(action = UPDATE, type = NOTEBOOK)
+    @Override
+    public void updateAfterStatusCheck(@User UserInfo userInfo, @Project String project, String endpoint, @ResourceName String name,
+                                       String instanceID, UserInstanceStatus status, @Info String auditInfo) {
+        exploratoryDAO.updateExploratoryStatus(project, endpoint, name, instanceID, status);
     }
 
     private List<String> getProjectExploratoryNames(ProjectDTO project) {

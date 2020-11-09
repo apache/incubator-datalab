@@ -22,7 +22,9 @@ package com.epam.datalab.dto;
 import com.epam.datalab.dto.status.EnvResourceList;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public class UserEnvironmentResources extends ResourceSysBaseDTO<UserEnvironmentResources> {
     @JsonProperty("edge_list_resources")
     private EnvResourceList resourceList;

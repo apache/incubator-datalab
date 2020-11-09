@@ -21,6 +21,7 @@
 package com.epam.datalab.backendapi.core.response.handlers;
 
 import com.epam.datalab.backendapi.core.commands.DockerAction;
+import com.epam.datalab.dto.status.EnvResource;
 import com.epam.datalab.dto.status.EnvResourceList;
 import com.epam.datalab.dto.status.EnvStatusDTO;
 import com.epam.datalab.exceptions.DatalabException;
@@ -30,10 +31,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.epam.datalab.rest.contracts.ApiCallbacks.INFRASTRUCTURE;
 import static com.epam.datalab.rest.contracts.ApiCallbacks.STATUS_URI;
@@ -41,16 +47,13 @@ import static com.epam.datalab.rest.contracts.ApiCallbacks.STATUS_URI;
 @Slf4j
 public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvStatusDTO> {
 
-    @JsonCreator
-    public ResourcesStatusCallbackHandler(
-            @JacksonInject RESTService selfService, @JsonProperty("action") DockerAction
-            action, @JsonProperty("uuid") String uuid, @JsonProperty("user") String user) {
-        super(selfService, user, uuid, action);
-    }
+    private Map<String, EnvResource> datalabHostResources;
 
-    @Override
-    protected String getCallbackURI() {
-        return INFRASTRUCTURE + STATUS_URI;
+    @JsonCreator
+    public ResourcesStatusCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
+                                          @JsonProperty("uuid") String uuid, @JsonProperty("user") String user, EnvResourceList resourceList) {
+        super(selfService, user, uuid, action);
+        this.datalabHostResources = getEnvResources(resourceList.getHostList());
     }
 
     @Override
@@ -59,15 +62,22 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
             return baseStatus;
         }
 
-        EnvResourceList resourceList;
+        EnvResourceList cloudResourceList;
         try {
-            resourceList = mapper.readValue(resultNode.toString(), EnvResourceList.class);
+            cloudResourceList = mapper.readValue(resultNode.toString(), EnvResourceList.class);
         } catch (IOException e) {
-            throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage()
-                    , e);
+            throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
 
-        baseStatus.withResourceList(resourceList)
+        EnvResourceList envResourceList = new EnvResourceList();
+        if (CollectionUtils.isNotEmpty(cloudResourceList.getHostList())) {
+            envResourceList.withHostList(getChangedEnvResources(cloudResourceList.getHostList()));
+        } else {
+            envResourceList.withHostList(Collections.emptyList());
+        }
+
+        baseStatus
+                .withResourceList(envResourceList)
                 .withUptime(Date.from(Instant.now()));
 
         log.trace("Inner status {}", baseStatus);
@@ -76,18 +86,38 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     @Override
-    public boolean handle(String fileName, byte[] content) throws Exception {
+    public boolean handle(String fileName, byte[] content) {
         try {
             return super.handle(fileName, content);
         } catch (Exception e) {
-            log.warn("Could not retrive the status of resources for UUID {} and user {}: {}",
+            log.warn("Could not retrieve the status of resources for UUID {} and user {}: {}",
                     getUUID(), getUser(), e.getLocalizedMessage(), e);
         }
         return true; // Always necessary return true for status response
     }
 
     @Override
+    protected String getCallbackURI() {
+        return INFRASTRUCTURE + STATUS_URI;
+    }
+
+    @Override
     public void handleError(String errorMessage) {
         // Nothing action for status response
+    }
+
+    private List<EnvResource> getChangedEnvResources(List<EnvResource> envResources) {
+        return envResources
+                .stream()
+                .filter(e -> !e.getStatus().equals(datalabHostResources.get(e.getId()).getStatus()))
+                .map(e -> datalabHostResources.get(e.getId())
+                        .withStatus(e.getStatus()))
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, EnvResource> getEnvResources(List<EnvResource> envResources) {
+        return envResources
+                .stream()
+                .collect(Collectors.toMap(EnvResource::getId, e -> e));
     }
 }
