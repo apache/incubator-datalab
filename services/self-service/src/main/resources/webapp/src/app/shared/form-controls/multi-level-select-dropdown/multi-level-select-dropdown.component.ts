@@ -18,6 +18,7 @@
  */
 
 import { Input, Output, Component, EventEmitter } from '@angular/core';
+import {SortUtils} from '../../../core/util';
 
 @Component({
   selector: 'multi-level-select-dropdown',
@@ -46,6 +47,7 @@ export class MultiLevelSelectDropdownComponent {
     COMPUTATIONAL: 'Compute',
     BUCKET_BROWSER: 'Bucket browser actions'
   };
+  public selectedList: any;
 
   constructor() {
   }
@@ -94,6 +96,7 @@ export class MultiLevelSelectDropdownComponent {
   }
 
   onUpdate($event): void {
+    this.selectedList = SortUtils.sortByKeys(this.getSelectedRolesList(), ['type']);
     this.selectionChange.emit({ model: this.model, type: this.type, $event });
   }
 
@@ -138,7 +141,7 @@ export class MultiLevelSelectDropdownComponent {
     return this.model.filter(v => v.role === item).length;
   }
 
-  public selectedRolesList() {
-    return this.model.map(role => role.role).join(',');
+  public getSelectedRolesList() {
+    return this.model.map(role => role.role);
   }
 }

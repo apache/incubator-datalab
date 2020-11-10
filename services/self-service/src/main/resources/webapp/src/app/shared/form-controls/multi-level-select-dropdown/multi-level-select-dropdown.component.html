@@ -21,7 +21,7 @@
   <button type="button" #list (click)="multiactions.toggle($event, list)">
     <span class="ellipsis" *ngIf="model.length === 0">Select roles</span>
     <span class="selected-items ellipsis" *ngIf="model.length !== 0">
-      {{selectedRolesList()}}
+      {{selectedList?.length ? selectedList : getSelectedRolesList()}}
     </span>
     <span class="caret-btn"><i class="material-icons">keyboard_arrow_down</i></span>
   </button>
