@@ -122,7 +122,7 @@
                     (mouseover)="showCopyIcon('bucket')"
                     [matTooltip]="notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'"
                     matTooltipPosition="above"
-                    [matTooltipClass]="'bucket-item-tooltip'"
+                    [matTooltipClass]="'full-size-tooltip'"
                   >
                     {{notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'}}
 <!--                    rc-22-projecta-conteiner@1ebobsvx7t.blob.core.windows.net-->
@@ -167,7 +167,7 @@
                  : 'You have not any bucket'"
                       matTooltipDisabled="{{this.bucketStatus['view'] && this.data.buckets.length}}"
                       matTooltipPosition="above"
-                      [matTooltipClass]="'bucket-item-tooltip'"
+                      [matTooltipClass]="'full-size-tooltip'"
                       [ngClass]="{'not-allow': !this.bucketStatus['view'] || !this.data.buckets.length}"
                       (click)="bucketBrowser(notebook.cloud_provider !== 'azure' ? notebook.bucket_name : notebook.account_name + '.' + notebook.bucket_name, notebook.endpoint, this.bucketStatus['view'] && this.data.buckets.length)"
                 >
@@ -179,7 +179,7 @@
 <!--                 [matTooltip]="'You have not permission to open bucket'"-->
 <!--                 matTooltipDisabled="{{this.bucketStatus['view']}}"-->
 <!--                 matTooltipPosition="above"-->
-<!--                 [matTooltipClass]="'bucket-item-tooltip'"-->
+<!--                 [matTooltipClass]="'full-size-tooltip'"-->
 <!--            >-->
 <!--              <p *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}-->
 <!--                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus['view']}" (mouseover)="showCopyIcon('shared')">{{ notebook.shared_account_name}}</span>-->

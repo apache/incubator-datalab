@@ -49,7 +49,7 @@
                      matTooltip="{{object['item']}}"
                      matTooltipPosition="above"
                      matTooltipShowDelay="1000"
-                     [matTooltipClass]="'bucket-item-tooltip'">{{object['item']}}</div>
+                     [matTooltipClass]="'full-size-tooltip'">{{object['item']}}</div>
               </div>
               <div  class="size">{{object['children'] ? '-' : object['object'].size | convertFileSize}}</div>
             </mat-list-item>
@@ -74,7 +74,7 @@
           matTooltip="{{data.items}}"
           matTooltipPosition="above"
           matTooltipShowDelay="1000"
-          [matTooltipClass]="'bucket-item-tooltip'"
+          [matTooltipClass]="'full-size-tooltip'"
         >{{data.items}}</span> already exists in selected folder. How would you like to resolve this conflict?</p>
         <mat-radio-group
           aria-labelledby="upload-radio-group-label"

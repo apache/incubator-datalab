@@ -353,6 +353,7 @@ span.mat-slide-toggle-content {
 .mat-chip-list {
   pointer-events: none;
   .mat-chip{
+    overflow: hidden;
     pointer-events: all;
   }
 }

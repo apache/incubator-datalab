@@ -65,7 +65,7 @@
           <div class="control selector-wrapper"
                [matTooltip]="'Notebook creations are not available. Please, check your permissions.'"
                matTooltipPosition="above"
-               [matTooltipClass]="'bucket-item-tooltip'"
+               [matTooltipClass]="'full-size-tooltip'"
                [matTooltipDisabled]="!(templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)"
           >
             <span class="form-field-wrapper"  [ngClass]="{ 'not-active' : !templates.length  || (templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)}">
@@ -127,7 +127,7 @@
           <div class="control selector-wrapper"
                [matTooltip]="'Instance size are not available. Please, check your permissions.'"
                matTooltipPosition="above"
-               [matTooltipClass]="'bucket-item-tooltip'"
+               [matTooltipClass]="'full-size-tooltip'"
                [matTooltipDisabled]="!(!areShapes && currentTemplate)"
           >
             <span class="form-field-wrapper" [ngClass]="{ 'not-active': !currentTemplate || !areShapes && currentTemplate}">

@@ -163,7 +163,7 @@
                         matTooltip="{{file.item}}"
                         matTooltipPosition="above"
                         matTooltipShowDelay="1000"
-                        [matTooltipClass]="'bucket-item-tooltip'"
+                        [matTooltipClass]="'full-size-tooltip'"
                   >
                     {{file.item}}
                 </span>
@@ -184,7 +184,7 @@
                   matTooltip="{{file.item}}"
                   matTooltipPosition="above"
                   matTooltipShowDelay="1000"
-                  [matTooltipClass]="'bucket-item-tooltip'"
+                  [matTooltipClass]="'full-size-tooltip'"
                 >
                   {{file.item}}
                 </span>
@@ -232,7 +232,7 @@
             <span
               class="ellipsis"
               matTooltip="{{file.name}}"
-              [matTooltipClass]="'bucket-item-tooltip'"
+              [matTooltipClass]="'full-size-tooltip'"
               matTooltipPosition="above"
             >
               {{file.name}}
@@ -240,7 +240,7 @@
           </div>
           <div class="second-block">
             <div class="upload-path">
-              <span class="ellipsis" matTooltip="{{file.path}}" matTooltipPosition="above" [matTooltipClass]="'bucket-item-tooltip'">{{file.path}}</span>
+              <span class="ellipsis" matTooltip="{{file.path}}" matTooltipPosition="above" [matTooltipClass]="'full-size-tooltip'">{{file.path}}</span>
             </div>
             <div class="size">{{file.size | convertFileSize}} </div>
             <div class="state">

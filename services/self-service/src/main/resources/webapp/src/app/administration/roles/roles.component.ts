@@ -222,7 +222,8 @@ export class RolesComponent implements OnInit {
       return v;
     }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
-        item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      const selectedRoles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      item.selected_roles = SortUtils.sortByKeys(selectedRoles, ['type']);
     });
     this.getGroupsListCopy();
   }
@@ -234,6 +235,10 @@ export class RolesComponent implements OnInit {
   public groupValidation(): ValidatorFn {
     const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
+      if (control.value && control.value.length > 50) {
+        return { long: true };
+      }
+
       if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
         return { duplicate: true };
       }
