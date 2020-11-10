@@ -222,7 +222,8 @@ export class RolesComponent implements OnInit {
       return v;
     }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
-        item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      const selectedRoles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      item.selected_roles = SortUtils.sortByKeys(selectedRoles, ['type']);
     });
     this.getGroupsListCopy();
   }
