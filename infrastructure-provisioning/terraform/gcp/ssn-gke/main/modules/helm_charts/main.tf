@@ -28,6 +28,7 @@ data "google_container_cluster" "ssn_k8s_gke_cluster" {
 data "google_client_config" "current" {}
 
 provider "helm" {
+  version = "0.10"
 
   kubernetes {
     host                   = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
@@ -41,6 +42,7 @@ provider "helm" {
 }
 
 provider "kubernetes" {
+  version = "1.10.0"
   host = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
 
   client_certificate     = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate)
