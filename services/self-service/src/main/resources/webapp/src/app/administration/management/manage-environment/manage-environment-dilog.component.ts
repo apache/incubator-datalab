@@ -91,15 +91,6 @@ export class ManageEnvironmentComponent implements OnInit {
     }
   }
 
-  public applyAction(action, project) {
-    const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
-      ConfirmActionDialogComponent, { data: { action, project: project.value.project }, width: '550px', panelClass: 'error-modalbox' });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.manageEnv.emit({ action, project: { project_name: project.value.project } });
-    });
-  }
-
   public setProjectsControl() {
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any, index: number) => this._fb.group({
