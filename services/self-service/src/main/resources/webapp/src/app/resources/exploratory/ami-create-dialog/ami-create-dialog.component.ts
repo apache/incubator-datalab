@@ -63,19 +63,15 @@ export class AmiCreateDialogComponent implements OnInit {
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
-      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(10), this.checkDuplication.bind(this)]],
       description: [''],
       exploratory_name: [this.notebook.name],
       project_name: [this.notebook.project]
     });
   }
 
-  private providerMaxLength(control) {
-    if (control && control.value)
-      return control.value.length <= 10 ? null : { valid: false };
-  }
-
   private checkDuplication(control) {
+    console.log(control);
     if (control.value)
       return this.isDuplicate(control.value) ? { duplication: true } : null;
   }
