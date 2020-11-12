@@ -71,7 +71,6 @@ export class AmiCreateDialogComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    console.log(control);
     if (control.value)
       return this.isDuplicate(control.value) ? { duplication: true } : null;
   }

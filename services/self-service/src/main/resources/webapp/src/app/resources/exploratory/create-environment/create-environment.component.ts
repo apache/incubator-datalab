@@ -170,7 +170,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       name: ['', [
         Validators.required,
         Validators.pattern(PATTERNS.namePattern),
-        this.providerMaxLength.bind(this),
+        Validators.maxLength(this.maxNotebookLength),
         this.checkDuplication.bind(this)
       ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
@@ -190,11 +190,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       && this.createExploratoryForm.controls.project.value
       && this.resourceGrid.containsNotebook(control.value, this.projectExploratories[this.createExploratoryForm.controls.project.value]))
       return { duplication: true };
-  }
-
-  private providerMaxLength(control) {
-    if (control && control.value)
-      return control.value.length <= this.maxNotebookLength ? null : { valid: false };
   }
 
   private validConfiguration(control) {

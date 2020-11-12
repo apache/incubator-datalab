@@ -235,7 +235,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    console.log(control);
     if (this.containsComputationalResource(control.value, this.userComputations)) {
       return { 'user-duplication': true };
     }

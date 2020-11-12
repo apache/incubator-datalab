@@ -513,6 +513,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   color: red;
   &.version-error{
     right: 0;
+    left: unset;
   }
 }
 
