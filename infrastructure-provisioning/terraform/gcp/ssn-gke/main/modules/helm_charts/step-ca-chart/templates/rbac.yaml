@@ -1,9 +1,9 @@
-{{- if .Release.IsInstall -}}
+  {{- if .Release.IsInstall -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "step-certificates.fullname" . }}-config
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
   labels:
     helm.sh/chart: {{ include "step-certificates.chart" . }}
     app.kubernetes.io/name: {{ include "step-certificates.name" . }}
@@ -19,7 +19,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ include "step-certificates.fullname" . }}-config
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
   labels:
     helm.sh/chart: {{ include "step-certificates.chart" . }}
     app.kubernetes.io/name: {{ include "step-certificates.name" . }}
@@ -29,13 +29,12 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ include "step-certificates.fullname" . }}-config
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
 roleRef:
   kind: Role
   name: {{ include "step-certificates.fullname" . }}-config
   apiGroup: rbac.authorization.k8s.io
 ---
-{{ if .Values.autocert.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -55,7 +54,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ include "step-certificates.fullname" . }}-config
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
   labels:
     helm.sh/chart: {{ include "step-certificates.chart" . }}
     app.kubernetes.io/name: {{ include "step-certificates.name" . }}
@@ -65,10 +64,9 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ include "step-certificates.fullname" . }}-config
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
 roleRef:
   kind: ClusterRole
   name: {{ include "step-certificates.fullname" . }}-config
   apiGroup: rbac.authorization.k8s.io
-{{- end }} # if .Values.autocert.enabled
-{{- end }}
+{{- end -}}
