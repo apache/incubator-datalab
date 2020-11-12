@@ -77,11 +77,11 @@ spec:
             - name: ca-password
               mountPath: /home/step/secrets/passwords
               readOnly: true
-          {{- if .Values.ca.db.enabled }}
-          - name: database
-            mountPath: /home/step/db
-            readOnly: false
-          {{- end }}
+            {{- if .Values.ca.db.enabled }}
+            - name: database
+              mountPath: /home/step/db
+              readOnly: false
+            {{- end }}
       volumes:
         - name: certs
           configMap:
