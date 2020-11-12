@@ -8,11 +8,11 @@ spec:
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
-{{- if .Values.service.nodePort }}
-nodePort: {{ .Values.service.nodePort }}
-{{- end }}
-protocol: TCP
-name: https
-selector:
-  app.kubernetes.io/name: {{ include "step-certificates.name" . }}
-  app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      protocol: TCP
+      name: https
+  selector:
+    app.kubernetes.io/name: {{ include "step-certificates.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
