@@ -2,8 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "step-certificates.fullname" . }}
-  labels:
-  {{ include "step-certificates.labels" . | indent 4 }}
+  labels: {{ include "step-certificates.labels" . | nindent 4 }}
 spec:
   # Only one replica is supported at this moment
   # Requested {{ .Values.replicaCount }}
