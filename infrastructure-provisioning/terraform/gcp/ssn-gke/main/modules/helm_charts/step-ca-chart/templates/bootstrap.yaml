@@ -4,8 +4,7 @@ kind: ServiceAccount
 metadata:
   name: {{ include "step-certificates.fullname" . }}-config
   namespace: {{.Release.Namespace}}
-  labels:
-  {{ include "step-certificates.labels" . | indent 4 }}
+  labels: {{ include "step-certificates.labels" . | nindent 4 }}
 ---
 apiVersion: batch/v1
 kind: Job
