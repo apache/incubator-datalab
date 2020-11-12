@@ -34,7 +34,7 @@
     span {
       &.error {
         position: absolute;
-        padding-left: 5px;
+        padding-left: 10px;
         right: 0;
         top: 36px;
       }
@@ -58,6 +58,7 @@
     vertical-align: middle;
     margin-left: 10px;
     margin-right: 5px;
+    margin-bottom: 4px;
   }
   .spot-details,
   .preemptible-details,
@@ -66,7 +67,7 @@
     opacity: 0;
     visibility: hidden;
     text-align: left;
-  
+
     &.show {
       height: 60px;
       visibility: visible;
@@ -121,7 +122,7 @@
     &.error {
       position: absolute;
       bottom: -20px;
-      left: 0;
+      right: 0;
     }
   }
   &.control-group {

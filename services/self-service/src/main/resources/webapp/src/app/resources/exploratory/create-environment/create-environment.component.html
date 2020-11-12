@@ -113,11 +113,13 @@
                     && createExploratoryForm?.controls['name'].hasError('duplication')" type="text"
               class="form-control" placeholder="Enter Name" formControlName="name">
             <span class="error" *ngIf="createExploratoryForm?.controls['name'].hasError('duplication')">This name already exists in current project.</span>
-            <span class="error" *ngIf="!createExploratoryForm?.controls.name.valid
-                                        && createExploratoryForm?.controls['name'].dirty
-                                        && !createExploratoryForm?.controls['name'].hasError('duplication')">Name
-             cannot be longer than {{maxNotebookLength}} characters and can only
-              contain letters, numbers, hyphens and '_' but can not end with special characters
+            <span class="error" *ngIf="createExploratoryForm?.controls['name'].hasError('maxlength') &&
+            !createExploratoryForm?.controls['name'].hasError('pattern')"
+            >
+              Name cannot be longer than {{maxNotebookLength}} characters.
+            </span>
+            <span class="error" *ngIf="createExploratoryForm?.controls['name'].hasError('pattern')">
+              Name can only contain letters, numbers, hyphens and '_' but can not end with special characters.
             </span>
           </div>
         </div>
@@ -156,7 +158,7 @@
           </div>
           <span class="error"
             *ngIf="!createExploratoryForm?.controls.custom_tag.valid && createExploratoryForm?.controls.custom_tag.dirty">
-            Custom tag can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
+            Custom tag can only contain letters, numbers, hyphens and '_' but can not end with special characters.</span>
         </div>
 
         <div *ngIf="currentTemplate">
@@ -168,9 +170,9 @@
               <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
               <textarea formControlName="cluster_config" placeholder="Cluster configuration template, JSON"
                         data-gramm_editor="false" id="config"></textarea>
-                  <span class="error"
+                  <span class="error spark-config"
                         *ngIf="!createExploratoryForm?.controls.cluster_config.valid && createExploratoryForm?.controls['cluster_config'].dirty">Configuration
-                parameters is not in a valid format</span>
+                parameters is not in a valid format.</span>
               </div>
           </div>
 

@@ -41,6 +41,12 @@
       font-family: Consolas, monospace;
     }
 
+    .spark-config{
+      position: absolute;
+      bottom: -15px;
+      right: 0;
+    }
+
     span {
       &.danger_color {
         position: absolute;

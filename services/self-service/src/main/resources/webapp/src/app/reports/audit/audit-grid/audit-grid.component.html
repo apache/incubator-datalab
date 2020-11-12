@@ -61,7 +61,13 @@
       </th>
       <td mat-cell *matCellDef=" let element" class="th_action">
         <div class="action-wrapper">
-          <span class="ellipsis">{{element.action | convertaction }}</span>
+          <span
+            class="ellipsis"
+            [matTooltip]="element.action"
+            [matTooltipClass]="'full-size-tooltip'"
+            matTooltipPosition="above"
+            [matTooltipDisabled]="element.action?.length < 12"
+          >{{element.action | convertaction }}</span>
           <div class="audit-info" (click)="openActionInfo(element)" *ngIf="element.info">
             <i class="material-icons">info</i>
           </div>

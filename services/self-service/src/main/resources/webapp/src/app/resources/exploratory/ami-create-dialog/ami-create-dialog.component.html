@@ -25,15 +25,16 @@
   <div class="dialog-content">
     <div class="content-box" *ngIf="notebook">
       <form [formGroup]="createAMIForm" novalidate>
-        <div class="control-group">
+        <div class="control-group name">
           <label class="label">Name</label>
           <div class="control">
             <input type="text" formControlName="name" placeholder="Enter image name">
             <span class="error" *ngIf="createAMIForm.controls['name'].hasError('duplication')">This
               image name already exists in project.</span>
+            <span class="error" *ngIf="createAMIForm.controls['name'].hasError('maxlength') && !createAMIForm.controls['name'].hasError('pattern')">Name cannot be longer than 10 characters.</span>
             <span class="error"
-              *ngIf="!createAMIForm.valid && createAMIForm.controls['name'].dirty && !createAMIForm.controls['name'].hasError('duplication')">
-              Name cannot be longer than 10 characters and can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
+              *ngIf="createAMIForm.controls['name'].hasError('pattern')">
+              Name can contain only letters, numbers, hyphens and '_' but can not end with special characters</span>
           </div>
         </div>
         <div class="control-group">
