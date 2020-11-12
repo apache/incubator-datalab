@@ -1,4 +1,4 @@
-{{- if .Values.bootstrap.configmaps }}
+
 # ConfigMaps that will be updated by the configuration job: 
 # 1. Step CA config directory.
 # 2. Step CA certs direcotry.
@@ -127,4 +127,3 @@ data:
     echo "CA URL: {{include "step-certificates.url" .}}"
     echo "CA Fingerprint: $(step certificate fingerprint $(step path)/certs/root_ca.crt)"
     echo
-{{- end }}
