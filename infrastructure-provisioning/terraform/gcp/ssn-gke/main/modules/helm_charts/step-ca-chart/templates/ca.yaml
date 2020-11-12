@@ -34,7 +34,6 @@ spec:
         runAsNonRoot: true
         runAsGroup: 1000
         fsGroup: 1000
-        allowPrivilegeEscalation: false
         {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -111,27 +110,27 @@ spec:
         tolerations:
           {{- toYaml . | nindent 8 }}
         {{- end }}
-    {{- if and .Values.ca.db.enabled .Values.ca.db.persistent }}
-    volumeClaimTemplates:
-      - metadata:
-          name: database
-          labels:
-            app.kubernetes.io/name: {{ include "step-certificates.name" . }}
-            app.kubernetes.io/instance: {{ .Release.Name }}
-            app.kubernetes.io/managed-by: {{ .Release.Service }}
-        spec:
-          accessModes:
-          {{- range .Values.ca.db.accessModes }}
-          - {{ . | quote }}
-          {{- end }}
-          resources:
-            requests:
-              storage: {{ .Values.ca.db.size | quote }}
-        {{- if .Values.ca.db.storageClass }}
-        {{- if (eq "-" .Values.ca.db.storageClass) }}
-        storageClassName: ""
-        {{- else }}
-        storageClassName: {{ .Values.ca.db.storageClass | quote }}
+  {{- if and .Values.ca.db.enabled .Values.ca.db.persistent }}
+  volumeClaimTemplates:
+    - metadata:
+        name: database
+        labels:
+          app.kubernetes.io/name: {{ include "step-certificates.name" . }}
+          app.kubernetes.io/instance: {{ .Release.Name }}
+          app.kubernetes.io/managed-by: {{ .Release.Service }}
+      spec:
+        accessModes:
+        {{- range .Values.ca.db.accessModes }}
+        - {{ . | quote }}
         {{- end }}
-        {{- end }}
-    {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.ca.db.size | quote }}
+      {{- if .Values.ca.db.storageClass }}
+      {{- if (eq "-" .Values.ca.db.storageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: {{ .Values.ca.db.storageClass | quote }}
+      {{- end }}
+      {{- end }}
+  {{- end }}
