@@ -126,11 +126,11 @@ spec:
         resources:
           requests:
             storage: {{ .Values.ca.db.size | quote }}
-      {{- if .Values.ca.db.storageClass }}
-      {{- if (eq "-" .Values.ca.db.storageClass) }}
-      storageClassName: ""
-      {{- else }}
-      storageClassName: {{ .Values.ca.db.storageClass | quote }}
-      {{- end }}
-      {{- end }}
+        {{- if .Values.ca.db.storageClass }}
+        {{- if (eq "-" .Values.ca.db.storageClass) }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .Values.ca.db.storageClass | quote }}
+        {{- end }}
+        {{- end }}
   {{- end }}
