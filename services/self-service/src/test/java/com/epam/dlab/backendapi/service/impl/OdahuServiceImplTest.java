@@ -50,8 +50,8 @@ public class OdahuServiceImplTest {
     private static final String USER = "testUser";
     private static final String TOKEN = "testToken";
     private static final String PROJECT = "testProject";
-    private static final String END_POINT_URL = "https://localhsot:8080/";
-    private static final String END_POINT_NAME = "testEndpoint";
+    private static final String ENDPOINT_URL = "https://localhsot:8080/";
+    private static final String ENDPOINT_NAME = "testEndpoint";
     private static final String tag = "testTag";
     private static final String uuid = "34dsr324";
     private static final String ODAHU_NAME = "odahuTest";
@@ -59,22 +59,16 @@ public class OdahuServiceImplTest {
 
     @Mock
     private OdahuDAO odahuDAO;
-
     @Mock
     private ProjectService projectService;
-
     @Mock
     private EndpointService endpointService;
-
     @Mock
     private RequestId requestId;
-
     @Mock
     private RESTService provisioningService;
-
     @Mock
     private RequestBuilder requestBuilder;
-
     @InjectMocks
     private OdahuServiceImpl odahuService;
 
@@ -87,6 +81,8 @@ public class OdahuServiceImplTest {
     public void findOdahuTest() {
         List<OdahuDTO> odahuDTOList = odahuService.findOdahu();
         assertNotNull(odahuDTOList);
+
+        verify(odahuDAO).findOdahuClusters();
     }
 
     @Test
@@ -108,7 +104,7 @@ public class OdahuServiceImplTest {
                 odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags()));
         verify(endpointService).get(odahuCreateDTO.getEndpoint());
         verify(projectService).get(PROJECT);
-        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu" , userInfo.getAccessToken(),
+        verify(provisioningService).post(ENDPOINT_URL + "infrastructure/odahu" , userInfo.getAccessToken(),
                 requestBuilder.newOdahuCreate(userInfo, odahuCreateDTO, projectDTO, endpointDTO), String.class);
         verifyNoMoreInteractions(odahuDAO, provisioningService, endpointService, projectService);
     }
@@ -144,35 +140,35 @@ public class OdahuServiceImplTest {
                 odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags()));
         verify(endpointService).get(odahuCreateDTO.getEndpoint());
         verify(projectService).get(PROJECT);
-        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu" , userInfo.getAccessToken(),
+        verify(provisioningService).post(ENDPOINT_URL + "infrastructure/odahu" , userInfo.getAccessToken(),
                 requestBuilder.newOdahuCreate(userInfo, odahuCreateDTO, projectDTO, endpointDTO), String.class);
         verifyNoMoreInteractions(odahuDAO, provisioningService, endpointService, projectService);
     }
 
     @Test
     public void startTest() {
-        when(endpointService.get(END_POINT_URL)).thenReturn(getEndpointDTO());
+        when(endpointService.get(ENDPOINT_URL)).thenReturn(getEndpointDTO());
 
-        odahuService.start(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+        odahuService.start(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
-        verify(endpointService).get(END_POINT_URL);
-        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.STARTING);
-        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
-        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu/start", userInfo.getAccessToken(),
+        verify(endpointService).get(ENDPOINT_URL);
+        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, ENDPOINT_URL, UserInstanceStatus.STARTING);
+        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, ENDPOINT_URL);
+        verify(provisioningService).post(ENDPOINT_URL + "infrastructure/odahu/start", userInfo.getAccessToken(),
                 requestBuilder.newOdahuAction(userInfo, ODAHU_NAME, getProjectDTO(UserInstanceStatus.STARTING), getEndpointDTO(), new OdahuFieldsDTO()), String.class);
         verifyNoMoreInteractions(endpointService, odahuDAO);
     }
 
     @Test
     public void stopTest() {
-        when(endpointService.get(END_POINT_URL)).thenReturn(getEndpointDTO());
+        when(endpointService.get(ENDPOINT_URL)).thenReturn(getEndpointDTO());
 
-        odahuService.stop(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+        odahuService.stop(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
-        verify(endpointService).get(END_POINT_URL);
-        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.STOPPING);
-        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
-        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu/stop", userInfo.getAccessToken(),
+        verify(endpointService).get(ENDPOINT_URL);
+        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, ENDPOINT_URL, UserInstanceStatus.STOPPING);
+        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, ENDPOINT_URL);
+        verify(provisioningService).post(ENDPOINT_URL + "infrastructure/odahu/stop", userInfo.getAccessToken(),
                 requestBuilder.newOdahuAction(userInfo, ODAHU_NAME, getProjectDTO(UserInstanceStatus.STOPPING), getEndpointDTO(), new OdahuFieldsDTO()), String.class);
         verifyNoMoreInteractions(endpointService, odahuDAO, provisioningService);
     }
@@ -182,17 +178,17 @@ public class OdahuServiceImplTest {
         List<OdahuDTO> odahuDTOS = Arrays.asList(
                 getOdahuDTO(UserInstanceStatus.RUNNING),
                 getOdahuDTO(UserInstanceStatus.FAILED));
-        when(odahuDAO.findOdahuClusters(PROJECT, END_POINT_URL)).thenReturn(odahuDTOS);
-        when(endpointService.get(END_POINT_URL)).thenReturn(getEndpointDTO());
-        when(odahuDAO.getFields(ODAHU_NAME, PROJECT, END_POINT_URL)).thenReturn(new OdahuFieldsDTO());
+        when(odahuDAO.findOdahuClusters(PROJECT, ENDPOINT_URL)).thenReturn(odahuDTOS);
+        when(endpointService.get(ENDPOINT_URL)).thenReturn(getEndpointDTO());
+        when(odahuDAO.getFields(ODAHU_NAME, PROJECT, ENDPOINT_URL)).thenReturn(new OdahuFieldsDTO());
 
-        odahuService.terminate(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+        odahuService.terminate(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
-        verify(odahuDAO).findOdahuClusters(PROJECT, END_POINT_URL);
-        verify(endpointService).get(END_POINT_URL);
-        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, END_POINT_URL, UserInstanceStatus.TERMINATING);
-        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, END_POINT_URL);
-        verify(provisioningService).post(END_POINT_URL + "infrastructure/odahu/terminate", userInfo.getAccessToken(),
+        verify(odahuDAO).findOdahuClusters(PROJECT, ENDPOINT_URL);
+        verify(endpointService).get(ENDPOINT_URL);
+        verify(odahuDAO).updateStatus(ODAHU_NAME, PROJECT, ENDPOINT_URL, UserInstanceStatus.TERMINATING);
+        verify(odahuDAO).getFields(ODAHU_NAME, PROJECT, ENDPOINT_URL);
+        verify(provisioningService).post(ENDPOINT_URL + "infrastructure/odahu/terminate", userInfo.getAccessToken(),
                 requestBuilder.newOdahuAction(userInfo, PROJECT, getProjectDTO(UserInstanceStatus.TERMINATING), getEndpointDTO(), new OdahuFieldsDTO()), String.class);
         verifyNoMoreInteractions(odahuDAO, endpointService, provisioningService);
     }
@@ -202,11 +198,11 @@ public class OdahuServiceImplTest {
         List<OdahuDTO> odahuDTOS = Arrays.asList(
                 getOdahuDTO(UserInstanceStatus.TERMINATING),
                 getOdahuDTO(UserInstanceStatus.FAILED));
-        when(odahuDAO.findOdahuClusters(PROJECT, END_POINT_URL)).thenReturn(odahuDTOS);
+        when(odahuDAO.findOdahuClusters(PROJECT, ENDPOINT_URL)).thenReturn(odahuDTOS);
 
-        odahuService.terminate(ODAHU_NAME, PROJECT, END_POINT_URL, userInfo);
+        odahuService.terminate(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
-        verify(odahuDAO).findOdahuClusters(PROJECT, END_POINT_URL);
+        verify(odahuDAO).findOdahuClusters(PROJECT, ENDPOINT_URL);
         verifyNoMoreInteractions(odahuDAO, endpointService, provisioningService);
     }
 
@@ -219,22 +215,22 @@ public class OdahuServiceImplTest {
     }
 
     private EndpointDTO getEndpointDTO() {
-        return new EndpointDTO(END_POINT_NAME, END_POINT_URL, "testAccount", tag, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.GCP);
+        return new EndpointDTO(ENDPOINT_NAME, ENDPOINT_URL, "testAccount", tag, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.GCP);
     }
 
     private ProjectDTO getProjectDTO(UserInstanceStatus instanceStatus) {
         return new ProjectDTO(PROJECT,
                 Collections.emptySet(),
                 "ssh-testKey\n", tag, 200,
-                singletonList(new ProjectEndpointDTO(END_POINT_NAME, instanceStatus, new EdgeInfo())),
+                singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, instanceStatus, new EdgeInfo())),
                 true);
     }
 
     private OdahuDTO getOdahuDTO(UserInstanceStatus instanceStatus) {
-        return new OdahuDTO(ODAHU_NAME, PROJECT, END_POINT_NAME, instanceStatus, getTags());
+        return new OdahuDTO(ODAHU_NAME, PROJECT, ENDPOINT_NAME, instanceStatus, getTags());
     }
 
     private OdahuCreateDTO getOdahuCreateDTO() {
-        return new OdahuCreateDTO(ODAHU_NAME, PROJECT, END_POINT_URL, tag);
+        return new OdahuCreateDTO(ODAHU_NAME, PROJECT, ENDPOINT_URL, tag);
     }
 }
