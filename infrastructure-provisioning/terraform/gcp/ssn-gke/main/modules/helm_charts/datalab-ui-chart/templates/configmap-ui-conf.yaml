@@ -76,16 +76,13 @@ data:
   self-service.yml: |
     <#include "/root/ssn.yml">
 
-    <#if CLOUD_TYPE == "aws">
     # Minimum and maximum number of slave EMR instances than could be created
     minEmrInstanceCount: 2
     maxEmrInstanceCount: 14
     # Minimum and maximum percentage cost for slave EMR spot instances biding
     minEmrSpotInstanceBidPct: 20
     maxEmrSpotInstanceBidPct: 90
-    </#if>
 
-    <#if CLOUD_TYPE == "gcp">
     # Maximum length for gcp user name (due to gcp restrictions)
     maxUserNameLength: 10
     # Minimum and maximum number of slave Dataproc instances that could be created
@@ -93,7 +90,6 @@ data:
     maxInstanceCount: 15
     minDataprocPreemptibleCount: 0
     gcpOuauth2AuthenticationEnabled: false
-    </#if>
 
     # Boundaries for Spark cluster creation
     minSparkInstanceCount: 2
@@ -109,6 +105,9 @@ data:
 
     # Set to true to enable the scheduler of billing report.
     billingSchedulerEnabled: true
+    billingPort: 8088
+    # Set to true to enable audit
+    auditEnabled: true
     # Name of configuration file for billing report.
     <#if DEV_MODE == "true">
     billingConfFile: ${sys['user.dir']}/../billing/billing.yml
@@ -133,8 +132,8 @@ data:
           archivedFileCount: 10
       rootPath: "/api"
       applicationConnectors:
-      - type: http
-        port: {{ .Values.ui.service.http_port }}
+    # - type: http
+    #   port: {{ .Values.ui.service.http_port }}
       - type: https
         port: {{ .Values.ui.service.https_port }}
         certAlias: ssn
@@ -199,13 +198,19 @@ data:
         cron: "*/20 * * ? * * *"
       checkQuoteScheduler:
         enabled: true
-        cron: "0 0 * ? * * *"
+        cron: "0 2/15 * ? * *"
       checkUserQuoteScheduler:
         enabled: false
         cron: "0 0 * ? * * *"
       checkProjectQuoteScheduler:
         enabled: true
-        cron: "0 * * ? * * *"
+        cron: "0 4/15 * ? * *"
+      checkEndpointStatusScheduler:
+        enabled: true
+        cron: "0 6/15 * ? * *"
+      billingScheduler:
+        enabled: true
+        cron: "0 0/15 * ? * *"
 
 
     guacamole:
