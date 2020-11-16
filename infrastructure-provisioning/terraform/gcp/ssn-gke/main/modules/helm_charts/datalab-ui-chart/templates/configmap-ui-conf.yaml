@@ -70,6 +70,16 @@ data:
         timeout: 3s
         connectionTimeout: 3s
 
+    bucketService:
+      jerseyClient:
+        timeout: 50m
+        connectionTimeout: 3s
+
+    billingService:
+      jerseyClient:
+        timeout: 4m
+        connectionTimeout: 3s
+
     # Log out user on inactivity
     inactiveUserTimeoutMillSec: 7200000
 
