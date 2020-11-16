@@ -91,7 +91,7 @@ public class OdahuServiceImplTest {
         ProjectDTO projectDTO = getProjectDTO(UserInstanceStatus.RUNNING);
         OdahuCreateDTO odahuCreateDTO = getOdahuCreateDTO();
 
-        when(projectService.get(PROJECT)).thenReturn(projectDTO);
+        when(projectService.get(anyString())).thenReturn(projectDTO);
         when(odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
                 odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags()))).thenReturn(true);
         when(endpointService.get(odahuCreateDTO.getEndpoint())).thenReturn(endpointDTO);
@@ -114,7 +114,7 @@ public class OdahuServiceImplTest {
         OdahuCreateDTO odahuCreateDTO = getOdahuCreateDTO();
         OdahuDTO failedOdahu = getOdahuDTO(UserInstanceStatus.RUNNING);
         List<OdahuDTO> runningOdahuList = singletonList(failedOdahu);
-        when(odahuDAO.findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint())).thenReturn(runningOdahuList);
+        when(odahuDAO.findOdahuClusters(anyString(), anyString())).thenReturn(runningOdahuList);
 
         odahuService.create(PROJECT, odahuCreateDTO, userInfo);
         verify(odahuDAO).findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint());
@@ -127,10 +127,10 @@ public class OdahuServiceImplTest {
         ProjectDTO projectDTO = getProjectDTO(UserInstanceStatus.RUNNING);
         OdahuCreateDTO odahuCreateDTO = getOdahuCreateDTO();
 
-        when(projectService.get(PROJECT)).thenReturn(projectDTO);
+        when(projectService.get(anyString())).thenReturn(projectDTO);
         when(odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
                 odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags()))).thenReturn(false);
-        when(endpointService.get(odahuCreateDTO.getEndpoint())).thenReturn(endpointDTO);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO);
         when(requestId.put(userInfo.getName(), uuid)).thenReturn(uuid);
 
         odahuService.create(PROJECT, odahuCreateDTO, userInfo);
@@ -147,7 +147,7 @@ public class OdahuServiceImplTest {
 
     @Test
     public void startTest() {
-        when(endpointService.get(ENDPOINT_URL)).thenReturn(getEndpointDTO());
+        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
 
         odahuService.start(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
@@ -161,7 +161,7 @@ public class OdahuServiceImplTest {
 
     @Test
     public void stopTest() {
-        when(endpointService.get(ENDPOINT_URL)).thenReturn(getEndpointDTO());
+        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
 
         odahuService.stop(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
@@ -178,9 +178,9 @@ public class OdahuServiceImplTest {
         List<OdahuDTO> odahuDTOS = Arrays.asList(
                 getOdahuDTO(UserInstanceStatus.RUNNING),
                 getOdahuDTO(UserInstanceStatus.FAILED));
-        when(odahuDAO.findOdahuClusters(PROJECT, ENDPOINT_URL)).thenReturn(odahuDTOS);
-        when(endpointService.get(ENDPOINT_URL)).thenReturn(getEndpointDTO());
-        when(odahuDAO.getFields(ODAHU_NAME, PROJECT, ENDPOINT_URL)).thenReturn(new OdahuFieldsDTO());
+        when(odahuDAO.findOdahuClusters(anyString(), anyString())).thenReturn(odahuDTOS);
+        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
+        when(odahuDAO.getFields(anyString(), anyString(), anyString())).thenReturn(new OdahuFieldsDTO());
 
         odahuService.terminate(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
@@ -198,7 +198,7 @@ public class OdahuServiceImplTest {
         List<OdahuDTO> odahuDTOS = Arrays.asList(
                 getOdahuDTO(UserInstanceStatus.TERMINATING),
                 getOdahuDTO(UserInstanceStatus.FAILED));
-        when(odahuDAO.findOdahuClusters(PROJECT, ENDPOINT_URL)).thenReturn(odahuDTOS);
+        when(odahuDAO.findOdahuClusters(anyString(), anyString())).thenReturn(odahuDTOS);
 
         odahuService.terminate(ODAHU_NAME, PROJECT, ENDPOINT_URL, userInfo);
 
