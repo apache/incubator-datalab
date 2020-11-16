@@ -142,8 +142,8 @@ data:
           archivedFileCount: 10
       rootPath: "/api"
       applicationConnectors:
-    # - type: http
-    #   port: {{ .Values.ui.service.http_port }}
+      - type: http
+        port: {{ .Values.ui.service.http_port }}
       - type: https
         port: {{ .Values.ui.service.https_port }}
         certAlias: ssn
