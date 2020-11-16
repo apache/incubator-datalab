@@ -191,6 +191,9 @@ data:
       inactivity:
         enabled: false
         cron: "0 0 0/2 ? * * *"
+      checkInfrastructureStatusScheduler:
+        enabled: true
+        cron: "0 0/15 * ? * *"
       startComputationalScheduler:
         enabled: true
         cron: "*/20 * * ? * * *"
