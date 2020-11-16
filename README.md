@@ -2143,7 +2143,7 @@ mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings
 mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
 ```
 
-If this command don't work for you, try yo check [https://docs.mongodb.com/v4.2/reference/program/mongoimport/](https://docs.mongodb.com/v4.2/reference/program/mongoimport/)
+If this command doesn't work for you, try to check [https://docs.mongodb.com/v4.2/reference/program/mongoimport/](https://docs.mongodb.com/v4.2/reference/program/mongoimport/)
 Or, use some UI client (f.e: [MongoDB Compass](https://www.mongodb.com/try/download/compass) )
 ### Setting up environment options
 
@@ -2253,21 +2253,13 @@ Where the ```<DRIVE_LETTER>``` must be the drive letter where you run the DataLa
 
 ### Set up config files
 
-Add those  file to .git/info/exclude:
-* infrastructure-provisioning/src/ssn/templates/ssn.yml
-
-* services/self-service/self-service.yml
-
-* services/provisioning-service/provisioning.yml
-
-PAY ATTENTION, don't use some formatting
 #### ssn.yml
  Open infrastructure-provisioning/src/ssn/templates/ssn.yml 
  
  * (23) KEYS_DIR -> path to keys dir with backslash
  * (30) CLOUD_TYPE -> CLOUD_PROVIDER to gcp
  * (34) DEV_MODE -> false to true
- * (40-42) change user,pass,db to created in prev step
+ * (40-42) change user, pass, db to created in prev step
  
  #### self-service.yml
   Open services/self-service/self-service.yml
