@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CONNECT;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.DISCONNECT;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.ENDPOINT;
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATED;
 
 
 @Slf4j
@@ -89,7 +90,7 @@ public class EndpointServiceImpl implements EndpointService {
     @Override
     public EndpointResourcesDTO getEndpointResources(String endpoint) {
         List<UserInstanceDTO> exploratories = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusNotIn(endpoint,
-		        Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED), Boolean.FALSE);
+                Arrays.asList(TERMINATED, UserInstanceStatus.FAILED), Boolean.FALSE);
 
         List<ProjectDTO> projects = projectService.getProjectsByEndpoint(endpoint);
 
@@ -144,7 +145,8 @@ public class EndpointServiceImpl implements EndpointService {
     }
 
     @Audit(action = DISCONNECT, type = ENDPOINT)
-    public void removeEndpoint(@User UserInfo userInfo, @ResourceName String name, CloudProvider cloudProvider, List<ProjectDTO> projects) {
+    public void removeEndpoint(@User UserInfo userInfo, @ResourceName String name, CloudProvider cloudProvider,
+                               List<ProjectDTO> projects) {
         removeEndpointInAllProjects(userInfo, name, projects);
         endpointDAO.remove(name);
         List<CloudProvider> remainingProviders = endpointDAO.getEndpoints()
@@ -156,7 +158,10 @@ public class EndpointServiceImpl implements EndpointService {
 
     @Override
     public void removeEndpointInAllProjects(UserInfo userInfo, String endpointName, List<ProjectDTO> projects) {
-        projects.forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
+        projects.stream()
+                .filter(p -> p.getEndpoints().stream()
+                        .noneMatch(e -> e.getName().equals(endpointName) && e.getStatus() == TERMINATED))
+                .forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
     }
 
     @Override
