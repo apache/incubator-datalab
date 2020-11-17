@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATED;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -282,7 +283,7 @@ public class EndpointServiceImplTest extends TestBase {
         endpointService.removeEndpointInAllProjects(getUserInfo(), ENDPOINT_NAME, projectDTOs);
         long notTerminatedProjects = projectDTOs.stream()
                 .filter(p -> p.getEndpoints().stream()
-                        .noneMatch(e -> e.getStatus().equals(UserInstanceStatus.TERMINATED)))
+                        .noneMatch(e -> e.getStatus() == TERMINATED))
                 .count();
 
         verify(projectService, times((int) notTerminatedProjects)).terminateEndpoint(any(), anyString(), any());
@@ -323,7 +324,7 @@ public class EndpointServiceImplTest extends TestBase {
                 .build();
         ProjectDTO project2 = ProjectDTO.builder()
                 .name(PROJECT_NAME_2)
-                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.TERMINATED, null)))
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, TERMINATED, null)))
                 .build();
         ProjectDTO project3 = ProjectDTO.builder()
                 .name(PROJECT_NAME_1)
@@ -331,7 +332,7 @@ public class EndpointServiceImplTest extends TestBase {
                 .build();
         ProjectDTO project4 = ProjectDTO.builder()
                 .name(PROJECT_NAME_2)
-                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.TERMINATED, null)))
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, TERMINATED, null)))
                 .build();
         return Arrays.asList(project1, project2, project3, project4);
     }

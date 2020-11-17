@@ -2143,7 +2143,6 @@ mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings
 mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
 ```
 
-
 If this command doesn't work for you, try to check [https://docs.mongodb.com/v4.2/reference/program/mongoimport/](https://docs.mongodb.com/v4.2/reference/program/mongoimport/)
 Or, use some UI client (f.e: [MongoDB Compass](https://www.mongodb.com/try/download/compass) )
 ### Setting up environment options
