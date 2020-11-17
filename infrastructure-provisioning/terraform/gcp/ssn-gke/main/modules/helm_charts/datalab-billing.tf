@@ -19,11 +19,6 @@
 #
 # ******************************************************************************
 
-locals {
-  custom_certs_enabled = lower(var.custom_certs_enabled)
-  ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : "${var.service_base_name}-ssn.${var.domain}"
-}
-
 data "template_file" "datalab_billing_values" {
   template = file("./modules/helm_charts/datalab-billing-chart/values.yaml")
   vars = {
