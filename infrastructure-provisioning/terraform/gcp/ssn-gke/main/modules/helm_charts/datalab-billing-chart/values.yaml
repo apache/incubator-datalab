@@ -59,5 +59,10 @@ billing:
     port: ${mongo_port}
     username: ${mongo_user}
     db_name: ${mongo_db_name}
+  keycloak:
+    auth_server_url: https://${ssn_k8s_alb_dns_name}/auth
+    redirect_uri: https://${ssn_k8s_alb_dns_name}/
+    realm_name: ${keycloak_realm_name}
+    client_id: ${keycloak_client_id}
   service_base_name: ${service_base_name}
   big_query_dataset: ${big_query_dataset}

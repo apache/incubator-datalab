@@ -60,8 +60,8 @@ data:
 
     keycloak:
       bearer-only: true
-      realm: {{ .Values.ui.keycloak.realm_name }}
-      resource: {{ .Values.ui.keycloak.client_id }}
+      realm: {{ .Values.billing.keycloak.realm_name }}
+      resource: {{ .Values.billing.keycloak.client_id }}
       credentials.secret: ${KEYCLOAK_CLIENT_SECRET}
       ssl-required: none
       auth-server-url: ${KEYCLOAK_AUTH_URL}
