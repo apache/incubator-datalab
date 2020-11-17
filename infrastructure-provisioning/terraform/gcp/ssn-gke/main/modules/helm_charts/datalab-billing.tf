@@ -19,6 +19,11 @@
 #
 # ******************************************************************************
 
+locals {
+  custom_certs_enabled = lower(var.custom_certs_enabled)
+  ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : "${var.service_base_name}-ssn.${var.domain}"
+}
+
 data "template_file" "datalab_billing_values" {
   template = file("./modules/helm_charts/datalab-billing-chart/values.yaml")
   vars = {
@@ -26,8 +31,11 @@ data "template_file" "datalab_billing_values" {
     mongo_user = var.mongo_db_username
     mongo_port = var.mongo_service_port
     mongo_service_name = var.mongo_service_name
+    ssn_k8s_alb_dns_name = local.ui_host
     service_base_name = var.service_base_name
     big_query_dataset = var.big_query_dataset
+    keycloak_realm_name = var.keycloak_realm_name
+    keycloak_client_id = var.keycloak_client_id
   }
 }
 
