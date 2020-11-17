@@ -60,14 +60,17 @@ export class ManageEnvironmentComponent implements OnInit {
   public onFormChange() {
     this.manageUsersForm.valueChanges.subscribe(value => {
       this.isFormChanged = JSON.stringify(this.initialFormState) === JSON.stringify(this.manageUsersForm.value);
-      if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
-        this.manageUsersForm.controls['projects']['controls'].forEach(v => {
-            v.controls['budget'].errors &&
-            'max' in v.controls['budget'].errors ? null : v.controls['budget'].setErrors(null);
+      if (this.getCurrentTotalValue()) {
+        if (this.getCurrentTotalValue() >= this.getCurrentUsersTotal()) {
+          this.manageUsersForm.controls['total'].setErrors(null);
+          this.manageUsersForm.controls['projects']['controls'].forEach(v => {
+              v.controls['budget'].errors &&
+              'max' in v.controls['budget'].errors ? null : v.controls['budget'].setErrors(null);
+            }
+          );
+        } else {
+          this.manageUsersForm.controls['total'].setErrors({ overrun: true });
         }
-        );
-        this.manageUsersForm.controls['total'].errors &&
-        this.manageUsersForm.controls['total'].errors ? null : this.manageUsersForm.controls['total'].setErrors(null);
       }
     });
   }
@@ -88,18 +91,9 @@ export class ManageEnvironmentComponent implements OnInit {
     }
   }
 
-  public applyAction(action, project) {
-    const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
-      ConfirmActionDialogComponent, { data: { action, project: project.value.project }, width: '550px', panelClass: 'error-modalbox' });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.manageEnv.emit({ action, project: { project_name: project.value.project } });
-    });
-  }
-
   public setProjectsControl() {
     this.manageUsersForm.setControl('projects',
-      this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
+      this._fb.array((this.data.projectsList || []).map((x: any, index: number) => this._fb.group({
         project: x.name,
         budget: [x.budget.value, [ Validators.max(1000000000), this.userValidityCheck.bind(this)]],
         monthlyBudget: x.budget.monthlyBudget,
@@ -129,6 +123,7 @@ export class ManageEnvironmentComponent implements OnInit {
 
   private userValidityCheck(control) {
     if (control && control.value) {
+      this.manageUsersForm.value.projects.find(v => v.project === control.parent.value.project).budget = control.value;
       return (this.getCurrentTotalValue() && this.getCurrentTotalValue() < this.getCurrentUsersTotal()) ? { overrun: true } : null;
     }
   }

@@ -85,11 +85,9 @@
 
   .idle-control {
     .control {
-      position: relative;
-
       .error {
         position: absolute;
-        left: 5px;
+        right: 0;
         top: 40px;
         font-size: 12px;
       }
