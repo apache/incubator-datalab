@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CONNECT;
@@ -156,7 +157,10 @@ public class EndpointServiceImpl implements EndpointService {
 
     @Override
     public void removeEndpointInAllProjects(UserInfo userInfo, String endpointName, List<ProjectDTO> projects) {
-        projects.forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
+        projects.stream()
+                .filter(p -> p.getEndpoints().stream()
+                  .noneMatch(e->e.getName().equals(endpointName) && e.getStatus().equals(UserInstanceStatus.TERMINATED)))
+                .forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
     }
 
     @Override
