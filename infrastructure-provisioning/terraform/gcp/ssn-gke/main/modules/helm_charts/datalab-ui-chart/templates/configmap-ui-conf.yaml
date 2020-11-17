@@ -221,9 +221,6 @@ data:
       checkEndpointStatusScheduler:
         enabled: true
         cron: "0 6/15 * ? * *"
-      billingScheduler:
-        enabled: true
-        cron: "0 0/15 * ? * *"
 
 
     guacamole:
