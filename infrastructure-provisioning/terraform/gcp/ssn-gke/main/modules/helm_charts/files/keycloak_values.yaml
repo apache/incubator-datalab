@@ -19,62 +19,61 @@
 #
 # ******************************************************************************
 
-keycloak:
-  image:
-    tag: "9.0.0"
-  replicas: 1
-  basepath: auth
-  username: ${keycloak_user}
-  password: "${keycloak_password}"
+image:
+  tag: "9.0.0"
+replicas: 1
+basepath: auth
+username: ${keycloak_user}
+password: "${keycloak_password}"
 
-  persistence:
-    dbVendor: mysql
-    dbName: ${mysql_db_name}
-    dbHost: keycloak-mysql
-    dbPort: 3306
-    dbUser: ${mysql_user}
-    dbPassword: "${mysql_user_password}"
+persistence:
+  dbVendor: mysql
+  dbName: ${mysql_db_name}
+  dbHost: keycloak-mysql
+  dbPort: 3306
+  dbUser: ${mysql_user}
+  dbPassword: "${mysql_user_password}"
 
-  service:
-    type: ClusterIP
-    # nodePort: 31088
+service:
+  type: ClusterIP
+  # nodePort: 31088
 
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/rewrite-target: /auth
-    path: /auth
-    hosts:
-      - ${ssn_k8s_alb_dns_name}
-    tls:
-      - hosts:
-          - ${ssn_k8s_alb_dns_name}
-        secretName: datalab-ui-tls
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /auth
+  path: /auth
+  hosts:
+    - ${ssn_k8s_alb_dns_name}
+  tls:
+    - hosts:
+        - ${ssn_k8s_alb_dns_name}
+      secretName: datalab-ui-tls
 
-  startupScripts:
-    mystartup.sh: |
-      ${configure_keycloak_file}
+startupScripts:
+  mystartup.sh: |
+    ${configure_keycloak_file}
 
-  extraInitContainers: |
-    - name: theme-provider
-      image: epamdlab/ui-theme:0.1
-      imagePullPolicy: Always
-      command:
-        - sh
-      args:
-        - -c
-        - |
-          echo "Copying theme..."
-          cp -R /datalab/* /theme
-      volumeMounts:
-        - name: theme
-          mountPath: /theme
-  extraVolumeMounts: |
-    - name: theme
-      mountPath: /opt/jboss/keycloak/themes/datalab
+extraInitContainers: |
+  - name: theme-provider
+    image: epamdlab/ui-theme:0.1
+    imagePullPolicy: Always
+    command:
+      - sh
+    args:
+      - -c
+      - |
+        echo "Copying theme..."
+        cp -R /datalab/* /theme
+    volumeMounts:
+      - name: theme
+        mountPath: /theme
+extraVolumeMounts: |
+  - name: theme
+    mountPath: /opt/jboss/keycloak/themes/datalab
 
-  extraVolumes: |
-    - name: theme
-      emptyDir: {}
+extraVolumes: |
+  - name: theme
+    emptyDir: {}
