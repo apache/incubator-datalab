@@ -40,7 +40,7 @@ data "template_file" "configure_keycloak" {
 }
 
 data "template_file" "keycloak_values" {
-  template = file("./files/keycloak_values.yaml")
+  template = file("./modules/helm_charts/files/keycloak_values.yaml")
   vars     = {
     keycloak_user           = var.keycloak_user
     keycloak_password       = random_string.keycloak_password.result
