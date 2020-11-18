@@ -21,7 +21,7 @@
 
 keycloak:
   image:
-    tag: "7.0.0"
+    tag: "9.0.0"
   replicas: 1
   basepath: auth
   username: ${keycloak_user}
