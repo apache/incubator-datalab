@@ -19,9 +19,16 @@
 #
 # ******************************************************************************
 
-image:
-  tag: "9.0.0"
 replicas: 1
+
+image:
+  repository: docker.io/jboss/keycloak
+  tag: "9.0.0"
+  pullPolicy: IfNotPresent
+
+restartPolicy: Always
+
+
 basepath: auth
 username: ${keycloak_user}
 password: "${keycloak_password}"
@@ -44,13 +51,17 @@ ingress:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /auth
-  path: /auth
-  hosts:
-    - ${ssn_k8s_alb_dns_name}
-  tls:
-    - hosts:
-        - ${ssn_k8s_alb_dns_name}
-      secretName: datalab-ui-tls
+  rules:
+    - # Ingress host
+      host: ${ssn_k8s_alb_dns_name}
+      # Paths for the host
+      paths:
+        - /auth
+    # TLS configuration
+    tls:
+      - hosts:
+          - ${ssn_k8s_alb_dns_name}
+        secretName: datalab-ui-tls
 
 startupScripts:
   mystartup.sh: |
