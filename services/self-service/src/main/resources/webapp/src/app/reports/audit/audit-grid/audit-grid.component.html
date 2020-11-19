@@ -63,7 +63,7 @@
         <div class="action-wrapper">
           <span
             class="ellipsis"
-            [matTooltip]="element.action"
+            [matTooltip]="element.action | convertaction"
             [matTooltipClass]="'full-size-tooltip'"
             matTooltipPosition="above"
             [matTooltipDisabled]="element.action?.length < 12"
