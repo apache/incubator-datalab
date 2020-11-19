@@ -1,0 +1,87 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.configuration-wrapper{
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  padding-top: 0;
+  height: calc(100vh - 130px);
+
+  .sub-nav{
+    justify-content: flex-end;
+    padding: 0 30px;
+  }
+
+  h4{
+    padding: 10px 30px;
+    color: rgba(0,0,0,.87);
+  }
+
+  .editor-wrap{
+    height: calc(100% - 60px);
+    box-shadow: 0 2px 24px 0 rgba(73,93,112,0.3);
+    margin: 0 30px;
+  }
+
+  .main-wrapper{
+    padding: 10px 30px;
+
+    .section{
+
+      &-title{
+        font-size: 17px;
+      }
+
+      &-content {
+
+        .list-menu {
+          width: 100%;
+          max-height: 450px;
+          left: 0;
+          padding: 10px 0;
+          margin: 0;
+          overflow-y: auto;
+          overflow-x: hidden;
+
+          li {
+            padding: 0;
+            margin: 0;
+          }
+
+          .list-item{
+            padding: 5px 10px;
+            display: flex;
+
+            .empty-checkbox{
+              display: block;
+              margin-right: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+.sub-nav{
+  justify-content: flex-end;
+
+  .butt{
+    margin-left: 10px;
+  }
+
+}
