@@ -51,10 +51,10 @@ export class ConfigurationComponent implements OnInit {
     provisioningSource: {},
     billingSource: {},
   };
-  services: [
-    {label: 'Self service'},
-    {label: 'Provisioning'},
-    {label: 'Billing'},
+  public services = [
+    {label: 'Self service', selected: false},
+    {label: 'Provisioning', selected: false},
+    {label: 'Billing', selected: false},
   ];
 
   private confirmMessages = {
@@ -111,7 +111,6 @@ export class ConfigurationComponent implements OnInit {
 
   getSettings() {
     this.configurationService.getSelvServiceSettings().subscribe(v => {
-      console.log(v);
       this.serverConfigs.billingSource = v;
       this.serverConfigs.selvServiceSource = v;
       this.serverConfigs.provisioningSource = v;
@@ -138,8 +137,8 @@ export class ConfigurationComponent implements OnInit {
     }
   }
 
-  toggleSetings($event: MouseEvent) {
-
+  toggleSetings(service) {
+      service.selected = !service.selected
   }
 
   restartServices() {

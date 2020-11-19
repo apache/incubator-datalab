@@ -47,8 +47,7 @@
                [disabled]="!(provisioningSource === serverConfigs.provisioningSource
                && serverConfigs.selvServiceSource === selvServiceSource
                && serverConfigs.billingSource === billingSource
-               ) && activeTab !== 0
-"
+               ) && activeTab !== 0"
       >
         <h4>Main settings</h4>
         <div class="main-wrapper">
@@ -56,28 +55,14 @@
             <p class="section-title">Restart services</p>
             <div class="section-content">
               <ul class="list-menu selection-list">
-                <li>
+                <li *ngFor="let service of services">
                   <p class="list-item" role="menuitem">
-                    <span class="empty-checkbox" [ngClass]="{'checked': true}" (click)="toggleSetings($event);$event.stopPropagation()" >
-                    <span class="checked-checkbox" *ngIf="true"></span>
-                  </span>
-                    Provisioning
-                  </p>
-                </li>
-                <li>
-                  <p class="list-item" role="menuitem">
-                    <span class="empty-checkbox" [ngClass]="{'checked': true}" (click)="toggleSetings($event);$event.stopPropagation()" >
-                    <span class="checked-checkbox" *ngIf="true"></span>
-                  </span>
-                    Selv service
-                  </p>
-                </li>
-                <li>
-                  <p class="list-item" role="menuitem">
-                    <span class="empty-checkbox" [ngClass]="{'checked': true}" (click)="toggleSetings($event);$event.stopPropagation()" >
-                    <span class="checked-checkbox" *ngIf="true"></span>
-                  </span>
-                    Billing
+                    <span (click)="toggleSetings(service);$event.stopPropagation()" class="d-flex">
+                      <span class="empty-checkbox" [ngClass]="{'checked': service.selected}">
+                        <span class="checked-checkbox" *ngIf="service.selected"></span>
+                      </span>
+                      {{service.label}}
+                    </span>
                   </p>
                 </li>
               </ul>

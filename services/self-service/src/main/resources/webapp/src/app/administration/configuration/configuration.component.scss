@@ -67,9 +67,14 @@
             padding: 5px 10px;
             display: flex;
 
+            span{
+              cursor: pointer;
+            }
+
             .empty-checkbox{
               display: block;
               margin-right: 5px;
+              margin-top: 0;
             }
           }
         }
