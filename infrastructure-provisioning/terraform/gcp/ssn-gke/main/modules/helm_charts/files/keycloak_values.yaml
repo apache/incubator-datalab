@@ -35,6 +35,9 @@ keycloak:
     dbUser: ${mysql_user}
     dbPassword: "${mysql_user_password}"
 
+  cli:
+    enabled: false
+
   service:
     type: ClusterIP
     # nodePort: 31088
