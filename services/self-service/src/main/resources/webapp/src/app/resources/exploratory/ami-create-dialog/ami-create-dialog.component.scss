@@ -30,3 +30,16 @@ form {
     font-family:'Open Sans', sans-serif;
   }
 }
+.ami-dialog{
+  .control-group {
+    &.name {
+      padding-bottom: 30px;
+      .error{
+        top: 37px;
+        position: absolute;
+        right: 0;
+      }
+    }
+  }
+}
+

@@ -86,6 +86,8 @@ if __name__ == "__main__":
         emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
                                                                    emr_conf['project_name'], emr_conf['endpoint_name'])
         emr_conf['edge_security_group_name'] = '{0}-sg'.format(emr_conf['edge_instance_name'])
+        emr_conf['nb_security_group_name'] = '{0}-{1}-{2}-nb-sg'.format(emr_conf['service_base_name'],
+                                                                   emr_conf['project_name'], emr_conf['endpoint_name'])
         emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
         emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
         emr_conf['instance_count'] = os.environ['emr_instance_count']
@@ -171,8 +173,8 @@ if __name__ == "__main__":
     logging.info('[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]')
     print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
     try:
-        edge_group_id = datalab.meta_lib.check_security_group(emr_conf['edge_security_group_name'])
-        cluster_sg_ingress = datalab.meta_lib.format_sg([
+        group_id = datalab.meta_lib.check_security_group(emr_conf['edge_security_group_name'])
+        cluster_sg_ingress = [
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -181,18 +183,12 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [],
-                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
-                "PrefixListIds": []
-            },
-            {
-                "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
-        ])
-        cluster_sg_egress = datalab.meta_lib.format_sg([
+        ]
+        cluster_sg_egress = [
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -204,12 +200,6 @@ if __name__ == "__main__":
                 "IpRanges": [{"CidrIp": emr_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
-            },
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [],
-                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
-                "PrefixListIds": []
             },
             {
                 "IpProtocol": "tcp",
@@ -219,7 +209,22 @@ if __name__ == "__main__":
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             }
-        ])
+        ]
+        if group_id:
+            cluster_sg_ingress.append({
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": group_id}],
+                "PrefixListIds": []
+            })
+            cluster_sg_egress.append({
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": group_id}],
+                "PrefixListIds": []
+            })
+        cluster_sg_ingress = datalab.meta_lib.format_sg(cluster_sg_ingress)
+        cluster_sg_egress = datalab.meta_lib.format_sg(cluster_sg_egress)
 
         params = "--name {} " \
                  "--vpc_id {} " \

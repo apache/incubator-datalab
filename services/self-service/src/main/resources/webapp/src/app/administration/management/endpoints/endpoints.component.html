@@ -41,7 +41,7 @@
                     && !createEndpointForm?.controls['name'].hasError('limit')"
                   >
                     Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
+                    characters.
                   </span>
                   <span class="error"
                         *ngIf="createEndpointForm?.controls['name'].hasError('isDuplicate')">
@@ -49,7 +49,7 @@
                   </span>
                   <span class="error"
                         *ngIf="createEndpointForm?.controls['name'].hasError('limit')">
-                     Endpoint name cannot be longer than {{ maxEndpointNameLength }} characters
+                     Endpoint name cannot be longer than {{ maxEndpointNameLength }} characters.
                   </span>
                 </div>
               </div>
@@ -83,7 +83,7 @@
                   <span class="error"
                     *ngIf="!createEndpointForm?.controls.endpoint_tag.valid && createEndpointForm.controls.endpoint_tag.touched">
                     Endpoint tag can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
+                    characters.
                   </span>
                 </div>
               </div>
