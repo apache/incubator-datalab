@@ -60,8 +60,7 @@ data "helm_repository" "codecentric" {
 
 resource "helm_release" "keycloak" {
   name       = "keycloak"
-  repository = data.helm_repository.codecentric.metadata.0.name
-  chart = "codecentric/keycloak"
+  chart = "./modules/helm_charts/keycloak-chart"
   namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
   wait = true
   timeout    = 600
