@@ -267,7 +267,7 @@ keycloak:
       ${configure_keycloak_file}
   extraInitContainers: |
     - name: theme-provider
-      image: epamdatalab/ui-theme:0.1
+      image: epamdlab/ui-theme:0.1
       imagePullPolicy: Always
       command:
         - sh
