@@ -191,7 +191,7 @@
             <span #settings class="actions" (click)="actions.toggle($event, settings)" *ngIf="element.type !== 'edge node'"
               [ngClass]="{
                 'disabled' : (element.status !== 'running' && element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'failed')
-                 || selected?.length || isActiveResources(element)}">
+                 || selected?.length || inProgress(element.resources)}">
 
             </span>
           </span>
