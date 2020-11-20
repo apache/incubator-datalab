@@ -120,7 +120,6 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   ngAfterViewInit() {
     this.tableEl = this.table._elementRef.nativeElement;
     this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < -5;
-    console.log(this.tableWrapper.nativeElement.offsetWidth, this.table._elementRef.nativeElement.offsetWidth);
     this.checkMaxRight();
   }
 
