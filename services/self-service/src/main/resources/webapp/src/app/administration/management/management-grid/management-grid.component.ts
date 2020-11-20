@@ -84,7 +84,6 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
-    this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < -5;
     this.checkMaxRight();
   }
 
@@ -100,7 +99,6 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
   public isFilterSelected: boolean;
   public isFilterChanged: boolean;
-  private isScrollButtonsVisible: boolean;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -119,7 +117,6 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
   ngAfterViewInit() {
     this.tableEl = this.table._elementRef.nativeElement;
-    this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < -5;
     this.checkMaxRight();
   }
 
