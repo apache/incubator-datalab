@@ -39,6 +39,7 @@ import com.epam.datalab.backendapi.resources.InfrastructureInfoResource;
 import com.epam.datalab.backendapi.resources.InfrastructureTemplateResource;
 import com.epam.datalab.backendapi.resources.KeycloakResource;
 import com.epam.datalab.backendapi.resources.LibExploratoryResource;
+import com.epam.datalab.backendapi.resources.OdahuResource;
 import com.epam.datalab.backendapi.resources.ProjectResource;
 import com.epam.datalab.backendapi.resources.SchedulerJobResource;
 import com.epam.datalab.backendapi.resources.SystemInfoResource;
@@ -53,6 +54,7 @@ import com.epam.datalab.backendapi.resources.callback.ExploratoryCallback;
 import com.epam.datalab.backendapi.resources.callback.GitCredsCallback;
 import com.epam.datalab.backendapi.resources.callback.ImageCallback;
 import com.epam.datalab.backendapi.resources.callback.LibraryCallback;
+import com.epam.datalab.backendapi.resources.callback.OdahuCallback;
 import com.epam.datalab.backendapi.resources.callback.ProjectCallback;
 import com.epam.datalab.backendapi.resources.callback.ReuploadKeyCallback;
 import com.epam.datalab.backendapi.schedulers.internal.ManagedScheduler;
@@ -184,16 +186,18 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         jersey.register(injector.getInstance(BackupCallback.class));
         jersey.register(injector.getInstance(EnvironmentResource.class));
         jersey.register(injector.getInstance(ReuploadKeyCallback.class));
-        jersey.register(injector.getInstance(CheckInactivityCallback.class));
-        jersey.register(injector.getInstance(SystemInfoResource.class));
-        jersey.register(injector.getInstance(UserGroupResource.class));
-        jersey.register(injector.getInstance(UserRoleResource.class));
-        jersey.register(injector.getInstance(ApplicationSettingResource.class));
-        jersey.register(injector.getInstance(KeycloakResource.class));
-        jersey.register(injector.getInstance(EndpointResource.class));
-        jersey.register(injector.getInstance(ProjectResource.class));
-        jersey.register(injector.getInstance(AuditResource.class));
-        jersey.register(injector.getInstance(ProjectCallback.class));
+	    jersey.register(injector.getInstance(CheckInactivityCallback.class));
+	    jersey.register(injector.getInstance(SystemInfoResource.class));
+	    jersey.register(injector.getInstance(UserGroupResource.class));
+	    jersey.register(injector.getInstance(UserRoleResource.class));
+	    jersey.register(injector.getInstance(ApplicationSettingResource.class));
+	    jersey.register(injector.getInstance(KeycloakResource.class));
+	    jersey.register(injector.getInstance(EndpointResource.class));
+	    jersey.register(injector.getInstance(ProjectResource.class));
+	    jersey.register(injector.getInstance(AuditResource.class));
+	    jersey.register(injector.getInstance(ProjectCallback.class));
+	    jersey.register(injector.getInstance(OdahuResource.class));
+	    jersey.register(injector.getInstance(OdahuCallback.class));
     }
 
     private void disableGzipHandlerForGuacamoleServlet(Server server) {

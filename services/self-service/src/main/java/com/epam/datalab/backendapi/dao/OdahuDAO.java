@@ -17,38 +17,28 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.resources.dto;
+package com.epam.datalab.backendapi.dao;
 
-import com.epam.datalab.backendapi.domain.BillingReport;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.OdahuDTO;
-import com.epam.datalab.dto.UserInstanceDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import com.epam.datalab.backendapi.domain.OdahuFieldsDTO;
+import com.epam.datalab.dto.UserInstanceStatus;
+import com.epam.datalab.dto.base.odahu.OdahuResult;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-@AllArgsConstructor
-@Builder
-@EqualsAndHashCode
-@ToString
-public class ProjectInfrastructureInfo {
-	@JsonProperty
-	private String project;
-	@JsonProperty
-	private int billingQuoteUsed;
-	@JsonProperty
-	private Map<String, Map<String, String>> shared;
-	@JsonProperty
-	private List<UserInstanceDTO> exploratory;
-	@JsonProperty
-	private List<BillingReport> exploratoryBilling;
-	@JsonProperty
-	private List<OdahuDTO> odahu;
-	@JsonProperty
-	private List<EndpointDTO> endpoints;
+public interface OdahuDAO {
+    Optional<OdahuDTO> getByProjectEndpoint(String project, String endpoint);
+
+    OdahuFieldsDTO getFields(String name, String project, String endpoint);
+
+    List<OdahuDTO> findOdahuClusters();
+
+    List<OdahuDTO> findOdahuClusters(String project, String endpoint);
+
+    boolean create(OdahuDTO odahuDTO);
+
+    void updateStatus(String name, String project, String endpoint, UserInstanceStatus status);
+
+    void updateStatusAndUrls(OdahuResult result, UserInstanceStatus status);
 }

@@ -17,38 +17,30 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.resources.dto;
+package com.epam.datalab.backendapi.domain;
 
-import com.epam.datalab.backendapi.domain.BillingReport;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
-import com.epam.datalab.backendapi.domain.OdahuDTO;
-import com.epam.datalab.dto.UserInstanceDTO;
+import com.epam.datalab.dto.ResourceURL;
+import com.epam.datalab.dto.UserInstanceStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor
-@Builder
-@EqualsAndHashCode
-@ToString
-public class ProjectInfrastructureInfo {
-	@JsonProperty
-	private String project;
-	@JsonProperty
-	private int billingQuoteUsed;
-	@JsonProperty
-	private Map<String, Map<String, String>> shared;
-	@JsonProperty
-	private List<UserInstanceDTO> exploratory;
-	@JsonProperty
-	private List<BillingReport> exploratoryBilling;
-	@JsonProperty
-	private List<OdahuDTO> odahu;
-	@JsonProperty
-	private List<EndpointDTO> endpoints;
+
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OdahuDTO {
+    private final String name;
+    private final String project;
+    private final String endpoint;
+    @JsonProperty("grafana_admin")
+    private String grafanaAdmin;
+    @JsonProperty("grafana_pass")
+    private String grafanaPassword;
+    private final List<ResourceURL> urls = new ArrayList<>();
+    private final UserInstanceStatus status;
+    private final Map<String, String> tags;
 }
