@@ -24,7 +24,7 @@ Deployment of DataLab starts from GKE cluster creating.
 To build GKE cluster with DataLab, following steps should be executed:
 
 - Connect to the instance via SSH and run the following commands:
-
+```
 sudo su
 apt-get update
 wget https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip
@@ -38,7 +38,7 @@ git clone https://github.com/apache/incubator-datalab.git
 cd incubator-datalab/infrastructure-provisioning/terraform/gcp/ssn-gke/main/
 git checkout DATALAB-2102
 terraform init
-
+```
 - Run terraform apply command to create GKE cluster:
 
 ```
