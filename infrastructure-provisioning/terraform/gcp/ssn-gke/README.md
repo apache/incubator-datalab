@@ -35,7 +35,7 @@ unzip terraform_0.12.3_linux_amd64.zip
 chmod +x terraform
 mv terraform /usr/local/bin/
 apt-get install jq
-mkdir datalab-state
+mkdir /home/ubuntu/datalab-state
 git clone https://github.com/apache/incubator-datalab.git
 cd incubator-datalab/infrastructure-provisioning/terraform/gcp/ssn-gke/main/
 git checkout DATALAB-2102
@@ -44,13 +44,13 @@ terraform init
 - Run terraform apply command to create GKE cluster:
 
 ```
-terraform apply -auto-approve -target=module.gke_cluster -state /root/datalab-state/terraform.tfstate -var credentials_file_path=/path/to/auth/file.json -var project_id=project_id -var service_base_name=datalab-xxxx -var region=xx-xxxxx -var zone=xxx-xxxxx-x -var big_query_dataset=test -var domain=k8s-gcp.domain.com
+terraform apply -auto-approve -target=module.gke_cluster -state /home/ubuntu/datalab-state/terraform.tfstate -var credentials_file_path=/path/to/auth/file.json -var project_id=project_id -var service_base_name=datalab-xxxx -var region=xx-xxxxx -var zone=xxx-xxxxx-x -var big_query_dataset=test -var domain=k8s-gcp.domain.com
 ```
 
 - Run terraform apply command to deploy Helm Charts:
 
 ```
-terraform apply -auto-approve -target=module.helm_charts -state /root/datalab-state/terraform.tfstate -var credentials_file_path=/path/to/auth/file.json -var project_id=project_id -var service_base_name=datalab-xxxx -var region=xx-xxxxx -var zone=xxx-xxxxx-x -var big_query_dataset=test -var domain=k8s-gcp.domain.com
+terraform apply -auto-approve -target=module.helm_charts -state /home/ubuntu/datalab-state/terraform.tfstate -var credentials_file_path=/path/to/auth/file.json -var project_id=project_id -var service_base_name=datalab-xxxx -var region=xx-xxxxx -var zone=xxx-xxxxx-x -var big_query_dataset=test -var domain=k8s-gcp.domain.com
 ```
 
 List of parameters for GKE cluster creation and Helm Charts deployment:
