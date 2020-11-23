@@ -62,7 +62,8 @@ List of parameters for GKE cluster creation and Helm Charts deployment:
 | gcp\_zone                    | GCP zone                                                                              |
 | gcp\_service\_account\_path  | Full path to auth json file                                                           |
 | gcp\_project\_id             | ID of GCP project                                                                     |
-| billing\_dataset\_name 	   | Name of GCP dataset (BigQuery service)                                                |,
+| big\_query\_dataset 	       | Name of GCP billing dataset (BigQuery service)                                        |
+| domain 	                   | Domain name                                                                           |,
 
 After successful Helm Charts deployment You will get direct link to Keycloak admin panel, as well as username and password for it. You have to login Keycloak admin panel and create user for DataLab. After that You will be able to login into DataLab UI.
 
