@@ -145,7 +145,7 @@ variable "mongo_dbname" {
 }
 
 variable "mongo_image_tag" {
-    default = "4.0.10-debian-9-r13"
+    default = "4.2.4-debian-10-r0"
     description = "MongoDB Image tag"
 }
 
