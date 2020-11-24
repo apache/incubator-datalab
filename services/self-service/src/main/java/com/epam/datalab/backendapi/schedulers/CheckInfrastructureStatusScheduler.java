@@ -83,11 +83,20 @@ public class CheckInfrastructureStatusScheduler implements Job {
 				.stream()
 				.collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getExploratoryAndSparkInstances));
 
+		Map<String, List<EnvResource>> clusterInstances = userInstanceDTOS
+				.stream()
+				.collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getCloudInstances));
+
 		activeEndpoints.forEach(e -> {
 					List<EnvResource> hostInstances = Stream.of(getEdgeInstances(e), exploratoryAndSparkInstances.get(e))
 							.flatMap(Collection::stream)
 							.collect(Collectors.toList());
-					infrastructureInfoService.updateInfrastructureStatuses(serviceUser, e, hostInstances, Collections.emptyList());
+
+			List<EnvResource> cloudInstances = Stream.of(getEdgeInstances(e), clusterInstances.get(e))
+					.flatMap(Collection::stream)
+					.collect(Collectors.toList());
+
+					infrastructureInfoService.updateInfrastructureStatuses(serviceUser, e, hostInstances, cloudInstances);
 				}
 		);
 	}
@@ -116,6 +125,21 @@ public class CheckInfrastructureStatusScheduler implements Job {
 
 		return instances;
 	}
+
+	private List<EnvResource> getCloudInstances(UserInstanceDTO userInstanceDTO) {
+		return userInstanceDTO.getResources().stream()
+				.filter(c -> DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(c.getImageName()))
+				.filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))
+				.map(r -> new EnvResource()
+						.withId(r.getInstanceId())
+						.withName(r.getComputationalName())
+						.withProject(userInstanceDTO.getProject())
+						.withEndpoint(userInstanceDTO.getEndpoint())
+						.withStatus(r.getStatus())
+						.withResourceType(ResourceType.COMPUTATIONAL))
+				.collect(Collectors.toList());
+	}
+
 
 	private List<EnvResource> getEdgeInstances(String endpoint) {
 		return projectService.getProjectsByEndpoint(endpoint)
