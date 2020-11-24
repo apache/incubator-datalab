@@ -80,11 +80,15 @@ public class CheckInfrastructureStatusScheduler implements Job {
 
         Map<String, List<EnvResource>> exploratoryAndSparkInstances = userInstanceDTOS
                 .stream()
-                .collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getExploratoryAndSparkInstances));
+                .map(this::getExploratoryAndSparkInstances)
+				.flatMap(Collection::stream)
+				.collect(Collectors.groupingBy(EnvResource::getEndpoint));
 
         Map<String, List<EnvResource>> clusterInstances = userInstanceDTOS
                 .stream()
-                .collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getCloudInstances));
+                .map(this::getCloudInstances)
+				.flatMap(Collection::stream)
+				.collect(Collectors.groupingBy(EnvResource::getEndpoint));
 
         activeEndpoints.forEach(e -> {
                     List<EnvResource> hostInstances = Stream.of(getEdgeInstances(e), exploratoryAndSparkInstances.get(e))
