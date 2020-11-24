@@ -50,6 +50,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.epam.datalab.dto.UserInstanceStatus.CONFIGURING;
+import static com.epam.datalab.dto.UserInstanceStatus.CREATING;
+import static com.epam.datalab.dto.UserInstanceStatus.FAILED;
+import static com.epam.datalab.dto.UserInstanceStatus.RUNNING;
+import static com.epam.datalab.dto.UserInstanceStatus.STARTING;
+import static com.epam.datalab.dto.UserInstanceStatus.STOPPED;
+import static com.epam.datalab.dto.UserInstanceStatus.STOPPING;
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATING;
+
 @Slf4j
 public class OdahuServiceImpl implements OdahuService {
 
@@ -92,15 +101,15 @@ public class OdahuServiceImpl implements OdahuService {
 	@Override
 	public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
 		log.info("Trying to create odahu cluster for project: " + project);
-		boolean activeCluster = odahuDAO.findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
-				.noneMatch(o -> !o.getStatus().equals(UserInstanceStatus.FAILED) && !o.getStatus().equals(UserInstanceStatus.TERMINATED));
-		if (!activeCluster) {
+		final boolean activeCluster = odahuDAO.findOdahuClusters(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()).stream()
+				.anyMatch(o -> Arrays.asList(CREATING, RUNNING, STARTING, STOPPING, STOPPED, CONFIGURING, TERMINATING).contains(o.getStatus()));
+		if (activeCluster) {
 			throw new ResourceConflictException(String.format("Odahu cluster already exist in system for project %s " +
 					"and endpoint %s", odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()));
 		}
 		ProjectDTO projectDTO = projectService.get(project);
 		boolean isAdded = odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
-				odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags(odahuCreateDTO)));
+				odahuCreateDTO.getEndpoint(), CREATING, getTags(odahuCreateDTO)));
 		if (isAdded) {
 			String url = null;
 			EndpointDTO endpointDTO = endpointService.get(odahuCreateDTO.getEndpoint());
@@ -112,8 +121,7 @@ public class OdahuServiceImpl implements OdahuService {
 				requestId.put(user.getName(), uuid);
 			} catch (Exception e) {
 				log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
-				odahuDAO.updateStatus(odahuCreateDTO.getName(), odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint(),
-						UserInstanceStatus.FAILED);
+				odahuDAO.updateStatus(odahuCreateDTO.getName(), odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint(), FAILED);
 			}
 		} else {
 			throw new DatalabException(String.format("The odahu fields of the %s can not be updated in DB.", project));
@@ -124,14 +132,14 @@ public class OdahuServiceImpl implements OdahuService {
 	@Override
 	public void start(String name, @Project String project, String endpoint, UserInfo user) {
 		log.info("Trying to start odahu cluster for project: " + project);
-		odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.STARTING);
+		odahuDAO.updateStatus(name, project, endpoint, STARTING);
 		actionOnCloud(user, START_ODAHU_API, name, project, endpoint);
 	}
 
 	@Override
 	public void stop(String name, String project, String endpoint, UserInfo user) {
 		log.info("Trying to stop odahu cluster for project: " + project);
-		odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.STOPPING);
+		odahuDAO.updateStatus(name, project, endpoint, STOPPING);
 		actionOnCloud(user, STOP_ODAHU_API, name, project, endpoint);
 	}
 
@@ -140,10 +148,10 @@ public class OdahuServiceImpl implements OdahuService {
 		log.info("Trying to terminate odahu cluster for project: " + project);
 		odahuDAO.findOdahuClusters(project, endpoint).stream()
 				.filter(odahuDTO -> name.equals(odahuDTO.getName())
-						&& !odahuDTO.getStatus().equals(UserInstanceStatus.FAILED))
+						&& !odahuDTO.getStatus().equals(FAILED))
 				.forEach(odahuDTO -> {
-					if (UserInstanceStatus.RUNNING == odahuDTO.getStatus()) {
-						odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
+					if (RUNNING == odahuDTO.getStatus()) {
+						odahuDAO.updateStatus(name, project, endpoint, TERMINATING);
 						actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
 					} else {
 						log.error("Cannot terminate odahu cluster {}", odahuDTO);
@@ -164,8 +172,7 @@ public class OdahuServiceImpl implements OdahuService {
 	@Override
 	public boolean inProgress(String project, String endpoint) {
 		return get(project, endpoint)
-				.filter(odahu -> Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
-						UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING).contains(odahu.getStatus()))
+				.filter(odahu -> Arrays.asList(CREATING, STARTING, STOPPING, TERMINATING).contains(odahu.getStatus()))
 				.isPresent();
 	}
 
@@ -182,7 +189,7 @@ public class OdahuServiceImpl implements OdahuService {
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
 			log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
-			odahuDAO.updateStatus(name, project, project, UserInstanceStatus.FAILED);
+			odahuDAO.updateStatus(name, project, project, FAILED);
 		}
 	}
 
