@@ -28,9 +28,13 @@ TOKEN = sys.argv[2]
 
 
 def get_sonarqube_status():
-    response = requests.get('http://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
-                            auth=(TOKEN, '')).json()
-    return response['projectStatus']['status']
+    try:
+        response = requests.get('http://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
+                                auth=(TOKEN, '')).json()
+        return response['projectStatus']['status']
+    except requests.exceptions.ConnectionError as e:
+        print('Cannot access SonarQube due to: ', e)
+        return 'FAILED'
 
 
 print(get_sonarqube_status())

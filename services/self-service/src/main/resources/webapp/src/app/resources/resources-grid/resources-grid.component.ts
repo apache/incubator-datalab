@@ -246,16 +246,15 @@ export class ResourcesGridComponent implements OnInit {
           () => this.buildGrid(),
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
-      // this.dialog.open(ReconfirmationDialogComponent, {
-      //   data: { notebooks: [data], type: 'notebook', action }, width: '550px', panelClass: 'error-modalbox'
-      // })
-      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
+      const compute =  data.resources.filter(cluster => cluster.status === 'running');
+      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, compute, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe((res) => {
         res && this.buildGrid();
       });
     } else if (action === 'terminate') {
+      const compute =  data.resources.filter(cluster => cluster.status === 'running' || cluster.status === 'stopped');
       this.dialog.open(ConfirmationDialogComponent, { data:
-          { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
+          { notebook: data, compute, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'install') {
       this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })

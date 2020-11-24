@@ -35,13 +35,13 @@
         <mat-label>New folder</mat-label>
         <input matInput #itemValue [formControl]="folderFormControl" [errorStateMatcher]="matcher">
         <mat-error *ngIf="!folderFormControl.hasError('required') && !folderFormControl.hasError('isDuplicate')">
-          The folder name can only contain Latin letters, numbers and special characters except for #, ?, /, \, %"
+          The folder name can only contain Latin letters, numbers and special characters except for #, ?, /, \, %."
         </mat-error>
         <mat-error *ngIf="folderFormControl.hasError('required')">
-          Folder name is <strong>required</strong>
+          Folder name is <strong>required</strong>.
         </mat-error>
         <mat-error *ngIf="folderFormControl.hasError('isDuplicate')">
-          Folder with this name already exists
+          Folder with this name already exists.
         </mat-error>
         <mat-hint *ngIf="cloud === 'azure'">If you do not upload any object to the folder, this folder will be removed on MS Azure</mat-hint>
       </mat-form-field>

@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATED;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -57,6 +58,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndpointServiceImplTest extends TestBase {
@@ -274,6 +276,19 @@ public class EndpointServiceImplTest extends TestBase {
         endpointService.remove(getUserInfo(), ENDPOINT_NAME);
     }
 
+    @Test
+    public void removeEndpointInAllProjectsTest() {
+        List<ProjectDTO> projectDTOs = getProjectDTOsWithDiffStatuses();
+
+        endpointService.removeEndpointInAllProjects(getUserInfo(), ENDPOINT_NAME, projectDTOs);
+        long notTerminatedProjects = projectDTOs.stream()
+                .filter(p -> p.getEndpoints().stream()
+                        .noneMatch(e -> e.getStatus() == TERMINATED))
+                .count();
+
+        verify(projectService, times((int) notTerminatedProjects)).terminateEndpoint(any(), anyString(), any());
+    }
+
     private List<UserInstanceDTO> getUserInstances() {
         return Arrays.asList(
                 new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject(PROJECT_NAME_1).withEndpoint(ENDPOINT_NAME),
@@ -300,6 +315,26 @@ public class EndpointServiceImplTest extends TestBase {
                 .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING, null)))
                 .build();
         return Arrays.asList(project1, project2);
+    }
+
+    private List<ProjectDTO> getProjectDTOsWithDiffStatuses() {
+        ProjectDTO project1 = ProjectDTO.builder()
+                .name(PROJECT_NAME_1)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING, null)))
+                .build();
+        ProjectDTO project2 = ProjectDTO.builder()
+                .name(PROJECT_NAME_2)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, TERMINATED, null)))
+                .build();
+        ProjectDTO project3 = ProjectDTO.builder()
+                .name(PROJECT_NAME_1)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.CREATED, null)))
+                .build();
+        ProjectDTO project4 = ProjectDTO.builder()
+                .name(PROJECT_NAME_2)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, TERMINATED, null)))
+                .build();
+        return Arrays.asList(project1, project2, project3, project4);
     }
 
     private List<ProjectDTO> getCreatingProjectDTO() {

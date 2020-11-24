@@ -17,19 +17,30 @@
  * under the License.
  */
 
-import {Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject, HostListener} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Input,
+  Output,
+  EventEmitter,
+  Inject,
+  HostListener,
+  AfterViewInit,
+  AfterViewChecked,
+  ApplicationRef
+} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { HealthStatusService } from '../../../core/services';
 import { SortUtils } from '../../../core/util';
-import { ConfirmationDialogType } from '../../../shared';
-import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
 import { EnvironmentsDataService } from '../management-data.service';
 import { EnvironmentModel, ManagementConfigModel } from '../management.model';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {DetailDialogComponent} from '../../../resources/exploratory/detail-dialog';
 import {BehaviorSubject, Subject, timer} from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 export interface ManageAction {
   action: string;
@@ -46,7 +57,7 @@ export interface ManageAction {
     '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
   ]
 })
-export class ManagementGridComponent implements OnInit {
+export class ManagementGridComponent implements OnInit, AfterViewInit, AfterViewChecked {
   allEnvironmentData: Array<any>;
   allFilteredEnvironmentData: Array<any>;
   loading: boolean = false;
@@ -69,10 +80,10 @@ export class ManagementGridComponent implements OnInit {
   @ViewChild('wrapper') wrapper;
   @ViewChild('pageWrapper') pageWrapper;
   @ViewChild('table') table;
+  private tableWrapperWidth: number;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
-    this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
     this.checkMaxRight();
   }
 
@@ -88,7 +99,6 @@ export class ManagementGridComponent implements OnInit {
   private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], [], []);
   public isFilterSelected: boolean;
   public isFilterChanged: boolean;
-  private isScrollButtonsVisible: boolean;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -96,16 +106,28 @@ export class ManagementGridComponent implements OnInit {
     public toastr: ToastrService,
     public dialog: MatDialog,
     private progressBarService: ProgressBarService,
+    private cdRef: ChangeDetectorRef,
+    private applicationRef: ApplicationRef,
   ) { }
 
   ngOnInit() {
-  this.getEnvironmentData();
-    timer(1000)
-      .subscribe(() => {
-      this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
-      this.checkMaxRight();
-      this.tableEl = this.table._elementRef.nativeElement;
-    });
+    this.getEnvironmentData();
+  }
+
+
+  ngAfterViewInit() {
+    this.tableEl = this.table._elementRef.nativeElement;
+    this.checkMaxRight();
+  }
+
+  ngAfterViewChecked() {
+    if (this.tableWrapperWidth !== this.wrapper.nativeElement.offsetWidth) {
+      this.tableWrapperWidth = this.wrapper.nativeElement.offsetWidth;
+      timer(100).subscribe(_ => {
+        this.applicationRef.tick();
+      });
+    }
+    this.cdRef.detectChanges();
   }
 
   getEnvironmentData() {
@@ -217,17 +239,12 @@ export class ManagementGridComponent implements OnInit {
   }
 
   public inProgress(resources) {
-    return resources.filter(resource => (
+    return resources.some(resource => (
       resource.status !== 'failed'
       && resource.status !== 'terminated'
       && resource.status !== 'running'
-      && resource.status !== 'stopped')).length > 0;
+      && resource.status !== 'stopped'));
   }
-
-  public isActiveResources(item) {
-    if (item.resources.length) return item.resources.some(e => e.status !== 'terminated');
-  }
-
 
   private getDefaultFilterConfiguration(data): void {
     const users = [], projects = [], shapes = [], statuses = [], resources = [], endpoints = [];
