@@ -40,7 +40,6 @@ import org.quartz.JobExecutionContext;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,122 +49,118 @@ import java.util.stream.Stream;
 @Scheduled("checkInfrastructureStatusScheduler")
 public class CheckInfrastructureStatusScheduler implements Job {
 
-	private static final List<UserInstanceStatus> statusesToCheck = Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STOPPED);
+    private static final List<UserInstanceStatus> statusesToCheck = Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STOPPED);
 
-	private final InfrastructureInfoService infrastructureInfoService;
-	private final SecurityService securityService;
-	private final EndpointService endpointService;
-	private final ExploratoryDAO exploratoryDAO;
-	private final ProjectService projectService;
+    private final InfrastructureInfoService infrastructureInfoService;
+    private final SecurityService securityService;
+    private final EndpointService endpointService;
+    private final ExploratoryDAO exploratoryDAO;
+    private final ProjectService projectService;
 
-	@Inject
-	public CheckInfrastructureStatusScheduler(InfrastructureInfoService infrastructureInfoService, SecurityService securityService,
-	                                          EndpointService endpointService, ExploratoryDAO exploratoryDAO, ProjectService projectService) {
-		this.infrastructureInfoService = infrastructureInfoService;
-		this.securityService = securityService;
-		this.endpointService = endpointService;
-		this.exploratoryDAO = exploratoryDAO;
-		this.projectService = projectService;
-	}
+    @Inject
+    public CheckInfrastructureStatusScheduler(InfrastructureInfoService infrastructureInfoService, SecurityService securityService,
+                                              EndpointService endpointService, ExploratoryDAO exploratoryDAO, ProjectService projectService) {
+        this.infrastructureInfoService = infrastructureInfoService;
+        this.securityService = securityService;
+        this.endpointService = endpointService;
+        this.exploratoryDAO = exploratoryDAO;
+        this.projectService = projectService;
+    }
 
-	@Override
-	public void execute(JobExecutionContext context) {
-		UserInfo serviceUser = securityService.getServiceAccountInfo("admin");
+    @Override
+    public void execute(JobExecutionContext context) {
+        UserInfo serviceUser = securityService.getServiceAccountInfo("admin");
 
-		List<String> activeEndpoints = endpointService.getEndpointsWithStatus(EndpointDTO.EndpointStatus.ACTIVE)
-				.stream()
-				.map(EndpointDTO::getName)
-				.collect(Collectors.toList());
+        List<String> activeEndpoints = endpointService.getEndpointsWithStatus(EndpointDTO.EndpointStatus.ACTIVE)
+                .stream()
+                .map(EndpointDTO::getName)
+                .collect(Collectors.toList());
 
-		List<UserInstanceDTO> userInstanceDTOS = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusIn(activeEndpoints, statusesToCheck, Boolean.TRUE);
+        List<UserInstanceDTO> userInstanceDTOS = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusIn(activeEndpoints, statusesToCheck, Boolean.TRUE);
 
-		Map<String, List<EnvResource>> exploratoryAndSparkInstances = userInstanceDTOS
-				.stream()
-				.collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getExploratoryAndSparkInstances));
+        Map<String, List<EnvResource>> exploratoryAndSparkInstances = userInstanceDTOS
+                .stream()
+                .collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getExploratoryAndSparkInstances));
 
-		Map<String, List<EnvResource>> clusterInstances = userInstanceDTOS
-				.stream()
-				.collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getCloudInstances));
+        Map<String, List<EnvResource>> clusterInstances = userInstanceDTOS
+                .stream()
+                .collect(Collectors.toMap(UserInstanceDTO::getEndpoint, this::getCloudInstances));
 
-		activeEndpoints.forEach(e -> {
-					List<EnvResource> hostInstances = Stream.of(getEdgeInstances(e), exploratoryAndSparkInstances.get(e))
-							.flatMap(Collection::stream)
-							.collect(Collectors.toList());
+        activeEndpoints.forEach(e -> {
+                    List<EnvResource> hostInstances = Stream.of(getEdgeInstances(e), exploratoryAndSparkInstances.get(e))
+                            .flatMap(Collection::stream)
+                            .collect(Collectors.toList());
 
-			List<EnvResource> cloudInstances = Stream.of(getEdgeInstances(e), clusterInstances.get(e))
-					.flatMap(Collection::stream)
-					.collect(Collectors.toList());
+                    infrastructureInfoService.updateInfrastructureStatuses(serviceUser, e, hostInstances, clusterInstances.get(e));
+                }
+        );
+    }
 
-					infrastructureInfoService.updateInfrastructureStatuses(serviceUser, e, hostInstances, cloudInstances);
-				}
-		);
-	}
+    private List<EnvResource> getExploratoryAndSparkInstances(UserInstanceDTO userInstanceDTO) {
+        List<EnvResource> instances = userInstanceDTO.getResources()
+                .stream()
+                .filter(c -> DataEngineType.SPARK_STANDALONE == DataEngineType.fromDockerImageName(c.getImageName()))
+                .filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))
+                .map(r -> new EnvResource()
+                        .withId(r.getInstanceId())
+                        .withName(r.getComputationalName())
+                        .withProject(userInstanceDTO.getProject())
+                        .withEndpoint(userInstanceDTO.getEndpoint())
+                        .withStatus(r.getStatus())
+                        .withResourceType(ResourceType.COMPUTATIONAL))
+                .collect(Collectors.toList());
 
-	private List<EnvResource> getExploratoryAndSparkInstances(UserInstanceDTO userInstanceDTO) {
-		List<EnvResource> instances = userInstanceDTO.getResources()
-				.stream()
-				.filter(c -> DataEngineType.SPARK_STANDALONE == DataEngineType.fromDockerImageName(c.getImageName()))
-				.filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))
-				.map(r -> new EnvResource()
-						.withId(r.getInstanceId())
-						.withName(r.getComputationalName())
-						.withProject(userInstanceDTO.getProject())
-						.withEndpoint(userInstanceDTO.getEndpoint())
-						.withStatus(r.getStatus())
-						.withResourceType(ResourceType.COMPUTATIONAL))
-				.collect(Collectors.toList());
+        instances.add(new EnvResource()
+                .withId(userInstanceDTO.getInstanceId())
+                .withName(userInstanceDTO.getExploratoryName())
+                .withProject(userInstanceDTO.getProject())
+                .withEndpoint(userInstanceDTO.getEndpoint())
+                .withStatus(userInstanceDTO.getStatus())
+                .withResourceType(ResourceType.EXPLORATORY));
 
-		instances.add(new EnvResource()
-				.withId(userInstanceDTO.getInstanceId())
-				.withName(userInstanceDTO.getExploratoryName())
-				.withProject(userInstanceDTO.getProject())
-				.withEndpoint(userInstanceDTO.getEndpoint())
-				.withStatus(userInstanceDTO.getStatus())
-				.withResourceType(ResourceType.EXPLORATORY));
+        return instances;
+    }
 
-		return instances;
-	}
-
-	private List<EnvResource> getCloudInstances(UserInstanceDTO userInstanceDTO) {
-		return userInstanceDTO.getResources().stream()
-				.filter(c -> DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(c.getImageName()))
-				.filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))
-				.map(r -> new EnvResource()
-						.withId(r.getInstanceId())
-						.withName(r.getComputationalName())
-						.withProject(userInstanceDTO.getProject())
-						.withEndpoint(userInstanceDTO.getEndpoint())
-						.withStatus(r.getStatus())
-						.withResourceType(ResourceType.COMPUTATIONAL))
-				.collect(Collectors.toList());
-	}
+    private List<EnvResource> getCloudInstances(UserInstanceDTO userInstanceDTO) {
+        return userInstanceDTO.getResources().stream()
+                .filter(c -> DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(c.getImageName()))
+                .filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))
+                .map(r -> new EnvResource()
+                        .withId(r.getInstanceId())
+                        .withName(r.getComputationalName())
+                        .withProject(userInstanceDTO.getProject())
+                        .withEndpoint(userInstanceDTO.getEndpoint())
+                        .withStatus(r.getStatus())
+                        .withResourceType(ResourceType.COMPUTATIONAL))
+                .collect(Collectors.toList());
+    }
 
 
-	private List<EnvResource> getEdgeInstances(String endpoint) {
-		return projectService.getProjectsByEndpoint(endpoint)
-				.stream()
-				.collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
-				.entrySet()
-				.stream()
-				.map(entry -> getEdgeInstances(endpoint, entry))
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
-	}
+    private List<EnvResource> getEdgeInstances(String endpoint) {
+        return projectService.getProjectsByEndpoint(endpoint)
+                .stream()
+                .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
+                .entrySet()
+                .stream()
+                .map(entry -> getEdgeInstances(endpoint, entry))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
 
-	private List<EnvResource> getEdgeInstances(String endpoint, Map.Entry<String, List<ProjectEndpointDTO>> entry) {
-		return entry.getValue()
-				.stream()
-				.filter(e -> statusesToCheck.contains(e.getStatus()))
-				.filter(e -> e.getName().equals(endpoint))
-				.filter(e -> Objects.nonNull(e.getEdgeInfo()))
-				.map(e -> new EnvResource()
-						.withId(e.getEdgeInfo().getInstanceId())
-						.withName(e.getName())
-						.withProject(entry.getKey())
-						.withEndpoint(endpoint)
-						.withStatus(e.getStatus().toString())
-						.withResourceType(ResourceType.EDGE)
-				)
-				.collect(Collectors.toList());
-	}
+    private List<EnvResource> getEdgeInstances(String endpoint, Map.Entry<String, List<ProjectEndpointDTO>> entry) {
+        return entry.getValue()
+                .stream()
+                .filter(e -> statusesToCheck.contains(e.getStatus()))
+                .filter(e -> e.getName().equals(endpoint))
+                .filter(e -> Objects.nonNull(e.getEdgeInfo()))
+                .map(e -> new EnvResource()
+                        .withId(e.getEdgeInfo().getInstanceId())
+                        .withName(e.getName())
+                        .withProject(entry.getKey())
+                        .withEndpoint(endpoint)
+                        .withStatus(e.getStatus().toString())
+                        .withResourceType(ResourceType.EDGE)
+                )
+                .collect(Collectors.toList());
+    }
 }
