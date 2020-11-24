@@ -32,11 +32,7 @@ import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.and;
@@ -83,9 +79,8 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
                 ProjectDTO.class);
 
         return projectDTO.map(p -> p.getOdahu().stream()
-                .filter(odahu -> project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
-                .collect(Collectors.toList()))
-                .orElseThrow(() -> new DlabException("Unable to find the odahu clusters in the " + project));
+                .filter(odahu ->  project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
+                .collect(Collectors.toList())).orElse(new ArrayList<>());
     }
 
     @Override
