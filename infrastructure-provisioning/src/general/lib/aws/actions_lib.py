@@ -784,6 +784,21 @@ def disassociate_elastic_ip(association_id):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def create_nat_gateway(allocation_id, subnet_id, project_name):
+    try:
+        client = boto3.client('ec2')
+        client.create_nat_gateway(AllocationId=allocation_id, SubnetId=subnet_id, TagSpecifications=[
+                                        {
+                                            'ResourceType': 'natgateway',
+                                            'Tags': [{'Key': 'Name', 'Value': '{}-nat'.format(project_name)}]
+                                        }])
+    except Exception as err:
+        logging.info("Unable to create NAT Gateway: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to create NAT Gateway",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
 
 def remove_ec2(tag_name, tag_value):
     try:
