@@ -327,7 +327,7 @@
     "_id": "bucketBrowserView",
     "description": "Allow to view object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "AWS",
     "pages": [
       "/api/bucket/view"
     ],
@@ -339,7 +339,7 @@
     "_id": "bucketBrowserUpload",
     "description": "Allow to upload object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "AWS",
     "pages": [
       "/api/bucket/upload"
     ],
@@ -351,7 +351,7 @@
     "_id": "bucketBrowserDownload",
     "description": "Allow to download object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "AWS",
     "pages": [
       "/api/bucket/download"
     ],
@@ -363,7 +363,7 @@
     "_id": "bucketBrowserDelete",
     "description": "Allow to delete object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "AWS",
     "pages": [
       "/api/bucket/delete"
     ],
