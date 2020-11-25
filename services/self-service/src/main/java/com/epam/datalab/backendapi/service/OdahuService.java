@@ -17,38 +17,31 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.resources.dto;
+package com.epam.datalab.backendapi.service;
 
-import com.epam.datalab.backendapi.domain.BillingReport;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
+import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.domain.OdahuCreateDTO;
 import com.epam.datalab.backendapi.domain.OdahuDTO;
-import com.epam.datalab.dto.UserInstanceDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import com.epam.datalab.dto.UserInstanceStatus;
+import com.epam.datalab.dto.base.odahu.OdahuResult;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-@AllArgsConstructor
-@Builder
-@EqualsAndHashCode
-@ToString
-public class ProjectInfrastructureInfo {
-	@JsonProperty
-	private String project;
-	@JsonProperty
-	private int billingQuoteUsed;
-	@JsonProperty
-	private Map<String, Map<String, String>> shared;
-	@JsonProperty
-	private List<UserInstanceDTO> exploratory;
-	@JsonProperty
-	private List<BillingReport> exploratoryBilling;
-	@JsonProperty
-	private List<OdahuDTO> odahu;
-	@JsonProperty
-	private List<EndpointDTO> endpoints;
+public interface OdahuService {
+	List<OdahuDTO> findOdahu();
+
+	Optional<OdahuDTO> get(String project, String endpoint);
+
+	void create(String project, OdahuCreateDTO createOdahuDTO, UserInfo userInfo);
+
+	void start(String name, String project, String endpoint, UserInfo user);
+
+	void stop(String name, String project, String endpoint, UserInfo user);
+
+	void terminate(String name, String project, String endpoint, UserInfo user);
+
+	void updateStatus(OdahuResult odahuResult, UserInstanceStatus status);
+
+	boolean inProgress(String project, String endpoint);
 }

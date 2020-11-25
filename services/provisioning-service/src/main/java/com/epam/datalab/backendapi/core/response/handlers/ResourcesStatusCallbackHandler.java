@@ -47,7 +47,7 @@ import static com.epam.datalab.rest.contracts.ApiCallbacks.STATUS_URI;
 @Slf4j
 public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvStatusDTO> {
 
-    private Map<String, EnvResource> datalabHostResources;
+    private final Map<String, EnvResource> datalabHostResources;
 
     @JsonCreator
     public ResourcesStatusCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,

@@ -16,24 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.epam.datalab.model;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+package com.epam.datalab.backendapi.domain;
 
-public enum ResourceEnum {
-    EDGE_NODE("edge node"),
-    NOTEBOOK("notebook"),
-    ODAHU("odahu");
+import com.epam.datalab.dto.ResourceURL;
+import com.epam.datalab.dto.UserInstanceStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-    private String name;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-    ResourceEnum(String name) {
-        this.name = name;
-    }
 
-    @JsonValue
-    @Override
-    public String toString() {
-        return name;
-    }
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OdahuDTO {
+    private final String name;
+    private final String project;
+    private final String endpoint;
+    @JsonProperty("grafana_admin")
+    private String grafanaAdmin;
+    @JsonProperty("grafana_pass")
+    private String grafanaPassword;
+    private final List<ResourceURL> urls = new ArrayList<>();
+    private final UserInstanceStatus status;
+    private final Map<String, String> tags;
 }

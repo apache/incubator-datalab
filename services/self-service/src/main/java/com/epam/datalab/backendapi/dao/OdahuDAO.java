@@ -16,24 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.epam.datalab.model;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+package com.epam.datalab.backendapi.dao;
 
-public enum ResourceEnum {
-    EDGE_NODE("edge node"),
-    NOTEBOOK("notebook"),
-    ODAHU("odahu");
+import com.epam.datalab.backendapi.domain.OdahuDTO;
+import com.epam.datalab.backendapi.domain.OdahuFieldsDTO;
+import com.epam.datalab.dto.UserInstanceStatus;
+import com.epam.datalab.dto.base.odahu.OdahuResult;
 
-    private String name;
+import java.util.List;
+import java.util.Optional;
 
-    ResourceEnum(String name) {
-        this.name = name;
-    }
+public interface OdahuDAO {
+    Optional<OdahuDTO> getByProjectEndpoint(String project, String endpoint);
 
-    @JsonValue
-    @Override
-    public String toString() {
-        return name;
-    }
+    OdahuFieldsDTO getFields(String name, String project, String endpoint);
+
+    List<OdahuDTO> findOdahuClusters();
+
+    List<OdahuDTO> findOdahuClusters(String project, String endpoint);
+
+    boolean create(OdahuDTO odahuDTO);
+
+    void updateStatus(String name, String project, String endpoint, UserInstanceStatus status);
+
+    void updateStatusAndUrls(OdahuResult result, UserInstanceStatus status);
 }

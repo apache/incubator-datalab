@@ -25,6 +25,7 @@ import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.dao.UserGroupDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
+import com.epam.datalab.backendapi.domain.OdahuDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.datalab.backendapi.domain.RequestId;
@@ -93,25 +94,27 @@ public class ProjectServiceImplTest extends TestBase {
     private RESTService provisioningService;
     @Mock
     private RequestBuilder requestBuilder;
-    @Mock
-    private RequestId requestId;
-    @Mock
-    private ExploratoryService exploratoryService;
-    @Mock
-    private ExploratoryDAO exploratoryDAO;
-    @Mock
-    private UserGroupDAO userGroupDao;
-    @Mock
-    private SelfServiceApplicationConfiguration configuration;
-    @InjectMocks
-    private ProjectServiceImpl projectService;
+	@Mock
+	private RequestId requestId;
+	@Mock
+	private ExploratoryService exploratoryService;
+	@Mock
+	private ExploratoryDAO exploratoryDAO;
+	@Mock
+	private UserGroupDAO userGroupDao;
+	@Mock
+	private SelfServiceApplicationConfiguration configuration;
+	@Mock
+	private OdahuService odahuService;
+	@InjectMocks
+	private ProjectServiceImpl projectService;
 
-    @Test
-    public void getProjects() {
-        List<ProjectDTO> projectsMock = getProjectDTOs();
-        when(projectDAO.getProjects()).thenReturn(projectsMock);
+	@Test
+	public void getProjects() {
+		List<ProjectDTO> projectsMock = getProjectDTOs();
+		when(projectDAO.getProjects()).thenReturn(projectsMock);
 
-        List<ProjectDTO> projects = projectService.getProjects();
+		List<ProjectDTO> projects = projectService.getProjects();
 
         assertEquals(projects, projectsMock);
         verify(projectDAO).getProjects();
@@ -226,79 +229,102 @@ public class ProjectServiceImplTest extends TestBase {
 
     @Test
     public void terminateEndpoint() {
-        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
-        when(provisioningService.post(anyString(), anyString(), any(), any())).thenReturn(UUID);
-        when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
+	    when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
+	    when(provisioningService.post(anyString(), anyString(), any(), any())).thenReturn(UUID);
+	    when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
+	    when(odahuService.get(anyString(), anyString())).thenReturn(getOdahu());
 
-        projectService.terminateEndpoint(getUserInfo(), ENDPOINT_NAME, NAME1);
+	    projectService.terminateEndpoint(getUserInfo(), ENDPOINT_NAME, NAME1);
 
-        verify(exploratoryService).updateProjectExploratoryStatuses(getUserInfo(), NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
-        verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
-        verify(endpointService).get(ENDPOINT_NAME);
-        verify(provisioningService).post(ENDPOINT_URL + TERMINATE_PRJ_API, TOKEN, getProjectActionDTO(), String.class);
-        verify(requestBuilder).newProjectAction(getUserInfo(), NAME1, getEndpointDTO());
-        verify(requestId).put(USER.toLowerCase(), UUID);
-        verifyNoMoreInteractions(projectDAO, endpointService, provisioningService, requestBuilder, exploratoryService);
+	    verify(exploratoryService).updateProjectExploratoryStatuses(getUserInfo(), NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
+	    verify(odahuService).get(NAME1, ENDPOINT_NAME);
+	    verify(odahuService).terminate("name", NAME1, ENDPOINT_NAME, getUserInfo());
+	    verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
+	    verify(endpointService).get(ENDPOINT_NAME);
+	    verify(provisioningService).post(ENDPOINT_URL + TERMINATE_PRJ_API, TOKEN, getProjectActionDTO(), String.class);
+	    verify(requestBuilder).newProjectAction(getUserInfo(), NAME1, getEndpointDTO());
+	    verify(requestId).put(USER.toLowerCase(), UUID);
+	    verifyNoMoreInteractions(projectDAO, endpointService, provisioningService, requestBuilder, exploratoryService, odahuService);
     }
 
     @Test
     public void terminateEndpointWithException() {
-        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
-        when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
-        when(provisioningService.post(anyString(), anyString(), any(), any())).thenThrow(new DatalabException("Exception message"));
+	    when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
+	    when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
+	    when(provisioningService.post(anyString(), anyString(), any(), any())).thenThrow(new DatalabException("Exception message"));
+	    when(odahuService.get(anyString(), anyString())).thenReturn(getOdahu());
 
-        projectService.terminateEndpoint(getUserInfo(), ENDPOINT_NAME, NAME1);
+	    projectService.terminateEndpoint(getUserInfo(), ENDPOINT_NAME, NAME1);
 
-        verify(exploratoryService).updateProjectExploratoryStatuses(getUserInfo(), NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
-        verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
-        verify(projectDAO).updateStatus(NAME1, ProjectDTO.Status.FAILED);
-        verify(endpointService).get(ENDPOINT_NAME);
-        verify(provisioningService).post(ENDPOINT_URL + TERMINATE_PRJ_API, TOKEN, getProjectActionDTO(), String.class);
-        verify(requestBuilder).newProjectAction(getUserInfo(), NAME1, getEndpointDTO());
-        verifyNoMoreInteractions(projectDAO, endpointService, provisioningService, requestBuilder, exploratoryService);
+	    verify(exploratoryService).updateProjectExploratoryStatuses(getUserInfo(), NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
+	    verify(odahuService).get(NAME1, ENDPOINT_NAME);
+	    verify(odahuService).terminate("name", NAME1, ENDPOINT_NAME, getUserInfo());
+	    verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
+	    verify(projectDAO).updateStatus(NAME1, ProjectDTO.Status.FAILED);
+	    verify(endpointService).get(ENDPOINT_NAME);
+	    verify(provisioningService).post(ENDPOINT_URL + TERMINATE_PRJ_API, TOKEN, getProjectActionDTO(), String.class);
+	    verify(requestBuilder).newProjectAction(getUserInfo(), NAME1, getEndpointDTO());
+	    verifyNoMoreInteractions(projectDAO, endpointService, provisioningService, requestBuilder, exploratoryService, odahuService);
     }
 
     @Test
     public void testTerminateEndpoint() {
-        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
-        when(provisioningService.post(anyString(), anyString(), any(), any())).thenReturn(UUID);
-        when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
-        when(projectDAO.get(anyString())).thenReturn(Optional.of(getProjectRunningDTO()));
-        when(exploratoryDAO.fetchProjectEndpointExploratoriesWhereStatusIn(anyString(), anyListOf(String.class), anyListOf(UserInstanceStatus.class)))
-                .thenReturn(Collections.emptyList());
+	    when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
+	    when(provisioningService.post(anyString(), anyString(), any(), any())).thenReturn(UUID);
+	    when(odahuService.get(anyString(), anyString())).thenReturn(getOdahu());
+	    when(odahuService.inProgress(anyString(), anyString())).thenReturn(Boolean.FALSE);
+	    when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
+	    when(projectDAO.get(anyString())).thenReturn(Optional.of(getProjectRunningDTO()));
+	    when(exploratoryDAO.fetchProjectEndpointExploratoriesWhereStatusIn(anyString(), anyListOf(String.class), anyListOf(UserInstanceStatus.class)))
+			    .thenReturn(Collections.emptyList());
 
-        projectService.terminateEndpoint(getUserInfo(), Collections.singletonList(ENDPOINT_NAME), NAME1);
+	    projectService.terminateEndpoint(getUserInfo(), Collections.singletonList(ENDPOINT_NAME), NAME1);
 
-        verify(projectDAO).get(NAME1);
-        verify(exploratoryDAO).fetchProjectEndpointExploratoriesWhereStatusIn(NAME1, Collections.singletonList(ENDPOINT_NAME), notebookStatuses, computeStatuses);
-        verify(exploratoryService).updateProjectExploratoryStatuses(getUserInfo(), NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
-        verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
-        verify(endpointService).get(ENDPOINT_NAME);
-        verify(provisioningService).post(ENDPOINT_URL + TERMINATE_PRJ_API, TOKEN, getProjectActionDTO(), String.class);
-        verify(requestBuilder).newProjectAction(getUserInfo(), NAME1, getEndpointDTO());
-        verify(requestId).put(USER.toLowerCase(), UUID);
-        verifyNoMoreInteractions(projectDAO, endpointService, provisioningService, requestBuilder, exploratoryDAO);
+	    verify(projectDAO).get(NAME1);
+	    verify(exploratoryDAO).fetchProjectEndpointExploratoriesWhereStatusIn(NAME1, Collections.singletonList(ENDPOINT_NAME), notebookStatuses, computeStatuses);
+	    verify(exploratoryService).updateProjectExploratoryStatuses(getUserInfo(), NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
+	    verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.TERMINATING);
+	    verify(endpointService).get(ENDPOINT_NAME);
+	    verify(odahuService).get(NAME1, ENDPOINT_NAME);
+	    verify(odahuService).terminate("name", NAME1, ENDPOINT_NAME, getUserInfo());
+	    verify(odahuService).inProgress(NAME1, ENDPOINT_NAME);
+	    verify(provisioningService).post(ENDPOINT_URL + TERMINATE_PRJ_API, TOKEN, getProjectActionDTO(), String.class);
+	    verify(requestBuilder).newProjectAction(getUserInfo(), NAME1, getEndpointDTO());
+	    verify(requestId).put(USER.toLowerCase(), UUID);
+	    verifyNoMoreInteractions(projectDAO, endpointService, provisioningService, requestBuilder, exploratoryDAO, odahuService);
     }
 
-    @Test(expected = ResourceConflictException.class)
-    public void testTerminateEndpointWithException1() {
-        when(projectDAO.get(anyString())).thenReturn(Optional.of(getProjectCreatingDTO()));
+	@Test(expected = ResourceConflictException.class)
+	public void testTerminateEndpointWithException1() {
+		when(projectDAO.get(anyString())).thenReturn(Optional.of(getProjectCreatingDTO()));
 
-        projectService.terminateEndpoint(getUserInfo(), Collections.singletonList(ENDPOINT_NAME), NAME1);
+		projectService.terminateEndpoint(getUserInfo(), Collections.singletonList(ENDPOINT_NAME), NAME1);
 
-        verify(projectDAO).get(NAME1);
-        verifyNoMoreInteractions(projectDAO);
-    }
+		verify(projectDAO).get(NAME1);
+		verifyNoMoreInteractions(projectDAO);
+	}
 
-    @Test
-    public void start() {
-        when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
-        when(provisioningService.post(anyString(), anyString(), any(), any())).thenReturn(UUID);
-        when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
+	@Test(expected = ResourceConflictException.class)
+	public void testTerminateEndpointWithException2() {
+		when(projectDAO.get(anyString())).thenReturn(Optional.of(getProjectRunningDTO()));
+		when(odahuService.inProgress(anyString(), anyString())).thenReturn(Boolean.TRUE);
 
-        projectService.start(getUserInfo(), ENDPOINT_NAME, NAME1);
+		projectService.terminateEndpoint(getUserInfo(), Collections.singletonList(ENDPOINT_NAME), NAME1);
 
-        verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.STARTING);
+		verify(projectDAO).get(NAME1);
+		verify(odahuService).inProgress(NAME1, ENDPOINT_NAME);
+		verifyNoMoreInteractions(projectDAO, odahuService);
+	}
+
+	@Test
+	public void start() {
+		when(endpointService.get(anyString())).thenReturn(getEndpointDTO());
+		when(provisioningService.post(anyString(), anyString(), any(), any())).thenReturn(UUID);
+		when(requestBuilder.newProjectAction(any(UserInfo.class), anyString(), any(EndpointDTO.class))).thenReturn(getProjectActionDTO());
+
+		projectService.start(getUserInfo(), ENDPOINT_NAME, NAME1);
+
+		verify(projectDAO).updateEdgeStatus(NAME1, ENDPOINT_NAME, UserInstanceStatus.STARTING);
         verify(endpointService).get(ENDPOINT_NAME);
         verify(provisioningService).post(ENDPOINT_URL + START_PRJ_API, TOKEN, getProjectActionDTO(), String.class);
         verify(requestBuilder).newProjectAction(getUserInfo(), NAME1, getEndpointDTO());
@@ -427,21 +453,25 @@ public class ProjectServiceImplTest extends TestBase {
     }
 
     private Set<String> getGroup(String group) {
-        return Collections.singleton(group);
+	    return Collections.singleton(group);
     }
 
-    private ProjectCreateDTO newProjectCreate() {
-        return ProjectCreateDTO.builder()
-                .name(NAME1)
-                .endpoint(ENDPOINT_NAME)
-                .build();
-    }
+	private ProjectCreateDTO newProjectCreate() {
+		return ProjectCreateDTO.builder()
+				.name(NAME1)
+				.endpoint(ENDPOINT_NAME)
+				.build();
+	}
 
-    private ProjectActionDTO getProjectActionDTO() {
-        return new ProjectActionDTO(NAME1, ENDPOINT_NAME);
-    }
+	private Optional<OdahuDTO> getOdahu() {
+		return Optional.of(new OdahuDTO("name", NAME1, ENDPOINT_NAME, UserInstanceStatus.RUNNING, Collections.emptyMap()));
+	}
 
-    private UpdateProjectBudgetDTO getUpdateProjectBudgetDTO() {
-        return new UpdateProjectBudgetDTO(NAME1, 10, true);
-    }
+	private ProjectActionDTO getProjectActionDTO() {
+		return new ProjectActionDTO(NAME1, ENDPOINT_NAME);
+	}
+
+	private UpdateProjectBudgetDTO getUpdateProjectBudgetDTO() {
+		return new UpdateProjectBudgetDTO(NAME1, 10, true);
+	}
 }

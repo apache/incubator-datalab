@@ -16,24 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.epam.datalab.model;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+package com.epam.datalab.dto.odahu;
 
-public enum ResourceEnum {
-    EDGE_NODE("edge node"),
-    NOTEBOOK("notebook"),
-    ODAHU("odahu");
+import com.epam.datalab.dto.ResourceBaseDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
+import lombok.Data;
 
-    private String name;
-
-    ResourceEnum(String name) {
-        this.name = name;
-    }
-
-    @JsonValue
-    @Override
-    public String toString() {
-        return name;
-    }
+@Data
+@Builder
+public class CreateOdahuDTO extends ResourceBaseDTO<CreateOdahuDTO> {
+    @JsonProperty("odahu_cluster_name")
+    private final String name;
+    @JsonProperty("project_name")
+    private final String project;
+    @JsonProperty("endpoint_name")
+    private final String endpoint;
+    @JsonProperty("ssh_key")
+    private final String key;
 }

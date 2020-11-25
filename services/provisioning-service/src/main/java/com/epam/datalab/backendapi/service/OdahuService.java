@@ -16,24 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.epam.datalab.model;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+package com.epam.datalab.backendapi.service;
 
-public enum ResourceEnum {
-    EDGE_NODE("edge node"),
-    NOTEBOOK("notebook"),
-    ODAHU("odahu");
+import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.dto.odahu.ActionOdahuDTO;
+import com.epam.datalab.dto.odahu.CreateOdahuDTO;
 
-    private String name;
+public interface OdahuService {
+    String create(UserInfo userInfo, CreateOdahuDTO odahuCreateDTO);
 
-    ResourceEnum(String name) {
-        this.name = name;
-    }
+    String start(UserInfo userInfo, ActionOdahuDTO dto);
 
-    @JsonValue
-    @Override
-    public String toString() {
-        return name;
-    }
+    String stop(UserInfo userInfo, ActionOdahuDTO dto);
+
+    String terminate(UserInfo userInfo, ActionOdahuDTO dto);
 }

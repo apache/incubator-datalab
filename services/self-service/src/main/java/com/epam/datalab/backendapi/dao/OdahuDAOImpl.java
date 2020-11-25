@@ -85,7 +85,7 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
         return projectDTO.map(p -> p.getOdahu().stream()
                 .filter(odahu -> project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
                 .collect(Collectors.toList()))
-                .orElseThrow(() -> new DatalabException("Unable to find the odahu clusters in the " + project));
+                .orElse(new ArrayList<>());
     }
 
     @Override
@@ -94,7 +94,8 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
                 fields(include(ODAHU_FIELD), excludeId()))
                 .orElseThrow(() -> new DatalabException(project.toString() + " does not contain odahu " + name.toString() + " cluster"));
 
-        List<OdahuFieldsDTO> list = convertFromDocument(odahuDocument.get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {});
+        List<OdahuFieldsDTO> list = convertFromDocument(odahuDocument.get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {
+        });
         return list.stream()
                 .filter(odahuFieldsDTO -> name.equals(odahuFieldsDTO.getName()))
                 .findAny()

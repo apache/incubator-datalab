@@ -17,38 +17,30 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.resources.dto;
+package com.epam.datalab.dto.odahu;
 
-import com.epam.datalab.backendapi.domain.BillingReport;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
-import com.epam.datalab.backendapi.domain.OdahuDTO;
-import com.epam.datalab.dto.UserInstanceDTO;
+import com.epam.datalab.dto.ResourceBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
-
-@AllArgsConstructor
+@Data
 @Builder
-@EqualsAndHashCode
-@ToString
-public class ProjectInfrastructureInfo {
-	@JsonProperty
-	private String project;
-	@JsonProperty
-	private int billingQuoteUsed;
-	@JsonProperty
-	private Map<String, Map<String, String>> shared;
-	@JsonProperty
-	private List<UserInstanceDTO> exploratory;
-	@JsonProperty
-	private List<BillingReport> exploratoryBilling;
-	@JsonProperty
-	private List<OdahuDTO> odahu;
-	@JsonProperty
-	private List<EndpointDTO> endpoints;
+public class ActionOdahuDTO extends ResourceBaseDTO<ActionOdahuDTO> {
+    @JsonProperty("odahu_cluster_name")
+    private final String name;
+    @JsonProperty("project_name")
+    private final String project;
+    @JsonProperty("endpoint_name")
+    private final String endpoint;
+    @JsonProperty("ssh_key")
+    private final String key;
+    @JsonProperty("grafana_admin")
+    private String grafanaAdmin;
+    @JsonProperty("grafana_pass")
+    private String grafanaPassword;
+    @JsonProperty("oauth_cookie_secret")
+    private String oauthCookieSecret;
+    @JsonProperty("odahuflow_connection_decrypt_token")
+    private String decryptToken;
 }

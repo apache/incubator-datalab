@@ -41,6 +41,7 @@ import com.epam.datalab.backendapi.domain.UpdateProjectDTO;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.ExploratoryService;
+import com.epam.datalab.backendapi.service.OdahuService;
 import com.epam.datalab.backendapi.service.ProjectService;
 import com.epam.datalab.backendapi.util.RequestBuilder;
 import com.epam.datalab.constants.ServiceConsts;
@@ -94,14 +95,13 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectDAO projectDAO;
     private final UserGroupDAO userGroupDAO;
     private final ExploratoryDAO exploratoryDAO;
-
     private final ExploratoryService exploratoryService;
     private final RESTService provisioningService;
     private final EndpointService endpointService;
-
     private final RequestId requestId;
     private final RequestBuilder requestBuilder;
     private final SelfServiceApplicationConfiguration configuration;
+    private final OdahuService odahuService;
 
 
     @Inject
@@ -109,7 +109,8 @@ public class ProjectServiceImpl implements ProjectService {
                               UserGroupDAO userGroupDAO,
                               @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
                               RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
-                              ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration) {
+                              ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration,
+                              OdahuService odahuService) {
         this.projectDAO = projectDAO;
         this.exploratoryService = exploratoryService;
         this.userGroupDAO = userGroupDAO;
@@ -119,6 +120,7 @@ public class ProjectServiceImpl implements ProjectService {
         this.endpointService = endpointService;
         this.exploratoryDAO = exploratoryDAO;
         this.configuration = configuration;
+        this.odahuService = odahuService;
     }
 
     @Override
@@ -170,10 +172,12 @@ public class ProjectServiceImpl implements ProjectService {
     @Audit(action = TERMINATE, type = EDGE_NODE)
     @Override
     public void terminateEndpoint(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name) {
-
         projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
         projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
         exploratoryService.updateProjectExploratoryStatuses(userInfo, name, endpoint, UserInstanceStatus.TERMINATING);
+        odahuService.get(name, endpoint)
+                .filter(o -> UserInstanceStatus.RUNNING == o.getStatus())
+                .ifPresent(odahu -> odahuService.terminate(odahu.getName(), name, endpoint, userInfo));
     }
 
     @ProjectAdmin
@@ -337,17 +341,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
-        boolean edgeProgress = endpoints
+        boolean edgeAndOdahuProgress = endpoints
                 .stream()
                 .anyMatch(e ->
                         Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-                                UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+                                UserInstanceStatus.TERMINATING).contains(e.getStatus())
+                                || odahuService.inProgress(projectName, e.getName()));
 
         List<String> endpointNames = endpoints
                 .stream()
                 .map(ProjectEndpointDTO::getName)
                 .collect(Collectors.toList());
-        if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointNames)) {
+        if (edgeAndOdahuProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointNames)) {
             throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
                     "resource is in processing stage", action)));
         }
