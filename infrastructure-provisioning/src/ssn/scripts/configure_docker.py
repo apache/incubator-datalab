@@ -78,6 +78,31 @@ def add_china_repository(datalab_path):
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
+def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
+    if os.environ['conf_cloud_provider'] != 'gcp':
+        try:
+            sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
+                  'cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
+            sudo('apt-get -y install apt-transport-https ca-certificates gnupg')
+            sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
+            sudo('apt-get update')
+            sudo('apt-get -y install google-cloud-sdk')
+        except Exception as err:
+            traceback.print_exc()
+            print('Failed to install gcloud: ', str(err))
+            sys.exit(1)
+    try:
+        with open('/tmp/config', 'w') as f:
+            f.write(base64.b64decode(gcr_creds))
+        local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, env.host_string, os_user))
+        sudo('mkdir /home/{}/.docker'.format(os_user))
+        sudo('cp /tmp/config /home/{}/.docker/config.json'.format(os_user))
+        sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/{}/odahu_Dockerfile'
+             .format(odahu_image, datalab_path, cloud_provider))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to prepare odahu image: ', str(err))
+        sys.exit(1)
 
 def build_docker_images(image_list, region, datalab_path):
     try:
@@ -177,7 +202,10 @@ if __name__ == "__main__":
     if not ensure_docker_daemon(args.datalab_path, args.os_user, args.region):
         sys.exit(1)
 
-    print("Building DataLab images")
+    print("Login in Google Container Registry")
+    login_in_gcr(args.os_user, args.gcr_creds, args.odahu_image, args.datalab_path, args.cloud_provider)
+
+    print("Building Datalab images")
     count = 0
     while not build_docker_images(deeper_config, args.region, args.datalab_path) and count < 5:
         count += 1
