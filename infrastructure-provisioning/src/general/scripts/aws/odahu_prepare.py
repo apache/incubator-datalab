@@ -25,9 +25,9 @@ import logging
 import json
 import sys
 import requests
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from datalab.actions_lib import *
 import os
 
 if __name__ == "__main__":
