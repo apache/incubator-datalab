@@ -39,6 +39,8 @@ parser.add_argument('--datalab_path', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--odahu_image', type=str, default='')
+parser.add_argument('--gcr_creds', type=str, default='')
 args = parser.parse_args()
 
 
