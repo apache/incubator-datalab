@@ -55,7 +55,7 @@ public class UserRoleDTO {
         COMPUTATIONAL_SHAPE,
         BILLING,
         BUCKET_BROWSER,
-        ADMINISTRATION
+        ADMINISTRATION,
     }
 
     public static List<Type> cloudSpecificTypes() {

@@ -3,7 +3,7 @@
     "_id": "nbBillingReportFull",
     "description": "View full billing report for all users",
     "type": "BILLING",
-    "cloud": "AZURE",
+    "cloud": "GENERAL",
     "pages": [
       "/api/infrastructure_provision/billing"
     ],
@@ -15,7 +15,7 @@
     "_id": "bucketBrowserView",
     "description": "Allow to view object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "GENERAL",
     "pages": [
       "/api/bucket/view"
     ],
@@ -27,7 +27,7 @@
     "_id": "bucketBrowserUpload",
     "description": "Allow to upload object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "GENERAL",
     "pages": [
       "/api/bucket/upload"
     ],
@@ -39,7 +39,7 @@
     "_id": "bucketBrowserDownload",
     "description": "Allow to download object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "GENERAL",
     "pages": [
       "/api/bucket/download"
     ],
@@ -51,7 +51,7 @@
     "_id": "bucketBrowserDelete",
     "description": "Allow to delete object via bucket browser",
     "type": "BUCKET_BROWSER",
-    "cloud": "GCP",
+    "cloud": "GENERAL",
     "pages": [
       "/api/bucket/delete"
     ],
@@ -63,7 +63,7 @@
     "_id": "projectAdmin",
     "description": "Allow to execute administration operation per project",
     "type": "ADMINISTRATION",
-    "cloud": "GCP",
+    "cloud": "GENERAL",
     "pages": [
       "environment/*",
       "/roleManagement",
@@ -80,7 +80,7 @@
     "_id": "admin",
     "description": "Allow to execute administration operation",
     "type": "ADMINISTRATION",
-    "cloud": "GCP",
+    "cloud": "GENERAL",
     "pages": [
       "environment/*",
       "/api/infrastructure/backup",
