@@ -81,26 +81,31 @@ def add_china_repository(datalab_path):
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
 def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
-    if os.environ['conf_cloud_provider'] != 'gcp':
+    if gcr_creds != '':
+        if os.environ['conf_cloud_provider'] != 'gcp':
+            try:
+                sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
+                      'cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
+                sudo('apt-get -y install apt-transport-https ca-certificates gnupg')
+                sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
+                sudo('apt-get update')
+                sudo('apt-get -y install google-cloud-sdk')
+            except Exception as err:
+                traceback.print_exc()
+                print('Failed to install gcloud: ', str(err))
+                sys.exit(1)
         try:
-            sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
-                  'cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
-            sudo('apt-get -y install apt-transport-https ca-certificates gnupg')
-            sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
-            sudo('apt-get update')
-            sudo('apt-get -y install google-cloud-sdk')
+            with open('/tmp/config', 'w') as f:
+                f.write(base64.b64decode(gcr_creds))
+            local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, env.host_string, os_user))
+            sudo('mkdir /home/{}/.docker'.format(os_user))
+            sudo('cp /tmp/config /home/{}/.docker/config.json'.format(os_user))
+            sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/{}/odahu_Dockerfile'
+                 .format(odahu_image, datalab_path, cloud_provider))
         except Exception as err:
             traceback.print_exc()
-            print('Failed to install gcloud: ', str(err))
+            print('Failed to prepare odahu image: ', str(err))
             sys.exit(1)
-    try:
-        with open('/tmp/config', 'w') as f:
-            f.write(base64.b64decode(gcr_creds))
-        local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, env.host_string, os_user))
-        sudo('mkdir /home/{}/.docker'.format(os_user))
-        sudo('cp /tmp/config /home/{}/.docker/config.json'.format(os_user))
-        sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/{}/odahu_Dockerfile'
-             .format(odahu_image, datalab_path, cloud_provider))
     except Exception as err:
         traceback.print_exc()
         print('Failed to prepare odahu image: ', str(err))
