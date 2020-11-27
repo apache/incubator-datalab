@@ -43,11 +43,10 @@ export class ConfirmationDialogComponent implements OnInit {
   dataengines: Array<any> = [];
   dataengineServices: Array<any> = [];
   confirmationType: number = 0;
+  public isClusterLength: boolean;
 
   @Input() manageAction: boolean = false;
-
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-  public isClusterLength: boolean;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -61,6 +60,7 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.data);
     if (this.data.type !== 5) {
       this.confirmationType = this.data.type;
       this.notebook = this.data.notebook;
@@ -74,7 +74,7 @@ export class ConfirmationDialogComponent implements OnInit {
         this.healthStatusService,
         this.manageEnvironmentsService);
 
-      if (!this.confirmationType) this.filterResourcesByType(this.notebook.resources);
+      if (!this.confirmationType) this.filterResourcesByType(this.data.compute);
       this.isAliveResources = this.model.isAliveResources(this.notebook.resources);
       this.onlyKilled = this.notebook.resources ?
         !this.notebook.resources.some(el => el.status !== 'terminated' && el.status !== 'failed')
@@ -82,7 +82,7 @@ export class ConfirmationDialogComponent implements OnInit {
     }
 
     if (this.data.type === 0 || this.data.type === 1) {
-      if (this.notebook.resources.length) {
+      if (this.data.compute.length) {
         this.isClusterLength = true;
       }
     }
@@ -93,11 +93,7 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   private filterResourcesByType(resources) {
-    resources
-      .filter(resource =>
-        (resource.status !== 'failed' && resource.status !== 'terminated'
-          && resource.status !== 'terminating' && resource.status !== 'stopped'))
-      .forEach(resource => {
+    resources.forEach(resource => {
         (resource.image === 'docker.datalab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource);
       });
   }

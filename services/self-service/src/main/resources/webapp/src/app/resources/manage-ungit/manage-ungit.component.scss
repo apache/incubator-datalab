@@ -29,7 +29,7 @@
 
   .scrollingList {
     overflow-x: hidden;
-    padding: 5px;
+    padding: 5px 0;
     height: 185px;
 
     &.info {
@@ -53,7 +53,6 @@
   }
 
   .hostname-field {
-    width: 25%;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 5px;
@@ -61,7 +60,6 @@
   }
 
   .actions {
-    width: 20%;
     position: relative;
     overflow: visible;
     width: 50px;
@@ -111,6 +109,7 @@
         top: 45px;
         padding: 0;
         font-size: 12px;
+        right: 0;
       }
     }
 
@@ -126,5 +125,9 @@
 
   .submit {
     margin-top: 60px;
+  }
+
+  .mat-list-item{
+    color: #607d8b;
   }
 }

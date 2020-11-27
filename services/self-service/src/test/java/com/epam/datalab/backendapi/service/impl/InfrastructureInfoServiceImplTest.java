@@ -260,12 +260,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-                .project(PROJECT)
-                .billingQuoteUsed(10)
-                .shared(Collections.singletonMap(ENDPOINT_NAME, Collections.emptyMap()))
-                .exploratory(getUserInstanceDTOs())
-                .exploratoryBilling(Collections.singletonList(getReport()))
-                .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .project(PROJECT)
+		        .billingQuoteUsed(10)
+		        .shared(Collections.singletonMap(ENDPOINT_NAME, Collections.emptyMap()))
+		        .exploratory(getUserInstanceDTOs())
+		        .exploratoryBilling(Collections.singletonList(getReport()))
+		        .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .odahu(Collections.emptyList())
                 .build());
         return objects;
     }
@@ -273,12 +274,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getAwsProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-                .project(PROJECT)
-                .billingQuoteUsed(10)
-                .shared(Collections.singletonMap(ENDPOINT_NAME, getAwsEdgeInfo()))
-                .exploratory(getUserInstanceDTOs())
-                .exploratoryBilling(Collections.singletonList(getReport()))
-                .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .project(PROJECT)
+		        .billingQuoteUsed(10)
+		        .shared(Collections.singletonMap(ENDPOINT_NAME, getAwsEdgeInfo()))
+		        .exploratory(getUserInstanceDTOs())
+		        .exploratoryBilling(Collections.singletonList(getReport()))
+		        .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .odahu(Collections.emptyList())
                 .build());
         return objects;
     }
@@ -286,12 +288,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getAzureProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-                .project(PROJECT)
-                .billingQuoteUsed(10)
-                .shared(Collections.singletonMap(ENDPOINT_NAME, getAzureEdgeInfo()))
-                .exploratory(getUserInstanceDTOs())
-                .exploratoryBilling(Collections.singletonList(getReport()))
-                .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .project(PROJECT)
+		        .billingQuoteUsed(10)
+		        .shared(Collections.singletonMap(ENDPOINT_NAME, getAzureEdgeInfo()))
+		        .exploratory(getUserInstanceDTOs())
+		        .exploratoryBilling(Collections.singletonList(getReport()))
+		        .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .odahu(Collections.emptyList())
                 .build());
         return objects;
     }
@@ -299,12 +302,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getGcpProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-                .project(PROJECT)
-                .billingQuoteUsed(10)
-                .shared(Collections.singletonMap(ENDPOINT_NAME, getGcpEdgeInfo()))
-                .exploratory(getUserInstanceDTOs())
-                .exploratoryBilling(Collections.singletonList(getReport()))
-                .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .project(PROJECT)
+		        .billingQuoteUsed(10)
+		        .shared(Collections.singletonMap(ENDPOINT_NAME, getGcpEdgeInfo()))
+		        .exploratory(getUserInstanceDTOs())
+		        .exploratoryBilling(Collections.singletonList(getReport()))
+		        .endpoints(Collections.singletonList(getEndpointDTO()))
+		        .odahu(Collections.emptyList())
                 .build());
         return objects;
     }

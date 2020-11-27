@@ -41,6 +41,7 @@ import com.epam.datalab.backendapi.domain.UpdateProjectDTO;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.ExploratoryService;
+import com.epam.datalab.backendapi.service.OdahuService;
 import com.epam.datalab.backendapi.service.ProjectService;
 import com.epam.datalab.backendapi.util.RequestBuilder;
 import com.epam.datalab.constants.ServiceConsts;
@@ -92,31 +93,34 @@ public class ProjectServiceImpl implements ProjectService {
     private static final String AUDIT_RECREATE_EDGE_NODE = "Recreate edge node for endpoint %s, requested in project %s";
 
     private final ProjectDAO projectDAO;
+    private final UserGroupDAO userGroupDAO;
+    private final ExploratoryDAO exploratoryDAO;
     private final ExploratoryService exploratoryService;
-    private final UserGroupDAO userGroupDao;
     private final RESTService provisioningService;
+    private final EndpointService endpointService;
     private final RequestId requestId;
     private final RequestBuilder requestBuilder;
-    private final EndpointService endpointService;
-    private final ExploratoryDAO exploratoryDAO;
     private final SelfServiceApplicationConfiguration configuration;
+    private final OdahuService odahuService;
 
 
     @Inject
     public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
-                              UserGroupDAO userGroupDao,
+                              UserGroupDAO userGroupDAO,
                               @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
                               RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
-                              ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration) {
+                              ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration,
+                              OdahuService odahuService) {
         this.projectDAO = projectDAO;
         this.exploratoryService = exploratoryService;
-        this.userGroupDao = userGroupDao;
+        this.userGroupDAO = userGroupDAO;
         this.provisioningService = provisioningService;
         this.requestId = requestId;
         this.requestBuilder = requestBuilder;
         this.endpointService = endpointService;
         this.exploratoryDAO = exploratoryDAO;
         this.configuration = configuration;
+        this.odahuService = odahuService;
     }
 
     @Override
@@ -171,6 +175,9 @@ public class ProjectServiceImpl implements ProjectService {
         projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
         projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
         exploratoryService.updateProjectExploratoryStatuses(userInfo, name, endpoint, UserInstanceStatus.TERMINATING);
+        odahuService.get(name, endpoint)
+                .filter(o -> UserInstanceStatus.RUNNING == o.getStatus())
+                .ifPresent(odahu -> odahuService.terminate(odahu.getName(), name, endpoint, userInfo));
     }
 
     @ProjectAdmin
@@ -204,7 +211,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @ProjectAdmin
     @Override
-    public void stopWithResources(@User UserInfo userInfo, List<String> endpoints, @ResourceName @Project String projectName) {
+    public void stopWithResources(@User UserInfo userInfo, List<String> endpoints,
+                                  @ResourceName @Project String projectName) {
         List<ProjectEndpointDTO> endpointDTOs = getProjectEndpointDTOS(endpoints, projectName);
         checkProjectRelatedResourcesInProgress(projectName, endpointDTOs, STOP_ACTION);
 
@@ -237,7 +245,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Audit(action = UPDATE, type = PROJECT)
-    public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
+    public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName,
+                              UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
                               @Info String projectAudit) {
         final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
                 .stream()
@@ -260,14 +269,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Audit(action = UPDATE, type = PROJECT)
-    public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, BudgetDTO budget, @Info String updateBudgetAudit) {
+    public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, BudgetDTO budget,
+                             @Info String updateBudgetAudit) {
         projectDAO.updateBudget(name, budget.getValue(), budget.isMonthlyBudget());
     }
 
     @Override
     public boolean isAnyProjectAssigned(UserInfo userInfo) {
         final Set<String> userGroups = concat(userInfo.getRoles().stream(),
-                userGroupDao.getUserGroups(userInfo.getName()).stream())
+                userGroupDAO.getUserGroups(userInfo.getName()).stream())
                 .collect(toSet());
         return projectDAO.isAnyProjectAssigned(userGroups);
     }
@@ -285,8 +295,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Audit(action = UPDATE, type = EDGE_NODE)
     @Override
-    public void updateAfterStatusCheck(@User UserInfo userInfo, @Project String project, @ResourceName String endpoint, String instanceID,
-                                       UserInstanceStatus status, @Info String auditInfo) {
+    public void updateAfterStatusCheck(@User UserInfo userInfo, @Project String project, @ResourceName String endpoint,
+                                       String instanceID, UserInstanceStatus status, @Info String auditInfo) {
         projectDAO.updateEdgeStatus(project, endpoint, status);
     }
 
@@ -300,14 +310,14 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Audit(action = CREATE, type = EDGE_NODE)
-    public void createEndpoint(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String endpointName, @Project String projectName,
-                               @Info String auditInfo) {
+    public void createEndpoint(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String endpointName,
+                               @Project String projectName, @Info String auditInfo) {
         createEdgeNode(user, projectDTO, endpointName, CREATE_PRJ_API);
     }
 
     @Audit(action = RECREATE, type = EDGE_NODE)
-    public void recreateEndpoint(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String endpointName, @Project String projectName,
-                                 @Info String auditInfo) {
+    public void recreateEndpoint(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String endpointName,
+                                 @Project String projectName, @Info String auditInfo) {
         createEdgeNode(user, projectDTO, endpointName, RECREATE_PRJ_API);
     }
 
@@ -331,17 +341,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
-        boolean edgeProgress = endpoints
+        boolean edgeAndOdahuProgress = endpoints
                 .stream()
                 .anyMatch(e ->
                         Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-                                UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+                                UserInstanceStatus.TERMINATING).contains(e.getStatus())
+                                || odahuService.inProgress(projectName, e.getName()));
 
         List<String> endpointNames = endpoints
                 .stream()
                 .map(ProjectEndpointDTO::getName)
                 .collect(Collectors.toList());
-        if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointNames)) {
+        if (edgeAndOdahuProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointNames)) {
             throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
                     "resource is in processing stage", action)));
         }

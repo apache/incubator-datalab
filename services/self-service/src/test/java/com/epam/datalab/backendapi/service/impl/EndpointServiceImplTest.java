@@ -27,6 +27,7 @@ import com.epam.datalab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.datalab.backendapi.resources.TestBase;
+import com.epam.datalab.backendapi.service.OdahuService;
 import com.epam.datalab.backendapi.service.ProjectService;
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.UserInstanceDTO;
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATED;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -57,6 +59,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndpointServiceImplTest extends TestBase {
@@ -66,24 +69,27 @@ public class EndpointServiceImplTest extends TestBase {
     private static final String PROJECT_NAME_1 = "projectName";
     private static final String PROJECT_NAME_2 = "projectName_2";
 
-    @Mock
-    private EndpointDAO endpointDAO;
-    @Mock
-    private ProjectService projectService;
-    @Mock
-    private ExploratoryDAO exploratoryDAO;
-    @Mock
-    private RESTService provisioningService;
-    @Mock
-    private UserRoleDAO userRoleDao;
+	@Mock
+	private EndpointDAO endpointDAO;
+	@Mock
+	private ProjectService projectService;
+	@Mock
+	private ExploratoryDAO exploratoryDAO;
+	@Mock
+	private RESTService provisioningService;
+	@Mock
+	private UserRoleDAO userRoleDAO;
+	@Mock
+	private OdahuService odahuService;
 
-    @InjectMocks
-    private EndpointServiceImpl endpointService;
 
-    @Test
-    public void getEndpoints() {
-        List<EndpointDTO> endpoints = getEndpointDTOs();
-        when(endpointDAO.getEndpoints()).thenReturn(endpoints);
+	@InjectMocks
+	private EndpointServiceImpl endpointService;
+
+	@Test
+	public void getEndpoints() {
+		List<EndpointDTO> endpoints = getEndpointDTOs();
+		when(endpointDAO.getEndpoints()).thenReturn(endpoints);
 
         List<EndpointDTO> actualEndpoints = endpointService.getEndpoints();
 
@@ -145,18 +151,18 @@ public class EndpointServiceImplTest extends TestBase {
         Response response = mock(Response.class);
         when(endpointDAO.get(anyString())).thenReturn(Optional.empty());
         when(endpointDAO.getEndpointWithUrl(anyString())).thenReturn(Optional.empty());
-        when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(response);
-        when(response.readEntity(any(Class.class))).thenReturn(CloudProvider.AWS);
-        when(response.getStatus()).thenReturn(HttpStatus.SC_OK);
+	    when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(response);
+	    when(response.readEntity(any(Class.class))).thenReturn(CloudProvider.AWS);
+	    when(response.getStatus()).thenReturn(HttpStatus.SC_OK);
 
-        endpointService.create(getUserInfo(), ENDPOINT_NAME, getEndpointDTO());
+	    endpointService.create(getUserInfo(), ENDPOINT_NAME, getEndpointDTO());
 
-        verify(endpointDAO).get(ENDPOINT_NAME);
-        verify(endpointDAO).getEndpointWithUrl(ENDPOINT_URL);
-        verify(provisioningService).get(ENDPOINT_URL + HEALTH_CHECK, TOKEN, Response.class);
-        verify(endpointDAO).create(getEndpointDTO());
-        verify(userRoleDao).updateMissingRoles(CloudProvider.AWS);
-        verifyNoMoreInteractions(endpointDAO, provisioningService, userRoleDao);
+	    verify(endpointDAO).get(ENDPOINT_NAME);
+	    verify(endpointDAO).getEndpointWithUrl(ENDPOINT_URL);
+	    verify(provisioningService).get(ENDPOINT_URL + HEALTH_CHECK, TOKEN, Response.class);
+	    verify(endpointDAO).create(getEndpointDTO());
+	    verify(userRoleDAO).updateMissingRoles(CloudProvider.AWS);
+	    verifyNoMoreInteractions(endpointDAO, provisioningService, userRoleDAO);
     }
 
     @Test(expected = ResourceConflictException.class)
@@ -230,23 +236,26 @@ public class EndpointServiceImplTest extends TestBase {
     public void remove() {
         List<ProjectDTO> projectDTOs = getProjectDTOs();
         List<EndpointDTO> endpointDTOs = getEndpointDTOs();
-        when(endpointDAO.get(anyString())).thenReturn(Optional.of(getEndpointDTO()));
-        when(projectService.getProjectsByEndpoint(anyString())).thenReturn(projectDTOs);
-        when(projectService.checkExploratoriesAndComputationalProgress(anyString(), anyListOf(String.class))).thenReturn(Boolean.TRUE);
-        when(endpointDAO.getEndpoints()).thenReturn(endpointDTOs);
+	    when(endpointDAO.get(anyString())).thenReturn(Optional.of(getEndpointDTO()));
+	    when(projectService.getProjectsByEndpoint(anyString())).thenReturn(projectDTOs);
+	    when(odahuService.inProgress(anyString(), anyString())).thenReturn(Boolean.FALSE);
+	    when(projectService.checkExploratoriesAndComputationalProgress(anyString(), anyListOf(String.class))).thenReturn(Boolean.TRUE);
+	    when(endpointDAO.getEndpoints()).thenReturn(endpointDTOs);
 
-        endpointService.remove(getUserInfo(), ENDPOINT_NAME);
+	    endpointService.remove(getUserInfo(), ENDPOINT_NAME);
 
-        verify(endpointDAO).get(ENDPOINT_NAME);
-        verify(projectService).getProjectsByEndpoint(ENDPOINT_NAME);
-        verify(projectService).checkExploratoriesAndComputationalProgress(PROJECT_NAME_1, Collections.singletonList(ENDPOINT_NAME));
-        verify(projectService).checkExploratoriesAndComputationalProgress(PROJECT_NAME_2, Collections.singletonList(ENDPOINT_NAME));
-        verify(projectService).terminateEndpoint(getUserInfo(), ENDPOINT_NAME, PROJECT_NAME_1);
-        verify(projectService).terminateEndpoint(getUserInfo(), ENDPOINT_NAME, PROJECT_NAME_2);
-        verify(endpointDAO).remove(ENDPOINT_NAME);
-        verify(endpointDAO).getEndpoints();
-        verify(userRoleDao).removeUnnecessaryRoles(CloudProvider.AWS, Arrays.asList(CloudProvider.AWS, CloudProvider.GCP));
-        verifyNoMoreInteractions(endpointDAO, projectService, userRoleDao);
+	    verify(endpointDAO).get(ENDPOINT_NAME);
+	    verify(projectService).getProjectsByEndpoint(ENDPOINT_NAME);
+	    verify(odahuService).inProgress(PROJECT_NAME_1, ENDPOINT_NAME);
+	    verify(odahuService).inProgress(PROJECT_NAME_2, ENDPOINT_NAME);
+	    verify(projectService).checkExploratoriesAndComputationalProgress(PROJECT_NAME_1, Collections.singletonList(ENDPOINT_NAME));
+	    verify(projectService).checkExploratoriesAndComputationalProgress(PROJECT_NAME_2, Collections.singletonList(ENDPOINT_NAME));
+	    verify(projectService).terminateEndpoint(getUserInfo(), ENDPOINT_NAME, PROJECT_NAME_1);
+	    verify(projectService).terminateEndpoint(getUserInfo(), ENDPOINT_NAME, PROJECT_NAME_2);
+	    verify(endpointDAO).remove(ENDPOINT_NAME);
+	    verify(endpointDAO).getEndpoints();
+	    verify(userRoleDAO).removeUnnecessaryRoles(CloudProvider.AWS, Arrays.asList(CloudProvider.AWS, CloudProvider.GCP));
+	    verifyNoMoreInteractions(endpointDAO, projectService, userRoleDAO, odahuService);
     }
 
     @Test(expected = ResourceNotFoundException.class)
@@ -272,6 +281,19 @@ public class EndpointServiceImplTest extends TestBase {
         when(projectService.checkExploratoriesAndComputationalProgress(anyString(), anyListOf(String.class))).thenReturn(Boolean.TRUE);
 
         endpointService.remove(getUserInfo(), ENDPOINT_NAME);
+    }
+
+    @Test
+    public void removeEndpointInAllProjectsTest() {
+        List<ProjectDTO> projectDTOs = getProjectDTOsWithDiffStatuses();
+
+        endpointService.removeEndpointInAllProjects(getUserInfo(), ENDPOINT_NAME, projectDTOs);
+        long notTerminatedProjects = projectDTOs.stream()
+                .filter(p -> p.getEndpoints().stream()
+                        .noneMatch(e -> e.getStatus() == TERMINATED))
+                .count();
+
+        verify(projectService, times((int) notTerminatedProjects)).terminateEndpoint(any(), anyString(), any());
     }
 
     private List<UserInstanceDTO> getUserInstances() {
@@ -300,6 +322,26 @@ public class EndpointServiceImplTest extends TestBase {
                 .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING, null)))
                 .build();
         return Arrays.asList(project1, project2);
+    }
+
+    private List<ProjectDTO> getProjectDTOsWithDiffStatuses() {
+        ProjectDTO project1 = ProjectDTO.builder()
+                .name(PROJECT_NAME_1)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING, null)))
+                .build();
+        ProjectDTO project2 = ProjectDTO.builder()
+                .name(PROJECT_NAME_2)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, TERMINATED, null)))
+                .build();
+        ProjectDTO project3 = ProjectDTO.builder()
+                .name(PROJECT_NAME_1)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.CREATED, null)))
+                .build();
+        ProjectDTO project4 = ProjectDTO.builder()
+                .name(PROJECT_NAME_2)
+                .endpoints(Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, TERMINATED, null)))
+                .build();
+        return Arrays.asList(project1, project2, project3, project4);
     }
 
     private List<ProjectDTO> getCreatingProjectDTO() {

@@ -27,6 +27,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class ProjectDTO {
     private final BudgetDTO budget;
     private final List<ProjectEndpointDTO> endpoints;
     private final boolean sharedImageEnabled;
-
+    private final List<OdahuDTO> odahu = new ArrayList<>();
 
     public enum Status {
         CREATING,
