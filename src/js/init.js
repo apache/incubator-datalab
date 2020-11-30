@@ -32,6 +32,10 @@ function stopMacVideos() {
 $(document).ready(function () {
     'use strict';
 
+    if (window.location.href.indexOf('download') !== -1){
+        showDownloadPage();
+    }
+
     document.getElementById('current_year').appendChild(document.createTextNode(new Date().getFullYear()));
     screenThumbsNavigation.on('click', 'div', function () {
         screenSliderTop.slideTo($(this).data('slide'));
@@ -76,17 +80,6 @@ $(document).ready(function () {
         });
     });
 
-    $('.download').on('click', function () {
-        $('#download-overlay').css({
-            'width': '100%',
-            'left': 0,
-            'opacity': 1
-        });
-        $('.overlay-wrap').css({
-            display: "flex"
-        });
-    });
-
     $('.close-butt').on('click', function () {
         $('#details-overlay').css({
             'width': '0%',
@@ -96,11 +89,7 @@ $(document).ready(function () {
     });
 
     $('.close-butt-download').on('click', function () {
-        $('#download-overlay').css({
-            'width': '0%',
-            'left': '-1px',
-            'opacity': 0
-        });
+        window.location.hash = '';
     });
 });
 
@@ -199,3 +188,26 @@ $(document).ready(function () {
             curr.addClass('scroll-active');
         });
 });
+
+$( window ).on( 'hashchange', function( e ) {
+    if (window.location.href.indexOf('download') !== -1){
+        showDownloadPage();
+    }else{
+        $('#download').css({
+            'width': '0%',
+            'left': '-1px',
+            'opacity': 0
+        });
+    }
+} );
+
+function showDownloadPage(){
+    $('#download').css({
+        'width': '100%',
+        'left': '-1px',
+        'opacity': 1
+    });
+    $('.overlay-wrap').css({
+        display: "flex"
+    });
+}
