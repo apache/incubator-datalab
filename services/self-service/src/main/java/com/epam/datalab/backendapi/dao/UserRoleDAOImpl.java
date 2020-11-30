@@ -19,7 +19,7 @@
 package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.backendapi.resources.dto.UserGroupDto;
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.exceptions.DatalabException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -77,22 +77,22 @@ public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
 
 
     @Override
-    public List<UserRoleDto> findAll() {
-        return find(MongoCollections.ROLES, UserRoleDto.class);
+    public List<UserRoleDTO> findAll() {
+        return find(MongoCollections.ROLES, UserRoleDTO.class);
     }
 
     @Override
-    public void insert(UserRoleDto dto) {
+    public void insert(UserRoleDTO dto) {
         insertOne(MongoCollections.ROLES, dto, dto.getId());
     }
 
     @Override
-    public void insert(List<UserRoleDto> roles) {
+    public void insert(List<UserRoleDTO> roles) {
         roles.forEach(this::insert);
     }
 
     @Override
-    public boolean update(UserRoleDto dto) {
+    public boolean update(UserRoleDTO dto) {
         final Document userRoleDocument = convertToBson(dto).append(TIMESTAMP, new Date());
         return conditionMatched(updateOne(MongoCollections.ROLES,
                 eq(ID, dto.getId()),
@@ -106,7 +106,7 @@ public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
                 .peek(u -> u.setGroups(Collections.emptySet()))
                 .filter(u -> findAll()
                         .stream()
-                        .map(UserRoleDto::getId)
+                        .map(UserRoleDTO::getId)
                         .noneMatch(id -> id.equals(u.getId())))
                 .forEach(this::insert);
 
@@ -133,16 +133,16 @@ public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
         if (remainingProviders.contains(cloudProviderToBeRemoved)) {
             return;
         }
-        List<UserRoleDto> remainingRoles = new ArrayList<>();
+        List<UserRoleDTO> remainingRoles = new ArrayList<>();
         remainingProviders.forEach(p -> remainingRoles.addAll(getUserRoleFromFile(p)));
 
         getUserRoleFromFile(cloudProviderToBeRemoved)
                 .stream()
-                .filter(role -> UserRoleDto.cloudSpecificTypes().contains(role.getType()))
-                .map(UserRoleDto::getId)
+                .filter(role -> UserRoleDTO.cloudSpecificTypes().contains(role.getType()))
+                .map(UserRoleDTO::getId)
                 .filter(u -> remainingRoles
                         .stream()
-                        .map(UserRoleDto::getId)
+                        .map(UserRoleDTO::getId)
                         .noneMatch(id -> id.equals(u)))
                 .forEach(this::remove);
     }
@@ -174,9 +174,9 @@ public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
                 .collect(toList());
     }
 
-    private List<UserRoleDto> getUserRoleFromFile(CloudProvider cloudProvider) {
+    private List<UserRoleDTO> getUserRoleFromFile(CloudProvider cloudProvider) {
         try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT, cloudProvider.getName()))) {
-            return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
+            return MAPPER.readValue(is, new TypeReference<List<UserRoleDTO>>() {
             });
         } catch (IOException e) {
             log.error("Can not marshall datalab roles due to: {}", e.getMessage(), e);

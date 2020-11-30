@@ -20,7 +20,7 @@
 package com.epam.datalab.cloud;
 
 public enum CloudProvider {
-    AWS, AZURE, GCP;
+    AWS, AZURE, GCP, GENERAL;
 
     public String getName() {
         return this.toString().toLowerCase();

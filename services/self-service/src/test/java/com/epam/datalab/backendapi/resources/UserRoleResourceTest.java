@@ -18,7 +18,7 @@
  */
 package com.epam.datalab.backendapi.resources;
 
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.epam.datalab.backendapi.service.UserRoleService;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -70,7 +70,7 @@ public class UserRoleResourceTest extends TestBase {
                 .header("Authorization", "Bearer " + TOKEN)
                 .get();
 
-        final List<UserRoleDto> actualRoles = response.readEntity(new GenericType<List<UserRoleDto>>() {
+        final List<UserRoleDTO> actualRoles = response.readEntity(new GenericType<List<UserRoleDTO>>() {
         });
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
@@ -96,8 +96,8 @@ public class UserRoleResourceTest extends TestBase {
         verifyNoMoreInteractions(rolesService);
     }
 
-    private UserRoleDto getUserRole() {
-        final UserRoleDto userRoleDto = new UserRoleDto();
+    private UserRoleDTO getUserRole() {
+        final UserRoleDTO userRoleDto = new UserRoleDTO();
         userRoleDto.setId(ROLE_ID);
         return userRoleDto;
     }

@@ -19,7 +19,7 @@
 package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.epam.datalab.backendapi.service.UserRoleService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -55,7 +55,7 @@ public class UserRoleResource {
     }
 
     @POST
-    public Response createRole(@Auth UserInfo userInfo, UserRoleDto dto) {
+    public Response createRole(@Auth UserInfo userInfo, UserRoleDTO dto) {
         log.info("Creating new role {} on behalf of admin {}...", dto, userInfo.getName());
         userRoleService.createRole(dto);
         return Response.ok().build();
