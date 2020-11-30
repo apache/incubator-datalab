@@ -23,8 +23,7 @@ import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.dao.EndpointDAO;
 import com.epam.datalab.backendapi.dao.SettingsDAO;
 import com.epam.datalab.backendapi.dao.UserRoleDAO;
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
-import com.epam.datalab.cloud.CloudProvider;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -40,21 +39,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 
-
 @Slf4j
 public class MongoStartupListener implements ServerLifecycleListener {
 
-    private static final String ROLES_FILE_FORMAT = "/mongo/%s/mongo_roles.json";
+    private static final String PATH_TO_GENERAL_ROLES = "/mongo/general/mongo_roles.json";
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final UserRoleDAO userRoleDao;
     private final SelfServiceApplicationConfiguration configuration;
     private final SettingsDAO settingsDAO;
-    private final EndpointDAO endpointDAO;
 
     @Inject
     public MongoStartupListener(UserRoleDAO userRoleDao, SelfServiceApplicationConfiguration configuration,
@@ -62,7 +58,6 @@ public class MongoStartupListener implements ServerLifecycleListener {
         this.userRoleDao = userRoleDao;
         this.configuration = configuration;
         this.settingsDAO = settingsDAO;
-        this.endpointDAO = endpointDAO;
     }
 
     @Override
@@ -78,16 +73,16 @@ public class MongoStartupListener implements ServerLifecycleListener {
         }
     }
 
-    private List<UserRoleDto> getRoles() {
-        Set<UserRoleDto> userRoles = new HashSet<>();
-        endpointDAO.getEndpoints().forEach(e -> userRoles.addAll(getUserRoleFromFile(e.getCloudProvider())));
-        return userRoles.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(UserRoleDto::getId))),
-                ArrayList::new));
+    private List<UserRoleDTO> getRoles() {
+        Set<UserRoleDTO> userRoles = new HashSet<>(getUserRoleFromFile());
+        return userRoles.stream()
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(UserRoleDTO::getId))),
+                        ArrayList::new));
     }
 
-    private List<UserRoleDto> getUserRoleFromFile(CloudProvider cloudProvider) {
-        try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT, cloudProvider.getName()))) {
-            return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
+    private List<UserRoleDTO> getUserRoleFromFile() {
+        try (InputStream is = getClass().getResourceAsStream(PATH_TO_GENERAL_ROLES)) {
+            return MAPPER.readValue(is, new TypeReference<List<UserRoleDTO>>() {
             });
         } catch (IOException e) {
             log.error("Can not marshall datalab roles due to: {}", e.getMessage(), e);

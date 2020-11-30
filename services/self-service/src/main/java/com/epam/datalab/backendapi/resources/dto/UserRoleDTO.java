@@ -33,7 +33,7 @@ import java.util.Set;
 @Setter
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRoleDto {
+public class UserRoleDTO {
     @JsonProperty("_id")
     private String id;
     private String description;
@@ -55,7 +55,7 @@ public class UserRoleDto {
         COMPUTATIONAL_SHAPE,
         BILLING,
         BUCKET_BROWSER,
-        ADMINISTRATION
+        ADMINISTRATION,
     }
 
     public static List<Type> cloudSpecificTypes() {

@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.resources.dto;
 
 import com.epam.datalab.backendapi.domain.BillingReport;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
+import com.epam.datalab.backendapi.domain.OdahuDTO;
 import com.epam.datalab.dto.UserInstanceDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -36,16 +37,18 @@ import java.util.Map;
 @EqualsAndHashCode
 @ToString
 public class ProjectInfrastructureInfo {
-    @JsonProperty
-    private String project;
-    @JsonProperty
-    private int billingQuoteUsed;
-    @JsonProperty
-    private Map<String, Map<String, String>> shared;
-    @JsonProperty
-    private List<UserInstanceDTO> exploratory;
-    @JsonProperty
-    private List<BillingReport> exploratoryBilling;
-    @JsonProperty
-    private List<EndpointDTO> endpoints;
+	@JsonProperty
+	private String project;
+	@JsonProperty
+	private int billingQuoteUsed;
+	@JsonProperty
+	private Map<String, Map<String, String>> shared;
+	@JsonProperty
+	private List<UserInstanceDTO> exploratory;
+	@JsonProperty
+	private List<BillingReport> exploratoryBilling;
+	@JsonProperty
+	private List<OdahuDTO> odahu;
+	@JsonProperty
+	private List<EndpointDTO> endpoints;
 }
