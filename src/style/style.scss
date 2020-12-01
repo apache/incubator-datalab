@@ -1868,7 +1868,7 @@ footer {
             padding-top: 30px;
             margin-bottom: 10px;
             position: relative;
-            border-bottom: 2px solid #1CBC79;
+            border-bottom: 1px solid #1CBC79;
         }
         h4{
             font-size: 20px;
@@ -1904,7 +1904,7 @@ footer {
         &::before {
             content: '';
             position: absolute;
-            top: 10px;
+            top: 8px;
             height: 5px;
             padding-right: 5px;
             margin-left: -18px;
