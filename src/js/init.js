@@ -32,8 +32,8 @@ function stopMacVideos() {
 $(document).ready(function () {
     'use strict';
 
-    if (window.location.href.indexOf('download') !== -1){
-        showDownloadPage();
+    if (window.location.hash !== ''){
+        showDownloadPage(window.location.hash);
     }
 
     document.getElementById('current_year').appendChild(document.createTextNode(new Date().getFullYear()));
@@ -89,6 +89,7 @@ $(document).ready(function () {
     });
 
     $('.close-butt-download').on('click', function () {
+        console.log('click')
         window.location.hash = '';
     });
 });
@@ -190,24 +191,41 @@ $(document).ready(function () {
 });
 
 $( window ).on( 'hashchange', function( e ) {
-    if (window.location.href.indexOf('download') !== -1){
-        showDownloadPage();
+    console.log(window.location.hash)
+    if (window.location.hash === '#download'){
+        showDownloadPage(window.location.hash);
+    }else if (window.location.hash === '#community') {
+        console.log('community')
+        showDownloadPage(window.location.hash);
     }else{
         $('#download').css({
             'width': '0%',
             'left': '-1px',
-            'opacity': 0
+            'opacity': 0,
+        });
+        $('#community').css({
+            'width': '0%',
+            'left': '-1px',
+            'opacity': 0,
+        });
+        $('.contact-us').css({
+            'position': "unset"
         });
     }
 } );
 
-function showDownloadPage(){
-    $('#download').css({
+function showDownloadPage(hash){
+    $(hash || window.location.hash).css({
+        'display': "block",
         'width': '100%',
         'left': '-1px',
         'opacity': 1
     });
     $('.overlay-wrap').css({
         display: "flex"
+    });
+    if(hash === '#community')
+    $('.contact-us').css({
+        'position': "fixed"
     });
 }
