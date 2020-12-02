@@ -208,8 +208,8 @@ $( window ).on( 'hashchange', function( e ) {
             'left': '-1px',
             'opacity': 0,
         });
-        $('.contact-us').css({
-            'position': "unset"
+        $('.contant-wrapper').css({
+            'display': "none"
         });
     }
 } );
@@ -225,7 +225,7 @@ function showDownloadPage(hash){
         display: "flex"
     });
     if(hash === '#community')
-    $('.contact-us').css({
-        'position': "fixed"
+    $('.contant-wrapper').css({
+        'display': "block"
     });
 }

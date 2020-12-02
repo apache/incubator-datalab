@@ -1847,6 +1847,9 @@ footer {
         text-align: left;
         padding: 1rem 2rem;
         margin: 0;
+        overflow: auto;
+        height: 100vh;
+        scrollbar-width: thin;
         a:not(.close-butt-download){
             display: inline;
             font-size: 15px;
@@ -1885,12 +1888,6 @@ footer {
     }
     .contact-wrapper{
         width: 50%;
-
-        .contact-us{
-            width: 50%;
-            position: fixed;
-            right: 0;
-        }
     }
 }
 
@@ -1912,5 +1909,25 @@ footer {
             border-radius: 50%;
         }
     }
+}
+
+.scrolling::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.scrolling::-webkit-scrollbar-track {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    background-color: rgb(243, 243, 243);
+}
+
+.scrolling::-webkit-scrollbar-thumb {
+    background-color: #f6fafe;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.contant-wrapper{
+    transition: 5s;
 }
 
