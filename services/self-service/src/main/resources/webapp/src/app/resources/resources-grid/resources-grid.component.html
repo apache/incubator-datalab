@@ -115,8 +115,9 @@
 <!--        [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'" -->
 
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
-          <td class="name-col highlight" (click)="printDetailEnvironmentModal(element)">
-            <span matTooltip="{{ element.name }}" matTooltipPosition="above">{{ element.name }}</span>
+          <td class="name-col">
+            <span *ngIf="element.shape !== 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailEnvironmentModal(element)">{{ element.name }}</span>
+            <span *ngIf="element.shape === 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailLegionModal(element)">{{ element.name }}</span>
           </td>
           <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">
             {{element.status | underscoreless }}
@@ -162,7 +163,7 @@
             </span>
 
             <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
-              <ul class="list-unstyled">
+              <ul class="list-unstyled" *ngIf="element.shape !== 'odahu cluster'">
                 <div class="active-items" *ngIf="element.status.toLowerCase() !== 'failed'
                 && element.status !== 'terminating'
                 && element.status !== 'terminated'
@@ -246,6 +247,29 @@
                       <span>Open terminal</span>
                     </a>
                   </div>
+                </li>
+              </ul>
+              <ul class="list-unstyled" *ngIf="element.shape === 'odahu cluster'">
+                <li class="project-seting-item" *ngIf="element.status === 'stopped'" (click)="odahuAction(element, 'start')">
+                  <i class="material-icons">play_circle_outline</i>
+                  <a class="action">
+                    Start
+                  </a>
+                </li>
+                <li class="project-seting-item" *ngIf="element.status === 'running'" (click)="odahuAction(element, 'stop')">
+                  <i class="material-icons">pause_circle_outline</i>
+                  <a class="action" >
+                    Stop
+                  </a>
+                </li>
+                <li class="project-seting-item"
+                    [ngClass]="{'disabled': element.status === 'stopped' || element.status.toLowerCase() === 'stopping' || element.status.toLowerCase() === 'starting'}"
+                    *ngIf="element.status === element.status !== 'terminated' && element.status !== 'terminating'" (click)="odahuAction(element, 'terminate')"
+                >
+                  <i class="material-icons">phonelink_off</i>
+                  <a class="action">
+                    Terminate
+                  </a>
                 </li>
               </ul>
             </bubble-up>
