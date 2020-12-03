@@ -34,6 +34,7 @@ import { RolesComponent } from './administration/roles/roles.component';
 import { SwaggerComponent } from './swagger/swagger.component';
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard, AuditGuard } from './core/services';
 import {AuditComponent} from './reports/audit/audit.component';
+import {OdahuComponent} from './administration/odahu/odahu.component';
 
 const routes: Routes = [{
   path: 'login',
@@ -59,7 +60,12 @@ const routes: Routes = [{
       path: 'projects',
       component: ProjectComponent,
       canActivate: [AuthorizationGuard, AdminGuard],
-    }, {
+    },
+     {
+    //   path: 'odahu',
+    //   component: OdahuComponent,
+    //   canActivate: [AuthorizationGuard, AdminGuard],
+    // }, {
       path: 'roles',
       component: RolesComponent,
       canActivate: [AuthorizationGuard, AdminGuard],
