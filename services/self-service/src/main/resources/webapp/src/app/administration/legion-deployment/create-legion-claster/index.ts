@@ -36,7 +36,7 @@ export * from './create-legion-cluster.component';
     FormControlsModule,
     MaterialModule,
     KeysPipeModule,
-    UnderscorelessPipeModule
+    UnderscorelessPipeModule,
   ],
   declarations: [CreateLegionClusterComponent],
   entryComponents: [CreateLegionClusterComponent],

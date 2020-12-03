@@ -4,7 +4,9 @@ import { map, catchError } from 'rxjs/operators';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 
 export class LegionDeploymentService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
