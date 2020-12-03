@@ -8,7 +8,7 @@ import { ErrorUtils } from '../util';
   providedIn: 'root'
 })
 
-export class LegionDeploymentService {
+export class OdahuDeploymentService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public createOdahuNewCluster(data): Observable<{}> {

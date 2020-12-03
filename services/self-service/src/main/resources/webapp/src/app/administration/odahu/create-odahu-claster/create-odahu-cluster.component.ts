@@ -23,21 +23,21 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../project/project.component';
-import { ProjectService, LegionDeploymentService } from '../../../core/services';
+import { ProjectService, OdahuDeploymentService } from '../../../core/services';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import {CheckUtils, PATTERNS} from '../../../core/util';
 
 
 @Component({
-  selector: 'create-legion-cluster',
-  templateUrl: 'create-legion-cluster.component.html',
-  styleUrls: ['./create-legion-cluster.component.scss']
+  selector: 'create-odahu-cluster',
+  templateUrl: 'create-odahu-cluster.component.html',
+  styleUrls: ['./create-odahu-cluster.component.scss']
 })
 
-export class CreateLegionClusterComponent implements OnInit {
+export class CreateOdahuClusterComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  public createLegionClusterForm: FormGroup;
+  public createOdahuForm: FormGroup;
 
   projects: Project[] = [];
   endpoints: Array<String> = [];
@@ -45,10 +45,10 @@ export class CreateLegionClusterComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
-    public dialogRef: MatDialogRef<CreateLegionClusterComponent>,
+    public dialogRef: MatDialogRef<CreateOdahuClusterComponent>,
     private _fb: FormBuilder,
     private projectService: ProjectService,
-    private legionDeploymentService: LegionDeploymentService,
+    private odahuDeploymentService: OdahuDeploymentService,
   ) {
   }
 
@@ -76,7 +76,7 @@ export class CreateLegionClusterComponent implements OnInit {
   }
 
   private initFormModel(): void {
-    this.createLegionClusterForm = this._fb.group({
+    this.createOdahuForm = this._fb.group({
       name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)]],
       project: ['', Validators.required],
       endpoint: ['', [Validators.required]],
@@ -86,7 +86,7 @@ export class CreateLegionClusterComponent implements OnInit {
 
   private createOdahuCluster(value): void {
     this.dialogRef.close();
-    this.legionDeploymentService.createOdahuNewCluster(value).subscribe(() => {
+    this.odahuDeploymentService.createOdahuNewCluster(value).subscribe(() => {
       this.toastr.success('Odahu cluster creation is processing!', 'Success!');
       }, error => this.toastr.error(error.message || 'Odahu cluster creation failed!', 'Oops!')
     );

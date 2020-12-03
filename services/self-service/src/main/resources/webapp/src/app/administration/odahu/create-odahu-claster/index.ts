@@ -21,30 +21,25 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MaterialModule } from '../../shared/material.module';
-import { FormControlsModule } from '../../shared/form-controls';
-import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
+import { MaterialModule } from '../../../shared/material.module';
+import { FormControlsModule } from '../../../shared/form-controls';
+import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
+import {CreateOdahuClusterComponent} from './create-odahu-cluster.component';
 
-import {BubbleModule} from "../../shared/bubble";
-import {LegionDeploymentComponent} from "./legion-deployment.component";
-import {LegionDeploymentDataService} from "./legion-deployment-data.service";
-import {LegionListComponent} from "./legion-list/legion-list.component";
-import {CreateLegionClusterModule} from "./create-legion-claster";
+export * from './create-odahu-cluster.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialModule,
     FormControlsModule,
+    MaterialModule,
+    KeysPipeModule,
     UnderscorelessPipeModule,
-    BubbleModule,
-    CreateLegionClusterModule
   ],
-  declarations: [LegionDeploymentComponent, LegionListComponent],
-  entryComponents: [],
-  providers: [LegionDeploymentDataService],
-  exports: [LegionDeploymentComponent]
+  declarations: [CreateOdahuClusterComponent],
+  entryComponents: [CreateOdahuClusterComponent],
+  exports: [CreateOdahuClusterComponent]
 })
-export class LegionDeploymentModule { }
+export class CreateOdahuClusterModule { }

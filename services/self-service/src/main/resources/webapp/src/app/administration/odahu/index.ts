@@ -21,25 +21,30 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MaterialModule } from '../../../shared/material.module';
-import { FormControlsModule } from '../../../shared/form-controls';
-import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
-import {CreateLegionClusterComponent} from "./create-legion-cluster.component";
+import { MaterialModule } from '../../shared/material.module';
+import { FormControlsModule } from '../../shared/form-controls';
+import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 
-export * from './create-legion-cluster.component';
+import {BubbleModule} from '../../shared/bubble';
+import {OdahuComponent} from './odahu.component';
+import {OdahuDataService} from './odahu-data.service';
+import {OdahuGridComponent} from './odahu-grid/odahu-grid.component';
+import {CreateOdahuClusterModule} from './create-odahu-claster';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    FormControlsModule,
     MaterialModule,
-    KeysPipeModule,
+    FormControlsModule,
     UnderscorelessPipeModule,
+    BubbleModule,
+    CreateOdahuClusterModule
   ],
-  declarations: [CreateLegionClusterComponent],
-  entryComponents: [CreateLegionClusterComponent],
-  exports: [CreateLegionClusterComponent]
+  declarations: [OdahuComponent, OdahuGridComponent],
+  entryComponents: [],
+  providers: [OdahuDataService],
+  exports: [OdahuComponent]
 })
-export class CreateLegionClusterModule { }
+export class OdahuModule { }

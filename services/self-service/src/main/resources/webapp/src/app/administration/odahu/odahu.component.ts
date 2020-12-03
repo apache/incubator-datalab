@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import {LegionDeploymentDataService} from './legion-deployment-data.service';
+import {OdahuDataService} from './odahu-data.service';
 import {Subscription} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {ToastrService} from 'ngx-toastr';
-import {CreateLegionClusterComponent} from './create-legion-claster/create-legion-cluster.component';
-import {HealthStatusService, LegionDeploymentService} from '../../core/services';
+import {CreateOdahuClusterComponent} from './create-odahu-claster/create-odahu-cluster.component';
+import {HealthStatusService, OdahuDeploymentService} from '../../core/services';
 
 export interface OdahuCluster {
   name: string;
@@ -13,35 +13,35 @@ export interface OdahuCluster {
 }
 
 @Component({
-  selector: 'dlab-legion-deployment',
-  templateUrl: './legion-deployment.component.html',
-  styleUrls: ['./legion-deployment.component.scss']
+  selector: 'datalab-odahu',
+  templateUrl: './odahu.component.html',
+  styleUrls: ['./odahu.component.scss']
 })
-export class LegionDeploymentComponent implements OnInit {
+export class OdahuComponent implements OnInit {
 
-  private legionClastersList: any[];
+  private odahuList: any[];
   private subscriptions: Subscription = new Subscription();
   private healthStatus;
 
   constructor(
-    private legionDeploymentDataService: LegionDeploymentDataService,
+    private odahuDataService: OdahuDataService,
     private dialog: MatDialog,
     public toastr: ToastrService,
-    public legionDeploymentService: LegionDeploymentService,
+    public odahuDeploymentService: OdahuDeploymentService,
     private healthStatusService: HealthStatusService,
   ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.subscriptions.add(this.legionDeploymentDataService._legionClasters.subscribe(
+    this.subscriptions.add(this.odahuDataService._odahuClasters.subscribe(
       (value) => {
-        if (value) this.legionClastersList = value;
+        if (value) this.odahuList = value;
       }));
     this.refreshGrid();
   }
 
-  public createLegionCluster(): void {
-    this.dialog.open(CreateLegionClusterComponent, {  data: this.legionClastersList, panelClass: 'modal-lg' })
+  public createOdahuCluster(): void {
+    this.dialog.open(CreateOdahuClusterComponent, {  data: this.odahuList, panelClass: 'modal-lg' })
       .afterClosed().subscribe((result) => {
       result && this.getEnvironmentHealthStatus();
       this.refreshGrid();
@@ -54,6 +54,6 @@ export class LegionDeploymentComponent implements OnInit {
   }
 
   public refreshGrid(): void {
-    this.legionDeploymentDataService.updateClasters();
+    this.odahuDataService.updateClasters();
   }
 }

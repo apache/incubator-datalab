@@ -22,7 +22,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
-import {ProjectService, UserResourceService, LegionDeploymentService} from '../../core/services';
+import {ProjectService, UserResourceService, OdahuDeploymentService} from '../../core/services';
 import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
@@ -133,7 +133,7 @@ export class ResourcesGridComponent implements OnInit {
     private progressBarService: ProgressBarService,
     private projectService: ProjectService,
     private auditService: AuditService,
-    private legionDeploymentService: LegionDeploymentService,
+    private odahuDeploymentService: OdahuDeploymentService,
   ) { }
 
   ngOnInit(): void {
@@ -229,8 +229,8 @@ export class ResourcesGridComponent implements OnInit {
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
-  public printDetailLegionModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: {legion: data}, panelClass: 'modal-lg' })
+  public printDetailOdahuModal(data): void {
+    this.dialog.open(DetailDialogComponent, { data: {odahu: data}, panelClass: 'modal-lg' })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
@@ -254,7 +254,8 @@ export class ResourcesGridComponent implements OnInit {
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
       const compute =  data.resources.filter(cluster => cluster.status === 'running');
-      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, compute, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
+      this.dialog.open(ConfirmationDialogComponent,
+        { data: { notebook: data, compute, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe((res) => {
         res && this.buildGrid();
       });
@@ -455,7 +456,7 @@ export class ResourcesGridComponent implements OnInit {
   private odahuAction(element: any, action: string) {
     this.dialog.open(OdahuActionDialogComponent, {data: {type: action, item: element}, panelClass: 'modal-sm'})
       .afterClosed().subscribe(result => {
-        result && this.legionDeploymentService.odahuAction(element,  action).subscribe(v =>
+        result && this.odahuDeploymentService.odahuAction(element,  action).subscribe(v =>
             this.buildGrid(),
           error => this.toastr.error(`Odahu cluster ${action} failed!`, 'Oops!')
         ) ;

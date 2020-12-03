@@ -117,7 +117,7 @@
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
           <td class="name-col">
             <span *ngIf="element.shape !== 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailEnvironmentModal(element)">{{ element.name }}</span>
-            <span *ngIf="element.shape === 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailLegionModal(element)">{{ element.name }}</span>
+            <span *ngIf="element.shape === 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailOdahuModal(element)">{{ element.name }}</span>
           </td>
           <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">
             {{element.status | underscoreless }}
