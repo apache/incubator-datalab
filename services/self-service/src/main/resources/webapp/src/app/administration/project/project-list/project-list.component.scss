@@ -152,6 +152,13 @@ td.settings {
   padding: 10px 15px;
 }
 
+.mat-chip{
+  max-width: 200px !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
 
 
 
