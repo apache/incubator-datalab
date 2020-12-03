@@ -222,9 +222,10 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
         infoService.updateInfrastructureStatuses(getUserInfo(), ENDPOINT_NAME, envResources, envResources);
 
         verify(endpointService).get(ENDPOINT_NAME);
-        verify(requestBuilder).newInfrastructureStatus(USER.toLowerCase(), CloudProvider.AWS, new EnvResourceList()
-                .withHostList(envResources)
-                .withClusterList(envResources));
+        verify(requestBuilder).newInfrastructureStatus(USER.toLowerCase(), CloudProvider.AWS, EnvResourceList.builder()
+                .hostList(envResources)
+                .clusterList(envResources)
+                .build());
         verify(provisioningService).post(ENDPOINT_URL + INFRASTRUCTURE_STATUS, TOKEN, new UserEnvironmentResources(), String.class);
         verify(requestId).put(USER.toLowerCase(), UUID);
         verifyNoMoreInteractions(endpointService, provisioningService, requestBuilder, requestId);
@@ -260,13 +261,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-		        .project(PROJECT)
-		        .billingQuoteUsed(10)
-		        .shared(Collections.singletonMap(ENDPOINT_NAME, Collections.emptyMap()))
-		        .exploratory(getUserInstanceDTOs())
-		        .exploratoryBilling(Collections.singletonList(getReport()))
-		        .endpoints(Collections.singletonList(getEndpointDTO()))
-		        .odahu(Collections.emptyList())
+                .project(PROJECT)
+                .billingQuoteUsed(10)
+                .shared(Collections.singletonMap(ENDPOINT_NAME, Collections.emptyMap()))
+                .exploratory(getUserInstanceDTOs())
+                .exploratoryBilling(Collections.singletonList(getReport()))
+                .endpoints(Collections.singletonList(getEndpointDTO()))
+                .odahu(Collections.emptyList())
                 .build());
         return objects;
     }
@@ -274,13 +275,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getAwsProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-		        .project(PROJECT)
-		        .billingQuoteUsed(10)
-		        .shared(Collections.singletonMap(ENDPOINT_NAME, getAwsEdgeInfo()))
-		        .exploratory(getUserInstanceDTOs())
-		        .exploratoryBilling(Collections.singletonList(getReport()))
-		        .endpoints(Collections.singletonList(getEndpointDTO()))
-		        .odahu(Collections.emptyList())
+                .project(PROJECT)
+                .billingQuoteUsed(10)
+                .shared(Collections.singletonMap(ENDPOINT_NAME, getAwsEdgeInfo()))
+                .exploratory(getUserInstanceDTOs())
+                .exploratoryBilling(Collections.singletonList(getReport()))
+                .endpoints(Collections.singletonList(getEndpointDTO()))
+                .odahu(Collections.emptyList())
                 .build());
         return objects;
     }
@@ -288,13 +289,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getAzureProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-		        .project(PROJECT)
-		        .billingQuoteUsed(10)
-		        .shared(Collections.singletonMap(ENDPOINT_NAME, getAzureEdgeInfo()))
-		        .exploratory(getUserInstanceDTOs())
-		        .exploratoryBilling(Collections.singletonList(getReport()))
-		        .endpoints(Collections.singletonList(getEndpointDTO()))
-		        .odahu(Collections.emptyList())
+                .project(PROJECT)
+                .billingQuoteUsed(10)
+                .shared(Collections.singletonMap(ENDPOINT_NAME, getAzureEdgeInfo()))
+                .exploratory(getUserInstanceDTOs())
+                .exploratoryBilling(Collections.singletonList(getReport()))
+                .endpoints(Collections.singletonList(getEndpointDTO()))
+                .odahu(Collections.emptyList())
                 .build());
         return objects;
     }
@@ -302,13 +303,13 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
     private List<ProjectInfrastructureInfo> getGcpProjectInfrastructureInfo() {
         List<ProjectInfrastructureInfo> objects = new ArrayList<>();
         objects.add(ProjectInfrastructureInfo.builder()
-		        .project(PROJECT)
-		        .billingQuoteUsed(10)
-		        .shared(Collections.singletonMap(ENDPOINT_NAME, getGcpEdgeInfo()))
-		        .exploratory(getUserInstanceDTOs())
-		        .exploratoryBilling(Collections.singletonList(getReport()))
-		        .endpoints(Collections.singletonList(getEndpointDTO()))
-		        .odahu(Collections.emptyList())
+                .project(PROJECT)
+                .billingQuoteUsed(10)
+                .shared(Collections.singletonMap(ENDPOINT_NAME, getGcpEdgeInfo()))
+                .exploratory(getUserInstanceDTOs())
+                .exploratoryBilling(Collections.singletonList(getReport()))
+                .endpoints(Collections.singletonList(getEndpointDTO()))
+                .odahu(Collections.emptyList())
                 .build());
         return objects;
     }

@@ -31,7 +31,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -40,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.datalab.rest.contracts.ApiCallbacks.INFRASTRUCTURE;
 import static com.epam.datalab.rest.contracts.ApiCallbacks.STATUS_URI;
@@ -51,9 +51,10 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
     @JsonCreator
     public ResourcesStatusCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
-                                          @JsonProperty("uuid") String uuid, @JsonProperty("user") String user, EnvResourceList resourceList) {
+                                          @JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
+                                          EnvResourceList resourceList) {
         super(selfService, user, uuid, action);
-        this.datalabHostResources = getEnvResources(resourceList.getHostList());
+        this.datalabHostResources = getEnvResources(resourceList);
     }
 
     @Override
@@ -69,12 +70,10 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
             throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
 
-        EnvResourceList envResourceList = new EnvResourceList();
-        if (CollectionUtils.isNotEmpty(cloudResourceList.getHostList())) {
-            envResourceList.withHostList(getChangedEnvResources(cloudResourceList.getHostList()));
-        } else {
-            envResourceList.withHostList(Collections.emptyList());
-        }
+        EnvResourceList envResourceList = EnvResourceList.builder()
+                .hostList(getListOrEmpty(cloudResourceList.getHostList()))
+                .clusterList(getListOrEmpty(cloudResourceList.getClusterList()))
+                .build();
 
         baseStatus
                 .withResourceList(envResourceList)
@@ -115,9 +114,17 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
                 .collect(Collectors.toList());
     }
 
-    private Map<String, EnvResource> getEnvResources(List<EnvResource> envResources) {
-        return envResources
-                .stream()
+    private Map<String, EnvResource> getEnvResources(EnvResourceList envResources) {
+        List<EnvResource> envCopy = Stream.concat(envResources.getClusterList().stream(), envResources.getHostList().stream())
+                .collect(Collectors.toList());
+
+        return envCopy.stream()
                 .collect(Collectors.toMap(EnvResource::getId, e -> e));
+    }
+
+    private List<EnvResource> getListOrEmpty(List<EnvResource> source) {
+        return source != null ?
+                getChangedEnvResources(source) :
+                Collections.emptyList();
     }
 }

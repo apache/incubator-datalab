@@ -335,7 +335,10 @@ public class EnvironmentServiceImplTest {
 
     @Test
     public void updateEnvironmentStatusesWithUnknownStatus() {
-        EnvResourceList envResourceList = new EnvResourceList().withHostList(Collections.singletonList(new EnvResource().withStatus("unknown status")));
+        EnvResourceList envResourceList = EnvResourceList.builder()
+                .hostList(Collections.singletonList(new EnvResource().withStatus("unknown status")))
+                .build();
+
         environmentService.updateEnvironmentStatuses(envResourceList);
 
         verifyZeroInteractions(projectService, exploratoryService, computationalService);
@@ -348,8 +351,9 @@ public class EnvironmentServiceImplTest {
     private EnvResourceList getEnvResourceList() {
         List<EnvResource> hostList = Arrays.asList(getEnvResource(ResourceType.EDGE), getEnvResource(ResourceType.EXPLORATORY),
                 getEnvResource(ResourceType.COMPUTATIONAL));
-        return new EnvResourceList()
-                .withHostList(hostList);
+        return  EnvResourceList.builder()
+                .hostList(hostList)
+                .build();
     }
 
     private EnvResource getEnvResource(ResourceType resourceType) {

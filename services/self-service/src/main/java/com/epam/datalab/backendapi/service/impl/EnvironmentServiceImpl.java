@@ -175,8 +175,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
     @Override
     public void updateEnvironmentStatuses(EnvResourceList resourceList) {
-        resourceList.getHostList()
-                .forEach(this::updateHostStatuses);
+        resourceList.getHostList().forEach(this::updateHostStatuses);
+        resourceList.getClusterList().forEach(this::updateHostStatuses);
     }
 
     private void updateHostStatuses(EnvResource envResource) {
