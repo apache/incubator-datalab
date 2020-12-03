@@ -19,15 +19,27 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ManagenementModule } from './management';
-import { ProjectModule } from './project';
-import { RolesModule } from './roles';
-import {OdahuModule} from './odahu';
+import { MaterialModule } from '../../../shared/material.module';
+import { FormControlsModule } from '../../../shared/form-controls';
+import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
+import {CreateOdahuClusterComponent} from './create-odahu-cluster.component';
+
+export * from './create-odahu-cluster.component';
 
 @NgModule({
-  imports: [CommonModule, ManagenementModule, ProjectModule, RolesModule, OdahuModule],
-  declarations: [],
-  exports: [ManagenementModule, ProjectModule, RolesModule, OdahuModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FormControlsModule,
+    MaterialModule,
+    KeysPipeModule,
+    UnderscorelessPipeModule,
+  ],
+  declarations: [CreateOdahuClusterComponent],
+  entryComponents: [CreateOdahuClusterComponent],
+  exports: [CreateOdahuClusterComponent]
 })
-export class AdministrationModule { }
+export class CreateOdahuClusterModule { }

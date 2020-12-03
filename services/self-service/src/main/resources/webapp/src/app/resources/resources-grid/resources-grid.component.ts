@@ -22,7 +22,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
-import {ProjectService, UserResourceService} from '../../core/services';
+import {ProjectService, UserResourceService, OdahuDeploymentService} from '../../core/services';
 import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
@@ -37,6 +37,7 @@ import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmat
 import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
+import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 import {AuditService} from '../../core/services/audit.service';
@@ -132,6 +133,7 @@ export class ResourcesGridComponent implements OnInit {
     private progressBarService: ProgressBarService,
     private projectService: ProjectService,
     private auditService: AuditService,
+    private odahuDeploymentService: OdahuDeploymentService,
   ) { }
 
   ngOnInit(): void {
@@ -227,6 +229,11 @@ export class ResourcesGridComponent implements OnInit {
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
+  public printDetailOdahuModal(data): void {
+    this.dialog.open(DetailDialogComponent, { data: {odahu: data}, panelClass: 'modal-lg' })
+      .afterClosed().subscribe(() => this.buildGrid());
+  }
+
   public printCostDetails(data): void {
     this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-xl' })
       .afterClosed().subscribe(() => this.buildGrid());
@@ -247,7 +254,8 @@ export class ResourcesGridComponent implements OnInit {
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
       const compute =  data.resources.filter(cluster => cluster.status === 'running');
-      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, compute, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
+      this.dialog.open(ConfirmationDialogComponent,
+        { data: { notebook: data, compute, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe((res) => {
         res && this.buildGrid();
       });
@@ -443,6 +451,17 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe(() => { },
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
+  }
+
+  private odahuAction(element: any, action: string) {
+    this.dialog.open(OdahuActionDialogComponent, {data: {type: action, item: element}, panelClass: 'modal-sm'})
+      .afterClosed().subscribe(result => {
+        result && this.odahuDeploymentService.odahuAction(element,  action).subscribe(v =>
+            this.buildGrid(),
+          error => this.toastr.error(`Odahu cluster ${action} failed!`, 'Oops!')
+        ) ;
+      }, error => this.toastr.error(error.message || `Odahu cluster ${action} failed!`, 'Oops!')
+    );
   }
 
   public logAction(name) {
