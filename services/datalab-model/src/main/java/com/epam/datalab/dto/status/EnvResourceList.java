@@ -22,6 +22,8 @@ package com.epam.datalab.dto.status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
@@ -29,56 +31,14 @@ import java.util.List;
 /**
  * Describe the lists of resources (host, cluster, storage) for check status in Cloud.
  */
+@Data
+@Builder
 @EqualsAndHashCode
 public class EnvResourceList {
     @JsonProperty("host")
     private List<EnvResource> hostList;
     @JsonProperty("cluster")
     private List<EnvResource> clusterList;
-
-    /**
-     * Return the list of hosts.
-     */
-    public List<EnvResource> getHostList() {
-        return hostList;
-    }
-
-    /**
-     * Set the list of hosts.
-     */
-    public void setHostList(List<EnvResource> hostList) {
-        this.hostList = hostList;
-    }
-
-    /**
-     * Set the list of hosts.
-     */
-    public EnvResourceList withHostList(List<EnvResource> hostList) {
-        setHostList(hostList);
-        return this;
-    }
-
-    /**
-     * Return the list of clusters.
-     */
-    public List<EnvResource> getClusterList() {
-        return clusterList;
-    }
-
-    /**
-     * Set the list of clusters.
-     */
-    public void setClusterList(List<EnvResource> clusterList) {
-        this.clusterList = clusterList;
-    }
-
-    /**
-     * Set the list of clusters.
-     */
-    public EnvResourceList withClusterList(List<EnvResource> clusterList) {
-        setClusterList(clusterList);
-        return this;
-    }
 
     public ToStringHelper toStringHelper(Object self) {
         return MoreObjects.toStringHelper(self)

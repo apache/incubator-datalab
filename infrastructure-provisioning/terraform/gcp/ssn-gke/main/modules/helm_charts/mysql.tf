@@ -33,7 +33,7 @@ data "template_file" "mysql_values" {
 
 resource "helm_release" "keycloak-mysql" {
   name       = "keycloak-mysql"
-  chart = "stable/mysql"
+  chart = "./modules/helm_charts/mysql-chart"
   namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
   wait = true
   values     = [
