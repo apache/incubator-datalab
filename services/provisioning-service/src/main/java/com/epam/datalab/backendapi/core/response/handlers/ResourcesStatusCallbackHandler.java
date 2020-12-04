@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -115,16 +116,11 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     private Map<String, EnvResource> getEnvResources(EnvResourceList envResources) {
-        List<EnvResource> envCopy = Stream.concat(envResources.getClusterList().stream(), envResources.getHostList().stream())
-                .collect(Collectors.toList());
-
-        return envCopy.stream()
+        return Stream.concat(envResources.getClusterList().stream(), envResources.getHostList().stream())
                 .collect(Collectors.toMap(EnvResource::getId, e -> e));
     }
 
     private List<EnvResource> getListOrEmpty(List<EnvResource> source) {
-        return source != null ?
-                getChangedEnvResources(source) :
-                Collections.emptyList();
+        return getChangedEnvResources(Optional.of(source).orElse(Collections.emptyList()));
     }
 }
