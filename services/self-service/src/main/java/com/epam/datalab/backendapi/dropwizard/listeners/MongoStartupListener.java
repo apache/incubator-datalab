@@ -74,12 +74,12 @@ public class MongoStartupListener implements ServerLifecycleListener {
         List<EndpointDTO> endpointDTOs = endpointDAO.getEndpoints();
         if (userRoleDao.findAll().isEmpty()) {
             log.info("Populating DataLab default roles into database");
-            List<UserRoleDTO> populatingRoles = getRoles(CloudProvider.GENERAL);
+            List<UserRoleDTO> cloudRoles = getRoles(CloudProvider.GENERAL);
             List<CloudProvider> connectedCloudProviders = getConnectedProviders(endpointDTOs);
-            log.info("Check for connected endpoints:\n connected endpoints: {} \n connected clouds: {}"
-                    , endpointDTOs.size(), connectedCloudProviders);
-            connectedCloudProviders.forEach(provider->populatingRoles.addAll(getRoles(provider)));
-            userRoleDao.insert(populatingRoles);
+            log.info("Check for connected endpoints:\n connected endpoints: {} \n connected clouds: {}",
+                    endpointDTOs.size(), connectedCloudProviders);
+            connectedCloudProviders.forEach(provider -> cloudRoles.addAll(getRoles(provider)));
+            userRoleDao.insert(cloudRoles);
         } else {
             log.info("Roles already populated. Do nothing ...");
         }
