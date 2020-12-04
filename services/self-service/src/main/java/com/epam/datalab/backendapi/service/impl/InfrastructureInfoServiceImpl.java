@@ -148,9 +148,10 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
     @Override
     public void updateInfrastructureStatuses(UserInfo user, String endpoint, List<EnvResource> hostInstances, List<EnvResource> clusterInstances) {
-        EnvResourceList envResourceList = new EnvResourceList()
-                .withClusterList(clusterInstances)
-                .withHostList(hostInstances);
+        EnvResourceList envResourceList = EnvResourceList.builder()
+                        .hostList(hostInstances)
+                        .clusterList(clusterInstances)
+                        .build();
 
         EndpointDTO endpointDTO = endpointService.get(endpoint);
         String uuid = provisioningService.post(endpointDTO.getUrl() + INFRASTRUCTURE_STATUS, user.getAccessToken(),
