@@ -40,7 +40,7 @@ data "template_file" "configure_keycloak" {
 }
 
 data "template_file" "keycloak_values" {
-  template = file("./modules/helm_charts/files/keycloak_values.yaml")
+  template = file("./modules/helm_charts/keycloak-chart/values.yaml")
   vars     = {
     keycloak_user           = var.keycloak_user
     keycloak_password       = random_string.keycloak_password.result
@@ -60,8 +60,7 @@ data "helm_repository" "codecentric" {
 
 resource "helm_release" "keycloak" {
   name       = "keycloak"
-  repository = data.helm_repository.codecentric.metadata.0.name
-  chart = "codecentric/keycloak"
+  chart = "./modules/helm_charts/keycloak-chart"
   namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
   wait = true
   timeout    = 600

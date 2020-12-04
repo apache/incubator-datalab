@@ -33,7 +33,7 @@ fullnameOverride: ""
 # image contains the docker image for step-certificates.
 image:
   repository: smallstep/step-ca
-  tag: 0.13.2
+  tag: 0.15.5
   pullPolicy: IfNotPresent
 
 # bootstrapImage contains the docker image for the bootstrap of the configuration.
@@ -57,11 +57,9 @@ ca:
   # dns is the comma separated dns names to use. Leave it empty to use the format:
   # {include "step-certificates.fullname" .}.{ .Release.Namespace}.svc.cluster.local,127.0.0.1
   dns: ${step_chart_name}.${namespace}.svc.cluster.local,${step_ca_host}
-  # ${step_ca_host}
   # url is the http url where step-certificates will listen at. Leave it empty to use the format
   # https://{{ include "step-certificates.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   url: https://${step_chart_name}.${namespace}.svc.cluster.local
-  #${step_ca_host}
   # password is the password used to encrypt the keys. Leave it empty to generate a random one.
   password: ${step_ca_password}
   # provisioner contains the step-certificates provisioner configuration.
@@ -82,14 +80,21 @@ ca:
     # If undefined or set to null, no storageClassName spec is set, choosing the
     # default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack).
     storageClass: standard
+    ## Persistent Volume existing claim name
+    ## Requires ca.db.persistent: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim: ""
     # accessModes defines the Persistent Volume Access Mode.
     accessModes:
-      - ReadWriteOnce
+    - ReadWriteOnce
     # size is the Persistent Volume size.
     size: 10Gi
   # runAsRoot runs the ca as root instead of the step user. This is required in
   # some storage provisioners.
   runAsRoot: false
+  bootstrap:
+    # Add script snippets here to be executed after the step ca init has been run
+    postInitHook: ""
 
 # autocert is used to configure the autocert chart that depends on step-certificates.
 autocert:
@@ -113,7 +118,7 @@ resources: {}
   #   memory: 128Mi
   # requests:
   #   cpu: 100m
-#   memory: 128Mi
+  #   memory: 128Mi
 
 # nodeSelector contains the node labels for pod assignment.
 nodeSelector: {}
