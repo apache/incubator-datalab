@@ -35,6 +35,7 @@ unzip terraform_0.12.3_linux_amd64.zip
 chmod +x terraform
 mv terraform /usr/local/bin/
 apt-get install jq
+snap install kubectl --classic
 mkdir /home/ubuntu/datalab-state
 git clone https://github.com/apache/incubator-datalab.git
 cd incubator-datalab/infrastructure-provisioning/terraform/gcp/ssn-gke/main/
