@@ -58,8 +58,10 @@ public class EnvStatusDTOTest {
         clusters1.add(new EnvResource().withId("11"));
         assertEquals(clusters1.get(0).getId(), "10");
 
-        EnvResourceList r1 = new EnvResourceList()
-                .withHostList(hosts1).withClusterList(clusters1);
+        EnvResourceList r1 = EnvResourceList.builder()
+                .hostList(hosts1)
+                .clusterList(clusters1)
+                .build();
         assertEquals(r1.getHostList().get(1).getId(), "2");
         assertEquals(r1.getHostList().get(2).getId(), "3");
         assertEquals(r1.getClusterList().get(1).getId(), "11");

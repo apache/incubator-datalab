@@ -27,8 +27,31 @@
 
 .links_block {
 
-  >p {
-    display: flex;
+  .odahu-links:not(:last-child){
+    margin-bottom: 20px;
+  }
+
+  .grafana{
+    white-space: nowrap;
+    padding-left: 30px;
+    color: $blue-grey-color;
+
+    div{
+      display: flex;
+
+      span{
+        font-size: 13px;
+        font-weight: 500;
+
+        &.creds{
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  >p, .odahu-link {
+     display: flex;
 
     .description {
       white-space: nowrap;

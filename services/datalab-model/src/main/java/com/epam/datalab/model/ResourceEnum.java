@@ -22,7 +22,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ResourceEnum {
     EDGE_NODE("edge node"),
-    NOTEBOOK("notebook");
+    NOTEBOOK("notebook"),
+    ODAHU("odahu");
 
     private String name;
 

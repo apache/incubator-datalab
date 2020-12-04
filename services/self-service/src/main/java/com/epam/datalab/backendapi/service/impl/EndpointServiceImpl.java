@@ -30,6 +30,7 @@ import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.service.EndpointService;
+import com.epam.datalab.backendapi.service.OdahuService;
 import com.epam.datalab.backendapi.service.ProjectService;
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.constants.ServiceConsts;
@@ -53,6 +54,7 @@ import java.util.stream.Collectors;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CONNECT;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.DISCONNECT;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.ENDPOINT;
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATED;
 
 
 @Slf4j
@@ -63,17 +65,19 @@ public class EndpointServiceImpl implements EndpointService {
     private final ExploratoryDAO exploratoryDAO;
     private final RESTService provisioningService;
     private final UserRoleDAO userRoleDao;
+    private final OdahuService odahuService;
 
     @Inject
     public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO,
                                @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-                               UserRoleDAO userRoleDao) {
+                               UserRoleDAO userRoleDao, OdahuService odahuService) {
 
         this.endpointDAO = endpointDAO;
         this.projectService = projectService;
         this.exploratoryDAO = exploratoryDAO;
         this.provisioningService = provisioningService;
         this.userRoleDao = userRoleDao;
+        this.odahuService = odahuService;
     }
 
     @Override
@@ -89,7 +93,7 @@ public class EndpointServiceImpl implements EndpointService {
     @Override
     public EndpointResourcesDTO getEndpointResources(String endpoint) {
         List<UserInstanceDTO> exploratories = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusNotIn(endpoint,
-		        Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED), Boolean.FALSE);
+                Arrays.asList(TERMINATED, UserInstanceStatus.FAILED), Boolean.FALSE);
 
         List<ProjectDTO> projects = projectService.getProjectsByEndpoint(endpoint);
 
@@ -144,7 +148,8 @@ public class EndpointServiceImpl implements EndpointService {
     }
 
     @Audit(action = DISCONNECT, type = ENDPOINT)
-    public void removeEndpoint(@User UserInfo userInfo, @ResourceName String name, CloudProvider cloudProvider, List<ProjectDTO> projects) {
+    public void removeEndpoint(@User UserInfo userInfo, @ResourceName String name, CloudProvider cloudProvider,
+                               List<ProjectDTO> projects) {
         removeEndpointInAllProjects(userInfo, name, projects);
         endpointDAO.remove(name);
         List<CloudProvider> remainingProviders = endpointDAO.getEndpoints()
@@ -156,7 +161,10 @@ public class EndpointServiceImpl implements EndpointService {
 
     @Override
     public void removeEndpointInAllProjects(UserInfo userInfo, String endpointName, List<ProjectDTO> projects) {
-        projects.forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
+        projects.stream()
+                .filter(p -> p.getEndpoints().stream()
+                        .noneMatch(e -> e.getName().equals(endpointName) && e.getStatus() == TERMINATED))
+                .forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
     }
 
     @Override
@@ -178,12 +186,16 @@ public class EndpointServiceImpl implements EndpointService {
     }
 
     private void checkProjectEndpointResourcesStatuses(List<ProjectDTO> projects, String endpoint) {
-        boolean isTerminationEnabled = projects.stream()
-                .anyMatch(p -> !projectService.checkExploratoriesAndComputationalProgress(p.getName(), Collections.singletonList(endpoint)) ||
-                        p.getEndpoints().stream()
-                                .anyMatch(e -> e.getName().equals(endpoint) &&
-                                        Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-                                                UserInstanceStatus.TERMINATING).contains(e.getStatus())));
+        boolean isTerminationEnabled = projects
+                .stream()
+                .anyMatch(p ->
+                        odahuService.inProgress(p.getName(), endpoint) ||
+                                !projectService.checkExploratoriesAndComputationalProgress(p.getName(), Collections.singletonList(endpoint)) ||
+                                p.getEndpoints()
+                                        .stream()
+                                        .anyMatch(e -> e.getName().equals(endpoint) &&
+                                                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+                                                        UserInstanceStatus.TERMINATING).contains(e.getStatus())));
 
         if (isTerminationEnabled) {
             throw new ResourceConflictException(("Can not terminate resources of endpoint because one of project " +

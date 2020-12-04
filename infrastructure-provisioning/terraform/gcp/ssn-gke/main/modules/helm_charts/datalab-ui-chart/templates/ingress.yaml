@@ -1,5 +1,5 @@
 {{- /*
-  # ******************************************************************************
+  # *****************************************************************************
   #
   # Licensed to the Apache Software Foundation (ASF) under one
   # or more contributor license agreements.  See the NOTICE file
@@ -21,37 +21,37 @@
   # ******************************************************************************
   */ -}}
 
-  {{- if .Values.ui.ingress.enabled -}}
-  {{- $fullName := include "datalab-ui.fullname" . -}}
-  {{ $servicePort := .Values.ui.service.http_port }}
-  {{ $host := .Values.ui.ingress.host }}
+{{- if .Values.ui.ingress.enabled -}}
+{{- $fullName := include "datalab-ui.fullname" . -}}
+{{ $servicePort := .Values.ui.service.http_port }}
+{{ $host := .Values.ui.ingress.host }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-  {{ include "datalab-ui.labels" . | indent 4 }}
-annotations:
-  {{- with .Values.ui.ingress.annotations }}
-  {{ toYaml . | indent 4 }}
+{{ include "datalab-ui.labels" . | indent 4 }}
+  annotations:
+{{- with .Values.ui.ingress.annotations }}
+{{ toYaml . | indent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ui.ingress.tls }}
-tls:
+{{- if .Values.ui.ingress.tls }}
+  tls:
   {{- range .Values.ui.ingress.tls }}
-- hosts:
-  {{- range .hosts }}
-  - {{ . | quote }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
   {{- end }}
-  secretName: {{ .secretName }}
-  {{- end }}
-  {{- end }}
-rules:
-  - host: {{ $host }}
-    http:
-      paths:
+{{- end }}
+  rules:
+    - host: {{ $host }}
+      http:
+        paths:
         - backend:
             serviceName: {{ $fullName }}
             servicePort: {{ $servicePort }}
           path: /
-  {{- end }}
+{{- end }}

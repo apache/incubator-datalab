@@ -123,9 +123,10 @@ public class EnvDAO extends BaseDAO {
         return hostList.stream()
                 .collect(Collectors.groupingBy(EnvResource::getEndpoint)).entrySet()
                 .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> new EnvResourceList()
-                        .withHostList(!e.getValue().isEmpty() ? e.getValue() : Collections.emptyList())
-                        .withClusterList(clustersByEndpoint.getOrDefault(e.getKey(), clusterList))));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> EnvResourceList.builder()
+                        .hostList(!e.getValue().isEmpty() ? e.getValue() : Collections.emptyList())
+                        .clusterList(clustersByEndpoint.getOrDefault(e.getKey(), clusterList))
+                        .build()));
     }
 
     @SuppressWarnings("unchecked")

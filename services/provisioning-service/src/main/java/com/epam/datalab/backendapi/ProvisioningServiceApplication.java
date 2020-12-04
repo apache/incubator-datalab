@@ -34,6 +34,7 @@ import com.epam.datalab.backendapi.resources.GitExploratoryResource;
 import com.epam.datalab.backendapi.resources.ImageResource;
 import com.epam.datalab.backendapi.resources.InfrastructureResource;
 import com.epam.datalab.backendapi.resources.LibraryResource;
+import com.epam.datalab.backendapi.resources.OdahuResource;
 import com.epam.datalab.backendapi.resources.ProjectResource;
 import com.epam.datalab.backendapi.resources.ProvisioningHealthCheckResource;
 import com.epam.datalab.backendapi.resources.base.KeyResource;
@@ -155,6 +156,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         jersey.register(injector.getInstance(KeyResource.class));
         jersey.register(injector.getInstance(CallbackHandlerResource.class));
         jersey.register(injector.getInstance(ProjectResource.class));
+        jersey.register(injector.getInstance(OdahuResource.class));
         jersey.register(injector.getInstance(ProvisioningHealthCheckResource.class));
         environment.jersey().register(injector.getInstance(BucketResource.class));
     }

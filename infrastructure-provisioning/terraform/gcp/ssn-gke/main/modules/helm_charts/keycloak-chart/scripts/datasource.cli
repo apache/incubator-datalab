@@ -19,29 +19,11 @@
 #
 # ******************************************************************************
 
-data "template_file" "datalab_billing_values" {
-  template = file("./modules/helm_charts/datalab-billing-chart/values.yaml")
-  vars = {
-    mongo_db_name = var.mongo_dbname
-    mongo_user = var.mongo_db_username
-    mongo_port = var.mongo_service_port
-    mongo_service_name = var.mongo_service_name
-    service_base_name = var.service_base_name
-    big_query_dataset = var.big_query_dataset
-  }
-}
+# Configure datasource to use explicit query timeout in seconds
+/subsystem=datasources/data-source=KeycloakDS/:write-attribute(name=query-timeout,value=${env.DB_QUERY_TIMEOUT:300})
 
-resource "helm_release" "datalab-billing" {
-  name = "datalab-billing"
-  chart = "./modules/helm_charts/datalab-billing-chart"
-  depends_on = [
-    helm_release.mongodb,
-    kubernetes_secret.mongo_db_password_secret,
-    null_resource.cert_manager_delay]
-  namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
-  wait = true
+# Configure datasource to connection before use
+/subsystem=datasources/data-source=KeycloakDS/:write-attribute(name=validate-on-match,value=${env.DB_VALIDATE_ON_MATCH:true})
 
-  values = [
-    data.template_file.datalab_billing_values.rendered
-  ]
-}
+# Configure datasource to try all other connections before failing
+/subsystem=datasources/data-source=KeycloakDS/:write-attribute(name=use-fast-fail,value=${env.DB_USE_CAST_FAIL:false})

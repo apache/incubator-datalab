@@ -18,17 +18,17 @@
  */
 package com.epam.datalab.backendapi.service;
 
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 
 import java.util.List;
 
 public interface UserRoleService {
 
-    List<UserRoleDto> getUserRoles();
+    List<UserRoleDTO> getUserRoles();
 
-    void createRole(UserRoleDto dto);
+    void createRole(UserRoleDTO dto);
 
-    void updateRole(UserRoleDto dto);
+    void updateRole(UserRoleDTO dto);
 
     void removeRole(String roleId);
 }

@@ -26,6 +26,7 @@ import com.epam.datalab.backendapi.annotation.User;
 import com.epam.datalab.backendapi.dao.EnvDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.UserSettingsDAO;
+import com.epam.datalab.backendapi.domain.OdahuDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.resources.dto.UserDTO;
 import com.epam.datalab.backendapi.resources.dto.UserResourceInfo;
@@ -49,6 +50,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
@@ -58,7 +60,6 @@ import static com.epam.datalab.dto.UserInstanceStatus.CREATING_IMAGE;
 import static com.epam.datalab.dto.UserInstanceStatus.RUNNING;
 import static com.epam.datalab.dto.UserInstanceStatus.STARTING;
 import static com.epam.datalab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
-import static java.util.stream.Collectors.toList;
 
 @Singleton
 @Slf4j
@@ -101,19 +102,19 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         final Stream<UserDTO> notActiveUsersStream = notActiveUsers
                 .stream()
                 .map(u -> toUserDTO(u, NOT_ACTIVE));
-        return Stream.concat(activeUsersStream, notActiveUsersStream)
-                .collect(toList());
+	    return Stream.concat(activeUsersStream, notActiveUsersStream)
+			    .collect(Collectors.toList());
     }
 
     @Override
     public List<UserResourceInfo> getAllEnv(UserInfo user) {
         log.debug("Getting all user's environment...");
         List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-        return projectService.getProjects(user)
-                .stream()
-                .map(projectDTO -> getProjectEnv(projectDTO, expList))
-                .flatMap(Collection::stream)
-                .collect(toList());
+	    return projectService.getProjects(user)
+			    .stream()
+			    .map(projectDTO -> getProjectEnv(projectDTO, expList))
+			    .flatMap(Collection::stream)
+			    .collect(Collectors.toList());
     }
 
     @Override
@@ -174,8 +175,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
     @Override
     public void updateEnvironmentStatuses(EnvResourceList resourceList) {
-        resourceList.getHostList()
-                .forEach(this::updateHostStatuses);
+        resourceList.getHostList().forEach(this::updateHostStatuses);
+        resourceList.getClusterList().forEach(this::updateHostStatuses);
     }
 
     private void updateHostStatuses(EnvResource envResource) {
@@ -224,23 +225,29 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     }
 
     private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
-        final Stream<UserResourceInfo> userResources = allInstances
-                .stream()
-                .filter(instance -> instance.getProject().equals(projectDTO.getName()))
-                .map(this::toUserResourceInfo);
-        if (projectDTO.getEndpoints() != null) {
-            final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
-                    .stream()
-                    .map(e -> UserResourceInfo.builder()
-                            .resourceType(ResourceEnum.EDGE_NODE)
-                            .resourceStatus(e.getStatus().toString())
-                            .project(projectDTO.getName())
-                            .endpoint(e.getName())
-                            .ip(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null)
-                            .build());
-            return Stream.concat(edges, userResources).collect(toList());
-        } else {
-            return userResources.collect(toList());
+	    final Stream<UserResourceInfo> userResources = allInstances
+			    .stream()
+			    .filter(instance -> instance.getProject().equals(projectDTO.getName()))
+			    .map(this::toUserResourceInfo);
+
+	    Stream<UserResourceInfo> odahuResources = projectDTO.getOdahu()
+			    .stream()
+			    .map(this::toUserResourceInfo);
+
+	    if (projectDTO.getEndpoints() != null) {
+		    final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
+				    .stream()
+				    .map(e -> UserResourceInfo.builder()
+						    .resourceType(ResourceEnum.EDGE_NODE)
+						    .resourceStatus(e.getStatus().toString())
+						    .project(projectDTO.getName())
+						    .endpoint(e.getName())
+						    .ip(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null)
+						    .build());
+		    return Stream.concat(edges, Stream.concat(odahuResources, userResources))
+				    .collect(Collectors.toList());
+	    } else {
+		    return userResources.collect(Collectors.toList());
         }
     }
 
@@ -248,24 +255,33 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         return UserResourceInfo.builder()
                 .resourceType(ResourceEnum.NOTEBOOK)
                 .resourceName(userInstance.getExploratoryName())
-                .resourceShape(userInstance.getShape())
-                .resourceStatus(userInstance.getStatus())
-                .computationalResources(userInstance.getResources())
-                .user(userInstance.getUser())
-                .project(userInstance.getProject())
-                .endpoint(userInstance.getEndpoint())
-                .cloudProvider(userInstance.getCloudProvider())
-                .exploratoryUrls(userInstance.getResourceUrl())
-                .build();
+		        .resourceShape(userInstance.getShape())
+		        .resourceStatus(userInstance.getStatus())
+		        .computationalResources(userInstance.getResources())
+		        .user(userInstance.getUser())
+		        .project(userInstance.getProject())
+		        .endpoint(userInstance.getEndpoint())
+		        .cloudProvider(userInstance.getCloudProvider())
+		        .exploratoryUrls(userInstance.getResourceUrl())
+		        .build();
     }
 
-    private void checkProjectResourceConditions(String project, String action) {
-        final List<UserInstanceDTO> userInstances = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(project,
-                Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+	private UserResourceInfo toUserResourceInfo(OdahuDTO odahuDTO) {
+		return UserResourceInfo.builder()
+				.resourceType(ResourceEnum.ODAHU)
+				.resourceName(odahuDTO.getName())
+				.resourceStatus(odahuDTO.getStatus().toString())
+				.project(odahuDTO.getProject())
+				.build();
+	}
 
-        if (!userInstances.isEmpty()) {
-            log.error(String.format(ERROR_MSG_FORMAT, action));
-            throw new ResourceConflictException(String.format(ERROR_MSG_FORMAT, action));
-        }
-    }
+	private void checkProjectResourceConditions(String project, String action) {
+		final List<UserInstanceDTO> userInstances = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(project,
+				Arrays.asList(CREATING, STARTING, CREATING_IMAGE), CREATING, STARTING, CREATING_IMAGE);
+
+		if (!userInstances.isEmpty()) {
+			log.error(String.format(ERROR_MSG_FORMAT, action));
+			throw new ResourceConflictException(String.format(ERROR_MSG_FORMAT, action));
+		}
+	}
 }

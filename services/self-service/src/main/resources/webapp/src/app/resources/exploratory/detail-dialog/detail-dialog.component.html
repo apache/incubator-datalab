@@ -23,7 +23,20 @@
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
-    <div *ngIf="data ">
+    <div *ngIf="data.legion">
+      <table class="detail-header">
+        <tr>
+          <td>{{odahu.name}}</td>
+          <td>
+            <span class="status" ngClass="{{odahu.status || ''}}">
+              {{odahu.status}}
+            </span>
+          </td>
+          <td>{{odahu.shape}}</td>
+        </tr>
+      </table>
+    </div>
+    <div *ngIf="data.notebook">
       <table class="detail-header">
         <tr>
           <td>{{notebook.template_name || notebook.name}}</td>
@@ -258,5 +271,25 @@
       </div>
     </div>
 
+    <div class="legion-info" *ngIf="data.odahu">
+      <div class="content-box">
+        <div class="detail-info" *ngIf="!odahu.error_message">
+        <div  class="links_block">
+          <div *ngFor="let url of odahu.url" class="odahu-links">
+            <div class="odahu-link">
+              <span class="description">{{url.description }}: &nbsp;</span>
+              <a class="ellipsis" matTooltip="{{ url.url}}" matTooltipPosition="above" href="{{ url.url}}"
+                 target="_blank">{{ url.url}}
+              </a>
+            </div>
+            <div class="grafana" *ngIf="url.description === 'Grafana'">
+              <div><span>Gafana user:&nbsp;</span><span class="creds">{{odahu.bucket_name}}</span></div>
+              <div><span>Gafana password:&nbsp;</span><span class="creds">{{odahu.shared_bucket_name}}</span></div>
+            </div>
+          </div>
+        </div>
+    </div>
+      </div>
+    </div>
   </div>
 </div>

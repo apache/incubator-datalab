@@ -19,7 +19,7 @@
 package com.epam.datalab.backendapi.service;
 
 import com.epam.datalab.backendapi.dao.UserRoleDAO;
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -36,17 +36,17 @@ public class UserRoleServiceImpl implements UserRoleService {
     private UserRoleDAO userRoleDao;
 
     @Override
-    public List<UserRoleDto> getUserRoles() {
+    public List<UserRoleDTO> getUserRoles() {
         return userRoleDao.findAll();
     }
 
     @Override
-    public void createRole(UserRoleDto dto) {
+    public void createRole(UserRoleDTO dto) {
         userRoleDao.insert(dto);
     }
 
     @Override
-    public void updateRole(UserRoleDto dto) {
+    public void updateRole(UserRoleDTO dto) {
         checkAnyRoleFound(Collections.singleton(dto.getId()), userRoleDao.update(dto));
     }
 

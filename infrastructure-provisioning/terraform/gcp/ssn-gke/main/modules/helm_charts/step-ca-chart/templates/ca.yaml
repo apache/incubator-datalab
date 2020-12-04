@@ -1,30 +1,31 @@
+{{- /*
 # *****************************************************************************
 #
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-#  http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing,
-#  software distributed under the License is distributed on an
-#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-#  specific language governing permissions and limitations
-#  under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
+*/ -}}
 
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "step-certificates.fullname" . }}
-  labels:
-  {{ include "step-certificates.labels" . | indent 4 }}
+  labels: {{ include "step-certificates.labels" . | nindent 4 }}
 spec:
   # Only one replica is supported at this moment
   # Requested {{ .Values.replicaCount }}
@@ -41,119 +42,118 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: {{ include "step-certificates.fullname" . }}
     spec:
-{{- if .Release.IsInstall }}
-initContainers:
-  - name: {{ .Chart.Name }}-init
-    image: busybox:latest
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command: ["sleep", "20"]
-{{- end }}
-securityContext:
-  {{- if .Values.ca.runAsRoot }}
-  runAsUser: 0
-  {{- else }}
-  runAsUser: 1000
-  runAsNonRoot: true
-  runAsGroup: 1000
-  fsGroup: 1000
-  allowPrivilegeEscalation: false
-  {{- end }}
-containers:
-  - name: {{ .Chart.Name }}
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command: ["/usr/local/bin/step-ca",
-              "--password-file", "/home/step/secrets/passwords/password",
-              "/home/step/config/ca.json"]
-    env:
-      - name: NAMESPACE
-        value: "{{ .Release.Namespace }}"
-    ports:
-      - name: https
-        containerPort: {{ .Values.service.targetPort }}
-        protocol: TCP
-    livenessProbe:
-      initialDelaySeconds: 5
-      httpGet:
-        path: /health
-        port: {{ .Values.service.targetPort }}
-        scheme: HTTPS
-    readinessProbe:
-      initialDelaySeconds: 5
-      httpGet:
-        path: /health
-        port: {{ .Values.service.targetPort }}
-        scheme: HTTPS
-    resources:
-      {{- toYaml .Values.resources | nindent 12 }}
-    volumeMounts:
-      - name: certs
-        mountPath: /home/step/certs
-        readOnly: true
-      - name: config
-        mountPath: /home/step/config
-        readOnly: true
-      - name: secrets
-        mountPath: /home/step/secrets
-        readOnly: true
-      - name: ca-password
-        mountPath: /home/step/secrets/passwords
-        readOnly: true
-    {{- if .Values.ca.db.enabled }}
-    - name: database
-      mountPath: /home/step/db
-      readOnly: false
-    {{- end }}
-volumes:
-  - name: certs
-    configMap:
-      name: {{ include "step-certificates.fullname" . }}-certs
-  - name: config
-configMap:
-  name: {{ include "step-certificates.fullname" . }}-config
-  - name: secrets
-configMap:
-  name: {{ include "step-certificates.fullname" . }}-secrets
-  - name: ca-password
-secret:
-  secretName: {{ include "step-certificates.fullname" . }}-ca-password
-  {{- if and .Values.ca.db.enabled (not .Values.ca.db.persistent) }}
-  - name: database
-emptyDir: {}
-  {{- end }}
-  {{- with .Values.nodeSelector }}
-nodeSelector:
-  {{- toYaml . | nindent 8 }}
-  {{- end }}
-  {{- with .Values.affinity }}
-affinity:
-  {{- toYaml . | nindent 8 }}
-  {{- end }}
-  {{- with .Values.tolerations }}
-tolerations:
-  {{- toYaml . | nindent 8 }}
-  {{- end }}
-{{- if and .Values.ca.db.enabled .Values.ca.db.persistent }}
-volumeClaimTemplates:
-  - metadata:
-      name: database
-      labels:
-        app.kubernetes.io/name: {{ include "step-certificates.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
-        app.kubernetes.io/managed-by: {{ .Release.Service }}
-    spec:
-      accessModes:
-      {{- range .Values.ca.db.accessModes }}
-      - {{ . | quote }}
+      {{- if .Release.IsInstall }}
+      initContainers:
+        - name: {{ .Chart.Name }}-init
+          image: busybox:latest
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["sleep", "20"]
       {{- end }}
-      resources:
-        requests:
-          storage: {{ .Values.ca.db.size | quote }}
-    {{- if .Values.ca.db.storageClass }}
-    {{- if (eq "-" .Values.ca.db.storageClass) }}
-    storageClassName: ""
-    {{- else }}
-    storageClassName: {{ .Values.ca.db.storageClass | quote }}
-    {{- end }}
-    {{- end }}
-{{- end }}
+      securityContext:
+        {{- if .Values.ca.runAsRoot }}
+        runAsUser: 0
+        {{- else }}
+        runAsUser: 1000
+        runAsNonRoot: true
+        runAsGroup: 1000
+        fsGroup: 1000
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/local/bin/step-ca",
+                    "--password-file", "/home/step/secrets/passwords/password",
+                    "/home/step/config/ca.json"]
+          env:
+            - name: NAMESPACE
+              value: "{{ .Release.Namespace }}"
+          ports:
+            - name: https
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 5
+            httpGet:
+              path: /health
+              port: {{ .Values.service.targetPort }}
+              scheme: HTTPS
+          readinessProbe:
+            initialDelaySeconds: 5
+            httpGet:
+              path: /health
+              port: {{ .Values.service.targetPort }}
+              scheme: HTTPS
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: certs
+              mountPath: /home/step/certs
+              readOnly: true
+            - name: config
+              mountPath: /home/step/config
+              readOnly: true
+            - name: secrets
+              mountPath: /home/step/secrets
+              readOnly: true
+            - name: ca-password
+              mountPath: /home/step/secrets/passwords
+              readOnly: true
+            {{- if .Values.ca.db.enabled }}
+            - name: database
+              mountPath: /home/step/db
+              readOnly: false
+            {{- end }}
+      volumes:
+        - name: certs
+          configMap:
+            name: {{ include "step-certificates.fullname" . }}-certs
+        - name: config
+          configMap:
+            name: {{ include "step-certificates.fullname" . }}-config
+        - name: secrets
+          configMap:
+            name: {{ include "step-certificates.fullname" . }}-secrets
+        - name: ca-password
+          secret:
+            secretName: {{ include "step-certificates.fullname" . }}-ca-password
+        {{- if and .Values.ca.db.enabled (not .Values.ca.db.persistent) }}
+        - name: database
+          emptyDir: {}
+        {{- end }}
+        {{- with .Values.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.affinity }}
+        affinity:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.tolerations }}
+        tolerations:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+  {{- if and .Values.ca.db.enabled .Values.ca.db.persistent }}
+  volumeClaimTemplates:
+    - metadata:
+        name: database
+        labels:
+          app.kubernetes.io/name: {{ include "step-certificates.name" . }}
+          app.kubernetes.io/instance: {{ .Release.Name }}
+          app.kubernetes.io/managed-by: {{ .Release.Service }}
+      spec:
+        accessModes:
+        {{- range .Values.ca.db.accessModes }}
+        - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.ca.db.size | quote }}
+        {{- if .Values.ca.db.storageClass }}
+        {{- if (eq "-" .Values.ca.db.storageClass) }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .Values.ca.db.storageClass | quote }}
+        {{- end }}
+        {{- end }}
+  {{- end }}

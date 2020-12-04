@@ -1,0 +1,69 @@
+{{- /*
+# *****************************************************************************
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# ******************************************************************************
+*/ -}}
+
+{{- if or .Values.keycloak.cli.enabled .Values.keycloak.startupScripts -}}
+{{- $highAvailability := gt (int .Values.keycloak.replicas) 1 -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "keycloak.fullname" . }}-startup
+  labels:
+    {{- include "keycloak.commonLabels" . | nindent 4 }}
+data:
+  keycloak.cli: |
+    embed-server {{- if $highAvailability }} --server-config=standalone-ha.xml{{ end }} --std-out=echo
+    batch
+
+  {{- if ne .Values.keycloak.basepath "auth" }}
+    # Changes the base path to be /keycloak.basepath instead of /auth
+    /subsystem=keycloak-server:write-attribute(name=web-context,value={{ if eq .Values.keycloak.basepath "" }}ROOT{{ else }}{{ .Values.keycloak.basepath }}{{ end }})
+    {{- if eq .Values.keycloak.basepath "" }}
+    /subsystem=undertow/server=default-server/host=default-host:write-attribute(name=default-web-module,value=keycloak-server.war)
+    {{- end }}
+  {{ end }}
+
+  {{- with .Values.keycloak.cli }}
+
+    {{- tpl .nodeIdentifier $ | nindent 4 }}
+
+    {{- tpl .logging $ | nindent 4 }}
+
+    {{- tpl .datasource $ | nindent 4 }}
+
+    {{- if $highAvailability }}
+      {{- tpl .ha $ | nindent 4 }}
+    {{- end }}
+
+    {{- with .custom }}
+      {{- tpl . $ | nindent 4 }}
+    {{- end }}
+
+  {{- end }}
+
+    run-batch
+    stop-embedded-server
+
+{{- with .Values.keycloak.startupScripts }}
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end -}}

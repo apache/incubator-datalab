@@ -74,10 +74,10 @@
                   && !projectForm?.controls.name.hasError('duplication')
                   && !projectForm?.controls.name.hasError('limit')
                   && projectForm?.controls.name.dirty">
-                  Project name can only contain letters and numbers
+                  Project name can only contain letters and numbers.
                 </span>
                 <span class="error" *ngIf="projectForm?.controls.name.hasError('limit')">
-                  Project name cannot be longer than {{ maxProjectNameLength }} characters
+                  Project name cannot be longer than {{ maxProjectNameLength }} characters.
                 </span>
               </div>
             </div>

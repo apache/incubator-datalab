@@ -20,20 +20,20 @@
 package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.backendapi.resources.dto.UserGroupDto;
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.epam.datalab.cloud.CloudProvider;
 
 import java.util.List;
 import java.util.Set;
 
 public interface UserRoleDAO {
-    List<UserRoleDto> findAll();
+    List<UserRoleDTO> findAll();
 
-    void insert(UserRoleDto dto);
+    void insert(UserRoleDTO dto);
 
-    void insert(List<UserRoleDto> roles);
+    void insert(List<UserRoleDTO> roles);
 
-    boolean update(UserRoleDto dto);
+    boolean update(UserRoleDTO dto);
 
     void updateMissingRoles(CloudProvider cloudProvider);
 
