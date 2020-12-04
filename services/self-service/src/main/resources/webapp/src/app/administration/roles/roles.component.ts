@@ -165,13 +165,7 @@ export class RolesComponent implements OnInit {
       case 'update':
         this.rolesService.updateGroup($event.value).subscribe(() => {
           this.toastr.success(`Group data is updated successfully!`, 'Success!');
-          // if (!$event.value.roleIds.includes('admin' || 'projectAdmin')) {
-          //   this.applicationSecurityService.isLoggedIn().subscribe(() => {
-          //     this.getEnvironmentHealthStatus();
-          //   });
-          // } else {
             this.openManageRolesDialog();
-          // }
         }, (re) => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
@@ -194,6 +188,20 @@ export class RolesComponent implements OnInit {
     }
   }
 
+  public updateGroupData(groups) {
+    this.groupsData = groups.map(v => {
+      if (!v.users) {
+        v.users = [];
+      }
+      return v;
+    }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
+    this.groupsData.forEach(item => {
+      const selectedRoles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      item.selected_roles = SortUtils.sortByKeys(selectedRoles, ['role', 'type']);
+    });
+    this.getGroupsListCopy();
+  }
+
   public extractIds(sourceList, target) {
     const map = new Map();
     const mapped = sourceList.reduce((acc, item) => {
@@ -212,20 +220,6 @@ export class RolesComponent implements OnInit {
     });
 
     return obj;
-  }
-
-  public updateGroupData(groups) {
-    this.groupsData = groups.map(v => {
-      if (!v.users) {
-        v.users = [];
-      }
-      return v;
-    }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
-    this.groupsData.forEach(item => {
-      const selectedRoles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
-      item.selected_roles = SortUtils.sortByKeys(selectedRoles, ['type']);
-    });
-    this.getGroupsListCopy();
   }
 
   private getGroupsListCopy() {
