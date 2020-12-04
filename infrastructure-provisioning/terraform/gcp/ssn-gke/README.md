@@ -39,7 +39,7 @@ snap install kubectl --classic
 mkdir /home/ubuntu/datalab-state
 git clone https://github.com/apache/incubator-datalab.git
 cd incubator-datalab/infrastructure-provisioning/terraform/gcp/ssn-gke/main/
-git checkout DATALAB-2102
+git checkout develop
 terraform init
 ```
 - Run terraform apply command to create GKE cluster:
