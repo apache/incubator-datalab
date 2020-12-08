@@ -42,19 +42,13 @@ class AzureMeta:
     def __init__(self):
 
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
-
         self.compute_client = get_client_from_auth_file(ComputeManagementClient)
-
         self.resource_client = get_client_from_auth_file(ResourceManagementClient)
         self.network_client = get_client_from_auth_file(NetworkManagementClient)
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
-        print('Step 1.1')
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
-        print('Step 1.2')
         #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
-        print('Step 1.3')
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
-        print('Step 1.4')
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
                                             client_id=json.dumps(self.sp_creds['clientId']).replace('"', ''),
