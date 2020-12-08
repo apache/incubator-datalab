@@ -51,7 +51,7 @@ class AzureMeta:
         print('Step 1.1')
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         print('Step 1.2')
-        self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         print('Step 1.3')
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         print('Step 1.4')
