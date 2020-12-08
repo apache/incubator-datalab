@@ -53,7 +53,7 @@ class AzureActions:
         self.network_client = get_client_from_auth_file(NetworkManagementClient)
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
-        self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
