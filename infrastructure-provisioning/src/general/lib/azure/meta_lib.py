@@ -40,8 +40,11 @@ import json
 
 class AzureMeta:
     def __init__(self):
+        print('Step 1.1')
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
+        print('Step 1.2')
         self.compute_client = get_client_from_auth_file(ComputeManagementClient)
+        print('Step 1.3')
         self.resource_client = get_client_from_auth_file(ResourceManagementClient)
         self.network_client = get_client_from_auth_file(NetworkManagementClient)
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
