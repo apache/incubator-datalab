@@ -47,7 +47,7 @@ export class DetailDialogComponent implements OnInit {
   bucketStatus: object = {};
   isBucketAllowed = true;
   isCopyIconVissible: {bucket} = {bucket: false};
-
+  public odahu: any;
   public configurationForm: FormGroup;
   @ViewChild('configurationNode') configuration;
 
@@ -61,7 +61,15 @@ export class DetailDialogComponent implements OnInit {
     public toastr: ToastrService,
     public auditService: AuditService
   ) {
+    if (data.notebook) {
+      this.notebook = data.notebook;
+      this.PROVIDER = this.data.notebook.cloud_provider;
+    }
 
+    if (data.odahu) {
+      this.odahu = data.odahu;
+      this.PROVIDER = this.data.odahu.cloud_provider || 'azure';
+    }
   }
 
   ngOnInit() {

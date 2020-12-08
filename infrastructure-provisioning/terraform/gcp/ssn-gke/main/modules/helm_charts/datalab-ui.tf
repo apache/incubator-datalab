@@ -51,17 +51,14 @@ data "template_file" "datalab_ui_values" {
 resource "helm_release" "datalab_ui" {
   name = "datalab-ui"
   chart = "./modules/helm_charts/datalab-ui-chart"
-  depends_on = [
+  namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
+  wait = true
+    depends_on = [
     helm_release.mongodb,
     kubernetes_secret.mongo_db_password_secret,
     null_resource.step_ca_issuer_delay,
     helm_release.external_dns]
-  namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
-  wait = true
-
-  values = [
-    data.template_file.datalab_ui_values.rendered
-  ]
+    values = [data.template_file.datalab_ui_values.rendered]
 }
 
 data "kubernetes_service" "ui_service" {

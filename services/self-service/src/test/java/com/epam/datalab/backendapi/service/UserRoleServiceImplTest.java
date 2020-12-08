@@ -20,7 +20,7 @@ package com.epam.datalab.backendapi.service;
 
 import com.epam.datalab.backendapi.dao.UserRoleDAO;
 import com.epam.datalab.backendapi.resources.TestBase;
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,8 +83,8 @@ public class UserRoleServiceImplTest extends TestBase {
         verifyNoMoreInteractions(dao);
     }
 
-    private UserRoleDto getUserRole() {
-        final UserRoleDto userRoleDto = new UserRoleDto();
+    private UserRoleDTO getUserRole() {
+        final UserRoleDTO userRoleDto = new UserRoleDTO();
         userRoleDto.setId(ROLE_ID);
         return userRoleDto;
     }

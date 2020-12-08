@@ -29,7 +29,7 @@ import com.epam.datalab.backendapi.dao.UserRoleDAO;
 import com.epam.datalab.backendapi.domain.AuditDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.resources.dto.UserGroupDto;
-import com.epam.datalab.backendapi.resources.dto.UserRoleDto;
+import com.epam.datalab.backendapi.resources.dto.UserRoleDTO;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.AuditService;
 import com.epam.datalab.backendapi.service.ProjectService;
@@ -148,7 +148,7 @@ public class UserGroupServiceImpl implements UserGroupService {
     private boolean containsAdministrationPermissions(UserGroupDto userGroup) {
         List<String> ids = userGroup.getRoles()
                 .stream()
-                .map(UserRoleDto::getId)
+                .map(UserRoleDTO::getId)
                 .collect(Collectors.toList());
         return ids.contains(ADMIN) || ids.contains(PROJECT_ADMIN);
     }
@@ -201,7 +201,7 @@ public class UserGroupServiceImpl implements UserGroupService {
                 .filter(g -> g.getGroup().equals(group))
                 .map(UserGroupDto::getRoles)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(UserRoleDto::getId, UserRoleDto::getDescription));
+                .collect(Collectors.toMap(UserRoleDTO::getId, UserRoleDTO::getDescription));
         if (!getRoleDescription(oldRoles, newRoles).isEmpty()) {
             auditInfo.append(String.format(AUDIT_ADD_ROLE_MESSAGE, getRoleDescription(oldRoles, newRoles)));
         }

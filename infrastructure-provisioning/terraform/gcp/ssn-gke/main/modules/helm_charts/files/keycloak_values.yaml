@@ -35,6 +35,9 @@ keycloak:
     dbUser: ${mysql_user}
     dbPassword: "${mysql_user_password}"
 
+  cli:
+    enabled: false
+
   service:
     type: ClusterIP
     # nodePort: 31088
@@ -56,7 +59,6 @@ keycloak:
   startupScripts:
     mystartup.sh: |
       ${configure_keycloak_file}
-
   extraInitContainers: |
     - name: theme-provider
       image: epamdatalab/ui-theme:0.1
@@ -74,7 +76,6 @@ keycloak:
   extraVolumeMounts: |
     - name: theme
       mountPath: /opt/jboss/keycloak/themes/datalab
-
   extraVolumes: |
     - name: theme
       emptyDir: {}

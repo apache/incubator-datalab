@@ -69,7 +69,7 @@
                     {{data.type  === 0 ? 'Stopped' : 'Terminated'}}
                   </div>
                 </div>
-                <div class="clusters-list-item" *ngFor="let cluster of notebook?.resources">
+                <div class="clusters-list-item" *ngFor="let cluster of data.compute">
                   <div class="cluster">{{cluster.computational_name}}</div>
                   <div class="status" [ngClass]="{
               'stopped': (data.type === 0 && cluster.image==='docker.datalab-dataengine'), 'terminated': data.type === 1 || (data.type===0 && cluster.image!=='docker.datalab-dataengine')

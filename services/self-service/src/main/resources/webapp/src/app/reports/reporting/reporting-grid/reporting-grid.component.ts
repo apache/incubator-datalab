@@ -93,6 +93,7 @@ export class ReportingGridComponent implements OnInit {
       this.tableEl = this.table._elementRef.nativeElement;
     }, 1000);
     this.checkFilters();
+    // this.compareFilters();
   }
 
   onUpdate($event): void {
@@ -105,6 +106,46 @@ export class ReportingGridComponent implements OnInit {
     this.isFilterSelected = Object.keys(this.filteredReportData)
       .filter(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0).length > 0;
   }
+
+  // compareFilters() {
+  //   const previousData = {
+  //     datalabId: '',
+  //     date_end: '',
+  //     date_start: '',
+  //     locale: undefined,
+  //     products: [],
+  //     projects: [],
+  //     resource_type: [1],
+  //     shapes: [],
+  //     statuses: [],
+  //     users: [],
+  //   };
+  //
+  //   const currentData = {
+  //     datalabId: '',
+  //     date_end: '',
+  //     date_start: '',
+  //     locale: undefined,
+  //     products: [],
+  //     projects: [],
+  //     resource_type: [],
+  //     shapes: [],
+  //     statuses: [],
+  //     users: [],
+  //   };
+  //
+  //   console.log(Object.keys(currentData).every(el => {
+  //     if (Array.isArray(el)) {
+  //       if (previousData[el].length !== currentData[el].length) {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     } else {
+  //       return previousData[el] !== currentData[el];
+  //     }
+  //   }));
+  // }
 
   refreshData(fullReport, report) {
     this.reportData = [...report];

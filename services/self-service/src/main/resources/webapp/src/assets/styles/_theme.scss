@@ -847,6 +847,7 @@ mat-progress-bar {
 #range-picker {
   display: flex;
   justify-content: center;
+  z-index: 120;
 }
 
 #range-picker path#Shape {
@@ -871,6 +872,10 @@ mat-progress-bar {
 
   &.is-to:after {
     left: 250px;
+  }
+
+  &.is-opened{
+    display: flex;
   }
 }
 
@@ -1007,7 +1012,7 @@ mat-progress-bar {
 .billing-page-wrapper{
   tfoot{
     position: sticky;
-    z-index: 1;
+    z-index: 102;
     bottom: 0;
   }
 

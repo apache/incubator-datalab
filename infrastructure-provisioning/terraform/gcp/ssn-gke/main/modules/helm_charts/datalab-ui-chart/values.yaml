@@ -31,7 +31,7 @@ ui:
   service_base_name: ${service_base_name}
   os: ${os}
   image:
-    repository: epamdatalab/ui
+    repository: epamdlab/ui
     tag: '0.1-gcp'
     pullPolicy: Always
   service:
