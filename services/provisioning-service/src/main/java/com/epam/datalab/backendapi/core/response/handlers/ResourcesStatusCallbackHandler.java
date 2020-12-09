@@ -61,7 +61,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
     @Override
     protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) {
-        log.trace("Trying to parse: {}, with{}", resultNode, baseStatus);
+        log.trace("Trying to parse: {}, with {}", resultNode, baseStatus);
         if (resultNode == null) {
             return baseStatus;
         }
@@ -87,14 +87,13 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
         return baseStatus;
     }
 
-    private String CheckAndMapStatus(String status) {
-        if (status.toLowerCase().equals("terminated_with_errors")) {
+    private String checkAndMapStatus(String status) {
+        if (status.equalsIgnoreCase ("terminated_with_errors")) {
             log.trace("While parsing response changed: {} -> {}", status, UserInstanceStatus.TERMINATED);
             return UserInstanceStatus.TERMINATED.toString();
         } else {
             return status;
         }
-
     }
 
     @Override
@@ -123,7 +122,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
                 .stream()
                 .filter(e -> !e.getStatus().equals(datalabHostResources.get(e.getId()).getStatus()))
                 .map(e -> datalabHostResources.get(e.getId())
-                        .withStatus(CheckAndMapStatus(e.getStatus())))
+                        .withStatus(checkAndMapStatus(e.getStatus())))
                 .collect(Collectors.toList());
     }
 

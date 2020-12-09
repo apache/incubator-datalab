@@ -154,7 +154,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                 .build();
 
         EndpointDTO endpointDTO = endpointService.get(endpoint);
-        log.info("SELF-SERVICE: Send request to provisioning service:\n POST:{}, with EnvResources: {}", INFRASTRUCTURE_STATUS,
+        log.info("Send request to provisioning service:\n POST:{}, with EnvResources: {}", INFRASTRUCTURE_STATUS,
                 envResourceList);
         String uuid = provisioningService.post(endpointDTO.getUrl() + INFRASTRUCTURE_STATUS, user.getAccessToken(),
                 requestBuilder.newInfrastructureStatus(user.getName(), endpointDTO.getCloudProvider(), envResourceList),
