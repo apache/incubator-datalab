@@ -57,21 +57,25 @@
         width: 14%;
         z-index: 10 !important;
         padding-left: 0;
+        max-width: 240px;
       }
 
       .th_project {
         width: 11%;
         z-index: 7 !important;
+        max-width: 206px;
       }
 
       .th_resource {
         width: 14%;
         z-index: 5 !important;
+        max-width: 240px;
       }
 
       .th_resource-type {
         width: 14%;
         z-index: 6 !important;
+        max-width: 240px;
       }
 
       .th_buttons {
@@ -233,6 +237,17 @@
           transform: rotate(135deg);
         }
       }
+    }
+  }
+
+  .table-item-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 10px;
+    span{
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 

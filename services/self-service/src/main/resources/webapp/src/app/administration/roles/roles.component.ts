@@ -52,6 +52,7 @@ export class RolesComponent implements OnInit {
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
   private startedGroups: Array<any>;
   public noPermissionMessage: string = 'You have not permissions for groups which are not assigned to your projects.';
+  public maxGroupLength: number = 25;
 
   constructor(
     public toastr: ToastrService,
@@ -235,7 +236,7 @@ export class RolesComponent implements OnInit {
   public groupValidation(): ValidatorFn {
     const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
-      if (control.value && control.value.length > 50) {
+      if (control.value && control.value.length > this.maxGroupLength) {
         return { long: true };
       }
 

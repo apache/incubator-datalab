@@ -42,7 +42,7 @@
             contain letters, numbers, hyphens and '_'.</div>
           <div class="error" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already
             exists.</div>
-          <div class="error" *ngIf="setupGroupName.errors?.long">Group name cannot be longer than 50 characters.</div>
+          <div class="error" *ngIf="setupGroupName.errors?.long">Group name cannot be longer than {{maxGroupLength}} characters.</div>
         </div>
         <div class="text-center m-bott-10">
           <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
