@@ -107,8 +107,7 @@ public abstract class InfrastructureService implements DockerCommands {
             throws Exception {
 
         final ProcessInfo processInfo = commandExecutor.executeSync(username, DockerCommands.generateUUID(),
-                String.format(DockerCommands
-                        .GET_RUNNING_CONTAINERS_FOR_USER, dto.getEdgeUserName()));
+                String.format(DockerCommands.GET_RUNNING_CONTAINERS_FOR_USER, dto.getEdgeUserName()));
         final String processInfoStdOut = processInfo.getStdOut();
 
         if (StringUtils.isNoneEmpty(processInfoStdOut)) {
@@ -123,7 +122,6 @@ public abstract class InfrastructureService implements DockerCommands {
 
             dto.getResourceList().setHostList(hostList);
             dto.getResourceList().setClusterList(clusterList);
-
         }
     }
 
