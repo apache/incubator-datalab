@@ -24,7 +24,7 @@ public enum ResourceType {
     EDGE("edge_node"),
     EXPLORATORY("exploratory");
 
-    private String name;
+    private final String name;
 
     ResourceType(String name) {
         this.name = name;

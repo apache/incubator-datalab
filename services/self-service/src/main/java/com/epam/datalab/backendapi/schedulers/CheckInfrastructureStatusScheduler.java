@@ -38,6 +38,7 @@ import com.google.inject.Inject;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
+import java.util.Collections;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -81,21 +82,22 @@ public class CheckInfrastructureStatusScheduler implements Job {
         Map<String, List<EnvResource>> exploratoryAndSparkInstances = userInstanceDTOS
                 .stream()
                 .map(this::getExploratoryAndSparkInstances)
-				.flatMap(Collection::stream)
-				.collect(Collectors.groupingBy(EnvResource::getEndpoint));
+                .flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(EnvResource::getEndpoint));
 
         Map<String, List<EnvResource>> clusterInstances = userInstanceDTOS
                 .stream()
-                .map(this::getCloudInstances)
-				.flatMap(Collection::stream)
-				.collect(Collectors.groupingBy(EnvResource::getEndpoint));
+                .map(this::getClusterInstances)
+                .flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(EnvResource::getEndpoint));
 
         activeEndpoints.forEach(e -> {
                     List<EnvResource> hostInstances = Stream.of(getEdgeInstances(e), exploratoryAndSparkInstances.get(e))
                             .flatMap(Collection::stream)
                             .collect(Collectors.toList());
 
-                    infrastructureInfoService.updateInfrastructureStatuses(serviceUser, e, hostInstances, clusterInstances.get(e));
+                    infrastructureInfoService.updateInfrastructureStatuses(serviceUser, e, hostInstances,
+                            clusterInstances.getOrDefault(e, Collections.emptyList()));
                 }
         );
     }
@@ -125,7 +127,7 @@ public class CheckInfrastructureStatusScheduler implements Job {
         return instances;
     }
 
-    private List<EnvResource> getCloudInstances(UserInstanceDTO userInstanceDTO) {
+    private List<EnvResource> getClusterInstances(UserInstanceDTO userInstanceDTO) {
         return userInstanceDTO.getResources().stream()
                 .filter(c -> DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(c.getImageName()))
                 .filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))

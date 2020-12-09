@@ -103,13 +103,13 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                 .map(p -> {
                     List<UserInstanceDTO> exploratories = expDAO.findExploratories(user.getName(), p.getName());
                     return ProjectInfrastructureInfo.builder()
-		                    .project(p.getName())
-		                    .billingQuoteUsed(billingService.getBillingProjectQuoteUsed(p.getName()))
-		                    .shared(getSharedInfo(p.getName()))
-		                    .exploratory(exploratories)
-		                    .exploratoryBilling(getExploratoryBillingData(exploratories))
-		                    .endpoints(getEndpoints(allEndpoints, p))
-		                    .odahu(p.getOdahu())
+                            .project(p.getName())
+                            .billingQuoteUsed(billingService.getBillingProjectQuoteUsed(p.getName()))
+                            .shared(getSharedInfo(p.getName()))
+                            .exploratory(exploratories)
+                            .exploratoryBilling(getExploratoryBillingData(exploratories))
+                            .endpoints(getEndpoints(allEndpoints, p))
+                            .odahu(p.getOdahu())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -149,11 +149,13 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
     @Override
     public void updateInfrastructureStatuses(UserInfo user, String endpoint, List<EnvResource> hostInstances, List<EnvResource> clusterInstances) {
         EnvResourceList envResourceList = EnvResourceList.builder()
-                        .hostList(hostInstances)
-                        .clusterList(clusterInstances)
-                        .build();
+                .hostList(hostInstances)
+                .clusterList(clusterInstances)
+                .build();
 
         EndpointDTO endpointDTO = endpointService.get(endpoint);
+        log.info("SELF-SERVICE: Send request to provisioning service:\n POST:{}, with EnvResources: {}", INFRASTRUCTURE_STATUS,
+                envResourceList);
         String uuid = provisioningService.post(endpointDTO.getUrl() + INFRASTRUCTURE_STATUS, user.getAccessToken(),
                 requestBuilder.newInfrastructureStatus(user.getName(), endpointDTO.getCloudProvider(), envResourceList),
                 String.class);

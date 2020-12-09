@@ -21,6 +21,7 @@
 package com.epam.datalab.backendapi.core.response.handlers;
 
 import com.epam.datalab.backendapi.core.commands.DockerAction;
+import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.status.EnvResource;
 import com.epam.datalab.dto.status.EnvResourceList;
 import com.epam.datalab.dto.status.EnvStatusDTO;
@@ -60,6 +61,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
     @Override
     protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) {
+        log.trace("Trying to parse: {}, with{}", resultNode, baseStatus);
         if (resultNode == null) {
             return baseStatus;
         }
@@ -83,6 +85,16 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
         log.trace("Inner status {}", baseStatus);
 
         return baseStatus;
+    }
+
+    private String CheckAndMapStatus(String status) {
+        if (status.toLowerCase().equals("terminated_with_errors")) {
+            log.trace("While parsing response changed: {} -> {}", status, UserInstanceStatus.TERMINATED);
+            return UserInstanceStatus.TERMINATED.toString();
+        } else {
+            return status;
+        }
+
     }
 
     @Override
@@ -111,7 +123,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
                 .stream()
                 .filter(e -> !e.getStatus().equals(datalabHostResources.get(e.getId()).getStatus()))
                 .map(e -> datalabHostResources.get(e.getId())
-                        .withStatus(e.getStatus()))
+                        .withStatus(CheckAndMapStatus(e.getStatus())))
                 .collect(Collectors.toList());
     }
 
