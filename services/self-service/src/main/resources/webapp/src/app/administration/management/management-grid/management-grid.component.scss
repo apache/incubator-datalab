@@ -72,7 +72,7 @@
 
     .name,
     .project {
-      width: 10%;
+      width: 9%;
       min-width: 140px;
       .list-menu li {
         text-transform: inherit;
@@ -104,7 +104,7 @@
     }
 
     .resources {
-      width: 24%;
+      width: 27%;
       min-width: 225px;
     }
 
@@ -303,3 +303,27 @@ table.management {
 .table-footer{
   height: 48px;
 }
+
+
+@media screen and (max-width: 1550px) {
+  .managment-wrapper{
+    .source {
+      .resource-wrap {
+        .resource-name {
+          width: 40%;
+        }
+
+        .resource-status {
+          width: 40%;
+        }
+
+        .resource-actions {
+          width: 20%;
+
+        }
+      }
+    }
+  }
+}
+
+
