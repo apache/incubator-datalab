@@ -34,7 +34,7 @@ public enum UserInstanceStatus {
     RECONFIGURING("reconfiguring"),
     REUPLOADING_KEY("reuploading key");
 
-    private String name;
+    private final String name;
 
     UserInstanceStatus(String name) {
         this.name = name;

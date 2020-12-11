@@ -42,13 +42,11 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class EnvironmentStatusCallback {
 
-    private final EnvDAO envDAO;
     private final RequestId requestId;
     private final EnvironmentService environmentService;
 
     @Inject
-    public EnvironmentStatusCallback(EnvDAO envDAO, RequestId requestId, EnvironmentService environmentService) {
-        this.envDAO = envDAO;
+    public EnvironmentStatusCallback(RequestId requestId, EnvironmentService environmentService) {
         this.requestId = requestId;
         this.environmentService = environmentService;
     }
