@@ -89,7 +89,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = 'https://cloud.r-project.org'
             add_marruter_key()
             sudo('apt update')
-            manage_pkg('-y install', 'remote', 'libcurl4-openssl-dev libssl-dev libreadline-dev')
+            manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
             manage_pkg('-y install', 'remote', 'cmake')
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
             sudo('R CMD javareconf')
