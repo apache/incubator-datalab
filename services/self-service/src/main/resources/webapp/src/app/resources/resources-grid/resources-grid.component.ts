@@ -43,6 +43,7 @@ import {NotebookModel} from '../exploratory/notebook.model';
 import {AuditService} from '../../core/services/audit.service';
 import {JAN} from '@angular/material/core';
 import {ReconfirmationDialogComponent} from '../../administration/management/management-grid/management-grid.component';
+import {CompareUtils} from '../../core/util/compareUtils';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -172,8 +173,8 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private checkFilters() {
-    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterForm);
-    this.isFilterSelected = Object.keys(this.filterForm).filter(v => this.filterForm[v].length > 0).length > 0;
+    this.isFilterChanged = !CompareUtils.compareFilters(this.filterForm, this.cashedFilterForm);
+    this.isFilterSelected = Object.keys(this.filterForm).some(v => this.filterForm[v].length > 0);
   }
 
   public selectActiveProject(project = ''): void {

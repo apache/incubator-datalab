@@ -20,6 +20,14 @@
 import { PATTERNS } from './patterns';
 
 export class CheckUtils {
+
+  public static endpointStatus = {
+    CREATING: 'CONNECTING',
+    STARTING: 'CONNECTING',
+    RUNNING: 'CONNECTED',
+    STOPPING: 'DISCONNECTING',
+    STOPPED: 'DISCONNECTED'
+  };
   public static isJSON(str) {
     try {
       JSON.parse(str);
@@ -53,15 +61,7 @@ export class CheckUtils {
   }
 
   public static decodeUnicode(str) {
-    str = str.replace(/\\/g, "%");
+    str = str.replace(/\\/g, '%');
     return unescape(str);
-  }
-
-  public static endpointStatus = {
-    CREATING: 'CONNECTING',
-    STARTING: 'CONNECTING',
-    RUNNING: 'CONNECTED',
-    STOPPING: 'DISCONNECTING',
-    STOPPED: 'DISCONNECTED'
   }
 }

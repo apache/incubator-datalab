@@ -23,6 +23,7 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import {AuditService} from '../../../core/services/audit.service';
 import {SortUtils} from '../../../core/util';
 import {LocalizationService} from '../../../core/services/localization.service';
+import {CompareUtils} from '../../../core/util/compareUtils';
 
 
 export interface AuditItem {
@@ -124,8 +125,8 @@ export class AuditGridComponent implements OnInit {
   }
 
   private checkFilters() {
-    this.isNavigationDisabled = JSON.stringify(this.copiedFilterAuditData) !== JSON.stringify(this.filterAuditData);
-    this.isFilterSelected = Object.keys(this.filterAuditData).filter(v => this.filterAuditData[v].length > 0).length > 0;
+    this.isNavigationDisabled = CompareUtils.compareFilters(this.filterAuditData, this.copiedFilterAuditData);
+    this.isFilterSelected = Object.keys(this.filterAuditData).some(v => this.filterAuditData[v].length > 0);
   }
 
   public openActionInfo(element: AuditItem): void {

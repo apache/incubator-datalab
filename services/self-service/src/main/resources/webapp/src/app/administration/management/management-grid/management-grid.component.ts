@@ -41,6 +41,7 @@ import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {DetailDialogComponent} from '../../../resources/exploratory/detail-dialog';
 import {BehaviorSubject, Subject, timer} from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
+import {CompareUtils} from '../../../core/util/compareUtils';
 
 export interface ManageAction {
   action: string;
@@ -66,6 +67,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   filtering: boolean = false;
   collapsedFilterRow: boolean = false;
   isMaxRight: Subject<boolean> = new BehaviorSubject(false);
+  private tableWrapperWidth: number;
   tableEl = {};
 
   @Input() environmentsHealthStatuses: Array<any>;
@@ -80,7 +82,6 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   @ViewChild('wrapper') wrapper;
   @ViewChild('pageWrapper') pageWrapper;
   @ViewChild('table') table;
-  private tableWrapperWidth: number;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -155,8 +156,8 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   }
 
   private checkFilters() {
-    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterForm);
-    this.isFilterSelected = Object.keys(this.filterForm).filter(v => this.filterForm[v].length > 0).length > 0;
+    this.isFilterChanged = CompareUtils.compareFilters(this.filterForm, this.cashedFilterForm);
+    this.isFilterSelected = Object.keys(this.filterForm).some(v => this.filterForm[v].length > 0);
   }
 
   public toggleFilterRow(): void {

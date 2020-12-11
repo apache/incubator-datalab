@@ -29,6 +29,7 @@ import { LibrariesInstallationService } from '../../../core/services';
 import {SortUtils, HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import {FilterLibsModel} from './filter-libs.model';
 import {Subject, timer} from 'rxjs';
+import {CompareUtils} from '../../../core/util/compareUtils';
 
 interface Library {
   name: string;
@@ -205,8 +206,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private checkFilters() {
-    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterModel);
-    this.isFilterSelected = Object.keys(this.filterModel).filter(v => this.filterModel[v].length > 0).length > 0;
+    this.isFilterChanged = CompareUtils.compareFilters(this.filterModel, this.cashedFilterForm);
+    this.isFilterSelected = Object.keys(this.filterModel).some(v => this.filterModel[v].length > 0);
   }
 
   public isDuplicated(item) {

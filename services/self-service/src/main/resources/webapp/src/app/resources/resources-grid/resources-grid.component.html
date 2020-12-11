@@ -296,7 +296,7 @@
     <ng-container matColumnDef="shape-filter">
       <th mat-header-cell *matHeaderCellDef class="shape-col filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)"
-          [type]="'sizes'" [items]="filterConfiguration.shapes"
+          [type]="'shapes'" [items]="filterConfiguration.shapes"
           [model]="filterForm.shapes"></multi-select-dropdown>
       </th>
     </ng-container>

@@ -286,7 +286,7 @@
             </button>
 
             <button mat-icon-button class="btn apply" (click)="applyFilter(filterForm)"
-              [disabled]="!isFilterChanged">
+              [disabled]="isFilterChanged">
               <i class="material-icons"
                 [ngClass]="{'not-allowed': allFilteredEnvironmentData?.length == 0 && !filtering}">done</i>
             </button>

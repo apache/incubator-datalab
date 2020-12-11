@@ -298,7 +298,7 @@
                    <i class="material-icons">close</i>
                  </button>
 
-                 <button mat-icon-button class="btn apply" (click)="filterLibs(true)" [disabled]="!isFilterChanged">
+                 <button mat-icon-button class="btn apply" (click)="filterLibs(true)" [disabled]="isFilterChanged">
                    <i class="material-icons"  [ngClass]="{'not-allowed': filterModel['length'] === 0}">done</i>
                  </button>
                </div>
