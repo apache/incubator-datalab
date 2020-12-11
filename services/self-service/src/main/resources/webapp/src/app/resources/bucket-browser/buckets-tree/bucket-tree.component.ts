@@ -28,7 +28,6 @@ interface BucketNode {
   children?: BucketNode[];
 }
 
-/** Flat node with expandable and level information */
 interface BucketFlatNode {
   expandable: boolean;
   name: string;

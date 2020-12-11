@@ -21,10 +21,10 @@
 
   <header class="dialog-header">
     <h4 class="modal-title">
-        <span *ngIf="data.type === 'delete'">Delete</span>
-        <span *ngIf="data.type === 'upload-dublicat'">Resolve conflicts</span>
-        <span *ngIf="data.type === 'cancel-uploading'">Cancel</span>
-        <span *ngIf="data.type === 'uploading-error'">Upload limitation</span>
+        <span *ngIf="data.type === 'delete'">{{data.type | convertaction}}</span>
+<!--        <span *ngIf="data.type === 'resolve_conflicts'">Resolve conflicts</span>-->
+<!--        <span *ngIf="data.type === 'cancel'">Cancel</span>-->
+<!--        <span *ngIf="data.type === 'upload_limitation'">Upload limitation</span>-->
     </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <div *ngIf="data.type === 'upload-dublicat'">
+      <div *ngIf="data.type === 'resolve_conflicts'">
         <p>
           <span
           class="strong upload-item-name ellipsis"
@@ -92,14 +92,14 @@
         </div>
       </div>
 
-      <div *ngIf="data.type === 'cancel-uploading'">
+      <div *ngIf="data.type === 'cancel'">
         <p class="upload-message"><span>Cancel uploading file </span> <span class="strong ellipsis upload-item-name">{{data.items.name}}.</span></p>
         <div class="text-center m-top-20">
           <span class="strong">Do you want to proceed?</span>
         </div>
       </div>
 
-      <div *ngIf="data.type === 'uploading-error'">
+      <div *ngIf="data.type === 'upload_limitation'">
         <p class="upload-limit-message" *ngIf="data.items.toMany">Only the first fifty objects will be uploaded.</p>
         <p class="upload-limit-message" *ngIf="data.items.toBig">Only file(s) within 4 GB will be uploaded.</p>
         <div class="text-center m-top-20">
@@ -107,12 +107,12 @@
         </div>
       </div>
 
-      <div class="text-center m-top-20" *ngIf="data.type === 'delete' || data.type === 'cancel-uploading' || data.type === 'uploading-error'">
+      <div class="text-center m-top-20" *ngIf="data.type === 'delete' || data.type === 'cancel' || data.type === 'upload_limitation'">
         <button  mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">No</button>
         <button mat-raised-button type="button" class="butt butt-success action" (click)="dialogRef.close(true)">Yes</button>
       </div>
 
-      <div class="text-center m-top-20" *ngIf="data.type === 'upload-dublicat'">
+      <div class="text-center m-top-20" *ngIf="data.type === 'resolve_conflicts'">
         <button  mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
         <button mat-raised-button type="button" class="butt butt-success action" (click)="submitResolving()">Continue</button>
       </div>

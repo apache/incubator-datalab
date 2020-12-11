@@ -117,6 +117,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
 
   ngAfterViewInit() {
+    this.progressBarService.startProgressBar();
     this.tableEl = this.table._elementRef.nativeElement;
     this.checkMaxRight();
   }
@@ -132,7 +133,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   }
 
   getEnvironmentData() {
-    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.progressBarService.startProgressBar();
     this.environmentsDataService._data.subscribe(data => {
       if (data) {
         this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);

@@ -158,7 +158,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
       }
       if (toBigFile || toMany) {
         this.dialog.open(BucketConfirmationDialogComponent, {data: {
-          items: {toBig: toBigFile, toMany: toMany}, type: 'uploading-error'
+          items: {toBig: toBigFile, toMany: toMany}, type: 'upload_limitation'
           } , width: '550px'})
           .afterClosed().subscribe((res) => {
          if (res) {
@@ -236,7 +236,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
 
   async openResolveDialog(existFile) {
     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {
-      data: {items: existFile, type: 'upload-dublicat'} , width: '550px'
+      data: {items: existFile, type: 'resolve_conflicts'} , width: '550px'
     });
     return dialog.afterClosed().toPromise().then(result => {
       return Promise.resolve(result);
@@ -277,7 +277,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
 
   public deleteAddedFile(file) {
     if ( file.subscr && file.request) {
-      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: file, type: 'cancel-uploading'} , width: '550px'})
+      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: file, type: 'cancel'} , width: '550px'})
         .afterClosed().subscribe((res) => {
           res && file.subscr.unsubscribe();
           res && this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
