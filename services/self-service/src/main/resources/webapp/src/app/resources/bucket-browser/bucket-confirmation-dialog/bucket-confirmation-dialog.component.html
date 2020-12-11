@@ -21,10 +21,7 @@
 
   <header class="dialog-header">
     <h4 class="modal-title">
-        <span *ngIf="data.type === 'delete'">{{data.type | convertaction}}</span>
-<!--        <span *ngIf="data.type === 'resolve_conflicts'">Resolve conflicts</span>-->
-<!--        <span *ngIf="data.type === 'cancel'">Cancel</span>-->
-<!--        <span *ngIf="data.type === 'upload_limitation'">Upload limitation</span>-->
+        <span>{{ data.type.toUpperCase() | convertaction}} </span>
     </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>

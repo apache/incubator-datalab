@@ -533,7 +533,7 @@ span.mat-slide-toggle-content {
 
     &.actions-btn{
       padding-right: 38px;
-
+      margin: 0;
 
       .material-icons{
         transition: ease-in-out 1s;
@@ -550,6 +550,7 @@ span.mat-slide-toggle-content {
     text-align: center;
     display: block;
     background-color: #fff;
+    top: 40px;
 
     &-item.mat-raised-button.butt{
       z-index: 101;
@@ -566,8 +567,8 @@ span.mat-slide-toggle-content {
       position: relative;
       overflow: hidden;
       line-height: 36px;
-      padding-left: 45px;
-      text-align: left;
+      //padding-left: 45px;
+      //text-align: left;
       &.action-menu-item{
         &:hover{
           color:  #00bcd4;

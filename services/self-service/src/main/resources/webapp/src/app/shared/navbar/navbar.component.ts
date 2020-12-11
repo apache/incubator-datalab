@@ -96,7 +96,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private schedulerService: SchedulerService,
     private storage: StorageService,
     private dialog: MatDialog,
-    private progressBarService: ProgressBarService,
+    public progressBarService: ProgressBarService,
   ) { }
 
   ngOnInit() {

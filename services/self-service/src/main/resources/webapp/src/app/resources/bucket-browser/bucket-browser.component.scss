@@ -124,6 +124,7 @@
       }
     }
   }
+
   bottom: 0;
 
   .dialog-content{
@@ -137,6 +138,7 @@
   .submit{
     display: flex;
     justify-content: space-between;
+
     .left-side-butts{
       display: flex;
     }
@@ -145,6 +147,19 @@
       position: relative;
       overflow: hidden;
       margin: 10px;
+
+      &.actions-btn{
+        margin: 10px 10px 0 10px;
+        padding-right: 38px;
+
+          .material-icons{
+            transition: ease-in-out 1s;
+            font-size: 25px;
+            position: absolute;
+            top: 7px;
+            right: 30px;
+          }
+      }
 
       &.first-btn{
         margin-left: 0;
@@ -159,6 +174,7 @@
           color:  #00bcd4;
           background-color: #fafafa;
         }
+
         &.disabled{
           &:hover{
             color: #577289;
@@ -178,17 +194,6 @@
   }
 }
 
-.navigation-line{
-  display: flex;
-  margin-bottom: 25px;
-
-  .endpoint-select{
-    flex: 1;
-    position: relative;
-    opacity: 0;
-  }
-}
-
 .bucket-wrapper{
   height: 57vh;
   border: 2px solid rgba(0,0,0,.12);
@@ -199,19 +204,19 @@
   &.added-upload{
     height: 40vh;
   }
-   .backet-selection{
+   .bucket-selection{
      position: relative;
      width: 2%;
      border-right: 2px solid rgba(0,0,0,.12);
      padding-top: 6px;
      transition: .2s;
+
      &.opened{
        width: 33.3%;
 
        .button-wrapper {
          text-align: right;
          left: auto;
-
 
          i{
            padding-right: 3px;
@@ -235,32 +240,8 @@
          }
        }
      }
-
-     .buckets-list{
-       color: rgba(0, 0, 0, 0.87);
-       padding-left: 20px;
-       line-height: 24px;
-
-       &-item{
-         &:hover{
-           color:  #00bcd4;
-           cursor: pointer;
-         }
-       }
-     }
    }
 
-     .buckets-list{
-       color: rgba(0, 0, 0, 0.87);
-       padding-left: 20px;
-       line-height: 24px;
-       &-item{
-         &:hover{
-           color:  #00bcd4;
-           cursor: pointer;
-         }
-       }
-     }
    }
 
   .navigation{
@@ -385,7 +366,7 @@
   }
 
   .folder-tree {
-    padding: 0px 15px;
+    padding: 0 15px;
     padding-top: 6px;
   }
 
@@ -395,7 +376,6 @@
 
     &.t_header{
       top: -41px;
-
       position: absolute;
       left: 0;
       right: 0;
@@ -522,16 +502,6 @@ input[type='file'] {
   }
 }
 
-.folder-item-name{
-  span{
-    color: #000;
-  }
-
-  .check-box {
-    background-color: red;
-  }
-}
-
 .upload-window{
   margin-top: 2vh;
   border: 2px solid rgba(0,0,0,.12);
@@ -546,12 +516,8 @@ input[type='file'] {
     height: 30px;
     line-height: 30px;
     position: relative;
+
     .modal-title {
-      width: 90%;
-      margin: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
       font-weight: 500;
       color: #455c74;
       font-size: 13px;
@@ -579,6 +545,7 @@ input[type='file'] {
     }
 
   }
+
   .upload-files{
     padding: 5px 0;
     height: calc(100% - 30px);
