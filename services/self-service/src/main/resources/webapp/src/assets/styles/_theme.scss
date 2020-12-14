@@ -273,6 +273,15 @@
   height: 34px;
 }
 
+input[type="file"] {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0;
+}
+
 span.mat-slide-toggle-content {
   // font: 100 16px/24px 'Open Sans', sans-serif;
   font-style: normal;
@@ -550,7 +559,6 @@ span.mat-slide-toggle-content {
     text-align: center;
     display: block;
     background-color: #fff;
-    top: 40px;
 
     &-item.mat-raised-button.butt{
       z-index: 101;
@@ -567,8 +575,6 @@ span.mat-slide-toggle-content {
       position: relative;
       overflow: hidden;
       line-height: 36px;
-      //padding-left: 45px;
-      //text-align: left;
       &.action-menu-item{
         &:hover{
           color:  #00bcd4;
@@ -1027,6 +1033,7 @@ mat-progress-bar {
     }
   }
 }
+
 
 
 

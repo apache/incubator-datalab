@@ -37,7 +37,7 @@ import {takeUntil} from 'rxjs/operators';
 @Component({
   selector: 'datalab-bucket-browser',
   templateUrl: './bucket-browser.component.html',
-  styleUrls: ['./bucket-browser.component.scss']
+  styleUrls: ['./bucket-browser.component.scss', './upload-window.component.scss']
 })
 export class BucketBrowserComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject();

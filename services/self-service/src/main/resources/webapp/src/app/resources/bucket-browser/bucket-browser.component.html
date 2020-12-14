@@ -54,7 +54,7 @@
         Delete
       </button>
       </span>
-      <div class="action-wrapper" >
+      <div class="action-select-wrapper" >
         <span class="action-button-wrapper">
           <button
             type="button" class="butt actions-btn"
@@ -215,7 +215,7 @@
            <button type="button" class="close" (click)="closeUploadWindow()" [disabled]="isFileUploading" [ngClass]="{'not-allow': isFileUploading}" >&times;</button>
         </span>
       </header>
-      <ul class="upload-files">
+      <ul class="upload-files scrolling">
         <li class="file upload-table-header" *ngIf="addedFiles.length">
           <div class="name ellipsis" >File</div>
           <div class="second-block">
