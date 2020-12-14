@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class DynamicChangeProperties {
 
     private static final String SELF_SERVICE = "self-service.yml";
-    private static final String SELF_SERVICE_PROP_PATH = "services/billing-azure/billing.yml";
+    private static final String SELF_SERVICE_PROP_PATH = "services/billing-azure/self-service.yml";
     private static final String PROVISIONING_SERVICE = "provisioning.yml";
     private static final String PROVISIONING_SERVICE_PROP_PATH = "services/provisioning-service/provisioning.yml";
     private static final String SECRET_REGEX = "(.*)[sS]ecret(.*): (.*)";
@@ -116,7 +116,7 @@ public class DynamicChangeProperties {
     }
 
     private String removeLicence(String conf) {
-        return conf.replace(LICENCE, "");
+        return conf.substring(LICENCE.length() + 7);
     }
 
     private void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
