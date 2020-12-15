@@ -95,8 +95,16 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
+            sudo('R -e "install.packages(\'devtools\',repos=\'{}\')"'.format(r_repository))
             for i in r_libs:
-                sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
+                if '=' in i:
+                    name = i.split('=')[0]
+                    vers = '"{}"'.format(i.split('=')[1])
+                else:
+                    name = i
+                    vers = ''
+                sudo('R -e \'devtools::install_version("{}", version = {}, repos ="{}", dependencies = NA)\''.format(name, vers, r_repository))
+                #sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
             sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
             try:
                 sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
