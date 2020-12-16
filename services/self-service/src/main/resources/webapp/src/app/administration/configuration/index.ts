@@ -19,16 +19,25 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { ManagenementModule } from './management';
-import { ProjectModule } from './project';
-import { RolesModule } from './roles';
-import {ConfigurationModule} from './configuration';
-import {OdahuModule} from './odahu';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '../../shared/material.module';
+import { FormControlsModule } from '../../shared/form-controls';
+import {InformMessageModule} from '../../shared/inform-message';
+import {ConfigurationComponent, SettingsConfirmationDialogComponent} from './configuration.component';
+import {AceEditorModule} from 'ng2-ace-editor';
 
 @NgModule({
-  imports: [CommonModule, ManagenementModule, ProjectModule, RolesModule, ConfigurationModule, OdahuModule],
-  declarations: [],
-  exports: [ManagenementModule, ProjectModule, RolesModule, ConfigurationModule, OdahuModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    FormControlsModule,
+    InformMessageModule,
+    AceEditorModule
+  ],
+  declarations: [ConfigurationComponent, SettingsConfirmationDialogComponent],
+  entryComponents: [SettingsConfirmationDialogComponent],
+  exports: [ConfigurationComponent]
 })
-export class AdministrationModule { }
+export class ConfigurationModule { }

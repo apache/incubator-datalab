@@ -382,12 +382,13 @@ input[type='number'] {
     text-align: center;
   }
 }
-#scrolling, .scrolling{
+#scrolling, .scrolling, ace_scrollbar{
   scrollbar-width: thin;
 }
 
 #scrolling::-webkit-scrollbar,
 .scrolling::-webkit-scrollbar,
+.ace_scrollbar::-webkit-scrollbar,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -395,6 +396,7 @@ input[type='number'] {
 
 #scrolling::-webkit-scrollbar-track,
 .scrolling::-webkit-scrollbar-track,
+.ace_scrollbar::-webkit-scrollbar-track,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-track {
   box-shadow: none;
   -webkit-box-shadow: none;
@@ -403,6 +405,7 @@ input[type='number'] {
 
 #scrolling::-webkit-scrollbar-thumb,
 .scrolling::-webkit-scrollbar-thumb,
+.ace_scrollbar::-webkit-scrollbar-thumb,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-thumb {
   background-color: #f6fafe;
   background-color: rgba(0, 0, 0, 0.4);

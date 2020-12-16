@@ -46,6 +46,7 @@ import com.epam.datalab.backendapi.resources.SystemInfoResource;
 import com.epam.datalab.backendapi.resources.UserGroupResource;
 import com.epam.datalab.backendapi.resources.UserRoleResource;
 import com.epam.datalab.backendapi.resources.UserSettingsResource;
+import com.epam.datalab.backendapi.resources.admin.ChangePropertiesResource;
 import com.epam.datalab.backendapi.resources.callback.BackupCallback;
 import com.epam.datalab.backendapi.resources.callback.CheckInactivityCallback;
 import com.epam.datalab.backendapi.resources.callback.ComputationalCallback;
@@ -198,6 +199,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 	    jersey.register(injector.getInstance(ProjectCallback.class));
 	    jersey.register(injector.getInstance(OdahuResource.class));
 	    jersey.register(injector.getInstance(OdahuCallback.class));
+	    jersey.register(injector.getInstance(ChangePropertiesResource.class));
     }
 
     private void disableGzipHandlerForGuacamoleServlet(Server server) {
