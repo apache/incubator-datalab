@@ -103,12 +103,13 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                 .map(p -> {
                     List<UserInstanceDTO> exploratories = expDAO.findExploratories(user.getName(), p.getName());
                     return ProjectInfrastructureInfo.builder()
-                            .project(p.getName())
-                            .billingQuoteUsed(billingService.getBillingProjectQuoteUsed(p.getName()))
-                            .shared(getSharedInfo(p.getName()))
-                            .exploratory(exploratories)
-                            .exploratoryBilling(getExploratoryBillingData(exploratories))
-                            .endpoints(getEndpoints(allEndpoints, p))
+		                    .project(p.getName())
+		                    .billingQuoteUsed(billingService.getBillingProjectQuoteUsed(p.getName()))
+		                    .shared(getSharedInfo(p.getName()))
+		                    .exploratory(exploratories)
+		                    .exploratoryBilling(getExploratoryBillingData(exploratories))
+		                    .endpoints(getEndpoints(allEndpoints, p))
+		                    .odahu(p.getOdahu())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -147,9 +148,10 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
     @Override
     public void updateInfrastructureStatuses(UserInfo user, String endpoint, List<EnvResource> hostInstances, List<EnvResource> clusterInstances) {
-        EnvResourceList envResourceList = new EnvResourceList()
-                .withClusterList(clusterInstances)
-                .withHostList(hostInstances);
+        EnvResourceList envResourceList = EnvResourceList.builder()
+                        .hostList(hostInstances)
+                        .clusterList(clusterInstances)
+                        .build();
 
         EndpointDTO endpointDTO = endpointService.get(endpoint);
         String uuid = provisioningService.post(endpointDTO.getUrl() + INFRASTRUCTURE_STATUS, user.getAccessToken(),

@@ -75,6 +75,7 @@ export class ApplicationServiceFacade {
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
+  private static readonly ODAHU = 'odahu';
   private static readonly ENDPOINT = 'endpoint';
   private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
   private static readonly AUDIT = 'audit';
@@ -654,6 +655,24 @@ export class ApplicationServiceFacade {
       data);
   }
 
+  public createOdahuCluster(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU),
+      data);
+  }
+
+  public getOdahuList(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU),
+      null);
+  }
+
+  public odahuStartStop(data, params): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU) + `/${params}`,
+      data);
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -759,4 +778,5 @@ export class ApplicationServiceFacade {
       return this.http.get(body ? (url + body) : url, opt);
     }
   }
+
 }

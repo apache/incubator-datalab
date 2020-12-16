@@ -27,22 +27,22 @@ engine: gotpl
 home: https://smallstep.com
 icon: https://raw.githubusercontent.com/smallstep/certificates/master/icon.png
 keywords:
-  - acme
-- authority
-- ca
-- certificate
-- certificates
-- certificate-authority
-- kubernetes
-- pki
-- security
-- security-tools
-- smallstep
-- ssh
-- step
-- step-ca
-- tls
-- x509
+ - acme
+ - authority
+ - ca
+ - certificate
+ - certificates
+ - certificate-authority
+ - kubernetes
+ - pki
+ - security
+ - security-tools
+ - smallstep
+ - ssh
+ - step
+ - step-ca
+ - tls
+ - x509
 maintainers:
 - email: mariano@smallstep.com
   name: Mariano Cano

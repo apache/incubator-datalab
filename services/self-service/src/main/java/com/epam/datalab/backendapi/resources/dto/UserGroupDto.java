@@ -31,6 +31,6 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserGroupDto {
     private final String group;
-    private final List<UserRoleDto> roles;
+    private final List<UserRoleDTO> roles;
     private final Set<String> users;
 }

@@ -2143,6 +2143,8 @@ mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings
 mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
 ```
 
+If this command doesn't work for you, try to check [https://docs.mongodb.com/v4.2/reference/program/mongoimport/](https://docs.mongodb.com/v4.2/reference/program/mongoimport/)
+Or, use some UI client (f.e: [MongoDB Compass](https://www.mongodb.com/try/download/compass) )
 ### Setting up environment options
 
   * Set option CLOUD_TYPE to aws/azure, DEV\_MODE to **true**, mongo database name and password in configuration file 
@@ -2158,7 +2160,7 @@ mongo:
   password: <password>
 ```
 
-  * Add system environment variable DATALAB\_CONF\_DIR=&lt;datalab\_root\_folder&gt;/datalab/infrastructure-provisioning/src/ssn/templates/ssn.yml or create two symlinks in datalab/services/provisioning-service and datalab/services/self-service folders for file datalab/infrastructure-provisioning/src/ssn/templates/ssn.yml.
+  * Add system environment variable DATALAB\_CONF\_DIR=&lt;datalab\_root\_folder&gt;/datalab/infrastructure-provisioning/src/ssn/templates or create two symlinks in datalab/services/provisioning-service and datalab/services/self-service folders for file datalab/infrastructure-provisioning/src/ssn/templates/ssn.yml.
 
 *Unix*
 
@@ -2230,26 +2232,61 @@ Please find below set of commands to create certificate, depending on OS.
 
 Pay attention that the last command has to be executed with administrative permissions.
 ```
-keytool -genkeypair -alias datalab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore ~/keys/datalab.keystore.jks -keysize 2048 -dname "CN=localhost"
-keytool -exportcert -alias datalab -storepass KEYSTORE_PASSWORD -file ~/keys/datalab.crt -keystore ~/keys/datalab.keystore.jks
-sudo keytool -importcert -trustcacerts -alias datalab -file ~/keys/datalab.crt -noprompt -storepass changeit -keystore ${JRE_HOME}/lib/security/cacerts
+keytool -genkeypair -alias ssn -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore ~/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"
+keytool -exportcert -alias ssn -storepass KEYSTORE_PASSWORD -file ~/keys/ssn.crt -keystore ~/keys/ssn.keystore.jks
+sudo keytool -importcert -trustcacerts -alias ssn -file ~/keys/ssn.crt -noprompt -storepass changeit -keystore ${JRE_HOME}/lib/security/cacerts
 ```
 #### Create Windows server certificate
 
 Pay attention that the last command has to be executed with administrative permissions.
 To achieve this the command line (cmd) should be ran with administrative permissions.  
 ```
-"%JRE_HOME%\bin\keytool" -genkeypair -alias datalab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\datalab.keystore.jks -keysize 2048 -dname "CN=localhost"
-"%JRE_HOME%\bin\keytool" -exportcert -alias datalab -storepass KEYSTORE_PASSWORD -file <DRIVE_LETTER>:\home\%USERNAME%\keys\datalab.crt -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\datalab.keystore.jks
-"%JRE_HOME%\bin\keytool" -importcert -trustcacerts -alias datalab -file <DRIVE_LETTER>:\home\%USERNAME%\keys\datalab.crt -noprompt -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+"%JRE_HOME%\bin\keytool" -genkeypair -alias ssn -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\ssn.keystore.jks -keysize 2048 -dname "CN=localhost"
+"%JRE_HOME%\bin\keytool" -exportcert -alias ssn -storepass KEYSTORE_PASSWORD -file <DRIVE_LETTER>:\home\%USERNAME%\keys\ssn.crt -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\ssn.keystore.jks
+"%JRE_HOME%\bin\keytool" -importcert -trustcacerts -alias ssn -file <DRIVE_LETTER>:\home\%USERNAME%\keys\ssn.crt -noprompt -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
 
 Useful command
-"%JRE_HOME%\bin\keytool" -list -alias datalab -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
-"%JRE_HOME%\bin\keytool" -delete -alias datalab -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+"%JRE_HOME%\bin\keytool" -list -alias ssn -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+"%JRE_HOME%\bin\keytool" -delete -alias ssn -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
 ```
 Where the ```<DRIVE_LETTER>``` must be the drive letter where you run the DataLab.
 
+### Set up config files
 
+#### ssn.yml
+ Open infrastructure-provisioning/src/ssn/templates/ssn.yml 
+ 
+ * (23) KEYS_DIR -> path to keys dir with backslash
+ * (30) CLOUD_TYPE -> CLOUD_PROVIDER to gcp
+ * (34) DEV_MODE -> false to true
+ * (40-42) change user, pass, db to created in prev step
+ 
+ #### self-service.yml
+  Open services/self-service/self-service.yml
+  
+   * (170) keycloakConfiguration
+       * (171) redirectUri -> https://localhost:8443/
+       * (172) realm -> DLAB_bhliva
+       * (174) auth-server-url -> http://52.11.45.11:8080/auth
+       * (178) resource -> sss
+       * credentials
+           * (180) secret -> [ASK_YOUR_ONBOARDING_ENGINEER]
+         
+ #### provisioning.yml
+  Open services/provisioning-service/provisioning.yml
+ 
+   * (93) keycloakConfiguration
+        * (94) realm -> DLAB_bhliva
+        * (96) auth-server-url -> http://52.11.45.11:8080/auth
+        * (100) resource -> sss
+        * credentials
+            * (102) secret -> [ASK_YOUR_ONBOARDING_ENGINEER]
+     
+   * (104) cloudProperties
+        * (125) imageEnabled -> true     
+        * (133) stepCerts
+          * (134) enabled -> true
+           
 ## How to run locally <a name="run_locally"></a>
 
 There is a possibility to run Self-Service and Provisioning Service locally. All requests from Provisioning Service to 
@@ -2269,8 +2306,27 @@ functionality of toolbox.
 
 Run application flow is following:
 
-  * Run provisioning-service passing 2 arguments: server, provisioning.yml
-  * Run self-service passing 2 arguments: server, self-service.yml
+ 
+  * Create and run provisioning-service configuration:
+    * Create Application with name provisining-service-application
+        * Main class: 
+        ``` com.epam.datalab.backendapi.ProvisioningServiceApplication```
+        * VM options:  ```-Ddocker.dir=[PATH_TO_PROJECT_DIR]\infrastructure-provisioning\src\general\files\gcp```
+        * Program arguments : ```server
+                              [PATH_TO_PROJECT_DIR]\services\provisioning-service\provisioning.yml```
+        * Working directory:```[PATH_TO_PROJECT_DIR]```
+        * Use classpath of module: ```provisioning-servise```
+        * PAY ATTENTION: JRE should be the same jre where created server certificate
+        
+    * Create and run self-service configuration:
+      * Create Application with name self-service-application
+          * Main class: 
+          ``` com.epam.datalab.backendapi.SelfServiceApplication```
+          * Program arguments : ```server
+                                [PATH_TO_PROJECT_DIR]/services/self-service/self-service.yml```
+          * Working directory:```[PATH_TO_PROJECT_DIR]```
+          * Use classpath of module: ```self-service```
+          * PAY ATTENTION: JRE should be the same jre where created server certificate
   * Try to access self-service Web UI by https://localhost:8443
 
 ```

@@ -77,13 +77,14 @@
                   formControlName="cluster_alias_name" />
                 <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')">You have cluster with this name in current project.</span>
                 <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">Other user has cluster with this name in current project.</span>
-                <span class="error" *ngIf="!resourceForm?.controls.cluster_alias_name.valid
-                                            && resourceForm?.controls['cluster_alias_name'].dirty
-                                            && !resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')
-                                            && !resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">
-                  Cluster name cannot be longer than {{maxClusterNameLength}} characters
-                  and can only contain letters, numbers, hyphens and '_' but can not end with special
-                  characters
+                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('maxlength') &&
+                !resourceForm?.controls['cluster_alias_name'].hasError('pattern')"
+                >
+                  Cluster name cannot be longer than {{maxClusterNameLength}} characters.
+                </span>
+                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('pattern')">
+                  Cluster name can only contain letters, numbers, hyphens and '_' but can not end with special
+                  characters.
                 </span>
               </div>
             </div>
@@ -97,7 +98,7 @@
                   formControlName="instance_number" (keypress)="CheckUtils.isNumberKey($event)" />
                 <span class="error" *ngIf="!resourceForm?.controls.instance_number.valid">
                   <span>Only integer values greater than or equal to {{ minInstanceNumber }} and less than
-                    {{ maxInstanceNumber }} are allowed</span>
+                    {{ maxInstanceNumber }} are allowed.</span>
                 </span>
               </div>
             </div>
@@ -163,9 +164,9 @@
             <span class="error" *ngIf="!resourceForm?.controls.preemptible_instance_number.valid">
               <span *ngIf="minPreemptibleInstanceNumber !== maxPreemptibleInstanceNumber; else equal">
                 Only integer values greater than or equal to {{ minPreemptibleInstanceNumber }} and less than
-                {{ maxPreemptibleInstanceNumber }} are allowed
+                {{ maxPreemptibleInstanceNumber }} are allowed.
               </span>
-              <ng-template #equal>Please manage total machines count</ng-template>
+              <ng-template #equal>Please manage total machines count.</ng-template>
             </span>
           </div>
         </div>
@@ -182,7 +183,7 @@
             <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}"
               formControlName="instance_price" (keypress)="CheckUtils.isNumberKey($event)">
             <span class="error" *ngIf="!resourceForm?.controls.instance_price.valid">
-              Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed
+              Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed.
             </span>
           </div>
           <span class="info" *ngIf="spotInstancesSelect?.nativeElement['checked'] || false">When the current Spot price
@@ -212,7 +213,7 @@
                       data-gramm_editor="false"></textarea>
                   <span class="error"
                         *ngIf="!resourceForm?.controls.configuration_parameters.valid && resourceForm?.controls['configuration_parameters'].dirty">Configuration
-              parameters is not in a valid format</span>
+              parameters is not in a valid format.</span>
               </div>
           </div>
           <div *ngIf="notebook_instance?.image === 'docker.datalab-zeppelin'">

@@ -25,7 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum DataEngineType {
-    CLOUD_SERVICE("dataengine-service"), SPARK_STANDALONE("dataengine");
+    CLOUD_SERVICE("dataengine-service"),
+    SPARK_STANDALONE("dataengine");
 
     private static final String DOCKER_IMAGE_PREFIX = "docker.datalab-";
 
@@ -37,7 +38,7 @@ public enum DataEngineType {
         }
     }
 
-    private String name;
+    private final String name;
 
     DataEngineType(String name) {
         this.name = name;

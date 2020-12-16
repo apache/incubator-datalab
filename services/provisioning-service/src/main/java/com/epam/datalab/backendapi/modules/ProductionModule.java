@@ -29,9 +29,11 @@ import com.epam.datalab.backendapi.core.response.handlers.dao.CallbackHandlerDao
 import com.epam.datalab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
 import com.epam.datalab.backendapi.service.BucketService;
 import com.epam.datalab.backendapi.service.CheckInactivityService;
+import com.epam.datalab.backendapi.service.OdahuService;
 import com.epam.datalab.backendapi.service.ProjectService;
 import com.epam.datalab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.datalab.backendapi.service.impl.CheckInactivityServiceImpl;
+import com.epam.datalab.backendapi.service.impl.OdahuServiceImpl;
 import com.epam.datalab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.datalab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.datalab.backendapi.service.impl.aws.BucketServiceAwsImpl;
@@ -78,6 +80,7 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
         bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
         bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
         bind(ProjectService.class).to(ProjectServiceImpl.class);
+        bind(OdahuService.class).to(OdahuServiceImpl.class);
         if (configuration.getCloudProvider() == CloudProvider.GCP) {
             bind(BucketService.class).to(BucketServiceGcpImpl.class);
         } else if (configuration.getCloudProvider() == CloudProvider.AWS) {
