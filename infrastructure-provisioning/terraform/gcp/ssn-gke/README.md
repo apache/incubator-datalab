@@ -15,7 +15,7 @@ Preparation steps for deployment:
     - The instance should have access to Internet in order to install required prerequisites
     - Boot disk OS Image - Ubuntu 18.04
 - Put JSON auth file created through Google cloud console to users home directory
-- Install Terraform v0.12.3
+- Install Terraform v0.12.3:
 ```
 sudo su
 apt-get update
@@ -25,7 +25,7 @@ unzip terraform_0.12.3_linux_amd64.zip
 chmod +x terraform
 mv terraform /usr/local/bin/
 ```
-- Install jq and kubectl
+- Install jq and kubectl:
 ```
 apt-get install jq
 snap install kubectl --classic
@@ -34,7 +34,7 @@ snap install kubectl --classic
 ```
 pip3 install fabric==2.4.0 patchwork==1.0.1 invoke==1.2.0
 ```
-- Install Git and clone DataLab repository
+- Install Git and clone DataLab repository:
 ```
 git clone https://github.com/apache/incubator-datalab.git
 ```
@@ -68,9 +68,9 @@ List of parameters for GKE cluster creation and Helm Charts deployment:
 | big\_query\_dataset 	       | Name of GCP billing dataset (BigQuery service)                                        |
 | domain 	                   | Domain name                                                                           |,
 
-After successful DataLab deployment You will get output values which will be need for Keycloak configuration and Endpoint deployment, please save them.
+After successful DataLab deployment You get output values which are needed for Keycloak configuration and Endpoint deployment, please save them.
 
-Use direct link to Keycloak admin panel, as well as username and password for it. You have to login Keycloak admin panel and create user for DataLab. After that You will be able to login into DataLab UI.
+Use direct link to Keycloak admin panel, as well as username and password for it. You have to login Keycloak admin panel and create user for DataLab. After that You are able to login into DataLab UI.
 
 To proceed with DataLab resources creation Endpoint should be created.
 
