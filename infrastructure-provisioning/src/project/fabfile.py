@@ -65,3 +65,25 @@ def terminate():
         traceback.print_exc()
         append_result("Failed terminating Edge node.", str(err))
         sys.exit(1)
+
+# Main function for EDGE node creation if it was terminated or failed
+def recreate():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'],  os.environ['project_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/edge/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("~/scripts/{}.py".format('project_prepare'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed preparing Edge node.", str(err))
+        sys.exit(1)
+
+    try:
+        local("~/scripts/{}.py".format('edge_configure'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed configuring Edge node.", str(err))
+        sys.exit(1)
