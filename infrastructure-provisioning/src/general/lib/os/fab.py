@@ -611,7 +611,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
             run('mkdir -p ~/.git/templates/hooks')
-            put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
+            put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0o755)
             run('git config --global init.templatedir ~/.git/templates')
             run('touch ~/.gitignore')
             run('git config --global core.excludesfile ~/.gitignore')
