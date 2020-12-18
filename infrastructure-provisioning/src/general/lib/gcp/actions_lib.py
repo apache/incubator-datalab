@@ -32,7 +32,7 @@ import random
 import sys
 import time
 import traceback
-import urllib2
+import urllib3
 from Crypto.PublicKey import RSA
 from datalab.fab import *
 from fabric.api import *
