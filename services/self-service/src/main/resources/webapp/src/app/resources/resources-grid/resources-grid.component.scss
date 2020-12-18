@@ -360,7 +360,7 @@ table.resources {
   min-width: 190px;
 }
 
-.settings {
+.settings:not(.label-header) {
   position: relative;
   text-align: right;
   width: 6%;
