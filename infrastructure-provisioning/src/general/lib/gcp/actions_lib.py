@@ -23,10 +23,10 @@ import ast
 import backoff
 import datalab.common_lib
 import datalab.fab
+import datalab.meta_lib
 import google.auth
 import json
 import logging
-import meta_lib
 import os
 import random
 import sys
