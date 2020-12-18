@@ -24,9 +24,9 @@ import azure.common
 import backoff
 import datalab.common_lib
 import datalab.fab
+import datalab.meta_lib
 import json
 import logging
-import meta_lib
 import os
 import sys
 import time

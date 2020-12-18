@@ -26,7 +26,6 @@ import botocore
 import datalab.fab
 import json
 import logging
-import meta_lib
 import os
 import sys
 import time
