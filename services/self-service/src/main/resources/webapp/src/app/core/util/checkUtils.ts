@@ -21,6 +21,7 @@ import { PATTERNS } from './patterns';
 
 export class CheckUtils {
   public static isJSON(str) {
+    console.log(str);
     try {
       JSON.parse(str);
     } catch (e) {

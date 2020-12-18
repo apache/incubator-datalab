@@ -28,7 +28,13 @@ import { ErrorUtils } from '../util';
 export class ConfigurationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public getSelvServiceSettings(): Observable<{}> {
+  public getServiceSettings(service): Observable<{}> {
+     this.applicationServiceFacade
+      .buildGetServiceConfig(service)
+      //  .pipe(
+      // map(response => response),
+      // catchError(ErrorUtils.handleServiceError))
+       .subscribe();
     return of(`# *****************************************************************************
     #
     #  Licensed to the Apache Software Foundation (ASF) under one
@@ -218,5 +224,23 @@ export class ConfigurationService {
     gzipEnabledForRequests: false
     chunkedEncodingEnabled: true
     `)
+    }
+
+  public setServiceConfig(service) {
+    return this.applicationServiceFacade
+      .buildSetServiceConfig(service)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
+
+  public restartServices(services) {
+    const queryString = `?billing=${true}&ui=${true}`;
+    return this.applicationServiceFacade
+      .buildSetServiceConfig(queryString)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
 }

@@ -110,7 +110,7 @@ export class ConfigurationComponent implements OnInit {
   }
 
   getSettings() {
-    this.configurationService.getSelvServiceSettings().subscribe(v => {
+    this.configurationService.getServiceSettings('self-service').subscribe(v => {
       this.serverConfigs.billingSource = v;
       this.serverConfigs.selvServiceSource = v;
       this.serverConfigs.provisioningSource = v;
