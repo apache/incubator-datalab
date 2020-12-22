@@ -59,9 +59,9 @@ if __name__ == "__main__":
         sorted_subnets_cidr = sorted(subnets_cidr, key=sortkey)
 
         if not empty_vpc:
-            last_ip = int(ipaddress.IPv4Address(sorted_subnets_cidr[0].split('/')[0].decode("utf-8")))
+            last_ip = int(ipaddress.IPv4Address(sorted_subnets_cidr[0].split('/')[0]))
         else:
-            last_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
+            last_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0]))
         previous_subnet_size = private_subnet_size
         for cidr in sorted_subnets_cidr:
             first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
