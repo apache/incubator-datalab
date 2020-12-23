@@ -60,7 +60,6 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data);
     if (this.data.type !== 5) {
       this.confirmationType = this.data.type;
       this.notebook = this.data.notebook;

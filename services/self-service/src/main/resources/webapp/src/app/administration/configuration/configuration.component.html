@@ -1,0 +1,96 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div class="base-retreat">
+  <div class="sub-nav">
+    <button mat-raised-button class="butt"
+            (click)="action('save')"
+            [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+    >
+      Save
+    </button>
+    <button mat-raised-button class="butt"
+            (click)="action('discard')"
+            [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+    >
+      Discard changes
+    </button>
+    <button mat-raised-button class="butt" (click)="refreshConfig()">
+      <i class="material-icons refresh-icon">autorenew</i>Refresh
+    </button>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="configuration-wrapper">
+    <mat-tab-group animationDuration="0.5ms" (selectedTabChange)="tabChanged($event)">
+      <mat-tab label="Main"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 0"
+      >
+        <h4>Main settings</h4>
+        <div class="main-wrapper">
+          <section class="section">
+            <p class="section-title">Restart services</p>
+            <div class="section-content">
+              <ul class="list-menu selection-list">
+                <li *ngFor="let service of services | keys">
+                  <p class="list-item" role="menuitem">
+                    <span (click)="toggleSetings(service.key);$event.stopPropagation()" class="d-flex">
+                      <span class="empty-checkbox" [ngClass]="{'checked': services[service.key].selected}">
+                        <span class="checked-checkbox" *ngIf="services[service.key].selected"></span>
+                      </span>
+                      {{service.value.label}}
+                    </span>
+                  </p>
+                </li>
+              </ul>
+              <button mat-raised-button type="button" class="butt action" (click)="restartServices()">Restart</button>
+            </div>
+          </section>
+        </div>
+      </mat-tab>
+      <mat-tab label="Provisioning"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged
+               && !services['self-service'].isConfigChanged
+               && !services['billing'].isConfigChanged)
+               && activeTab.index !== 1"
+      >
+        <h4>Edit provisioning.yml</h4>
+        <div class="editor-wrap">
+          <div ace-editor [(text)]="services['provisioning-service'].config" mode="yaml" (textChange)="configUpdate('provisioning-service')"></div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Self service"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 2"
+      >
+         <h4>Edit self-service.yml</h4>
+        <div class="editor-wrap">
+          <div ace-editor mode="yaml" [(text)]="services['self-service'].config" (textChange)="configUpdate('self-service')"></div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Billing"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 3"
+      >
+        <h4>Edit billing.yml</h4>
+        <div class="editor-wrap">
+          <div ace-editor [(text)]="services.billing.config" mode="yaml" (textChange)="configUpdate('billing')"></div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
