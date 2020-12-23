@@ -70,24 +70,24 @@ export class AuditComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
   }
 
-  public buildAuditReport() {
+  public buildAuditReport(): void {
     this.auditGrid.buildAuditGrid();
   }
 
-  public rebuildAuditGrid() {
+  public rebuildAuditGrid(): void {
     this.auditGrid.refreshAuditPage();
   }
 
-  private getEnvironmentHealthStatus() {
+  private getEnvironmentHealthStatus(): void {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe();
   }
 
-  public setRangeOption(event) {
+  public setRangeOption(event): void {
     this.auditGrid.setAvaliblePeriod(event);
   }
 
-  public resetDatepicker() {
+  public resetDatepicker(): void {
     this.auditToolbar.clearRangePicker();
   }
 }

@@ -140,23 +140,23 @@
             <span>{{firstItem}}</span> - <span>{{(lastItem < allItems) ? lastItem: allItems}}</span> of <span>{{allItems}}</span>
           </span>
           <span>
-            <span [ngClass]="{'not-active':  isNavigationDisabled || firstItem === 1}">
-              <span class="navigation-butts" (click)="loadItemsForPage('first')" [ngClass]="{'not-allowed': firstItem === 1 || isNavigationDisabled}">
+            <span [ngClass]="{'not-active':  !isNavigationDisabled || firstItem === 1}">
+              <span class="navigation-butts" (click)="loadItemsForPage('first')" [ngClass]="{'not-allowed': firstItem === 1 || !isNavigationDisabled}">
                 <i class="material-icons">first_page</i>
               </span>
             </span>
-            <span [ngClass]="{'not-active': firstItem === 1 || isNavigationDisabled}">
-              <span class="navigation-butts" (click)="loadItemsForPage('previous')" [ngClass]="{'not-allowed': firstItem === 1 || isNavigationDisabled}">
+            <span [ngClass]="{'not-active': firstItem === 1 || !isNavigationDisabled}">
+              <span class="navigation-butts" (click)="loadItemsForPage('previous')" [ngClass]="{'not-allowed': firstItem === 1 || !isNavigationDisabled}">
                 <i class="material-icons">keyboard_arrow_left</i>
               </span>
             </span>
-            <span [ngClass]="{'not-active': lastItem >= allItems || isNavigationDisabled}">
-              <span class="navigation-butts" (click)="loadItemsForPage('next')" [ngClass]="{'not-allowed': lastItem >= allItems || isNavigationDisabled}">
+            <span [ngClass]="{'not-active': lastItem >= allItems || !isNavigationDisabled}">
+              <span class="navigation-butts" (click)="loadItemsForPage('next')" [ngClass]="{'not-allowed': lastItem >= allItems || !isNavigationDisabled}">
                 <i class="material-icons">keyboard_arrow_right</i>
               </span>
             </span>
-            <span [ngClass]="{'not-active': lastItem >= allItems || isNavigationDisabled}">
-              <span class="navigation-butts" (click)="loadItemsForPage('last')" [ngClass]="{'not-allowed': lastItem >= allItems || isNavigationDisabled}">
+            <span [ngClass]="{'not-active': lastItem >= allItems || !isNavigationDisabled}">
+              <span class="navigation-butts" (click)="loadItemsForPage('last')" [ngClass]="{'not-allowed': lastItem >= allItems || !isNavigationDisabled}">
                 <i class="material-icons">last_page</i>
               </span>
             </span>
@@ -241,7 +241,7 @@
             <i class="material-icons">close</i>
           </button>
 
-          <button mat-icon-button class="btn apply" (click)="buildAuditGrid(true)" [disabled]="isNavigationDisabled">
+          <button mat-icon-button class="btn apply" (click)="buildAuditGrid(true)" [disabled]="!isNavigationDisabled">
             <i class="material-icons">done</i>
           </button>
         </div>

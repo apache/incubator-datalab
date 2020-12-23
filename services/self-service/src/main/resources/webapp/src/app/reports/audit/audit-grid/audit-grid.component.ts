@@ -66,7 +66,6 @@ export class AuditGridComponent implements OnInit {
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
     public dialog: MatDialog,
     private auditService: AuditService,
-    private localizationService: LocalizationService,
   ) {
   }
 
@@ -124,7 +123,7 @@ export class AuditGridComponent implements OnInit {
     this.checkFilters();
   }
 
-  private checkFilters() {
+  private checkFilters(): void {
     this.isNavigationDisabled = CompareUtils.compareFilters(this.filterAuditData, this.copiedFilterAuditData);
     this.isFilterSelected = Object.keys(this.filterAuditData).some(v => this.filterAuditData[v].length > 0);
   }

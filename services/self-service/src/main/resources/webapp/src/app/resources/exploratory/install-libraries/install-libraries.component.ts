@@ -48,6 +48,9 @@ interface GetLibrary {
   encapsulation: ViewEncapsulation.None
 })
 export class InstallLibrariesComponent implements OnInit, OnDestroy {
+  private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
+  private readonly INSTALLATION_IN_PROGRESS_CHECK: number = 10000;
+
   private unsubscribe$ = new Subject();
   public model: InstallLibrariesModel;
   public notebook: any;
@@ -64,6 +67,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
+
   public groupsListMap = {
     'r_pkg': 'R packages',
     'pip2': 'Python 2',
@@ -73,18 +77,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     'java': 'Java'
   };
 
-  private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
-  private readonly INSTALLATION_IN_PROGRESS_CHECK: number = 10000;
-  private clear: number;
-
   public filterConfiguration: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filtered: boolean;
   public autoComplete: string;
   public filtredNotebookLibs: Array<any> = [];
-  @ViewChild('groupSelect') group_select;
-  @ViewChild('resourceSelect') resource_select;
-  @ViewChild('trigger') matAutoComplete;
   public lib: Library = {name: '', version: ''};
   public selectedLib: any = null;
   public isLibSelected: boolean = false;
@@ -92,6 +89,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public isFilterChanged: boolean;
   public isFilterSelected: boolean;
   private cashedFilterForm: FilterLibsModel;
+
+  @ViewChild('groupSelect') group_select;
+  @ViewChild('resourceSelect') resource_select;
+  @ViewChild('trigger') matAutoComplete;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -164,7 +165,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     (this.lib.name && this.lib.name.length >= 2 && this.group ) ? this.getFilteredList() : this.filteredList = null;
   }
 
-  public filterGroups(groupsList) {
+  public filterGroups(groupsList): Array<string> {
     const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
     if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1  || CURRENT_TEMPLATE.indexOf('deep learning') !== -1) {
       const filtered = groupsList.filter(group => group !== 'r_pkg');
@@ -175,10 +176,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
     const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
     return SortUtils.libGroupsSort(filteredGroups);
-
   }
 
-  public onUpdate($event) {
+  public onUpdate($event): void {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
       this.isLibSelected = false;
@@ -200,17 +200,17 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.filterList();
   }
 
-  public onFilterUpdate($event) {
+  public onFilterUpdate($event): void {
     this.filterModel[$event.type] = $event.model;
     this.checkFilters();
   }
 
-  private checkFilters() {
+  private checkFilters() : void{
     this.isFilterChanged = CompareUtils.compareFilters(this.filterModel, this.cashedFilterForm);
     this.isFilterSelected = Object.keys(this.filterModel).some(v => this.filterModel[v].length > 0);
   }
 
-  public isDuplicated(item) {
+  public isDuplicated(item): void {
     if (this.filteredList && this.filteredList.length) {
       if (this.group !== 'java') {
         this.selectedLib = this.filteredList.find(lib => lib.name.toLowerCase() === item.name.toLowerCase());
@@ -311,7 +311,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       }
   }
 
-  public reinstallLibrary(item, lib) {
+  public reinstallLibrary(item, lib): void {
     const retry = [{ group: lib.group, name: lib.name, version: lib.version }];
 
     if (this.getResourcesList().find(el => el.name === item.resource).type === 'СOMPUTATIONAL') {
@@ -321,7 +321,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getInstalledLibrariesList(init?: boolean) {
+  private getInstalledLibrariesList(init?: boolean): void {
     this.model.getInstalledLibrariesList(this.notebook)
       .pipe(
         takeUntil(this.unsubscribe$)
@@ -356,7 +356,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     return array.flat().filter((v, i, arr) => arr.indexOf(v) === i);
   }
 
-  private getInstalledLibsByResource() {
+  private getInstalledLibsByResource(): void {
     this.librariesInstallationService.getInstalledLibsByResource(this.notebook.project, this.notebook.name, this.model.computational_name)
       .pipe(
         takeUntil(this.unsubscribe$)
