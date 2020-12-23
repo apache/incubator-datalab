@@ -29,215 +29,28 @@ export class ConfigurationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public getServiceSettings(service): Observable<{}> {
-     this.applicationServiceFacade
+     return this.applicationServiceFacade
       .buildGetServiceConfig(service)
-      //  .pipe(
-      // map(response => response),
-      // catchError(ErrorUtils.handleServiceError))
-       .subscribe();
-    return of(`# *****************************************************************************
-    #
-    #  Licensed to the Apache Software Foundation (ASF) under one
-    #  or more contributor license agreements.  See the NOTICE file
-    #  distributed with this work for additional information
-    #  regarding copyright ownership.  The ASF licenses this file
-    #  to you under the Apache License, Version 2.0 (the
-    #  "License"); you may not use this file except in compliance
-    #  with the License.  You may obtain a copy of the License at
-    #
-    #  http://www.apache.org/licenses/LICENSE-2.0
-    #
-    #  Unless required by applicable law or agreed to in writing,
-      #  software distributed under the License is distributed on an
-    #  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    #  KIND, either express or implied.  See the License for the
-      #  specific language governing permissions and limitations
-    #  under the License.
-      #
-    # ******************************************************************************
-
-    <#include "/infrastructure-provisioning/src/ssn/templates/ssn.yml">
-
-    # Minimum and maximum number of slave EMR instances than could be created
-    minEmrInstanceCount: 2
-    maxEmrInstanceCount: 14
-    # Minimum and maximum percentage cost for slave EMR spot instances biding
-    minEmrSpotInstanceBidPct: 20
-    maxEmrSpotInstanceBidPct: 90
-
-    # Maximum length for gcp user name (due to gcp restrictions)
-    maxUserNameLength: 10
-    # Minimum and maximum number of slave Dataproc instances that could be created
-    minInstanceCount: 3
-    maxInstanceCount: 15
-    minDataprocPreemptibleCount: 0
-    gcpOuauth2AuthenticationEnabled: false
-
-    # Boundaries for Spark cluster creation
-    minSparkInstanceCount: 2
-    maxSparkInstanceCount: 14
-
-    # Timeout for check the status of environment via provisioning service
-    checkEnvStatusTimeout: 5m
-
-    # Restrict access to DataLab features using roles policy
-    rolePolicyEnabled: true
-    # Default access to DataLab features using roles policy
-    roleDefaultAccess: false
-
-    # Set to true to enable the scheduler of billing report.
-      billingSchedulerEnabled: true
-    billingPort: 8088
-    # Set to true to enable audit
-    auditEnabled: true
-    # Name of configuration file for billing report.
-    <#if DEV_MODE == "true">
-    billingConfFile: \${sys['user.dir']}/../billing/billing.yml
-    <#else>
-    billingConfFile: \${DATALAB_CONF_DIR}/billing.yml
-    </#if>
-
-    ssnInstanceSize: <SSN_INSTANCE_SIZE>
-
-      serviceBaseName: SERVICE_BASE_NAME
-    os: OPERATION_SYSTEM
-    server:
-      requestLog:
-        appenders:
-          - type: file
-    currentLogFilename: \${LOG_ROOT_DIR}/ssn/request-selfservice.log
-    archive: true
-    archivedLogFilenamePattern: \${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
-    archivedFileCount: 10
-    rootPath: "/api"
-    applicationConnectors:
-      #    - type: http
-    #      port: 8080
-    - type: https
-    port: 8443
-    certAlias: ssn
-    validateCerts: false
-    keyStorePath: \${KEY_STORE_PATH}
-      keyStorePassword: \${KEY_STORE_PASSWORD}
-        trustStorePath: \${TRUST_STORE_PATH}
-          trustStorePassword: \${TRUST_STORE_PASSWORD}
-            adminConnectors:
-              #    - type: http
-    #      port: 8081
-    - type: https
-    port: 8444
-    certAlias: ssn
-    validateCerts: false
-    keyStorePath: \${KEY_STORE_PATH}
-      keyStorePassword: \${KEY_STORE_PASSWORD}
-        trustStorePath: \${TRUST_STORE_PATH}
-          trustStorePassword: \${TRUST_STORE_PASSWORD}
-
-            mongoMigrationEnabled: false
-
-    logging:
-      level: INFO
-    loggers:
-      com.epam: INFO
-    org.apache.guacamole: DEBUG
-    com.novemberain: ERROR
-    appenders:
-      <#if DEV_MODE == "true">
-    - type: console
-    </#if>
-    - type: file
-    currentLogFilename: \${LOG_ROOT_DIR}/ssn/selfservice.log
-    archive: true
-    archivedLogFilenamePattern: \${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
-    archivedFileCount: 10
-
-    mavenSearchService:
-      protocol: http
-    host: search.maven.org
-    port: 80
-    jerseyClient:
-      timeout: 5s
-    connectionTimeout: 5s
-
-    schedulers:
-      inactivity:
-        enabled: false
-    cron: "0 0 0/2 ? * * *"
-    checkInfrastructureStatusScheduler:
-      enabled: true
-    cron: "0 0/15 * ? * *"
-    startComputationalScheduler:
-      enabled: true
-    cron: "*/20 * * ? * * *"
-    stopComputationalScheduler:
-      enabled: true
-    cron: "*/20 * * ? * * *"
-    startExploratoryScheduler:
-      enabled: true
-    cron: "*/20 * * ? * * *"
-    stopExploratoryScheduler:
-      enabled: true
-    cron: "*/20 * * ? * * *"
-    terminateComputationalScheduler:
-      enabled: true
-    cron: "*/20 * * ? * * *"
-    checkQuoteScheduler:
-      enabled: true
-    cron: "0 2/15 * ? * *"
-    checkUserQuoteScheduler:
-      enabled: false
-    cron: "0 0 * ? * * *"
-    checkProjectQuoteScheduler:
-      enabled: true
-    cron: "0 4/15 * ? * *"
-    checkEndpointStatusScheduler:
-      enabled: true
-    cron: "0 6/15 * ? * *"
-    billingScheduler:
-      enabled: true
-    cron: "0 0/15 * ? * *"
-
-
-    guacamole:
-      connectionProtocol: ssh
-    serverPort: 4822
-    port: 22
-    username: datalab-user
-
-    keycloakConfiguration:
-      redirectUri: http://localhost:4200/
-        realm: DLAB_bhliva
-    bearer-only: true
-    auth-server-url: http://52.11.45.11:8080/auth
-      ssl-required: none
-    register-node-at-startup: true
-    register-node-period: 600
-    resource: sss
-    credentials:
-      secret: cf5a484b-039b-4161-8707-ad65c0f25962
-
-    jerseyClient:
-      minThreads: 1
-    maxThreads: 128
-    workQueueSize: 8
-    gzipEnabled: true
-    gzipEnabledForRequests: false
-    chunkedEncodingEnabled: true
-    `)
+       .pipe(
+      map(response => response),
+      catchError(ErrorUtils.handleServiceError));
     }
 
-  public setServiceConfig(service) {
+  public setServiceConfig(service, config) {
+    const settings = {
+      ymlString: config
+    };
     return this.applicationServiceFacade
-      .buildSetServiceConfig(service)
+      .buildSetServiceConfig(service, settings)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public restartServices(services) {
-    const queryString = `?billing=${true}&ui=${true}`;
+  public restartServices(self, prov, billing) {
+    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}`;
     return this.applicationServiceFacade
-      .buildSetServiceConfig(queryString)
+      .buildRestartServices(queryString)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

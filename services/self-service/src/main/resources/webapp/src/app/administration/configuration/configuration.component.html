@@ -21,22 +21,17 @@
   <div class="sub-nav">
     <button mat-raised-button class="butt"
             (click)="action('save')"
-            [disabled]="provisioningSource === serverConfigs.provisioningSource
-               && serverConfigs.selvServiceSource === selvServiceSource
-               && serverConfigs.billingSource === billingSource
-               "
+            [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
     >
       Save
     </button>
     <button mat-raised-button class="butt"
             (click)="action('discard')"
-            [disabled]="provisioningSource === serverConfigs.provisioningSource
-               && serverConfigs.selvServiceSource === selvServiceSource
-               && serverConfigs.billingSource === billingSource"
+            [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
     >
       Discard changes
     </button>
-    <button mat-raised-button class="butt" (click)="refresh()">
+    <button mat-raised-button class="butt" (click)="refreshConfig()">
       <i class="material-icons refresh-icon">autorenew</i>Refresh
     </button>
   </div>
@@ -44,10 +39,7 @@
   <div class="configuration-wrapper">
     <mat-tab-group animationDuration="0.5ms" (selectedTabChange)="tabChanged($event)">
       <mat-tab label="Main"
-               [disabled]="!(provisioningSource === serverConfigs.provisioningSource
-               && serverConfigs.selvServiceSource === selvServiceSource
-               && serverConfigs.billingSource === billingSource
-               ) && activeTab !== 0"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 0"
       >
         <h4>Main settings</h4>
         <div class="main-wrapper">
@@ -55,13 +47,13 @@
             <p class="section-title">Restart services</p>
             <div class="section-content">
               <ul class="list-menu selection-list">
-                <li *ngFor="let service of services">
+                <li *ngFor="let service of services | keys">
                   <p class="list-item" role="menuitem">
-                    <span (click)="toggleSetings(service);$event.stopPropagation()" class="d-flex">
-                      <span class="empty-checkbox" [ngClass]="{'checked': service.selected}">
-                        <span class="checked-checkbox" *ngIf="service.selected"></span>
+                    <span (click)="toggleSetings(service.key);$event.stopPropagation()" class="d-flex">
+                      <span class="empty-checkbox" [ngClass]="{'checked': services[service.key].selected}">
+                        <span class="checked-checkbox" *ngIf="services[service.key].selected"></span>
                       </span>
-                      {{service.label}}
+                      {{service.value.label}}
                     </span>
                   </p>
                 </li>
@@ -72,39 +64,33 @@
         </div>
       </mat-tab>
       <mat-tab label="Provisioning"
-               [disabled]="!(provisioningSource === serverConfigs.provisioningSource
-               && serverConfigs.selvServiceSource === selvServiceSource
-               && serverConfigs.billingSource === billingSource
-               ) && activeTab !== 1
-">
+               [disabled]="!(!services['provisioning-service'].isConfigChanged
+               && !services['self-service'].isConfigChanged
+               && !services['billing'].isConfigChanged)
+               && activeTab.index !== 1"
+      >
         <h4>Edit provisioning.yml</h4>
         <div class="editor-wrap">
-<!--          <div ace-editor [(text)]="provisioningSource" ></div>-->
+          <div ace-editor [(text)]="services['provisioning-service'].config" (textChange)="configUpdate('provisioning-service')"></div>
         </div>
       </mat-tab>
       <mat-tab label="Self service"
-               [disabled]="!(provisioningSource === serverConfigs.provisioningSource
-               && serverConfigs.selvServiceSource === selvServiceSource
-               && serverConfigs.billingSource === billingSource
-               ) && activeTab !== 2
-"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 2"
       >
          <h4>Edit self-service.yml</h4>
         <div class="editor-wrap">
-<!--          <div ace-editor [(text)]="selvServiceSource" ></div>-->
+          <div ace-editor [(text)]="services['self-service'].config" (textChange)="configUpdate('self-service')"></div>
         </div>
       </mat-tab>
       <mat-tab label="Billing"
-               [disabled]="!(provisioningSource === serverConfigs.provisioningSource
-               && serverConfigs.selvServiceSource === selvServiceSource
-               && serverConfigs.billingSource === billingSource
-               ) && activeTab !== 3"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 3"
       >
         <h4>Edit billing.yml</h4>
         <div class="editor-wrap">
-<!--          <div ace-editor [(text)]="billingSource" ></div>-->
+          <div ace-editor [(text)]="services.billing.config" (textChange)="configUpdate('billing')"></div>
         </div>
       </mat-tab>
     </mat-tab-group>
   </div>
 </div>
+

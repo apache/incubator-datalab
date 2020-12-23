@@ -677,19 +677,22 @@ export class ApplicationServiceFacade {
   public buildGetServiceConfig(data): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ADMIN),
-      data);
+      data, { responseType: 'text' });
   }
 
-  public buildSetServiceConfig(data): Observable<any> {
+  public buildSetServiceConfig(data, body): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.ADMIN),
-      data);
+      this.requestRegistry.Item(ApplicationServiceFacade.ADMIN) + data,
+      body, {
+        // responseType: 'text',
+        // headers: { 'Content-Type': 'text/plain' }
+      });
   }
 
   public buildRestartServices(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.ADMIN),
-      data);
+      this.requestRegistry.Item(ApplicationServiceFacade.ADMIN) + 'restart' + data,
+      null );
   }
 
   private setupRegistry(): void {

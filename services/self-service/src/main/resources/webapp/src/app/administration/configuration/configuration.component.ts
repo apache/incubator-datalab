@@ -17,20 +17,13 @@
  * under the License.
  */
 
-import {Component, OnInit, Output, EventEmitter, Inject, ViewChild, HostListener} from '@angular/core';
-import { ValidatorFn, FormControl } from '@angular/forms';
+import {Component, OnInit, Inject, HostListener} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
-import {RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService} from '../../core/services';
-import {CheckUtils, SortUtils} from '../../core/util';
-import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
+import {HealthStatusService, AppRoutingService} from '../../core/services';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import {Router} from '@angular/router';
 import {ConfigurationService} from '../../core/services/configutration.service';
-import {NotificationDialogComponent} from '../../shared/modal-dialog/notification-dialog';
-import {logger} from 'codelyzer/util/logger';
+import 'brace';
 
 @Component({
   selector: 'datalab-configuration',
@@ -39,23 +32,13 @@ import {logger} from 'codelyzer/util/logger';
 })
 export class ConfigurationComponent implements OnInit {
   private healthStatus: any;
-  editorOptions = {theme: 'vs-dark', language: 'javascript'};
-  code: string = 'function x() {console.log("Hello world!");}';
-  text: any;
-  public activeTab: number = 0;
-  selvServiceSource;
-  provisioningSource;
-  billingSource;
-  serverConfigs = {
-    selvServiceSource: {},
-    provisioningSource: {},
-    billingSource: {},
+  public activeTab = {index: 0};
+  public activeService: string;
+  public services = {
+    'self-service': {label: 'Self service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
+    'provisioning-service': {label: 'Provisioning service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
+    'billing': {label: 'Billing', selected: false, config: '', serverConfig: '', isConfigChanged: false},
   };
-  public services = [
-    {label: 'Self service', selected: false},
-    {label: 'Provisioning', selected: false},
-    {label: 'Billing', selected: false},
-  ];
 
   private confirmMessages = {
     restartService: 'Restarting services will make DataLab unavailable for some time.',
@@ -65,7 +48,12 @@ export class ConfigurationComponent implements OnInit {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    if ((event.metaKey || event.ctrlKey) && event.key === 's' && this.activeTab !== 0 && this.router.url === '/configuration') {
+    if ((event.metaKey || event.ctrlKey) &&
+      event.key === 's' &&
+      this.activeTab.index !== 0 &&
+      this.router.url === '/configuration' &&
+      this.services[this.activeService].config !== this.services[this.activeService].serverConfig
+    ) {
       this.action('save');
       event.preventDefault();
     }
@@ -81,8 +69,9 @@ export class ConfigurationComponent implements OnInit {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.getSettings();
+    this.getSettings(...Object.keys(this.services));
   }
+
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
@@ -96,57 +85,95 @@ export class ConfigurationComponent implements OnInit {
       );
   }
 
-  refresh() {
-    console.log('Refresh');
+  public refreshConfig() {
+    this.getSettings(...Object.keys(this.services));
   }
 
-  action(action) {
+  public action(action) {
     this.dialog.open(SettingsConfirmationDialogComponent, { data: {
         action: action, message: action === 'discard' ? this.confirmMessages.discardChanges : this.confirmMessages.saveChanges
       }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
-      console.log(action, this.activeTab);
+      if (result && action === 'save') this.setServiceConfig(this.activeService, this.services[this.activeService].config);
+      if (result && action === 'discard') this.services[this.activeService].config = this.services[this.activeService].serverConfig;
+      this.configUpdate(this.activeService);
     });
   }
 
-  getSettings() {
-    this.configurationService.getServiceSettings('self-service').subscribe(v => {
-      this.serverConfigs.billingSource = v;
-      this.serverConfigs.selvServiceSource = v;
-      this.serverConfigs.provisioningSource = v;
-      this.selvServiceSource = v;
-      this.provisioningSource = v;
-      this.billingSource = v;
-    }
+  private getSettings(...services) {
+    services.forEach(service => {
+      this.configurationService.getServiceSettings(service).subscribe(config => {
+          this.services[service].config = config;
+          this.services[service].serverConfig = config;
+        }
+      );
+    });
+  }
+
+  private setServiceConfig(service, config) {
+    this.configurationService.setServiceConfig(service, config).subscribe(res => {
+      this.getSettings(service);
+      }
     );
   }
 
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
-    this.activeTab = tabChangeEvent.index;
-    if (this.selvServiceSource !== this.serverConfigs.selvServiceSource) {
-      this.dialog.open(SettingsConfirmationDialogComponent, { data: {
-          action: 'Was changed'
-        }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(result => {
-        if (result) {
-          this.serverConfigs.selvServiceSource = this.selvServiceSource;
-        } else {
-          this.selvServiceSource = this.serverConfigs.selvServiceSource;
-        }
-        });
+    this.activeTab = tabChangeEvent;
+    if (this.activeTab.index === 1) {
+      this.activeService = 'provisioning-service';
+    } else if (this.activeTab.index === 2) {
+      this.activeService = 'self-service';
+    } else if (this.activeTab.index === 3) {
+      this.activeService = 'billing';
+    } else {
+      this.activeService = '';
     }
+
+    if (!!this.activeService) {
+      if (this.services[this.activeService].config !== this.services[this.activeService].serverConfig) {
+        this.dialog.open(SettingsConfirmationDialogComponent, { data: {
+            action: 'Was changed'
+          }, panelClass: 'modal-sm' })
+          .afterClosed().subscribe(result => {
+          if (result) {
+            this.services[this.activeService].serverConfig = this.services[this.activeService].config;
+          } else {
+            this.services[this.activeService].config = this.services[this.activeService].serverConfig;
+          }
+        });
+      }
+    }
+
+    this.clearSelectedServices();
   }
 
-  toggleSetings(service) {
-      service.selected = !service.selected
+  private clearSelectedServices() {
+    Object.keys(this.services).forEach(service => this.services[service].selected = false);
   }
 
-  restartServices() {
+  public toggleSetings(service) {
+    this.services[service].selected = !this.services[service].selected;
+  }
+
+  public restartServices() {
     this.dialog.open(SettingsConfirmationDialogComponent, { data: {
         action: 'Restart services', message: this.confirmMessages.restartService
       }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
+      this.configurationService.restartServices(this.services['self-service'].selected,
+        this.services['provisioning-service'].selected,
+        this.services['billing'].selected
+      )
+        .subscribe(res => {
+          this.clearSelectedServices();
+        }
+      );
+
     });
+  }
+
+  public configUpdate(service: string) {
+    this.services[service].isConfigChanged = this.services[service].config !== this.services[service].serverConfig;
   }
 }
 
@@ -174,31 +201,12 @@ export class ConfigurationComponent implements OnInit {
   styles: [
     `
       .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; }
-      .info { color: #35afd5; }
-      .info .confirm-dialog { color: #607D8B; }
       header { display: flex; justify-content: space-between; color: #607D8B; }
       header h4 i { vertical-align: bottom; }
       header a i { font-size: 20px; }
       header a:hover i { color: #35afd5; cursor: pointer; }
       .content{padding: 35px 30px 30px 30px;}
-      .plur { font-style: normal; }
-      .scrolling-content{overflow-y: auto; max-height: 200px; }
-      .cluster { width: 50%; text-align: left;}
-      .status { width: 50%;text-align: left;}
-      .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
-      .node { font-weight: 300;}
-      .resource-name { width: 40%;text-align: left; padding: 10px 0;line-height: 26px;}
-      .clusters-list { width: 60%;text-align: left; padding: 10px 0;line-height: 26px;}
-      .clusters-list-item { width: 100%;text-align: left;display: flex}
-      .resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
-      .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
-      .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
-      .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
-      .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center; padding-top: 20px}
-      .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
-      label{cursor: pointer}
-      .bottom-message{padding-top: 15px;}
-      .table-header{padding-bottom: 10px;}`
+      label{cursor: pointer}`
   ]
 })
 

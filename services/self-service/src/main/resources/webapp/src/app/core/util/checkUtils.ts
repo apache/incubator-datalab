@@ -20,8 +20,15 @@
 import { PATTERNS } from './patterns';
 
 export class CheckUtils {
+
+  public static endpointStatus = {
+    CREATING: 'CONNECTING',
+    STARTING: 'CONNECTING',
+    RUNNING: 'CONNECTED',
+    STOPPING: 'DISCONNECTING',
+    STOPPED: 'DISCONNECTED'
+  };
   public static isJSON(str) {
-    console.log(str);
     try {
       JSON.parse(str);
     } catch (e) {
@@ -43,26 +50,11 @@ export class CheckUtils {
 
   public static numberOnly(event): boolean {
     const charCode = (event.which) ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-      return false;
-    }
-    return true;
+    return !(charCode > 31 && (charCode < 48 || charCode > 57));
   }
 
   public static delimitersFiltering(resource): string {
     return resource.replace(RegExp(PATTERNS.delimitersRegex, 'g'), '').toString().toLowerCase();
   }
 
-  public static decodeUnicode(str) {
-    str = str.replace(/\\/g, "%");
-    return unescape(str);
-  }
-
-  public static endpointStatus = {
-    CREATING: 'CONNECTING',
-    STARTING: 'CONNECTING',
-    RUNNING: 'CONNECTED',
-    STOPPING: 'DISCONNECTING',
-    STOPPED: 'DISCONNECTED'
-  }
 }

@@ -25,6 +25,8 @@ import { FormControlsModule } from '../../shared/form-controls';
 import {InformMessageModule} from '../../shared/inform-message';
 import {ConfigurationComponent, SettingsConfirmationDialogComponent} from './configuration.component';
 import {AceEditorModule} from 'ng2-ace-editor';
+import {ConvertActionPipeModule} from '../../core/pipes/convert-action-pipe';
+import {KeysPipeModule} from '../../core/pipes/keys-pipe';
 
 @NgModule({
   imports: [
@@ -34,7 +36,9 @@ import {AceEditorModule} from 'ng2-ace-editor';
     MaterialModule,
     FormControlsModule,
     InformMessageModule,
-    AceEditorModule
+    AceEditorModule,
+    ConvertActionPipeModule,
+    KeysPipeModule
   ],
   declarations: [ConfigurationComponent, SettingsConfirmationDialogComponent],
   entryComponents: [SettingsConfirmationDialogComponent],
