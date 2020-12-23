@@ -24,6 +24,7 @@ import {MatTabChangeEvent} from '@angular/material/tabs';
 import {Router} from '@angular/router';
 import {ConfigurationService} from '../../core/services/configutration.service';
 import 'brace';
+import 'brace/mode/yaml';
 
 @Component({
   selector: 'datalab-configuration',
@@ -69,24 +70,20 @@ export class ConfigurationComponent implements OnInit {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.getSettings(...Object.keys(this.services));
+    this.getServicesConfig(...Object.keys(this.services));
   }
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
           this.healthStatus = result;
-          if (!this.healthStatus.admin && !this.healthStatus.projectAdmin) {
-            this.appRoutingService.redirectToHomePage();
-          } else {
-
+          !this.healthStatus.admin && !this.healthStatus.projectAdmin && this.appRoutingService.redirectToHomePage();
           }
-        }
       );
   }
 
   public refreshConfig() {
-    this.getSettings(...Object.keys(this.services));
+    this.getServicesConfig(...Object.keys(this.services));
   }
 
   public action(action) {
@@ -100,19 +97,21 @@ export class ConfigurationComponent implements OnInit {
     });
   }
 
-  private getSettings(...services) {
+  private getServicesConfig(...services) {
     services.forEach(service => {
       this.configurationService.getServiceSettings(service).subscribe(config => {
           this.services[service].config = config;
           this.services[service].serverConfig = config;
+        this.configUpdate(service);
         }
       );
     });
+    this.clearSelectedServices();
   }
 
   private setServiceConfig(service, config) {
     this.configurationService.setServiceConfig(service, config).subscribe(res => {
-      this.getSettings(service);
+      this.getServicesConfig(service);
       }
     );
   }
@@ -143,7 +142,6 @@ export class ConfigurationComponent implements OnInit {
         });
       }
     }
-
     this.clearSelectedServices();
   }
 
