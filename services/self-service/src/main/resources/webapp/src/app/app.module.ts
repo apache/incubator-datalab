@@ -41,6 +41,7 @@ import { CoreModule } from './core/core.module';
 import { SwaggerAPIModule } from './swagger';
 import {ReportsModule} from './reports/reports.module';
 import {LocalizationService} from './core/services/localization.service';
+import {AceEditorModule} from 'ng2-ace-editor';
 
 LocalizationService.registerCulture(window.navigator.language);
 
@@ -66,7 +67,8 @@ LocalizationService.registerCulture(window.navigator.language);
     RouterModule,
     AppRoutingModule,
     CoreModule.forRoot(),
-    ToastrModule.forRoot({ timeOut: 10000 })
+    ToastrModule.forRoot({ timeOut: 10000 }),
+    AceEditorModule
   ],
   providers: [{
     provide: LocationStrategy,

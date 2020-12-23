@@ -27,6 +27,7 @@ export class KeysPipe implements PipeTransform {
     for (const key in value) {
       keys.push({ key: key, value: value[key]});
     }
+
     return keys;
   }
 }
