@@ -1,188 +1,92 @@
 # *****************************************************************************
 #
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-#  http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing,
-#  software distributed under the License is distributed on an
-#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-#  specific language governing permissions and limitations
-#  under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 # ******************************************************************************
 
-<#include "ssn.yml">
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    mongodb:
+      username: admin
+      password: MONGO_PASSWORD
+      database: datalabdb
+      port: MONGO_PORT
+      host: MONGO_HOST
 
-# Minimum and maximum number of slave EMR instances than could be created
-minEmrInstanceCount: 2
-maxEmrInstanceCount: 14
-# Minimum and maximum percentage cost for slave EMR spot instances biding
-minEmrSpotInstanceBidPct: 20
-maxEmrSpotInstanceBidPct: 90
-
-# Maximum length for gcp user name (due to gcp restrictions)
-maxUserNameLength: 10
-# Minimum and maximum number of slave Dataproc instances that could be created
-minInstanceCount: 3
-maxInstanceCount: 15
-minDataprocPreemptibleCount: 0
-gcpOuauth2AuthenticationEnabled: false
-
-# Boundaries for Spark cluster creation
-minSparkInstanceCount: 2
-maxSparkInstanceCount: 14
-
-# Timeout for check the status of environment via provisioning service
-checkEnvStatusTimeout: 5m
-
-# Restrict access to DataLab features using roles policy
-rolePolicyEnabled: true
-# Default access to DataLab features using roles policy
-roleDefaultAccess: false
-
-# Set to true to enable the scheduler of billing report.
-billingSchedulerEnabled: false
-billingPort: 8088
-# Set to true to enable audit
-auditEnabled: true
-  # Name of configuration file for billing report.
-  <#if DEV_MODE == "true">
-billingConfFile: ${sys['user.dir']}/../billing/billing.yml
-  <#else>
-billingConfFile: ${DATALAB_CONF_DIR}/billing.yml
-  </#if>
-
-ssnInstanceSize: <SSN_INSTANCE_SIZE>
-
-serviceBaseName: SERVICE_BASE_NAME
-os: OPERATION_SYSTEM
 server:
-  requestLog:
-    appenders:
-      - type: file
-        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-        archive: true
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
-        archivedFileCount: 10
-  rootPath: "/api"
-  applicationConnectors:
-    #    - type: http
-    #      port: 8080
-    - type: https
-      port: 8443
-      certAlias: ssn
-      validateCerts: false
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
-  adminConnectors:
-    #    - type: http
-    #      port: 8081
-    - type: https
-      port: 8444
-      certAlias: ssn
-      validateCerts: false
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
+  port: 8088
+  servlet:
+    contextPath: /api/billing
 
-mongoMigrationEnabled: false
+server.ssl.key-store-type: JKS
+server.ssl.key-store: /home/OS_USER/keys/ssn.keystore.jks
+server.ssl.key-store-password: KEY_STORE_PASSWORD
+server.ssl.key-alias: ssn
 
 logging:
-  level: INFO
-  loggers:
-    com.epam: INFO
-    org.apache.guacamole: DEBUG
-    com.novemberain: ERROR
-  appenders:
-  <#if DEV_MODE == "true">
-  - type: console
-    </#if>
-  - type: file
-    currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
-    archive: true
-    archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
-    archivedFileCount: 10
+  file: /var/opt/datalab/log/ssn/billing.log
+  level:
+    com:
+      epam: trace
 
-mavenSearchService:
-  protocol: http
-  host: search.maven.org
-  port: 80
-  jerseyClient:
-    timeout: 5s
-    connectionTimeout: 5s
-
-schedulers:
-  inactivity:
-    enabled: false
-    cron: "0 0 0/2 ? * * *"
-  checkInfrastructureStatusScheduler:
-    enabled: true
-    cron: "0 0/15 * ? * *"
-  startComputationalScheduler:
-    enabled: true
-    cron: "*/20 * * ? * * *"
-  stopComputationalScheduler:
-    enabled: true
-    cron: "*/20 * * ? * * *"
-  startExploratoryScheduler:
-    enabled: true
-    cron: "*/20 * * ? * * *"
-  stopExploratoryScheduler:
-    enabled: true
-    cron: "*/20 * * ? * * *"
-  terminateComputationalScheduler:
-    enabled: true
-    cron: "*/20 * * ? * * *"
-  checkQuoteScheduler:
-    enabled: true
-    cron: "0 2/15 * ? * *"
-  checkUserQuoteScheduler:
-    enabled: false
-    cron: "0 0 * ? * * *"
-  checkProjectQuoteScheduler:
-    enabled: true
-    cron: "0 4/15 * ? * *"
-  checkEndpointStatusScheduler:
-    enabled: true
-    cron: "0 6/15 * ? * *"
-  billingScheduler:
-    enabled: true
-    cron: "0 0/15 * ? * *"
-
-
-guacamole:
-  connectionProtocol: ssh
-  serverPort: 4822
-  port: 22
-  username: datalab-user
-
-keycloakConfiguration:
-  redirectUri: https://localhost:8443/
-  realm: DLAB_bhliva
+keycloak:
   bearer-only: true
-  auth-server-url: http://52.11.45.11:8080/auth
+  realm: datalab
+  resource: KEYCLOAK_CLIENT_ID
+  credentials.secret: KEYCLOAK_CLIENT_SECRET
   ssl-required: none
-  register-node-at-startup: true
-  register-node-period: 600
-  resource: sss
-  credentials:
-    secret: cf5a484b-039b-4161-8707-ad65c0f25962
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
 
-jerseyClient:
-  minThreads: 1
-  maxThreads: 128
-  workQueueSize: 8
-  gzipEnabled: true
-  gzipEnabledForRequests: false
-  chunkedEncodingEnabled: true
+datalab:
+  sbn: SERVICE_BASE_NAME
+  billingEnabled: true
+
+  # Authentication info
+
+  # Explicit azure authentication parameters
+  clientId: CLIENT_ID
+  clientSecret: CLIENT_SECRET
+  tenantId: TENANT_ID
+  subscriptionId: SUBSCRIPTION_ID
+
+  # Contains authentication info (clientId, clientSecret, tenantId, subscriptionId) received after Azure CLI authentication
+  # Overrides explicit azure authentication parameters above
+  authenticationFile: AUTHENTICATION_FILE
+  # Billing configuration for RateCard API. For more details please see https://msdn.microsoft.com/en-us/library/mt219004.aspx
+  offerNumber: OFFER_NUMBER
+  currency: CURRENCY
+  locale: LOCALE
+  regionInfo: REGION_INFO
+
+  # Azure provides with aggregated data by date. Scheduler tries to retrieve data every <period> with <initialDelay> from
+  # application startup in minutes.
+  # Scheduler retrieves data only for the past period of time from midnight of start day to midnight of end date.
+  # Scheduler does not retrieve data for the current date
+  initialDelay: 10
+  period: 60
+  aggregationOutputMongoDataSource:
+    host: MONGO_HOST
+    port: MONGO_PORT
+    username: admin
+    password: MONGO_PASSWORD
+    database: datalabdb
+  ssnStorageAccountTagName: <AZURE_SSN_STORAGE_ACCOUNT_TAG>
+  sharedStorageAccountTagName: <AZURE_SHARED_STORAGE_ACCOUNT_TAG>
+  datalakeTagName: <AZURE_DATALAKE_TAG>
