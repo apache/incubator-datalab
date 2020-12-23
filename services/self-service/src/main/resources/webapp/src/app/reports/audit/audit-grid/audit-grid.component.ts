@@ -174,10 +174,6 @@ export class AuditGridComponent implements OnInit {
     this.resetDateFilter.emit();
     this.buildAuditGrid(true);
   }
-
-  public didFilterChanged(): boolean {
-    return this.isNavigationDisabled;
-  }
 }
 
 
