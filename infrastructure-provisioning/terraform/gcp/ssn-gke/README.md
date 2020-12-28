@@ -32,7 +32,12 @@ snap install kubectl --classic
 ```
 - Install Python3.7 and pip libraries:
 ```
-pip3 install fabric==2.4.0 patchwork==1.0.1 invoke==1.2.0
+add-apt-repository ppa:deadsnakes/ppa
+apt-get install python3.7
+update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+update-alternatives --config python3
+pip3 install fabric==2.4.0 patchwork==1.0.1 invoke==1.2.0 cryptography==3.3.1
 ```
 - Install Git and clone DataLab repository:
 ```
