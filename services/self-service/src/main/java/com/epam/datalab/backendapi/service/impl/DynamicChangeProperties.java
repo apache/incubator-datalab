@@ -1,5 +1,6 @@
 package com.epam.datalab.backendapi.service.impl;
 
+import com.epam.datalab.backendapi.annotation.Audit;
 import com.epam.datalab.exceptions.DynamicChangePropertiesException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -16,6 +17,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
+import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE;
+
 @Slf4j
 public class DynamicChangeProperties {
 
@@ -28,7 +32,7 @@ public class DynamicChangeProperties {
     private static final String BILLING_SERVICE = "billing.yml";
     private static final String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
     private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
-    private static final String SECRET_REGEX = "(.*)[sS]ecret(.*): (.*)";
+    private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
     private static final String SECRET_REPLACEMENT_FORMAT = " ***********";
     private static final String SH_COMMAND = "sudo supervisorctl restart";
 
@@ -57,26 +61,32 @@ public class DynamicChangeProperties {
     private static final int DEFAULT_VALUE_PLACE = 1;
     private static final int DEFAULT_NAME_PLACE = 0;
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static String getSelfServiceProperties() {
         return readFileAsString(SELF_SERVICE_PROP_PATH, SELF_SERVICE);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static String getProvisioningServiceProperties() {
         return readFileAsString(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static String getBillingServiceProperties() {
         return readFileAsString(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static void overwriteSelfServiceProperties(String ymlString) {
         writeFileFromString(ymlString, SELF_SERVICE, SELF_SERVICE_PROP_PATH);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static void overwriteProvisioningServiceProperties(String ymlString) {
         writeFileFromString(ymlString, PROVISIONING_SERVICE, PROVISIONING_SERVICE_PROP_PATH);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static void overwriteBillingServiceProperties(String ymlString) {
         writeFileFromString(ymlString, BILLING_SERVICE, BILLING_SERVICE_PROP_PATH);
     }
@@ -127,7 +137,7 @@ public class DynamicChangeProperties {
     }
 
     private static String removeLicence(String conf) {
-        return conf.substring(LICENCE.length() + 7);
+        return conf.substring(LICENCE.length());
     }
 
     private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {

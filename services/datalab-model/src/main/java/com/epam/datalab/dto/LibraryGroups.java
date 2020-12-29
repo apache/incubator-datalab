@@ -27,7 +27,7 @@ public enum LibraryGroups {
     GROUP_OS_PKG("os_pkg"),
     GROUP_OTHERS("others");
 
-    private String name;
+    private final String name;
 
     LibraryGroups(String name) {
         this.name = name;

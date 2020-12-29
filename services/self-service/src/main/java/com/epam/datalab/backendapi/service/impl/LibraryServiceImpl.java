@@ -20,11 +20,7 @@
 package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.annotation.Audit;
-import com.epam.datalab.backendapi.annotation.Info;
-import com.epam.datalab.backendapi.annotation.Project;
-import com.epam.datalab.backendapi.annotation.ResourceName;
-import com.epam.datalab.backendapi.annotation.User;
+import com.epam.datalab.backendapi.annotation.*;
 import com.epam.datalab.backendapi.dao.BaseDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryLibDAO;
@@ -57,32 +53,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.INSTALL_LIBS;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
-import static com.epam.datalab.backendapi.domain.NotebookTemplate.DEEP_LEARNING;
-import static com.epam.datalab.backendapi.domain.NotebookTemplate.JUPYTER;
-import static com.epam.datalab.backendapi.domain.NotebookTemplate.RSTUDIO;
-import static com.epam.datalab.backendapi.domain.NotebookTemplate.TENSOR;
-import static com.epam.datalab.backendapi.domain.NotebookTemplate.TENSOR_RSTUDIO;
-import static com.epam.datalab.backendapi.domain.NotebookTemplate.ZEPPELIN;
-import static com.epam.datalab.dto.LibraryGroups.GROUP_JAVA;
-import static com.epam.datalab.dto.LibraryGroups.GROUP_OS_PKG;
-import static com.epam.datalab.dto.LibraryGroups.GROUP_OTHERS;
-import static com.epam.datalab.dto.LibraryGroups.GROUP_PIP2;
-import static com.epam.datalab.dto.LibraryGroups.GROUP_PIP3;
-import static com.epam.datalab.dto.LibraryGroups.GROUP_R_PKG;
+import static com.epam.datalab.backendapi.domain.NotebookTemplate.*;
+import static com.epam.datalab.dto.LibraryGroups.*;
 
 
 @Slf4j
