@@ -37,6 +37,7 @@ apt-get install python3.7
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
 update-alternatives --config python3
+apt-get install python3-pip
 pip3 install fabric==2.4.0 patchwork==1.0.1 invoke==1.2.0 cryptography==3.3.1
 ```
 - Install Git and clone DataLab repository:
@@ -85,7 +86,7 @@ To create Endpoint following steps should be executed:
 ```
 cd /home/ubuntu/incubator-datalab/infrastructure-provisioning/terraform/bin/
 ```
-- Run python script to create DataLab Endpoint:
+- Run python script to create DataLab Endpoint*:
 ```
 python3 datalab.py deploy gcp endpoint --gcp_project_id gcp_project_id --creds_file /path/to/auth/file.json --key_name key_name --pkey /path/to/key/key_name.pem --service_base_name xxxx --path_to_pub_key /path/to/key/key_name.pub --endpoint_id yyyy --region xx-xxxxx --zone xxx-xxxxx-x --state /home/ubuntu/datalab-state/ --cloud_provider gcp --repository_user nexus_user --repository_pass nexus_password --repository_address nexus.develop.dlabanalytics.com --repository_port 8083 --vpc_id "vpc_id" --subnet_id "subnet_id" --ssn_ui_host domain.com --keycloak_auth_server_url https://service_base_name.domain.com/auth --keycloak_realm_name realm_name --keycloak_user_name admin_name --keycloak_user_password admin_password --keycloak_client_id client_id --keycloak_client_secret client_secret --step_root_ca "step_ca" --step_kid step_kid --step_kid_password --step_ca_url https://step_ca_url --mongo_password mongo_password --billing_dataset_name xxxxx --billing_enable True --ldap_host ldap_server_host --ldap_dn dc=example,dc=com --ldap_user cn=admin --ldap_bind_creds ldap_server_password --ldap_users_group ou=People
 ```
@@ -107,6 +108,8 @@ List of parameters for DataLab Endpoint creation:
 | mongo\_password              | Use mongo\_password from GKE cluster creation output                                  |
 | billing\_dataset\_name       | Name of GCP billing dataset (BigQuery service)                                        |
 | domain 	                   | Domain name                                                                           |
+
+*You may omit the following parameters (in case of using the same state path input variables are included from GKE createion output): --vpc_id "vpc_id" --subnet_id "subnet_id" --ssn_ui_host domain.com --keycloak_auth_server_url https://service_base_name.domain.com/auth --keycloak_realm_name realm_name --keycloak_user_name admin_name --keycloak_user_password admin_password --keycloak_client_id client_id --keycloak_client_secret client_secret --step_root_ca "step_ca" --step_kid step_kid --step_kid_password --step_ca_url https://step_ca_url 
 
 After successful DataLab Endpoint deployment login into DataLab UI and add Endpoint at Environment Management page.
 Use unique Endpoint name for DataLab UI and Endpoint URl in format: https://ip_address:8084/
