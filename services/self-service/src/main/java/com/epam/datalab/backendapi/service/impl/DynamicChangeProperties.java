@@ -35,6 +35,8 @@ public class DynamicChangeProperties {
     private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
     private static final String SECRET_REPLACEMENT_FORMAT = " ***********";
     private static final String SH_COMMAND = "sudo supervisorctl restart";
+    private static final String DEFAULT_CHMODE = "644";
+    private static final String WRITE_CHMODE = "777";
 
     private static final String LICENCE =
             "# *****************************************************************************\n" +
@@ -93,7 +95,7 @@ public class DynamicChangeProperties {
 
     public static void restart(boolean billing, boolean provserv, boolean ui) {
         try {
-            String shCommand = buildSHCommand(billing, provserv, ui);
+            String shCommand = buildSHREstartCommand(billing, provserv, ui);
             log.info("Tying to restart ui: {},  provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
             Runtime.getRuntime().exec(shCommand).waitFor();
@@ -104,7 +106,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String buildSHCommand(boolean billing, boolean provserv, boolean ui) {
+    private static String buildSHREstartCommand(boolean billing, boolean provserv, boolean ui) {
         StringBuilder stringBuilder = new StringBuilder(SH_COMMAND);
         if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
         if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
@@ -114,7 +116,7 @@ public class DynamicChangeProperties {
 
     private static String readFileAsString(String selfServicePropPath, String serviceName) {
         try {
-            log.trace("Trying to read self-service.yml, file from path {} :", selfServicePropPath);
+            log.info("Trying to read self-service.yml, file from path {} :", selfServicePropPath);
             String currentConf = FileUtils.readFileToString(new File(selfServicePropPath), Charset.defaultCharset());
             return hideSecretsAndRemoveLicence(currentConf);
         } catch (IOException e) {
@@ -143,15 +145,27 @@ public class DynamicChangeProperties {
     private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
             String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
+            changeCHMODE(serviceName, DEFAULT_CHMODE, WRITE_CHMODE);
             BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
-            log.trace("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
+            log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
             writer.write(addLicence());
             writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
             log.info("{} overwritten successfully", serviceName);
             writer.close();
+            changeCHMODE(serviceName, WRITE_CHMODE, DEFAULT_CHMODE);
         } catch (IOException e) {
             log.error("Failed during overwriting {}", serviceName);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
+        }
+
+    }
+
+    private static void changeCHMODE(String serviceName, String writeChmode, String defaultChmode) throws IOException {
+        try {
+            log.info("Trying to change chmode for file {} {}->{}", serviceName, writeChmode, defaultChmode);
+            Runtime.getRuntime().exec("sudo chmode " + defaultChmode).waitFor();
+        } catch (InterruptedException e) {
+            log.error("Failed change chmode for file {} {}->{}", serviceName, writeChmode, defaultChmode);
         }
     }
 
