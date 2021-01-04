@@ -28,7 +28,7 @@ data "google_container_cluster" "ssn_k8s_gke_cluster" {
 data "google_client_config" "current" {}
 
 provider "helm" {
-  version = "0.10"
+  version = "0.10.6"
 
   kubernetes {
     host                   = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
