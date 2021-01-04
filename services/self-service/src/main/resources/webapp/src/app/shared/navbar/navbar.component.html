@@ -99,9 +99,9 @@
               <span *ngIf="isExpanded; else env">Environment Management</span>
               <ng-template #env><i class="material-icons">settings</i></ng-template>
             </a>
-            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
+            <a *ngIf="healthStatus?.admin" class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
                [routerLink]="['/configuration']" [routerLinkActive]="['active']"
-               [routerLinkActiveOptions]="{exact:true}">
+               [routerLinkActiveOptions]="{exact:true}" >
               <span *ngIf="isExpanded; else env">Configuration</span>
               <ng-template #env><i class="material-icons">settings</i></ng-template>
             </a>

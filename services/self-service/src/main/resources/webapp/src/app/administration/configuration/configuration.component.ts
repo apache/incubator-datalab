@@ -25,6 +25,7 @@ import {Router} from '@angular/router';
 import {ConfigurationService} from '../../core/services/configutration.service';
 import 'brace';
 import 'brace/mode/yaml';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'datalab-configuration',
@@ -65,7 +66,8 @@ export class ConfigurationComponent implements OnInit {
     private appRoutingService: AppRoutingService,
     private configurationService: ConfigurationService,
     private router: Router,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public toastr: ToastrService,
   ) { }
 
   ngOnInit() {
@@ -112,7 +114,9 @@ export class ConfigurationComponent implements OnInit {
   private setServiceConfig(service, config) {
     this.configurationService.setServiceConfig(service, config).subscribe(res => {
       this.getServicesConfig(service);
-      }
+      this.toastr.success('Service configuration saved!', 'Success!');
+      },
+      error => this.toastr.error('Service configuration is not saved', 'Oops!')
     );
   }
 
@@ -158,20 +162,27 @@ export class ConfigurationComponent implements OnInit {
         action: 'Restart services', message: this.confirmMessages.restartService
       }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
-      this.configurationService.restartServices(this.services['self-service'].selected,
-        this.services['provisioning-service'].selected,
-        this.services['billing'].selected
-      )
-        .subscribe(res => {
-          this.clearSelectedServices();
+        if (result) {
+          this.configurationService.restartServices(this.services['self-service'].selected,
+            this.services['provisioning-service'].selected,
+            this.services['billing'].selected
+          )
+            .subscribe(res => {
+                 this.clearSelectedServices();
+                 this.toastr.success('Service restarting started!', 'Success!');
+              },
+              error => this.toastr.error('Service restarting failed', 'Oops!')
+            );
         }
-      );
-
     });
   }
 
   public configUpdate(service: string) {
     this.services[service].isConfigChanged = this.services[service].config !== this.services[service].serverConfig;
+  }
+
+  public isServiceSelected(): boolean {
+    return Object.keys(this.services).every(service => !this.services[service].selected);
   }
 }
 

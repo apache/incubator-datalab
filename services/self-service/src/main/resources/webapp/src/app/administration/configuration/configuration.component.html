@@ -19,18 +19,20 @@
 
 <div class="base-retreat">
   <div class="sub-nav">
-    <button mat-raised-button class="butt"
-            (click)="action('save')"
-            [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
-    >
-      Save
-    </button>
-    <button mat-raised-button class="butt"
-            (click)="action('discard')"
-            [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
-    >
-      Discard changes
-    </button>
+    <ng-template [ngIf]="activeTab.index !== 0">
+      <button mat-raised-button class="butt"
+              (click)="action('save')"
+              [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+      >
+        Save
+      </button>
+      <button mat-raised-button class="butt"
+              (click)="action('discard')"
+              [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+      >
+        Discard changes
+      </button>
+    </ng-template>
     <button mat-raised-button class="butt" (click)="refreshConfig()">
       <i class="material-icons refresh-icon">autorenew</i>Refresh
     </button>
@@ -58,7 +60,14 @@
                   </p>
                 </li>
               </ul>
-              <button mat-raised-button type="button" class="butt action" (click)="restartServices()">Restart</button>
+              <button
+                mat-raised-button type="button"
+                class="butt action"
+                (click)="restartServices()"
+                [disabled]="isServiceSelected()"
+              >
+                Restart
+              </button>
             </div>
           </section>
         </div>
