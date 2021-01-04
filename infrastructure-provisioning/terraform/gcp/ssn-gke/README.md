@@ -59,7 +59,7 @@ git checkout develop
 ```
 - Run python script to create GKE cluster and deploy Helm Charts:
 ```
-python3 datalab.py deploy gcp k8s --credentials_file_path /path/to/auth/file.json --project_id gcp_project_id --service_base_name xxxx --region xx-xxxxx --zone xxx-xxxxx-x --big_query_dataset xxxxx --domain=domain.com --state /home/ubuntu/datalab-state/ --custom_certs_enabled false --ldap_host ldap_server_host --ldap_user cn=admin --ldap_bind_creds ldap_server_password --ldap_users_group ou=People
+python3 datalab.py deploy gcp k8s --credentials_file_path /path/to/auth/file.json --project_id gcp_project_id --service_base_name xxxx --region xx-xxxxx --zone xxx-xxxxx-x --big_query_dataset xxxxx --domain domain.com --state /home/ubuntu/datalab-state/ --custom_certs_enabled false --ldap_host ldap_server_host --ldap_user cn=admin --ldap_bind_creds ldap_server_password --ldap_users_group ou=People
 ```
 
 List of parameters for GKE cluster creation and Helm Charts deployment:
