@@ -120,7 +120,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public toggleStatus($event) {
     const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
-      this.toggleStatusRequest(data, $event.action);
+    this.toggleStatusRequest(data, $event.action);
   }
 
   private toggleStatusRequest(data, action) {
@@ -148,7 +148,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.projectService.toggleProjectStatus(data, action).subscribe(() => {
       this.refreshGrid();
       this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
-    }, error => this.toastr.error(error.message, 'Oops!'));
+    }, error => {
+      console.log(error);
+      this.toastr.error(error.message, 'Oops!');
+    });
   }
 
   private getEnvironmentHealthStatus() {
