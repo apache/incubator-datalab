@@ -42,7 +42,10 @@
       i {
         margin: 0 5px 0 0;
         font-size: 20px;
-        vertical-align: sub;
+        vertical-align: middle;
+        &.arrow-icon{
+          vertical-align: -5px
+        }
       }
     }
 

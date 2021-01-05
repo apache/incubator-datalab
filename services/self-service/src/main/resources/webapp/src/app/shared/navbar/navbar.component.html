@@ -103,7 +103,7 @@
                [routerLink]="['/configuration']" [routerLinkActive]="['active']"
                [routerLinkActiveOptions]="{exact:true}" >
               <span *ngIf="isExpanded; else env">Configuration</span>
-              <ng-template #env><i class="material-icons">settings</i></ng-template>
+              <ng-template #env><i class="material-icons">build_circle</i></ng-template>
             </a>
           </a>
           <a class="nav-item has-children" *ngIf="healthStatus?.billingEnabled || healthStatus?.auditEnabled">

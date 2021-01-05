@@ -26,9 +26,11 @@
 table.resources {
   width: 100%;
 
+
   .header-row {
     position: sticky;
     background-clip:padding-box;
+    z-index: 1;
     th {
       padding: 5px;
       padding-left: 20px;
