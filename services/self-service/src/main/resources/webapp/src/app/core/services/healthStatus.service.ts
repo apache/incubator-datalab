@@ -135,6 +135,10 @@ export class HealthStatusService {
               this.appRoutingService.redirectToNoAccessPage();
               return false;
             }
+            if (parameter === 'project-admin' && !data.admin && data.projectAdmin) {
+              this.appRoutingService.redirectToNoAccessPage();
+              return false;
+            }
           }
           return true;
         }));

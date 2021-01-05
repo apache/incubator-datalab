@@ -17,24 +17,15 @@
  * under the License.
  */
 
-package com.epam.datalab.dto;
+import { Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { HealthStatusService } from './healthStatus.service';
 
-public enum LibraryGroups {
-    GROUP_JAVA("java"),
-    GROUP_PIP2("pip2"),
-    GROUP_PIP3("pip3"),
-    GROUP_R_PKG("r_pkg"),
-    GROUP_OS_PKG("os_pkg"),
-    GROUP_OTHERS("others");
+@Injectable()
+export class ProjectAdminGuard implements CanActivate {
+  constructor(private _healthStatus: HealthStatusService) { }
 
-    private final String name;
-
-    LibraryGroups(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    return this._healthStatus.isPassageway('project-admin');
+  }
 }

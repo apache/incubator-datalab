@@ -1,5 +1,6 @@
 package com.epam.datalab.backendapi.service.impl;
 
+import com.epam.datalab.backendapi.annotation.Audit;
 import com.epam.datalab.exceptions.DynamicChangePropertiesException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -16,6 +17,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
+import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE;
+
 @Slf4j
 public class DynamicChangeProperties {
 
@@ -28,9 +32,11 @@ public class DynamicChangeProperties {
     private static final String BILLING_SERVICE = "billing.yml";
     private static final String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
     private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
-    private static final String SECRET_REGEX = "(.*)[sS]ecret(.*): (.*)";
+    private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
     private static final String SECRET_REPLACEMENT_FORMAT = " ***********";
     private static final String SH_COMMAND = "sudo supervisorctl restart";
+    private static final String DEFAULT_CHMODE = "644";
+    private static final String WRITE_CHMODE = "777";
 
     private static final String LICENCE =
             "# *****************************************************************************\n" +
@@ -57,33 +63,39 @@ public class DynamicChangeProperties {
     private static final int DEFAULT_VALUE_PLACE = 1;
     private static final int DEFAULT_NAME_PLACE = 0;
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static String getSelfServiceProperties() {
         return readFileAsString(SELF_SERVICE_PROP_PATH, SELF_SERVICE);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static String getProvisioningServiceProperties() {
         return readFileAsString(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static String getBillingServiceProperties() {
         return readFileAsString(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static void overwriteSelfServiceProperties(String ymlString) {
         writeFileFromString(ymlString, SELF_SERVICE, SELF_SERVICE_PROP_PATH);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static void overwriteProvisioningServiceProperties(String ymlString) {
         writeFileFromString(ymlString, PROVISIONING_SERVICE, PROVISIONING_SERVICE_PROP_PATH);
     }
 
+    @Audit(action = RECONFIGURE, type = EDGE_NODE)
     public static void overwriteBillingServiceProperties(String ymlString) {
         writeFileFromString(ymlString, BILLING_SERVICE, BILLING_SERVICE_PROP_PATH);
     }
 
     public static void restart(boolean billing, boolean provserv, boolean ui) {
         try {
-            String shCommand = buildSHCommand(billing, provserv, ui);
+            String shCommand = buildSHREstartCommand(billing, provserv, ui);
             log.info("Tying to restart ui: {},  provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
             Runtime.getRuntime().exec(shCommand).waitFor();
@@ -94,7 +106,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String buildSHCommand(boolean billing, boolean provserv, boolean ui) {
+    private static String buildSHREstartCommand(boolean billing, boolean provserv, boolean ui) {
         StringBuilder stringBuilder = new StringBuilder(SH_COMMAND);
         if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
         if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
@@ -104,7 +116,7 @@ public class DynamicChangeProperties {
 
     private static String readFileAsString(String selfServicePropPath, String serviceName) {
         try {
-            log.trace("Trying to read self-service.yml, file from path {} :", selfServicePropPath);
+            log.info("Trying to read self-service.yml, file from path {} :", selfServicePropPath);
             String currentConf = FileUtils.readFileToString(new File(selfServicePropPath), Charset.defaultCharset());
             return hideSecretsAndRemoveLicence(currentConf);
         } catch (IOException e) {
@@ -127,21 +139,33 @@ public class DynamicChangeProperties {
     }
 
     private static String removeLicence(String conf) {
-        return conf.substring(LICENCE.length() + 7);
+        return conf.substring(LICENCE.length());
     }
 
     private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
             String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
+            changeCHMODE(serviceName, DEFAULT_CHMODE, WRITE_CHMODE);
             BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
-            log.trace("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
+            log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
             writer.write(addLicence());
             writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
             log.info("{} overwritten successfully", serviceName);
             writer.close();
+            changeCHMODE(serviceName, WRITE_CHMODE, DEFAULT_CHMODE);
         } catch (IOException e) {
             log.error("Failed during overwriting {}", serviceName);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
+        }
+
+    }
+
+    private static void changeCHMODE(String serviceName, String writeChmode, String defaultChmode) throws IOException {
+        try {
+            log.info("Trying to change chmode for file {} {}->{}", serviceName, writeChmode, defaultChmode);
+            Runtime.getRuntime().exec("sudo chmode " + defaultChmode).waitFor();
+        } catch (InterruptedException e) {
+            log.error("Failed change chmode for file {} {}->{}", serviceName, writeChmode, defaultChmode);
         }
     }
 
