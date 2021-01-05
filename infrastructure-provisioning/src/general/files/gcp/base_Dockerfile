@@ -31,7 +31,7 @@ RUN	apt-get update && \
 
 # Install any python dependencies
 RUN python3 -m pip install -UI pip==20.1 && \
-    python3 -m pip install -U six configparser boto3 backoff fab-classic  fabvenv  argparse ujson jupyter pycrypto google-api-python-client google-cloud-storage \
+    python3 -m pip install -U six configparser boto3 backoff fab-classic cryptography==3.3.1 fabvenv  argparse ujson jupyter pycrypto google-api-python-client google-cloud-storage \
     pyyaml google-auth-httplib2 oauth2client
 
 # Configuring ssh for user
