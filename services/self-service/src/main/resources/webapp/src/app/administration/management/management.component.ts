@@ -243,6 +243,8 @@ export class ManagementComponent implements OnInit {
                 );
             });
             this.clearSelection();
+          } else {
+            this.clearSelection();
           }
           this.isActionsOpen = false;
         });
@@ -260,6 +262,8 @@ export class ManagementComponent implements OnInit {
                   error => console.log(error)
                 );
             });
+            this.clearSelection();
+          } else {
             this.clearSelection();
           }
           this.isActionsOpen = false;

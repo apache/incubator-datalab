@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Component, OnInit, Inject, HostListener} from '@angular/core';
+import {Component, OnInit, Inject, HostListener, OnDestroy} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {HealthStatusService, AppRoutingService} from '../../core/services';
 import {MatTabChangeEvent} from '@angular/material/tabs';
@@ -26,13 +26,16 @@ import {ConfigurationService} from '../../core/services/configutration.service';
 import 'brace';
 import 'brace/mode/yaml';
 import {ToastrService} from 'ngx-toastr';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'datalab-configuration',
   templateUrl: './configuration.component.html',
   styleUrls: ['./configuration.component.scss']
 })
-export class ConfigurationComponent implements OnInit {
+export class ConfigurationComponent implements OnInit, OnDestroy {
+  private unsubscribe$ = new Subject();
   private healthStatus: any;
   public activeTab = {index: 0};
   public activeService: string;
@@ -75,8 +78,16 @@ export class ConfigurationComponent implements OnInit {
     this.getServicesConfig(...Object.keys(this.services));
   }
 
-  private getEnvironmentHealthStatus() {
+  ngOnDestroy() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+
+  private getEnvironmentHealthStatus(): void {
     this.healthStatusService.getEnvironmentHealthStatus()
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
       .subscribe((result: any) => {
           this.healthStatus = result;
           !this.healthStatus.admin && !this.healthStatus.projectAdmin && this.appRoutingService.redirectToHomePage();
@@ -84,11 +95,11 @@ export class ConfigurationComponent implements OnInit {
       );
   }
 
-  public refreshConfig() {
+  public refreshConfig(): void {
     this.getServicesConfig(...Object.keys(this.services));
   }
 
-  public action(action) {
+  public action(action: string): void {
     this.dialog.open(SettingsConfirmationDialogComponent, { data: {
         action: action, message: action === 'discard' ? this.confirmMessages.discardChanges : this.confirmMessages.saveChanges
       }, panelClass: 'modal-sm' })
@@ -99,9 +110,13 @@ export class ConfigurationComponent implements OnInit {
     });
   }
 
-  private getServicesConfig(...services) {
+  private getServicesConfig(...services): void {
     services.forEach(service => {
-      this.configurationService.getServiceSettings(service).subscribe(config => {
+      this.configurationService.getServiceSettings(service)
+        .pipe(
+          takeUntil(this.unsubscribe$)
+        )
+        .subscribe(config => {
           this.services[service].config = config;
           this.services[service].serverConfig = config;
         this.configUpdate(service);
@@ -111,8 +126,12 @@ export class ConfigurationComponent implements OnInit {
     this.clearSelectedServices();
   }
 
-  private setServiceConfig(service, config) {
-    this.configurationService.setServiceConfig(service, config).subscribe(res => {
+  private setServiceConfig(service, config): void {
+    this.configurationService.setServiceConfig(service, config)
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe(res => {
       this.getServicesConfig(service);
       this.toastr.success('Service configuration saved!', 'Success!');
       },
@@ -149,15 +168,15 @@ export class ConfigurationComponent implements OnInit {
     this.clearSelectedServices();
   }
 
-  private clearSelectedServices() {
+  private clearSelectedServices(): void {
     Object.keys(this.services).forEach(service => this.services[service].selected = false);
   }
 
-  public toggleSetings(service) {
+  public toggleSetings(service): void {
     this.services[service].selected = !this.services[service].selected;
   }
 
-  public restartServices() {
+  public restartServices(): void  {
     this.dialog.open(SettingsConfirmationDialogComponent, { data: {
         action: 'Restart services', message: this.confirmMessages.restartService
       }, panelClass: 'modal-sm' })
@@ -167,17 +186,22 @@ export class ConfigurationComponent implements OnInit {
             this.services['provisioning-service'].selected,
             this.services['billing'].selected
           )
+            .pipe(
+              takeUntil(this.unsubscribe$)
+            )
             .subscribe(res => {
-                 this.clearSelectedServices();
+                this.clearSelectedServices();
                  this.toastr.success('Service restarting started!', 'Success!');
               },
               error => this.toastr.error('Service restarting failed', 'Oops!')
             );
+        } else {
+          this.clearSelectedServices();
         }
     });
   }
 
-  public configUpdate(service: string) {
+  public configUpdate(service: string): void {
     this.services[service].isConfigChanged = this.services[service].config !== this.services[service].serverConfig;
   }
 

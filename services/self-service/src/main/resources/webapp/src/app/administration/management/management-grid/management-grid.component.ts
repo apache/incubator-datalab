@@ -266,7 +266,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
     this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources, endpoints);
   }
 
-  openNotebookDetails(data) {
+  public openNotebookDetails(data) {
     if (!data.exploratory_urls || !data.exploratory_urls.length) {
       return;
     }
@@ -277,13 +277,13 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
       .afterClosed().subscribe(() => {});
   }
 
-  toggleActionForAll(element) {
+  public toggleActionForAll(element) {
     element.isSelected = !element.isSelected;
     this.selected = this.allFilteredEnvironmentData.filter(item => !!item.isSelected);
     this.emitSelectedList.emit(this.selected);
   }
 
-  toggleSelectionAll() {
+  public toggleSelectionAll() {
     if (this.selected && this.selected.length === this.allActiveNotebooks.length) {
       this.allActiveNotebooks.forEach(notebook => notebook.isSelected = false);
     } else {
