@@ -34,9 +34,10 @@ public class DynamicChangeProperties {
     private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
     private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
     private static final String SECRET_REPLACEMENT_FORMAT = " ***********";
-    private static final String SH_COMMAND = "sudo supervisorctl restart";
-    private static final String DEFAULT_CHMODE = "644";
-    private static final String WRITE_CHMODE = "777";
+    private static final String SUPERVISORCTL_RESTART_SH_COMMAND = "sudo supervisorctl restart";
+    private static final String CHANGE_CHMOD_SH_COMMAND_FORMAT = "sudo chmod %s %s";
+    private static final String DEFAULT_CHMOD = "644";
+    private static final String WRITE_CHMOD = "777";
 
     private static final String LICENCE =
             "# *****************************************************************************\n" +
@@ -107,7 +108,7 @@ public class DynamicChangeProperties {
     }
 
     private static String buildSHREstartCommand(boolean billing, boolean provserv, boolean ui) {
-        StringBuilder stringBuilder = new StringBuilder(SH_COMMAND);
+        StringBuilder stringBuilder = new StringBuilder(SUPERVISORCTL_RESTART_SH_COMMAND);
         if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
         if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
         if (ui) stringBuilder.append(SELF_SERVICE_SUPERVISORCTL_RUN_NAME);
@@ -128,9 +129,13 @@ public class DynamicChangeProperties {
     private static String hideSecretsAndRemoveLicence(String currentConf) {
         Matcher m = Pattern.compile(SECRET_REGEX).matcher(currentConf);
         List<String> secrets = new ArrayList<>();
+
         String confWithReplacedSecretConf = removeLicence(currentConf);
+
         while (m.find()) {
+
             secrets.add(m.group().split(":")[DEFAULT_VALUE_PLACE]);
+
         }
         for (String secret : secrets) {
             confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secret, SECRET_REPLACEMENT_FORMAT);
@@ -145,14 +150,14 @@ public class DynamicChangeProperties {
     private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
             String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
-            changeCHMODE(serviceName, DEFAULT_CHMODE, WRITE_CHMODE);
+            changeCHMODE(serviceName, DEFAULT_CHMOD, WRITE_CHMOD);
             BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
             log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
             writer.write(addLicence());
             writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
             log.info("{} overwritten successfully", serviceName);
             writer.close();
-            changeCHMODE(serviceName, WRITE_CHMODE, DEFAULT_CHMODE);
+            changeCHMODE(serviceName, WRITE_CHMOD, DEFAULT_CHMOD);
         } catch (IOException e) {
             log.error("Failed during overwriting {}", serviceName);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
@@ -160,12 +165,14 @@ public class DynamicChangeProperties {
 
     }
 
-    private static void changeCHMODE(String serviceName, String writeChmode, String defaultChmode) throws IOException {
+    private static void changeCHMODE(String serviceName, String fromMode, String toMode) throws IOException {
         try {
-            log.info("Trying to change chmode for file {} {}->{}", serviceName, writeChmode, defaultChmode);
-            Runtime.getRuntime().exec("sudo chmode " + defaultChmode).waitFor();
+            String command = String.format(CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, serviceName);
+            log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
+            log.info("Execute command: {}", command);
+            Runtime.getRuntime().exec(command).waitFor();
         } catch (InterruptedException e) {
-            log.error("Failed change chmode for file {} {}->{}", serviceName, writeChmode, defaultChmode);
+            log.error("Failed change chmod for file {} {}->{}", serviceName, fromMode, toMode);
         }
     }
 
