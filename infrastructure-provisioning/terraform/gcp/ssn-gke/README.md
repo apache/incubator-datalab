@@ -101,7 +101,7 @@ List of parameters for DataLab Endpoint creation:
 | gcp\_project\_id             | ID of GCP project                                                                     |
 | pkey                         | Private SSH key						                            				   |
 | path\_to\_pub                | Path to public SSH key                                                                |
-| endpoint_id                  | Unique infrastructure value                                                           |
+| endpoint_id                  | Unique infrastructure value (6 characters max)                                        |
 | repository\_*                | Please contact with DataLab team to get repository values                             |
 | keycloak\_*                  | Use keycloak values form GKE cluster creation output                                  |
 | step\_*                      | Use step\_ca values form GKE cluster creation output                                  |
