@@ -109,7 +109,7 @@ List of parameters for DataLab Endpoint creation:
 | billing\_dataset\_name       | Name of GCP billing dataset (BigQuery service)                                        |
 | domain 	                   | Domain name                                                                           |
 
-*You may omit the following parameters (in case of using the same state path input variables are included from GKE createion output): --vpc_id "vpc_id" --subnet_id "subnet_id" --ssn_ui_host domain.com --keycloak_auth_server_url https://service_base_name.domain.com/auth --keycloak_realm_name realm_name --keycloak_user_name admin_name --keycloak_user_password admin_password --keycloak_client_id client_id --keycloak_client_secret client_secret --step_root_ca "step_ca" --step_kid step_kid --step_kid_password --step_ca_url https://step_ca_url 
+*You may omit the following parameters (in case of using the same state path input variables are included from GKE createion output): --vpc_id "vpc_id" --subnet_id "subnet_id" --ssn_ui_host domain.com --keycloak_auth_server_url https://keycloak_auth_url --keycloak_realm_name realm_name --keycloak_user_name admin_name --keycloak_user_password admin_password --keycloak_client_id client_id --keycloak_client_secret client_secret --step_root_ca "step_ca" --step_kid step_kid --step_kid_password --step_ca_url https://step_ca_url 
 
 After successful DataLab Endpoint deployment login into DataLab UI and add Endpoint at Environment Management page.
 Use unique Endpoint name (it should be equal endpoint_id used for run endpoint deployment script) for DataLab UI and Endpoint URl in format: https://ip_address:8084/
