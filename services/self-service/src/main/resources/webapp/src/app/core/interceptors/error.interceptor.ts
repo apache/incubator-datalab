@@ -92,6 +92,8 @@ import { HTTP_STATUS_CODES } from '../util';
 
   private handleBadRequest(error, request: HttpRequest<any>, next: HttpHandler) {
     if (error.url.indexOf('refresh') > -1) this.routingService.redirectToLoginPage();
+    console.log('handleBadRequest error', error);
+    console.log('handleBadRequest request', request);
     return next.handle(request);
   }
 }
