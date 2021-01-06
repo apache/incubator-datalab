@@ -274,14 +274,17 @@ mat-expansion-panel-header {
   }
 }
 
+.mat-chip-list{
+  pointer-events: auto;
+}
+
 .mat-chip:not(.mat-basic-chip) {
   transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1);
-  padding: 7px 0 7px 10px;
+  padding: 7px 25px 7px 10px;
   border-radius: 24px;
   cursor: default;
   display: inline-block;
-  position: relative;
-  padding-right: 25px;
+  position: relative;  ;
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;

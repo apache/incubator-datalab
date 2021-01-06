@@ -358,6 +358,9 @@ span.mat-slide-toggle-content {
   .mat-chip{
     overflow: hidden;
     pointer-events: all;
+    &.mat-standard-chip.mat-chip-disabled{
+      opacity: 1;
+    }
   }
 }
 
