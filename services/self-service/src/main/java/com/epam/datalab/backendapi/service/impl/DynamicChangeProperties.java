@@ -129,13 +129,11 @@ public class DynamicChangeProperties {
     private static String hideSecretsAndRemoveLicence(String currentConf) {
         Matcher m = Pattern.compile(SECRET_REGEX).matcher(currentConf);
         List<String> secrets = new ArrayList<>();
-
         String confWithReplacedSecretConf = removeLicence(currentConf);
-
         while (m.find()) {
-
-            secrets.add(m.group().split(":")[DEFAULT_VALUE_PLACE]);
-
+            String secret = m.group().split(":")[DEFAULT_VALUE_PLACE];
+            if (!(secret.isEmpty() || secret.trim().isEmpty()))
+                secrets.add(secret);
         }
         for (String secret : secrets) {
             confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secret, SECRET_REPLACEMENT_FORMAT);
