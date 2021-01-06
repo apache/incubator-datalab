@@ -189,8 +189,8 @@
           </ng-template>
 
           <div class="search">
-            <div class="list-selected list-container" id='scrolling'>
-              <mat-chip-list *ngIf="model.selectedLibs.length && libs_uploaded">
+            <div class="list-selected list-container scrolling">
+              <mat-chip-list *ngIf="model.selectedLibs.length && libs_uploaded" [disabled]="true">
                 <mat-chip *ngFor="let item of model.selectedLibs">
                   {{ item.name }}
                   <span *ngIf="item.version && item.version !== 'N/A'">&nbsp;{{ item.version }}</span>

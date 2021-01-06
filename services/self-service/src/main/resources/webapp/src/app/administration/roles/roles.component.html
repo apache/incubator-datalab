@@ -141,12 +141,14 @@
             </button>
           </mat-form-field>
           <div class="list-selected list-container ani">
-            <mat-chip-list>
-              <mat-chip *ngFor="let user of element.users">
-                {{ user }}
-                <a class="material-icons" (click)="removeUser(element.users, user)">clear</a>
-              </mat-chip>
-            </mat-chip-list>
+            <div class="scrolling">
+              <mat-chip-list [disabled]="true">
+                <mat-chip *ngFor="let user of element.users">
+                  {{ user }}
+                  <a class="material-icons" (click)="removeUser(element.users, user)">clear</a>
+                </mat-chip>
+              </mat-chip-list>
+            </div>
           </div>
         </td>
       </ng-container>
