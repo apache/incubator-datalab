@@ -44,7 +44,7 @@ def ensure_pip(requisites):
             sudo('echo export PATH >> /etc/profile')
             sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip3 install --upgrade setuptools')
-            sudo('pip3 install -U {} --no-cache-dir'.format(requisites))
+            sudo('pip3 install -U {} --no-cache-dir --ignore-installed'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
     except:
         sys.exit(1)
