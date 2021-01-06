@@ -96,7 +96,7 @@ public class DynamicChangeProperties {
 
     public static void restart(boolean billing, boolean provserv, boolean ui) {
         try {
-            String shCommand = buildSHREstartCommand(billing, provserv, ui);
+            String shCommand = buildSHRestartCommand(billing, provserv, ui);
             log.info("Tying to restart ui: {},  provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
             Runtime.getRuntime().exec(shCommand).waitFor();
@@ -107,7 +107,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String buildSHREstartCommand(boolean billing, boolean provserv, boolean ui) {
+    private static String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
         StringBuilder stringBuilder = new StringBuilder(SUPERVISORCTL_RESTART_SH_COMMAND);
         if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
         if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
@@ -150,14 +150,14 @@ public class DynamicChangeProperties {
     private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
             String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
-            changeCHMODE(serviceName, DEFAULT_CHMOD, WRITE_CHMOD);
+            changeCHMODE(serviceName, servicePath, DEFAULT_CHMOD, WRITE_CHMOD);
             BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
             log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
             writer.write(addLicence());
             writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
             log.info("{} overwritten successfully", serviceName);
             writer.close();
-            changeCHMODE(serviceName, WRITE_CHMOD, DEFAULT_CHMOD);
+            changeCHMODE(serviceName, servicePath, WRITE_CHMOD, DEFAULT_CHMOD);
         } catch (IOException e) {
             log.error("Failed during overwriting {}", serviceName);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
@@ -165,9 +165,9 @@ public class DynamicChangeProperties {
 
     }
 
-    private static void changeCHMODE(String serviceName, String fromMode, String toMode) throws IOException {
+    private static void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
         try {
-            String command = String.format(CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, serviceName);
+            String command = String.format(CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
             log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
             log.info("Execute command: {}", command);
             Runtime.getRuntime().exec(command).waitFor();
