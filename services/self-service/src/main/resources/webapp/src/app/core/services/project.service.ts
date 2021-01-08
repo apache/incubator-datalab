@@ -69,7 +69,10 @@ export class ProjectService {
       .pipe(
         tap(v => console.log('service', v)),
         map(response => response),
-        catchError(ErrorUtils.handleServiceError));
+        catchError(err => {
+          console.log('service', typeof err, err);
+          return ErrorUtils.handleServiceError(err);
+        }));
   }
 
   public updateProjectsBudget(data): Observable<{}> {
