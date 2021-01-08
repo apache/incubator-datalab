@@ -67,6 +67,7 @@ export class ProjectService {
     return this.applicationServiceFacade
       .buildToggleProjectStatus(url, data)
       .pipe(
+        tap(v => console.log('service', v)),
         map(response => response),
         catchError(err => {
           console.log('service', typeof err, err);

@@ -42,15 +42,8 @@ export class ErrorUtils {
 
   public static handleServiceError(errorMessage) {
     console.log('handleServiceError', errorMessage);
-    // if (errorMessage.indexOf('is not a function')  !== -1) {
-    //   observableThrowError({
-    //     status: 409,
-    //     statusText: 'Something went wrong',
-    //     message: 'Action failed because one of project resource is in processing stage'
-    //   });
-    // }
+    
     const error = CheckUtils.isJSON(errorMessage.error) ? JSON.parse(errorMessage.error) : errorMessage.error;
-
     return observableThrowError({
       status: error.code,
       statusText: errorMessage.statusText,
