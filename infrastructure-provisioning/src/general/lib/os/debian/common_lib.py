@@ -39,7 +39,7 @@ def manage_pkg(command, environment, requisites):
             else:
                 print('Package manager is:')
                 if environment == 'remote':
-                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
+                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
@@ -50,9 +50,14 @@ def manage_pkg(command, environment, requisites):
                             err = sudo('cat /tmp/dpkg.log')
                             count = 0
                             while err != '' and count < 10:
-                                PID = sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
-                                sudo('kill -9 {}'.format(PID))
-                                sudo('rm -f /var/lib/dpkg/lock-frontend')
+                                pid = sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
+                                if pid != '':
+                                    sudo('kill -9 {}'.format(pid))
+                                    sudo('rm -f /var/lib/dpkg/lock-frontend')
+                                    pid = sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
+                                elif pid != '':
+                                    sudo('kill -9 {}'.format(pid))
+                                    sudo('rm -f /var/lib/dpkg/lock')
                                 sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
                                 err = sudo('cat /tmp/dpkg.log')
