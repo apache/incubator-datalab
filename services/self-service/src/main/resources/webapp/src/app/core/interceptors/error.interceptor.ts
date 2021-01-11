@@ -27,7 +27,7 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { _throw } from 'rxjs/observable/throw';
 import { switchMap, filter, take, catchError } from 'rxjs/operators';
 
@@ -55,7 +55,8 @@ import { HTTP_STATUS_CODES } from '../util';
             case HTTP_STATUS_CODES.BAD_REQUEST:
               return this.handleBadRequest(error, request, next);
             default:
-              return _throw(error);
+              console.log('interceptor', error);
+              return throwError(error);
           }
         } else {
           this.routingService.redirectToLoginPage();
@@ -92,8 +93,6 @@ import { HTTP_STATUS_CODES } from '../util';
 
   private handleBadRequest(error, request: HttpRequest<any>, next: HttpHandler) {
     if (error.url.indexOf('refresh') > -1) this.routingService.redirectToLoginPage();
-    console.log('handleBadRequest error', error);
-    console.log('handleBadRequest request', request);
     return next.handle(request);
   }
 }

@@ -17,23 +17,16 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import {
-    HttpInterceptor,
-    HttpRequest,
-    HttpHandler,
-    HttpEvent
-} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class NoCacheInterceptor implements HttpInterceptor {
   private addNoCacheToUrl(url: string) {
     const separator = url.indexOf('?') === -1 ? '?' : '&';
-    const returnUrl = url + separator + 'noCache=' + new Date().getTime();
-
-    return returnUrl;
+    return url + separator + 'noCache=' + new Date().getTime();
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
