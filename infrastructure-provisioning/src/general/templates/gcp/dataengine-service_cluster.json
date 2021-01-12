@@ -25,7 +25,13 @@
             "diskConfig": {
                 "bootDiskSizeGb": 30,
                 "numLocalSsds": 0
-            }
+            },
+            "accelerators": [
+                {
+                    "acceleratorCount": 1,
+                    "acceleratorTypeUri": "nvidia-tesla-k80"
+                },
+            ],
         },
         "workerConfig": {
             "numInstances": "NUM_SLAVES",
@@ -33,7 +39,13 @@
             "diskConfig": {
                 "bootDiskSizeGb": 30,
                 "numLocalSsds": 0
-            }
+            },
+            "accelerators": [
+                {
+                    "acceleratorCount": 1,
+                    "acceleratorTypeUri": "nvidia-tesla-k80"
+                },
+            ]
         },
         "secondaryWorkerConfig": {
             "numInstances": "NUM_SLAVES",
@@ -45,6 +57,9 @@
         "initializationActions": [
             {
                 "executableFile": "LIVY"
+            },
+            {
+                "executableFile": "GPU_DRIVER"
             }
         ]
     }
