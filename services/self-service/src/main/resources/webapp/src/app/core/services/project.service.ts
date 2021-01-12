@@ -64,19 +64,11 @@ export class ProjectService {
 
   public toggleProjectStatus(data, action): Observable<{}> {
     const url = `/${action}`;
-    this.applicationServiceFacade
-      .buildToggleProjectStatus(url, data).pipe(map(v => !!v)).subscribe(console.log);
     return this.applicationServiceFacade
       .buildToggleProjectStatus(url, data)
       .pipe(
-        map(response => {
-          console.log(response);
-          return response;
-        }),
-        catchError(err => {
-          console.log('service', typeof err, err);
-          return ErrorUtils.handleServiceError(err);
-        }));
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public updateProjectsBudget(data): Observable<{}> {

@@ -180,6 +180,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
+      this.autoComplete = '';
       this.isLibSelected = false;
       if (this.group) {
         this.libSearch.enable();
@@ -230,6 +231,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public addLibrary(item): void {
+    console.log(this.autoComplete, this.isLibSelected);
     if ((this.autoComplete === 'ENABLED' && !this.isLibSelected )
       || (this.selectedLib && this.selectedLib.isInSelectedList) || this.isVersionInvalid || this.autoComplete === 'UPDATING') {
       return;

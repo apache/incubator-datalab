@@ -336,7 +336,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .mat-list {
     width: 100%;
     overflow-y: auto;
-    overflow-x: overlay;
     position: relative;
     height: 350px;
     padding-top: 0;
@@ -420,7 +419,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
     .wrap-col {
       display: flex;
-      padding: 5px 0px;
+      padding: 5px 0;
 
       .lib-destination-col {
         width: 33.3%;
@@ -575,7 +574,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .libs-info {
     .mat-list {
       height: 250px;
-
+      .dropdown-multiselect .list-menu{
+        max-height: 143px;
+      }
     }
   }
 }
@@ -584,6 +585,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     .libs-info {
       .mat-list {
         height: 200px;
+        .dropdown-multiselect .list-menu{
+          max-height: 94px;
+        }
       }
     }
   }
@@ -601,6 +605,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .libs-info {
     .mat-list {
       height: 160px;
+      .dropdown-multiselect .list-menu{
+        max-height: 54px;
+      }
     }
   }
 
