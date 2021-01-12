@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,9 +58,6 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final String[] DEFAULT_AWS_SHAPES = {"nbShapes_t2.medium_fetching", "compShapes_c4.xlarge_fetching"};
-    private static final String[] DEFAULT_GCP_SHAPES = {"compShapes_n1-standard-2_fetching", "nbShapes_n1-standard-2_fetching"};
-    private static final String[] DEFAULT_AZURE_SHAPES = {"nbShapes_Standard_E4s_v3_fetching", "compShapes_Standard_E4s_v3_fetching"};
     private static final String ROLES_FILE_FORMAT = "/mongo/%s/mongo_roles.json";
     private static final String USERS_FIELD = "users";
     private static final String GROUPS_FIELD = "groups";
@@ -114,7 +112,14 @@ public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
                         .stream()
                         .map(UserGroupDto::getGroup)
                         .collect(Collectors.toSet()),
-                getDefaultShapes(cloudProvider));
+                getAll(cloudProvider));
+    }
+
+    private Set<String> getAll(CloudProvider cloudProvider) {
+        return getUserRoleFromFile(cloudProvider)
+                .stream()
+                .map(UserRoleDTO::getId)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -181,18 +186,6 @@ public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
         } catch (IOException e) {
             log.error("Can not marshall datalab roles due to: {}", e.getMessage(), e);
             throw new IllegalStateException("Can not marshall datalab roles due to: " + e.getMessage());
-        }
-    }
-
-    private Set<String> getDefaultShapes(CloudProvider cloudProvider) {
-        if (cloudProvider == CloudProvider.AWS) {
-            return Stream.of(DEFAULT_AWS_SHAPES).collect(Collectors.toSet());
-        } else if (cloudProvider == CloudProvider.GCP) {
-            return Stream.of(DEFAULT_GCP_SHAPES).collect(Collectors.toSet());
-        } else if (cloudProvider == CloudProvider.AZURE) {
-            return Stream.of(DEFAULT_AZURE_SHAPES).collect(Collectors.toSet());
-        } else {
-            throw new DatalabException("Unsupported cloud provider " + cloudProvider);
         }
     }
 
