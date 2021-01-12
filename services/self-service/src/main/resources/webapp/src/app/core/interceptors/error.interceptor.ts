@@ -28,9 +28,7 @@ import {
 } from '@angular/common/http';
 
 import { Observable, throwError } from 'rxjs';
-import { _throw } from 'rxjs/observable/throw';
 import { switchMap, filter, take, catchError } from 'rxjs/operators';
-
 import { StorageService, AppRoutingService, ApplicationSecurityService } from '../services';
 import { HTTP_STATUS_CODES } from '../util';
 
@@ -47,7 +45,7 @@ import { HTTP_STATUS_CODES } from '../util';
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError(error => {
-        if (error.error && error.error.message && error.error.message.indexOf('query param artifact') !== -1) return _throw(error);
+        if (error.error && error.error.message && error.error.message.indexOf('query param artifact') !== -1) return throwError(error);
         if (error instanceof HttpErrorResponse) {
           switch ((<HttpErrorResponse>error).status) {
             case HTTP_STATUS_CODES.UNAUTHORIZED:
@@ -55,13 +53,12 @@ import { HTTP_STATUS_CODES } from '../util';
             case HTTP_STATUS_CODES.BAD_REQUEST:
               return this.handleBadRequest(error, request, next);
             default:
-              console.log('interceptor', error);
               return throwError(error);
           }
         } else {
           this.routingService.redirectToLoginPage();
           this.jwtService.destroyTokens();
-          return _throw(error);
+          return throwError(error);
         }
       }));
   }

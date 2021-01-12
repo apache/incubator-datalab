@@ -180,6 +180,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
+      this.autoComplete = '';
       this.isLibSelected = false;
       if (this.group) {
         this.libSearch.enable();

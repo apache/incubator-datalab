@@ -149,7 +149,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.refreshGrid();
       this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
     }, error => {
-      console.log('edgeNodeAction', error);
       this.toastr.error(error.message, 'Oops!');
     });
   }
