@@ -231,7 +231,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public addLibrary(item): void {
-    console.log(this.autoComplete, this.isLibSelected);
     if ((this.autoComplete === 'ENABLED' && !this.isLibSelected )
       || (this.selectedLib && this.selectedLib.isInSelectedList) || this.isVersionInvalid || this.autoComplete === 'UPDATING') {
       return;
