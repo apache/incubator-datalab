@@ -23,9 +23,22 @@
   width: 100%;
 }
 
+.resources-wrapper{
+  height: calc(100vh - 105px);
+  overflow: hidden;
+  margin:  -15px;
+  padding: 15px;
+  .table-wrapper{
+    overflow: auto;
+    height: calc(100vh - 115px);
+    margin:  0 -15px -15px -15px;
+    padding: 0 15px 15px 15px;
+  }
+}
+
 table.resources {
   width: 100%;
-
+  max-height: 100%;
 
   .header-row {
     position: sticky;
