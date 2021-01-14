@@ -119,7 +119,7 @@ if __name__ == "__main__":
                     manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
                 elif os.environ['conf_cloud_provider'] in ('gcp'):
                     manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
-                    manage_pkg('-y install', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
+                    manage_pkg('-y install', 'remote', 'libcurl4-gnutls-dev libgit2-dev libxml2-dev')
                 sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
             general_status = general_status + status
