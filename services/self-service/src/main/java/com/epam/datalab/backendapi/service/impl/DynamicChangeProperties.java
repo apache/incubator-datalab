@@ -24,12 +24,17 @@ import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE
 public class DynamicChangeProperties {
 
     private static final String SELF_SERVICE = "self-service.yml";
+    //services/self-service/self-service.yml";
     private static final String SELF_SERVICE_PROP_PATH = "/opt/datalab/conf/self-service.yml";
     private static final String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
     private static final String PROVISIONING_SERVICE = "provisioning.yml";
+    //"services/provisioning-service/provisioning.yml";
     private static final String PROVISIONING_SERVICE_PROP_PATH = "/opt/datalab/conf/provisioning.yml";
     private static final String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
     private static final String BILLING_SERVICE = "billing.yml";
+    //"services/billing-aws/billing.yml";
+    //"services/billing-azure/billing.yml";
+    //"services/billing-gcp/billing.yml";
     private static final String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
     private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
     private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
@@ -39,27 +44,28 @@ public class DynamicChangeProperties {
     private static final String DEFAULT_CHMOD = "644";
     private static final String WRITE_CHMOD = "777";
 
+    private static final String LICENCE_REGEX = "# \\*{50,}";
     private static final String LICENCE =
             "# *****************************************************************************\n" +
                     "#\n" +
-                    "#  Licensed to the Apache Software Foundation (ASF) under one\n" +
-                    "#  or more contributor license agreements.  See the NOTICE file\n" +
-                    "#  distributed with this work for additional information\n" +
-                    "#  regarding copyright ownership.  The ASF licenses this file\n" +
-                    "#  to you under the Apache License, Version 2.0 (the\n" +
-                    "#  \"License\"); you may not use this file except in compliance\n" +
-                    "#  with the License.  You may obtain a copy of the License at\n" +
+                    "# Licensed to the Apache Software Foundation (ASF) under one\n" +
+                    "# or more contributor license agreements. See the NOTICE file\n" +
+                    "# distributed with this work for additional information\n" +
+                    "# regarding copyright ownership. The ASF licenses this file\n" +
+                    "# to you under the Apache License, Version 2.0 (the\n" +
+                    "# \"License\"); you may not use this file except in compliance\n" +
+                    "# with the License. You may obtain a copy of the License at\n" +
                     "#\n" +
-                    "#  http://www.apache.org/licenses/LICENSE-2.0\n" +
+                    "# http://www.apache.org/licenses/LICENSE-2.0\n" +
                     "#\n" +
-                    "#  Unless required by applicable law or agreed to in writing,\n" +
-                    "#  software distributed under the License is distributed on an\n" +
-                    "#  \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n" +
-                    "#  KIND, either express or implied.  See the License for the\n" +
-                    "#  specific language governing permissions and limitations\n" +
-                    "#  under the License.\n" +
+                    "# Unless required by applicable law or agreed to in writing,\n" +
+                    "# software distributed under the License is distributed on an\n" +
+                    "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n" +
+                    "# KIND, either express or implied. See the License for the\n" +
+                    "# specific language governing permissions and limitations\n" +
+                    "# under the License.\n" +
                     "#\n" +
-                    "# ******************************************************************************";
+                    "# ******************************************************************************\n";
 
     private static final int DEFAULT_VALUE_PLACE = 1;
     private static final int DEFAULT_NAME_PLACE = 0;
@@ -97,11 +103,9 @@ public class DynamicChangeProperties {
     public static void restart(boolean billing, boolean provserv, boolean ui) {
         try {
             String shCommand = buildSHRestartCommand(billing, provserv, ui);
-            log.info("Tying to restart ui: {},  provserv: {}, billing: {}, with command: {}", ui,
+            log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
             Runtime.getRuntime().exec(shCommand).waitFor();
-
-
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage());
         }
@@ -142,7 +146,7 @@ public class DynamicChangeProperties {
     }
 
     private static String removeLicence(String conf) {
-        return conf.substring(LICENCE.length());
+        return conf.split(LICENCE_REGEX)[conf.split(LICENCE_REGEX).length - 1];
     }
 
     private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
@@ -175,7 +179,7 @@ public class DynamicChangeProperties {
     }
 
     private static String addLicence() {
-        return LICENCE + "\n\n";
+        return LICENCE;
     }
 
     private static String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
