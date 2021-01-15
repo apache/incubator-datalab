@@ -196,7 +196,7 @@ def run_certbot(domain_name, node, email=''):
         else:
             sudo('service openresty stop')
         if email != '':
-            sudo('certbot certonly --standalone -n -d {}.{} -m {}'.format(node, domain_name, email))
+            sudo('certbot certonly --standalone -n -d {}.{} -m {} --agree-tos'.format(node, domain_name, email))
         else:
             sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
     except Exception as err:
