@@ -58,10 +58,18 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
+  public isBlockOpen = {
+    preemptible: false,
+    gpu: false,
+    spotInstances: false,
+    configuration: false,
+  };
 
-  @ViewChild('spotInstancesCheck') spotInstancesSelect;
-  @ViewChild('preemptibleNode') preemptible;
-  @ViewChild('configurationNode') configuration;
+
+  // @ViewChild('spotInstancesCheck') spotInstancesSelect;
+  // @ViewChild('preemptibleNode') preemptible;
+  // @ViewChild('addGpu') addGpuForm;
+  // @ViewChild('configurationNode') configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -91,7 +99,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectSpotInstances($event?): void {
-    if ($event ? $event.target.checked : (this.spotInstancesSelect && this.spotInstancesSelect.nativeElement['checked'])) {
+    if ($event ? $event.target.checked : this.isBlockOpen.spotInstances) {
       this.spotInstance = true;
       this.resourceForm.controls['instance_price'].setValue(50);
     } else {
@@ -155,7 +163,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
-      custom_tag: [this.notebook_instance.tags.custom_tag]
+      custom_tag: [this.notebook_instance.tags.custom_tag],
+      master_accelerator_type: [''],
+      slave_accelerator_type: [''],
+      master_accelerator_сount: [''],
+      slave_accelerator_сount: [''],
     });
   }
 
@@ -179,7 +191,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
-        if (this.spotInstancesSelect) this.spotInstancesSelect.nativeElement['checked'] = true;
+        this.isBlockOpen.spotInstances = true;
         this.selectSpotInstances();
       }
 
@@ -189,6 +201,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   //  Validation
+
   private validInstanceNumberRange(control) {
     if (control && control.value)
       if (this.PROVIDER === 'gcp' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
@@ -200,8 +213,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validPreemptibleRange(control) {
-    if (this.preemptible)
-      return this.preemptible.nativeElement['checked']
+    if (this.isBlockOpen.preemptible)
+      return this.isBlockOpen.preemptible
         ? (control.value !== null
           && control.value >= this.minPreemptibleInstanceNumber
           && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false })
@@ -221,8 +234,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validInstanceSpotRange(control) {
-    if (this.spotInstancesSelect)
-      return this.spotInstancesSelect.nativeElement['checked']
+    if (this.isBlockOpen.spotInstances)
+      return this.isBlockOpen.spotInstances
         ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
         : control.value;
   }
@@ -315,5 +328,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       return existNames.some(resource =>
         CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource));
     }
+  }
+
+  public openBlock(block: string) {
+    this.isBlockOpen[block] = !this.isBlockOpen[block];
   }
 }

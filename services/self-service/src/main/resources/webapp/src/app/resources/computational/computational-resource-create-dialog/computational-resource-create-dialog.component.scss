@@ -24,11 +24,11 @@
     .control-group {
       position: relative;
       .label {
-        width: 40%;
+        width: 42%;
         padding-left: 10px;
       }
       .control {
-        width: 60%;
+        width: 58%;
       }
     }
     span {
@@ -74,17 +74,18 @@
       opacity: 1;
     }
   }
-  .preemptible {
+  &.preemptible {
     .label {
-      padding-left: 10px;
+      line-height: 36px;
+      padding: 0;
+      align-items: center;
+
     }
     .control {
       position: relative;
     }
   }
-  .align {
-    margin-left: 25px;
-  }
+
   .spot-details, .preemptible-details {
     position: relative;
     .error {
@@ -92,7 +93,7 @@
     }
 
     &.show {
-      height: 50px;
+      height: 36px;
       text-align: right;
     }
   }
@@ -132,7 +133,7 @@
       font-size: 13px;
       text-align: justify;
       display: inline-block;
-      padding-top: 5px;
+      padding-top: 15px;
       padding-bottom: 10px;
     }
     span {
@@ -143,15 +144,19 @@
       }
     }
     .label {
-      width: 20%;
+      width: 21%;
     }
     .control {
-      width: 80%;
+      width: 79%;
     }
   }
   .config-link {
     font-size: 13px;
     padding-top: 5px;
     padding-bottom: 5px;
+  }
+  .error-bottom{
+    transform: translateY(9px);
+    display: block;
   }
 }

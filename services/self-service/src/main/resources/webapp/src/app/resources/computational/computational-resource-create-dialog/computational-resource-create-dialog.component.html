@@ -28,7 +28,6 @@
 
         <div class="form-wrapper" [ngClass]="{ compress: selectedImage?.image === 'docker.datalab-dataengine' }">
             <div class="col">
-
                 <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="clusterTypes.length === 1">
                     <label class="label">Select cluster type</label>
                     <div class="control selector-wrapper">
@@ -147,21 +146,25 @@
 
           </div>
         </div>
-
-          <div class="preemptible checkbox-group control-group m-top-30 m-bott-10"
+          <div class="preemptible checkbox-group control-group"
                *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'">
-              <label class="label">
-                  <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)"/>
-                  <span>Preemptible node</span>
-                  <span class="align" [hidden]="!preemptible?.nativeElement['checked']"> count</span>
-              </label>
-              <div *ngIf="preemptible?.nativeElement['checked']" class="preemptible-details control"
-                   [ngClass]="{ show: preemptible?.nativeElement['checked'] || false}">
+<!--              <label class="label">-->
+<!--                  <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)"/>-->
+<!--                  <span>Preemptible node</span><span [hidden]="!preemptible?.nativeElement['checked']"> count</span>-->
+<!--              </label>-->
+            <div class="d-flex cursor-pointer label" (click)="openBlock('preemptible')">
+              <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.preemptible}">
+                <span class="checked-checkbox" *ngIf="isBlockOpen.preemptible"></span>
+              </div>
+              <span class="pl-5">Preemptible node</span><span [hidden]="!isBlockOpen.preemptible">&nbsp;count</span>
+            </div>
+              <div *ngIf="isBlockOpen.preemptible" class="preemptible-details control"
+                   [ngClass]="{ show: isBlockOpen.preemptible}">
                   <input type="text" class="form-control" formControlName="preemptible_instance_number"
                          (keypress)="CheckUtils.isNumberKey($event)"
                          (keydown.arrowup)="preemptibleCounter($event, 'increment')"
                          (keydown.arrowdown)="preemptibleCounter($event, 'decrement')"/>
-            <span class="error" *ngIf="!resourceForm?.controls.preemptible_instance_number.valid">
+            <span class="error error-bottom" *ngIf="!resourceForm?.controls.preemptible_instance_number.valid">
               <span *ngIf="minPreemptibleInstanceNumber !== maxPreemptibleInstanceNumber; else equal">
                 Only integer values greater than or equal to {{ minPreemptibleInstanceNumber }} and less than
                 {{ maxPreemptibleInstanceNumber }} are allowed.
@@ -170,35 +173,126 @@
             </span>
           </div>
         </div>
+          <div class="checkbox-group control-group  m-top-20"
+               *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'">
+                <div class="d-flex cursor-pointer label m-bott-20" (click)="openBlock('gpu')">
+                  <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.gpu}">
+                    <span class="checked-checkbox" *ngIf="isBlockOpen.gpu"></span>
+                  </div>
+                  <span class=" pl-5">GPU</span>
+                </div>
+<!--            <label class="label">-->
+<!--              <input #addGpu type="checkbox" (change)="selectPreemptibleNodes($event)"/>-->
+<!--            </label>-->
+              <div class="form-wrapper full-width" *ngIf="isBlockOpen.gpu">
+              <div class="col">
+                <div class="control-group">
+                  <label class="label">Master accelerator type</label>
+                  <div class="control selector-wrapper">
+                    <mat-form-field>
+<!--                      <mat-label>Select master accelerator type</mat-label>-->
+                      <mat-select formControlName="master_accelerator_type" disableOptionCentering
+                                  placeholder="Select master accelerator type">
+                        <mat-option *ngFor="let type of clusterTypes" [value]="type.template_name"
+                                    (click)="selectImage(type)">{{ type.template_name }}
+                        </mat-option>
+                        <mat-option *ngIf="!clusterTypes.length" class="multiple-select ml-10" disabled>Master accelerator types list
+                          is empty</mat-option>
+                      </mat-select>
+                      <button class="caret">
+                        <i class="material-icons">keyboard_arrow_down</i>
+                      </button>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="label">Slave accelerator type</label>
+                  <div class="control selector-wrapper">
+                    <mat-form-field>
+                      <mat-label>Select slave accelerator type</mat-label>
+                      <mat-select formControlName="slave_accelerator_type" disableOptionCentering>
+                        <mat-option *ngFor="let template of selectedImage.templates" [value]="template.version">
+                          {{ template.version }}</mat-option>
+                        <mat-option *ngIf="!selectedImage.templates" class="multiple-select ml-10" disabled>Slave accelerator types list
+                          is empty</mat-option>
+                      </mat-select>
+                      <button class="caret">
+                        <i class="material-icons">keyboard_arrow_down</i>
+                      </button>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
 
-        <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'"
-          [hidden]="!selectedImage.templates.length">
-          <label class="spot-label label">
-            <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />
-            <span>Spot instance</span>
-            <span *ngIf="spotInstancesSelect?.nativeElement['checked'] || false"> bid, %</span>
-          </label>
-          <div class="control spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] || false }"
-            *ngIf="spotInstancesSelect?.nativeElement['checked'] || false">
+              <div class="col">
+                <div class="control-group">
+                  <label class="label">Master accelerator сount</label>
+                  <div class="control">
+                    <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}"
+                           formControlName="master_accelerator_сount" (keypress)="CheckUtils.isNumberKey($event)" />
+                    <span class="error" *ngIf="!resourceForm?.controls.instance_number.valid">
+                  <span>Only integer values greater than or equal to {{ minInstanceNumber }} and less than
+                    {{ maxInstanceNumber }} are allowed.</span>
+                </span>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="label">Slave accelerator сount</label>
+                  <div class="control">
+                    <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}"
+                           formControlName="slave_accelerator_сount" (keypress)="CheckUtils.isNumberKey($event)" />
+                    <span class="error" *ngIf="!resourceForm?.controls.instance_number.valid">
+                  <span>Only integer values greater than or equal to {{ minInstanceNumber }} and less than
+                    {{ maxInstanceNumber }} are allowed.</span>
+                </span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+        </div>
+
+        <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'" [hidden]="!selectedImage.templates.length">
+
+<!--          <label class="spot-label label">-->
+<!--            <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />-->
+<!--            <span>Spot instance</span>-->
+<!--            <span *ngIf="spotInstancesSelect?.nativeElement['checked'] || false"> bid, %</span>-->
+<!--          </label>-->
+          <div class="d-flex cursor-pointer label" (click)="openBlock('spotInstances')">
+            <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.spotInstances}">
+              <span class="checked-checkbox" *ngIf="isBlockOpen.spotInstances"></span>
+            </div>
+            <span class="pl-5">Spot instance</span><span [hidden]="!isBlockOpen.spotInstances">&nbsp;bid, %</span>
+          </div>
+          <div class="control spot-details" [ngClass]="{ show: isBlockOpen.spotInstances }"
+            *ngIf="isBlockOpen.spotInstances">
             <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}"
               formControlName="instance_price" (keypress)="CheckUtils.isNumberKey($event)">
-            <span class="error" *ngIf="!resourceForm?.controls.instance_price.valid">
+            <span class="error error-bottom" *ngIf="!resourceForm?.controls.instance_price.valid">
               Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed.
             </span>
           </div>
-          <span class="info" *ngIf="spotInstancesSelect?.nativeElement['checked'] || false">When the current Spot price
+          <span class="info ml-10" *ngIf="isBlockOpen.spotInstances">When the current Spot price
             rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another
             customer. Make sure to backup your data on periodic basis.</span>
         </div>
 
 
-          <div class="checkbox-group m-top-20"
-               [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
-               *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
-              <label>
-                  <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
-              </label>
-              <div class="config-link" *ngIf="(configuration?.nativeElement['checked'] || false)
+<!--          <div class="checkbox-group m-top-20 control-group"-->
+<!--               [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"-->
+<!--               *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">-->
+            <div class="checkbox-group m-top-20 control-group">
+<!--              <label>-->
+<!--                  <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations-->
+<!--              </label>-->
+              <div class="d-flex cursor-pointer label" (click)="openBlock('configuration')">
+                <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.configuration}">
+                  <span class="checked-checkbox" *ngIf="isBlockOpen.configuration"></span>
+                </div>
+                <span class="pl-5">Cluster configurations</span>
+              </div>
+              <div class="config-link" *ngIf="(isBlockOpen.configuration)
             && selectedImage?.image === 'docker.datalab-dataengine-service'
             && PROVIDER === 'aws'">
                   To view example JSON of configurations refer for <a
@@ -207,8 +301,8 @@
                   official documentation</a>
               </div>
           </div>
-          <div class="checkbox-group">
-              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
+          <div class="checkbox-group ml-10">
+              <div class="config-details" [ngClass]="{ show: isBlockOpen.configuration }">
             <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON"
                       data-gramm_editor="false"></textarea>
                   <span class="error"
@@ -216,7 +310,7 @@
               parameters is not in a valid format.</span>
               </div>
           </div>
-          <div *ngIf="notebook_instance?.image === 'docker.datalab-zeppelin'">
+          <div *ngIf="notebook_instance?.image === 'docker.datalab-zeppelin'" class="ml-10">
               <small>Spark default configuration for Apache Zeppelin can not be changed from DataLab UI. Currently it
                   can be
                   done directly through Apache Zeppelin interpreter menu.
