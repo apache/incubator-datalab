@@ -26,7 +26,6 @@ import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-envi
 import { Exploratory } from './resources-grid/resources-grid.model';
 import {ApplicationSecurityService, HealthStatusService} from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
-import { Project } from './../administration/project/project.component';
 import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
 
 @Component({

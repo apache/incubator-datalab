@@ -292,6 +292,7 @@ export class ResourcesGridComponent implements OnInit {
             let sharedBucket: string = currEndpoint.shared_bucket_name;
             if (currEndpoint.shared_container_name) {
               sharedBucket = currEndpoint.shared_storage_account_name + '.' + currEndpoint.shared_container_name;
+              // sharedBucket.link = `${currEndpoint.shared_storage_account_name}@${currEndpoint.shared_container_name}`
             }
             if (projectBucket && currEndpoint.status !== 'terminated'
               && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {

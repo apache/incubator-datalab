@@ -22,7 +22,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 
-import { DateUtils, CheckUtils } from '../../../core/util';
+import {DateUtils, CheckUtils, HelpUtils} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
@@ -164,7 +164,8 @@ export class DetailDialogComponent implements OnInit {
   }
 
   public copyBucketName(copyValue) {
-    CopyPathUtils.copyPath(copyValue);
+    const protocol = HelpUtils.getBucketProtocol(this.PROVIDER);
+    CopyPathUtils.copyPath(protocol + copyValue);
   }
 
   public logAction(name: any, description: string, copy?: string) {
