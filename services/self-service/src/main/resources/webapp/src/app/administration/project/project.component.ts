@@ -128,17 +128,22 @@ export class ProjectComponent implements OnInit, OnDestroy {
       const projectsResources = this.resources.filter(resource => resource.project === data.project_name );
       const activeProjectsResources = projectsResources.length ? projectsResources[0].exploratory
         .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
-      let termResources = [];
-      data.endpoint.forEach(v => {
-        termResources = [...termResources, ...activeProjectsResources.filter(resource => resource.endpoint === v)];
-      });
+      const termResources = data.endpoint.reduce((res, endp) => {
+        res.push(...activeProjectsResources.filter(resource => resource.endpoint === endp));
+        return res;
+        }, []).map(resource => resource.name);
 
-      this.dialog.open(NotificationDialogComponent, { data: {
-        type: 'terminateNode', item: {action: data, resources: termResources.map(resource => resource.name)}
-        }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(result => {
-        result && this.edgeNodeAction(data, action);
-      });
+      if (termResources.length === 0) {
+        this.edgeNodeAction(data, action);
+
+      } else {
+        this.dialog.open(NotificationDialogComponent, { data: {
+            type: 'terminateNode', item: {action: data, resources: termResources}
+          }, panelClass: 'modal-sm' })
+          .afterClosed().subscribe(result => {
+          result && this.edgeNodeAction(data, action);
+        });
+      }
     } else {
       this.edgeNodeAction(data, action);
     }
