@@ -31,8 +31,8 @@ ui:
   service_base_name: ${service_base_name}
   os: ${os}
   image:
-    repository: epamdlab/ui
-    tag: '0.1-gcp'
+    repository: apache/datalab
+    tag: 'ui-dev-gcp'
     pullPolicy: Always
   service:
     type: ClusterIP
