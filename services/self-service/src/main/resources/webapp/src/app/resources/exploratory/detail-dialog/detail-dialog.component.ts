@@ -163,8 +163,8 @@ export class DetailDialogComponent implements OnInit {
     this.isCopied = true;
   }
 
-  public copyBucketName(copyValue) {
-    const protocol = HelpUtils.getBucketProtocol(this.PROVIDER);
+  public copyLink(copyValue, isBucket?) {
+    const protocol = isBucket ? HelpUtils.getBucketProtocol(this.PROVIDER) : '';
     CopyPathUtils.copyPath(protocol + copyValue);
   }
 

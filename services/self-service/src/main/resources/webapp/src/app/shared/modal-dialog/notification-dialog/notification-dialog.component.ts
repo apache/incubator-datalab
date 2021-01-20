@@ -120,18 +120,21 @@ import {Endpoint} from '../../../administration/project/project.component';
                   </div>
               </div>
                <div class="confirm-dialog" *ngIf="data.type === 'terminateNode'">
-                   <mat-list *ngIf="data.item.resources.length > 0">
-                     <mat-list-item class="list-header sans">
-                       <div class="endpoint">Resources</div>
-                       <div class="status">Further status</div>
+                 <mat-list *ngIf="data.item.resources.length > 0; else noResources">
+                   <mat-list-item class="list-header sans">
+                     <div class="endpoint">Resources</div>
+                     <div class="status">Further status</div>
+                   </mat-list-item>
+                   <div class="scrolling-content scrolling">
+                     <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
+                       <div class="endpoint ellipsis">{{resource}}</div>
+                       <div class="status terminated">Terminated</div>
                      </mat-list-item>
-                     <div class="scrolling-content scrolling">
-                       <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
-                         <div class="endpoint ellipsis">{{resource}}</div>
-                         <div class="status terminated">Terminated</div>
-                       </mat-list-item>
-                     </div>
-                   </mat-list>
+                   </div>
+                 </mat-list>
+                 <ng-template #noResources>
+                   There are not related resources to this edge node.
+                 </ng-template>
                    <div mat-dialog-content class="bottom-message" *ngIf="data.item.resources.length > 0">
                      <span class="confirm-message">All connected computes will be terminated as well.</span>
                    </div>
