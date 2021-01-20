@@ -138,7 +138,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
       ).subscribe();
   }
 
-  copyBucketName(url: string) {
+  public copyLink(url: string) {
     CopyPathUtils.copyPath(url);
   }
 
