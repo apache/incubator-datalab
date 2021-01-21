@@ -231,11 +231,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public addLibrary(item): void {
-    if ((this.autoComplete === 'ENABLED' && !this.isLibSelected )
+    if ((this.autoComplete === 'ENABLED' && !this.isLibSelected && !this.validity_format)
       || (this.selectedLib && this.selectedLib.isInSelectedList) || this.isVersionInvalid || this.autoComplete === 'UPDATING') {
       return;
     }
-
+    this.validity_format = '';
     this.isLibSelected = false;
     if ( (!this.selectedLib && !this.isVersionInvalid) || (!this.selectedLib.isInSelectedList && !this.isVersionInvalid)) {
       if ( this.group !== 'java') {
