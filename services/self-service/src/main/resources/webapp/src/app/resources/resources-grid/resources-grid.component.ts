@@ -295,7 +295,7 @@ export class ResourcesGridComponent implements OnInit {
             }
             if (projectBucket && currEndpoint.status !== 'terminated'
               && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
-              edgeItem.children.push({name: projectBucket, endpoint: endpoint.name});
+              edgeItem.children.push({name: 'kscnnptkah.az-20-01-proj-local-bucket', endpoint: endpoint.name});
             }
             if (sharedBucket) {
               edgeItem.children.push({name: sharedBucket, endpoint: endpoint.name});
@@ -309,34 +309,11 @@ export class ResourcesGridComponent implements OnInit {
     this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
   }
 
+  public isActiveFilter(filterConfig): void {
+    this.activeFiltering = false;
 
-  // PRIVATE
-  private getResourceByName(notebook_name: string, project_name: string) {
-    return this.getEnvironmentsListCopy().filter(environments => environments.project === project_name)
-      .map(env => env.exploratory.find(({ name }) => name === notebook_name))
-      .filter(name => !!name)[0];
-  }
-
-  private getEnvironmentsListCopy() {
-    return this.environments.map(env => JSON.parse(JSON.stringify(env)));
-  }
-
-  private getDefaultFilterConfiguration(): void {
-    const data: Exploratory[] = this.environments;
-    const shapes = [], statuses = [], resources = [];
-
-    data.filter(elem => elem.exploratory.map((item: any) => {
-      if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
-      if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
-      statuses.sort(SortUtils.statusSort);
-
-      item.resources.map((resource: any) => {
-        if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
-        resources.sort(SortUtils.statusSort);
-      });
-    }));
-
-    this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '', '');
+    for (const index in filterConfig)
+      if (filterConfig[index].length) this.activeFiltering = true;
   }
 
   public applyFilter_btnClick(config: FilterConfigurationModel): void {
@@ -411,6 +388,50 @@ export class ResourcesGridComponent implements OnInit {
     this.filteredEnvironments = filteredData;
   }
 
+  public logAction(name) {
+    this.auditService.sendDataToAudit({
+      resource_name: name, info: `Open terminal, requested for notebook`, type: 'WEB_TERMINAL'
+    }).subscribe();
+  }
+
+  public trackBy(index, item) {
+    return null;
+  }
+
+  public onFilterNameUpdate(targetElement: any) {
+    this.filterForm.name = targetElement;
+    this.checkFilters();
+  }
+
+  // PRIVATE
+  private getResourceByName(notebook_name: string, project_name: string) {
+    return this.getEnvironmentsListCopy().filter(environments => environments.project === project_name)
+      .map(env => env.exploratory.find(({ name }) => name === notebook_name))
+      .filter(name => !!name)[0];
+  }
+
+  private getEnvironmentsListCopy() {
+    return this.environments.map(env => JSON.parse(JSON.stringify(env)));
+  }
+
+  private getDefaultFilterConfiguration(): void {
+    const data: Exploratory[] = this.environments;
+    const shapes = [], statuses = [], resources = [];
+
+    data.filter(elem => elem.exploratory.map((item: any) => {
+      if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+      if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
+      statuses.sort(SortUtils.statusSort);
+
+      item.resources.map((resource: any) => {
+        if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
+        resources.sort(SortUtils.statusSort);
+      });
+    }));
+
+    this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '', '');
+  }
+
   private modifyGrid(): void {
     this.displayedColumns = this.displayedColumns.filter(el => el !== 'cost');
     this.displayedFilterColumns = this.displayedFilterColumns.filter(el => el !== 'cost-filter');
@@ -422,13 +443,6 @@ export class ResourcesGridComponent implements OnInit {
         config[index] = config[index].filter(item => this.filterConfiguration[index].includes(item));
     }
     return config;
-  }
-
-  isActiveFilter(filterConfig): void {
-    this.activeFiltering = false;
-
-    for (const index in filterConfig)
-      if (filterConfig[index].length) this.activeFiltering = true;
   }
 
   private getUserPreferences(): void {
@@ -462,20 +476,5 @@ export class ResourcesGridComponent implements OnInit {
         ) ;
       }, error => this.toastr.error(error.message || `Odahu cluster ${action} failed!`, 'Oops!')
     );
-  }
-
-  public logAction(name) {
-    this.auditService.sendDataToAudit({
-      resource_name: name, info: `Open terminal, requested for notebook`, type: 'WEB_TERMINAL'
-    }).subscribe();
-  }
-
-  public trackBy(index, item) {
-    return null;
-  }
-
-  public onFilterNameUpdate(targetElement: any) {
-    this.filterForm.name = targetElement;
-    this.checkFilters();
   }
 }

@@ -93,6 +93,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
     this.cloud = this.getCloud();
+    // this.cloud = 'azure';
   }
 
   ngOnDestroy() {
@@ -127,7 +128,6 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
   public closeUploadWindow() {
     this.addedFiles = [];
   }
-
 
   public toggleSelectedFile(file, type) {
     type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
