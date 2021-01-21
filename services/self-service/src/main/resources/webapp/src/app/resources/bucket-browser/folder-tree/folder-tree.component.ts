@@ -73,13 +73,19 @@ export class FolderTreeComponent implements OnDestroy {
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
     this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
       if (data) {
+        console.log('BeforeDATA', this.dataSource.data);
         this.dataSource.data = data;
+        console.log('AfterDATA', data);
         const subject = this.dataSource._flattenedData;
         const subjectData = subject.getValue();
+        console.log('selectedFolderBefore', this.selectedFolder);
+        console.log('subjectData', subjectData);
           if (this.selectedFolder) {
+            console.log(this.cloud);
             this.selectedFolder = subjectData.find(v => v.item === this.selectedFolder.item &&
               v.level === this.selectedFolder.level && v.obj === this.selectedFolder.obj);
           }
+          console.log('selectedFolderAfter', this.selectedFolder);
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
           if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
@@ -151,6 +157,7 @@ export class FolderTreeComponent implements OnDestroy {
     if (el) {
       this.treeControl.expand(el);
       this.selectedFolder = el;
+      console.log(this.selectedFolder);
       const path = this.getPath(el);
       this.path = [];
       const data = {
