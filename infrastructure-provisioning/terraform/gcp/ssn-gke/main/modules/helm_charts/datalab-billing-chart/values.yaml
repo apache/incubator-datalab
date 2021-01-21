@@ -27,7 +27,7 @@ replicaCount: 1
 
 image:
   repository: apache/datalab
-  tag: 'billing-dev-gcp'
+  tag: 'billing-2.4-gcp'
   # pullPolicy: IfNotPresent
   pullPolicy: Always
 
