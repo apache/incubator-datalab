@@ -111,6 +111,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                             user.getAccessToken(), ComputationalMetadataDTO[]
                                     .class);
 
+            List<ComputationalMetadataDTO> s = Arrays.asList(array);
             final Set<String> roles = userGroupDao.getUserGroups(user.getName());
 
             return Arrays.stream(array)

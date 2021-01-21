@@ -56,7 +56,7 @@ import java.util.List;
 @Slf4j
 public class ExploratoryResource implements ExploratoryAPI {
 
-    private ExploratoryService exploratoryService;
+    private final ExploratoryService exploratoryService;
 
     @Inject
     public ExploratoryResource(ExploratoryService exploratoryService) {

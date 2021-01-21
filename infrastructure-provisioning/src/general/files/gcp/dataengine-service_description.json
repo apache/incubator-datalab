@@ -26,5 +26,11 @@
   "templates":
   [
     {"version":"1.4", "applications": [{"Name":"Hadoop", "Version": "2.10.0"}, {"Name":"Spark", "Version": "2.4.5"}, {"Name":"Hive", "Version": "2.3.6"}]}
-  ]
+  ],
+  "GPU": {
+      "masterGPUType": ["type1", "type2"],
+      "slaveGPUType": ["type1", "type2"],
+      "masterGPUCount": 1,
+      "slaveGPUCount": 3
+    }
 }
