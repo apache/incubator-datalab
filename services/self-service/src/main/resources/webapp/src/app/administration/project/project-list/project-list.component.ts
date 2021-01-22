@@ -129,7 +129,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
         }
       });
       if (action === 'terminate' && endpoints.length === 1) {
-        this.toggleStatus.emit({project, endpoint: endpoints, action});
+        this.toggleStatus.emit({project, endpoint: endpoints, action, oneEdge: true});
       } else {
         this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
           .afterClosed().subscribe(endpoint => {
