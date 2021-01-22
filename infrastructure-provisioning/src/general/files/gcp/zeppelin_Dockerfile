@@ -27,7 +27,7 @@ ARG OS
 COPY zeppelin/ /root/
 COPY general/scripts/os/* /root/scripts/
 COPY general/scripts/gcp/zeppelin_* /root/scripts/
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/datalab/notebook_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.6/datalab/notebook_lib.py
 COPY general/templates/gcp/interpreter_livy.json /root/templates/
 COPY general/templates/gcp/interpreter_spark.json /root/templates/
 COPY general/templates/os/dataengine_interpreter_livy.json /root/templates/
