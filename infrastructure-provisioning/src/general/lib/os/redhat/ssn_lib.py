@@ -344,7 +344,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                                    keycloak_client_id,
                                    keycloak_client_secret,
                                    keycloak_auth_server_url)
-                sudo('python /tmp/configure_billing.py {}'.format(params))
+                sudo('python3 /tmp/configure_billing.py {}'.format(params))
 
             try:
                 if os.environ['conf_stepcerts_enabled'] == 'true':

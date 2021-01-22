@@ -48,7 +48,7 @@ def enable_proxy(proxy_host, proxy_port):
 
 def downgrade_python_version():
     try:
-       sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
+       sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
         version = [pkg.vr for pkg in pl.installed if pkg.name == \'python\']; \
         os.system(\'yum -y downgrade python python-devel-2.7.5-58.el7.x86_64 python-libs-2.7.5-58.el7.x86_64\') \
         if version != [] and version[0] == \'2.7.5-68.el7\' else False"')
@@ -417,7 +417,7 @@ def get_available_os_pkgs():
     try:
         manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
         downgrade_python_version()
-        yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
+        yum_raw = sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
         yum_re = re.sub\
             (r'\w*\s\w*\D\s\w*.\w*.\s\w*.\w*.\w.\w*.\w*.\w*', '', yum_raw)
         yum_list = yum_re.replace("'", "\"")

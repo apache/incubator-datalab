@@ -186,7 +186,7 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
     keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
-    sudo('python ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
+    sudo('python3 ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
