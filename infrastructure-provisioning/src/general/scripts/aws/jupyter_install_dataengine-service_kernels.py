@@ -102,7 +102,7 @@ if __name__ == "__main__":
     cluster_id = get_emr_id_by_name(args.cluster_name)
     master_instances = get_emr_instances_list(cluster_id, 'MASTER')
     master_ip = master_instances[0].get('PrivateIpAddress')
-    sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket
+    sudo("/usr/bin/python3 /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket
          + " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version "
          + spark_version + " --scala_version " + scala_version + " --r_version " + r_version + " --hadoop_version "
          + hadoop_version + " --region " + args.region + " --excluded_lines '" + args.emr_excluded_spark_properties

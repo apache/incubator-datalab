@@ -77,7 +77,7 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    command = "/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
+    command = "/usr/bin/python3 /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
              "--bucket {0} " \
              "--cluster_name {1} " \
              "--emr_version {2} " \

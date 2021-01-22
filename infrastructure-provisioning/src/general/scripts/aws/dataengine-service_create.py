@@ -119,9 +119,9 @@ cp_jars = "Name=CUSTOM_JAR, Args=aws " \
           "--sse AES256 --endpoint-url {6} --region {2}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
           "Name=CUSTOM_JAR, Args=sudo " \
-          "/usr/bin/python /tmp/key_importer.py --user_name {4}, " \
+          "/usr/bin/python3 /tmp/key_importer.py --user_name {4}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-          "Name=CUSTOM_JAR, Args=/usr/bin/python /tmp/jars_parser.py " \
+          "Name=CUSTOM_JAR, Args=/usr/bin/python3 /tmp/jars_parser.py " \
           "--bucket {0} --emr_version {3} --region {2} --user_name {4} " \
           "--cluster_name {5}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".\

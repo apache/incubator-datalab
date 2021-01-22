@@ -79,7 +79,7 @@ if __name__ == "__main__":
         os.environ['spark_configurations'] = '[]'
     configure_notebook(args.keyfile, env.host_string)
     create_inactivity_log(args.spark_master_ip, env.host_string)
-    sudo('/usr/bin/python /usr/local/bin/tensor-rstudio_dataengine_create_configs.py '
+    sudo('/usr/bin/python3 /usr/local/bin/tensor-rstudio_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
          '--datalake_enabled {} --spark_configurations "{}"'.
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,
