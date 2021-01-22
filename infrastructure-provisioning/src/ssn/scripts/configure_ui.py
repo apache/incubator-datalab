@@ -92,7 +92,7 @@ def copy_ssn_libraries():
     try:
         sudo('mkdir -p /usr/lib/python3.6/datalab/')
         run('mkdir -p /tmp/datalab_libs/')
-        local('scp -i {} /usr/lib/python3.6/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+        local('scp -i {} /usr/lib/python3.6/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
         run('chmod a+x /tmp/datalab_libs/*')
         sudo('mv /tmp/datalab_libs/* /usr/lib/python3.6/datalab/')
         if exists('/usr/lib64'):
@@ -133,7 +133,7 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
         sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
             os.environ['conf_cloud_provider'].upper()))
         sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
-        sudo('pip2 install -U six>=1.13.0')
+        sudo('pip3 install -U six>=1.13.0')
         sudo("python3 " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
             args.datalab_path))
     except Exception as err:
