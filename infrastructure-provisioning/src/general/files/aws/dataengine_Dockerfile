@@ -29,7 +29,7 @@ COPY general/scripts/os/update_inactivity_on_start.py /root/scripts/
 COPY general/scripts/os/reconfigure_spark.py /root/scripts/
 COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
 COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_available_pkgs.py
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/datalab/notebook_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.6/datalab/notebook_lib.py
 COPY general/scripts/os/common_* /root/scripts/
 COPY general/scripts/aws/dataengine_* /root/scripts/
 COPY general/scripts/os/notebook_reconfigure_dataengine_spark.py /root/scripts/

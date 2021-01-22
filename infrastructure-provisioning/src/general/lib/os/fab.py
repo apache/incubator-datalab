@@ -387,9 +387,9 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     text = text.replace('CLUSTER_NAME', cluster_name)
     text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
     text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('PYTHON_SHORT_VERSION', '2.7')
-    text = text.replace('PYTHON_FULL_VERSION', '2.7')
-    text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
+    text = text.replace('PYTHON_SHORT_VERSION', '3.6')
+    text = text.replace('PYTHON_FULL_VERSION', '3.6')
+    text = text.replace('PYTHON_PATH', '/usr/bin/python3.6')
     text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
