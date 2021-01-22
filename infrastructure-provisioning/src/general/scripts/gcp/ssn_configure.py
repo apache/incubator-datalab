@@ -45,6 +45,7 @@ if __name__ == "__main__":
 
     def clear_resources():
         GCPActions.remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
+        GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions.remove_role(ssn_conf['role_name'])
         if not ssn_conf['pre_defined_firewall']:
@@ -72,6 +73,7 @@ if __name__ == "__main__":
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
+        ssn_conf['static_address_name'] = '{}-ssn-static-ip'.format(ssn_conf['service_base_name'])
         ssn_conf['role_name'] = '{}-{}-ssn-role'.format(ssn_conf['service_base_name'], ssn_conf['ssn_unique_index'])
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
