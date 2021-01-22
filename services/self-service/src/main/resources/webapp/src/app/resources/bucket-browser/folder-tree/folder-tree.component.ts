@@ -73,19 +73,26 @@ export class FolderTreeComponent implements OnDestroy {
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
     this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
       if (data) {
-        console.log('BeforeDATA', this.dataSource.data);
         this.dataSource.data = data;
-        console.log('AfterDATA', data);
         const subject = this.dataSource._flattenedData;
         const subjectData = subject.getValue();
-        console.log('selectedFolderBefore', this.selectedFolder);
-        console.log('subjectData', subjectData);
+        console.log('selected', this.selectedFolder);
+        console.log('data', subjectData);
           if (this.selectedFolder) {
-            console.log(this.cloud);
-            this.selectedFolder = subjectData.find(v => v.item === this.selectedFolder.item &&
-              v.level === this.selectedFolder.level && v.obj === this.selectedFolder.obj);
+            if (this.cloud !== 'azure') {
+              this.selectedFolder = subjectData.find(v => v.item === this.selectedFolder.item &&
+                v.level === this.selectedFolder.level && v.obj === this.selectedFolder.obj);
+            } else {
+              const selectedFolderPath = this.selectedFolder.obj.slice(0, this.selectedFolder.obj.lastIndexOf('/') + 1);
+              this.selectedFolder = subjectData.find(v => {
+                const objectPath = v.obj.slice(0, v.obj.lastIndexOf('/') + 1);
+                console.log('objectPath', selectedFolderPath);
+                console.log('selectedFolderPath', selectedFolderPath);
+                return v.item === this.selectedFolder.item &&
+                  v.level === this.selectedFolder.level && objectPath === selectedFolderPath;
+              });
+            }
           }
-          console.log('selectedFolderAfter', this.selectedFolder);
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
           if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
@@ -231,6 +238,9 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
   public removeItem(node: TodoItemFlatNode) {
     const parentNode = this.flatNodeMap.get(this.getParentNode(node));
     const childNode = this.flatNodeMap.get(node);
+    if (this.cloud === 'azure') {
+      parentNode.object.object = parentNode.object.object.replace(/ا/g, '');
+    }
     this.bucketDataService.emptyFolder = null;
     this.bucketDataService.removeItem(parentNode!, childNode);
     this.resetForm();
@@ -264,6 +274,8 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
           this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
         });
     } else {
+      flatParent.object.object = flatParent.object.object.replace(/ا/g, '');
+      parent.obj = parent.obj.replace(/ا/g, '');
       this.bucketDataService.insertItem(flatParent, itemValue, false);
       this.toastr.success('Folder successfully created!', 'Success!');
       this.folderCreating = false;
