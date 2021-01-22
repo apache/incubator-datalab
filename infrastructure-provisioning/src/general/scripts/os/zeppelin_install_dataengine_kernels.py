@@ -87,7 +87,7 @@ if __name__ == "__main__":
     create_inactivity_log(args.spark_master_ip, env.host_string)
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
-    sudo('/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py '
+    sudo('/usr/bin/python3 /usr/local/bin/zeppelin_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} \
          --notebook_ip {} --livy_version {} --multiple_clusters {} --region {} --datalake_enabled {} '
          '--r_enabled {} --spark_configurations "{}"'.

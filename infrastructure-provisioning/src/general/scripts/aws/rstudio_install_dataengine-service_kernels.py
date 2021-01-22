@@ -68,7 +68,7 @@ if __name__ == "__main__":
     configure_notebook(args)
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
-    sudo("/usr/bin/python /usr/local/bin/rstudio_dataengine-service_create_configs.py --bucket " + args.bucket +
+    sudo("/usr/bin/python3 /usr/local/bin/rstudio_dataengine-service_create_configs.py --bucket " + args.bucket +
          " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
          spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --project_name " + args.project_name + " --os_user " + args.os_user)
