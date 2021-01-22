@@ -46,10 +46,7 @@ def ensure_pip(requisites):
             sudo('pip3 install --upgrade setuptools')
             sudo('pip3 install -UI {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
-    except Exception as err:
-        logging.info(
-            "Unable to ensure_pip: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        traceback.print_exc(file=sys.stdout)
+    except:
         sys.exit(1)
 
 
