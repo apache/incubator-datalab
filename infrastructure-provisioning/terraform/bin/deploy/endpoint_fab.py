@@ -292,7 +292,7 @@ def ensure_mongo_endpoint():
             conn.sudo('sed -i "s|PASSWORD|{}|g" /tmp/configure_mongo.py'.format(args.mongo_password))
         if not exists(conn, '/tmp/mongo_roles.json'):
             conn.put('./mongo_files/gcp/mongo_roles.json', '/tmp/mongo_roles.json')
-        conn.sudo('python /tmp/configure_mongo.py')
+        conn.sudo('python3 /tmp/configure_mongo.py')
     except Exception as err:
         logging.error('Failed to install Mongo: ', str(err))
         traceback.print_exc()
