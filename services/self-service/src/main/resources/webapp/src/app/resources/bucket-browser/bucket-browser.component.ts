@@ -93,6 +93,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
     this.cloud = this.getCloud();
+    // this.cloud = 'azure';
   }
 
   ngOnDestroy() {
@@ -127,7 +128,6 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
   public closeUploadWindow() {
     this.addedFiles = [];
   }
-
 
   public toggleSelectedFile(file, type) {
     type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
@@ -447,7 +447,9 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     if (cloud !== 'azure') {
       CopyPathUtils.copyPath(protocol + selected.object.bucket + '/' + selected.object.object);
     } else {
-      const azureBucket = selected.object.bucket.replace('.', '@') + '.blob.core.windows.net' + '/' + selected.object.object;
+      const bucketName = selected.object.bucket;
+      const accountName = this.bucketName.replace(selected.object.bucket, '').slice(0, -1);
+      const azureBucket = bucketName + '@' + accountName + '.blob.core.windows.net' + '/' + selected.object.object;
       CopyPathUtils.copyPath(protocol + azureBucket);
     }
     this.clearSelection();

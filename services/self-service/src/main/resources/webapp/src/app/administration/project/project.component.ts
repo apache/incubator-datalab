@@ -120,12 +120,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public toggleStatus($event) {
     const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
-    this.toggleStatusRequest(data, $event.action);
+    this.toggleStatusRequest(data, $event.action, $event.oneEdge);
   }
 
-  private toggleStatusRequest(data, action) {
+  private toggleStatusRequest(data, action, isOnlyOneEdge?) {
     if ( action === 'terminate') {
-      const projectsResources = this.resources.filter(resource => resource.project === data.project_name );
+      const projectsResources = this.resources.filter(resource => resource.project === data.project_name);
       const activeProjectsResources = projectsResources.length ? projectsResources[0].exploratory
         .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
       const termResources = data.endpoint.reduce((res, endp) => {
@@ -133,9 +133,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
         return res;
         }, []).map(resource => resource.name);
 
-      if (termResources.length === 0) {
+      if (termResources.length === 0 && !isOnlyOneEdge) {
         this.edgeNodeAction(data, action);
-
       } else {
         this.dialog.open(NotificationDialogComponent, { data: {
             type: 'terminateNode', item: {action: data, resources: termResources}
