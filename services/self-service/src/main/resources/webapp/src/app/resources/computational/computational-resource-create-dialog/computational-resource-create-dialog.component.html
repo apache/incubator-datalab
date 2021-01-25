@@ -153,7 +153,7 @@
 <!--                  <span>Preemptible node</span><span [hidden]="!preemptible?.nativeElement['checked']"> count</span>-->
 <!--              </label>-->
             <div class="d-flex cursor-pointer label" (click)="openBlock('preemptible')">
-              <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.preemptible}">
+              <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.preemptible}" (click)="selectPreemptibleNodes(isBlockOpen.preemptible)">
                 <span class="checked-checkbox" *ngIf="isBlockOpen.preemptible"></span>
               </div>
               <span class="pl-5">Preemptible node</span><span [hidden]="!isBlockOpen.preemptible">&nbsp;count</span>
@@ -175,28 +175,25 @@
         </div>
           <div class="checkbox-group control-group  m-top-20"
                *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'">
-                <div class="d-flex cursor-pointer label m-bott-20" (click)="openBlock('gpu')">
-                  <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.gpu}">
-                    <span class="checked-checkbox" *ngIf="isBlockOpen.gpu"></span>
-                  </div>
-                  <span class=" pl-5">GPU</span>
-                </div>
-<!--            <label class="label">-->
-<!--              <input #addGpu type="checkbox" (change)="selectPreemptibleNodes($event)"/>-->
-<!--            </label>-->
-              <div class="form-wrapper full-width" *ngIf="isBlockOpen.gpu">
+            <div class="d-flex cursor-pointer label m-bott-20" (click)="openBlock('gpu')">
+              <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.gpu}">
+                <span class="checked-checkbox" *ngIf="isBlockOpen.gpu"></span>
+              </div>
+              <span class=" pl-5">GPU</span>
+            </div>
+           <div class="form-wrapper full-width" *ngIf="isBlockOpen.gpu">
               <div class="col">
                 <div class="control-group">
-                  <label class="label">Master accelerator type</label>
+                  <label class="label">Master GPU type</label>
                   <div class="control selector-wrapper">
                     <mat-form-field>
-<!--                      <mat-label>Select master accelerator type</mat-label>-->
-                      <mat-select formControlName="master_accelerator_type" disableOptionCentering
-                                  placeholder="Select master accelerator type">
-                        <mat-option *ngFor="let type of clusterTypes" [value]="type.template_name"
-                                    (click)="selectImage(type)">{{ type.template_name }}
+<!--                      <mat-label>Select master GPU type</mat-label>-->
+                      <mat-select formControlName="master_GPU_type" disableOptionCentering
+                                  placeholder="Select master GPU type">
+                        <mat-option *ngFor="let type of selectedImage.GPU.masterGPUType" [value]="type"
+                                    >{{ type }}
                         </mat-option>
-                        <mat-option *ngIf="!clusterTypes.length" class="multiple-select ml-10" disabled>Master accelerator types list
+                        <mat-option *ngIf="!clusterTypes.length" class="multiple-select ml-10" disabled>Master GPU types list
                           is empty</mat-option>
                       </mat-select>
                       <button class="caret">
@@ -206,15 +203,15 @@
                   </div>
                 </div>
                 <div class="control-group">
-                  <label class="label">Slave accelerator type</label>
+                  <label class="label">Slave GPU type</label>
                   <div class="control selector-wrapper">
                     <mat-form-field>
-                      <mat-label>Select slave accelerator type</mat-label>
-                      <mat-select formControlName="slave_accelerator_type" disableOptionCentering>
-                        <mat-option *ngFor="let template of selectedImage.templates" [value]="template.version">
-                          {{ template.version }}</mat-option>
-                        <mat-option *ngIf="!selectedImage.templates" class="multiple-select ml-10" disabled>Slave accelerator types list
-                          is empty</mat-option>
+                      <mat-label>Select slave GPU type</mat-label>
+                      <mat-select formControlName="slave_GPU_type" disableOptionCentering>
+                        <mat-option *ngFor="let type of selectedImage.GPU.slaveGPUType" [value]="type">
+                          {{ type }}
+                        </mat-option>
+                        <mat-option *ngIf="!selectedImage.GPU.slaveGPUType?.length" class="multiple-select ml-10" disabled>Slave GPU types list is empty</mat-option>
                       </mat-select>
                       <button class="caret">
                         <i class="material-icons">keyboard_arrow_down</i>
@@ -226,10 +223,10 @@
 
               <div class="col">
                 <div class="control-group">
-                  <label class="label">Master accelerator сount</label>
+                  <label class="label">Master GPU сount</label>
                   <div class="control">
                     <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}"
-                           formControlName="master_accelerator_сount" (keypress)="CheckUtils.isNumberKey($event)" />
+                           formControlName="master_GPU_сount" (keypress)="CheckUtils.isNumberKey($event)" />
                     <span class="error" *ngIf="!resourceForm?.controls.instance_number.valid">
                   <span>Only integer values greater than or equal to {{ minInstanceNumber }} and less than
                     {{ maxInstanceNumber }} are allowed.</span>
@@ -237,10 +234,10 @@
                   </div>
                 </div>
                 <div class="control-group">
-                  <label class="label">Slave accelerator сount</label>
+                  <label class="label">Slave GPU сount</label>
                   <div class="control">
                     <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}"
-                           formControlName="slave_accelerator_сount" (keypress)="CheckUtils.isNumberKey($event)" />
+                           formControlName="slave_GPU_сount" (keypress)="CheckUtils.isNumberKey($event)" />
                     <span class="error" *ngIf="!resourceForm?.controls.instance_number.valid">
                   <span>Only integer values greater than or equal to {{ minInstanceNumber }} and less than
                     {{ maxInstanceNumber }} are allowed.</span>
@@ -253,14 +250,8 @@
         </div>
 
         <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'" [hidden]="!selectedImage.templates.length">
-
-<!--          <label class="spot-label label">-->
-<!--            <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" />-->
-<!--            <span>Spot instance</span>-->
-<!--            <span *ngIf="spotInstancesSelect?.nativeElement['checked'] || false"> bid, %</span>-->
-<!--          </label>-->
           <div class="d-flex cursor-pointer label" (click)="openBlock('spotInstances')">
-            <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.spotInstances}">
+            <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.spotInstances}" (change)="selectSpotInstances()">
               <span class="checked-checkbox" *ngIf="isBlockOpen.spotInstances"></span>
             </div>
             <span class="pl-5">Spot instance</span><span [hidden]="!isBlockOpen.spotInstances">&nbsp;bid, %</span>
@@ -277,17 +268,11 @@
             rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another
             customer. Make sure to backup your data on periodic basis.</span>
         </div>
-
-
-<!--          <div class="checkbox-group m-top-20 control-group"-->
-<!--               [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"-->
-<!--               *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">-->
-            <div class="checkbox-group m-top-20 control-group">
-<!--              <label>-->
-<!--                  <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations-->
-<!--              </label>-->
+          <div class="checkbox-group m-top-20 control-group"
+               [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
+               *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
               <div class="d-flex cursor-pointer label" (click)="openBlock('configuration')">
-                <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.configuration}">
+                <div class="empty-checkbox ml-10" [ngClass]="{'checked': isBlockOpen.configuration}" (change)="selectConfiguration()">
                   <span class="checked-checkbox" *ngIf="isBlockOpen.configuration"></span>
                 </div>
                 <span class="pl-5">Cluster configurations</span>

@@ -28,6 +28,7 @@ import { HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils } from '../../../cor
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
+import {Logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'computational-resource-create-dialog',
@@ -90,6 +91,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectImage($event) {
+    console.log(this.selectedImage);
     this.selectedImage = $event;
     this.filterShapes();
     this.getComputationalResourceLimits();
@@ -98,8 +100,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.resourceForm.controls['version'].setValue($event.templates[0].version);
   }
 
-  public selectSpotInstances($event?): void {
-    if ($event ? $event.target.checked : this.isBlockOpen.spotInstances) {
+  public selectSpotInstances(): void {
+    if (this.isBlockOpen.spotInstances) {
       this.spotInstance = true;
       this.resourceForm.controls['instance_price'].setValue(50);
     } else {
@@ -108,13 +110,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  public selectPreemptibleNodes($event) {
-    if ($event.target.checked)
+  public selectPreemptibleNodes(addPreemptible) {
+    if (addPreemptible) {
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
+    }
   }
 
   public selectConfiguration() {
-    if (this.configuration && this.configuration.nativeElement.checked) {
+    console.log(this.isBlockOpen.configuration);
+    if (this.isBlockOpen.configuration) {
       const template = (this.selectedImage.image === 'docker.datalab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
         : CLUSTER_CONFIGURATION.SPARK;
@@ -140,6 +144,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public createComputationalResource(data) {
+    console.log(data);
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance, this.PROVIDER.toLowerCase())
       .subscribe((response: any) => {
         if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
@@ -164,10 +169,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag],
-      master_accelerator_type: [''],
-      slave_accelerator_type: [''],
-      master_accelerator_сount: [''],
-      slave_accelerator_сount: [''],
+      master_GPU_type: [''],
+      slave_GPU_type: [''],
+      master_GPU_сount: [''],
+      slave_GPU_сount: [''],
     });
   }
 
@@ -241,9 +246,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validConfiguration(control) {
-    if (this.configuration)
-      return this.configuration.nativeElement['checked']
-        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+    if (this.isBlockOpen.configuration)
+      return this.isBlockOpen.configuration ?
+        (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
   }
 

@@ -61,7 +61,10 @@ export class ComputationalResourceModel {
         dataproc_version: parameters.version,
         config: config,
         project: env.project,
-        custom_tag: parameters.custom_tag
+        // custom_tag: parameters.custom_tag
+        // custom_tag: parameters.custom_tag
+        // custom_tag: parameters.custom_tag
+        // custom_tag: parameters.custom_tag
       }, provider);
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
