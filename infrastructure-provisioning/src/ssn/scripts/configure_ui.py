@@ -133,7 +133,7 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
         sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
             os.environ['conf_cloud_provider'].upper()))
         sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
-        sudo('pip3 install -U six>=1.13.0')
+        sudo('pip3 install -U six==1.15.0')
         sudo("python3 " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
             args.datalab_path))
     except Exception as err:
