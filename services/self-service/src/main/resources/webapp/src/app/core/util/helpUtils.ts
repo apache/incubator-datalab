@@ -17,12 +17,22 @@
  * under the License.
  */
 
-export * from './http-status-codes';
-export * from './sortUtils';
-export * from './helpUtils';
-export * from './errorUtils';
-export * from './dateUtils';
-export * from './fileUtils';
-export * from './checkUtils';
-export * from './patterns';
-export * from './http-methods';
+
+export class HelpUtils {
+
+  public static getBucketProtocol = (cloud) => {
+    switch (cloud) {
+      case 'aws':
+        return 's3a://';
+
+      case 'gcp':
+        return 'gs://';
+
+      case 'azure':
+        return 'wasbs://';
+
+      default:
+        return;
+    }
+  }
+}
