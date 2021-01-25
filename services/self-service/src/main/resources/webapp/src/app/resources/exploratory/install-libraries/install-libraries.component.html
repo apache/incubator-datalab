@@ -108,7 +108,7 @@
                   class="library-input"
                   [placeholder]="'Enter library version (optional)'"
                   [(ngModel)]="lib.version"
-                  [disabled]="!lib.name"
+                  [disabled]="!lib.name.trim()"
                   (keyup)="validateVersion(lib.version)"
                   (keydown.enter)="addLibrary(lib)"
                 >
@@ -118,7 +118,7 @@
                     Library version can only contain Latin letters, numbers and special characters -, _, :, /, ~, ., +.
                 </span>
                 <span class="plus-icon"
-                      [ngClass]="{'not-allow': lib.name?.length < 2
+                      [ngClass]="{'not-allow': lib.name?.trim().length < 2
                       || (autoComplete === 'ENABLED' && !isLibSelected )
                       || this.selectedLib?.isInSelectedList || isVersionInvalid || autoComplete === 'UPDATING'}"
                       [matTooltip]="this.selectedLib?.isInSelectedList ? 'Library is in selected list' : 'Please select library from autocomplete'"
@@ -126,7 +126,7 @@
                 >
                   <mat-icon
                     (click)="addLibrary(lib)"
-                    [ngClass]="{'not-allowed': lib.name?.length < 2 || (autoComplete === 'ENABLED' && !isLibSelected)
+                    [ngClass]="{'not-allowed': lib.name?.trim().length < 2 || (autoComplete === 'ENABLED' && !isLibSelected)
                     || this.selectedLib?.isInSelectedList || isVersionInvalid || autoComplete === 'UPDATING'}">add</mat-icon>
                 </span>
               </div>
