@@ -175,7 +175,6 @@ def ensure_matplot(os_user):
             manage_pkg('-y build-dep', 'remote', 'python-matplotlib')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('python3.6 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
@@ -492,7 +491,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
-def install_cntk(os_user, cntk2_version, cntk_version):
+def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
         sudo('pip3 install cntk-gpu=={} --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
