@@ -23,7 +23,7 @@ import com.epam.datalab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreateGcp> {
+public class ComputationalCreateGCP extends ComputationalBase<ComputationalCreateGCP> {
     @JsonProperty("dataproc_master_count")
     private String masterInstanceCount;
     @JsonProperty("dataproc_slave_count")
@@ -38,36 +38,66 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     private String version;
     @JsonProperty("conf_shared_image_enabled")
     private String sharedImageEnabled;
+    @JsonProperty("masterGPUType")
+    private String masterGPUType;
+    @JsonProperty("slaveGPUType")
+    private String slaveGPUType;
+    @JsonProperty("masterGPUCount")
+    private String masterGPUCount;
+    @JsonProperty("slaveGPUCount")
+    private String slaveGPUCount;
 
-    public ComputationalCreateGcp withMasterInstanceCount(String masterInstanceCount) {
+    public ComputationalCreateGCP withMasterInstanceCount(String masterInstanceCount) {
         this.masterInstanceCount = masterInstanceCount;
         return this;
     }
 
-    public ComputationalCreateGcp withSlaveInstanceCount(String slaveInstanceCount) {
+    public ComputationalCreateGCP withSlaveInstanceCount(String slaveInstanceCount) {
         this.slaveInstanceCount = slaveInstanceCount;
         return this;
     }
 
-    public ComputationalCreateGcp withMasterInstanceType(String masterInstanceType) {
+    public ComputationalCreateGCP withMasterInstanceType(String masterInstanceType) {
         this.masterInstanceType = masterInstanceType;
         return this;
     }
 
-    public ComputationalCreateGcp withSlaveInstanceType(String slaveInstanceType) {
+    public ComputationalCreateGCP withSlaveInstanceType(String slaveInstanceType) {
         this.slaveInstanceType = slaveInstanceType;
         return this;
     }
 
-    public ComputationalCreateGcp withPreemptibleCount(String preemptibleCount) {
+    public ComputationalCreateGCP withPreemptibleCount(String preemptibleCount) {
         this.preemptibleCount = preemptibleCount;
         return this;
     }
 
-    public ComputationalCreateGcp withVersion(String version) {
+    public ComputationalCreateGCP withVersion(String version) {
         this.version = version;
         return this;
     }
+
+    public ComputationalCreateGCP withMasterGPUType(String masterGPUType) {
+        this.masterGPUType = masterGPUType;
+        return this;
+    }
+
+    public ComputationalCreateGCP withSlaveGPUType(String slaveGPUType) {
+        this.slaveGPUType = slaveGPUType;
+        return this;
+    }
+
+    public ComputationalCreateGCP withMasterGPUCount(String masterGPUCount) {
+        this.masterGPUCount = masterGPUCount;
+        return this;
+    }
+
+    public ComputationalCreateGCP withSlaveGPUCount(String slaveGPUCount) {
+        this.slaveGPUCount = slaveGPUCount;
+        return this;
+    }
+
+
 
     public String getSharedImageEnabled() {
         return sharedImageEnabled;
@@ -77,7 +107,7 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
         this.sharedImageEnabled = sharedImageEnabled;
     }
 
-    public ComputationalCreateGcp withSharedImageEnabled(String sharedImageEnabled) {
+    public ComputationalCreateGCP withSharedImageEnabled(String sharedImageEnabled) {
         setSharedImageEnabled(sharedImageEnabled);
         return this;
     }
@@ -96,5 +126,21 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     @Override
     public String toString() {
         return toStringHelper(this).toString();
+    }
+
+    public String getSlaveGPUCount() {
+        return slaveGPUCount;
+    }
+
+    public String getMasterGPUCount() {
+        return masterGPUCount;
+    }
+
+    public String getSlaveGPUType() {
+        return slaveGPUType;
+    }
+
+    public String getMasterGPUType() {
+        return masterGPUType;
     }
 }

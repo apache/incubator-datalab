@@ -55,6 +55,14 @@ public class GcpComputationalResource extends UserComputationalResource {
     private String preemptibleNumber;
     @JsonProperty("dataproc_version")
     private String version;
+    @JsonProperty("masterGPUType")
+    private String masterGPUType;
+    @JsonProperty("slaveGPUType")
+    private String slaveGPUType;
+    @JsonProperty("masterGPUCount")
+    private String masterGPUCount;
+    @JsonProperty("slaveGPUCount")
+    private String slaveGPUCount;
 
     @Builder
     public GcpComputationalResource(String computationalName, String computationalId, String imageName,
@@ -63,7 +71,8 @@ public class GcpComputationalResource extends UserComputationalResource {
                                     String instanceId, String masterShape, String slaveShape, String slaveNumber,
                                     String masterNumber, String preemptibleNumber, String version,
                                     List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-                                    Map<String, String> tags, int totalInstanceCount) {
+                                    Map<String, String> tags, int totalInstanceCount,
+                                    String masterGPUCount, String masterGPUType, String slaveGPUCount, String slaveGPUType) {
         super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
                 reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
         this.instanceId = instanceId;
@@ -73,5 +82,9 @@ public class GcpComputationalResource extends UserComputationalResource {
         this.masterNumber = masterNumber;
         this.version = version;
         this.preemptibleNumber = preemptibleNumber;
+        this.masterGPUCount = masterGPUCount;
+        this.masterGPUType = masterGPUType;
+        this.slaveGPUCount = slaveGPUCount;
+        this.slaveGPUType = slaveGPUType;
     }
 }

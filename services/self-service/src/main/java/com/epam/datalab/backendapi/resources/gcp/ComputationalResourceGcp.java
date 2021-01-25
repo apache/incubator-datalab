@@ -107,6 +107,10 @@ public class ComputationalResourceGcp implements ComputationalAPI {
                     .masterNumber(form.getMasterInstanceCount())
                     .preemptibleNumber(form.getPreemptibleCount())
                     .version(form.getVersion())
+                    .masterGPUCount(form.getMasterGPUCount())
+                    .masterGPUType(form.getMasterGPUType())
+                    .slaveGPUCount(form.getSlaveGPUCount())
+                    .slaveGPUType(form.getSlaveGPUType())
                     .totalInstanceCount(Integer.parseInt(form.getMasterInstanceCount()) + Integer.parseInt(form.getSlaveInstanceCount()))
                     .build();
             boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, gcpComputationalResource,

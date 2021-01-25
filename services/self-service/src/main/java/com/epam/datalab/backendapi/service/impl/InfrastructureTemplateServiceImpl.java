@@ -110,8 +110,6 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                     provisioningService.get(endpointDTO.getUrl() + DOCKER_COMPUTATIONAL,
                             user.getAccessToken(), ComputationalMetadataDTO[]
                                     .class);
-
-            List<ComputationalMetadataDTO> s = Arrays.asList(array);
             final Set<String> roles = userGroupDao.getUserGroups(user.getName());
 
             return Arrays.stream(array)

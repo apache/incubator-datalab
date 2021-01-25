@@ -47,6 +47,18 @@ public class GcpComputationalCreateForm extends ComputationalCreateFormDTO {
     @JsonProperty("dataproc_slave_instance_type")
     private String slaveInstanceType;
 
+    @JsonProperty("masterGPUType")
+    private String masterGPUType;
+
+    @JsonProperty("slaveGPUType")
+    private String slaveGPUType;
+
+    @JsonProperty("masterGPUCount")
+    private String masterGPUCount;
+
+    @JsonProperty("slaveGPUCount")
+    private String slaveGPUCount;
+
     @NotBlank
     @JsonProperty("dataproc_version")
     private String version;
