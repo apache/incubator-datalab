@@ -59,12 +59,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
+  public masterGPUcount: Array<number>;
+  public slaveGPUcount: Array<number>;
   public isBlockOpen = {
     preemptible: false,
     gpu: false,
     spotInstances: false,
     configuration: false,
   };
+
 
 
   // @ViewChild('spotInstancesCheck') spotInstancesSelect;
@@ -117,7 +120,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectConfiguration() {
-    console.log(this.isBlockOpen.configuration);
     if (this.isBlockOpen.configuration) {
       const template = (this.selectedImage.image === 'docker.datalab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
@@ -337,5 +339,28 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public openBlock(block: string) {
     this.isBlockOpen[block] = !this.isBlockOpen[block];
+  }
+
+  public setGPUCount(type): Array<number> {
+    switch (type) {
+      case 'n1-highmem-32' || 'n1-highcpu-32':
+        return [4, 8];
+      case 'n1-highmem-16':
+        return [2, 4, 8];
+      default:
+        return [1, 2, 4, 8];
+    }
+  }
+
+  public setGpuCount(type: any, gpuType: any) {
+    if (type === 'master') {
+      const masterShape = this.setGPUCount(this.resourceForm.controls['shape_master'].value);
+      this.masterGPUcount = this.setGPUCount(masterShape);
+    } else {
+      const slaveShape = this.setGPUCount(this.resourceForm.controls['shape_slave'].value);
+      this.slaveGPUcount = this.setGPUCount(slaveShape);
+    }
+
+    console.log(this.masterGPUcount, this.slaveGPUcount);
   }
 }
