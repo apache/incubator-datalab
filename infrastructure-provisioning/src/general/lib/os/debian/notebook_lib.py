@@ -173,7 +173,6 @@ def ensure_matplot(os_user):
             sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
             manage_pkg('update', 'remote', '')
             manage_pkg('-y build-dep', 'remote', 'python-matplotlib')
-            sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
@@ -228,10 +227,8 @@ def ensure_additional_python_libs(os_user):
         try:
             manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('pip2 install opencv-python==4.2.0.32 h5py --no-cache-dir')
                 sudo('pip3 install opencv-python h5py --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
@@ -248,29 +245,6 @@ def ensure_python3_specific_version(python3_version, os_user):
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_specific_version_ensured')
         except:
             sys.exit(1)
-
-
-def ensure_python2_libraries(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
-        try:
-            try:
-                manage_pkg('-y install', 'remote', 'libssl1.0-dev python-virtualenv')
-            except:
-                sudo('pip2 install virtualenv --no-cache-dir')
-                manage_pkg('-y install', 'remote', 'libssl1.0-dev')
-            try:
-                sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            except:
-                sudo('pip2 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            sudo('pip2 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip2 install boto3 backoff --no-cache-dir')
-            sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
-            sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
-        except:
-            sys.exit(1)
-
 
 def ensure_python3_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
@@ -376,7 +350,6 @@ def install_gcloud(os_user):
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         manage_pkg('-y install', 'remote', 'libkrb5-dev')
-        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
@@ -390,7 +363,6 @@ def install_maven_emr(os_user):
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         manage_pkg('-y install', 'local', 'libkrb5-dev')
-        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
@@ -496,13 +468,10 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         manage_pkg('update', 'remote', '')
         manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
                    'libprotobuf-dev protobuf-compiler python-dev python-pip')
-        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
         sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
                    'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
@@ -525,14 +494,12 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
 
 def install_cntk(os_user, cntk2_version, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('pip2 install cntk=={} --no-cache-dir'.format(cntk2_version))
         sudo('pip3 install cntk-gpu=={} --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
 def install_keras(os_user, keras_version):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
-        sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('pip3 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
@@ -546,7 +513,6 @@ def install_theano(os_user, theano_version):
 
 def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu101=={} opencv-python==4.2.0.32 --no-cache-dir'.format(mxnet_version))
         sudo('pip3 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 

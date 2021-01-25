@@ -94,8 +94,6 @@ if __name__ == "__main__":
     if os.environ['notebook_r_enabled'] == 'true':
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
