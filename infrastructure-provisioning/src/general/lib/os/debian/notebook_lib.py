@@ -505,7 +505,6 @@ def install_keras(os_user, keras_version):
 
 def install_theano(os_user, theano_version):
     if not exists('/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
-        sudo('python2.7 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
         sudo('python3 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
         sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
 
