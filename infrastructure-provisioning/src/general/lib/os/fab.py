@@ -192,9 +192,6 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            sudo('pip2 install pyrsistent==0.16.0 --no-cache-dir')
-            sudo('pip2 install notebook==5.7.8 --no-cache-dir')
-            sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip3 install jupyter --no-cache-dir')
             sudo('rm -rf {}'.format(jupyter_conf_file))
@@ -730,11 +727,6 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     env['connection_attempts'] = 100
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
-    if not exists('/usr/bin/pip2'):
-        if not exists('/usr/bin/pip-2.7'):
-            manage_pkg('-y install', 'remote', 'python2-pip')
-        else:
-            sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
     manage_pkg('-y install', 'remote', 'python3-pip')
     if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
@@ -746,7 +738,6 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
         sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
     if emr:
         sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
-        sudo('pip2 install -U pip=={}'.format(os.environ['conf_pip_version']))
         sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
@@ -855,7 +846,6 @@ def update_pyopenssl_lib(os_user):
         try:
             if exists('/usr/bin/pip3'):
                 sudo('pip3 install -U pyopenssl')
-            sudo('pip2 install -U pyopenssl')
             sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
         except:
             sys.exit(1)
