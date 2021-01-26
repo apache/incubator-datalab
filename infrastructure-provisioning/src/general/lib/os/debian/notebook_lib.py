@@ -172,7 +172,7 @@ def ensure_matplot(os_user):
         try:
             sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
             manage_pkg('update', 'remote', '')
-            manage_pkg('-y build-dep', 'remote', 'python-matplotlib')
+            manage_pkg('-y build-dep', 'remote', 'python3-matplotlib')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('python3.6 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
