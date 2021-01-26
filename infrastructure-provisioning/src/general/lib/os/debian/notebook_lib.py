@@ -465,7 +465,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         env.shell = "/bin/bash -l -c -i"
         manage_pkg('update', 'remote', '')
         manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
-                   'libprotobuf-dev protobuf-compiler python-dev python-pip')
+                   'libprotobuf-dev protobuf-compiler python3-dev python3-pip')
         sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '

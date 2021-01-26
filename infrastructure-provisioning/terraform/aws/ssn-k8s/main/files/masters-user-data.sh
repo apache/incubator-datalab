@@ -44,7 +44,7 @@ sudo chmod 700 /home/${k8s_os_user}/.ssh
 sudo chmod 600 /home/${k8s_os_user}/.ssh/authorized_keys
 
 sudo apt-get update
-sudo apt-get install -y python-pip jq unzip
+sudo apt-get install -y python3-pip jq unzip
 sudo apt-get install -y default-jre
 sudo apt-get install -y default-jdk
 sudo pip install -U pip
