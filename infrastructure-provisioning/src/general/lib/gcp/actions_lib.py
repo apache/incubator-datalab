@@ -1075,7 +1075,7 @@ class GCPActions:
         try:
             version_file = '{0}/{1}/{2}_version'.format(user_name, cluster_name, application)
             if GCPActions().get_from_bucket(bucket, version_file, '/tmp/{}_version'.format(application)):
-                with file('/tmp/{}_version'.format(application)) as f:
+                with open('/tmp/{}_version'.format(application)) as f:
                     version = f.read()
                 return version[0:5]
             else:
@@ -1205,7 +1205,7 @@ class GCPActions:
             zeppelin_restarted = False
             default_port = 8998
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
-            with file('/tmp/python_version') as f:
+            with open('/tmp/python_version') as f:
                 python_version = f.read()
             python_version = python_version[0:5]
             livy_port = ''
@@ -1296,7 +1296,7 @@ class GCPActions:
     def install_python(self, bucket, user_name, cluster_name, application, numpy_version='1.14.3'):
         try:
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
-            with file('/tmp/python_version') as f:
+            with open('/tmp/python_version') as f:
                 python_version = f.read()
             python_version = python_version[0:5]
             if not os.path.exists('/opt/python/python{}'.format(python_version)):

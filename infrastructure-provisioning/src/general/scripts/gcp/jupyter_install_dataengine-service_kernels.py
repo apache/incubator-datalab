@@ -72,7 +72,7 @@ def configure_notebook(args):
 if __name__ == "__main__":
     GCPActions().get_from_bucket(args.bucket, '{0}/{1}/scala_version'.format(args.project_name, args.cluster_name),
                                  '/tmp/scala_version')
-    with file('/tmp/scala_version') as f:
+    with open('/tmp/scala_version') as f:
         scala_version = str(f.read()).replace(',', '')
     env.hosts = "{}".format(args.notebook_ip)
     env.user = args.os_user

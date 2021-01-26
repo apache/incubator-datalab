@@ -395,7 +395,7 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
           format(dataengine_service_version, cluster_name, kernel_path, os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
-    with file('/tmp/python_version') as f:
+    with open('/tmp/python_version') as f:
         python_version = f.read()
     if python_version != '\n':
         installing_python(region, bucket, user_name, cluster_name, application, pip_mirror, numpy_version)

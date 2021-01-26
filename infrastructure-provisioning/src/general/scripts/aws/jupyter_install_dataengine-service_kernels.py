@@ -86,15 +86,15 @@ if __name__ == "__main__":
                             '/tmp/scala_version')
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/python_version',
                             '/tmp/python_version')
-    with file('/tmp/scala_version') as f:
+    with open('/tmp/scala_version') as f:
         scala_version = str(f.read()).rstrip()
         print(scala_version)
-    with file('/tmp/python_version') as f:
+    with open('/tmp/python_version') as f:
         python_version = str(f.read()).rstrip()
         print(python_version)
     if r_enabled == 'true':
         s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/r_version', '/tmp/r_version')
-        with file('/tmp/r_version') as g:
+        with open('/tmp/r_version') as g:
             r_version = str(g.read()).rstrip()
             print(r_version)
     else:
