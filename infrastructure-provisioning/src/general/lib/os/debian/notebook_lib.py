@@ -312,9 +312,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
                 'echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
             # sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
-            sudo('python3 -m pip install --upgrade '
-                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp36-cp36m-manylinux2010_x86_64.whl'
-                 ' --no-cache-dir'.format(tensorflow_version))
+            sudo('python3 -m pip install --upgrade tensorflow-gpu=={} --no-cache-dir'.format(tensorflow_version))
             sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
