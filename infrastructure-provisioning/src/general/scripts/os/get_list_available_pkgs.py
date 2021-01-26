@@ -41,7 +41,7 @@ def get_available_pip_pkgs(version):
     try:
         for _ in range(100):
             pip_pkgs = dict()
-            client = xmlrpc.ServerProxy('https://pypi.python.org/pypi')
+            client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
             raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
             all_pkgs = [i[0] for i in raw_pkgs]
             if len(all_pkgs) != 0:
