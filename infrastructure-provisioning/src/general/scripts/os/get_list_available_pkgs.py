@@ -24,7 +24,7 @@
 import argparse
 import json
 import sys
-import xmlrpc
+import xmlrpc.client
 from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric.api import *
@@ -59,7 +59,7 @@ def get_available_pip_pkgs(version):
 def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
     try:
         pip_pkgs = dict()
-        client = xmlrpc.ServerProxy('https://pypi.python.org/pypi')
+        client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
         raw_pkgs = client.list_packages()
         all_pkgs_other = []
         for pkg in raw_pkgs:

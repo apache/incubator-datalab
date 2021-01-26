@@ -573,7 +573,8 @@ def get_available_r_pkgs():
             for row in reader:
                 r_pkgs[row[0]] = row[1]
         return r_pkgs
-    except:
+    except Exception as err:
+        print("Failed to install {} ".format(err))
         sys.exit(1)
 
 
