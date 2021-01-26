@@ -79,7 +79,7 @@ if __name__ == "__main__":
                                                                    dataproc_conf['project_name'],
                                                                    dataproc_conf['endpoint_name'])
         dataproc_conf['release_label'] = os.environ['dataproc_version']
-        additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "").replace(
+        additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "").replace(
             "'}", "").lower()
 
         dataproc_conf['cluster_labels'] = {
