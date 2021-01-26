@@ -64,7 +64,7 @@ def configure_notebook(args):
     sudo('chmod 755 /usr/local/bin/jupyter_dataengine-service_create_configs.py')
     sudo('mkdir -p /usr/lib/python3.6/datalab/')
     run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python3.6/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    local('scp -i {} /usr/lib/python3.6/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
     run('chmod a+x /tmp/datalab_libs/*')
     sudo('mv /tmp/datalab_libs/* /usr/lib/python3.6/datalab/')
     if exists('/usr/lib64'):
