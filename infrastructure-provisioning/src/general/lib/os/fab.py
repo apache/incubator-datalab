@@ -568,7 +568,7 @@ def get_available_r_pkgs():
         r_pkgs = dict()
         sudo('R -e \'write.table(available.packages(contriburl="https://cloud.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
         get("/tmp/r.csv", "r.csv")
-        with open('r.csv', 'rb') as csvfile:
+        with open('r.csv', 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
                 r_pkgs[row[0]] = row[1]
