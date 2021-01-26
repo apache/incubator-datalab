@@ -251,6 +251,7 @@ def ensure_python3_libraries(os_user):
             #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
+            sudo('pip3 install -U keyrings.alt')
             sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:
                 sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} sparkmagic --no-cache-dir' \
