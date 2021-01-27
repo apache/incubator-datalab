@@ -28,7 +28,7 @@ export class ComputationalResourceModel {
 
   constructor(private userResourceService: UserResourceService) { }
 
-  public createComputationalResource(parameters, image, env, spot, provider): Observable<{}> {
+  public createComputationalResource(parameters, image, env, spot, provider, gpu?): Observable<{}> {
     const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
 
     if (provider === 'aws' && image.image === 'docker.datalab-dataengine-service') {
@@ -66,6 +66,7 @@ export class ComputationalResourceModel {
         slaveGPUType: parameters.slave_GPU_type,
         masterGPUCount: parameters.master_GPU_count,
         slaveGPUCount: parameters.slave_GPU_count,
+        gpu_enabled: gpu
       }, provider);
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({

@@ -61,7 +61,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public resourceForm: FormGroup;
   public masterGPUcount: Array<number>;
   public slaveGPUcount: Array<number>;
-  public isBlockOpen = {
+  public isSelected = {
     preemptible: false,
     gpu: false,
     spotInstances: false,
@@ -87,11 +87,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectImage($event) {
-    console.log(this.selectedImage);
     this.selectedImage = $event;
-    this.selectedImage.gpu_types.slaveGPUType = ['nvidia-tesla-t4', 'nvidia-tesla-v100'];
-    this.selectedImage.gpu_types.masterGPUType = ['nvidia-tesla-t4', 'nvidia-tesla-v100'];
-    console.log('selectedImage', this.selectedImage.gpu_types);
     this.filterShapes();
     this.getComputationalResourceLimits();
 
@@ -100,7 +96,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectSpotInstances(): void {
-    if (this.isBlockOpen.spotInstances) {
+    if (this.isSelected.spotInstances) {
       this.spotInstance = true;
       this.resourceForm.controls['instance_price'].setValue(50);
     } else {
@@ -116,7 +112,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectConfiguration() {
-    if (this.isBlockOpen.configuration) {
+    if (this.isSelected.configuration) {
       const template = (this.selectedImage.image === 'docker.datalab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
         : CLUSTER_CONFIGURATION.SPARK;
@@ -142,8 +138,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public createComputationalResource(data) {
-    console.log(data);
-    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance, this.PROVIDER.toLowerCase())
+    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance,
+      this.spotInstance, this.PROVIDER.toLowerCase(), this.isSelected.gpu)
       .subscribe((response: any) => {
         if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
       }, error => this.toastr.error(error.message, 'Oops!'));
@@ -167,10 +163,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag],
-      master_GPU_type: [''],
-      slave_GPU_type: [''],
-      master_GPU_count: [''],
-      slave_GPU_count: [''],
+      master_GPU_type: ['', [Validators.required]],
+      slave_GPU_type: ['', [Validators.required]],
+      master_GPU_count: ['', [Validators.required]],
+      slave_GPU_count: ['', [Validators.required]],
     });
   }
 
@@ -194,7 +190,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
-        this.isBlockOpen.spotInstances = true;
+        this.isSelected.spotInstances = true;
         this.selectSpotInstances();
       }
 
@@ -216,8 +212,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validPreemptibleRange(control) {
-    if (this.isBlockOpen.preemptible)
-      return this.isBlockOpen.preemptible
+    if (this.isSelected.preemptible)
+      return this.isSelected.preemptible
         ? (control.value !== null
           && control.value >= this.minPreemptibleInstanceNumber
           && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false })
@@ -237,15 +233,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validInstanceSpotRange(control) {
-    if (this.isBlockOpen.spotInstances)
-      return this.isBlockOpen.spotInstances
+    if (this.isSelected.spotInstances)
+      return this.isSelected.spotInstances
         ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
         : control.value;
   }
 
   private validConfiguration(control) {
-    if (this.isBlockOpen.configuration)
-      return this.isBlockOpen.configuration ?
+    if (this.isSelected.configuration)
+      return this.isSelected.configuration ?
         (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
   }
@@ -334,29 +330,63 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public openBlock(block: string) {
-    this.isBlockOpen[block] = !this.isBlockOpen[block];
+    this.isSelected[block] = !this.isSelected[block];
+    if (block === 'gpu') {
+      const controls = ['master_GPU_type', 'master_GPU_count', 'slave_GPU_type', 'slave_GPU_count'];
+      if (!this.isSelected.gpu) {
+        this.clearGpuType('master');
+        this.clearGpuType('slave');
+        controls.forEach(control => {
+          this.resourceForm.controls[control].clearValidators();
+          this.resourceForm.controls[control].updateValueAndValidity();
+        });
+
+      } else {
+        controls.forEach(control => {
+          this.resourceForm.controls[control].setValidators([Validators.required]);
+          this.resourceForm.controls[control].updateValueAndValidity();
+        });
+      }
+    }
   }
 
-  public setGPUCount(type): Array<number> {
+  public setGPUCount(type, gpuType): Array<number> {
+    let count = [];
     switch (type) {
       case 'n1-highmem-32' || 'n1-highcpu-32':
-        return [4, 8];
+        count = [4, 8];
+        break;
       case 'n1-highmem-16':
-        return [2, 4, 8];
+        count = [2, 4, 8];
+        break;
       default:
-        return [1, 2, 4, 8];
+        count = [1, 2, 4, 8];
+        break;
     }
+    if (gpuType === 'nvidia-tesla-t4') {
+      count.pop();
+    }
+
+    return count;
   }
 
   public setGpuCount(type: any, gpuType: any) {
     if (type === 'master') {
-      const masterShape = this.setGPUCount(this.resourceForm.controls['shape_master'].value);
-      this.masterGPUcount = this.setGPUCount(masterShape);
+      const masterShape = this.resourceForm.controls['shape_master'].value;
+      this.masterGPUcount = this.setGPUCount(masterShape, gpuType);
     } else {
-      const slaveShape = this.setGPUCount(this.resourceForm.controls['shape_slave'].value);
-      this.slaveGPUcount = this.setGPUCount(slaveShape);
+      const slaveShape = this.resourceForm.controls['shape_slave'].value;
+      this.slaveGPUcount = this.setGPUCount(slaveShape, gpuType);
     }
+  }
 
-    console.log(this.masterGPUcount, this.slaveGPUcount);
+  public clearGpuType(type) {
+    if (type === 'master') {
+      this.resourceForm.controls['master_GPU_type'].setValue('');
+      this.resourceForm.controls['master_GPU_count'].setValue('');
+    } else {
+      this.resourceForm.controls['slave_GPU_type'].setValue('');
+      this.resourceForm.controls['slave_GPU_count'].setValue('');
+    }
   }
 }
