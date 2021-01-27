@@ -68,13 +68,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     configuration: false,
   };
 
-
-
-  // @ViewChild('spotInstancesCheck') spotInstancesSelect;
-  // @ViewChild('preemptibleNode') preemptible;
-  // @ViewChild('addGpu') addGpuForm;
-  // @ViewChild('configurationNode') configuration;
-
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
@@ -96,6 +89,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public selectImage($event) {
     console.log(this.selectedImage);
     this.selectedImage = $event;
+    this.selectedImage.gpu_types.slaveGPUType = ['nvidia-tesla-t4', 'nvidia-tesla-v100'];
+    this.selectedImage.gpu_types.masterGPUType = ['nvidia-tesla-t4', 'nvidia-tesla-v100'];
+    console.log('selectedImage', this.selectedImage.gpu_types);
     this.filterShapes();
     this.getComputationalResourceLimits();
 
@@ -173,8 +169,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       custom_tag: [this.notebook_instance.tags.custom_tag],
       master_GPU_type: [''],
       slave_GPU_type: [''],
-      master_GPU_сount: [''],
-      slave_GPU_сount: [''],
+      master_GPU_count: [''],
+      slave_GPU_count: [''],
     });
   }
 

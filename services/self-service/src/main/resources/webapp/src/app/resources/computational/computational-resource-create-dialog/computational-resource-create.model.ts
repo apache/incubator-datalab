@@ -61,10 +61,11 @@ export class ComputationalResourceModel {
         dataproc_version: parameters.version,
         config: config,
         project: env.project,
-        // custom_tag: parameters.custom_tag
-        // custom_tag: parameters.custom_tag
-        // custom_tag: parameters.custom_tag
-        // custom_tag: parameters.custom_tag
+        custom_tag: parameters.custom_tag,
+        masterGPUType: parameters.master_GPU_type,
+        slaveGPUType: parameters.slave_GPU_type,
+        masterGPUCount: parameters.master_GPU_count,
+        slaveGPUCount: parameters.slave_GPU_count,
       }, provider);
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
