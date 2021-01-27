@@ -27,22 +27,8 @@
   [
     {"version":"1.4", "applications": [{"Name":"Hadoop", "Version": "2.10.0"}, {"Name":"Spark", "Version": "2.4.5"}, {"Name":"Hive", "Version": "2.3.6"}]}
   ],
-  "gpu_types": {
-      "masterGPUType":{
-        "For testing":[
-          {"Type": "1", "Description": "nvidia-tesla-t4", "Gpu type": "nvidia-tesla-t4"}
-      ],
-        "Compute optimized": [
-          {"Type": "1", "Description": "nvidia-tesla-t4", "Gpu type": "nvidia-tesla-t4"},
-          {"Type": "2", "Description": "nvidia-tesla-v100", "Gpu type": "nvidia-tesla-v100"}
-      ]},
-      "slaveGPUType":{
-        "For testing":[
-          {"Type": "1", "Description": "nvidia-tesla-t4", "Gpu type": "nvidia-tesla-t4"}
-        ],
-        "Compute optimized": [
-          {"Type": "1", "Description": "nvidia-tesla-t4", "Gpu type": "nvidia-tesla-t4"},
-          {"Type": "2", "Description": "nvidia-tesla-v100", "Gpu type": "nvidia-tesla-v100"}
-        ]}
-  }
+  "gpu_types": [
+          {"Size": "S",  "Gpu_type": "nvidia-tesla-t4"},
+          {"Size": "M",  "Gpu_type": "nvidia-tesla-v100"}
+      ]
 }
