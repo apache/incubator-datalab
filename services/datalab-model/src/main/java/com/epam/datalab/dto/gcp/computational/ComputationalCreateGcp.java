@@ -23,7 +23,7 @@ import com.epam.datalab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-public class ComputationalCreateGCP extends ComputationalBase<ComputationalCreateGCP> {
+public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreateGcp> {
     @JsonProperty("dataproc_master_count")
     private String masterInstanceCount;
     @JsonProperty("dataproc_slave_count")
@@ -47,52 +47,52 @@ public class ComputationalCreateGCP extends ComputationalBase<ComputationalCreat
     @JsonProperty("slaveGPUCount")
     private String slaveGPUCount;
 
-    public ComputationalCreateGCP withMasterInstanceCount(String masterInstanceCount) {
+    public ComputationalCreateGcp withMasterInstanceCount(String masterInstanceCount) {
         this.masterInstanceCount = masterInstanceCount;
         return this;
     }
 
-    public ComputationalCreateGCP withSlaveInstanceCount(String slaveInstanceCount) {
+    public ComputationalCreateGcp withSlaveInstanceCount(String slaveInstanceCount) {
         this.slaveInstanceCount = slaveInstanceCount;
         return this;
     }
 
-    public ComputationalCreateGCP withMasterInstanceType(String masterInstanceType) {
+    public ComputationalCreateGcp withMasterInstanceType(String masterInstanceType) {
         this.masterInstanceType = masterInstanceType;
         return this;
     }
 
-    public ComputationalCreateGCP withSlaveInstanceType(String slaveInstanceType) {
+    public ComputationalCreateGcp withSlaveInstanceType(String slaveInstanceType) {
         this.slaveInstanceType = slaveInstanceType;
         return this;
     }
 
-    public ComputationalCreateGCP withPreemptibleCount(String preemptibleCount) {
+    public ComputationalCreateGcp withPreemptibleCount(String preemptibleCount) {
         this.preemptibleCount = preemptibleCount;
         return this;
     }
 
-    public ComputationalCreateGCP withVersion(String version) {
+    public ComputationalCreateGcp withVersion(String version) {
         this.version = version;
         return this;
     }
 
-    public ComputationalCreateGCP withMasterGPUType(String masterGPUType) {
+    public ComputationalCreateGcp withMasterGPUType(String masterGPUType) {
         this.masterGPUType = masterGPUType;
         return this;
     }
 
-    public ComputationalCreateGCP withSlaveGPUType(String slaveGPUType) {
+    public ComputationalCreateGcp withSlaveGPUType(String slaveGPUType) {
         this.slaveGPUType = slaveGPUType;
         return this;
     }
 
-    public ComputationalCreateGCP withMasterGPUCount(String masterGPUCount) {
+    public ComputationalCreateGcp withMasterGPUCount(String masterGPUCount) {
         this.masterGPUCount = masterGPUCount;
         return this;
     }
 
-    public ComputationalCreateGCP withSlaveGPUCount(String slaveGPUCount) {
+    public ComputationalCreateGcp withSlaveGPUCount(String slaveGPUCount) {
         this.slaveGPUCount = slaveGPUCount;
         return this;
     }
@@ -107,7 +107,7 @@ public class ComputationalCreateGCP extends ComputationalBase<ComputationalCreat
         this.sharedImageEnabled = sharedImageEnabled;
     }
 
-    public ComputationalCreateGCP withSharedImageEnabled(String sharedImageEnabled) {
+    public ComputationalCreateGcp withSharedImageEnabled(String sharedImageEnabled) {
         setSharedImageEnabled(sharedImageEnabled);
         return this;
     }

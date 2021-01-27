@@ -69,7 +69,7 @@ import com.epam.datalab.dto.exploratory.ExploratoryReconfigureSparkClusterAction
 import com.epam.datalab.dto.exploratory.LibInstallDTO;
 import com.epam.datalab.dto.exploratory.LibraryInstallDTO;
 import com.epam.datalab.dto.gcp.GcpCloudSettings;
-import com.epam.datalab.dto.gcp.computational.ComputationalCreateGCP;
+import com.epam.datalab.dto.gcp.computational.ComputationalCreateGcp;
 import com.epam.datalab.dto.gcp.computational.GcpComputationalTerminateDTO;
 import com.epam.datalab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.datalab.dto.gcp.exploratory.ExploratoryCreateGcp;
@@ -368,7 +368,7 @@ public class RequestBuilder {
                 break;
             case GCP:
                 GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
-                computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ComputationalCreateGCP.class)
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ComputationalCreateGcp.class)
                         .withMasterInstanceCount(gcpForm.getMasterInstanceCount())
                         .withSlaveInstanceCount(gcpForm.getSlaveInstanceCount())
                         .withPreemptibleCount(gcpForm.getPreemptibleCount())
