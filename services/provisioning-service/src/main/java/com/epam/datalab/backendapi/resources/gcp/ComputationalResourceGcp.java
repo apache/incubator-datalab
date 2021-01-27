@@ -34,7 +34,7 @@ import com.epam.datalab.dto.base.computational.ComputationalBase;
 import com.epam.datalab.dto.computational.ComputationalClusterConfigDTO;
 import com.epam.datalab.dto.computational.ComputationalStartDTO;
 import com.epam.datalab.dto.computational.ComputationalStopDTO;
-import com.epam.datalab.dto.gcp.computational.ComputationalCreateGcp;
+import com.epam.datalab.dto.gcp.computational.ComputationalCreateGCP;
 import com.epam.datalab.dto.gcp.computational.GcpComputationalTerminateDTO;
 import com.epam.datalab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.datalab.exceptions.DatalabException;
@@ -67,7 +67,7 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 
     @POST
     @Path(ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC)
-    public String create(@Auth UserInfo ui, ComputationalCreateGcp dto) {
+    public String create(@Auth UserInfo ui, ComputationalCreateGCP dto) {
         log.debug("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
