@@ -128,8 +128,10 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             with cd('/tmp/src/luarocks-3.3.1/'):
                 sudo('./configure')
                 sudo('make install')
+                sudo('luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/')
                 sudo('luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/')
 
+            sudo('luarocks install lua-resty-jwt 0.2.2')
             sudo('luarocks install lua-resty-openidc')
 
             sudo('useradd -r nginx')

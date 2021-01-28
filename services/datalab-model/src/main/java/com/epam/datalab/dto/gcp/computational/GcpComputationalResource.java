@@ -89,5 +89,10 @@ public class GcpComputationalResource extends UserComputationalResource {
         this.slaveGPUCount = slaveGPUCount;
         this.slaveGPUType = slaveGPUType;
         this.enabledGPU = enabledGPU;
+        super.setMasterGPUCount(masterGPUCount);
+        super.setSlaveGPUCount(slaveGPUCount);
+        super.setMasterGPUType(masterGPUType);
+        super.setSlaveGPUType(slaveGPUType);
+        super.setEnabledGPU(enabledGPU);
     }
 }
