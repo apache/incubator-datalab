@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -41,7 +41,7 @@ def ensure_docker_daemon(datalab_path, os_user, region):
                   stable"')
             manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce=5:{}~3-0~ubuntu-focal'.format(docker_version))
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
@@ -331,7 +331,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                                    keycloak_client_id,
                                    keycloak_client_secret,
                                    keycloak_auth_server_url)
-                sudo('python /tmp/configure_billing.py {}'.format(params))
+                sudo('python3 /tmp/configure_billing.py {}'.format(params))
             try:
                 if os.environ['conf_stepcerts_enabled'] == 'true':
                     sudo(

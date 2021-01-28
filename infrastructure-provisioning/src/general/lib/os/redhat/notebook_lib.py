@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -48,7 +48,7 @@ def enable_proxy(proxy_host, proxy_port):
 
 def downgrade_python_version():
     try:
-       sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
+       sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); \
         version = [pkg.vr for pkg in pl.installed if pkg.name == \'python\']; \
         os.system(\'yum -y downgrade python python-devel-2.7.5-58.el7.x86_64 python-libs-2.7.5-58.el7.x86_64\') \
         if version != [] and version[0] == \'2.7.5-68.el7\' else False"')
@@ -142,11 +142,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists('/home/{}/.ensure_dir/matplot_ensured'.format(os_user)):
         try:
-            sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
-                sudo('python3.5 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -188,11 +186,9 @@ def ensure_additional_python_libs(os_user):
             manage_pkg('clean', 'remote', 'all')
             manage_pkg('-y install', 'remote', 'zlib-devel libjpeg-turbo-devel --nogpgcheck')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
                 sudo('python3.5 -m pip install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python2.7 -m pip install opencv-python==4.2.0.32 h5py --no-cache-dir')
-                sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
+                sudo('python3.8 -m pip install opencv-python h5py --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -210,30 +206,6 @@ def ensure_python3_specific_version(python3_version, os_user):
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_specific_version_ensured')
         except:
             sys.exit(1)
-
-
-def ensure_python2_libraries(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
-        try:
-            sudo('pip2 install pyparsing==2.0.3')
-            manage_pkg('-y install', 'remote', 'python-setuptools python-wheel')
-            manage_pkg('-y install', 'remote', 'python-virtualenv openssl-devel python-devel openssl-libs libxslt-devel --nogpgcheck')
-            try:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            except:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            sudo('echo y | python2 -m pip uninstall backports.shutil_get_terminal_size')
-            sudo('python2 -m pip install backports.shutil_get_terminal_size --no-cache-dir')
-            sudo('pip2 install -UI pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip2 install boto3 backoff --no-cache-dir')
-            sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
-            downgrade_python_version()
-            sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
-        except:
-            sys.exit(1)
-
 
 def ensure_python3_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
@@ -288,8 +260,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             # install TensorFlow and run TensorBoard
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl'.format(tensorflow_version))
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl'.format(tensorflow_version))
-            sudo('python2.7 -m pip install --upgrade tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
-            sudo('python3.5 -m pip install --upgrade tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('python3.8 -m pip install --upgrade tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
             sudo('rm -rf /home/{}/tensorflow_gpu-*'.format(os_user))
             sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
@@ -314,7 +285,6 @@ def install_maven(os_user):
 
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
@@ -329,7 +299,6 @@ def install_maven_emr(os_user):
 
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        local('sudo -i pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('sudo -i pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
@@ -375,7 +344,7 @@ def install_os_pkg(requisites):
                 dep = [i for i in dep if i]
             versions = []
             res = sudo(
-                'python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(
+                'python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(
                     name)).split('\r\n')[1]
             if err:
                 status_msg = 'installation_error'
@@ -417,7 +386,7 @@ def get_available_os_pkgs():
     try:
         manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
         downgrade_python_version()
-        yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
+        yum_raw = sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
         yum_re = re.sub\
             (r'\w*\s\w*\D\s\w*.\w*.\s\w*.\w*.\w.\w*.\w*.\w*', '', yum_raw)
         yum_list = yum_re.replace("'", "\"")
@@ -431,7 +400,6 @@ def get_available_os_pkgs():
 def install_opencv(os_user):
     if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
         manage_pkg('-y install', 'remote', 'cmake python34 python34-devel python34-pip gcc gcc-c++')
-        sudo('pip2 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('pip3.4 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('pip3.5 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         run('git clone https://github.com/opencv/opencv.git')
@@ -450,8 +418,6 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         env.shell = "/bin/bash -l -c -i"
         manage_pkg('update-minimal --security -y', 'remote', '')
         manage_pkg('-y install --nogpgcheck', 'remote', 'automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
-             'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
@@ -478,28 +444,24 @@ def install_cntk(os_user, cntk_version):
         manage_pkg('clean', 'remote', 'all')
         manage_pkg('update-minimal --security -y', 'remote', '')
         manage_pkg('-y install --nogpgcheck', 'remote', 'openmpi openmpi-devel')
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
 def install_keras(os_user, keras_version):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
-        sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('pip3.5 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
 def install_theano(os_user, theano_version):
     if not exists('/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
-        sudo('python2.7 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
-        sudo('python3.5 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('python3.8 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
         sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
 
 
 def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80=={} opencv-python==4.2.0.32 --no-cache-dir'.format(mxnet_version))
         sudo('pip3.5 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 

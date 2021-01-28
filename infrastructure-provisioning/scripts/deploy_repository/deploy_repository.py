@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -1257,7 +1257,7 @@ def install_docker():
                  'stable"')
             sudo('apt-get update')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(configuration['ssn_docker_version']))
+            sudo('apt-get install -y docker-ce=5:{}~3-0~ubuntu-focal'.format(configuration['ssn_docker_version']))
             sudo('usermod -a -G docker ' + configuration['conf_os_user'])
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')

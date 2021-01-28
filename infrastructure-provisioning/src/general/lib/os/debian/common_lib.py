@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -28,7 +28,7 @@ import os
 import time
 
 
-def manage_pkg(command, environment, requisites, warn='False'):
+def manage_pkg(command, environment, requisites):
     try:
         allow = False
         counter = 0
@@ -39,28 +39,50 @@ def manage_pkg(command, environment, requisites, warn='False'):
             else:
                 print('Package manager is:')
                 if environment == 'remote':
-                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
+                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
                         try:
-                            sudo('sudo dpkg --configure -a', warn_only=warn)
-                        except:
-                            PID = sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
-                            sudo('kill -9 {}'.format(PID))
-                            sudo('rm -f /var/lib/dpkg/lock-frontend')
-                            sudo('sudo dpkg --configure -a')
-                        sudo('sudo apt update')
-                        try:
-                            sudo('apt-get {0} {1}'.format(command, requisites), warn_only=warn)
-                        except:
-                            sudo('lsof /var/lib/dpkg/lock')
-                            sudo('lsof /var/lib/apt/lists/lock')
-                            sudo('lsof /var/cache/apt/archives/lock')
-                            sudo('rm -f /var/lib/apt/lists/lock')
-                            sudo('rm -f /var/cache/apt/archives/lock')
-                            sudo('rm -f /var/lib/dpkg/lock')
-                        allow = True
+                            error_parser = "frontend is locked|locked"
+                            sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                                     '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
+                            err = sudo('cat /tmp/dpkg.log')
+                            count = 0
+                            while err != '' and count < 10:
+                                pid = sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
+                                if pid != '':
+                                    sudo('kill -9 {}'.format(pid))
+                                    sudo('rm -f /var/lib/dpkg/lock-frontend')
+                                    pid = sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
+                                elif pid != '':
+                                    sudo('kill -9 {}'.format(pid))
+                                    sudo('rm -f /var/lib/dpkg/lock')
+                                sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                                     '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
+                                err = sudo('cat /tmp/dpkg.log')
+                                count = count + 1
+                            sudo('apt update')
+
+                            sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
+                                 '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
+                            err = sudo('cat /tmp/apt.log')
+                            count = 0
+                            while err != '' and count < 10:
+                                sudo('lsof /var/lib/dpkg/lock')
+                                sudo('lsof /var/lib/apt/lists/lock')
+                                sudo('lsof /var/cache/apt/archives/lock')
+                                sudo('rm -f /var/lib/apt/lists/lock')
+                                sudo('rm -f /var/cache/apt/archives/lock')
+                                sudo('rm -f /var/lib/dpkg/lock')
+                                sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
+                                     '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
+                                err = sudo('cat /tmp/apt.log')
+                                count = count + 1
+                            allow = True
+                        except Exception as err:
+                            traceback.print_exc()
+                            append_result("Failed to manage_pkgs", str(err))
                 elif environment == 'local':
                     if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
                         counter += 1
@@ -73,7 +95,7 @@ def manage_pkg(command, environment, requisites, warn='False'):
     except:
         sys.exit(1)
 
-def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
+def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev '
                                 'groff gcc vim less git wget '
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):

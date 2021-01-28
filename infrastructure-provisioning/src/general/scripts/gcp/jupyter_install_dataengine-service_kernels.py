@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -60,19 +60,20 @@ def configure_notebook(args):
     # put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/datalab/')
+    sudo('mkdir -p /usr/lib/python3.8/datalab/')
     run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
     run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
+    sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+        sudo('mkdir -p /usr/lib64/python3.8')
+        sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
     GCPActions().get_from_bucket(args.bucket, '{0}/{1}/scala_version'.format(args.project_name, args.cluster_name),
                                  '/tmp/scala_version')
-    with file('/tmp/scala_version') as f:
+    with open('/tmp/scala_version') as f:
         scala_version = str(f.read()).replace(',', '')
     env.hosts = "{}".format(args.notebook_ip)
     env.user = args.os_user
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
     sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
     sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; '
-         '/usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4}'
+         '/usr/bin/python3 /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4}'
          ' --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} '
          '--application {11} --r_version {12} --r_enabled {13} --python_version {14}  --master_ip {15} --scala_version {16}'
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name,

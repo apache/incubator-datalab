@@ -2432,7 +2432,7 @@ ARG OS
 
 COPY ssn/ /root/
 COPY general/scripts/aws/ssn_* /root/scripts/
-COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python2.7/datalab/ssn_lib.py
+COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python3.8/datalab/ssn_lib.py
 COPY general/files/aws/ssn_policy.json /root/files/
 COPY general/templates/aws/jenkins_jobs /root/templates/jenkins_jobs
 

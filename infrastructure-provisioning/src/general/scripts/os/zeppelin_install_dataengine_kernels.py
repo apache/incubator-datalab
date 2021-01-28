@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -61,12 +61,13 @@ def configure_notebook(keyfile, hoststring):
         put(scripts_dir + 'zeppelin_dataengine_create_configs.py',
             '/usr/local/bin/zeppelin_dataengine_create_configs.py', use_sudo=True)
         sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
-    if not exists('/usr/lib/python2.7/datalab/'):
-        sudo('mkdir -p /usr/lib/python2.7/datalab/')
-        put('/usr/lib/python2.7/datalab/*', '/usr/lib/python2.7/datalab/', use_sudo=True)
-        sudo('chmod a+x /usr/lib/python2.7/datalab/*')
+    if not exists('/usr/lib/python3.8/datalab/'):
+        sudo('mkdir -p /usr/lib/python3.8/datalab/')
+        put('/usr/lib/python3.8/datalab/*', '/usr/lib/python3.8/datalab/', use_sudo=True)
+        sudo('chmod a+x /usr/lib/python3.8/datalab/*')
         if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+            sudo('mkdir -p /usr/lib64/python3.8')
+            sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     create_inactivity_log(args.spark_master_ip, env.host_string)
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
-    sudo('/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py '
+    sudo('/usr/bin/python3 /usr/local/bin/zeppelin_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} \
          --notebook_ip {} --livy_version {} --multiple_clusters {} --region {} --datalake_enabled {} '
          '--r_enabled {} --spark_configurations "{}"'.

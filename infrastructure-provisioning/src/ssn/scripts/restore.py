@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -90,7 +90,7 @@ def restore_prepare():
         if ask("Maybe you want to create backup of existing configuration before restoring?"):
             with settings(hide('everything')):
                 print("Creating new backup...")
-                local("python backup.py --configs all --keys all --certs all --jar all --db")
+                local("python3 backup.py --configs all --keys all --certs all --jar all --db")
     except:
         print("Failed to create new backup.")
         sys.exit(1)

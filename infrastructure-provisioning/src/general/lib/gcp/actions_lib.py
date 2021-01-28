@@ -23,16 +23,16 @@ import ast
 import backoff
 import datalab.common_lib
 import datalab.fab
+import datalab.meta_lib
 import google.auth
 import json
 import logging
-import meta_lib
 import os
 import random
 import sys
 import time
 import traceback
-import urllib2
+import urllib3
 from Crypto.PublicKey import RSA
 from datalab.fab import *
 from fabric.api import *
@@ -83,7 +83,7 @@ class GCPActions:
         try:
             print("Create VPC {}".format(vpc_name))
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print("VPC {} has been created".format(vpc_name))
             return result
         except Exception as err:
@@ -98,7 +98,7 @@ class GCPActions:
         request = self.service.networks().delete(project=self.project, network=vpc_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print("VPC {} has been removed".format(vpc_name))
             return result
         except Exception as err:
@@ -121,7 +121,7 @@ class GCPActions:
         try:
             print("Create subnet {}".format(subnet_name))
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print("Subnet {} has been created".format(subnet_name))
             return result
         except Exception as err:
@@ -136,7 +136,7 @@ class GCPActions:
         request = self.service.subnetworks().delete(project=self.project, region=region, subnetwork=subnet_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print("Subnet {} has been removed".format(subnet_name))
             return result
         except Exception as err:
@@ -151,7 +151,7 @@ class GCPActions:
         request = self.service.firewalls().insert(project=self.project, body=firewall_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('Firewall {} created.'.format(firewall_params['name']))
             return result
         except Exception as err:
@@ -166,7 +166,7 @@ class GCPActions:
         request = self.service.firewalls().delete(project=self.project, firewall=firewall_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('Firewall {} removed.'.format(firewall_name))
             return result
         except Exception as err:
@@ -181,7 +181,7 @@ class GCPActions:
         request = self.service.routes().insert(project=self.project, body=nat_route_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('NAT route {} created.'.format(nat_route_params['name']))
             return result
         except Exception as err:
@@ -196,7 +196,7 @@ class GCPActions:
         request = self.service.routes().delete(project=self.project, route=nat_route_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('NAT route {} deleteed.'.format(nat_route_name))
             return result
         except Exception as err:
@@ -280,7 +280,7 @@ class GCPActions:
                           "sourceImage": secondary_image_name}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Disk {}-secondary created.'.format(instance_name))
             return request
         except Exception as err:
@@ -296,7 +296,7 @@ class GCPActions:
             request = self.service.disks().delete(project=self.project, zone=zone, disk=instance_name + '-secondary')
             try:
                 result = request.execute()
-                meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+                datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
                 print('Disk {}-secondary removed.'.format(instance_name))
             except errors.HttpError as err:
                 if err.resp.status == 404:
@@ -320,8 +320,8 @@ class GCPActions:
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
-        ssh_key = key.publickey().exportKey("OpenSSH")
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         access_configs = ''
         if instance_class == 'edge':
@@ -455,7 +455,7 @@ class GCPActions:
                                                   body=instance_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Instance {} created.'.format(instance_name))
             request = self.service.instances().get(instance=instance_name, project=self.project,
                                                    zone=zone)
@@ -510,7 +510,7 @@ class GCPActions:
                                                   instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Instance {} removed.'.format(instance_name))
             return result
         except Exception as err:
@@ -525,7 +525,7 @@ class GCPActions:
         request = self.service.instances().stop(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             return True
         except Exception as err:
             logging.info(
@@ -539,7 +539,7 @@ class GCPActions:
         request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             return True
         except Exception as err:
             logging.info(
@@ -550,16 +550,16 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def remove_service_account(self, service_account_name, service_base_name):
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         request = self.service_iam.projects().serviceAccounts().delete(
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
         try:
             result = request.execute()
-            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+            service_account_removed = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while service_account_removed:
                 time.sleep(5)
-                service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+                service_account_removed = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} removed.'.format(service_account_name))
             return result
@@ -580,10 +580,10 @@ class GCPActions:
                                                                        body=params)
         try:
             result = request.execute()
-            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+            service_account_created = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while not service_account_created:
                 time.sleep(5)
-                service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+                service_account_created = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} created.'.format(service_account_name))
             return result
@@ -601,7 +601,7 @@ class GCPActions:
         num += 1
         request = GCPActions().service_resource.projects().getIamPolicy(resource=self.project, body={})
         project_policy = request.execute()
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
@@ -644,10 +644,10 @@ class GCPActions:
                                                                  }})
         try:
             result = request.execute()
-            role_created = meta_lib.GCPMeta().get_role(role_name)
+            role_created = datalab.meta_lib.GCPMeta().get_role(role_name)
             while not role_created:
                 time.sleep(5)
-                role_created = meta_lib.GCPMeta().get_role(role_name)
+                role_created = datalab.meta_lib.GCPMeta().get_role(role_name)
             time.sleep(30)
             print('IAM role {} created.'.format(role_name))
             return result
@@ -667,14 +667,14 @@ class GCPActions:
                                                              { })
         try:
             result = request.execute()
-            role = meta_lib.GCPMeta().get_role(role_name)
+            role = datalab.meta_lib.GCPMeta().get_role(role_name)
             if 'deleted' in role:
                 role_removed = True
             else:
                 role_removed = False
             while role_removed:
                 time.sleep(5)
-                role = meta_lib.GCPMeta().get_role(role_name)
+                role = datalab.meta_lib.GCPMeta().get_role(role_name)
                 if 'deleted' in role:
                     role_removed = True
             time.sleep(30)
@@ -694,14 +694,14 @@ class GCPActions:
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
         try:
             result = request.execute()
-            role = meta_lib.GCPMeta().get_role(role_name)
+            role = datalab.meta_lib.GCPMeta().get_role(role_name)
             if 'deleted' in role:
                 role_removed = True
             else:
                 role_removed = False
             while not role_removed:
                 time.sleep(5)
-                role = meta_lib.GCPMeta().get_role(role_name)
+                role = datalab.meta_lib.GCPMeta().get_role(role_name)
                 if 'deleted' in role:
                     role_removed = True
             time.sleep(30)
@@ -739,7 +739,7 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def set_service_account_to_instance(self, service_account_name, instance_name, service_base_name):
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "email": service_account_email
@@ -762,7 +762,7 @@ class GCPActions:
         request = self.service.addresses().insert(project=self.project, region=region, body=params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print('Static address {} created.'.format(address_name))
             return result
         except Exception as err:
@@ -778,7 +778,7 @@ class GCPActions:
         request = self.service.addresses().delete(project=self.project, region=region, address=address_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print('Static address {} removed.'.format(address_name))
             return result
         except Exception as err:
@@ -802,16 +802,16 @@ class GCPActions:
         id_list=[]
         try:
             GCPActions().stop_instance(instance_name, zone)
-            primary_image_check = meta_lib.GCPMeta().get_image_by_name(primary_image_name)
+            primary_image_check = datalab.meta_lib.GCPMeta().get_image_by_name(primary_image_name)
             if primary_image_check != '':
                 GCPActions().start_instance(instance_name, zone)
                 return ''
             primary_result = primary_request.execute()
             secondary_result = secondary_request.execute()
-            meta_lib.GCPMeta().wait_for_operation(primary_result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(primary_result['name'])
             print('Image {} has been created.'.format(primary_image_name))
             id_list.append(primary_result.get('id'))
-            meta_lib.GCPMeta().wait_for_operation(secondary_result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(secondary_result['name'])
             print('Image {} has been created.'.format(secondary_image_name))
             id_list.append(secondary_result.get('id'))
             GCPActions().start_instance(instance_name, zone)
@@ -831,7 +831,7 @@ class GCPActions:
             request = self.service.images().delete(project=self.project, image=image_name)
             try:
                 result = request.execute()
-                meta_lib.GCPMeta().wait_for_operation(result['name'])
+                datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
                 print('Image {} was removed.'.format(image_name))
             except errors.HttpError as err:
                 if err.resp.status == 404:
@@ -870,7 +870,7 @@ class GCPActions:
 
     def set_bucket_owner(self, bucket_name, service_account_name, service_base_name):
         try:
-            unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+            unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
             service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index,
                                                                                   self.project)
             bucket = self.storage_client.get_bucket(bucket_name)
@@ -919,11 +919,11 @@ class GCPActions:
         try:
             result = request.execute()
             time.sleep(5)
-            cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             while cluster_status[0]['status'] != 'running':
                 time.sleep(5)
                 print('The cluster is being created... Please wait')
-                cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+                cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
                 if cluster_status[0]['status'] == 'terminated':
                     raise Exception
             return result
@@ -979,11 +979,11 @@ class GCPActions:
         request = self.dataproc.projects().regions().clusters().delete(projectId=self.project, region=region, clusterName=cluster_name)
         try:
             result = request.execute()
-            cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             while cluster_status[0]['status'] != 'terminated':
                 time.sleep(5)
                 print('The cluster is being terminated... Please wait')
-                cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+                cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             GCPActions().delete_dataproc_jobs(cluster_name)
             return result
         except Exception as err:
@@ -1027,10 +1027,10 @@ class GCPActions:
         try:
             res = request.execute()
             print("Job ID: {}".format(res['reference']['jobId']))
-            job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+            job_status = datalab.meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
             while job_status != 'done':
                 time.sleep(5)
-                job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+                job_status = datalab.meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
                 if job_status in ('failed', 'error'):
                     raise Exception
             return job_status
@@ -1047,7 +1047,7 @@ class GCPActions:
 
     def delete_dataproc_jobs(self, cluster_filter):
         try:
-            jobs = meta_lib.GCPMeta().get_dataproc_jobs()
+            jobs = datalab.meta_lib.GCPMeta().get_dataproc_jobs()
             cluster_jobs_ids = [job['reference']['jobId'] for job in jobs
                                 if cluster_filter in job['placement']['clusterName']]
             for job_id in list(set(cluster_jobs_ids)):
@@ -1075,7 +1075,7 @@ class GCPActions:
         try:
             version_file = '{0}/{1}/{2}_version'.format(user_name, cluster_name, application)
             if GCPActions().get_from_bucket(bucket, version_file, '/tmp/{}_version'.format(application)):
-                with file('/tmp/{}_version'.format(application)) as f:
+                with open('/tmp/{}_version'.format(application)) as f:
                     version = f.read()
                 return version[0:5]
             else:
@@ -1140,7 +1140,7 @@ class GCPActions:
 
     def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path, computational_name):
         try:
-            notebook_ip = meta_lib.GCPMeta().get_private_ip_address(notebook_name)
+            notebook_ip = datalab.meta_lib.GCPMeta().get_private_ip_address(notebook_name)
             env.hosts = "{}".format(notebook_ip)
             env.user = "{}".format(ssh_user)
             env.key_filename = "{}".format(key_path)
@@ -1205,7 +1205,7 @@ class GCPActions:
             zeppelin_restarted = False
             default_port = 8998
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
-            with file('/tmp/python_version') as f:
+            with open('/tmp/python_version') as f:
                 python_version = f.read()
             python_version = python_version[0:5]
             livy_port = ''
@@ -1296,7 +1296,7 @@ class GCPActions:
     def install_python(self, bucket, user_name, cluster_name, application, numpy_version='1.14.3'):
         try:
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
-            with file('/tmp/python_version') as f:
+            with open('/tmp/python_version') as f:
                 python_version = f.read()
             python_version = python_version[0:5]
             if not os.path.exists('/opt/python/python{}'.format(python_version)):
@@ -1449,7 +1449,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
     try:
         computational_name = os.environ['computational_name'].replace('_', '-').lower()
-        private = meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
+        private = datalab.meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
         env.hosts = "{}".format(private)
         env.user = "{}".format(os_user)
         env.key_filename = "{}".format(key_path)

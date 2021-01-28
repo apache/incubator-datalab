@@ -26,7 +26,6 @@ import botocore
 import datalab.fab
 import json
 import logging
-import meta_lib
 import os
 import sys
 import time
@@ -1523,7 +1522,7 @@ def create_aws_config_files(generate_full_config=False):
 
 def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
-    with file('/tmp/python_version') as f:
+    with open('/tmp/python_version') as f:
         python_version = f.read()
     python_version = python_version[0:5]
     if not os.path.exists('/opt/python/python' + python_version):
@@ -1710,7 +1709,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         zeppelin_restarted = False
         default_port = 8998
         get_cluster_python_version(region, bucket, user_name, cluster_name)
-        with file('/tmp/python_version') as f:
+        with open('/tmp/python_version') as f:
             python_version = f.read()
         python_version = python_version[0:5]
         livy_port = ''

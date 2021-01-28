@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import os
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 import argparse
 from fabric.api import *
 import json

@@ -42,9 +42,9 @@ def ensure_pip(requisites):
         if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
-            sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip install --upgrade setuptools')
-            sudo('pip install -U {} --no-cache-dir'.format(requisites))
+            sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+            sudo('pip3 install --upgrade setuptools')
+            sudo('pip3 install -UI {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
     except:
         sys.exit(1)
@@ -186,15 +186,12 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
     keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
-    sudo('python ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
+    sudo('python3 ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            sudo('pip2 install pyrsistent==0.16.0 --no-cache-dir')
-            sudo('pip2 install notebook==5.7.8 --no-cache-dir')
-            sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip3 install jupyter --no-cache-dir')
             sudo('rm -rf {}'.format(jupyter_conf_file))
@@ -258,7 +255,7 @@ def configure_docker(os_user):
                   stable"')
             manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version), 'True')
+            manage_pkg('-y install', 'remote', 'docker-ce=5:{}~3-0~ubuntu-focal'.format(docker_version))
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
@@ -387,9 +384,9 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     text = text.replace('CLUSTER_NAME', cluster_name)
     text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
     text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('PYTHON_SHORT_VERSION', '2.7')
-    text = text.replace('PYTHON_FULL_VERSION', '2.7')
-    text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
+    text = text.replace('PYTHON_SHORT_VERSION', '3.8')
+    text = text.replace('PYTHON_FULL_VERSION', '3.8')
+    text = text.replace('PYTHON_PATH', '/usr/bin/python3.8')
     text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
@@ -398,7 +395,7 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
           format(dataengine_service_version, cluster_name, kernel_path, os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
-    with file('/tmp/python_version') as f:
+    with open('/tmp/python_version') as f:
         python_version = f.read()
     if python_version != '\n':
         installing_python(region, bucket, user_name, cluster_name, application, pip_mirror, numpy_version)
@@ -571,12 +568,13 @@ def get_available_r_pkgs():
         r_pkgs = dict()
         sudo('R -e \'write.table(available.packages(contriburl="https://cloud.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
         get("/tmp/r.csv", "r.csv")
-        with open('r.csv', 'rb') as csvfile:
+        with open('r.csv', 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
                 r_pkgs[row[0]] = row[1]
         return r_pkgs
-    except:
+    except Exception as err:
+        print("Failed to install {} ".format(err))
         sys.exit(1)
 
 
@@ -611,7 +609,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
             run('mkdir -p ~/.git/templates/hooks')
-            put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
+            put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0o755)
             run('git config --global init.templatedir ~/.git/templates')
             run('touch ~/.gitignore')
             run('git config --global core.excludesfile ~/.gitignore')
@@ -730,11 +728,6 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     env['connection_attempts'] = 100
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
-    if not exists('/usr/bin/pip2'):
-        if not exists('/usr/bin/pip-2.7'):
-            manage_pkg('-y install', 'remote', 'python2-pip')
-        else:
-            sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
     manage_pkg('-y install', 'remote', 'python3-pip')
     if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
@@ -744,9 +737,10 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
         sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.8 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.8 /usr/bin/pip3')
     if emr:
         sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
-        sudo('pip2 install -U pip=={}'.format(os.environ['conf_pip_version']))
         sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
@@ -855,7 +849,6 @@ def update_pyopenssl_lib(os_user):
         try:
             if exists('/usr/bin/pip3'):
                 sudo('pip3 install -U pyopenssl')
-            sudo('pip2 install -U pyopenssl')
             sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
         except:
             sys.exit(1)
