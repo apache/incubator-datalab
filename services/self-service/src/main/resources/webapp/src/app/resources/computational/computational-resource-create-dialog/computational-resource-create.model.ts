@@ -62,10 +62,10 @@ export class ComputationalResourceModel {
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag,
-        masterGPUType: parameters.master_GPU_type,
-        slaveGPUType: parameters.slave_GPU_type,
-        masterGPUCount: parameters.master_GPU_count,
-        slaveGPUCount: parameters.slave_GPU_count,
+        masterGPUType: gpu ? parameters.master_GPU_type : null,
+        slaveGPUType: gpu ? parameters.slave_GPU_type : null,
+        masterGPUCount: gpu ? parameters.master_GPU_count : null,
+        slaveGPUCount: gpu ? parameters.slave_GPU_count : null,
         gpu_enabled: gpu
       }, provider);
     } else {

@@ -163,10 +163,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag],
-      master_GPU_type: ['', [Validators.required]],
-      slave_GPU_type: ['', [Validators.required]],
-      master_GPU_count: ['', [Validators.required]],
-      slave_GPU_count: ['', [Validators.required]],
+      master_GPU_type: [''],
+      slave_GPU_type: [''],
+      master_GPU_count: [''],
+      slave_GPU_count: [''],
     });
   }
 
@@ -329,7 +329,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  public openBlock(block: string) {
+  public addAdditionalParams(block: string) {
     this.isSelected[block] = !this.isSelected[block];
     if (block === 'gpu') {
       const controls = ['master_GPU_type', 'master_GPU_count', 'slave_GPU_type', 'slave_GPU_count'];
@@ -370,7 +370,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return count;
   }
 
-  public setCount(type: any, gpuType: any) {
+  public setCount(type: any, gpuType: any): void {
     if (type === 'master') {
       const masterShape = this.resourceForm.controls['shape_master'].value;
       this.masterGPUcount = this.setGPUCount(masterShape, gpuType);

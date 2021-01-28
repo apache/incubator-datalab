@@ -148,7 +148,7 @@
         </div>
         <div class="checkbox-group control-group"
              *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'">
-          <div class="d-flex cursor-pointer label m-bott-20" (click)="openBlock('gpu')">
+          <div class="d-flex cursor-pointer label m-bott-20" (click)="addAdditionalParams('gpu')">
             <div class="empty-checkbox ml-10" [ngClass]="{'checked': isSelected.gpu}">
               <span class="checked-checkbox" *ngIf="isSelected.gpu"></span>
             </div>
@@ -171,7 +171,7 @@
                                 [disabled]="!resourceForm.controls['shape_master'].value">
                       <mat-option *ngFor="let type of selectedImage.gpu_types"
                                   [value]="type.Gpu_type" (click)="setCount('master', type.Gpu_type)">
-                        <strong class="highlight icon-label">{{ type.size }}</strong>  {{ type.Gpu_type }}
+                        <strong class="highlight icon-label">{{ type.Size }}</strong>  {{ type.Gpu_type }}
                       </mat-option>
                       <mat-option *ngIf="!clusterTypes.length" class="multiple-select ml-10" disabled>Master GPU types list
                         is empty</mat-option>
@@ -222,7 +222,7 @@
                     <mat-label>Select slave GPU type</mat-label>
                     <mat-select formControlName="slave_GPU_type" disableOptionCentering [disabled]="!resourceForm.controls['shape_slave'].value">
                       <mat-option *ngFor="let type of selectedImage.gpu_types" [value]="type.Gpu_type" (click)="setCount('slave', type.Gpu_type)">
-                        {{ type.Gpu_type }}
+                        <strong class="highlight icon-label">{{ type.Size }}</strong>  {{ type.Gpu_type }}
                       </mat-option>
                       <mat-option *ngIf="!selectedImage.gpu_types?.length" class="multiple-select ml-10" disabled>Slave GPU types list is empty</mat-option>
                     </mat-select>
@@ -263,7 +263,7 @@
         </div>
           <div class="preemptible checkbox-group control-group"
                *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'">
-            <div class="d-flex cursor-pointer label" (click)="openBlock('preemptible')">
+            <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('preemptible')">
               <div class="empty-checkbox ml-10" [ngClass]="{'checked': isSelected.preemptible}" (click)="selectPreemptibleNodes(isSelected.preemptible)">
                 <span class="checked-checkbox" *ngIf="isSelected.preemptible"></span>
               </div>
@@ -287,7 +287,7 @@
 
 
         <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'" [hidden]="!selectedImage.templates.length">
-          <div class="d-flex cursor-pointer label" (click)="openBlock('spotInstances')">
+          <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('spotInstances')">
             <div class="empty-checkbox ml-10" [ngClass]="{'checked': isSelected.spotInstances}" (click)="selectSpotInstances()">
               <span class="checked-checkbox" *ngIf="isSelected.spotInstances"></span>
             </div>
@@ -308,7 +308,7 @@
           <div class="checkbox-group m-top-20 control-group"
                [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
                *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
-              <div class="d-flex cursor-pointer label" (click)="openBlock('configuration')">
+              <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('configuration')">
                 <div class="empty-checkbox ml-10" [ngClass]="{'checked': isSelected.configuration}" (click)="selectConfiguration()">
                   <span class="checked-checkbox" *ngIf="isSelected.configuration"></span>
                 </div>
