@@ -97,6 +97,35 @@
               <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].slave_node_shape] }}</span></div>
           </div>
 
+<!--        Start GPU-->
+        <ng-template [ngIf]="true">
+          <div class="row-wrap">
+            <div class="col">
+              <p>Master GPU type:</p>
+            </div>
+            <div class="col"><span>nvidia-tesla-t4</span></div>
+          </div>
+          <div class="row-wrap">
+            <div class="col">
+              <p>Slave GPU type:</p>
+            </div>
+            <div class="col"><span>nvidia-tesla-v100</span></div>
+          </div>
+          <div class="row-wrap">
+            <div class="col">
+              <p>Master GPU count:</p>
+            </div>
+            <div class="col"><span>8</span></div>
+          </div>
+          <div class="row-wrap">
+            <div class="col">
+              <p>Slave GPU count:</p>
+            </div>
+            <div class="col"><span>16</span></div>
+          </div>
+        </ng-template>
+<!--        /////////////////////////////////////end GPU-->
+
         <div *ngIf="resource.status === 'running'">
           <div class="row-wrap">
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{resource.up_time ? (resource.up_time | longDate) : "not specified."
