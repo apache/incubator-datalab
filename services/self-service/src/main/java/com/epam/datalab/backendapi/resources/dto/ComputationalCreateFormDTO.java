@@ -61,4 +61,6 @@ public class ComputationalCreateFormDTO {
     @Valid
     private List<ClusterConfig> config;
 
+    @JsonProperty("gpu_tag")
+    protected boolean gpuTag = false;
 }

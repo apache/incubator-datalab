@@ -17,14 +17,24 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.service;
+package com.epam.datalab.dto.imagemetadata;
 
-import com.epam.datalab.auth.UserInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.List;
 
-@FunctionalInterface
-public interface TagService {
-    Map<String, String> getResourceTags(UserInfo userInfo, String endpoint, String project, String customTag
-            , boolean gpuEnabled);
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+public class ComputationalGPU {
+
+    @JsonProperty("Size")
+    private String size;
+    @JsonProperty("Gpu_type")
+    private String gpuType;
 }
