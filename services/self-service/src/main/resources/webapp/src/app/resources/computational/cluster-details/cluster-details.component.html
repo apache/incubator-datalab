@@ -77,7 +77,7 @@
             <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' && resource.image === 'docker.datalab-dataengine-service'">1</span>
           </div>
         </div>
-          <div class="row-wrap"
+        <div class="row-wrap"
                *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' && resource.image === 'docker.datalab-dataengine-service'">
               <div class="col">
                   <p>Slave instance number:</p>
@@ -90,42 +90,38 @@
           </div>
           <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].master_node_shape] }}</span></div>
         </div>
-          <div class="row-wrap" *ngIf="resource.image === 'docker.datalab-dataengine-service'">
+        <div class="row-wrap" *ngIf="resource.image === 'docker.datalab-dataengine-service'">
               <div class="col">
                   <p>Slave instance size:</p>
               </div>
               <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].slave_node_shape] }}</span></div>
           </div>
-
-<!--        Start GPU-->
-        <ng-template [ngIf]="true">
+        <ng-template [ngIf]="resource?.enabledGPU">
           <div class="row-wrap">
             <div class="col">
               <p>Master GPU type:</p>
             </div>
-            <div class="col"><span>nvidia-tesla-t4</span></div>
+            <div class="col"><span>{{resource.masterGPUType}}</span></div>
           </div>
           <div class="row-wrap">
             <div class="col">
               <p>Slave GPU type:</p>
             </div>
-            <div class="col"><span>nvidia-tesla-v100</span></div>
+            <div class="col"><span>{{resource.slaveGPUType}}</span></div>
           </div>
           <div class="row-wrap">
             <div class="col">
               <p>Master GPU count:</p>
             </div>
-            <div class="col"><span>8</span></div>
+            <div class="col"><span>{{resource.masterGPUCount}}</span></div>
           </div>
           <div class="row-wrap">
             <div class="col">
               <p>Slave GPU count:</p>
             </div>
-            <div class="col"><span>16</span></div>
+            <div class="col"><span>{{resource.slaveGPUCount}}</span></div>
           </div>
         </ng-template>
-<!--        /////////////////////////////////////end GPU-->
-
         <div *ngIf="resource.status === 'running'">
           <div class="row-wrap">
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{resource.up_time ? (resource.up_time | longDate) : "not specified."
@@ -156,7 +152,6 @@
             </p>
           </div>
         </div>
-
           <div class="checkbox-group" *ngIf="resource.image === 'docker.datalab-dataengine'
           && resource.status === 'running'
           && environment.image !== 'docker.datalab-zeppelin'
@@ -195,7 +190,6 @@
             (click)="editClusterConfiguration(configurationForm.value)">Update</button>
         </div>
       </div>
-
 
       <div class="row-wrap detail-info content-box" *ngIf="resource.error_message">
         <p class="failed">{{resource.error_message}}</p>
