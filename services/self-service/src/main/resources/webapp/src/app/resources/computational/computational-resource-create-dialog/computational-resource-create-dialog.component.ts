@@ -370,7 +370,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return count;
   }
 
-  public setGpuCount(type: any, gpuType: any) {
+  public setCount(type: any, gpuType: any) {
     if (type === 'master') {
       const masterShape = this.resourceForm.controls['shape_master'].value;
       this.masterGPUcount = this.setGPUCount(masterShape, gpuType);
