@@ -96,7 +96,7 @@ def copy_ssn_libraries():
         run('chmod a+x /tmp/datalab_libs/*')
         sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
         if exists('/usr/lib64'):
-            sudo('mkdir -p /usr/lib/python3.8')
+            sudo('mkdir -p /usr/lib64/python3.8')
             sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
     except Exception as err:
         traceback.print_exc()
