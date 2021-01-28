@@ -28,6 +28,7 @@ import { HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils } from '../../../cor
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
+import {Logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'computational-resource-create-dialog',
@@ -58,10 +59,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
-
-  @ViewChild('spotInstancesCheck') spotInstancesSelect;
-  @ViewChild('preemptibleNode') preemptible;
-  @ViewChild('configurationNode') configuration;
+  public masterGPUcount: Array<number>;
+  public slaveGPUcount: Array<number>;
+  public isSelected = {
+    preemptible: false,
+    gpu: false,
+    spotInstances: false,
+    configuration: false,
+  };
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -90,8 +95,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.resourceForm.controls['version'].setValue($event.templates[0].version);
   }
 
-  public selectSpotInstances($event?): void {
-    if ($event ? $event.target.checked : (this.spotInstancesSelect && this.spotInstancesSelect.nativeElement['checked'])) {
+  public selectSpotInstances(): void {
+    if (this.isSelected.spotInstances) {
       this.spotInstance = true;
       this.resourceForm.controls['instance_price'].setValue(50);
     } else {
@@ -100,13 +105,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  public selectPreemptibleNodes($event) {
-    if ($event.target.checked)
+  public selectPreemptibleNodes(addPreemptible) {
+    if (addPreemptible) {
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
+    }
   }
 
   public selectConfiguration() {
-    if (this.configuration && this.configuration.nativeElement.checked) {
+    if (this.isSelected.configuration) {
       const template = (this.selectedImage.image === 'docker.datalab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
         : CLUSTER_CONFIGURATION.SPARK;
@@ -132,7 +138,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public createComputationalResource(data) {
-    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance, this.PROVIDER.toLowerCase())
+    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance,
+      this.spotInstance, this.PROVIDER.toLowerCase(), this.isSelected.gpu)
       .subscribe((response: any) => {
         if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
       }, error => this.toastr.error(error.message, 'Oops!'));
@@ -155,7 +162,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
-      custom_tag: [this.notebook_instance.tags.custom_tag]
+      custom_tag: [this.notebook_instance.tags.custom_tag],
+      master_GPU_type: [''],
+      slave_GPU_type: [''],
+      master_GPU_count: [''],
+      slave_GPU_count: [''],
     });
   }
 
@@ -179,7 +190,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
-        if (this.spotInstancesSelect) this.spotInstancesSelect.nativeElement['checked'] = true;
+        this.isSelected.spotInstances = true;
         this.selectSpotInstances();
       }
 
@@ -189,6 +200,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   //  Validation
+
   private validInstanceNumberRange(control) {
     if (control && control.value)
       if (this.PROVIDER === 'gcp' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
@@ -200,8 +212,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validPreemptibleRange(control) {
-    if (this.preemptible)
-      return this.preemptible.nativeElement['checked']
+    if (this.isSelected.preemptible)
+      return this.isSelected.preemptible
         ? (control.value !== null
           && control.value >= this.minPreemptibleInstanceNumber
           && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false })
@@ -221,16 +233,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validInstanceSpotRange(control) {
-    if (this.spotInstancesSelect)
-      return this.spotInstancesSelect.nativeElement['checked']
+    if (this.isSelected.spotInstances)
+      return this.isSelected.spotInstances
         ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
         : control.value;
   }
 
   private validConfiguration(control) {
-    if (this.configuration)
-      return this.configuration.nativeElement['checked']
-        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+    if (this.isSelected.configuration)
+      return this.isSelected.configuration ?
+        (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
   }
 
@@ -314,6 +326,67 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (conputational_resource_name) {
       return existNames.some(resource =>
         CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource));
+    }
+  }
+
+  public addAdditionalParams(block: string) {
+    this.isSelected[block] = !this.isSelected[block];
+    if (block === 'gpu') {
+      const controls = ['master_GPU_type', 'master_GPU_count', 'slave_GPU_type', 'slave_GPU_count'];
+      if (!this.isSelected.gpu) {
+        this.clearGpuType('master');
+        this.clearGpuType('slave');
+        controls.forEach(control => {
+          this.resourceForm.controls[control].clearValidators();
+          this.resourceForm.controls[control].updateValueAndValidity();
+        });
+
+      } else {
+        controls.forEach(control => {
+          this.resourceForm.controls[control].setValidators([Validators.required]);
+          this.resourceForm.controls[control].updateValueAndValidity();
+        });
+      }
+    }
+  }
+
+  public setGPUCount(type, gpuType): Array<number> {
+    let count = [];
+    switch (type) {
+      case 'n1-highmem-32' || 'n1-highcpu-32':
+        count = [4, 8];
+        break;
+      case 'n1-highmem-16':
+        count = [2, 4, 8];
+        break;
+      default:
+        count = [1, 2, 4, 8];
+        break;
+    }
+    if (gpuType === 'nvidia-tesla-t4') {
+      count.pop();
+    }
+
+    return count;
+  }
+
+  public setCount(type: any, gpuType: any): void {
+    if (type === 'master') {
+      const masterShape = this.resourceForm.controls['shape_master'].value;
+      this.masterGPUcount = this.setGPUCount(masterShape, gpuType);
+    } else {
+      const slaveShape = this.resourceForm.controls['shape_slave'].value;
+      this.slaveGPUcount = this.setGPUCount(slaveShape, gpuType);
+    }
+  }
+
+  public clearGpuType(type) {
+    if (type === 'master') {
+      this.resourceForm.controls['master_GPU_type'].setValue('');
+      this.resourceForm.controls['master_GPU_count'].setValue('');
+    } else {
+      this.resourceForm.controls['slave_GPU_type'].setValue('');
+      this.resourceForm.controls['slave_GPU_count'].setValue('');
     }
   }
 }

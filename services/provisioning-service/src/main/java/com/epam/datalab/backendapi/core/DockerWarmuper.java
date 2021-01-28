@@ -89,6 +89,26 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
         }
     }
 
+    @Override
+    public void stop() throws Exception {
+        //do nothing
+    }
+
+    @Override
+    public String getResourceType() {
+        return Directories.NOTEBOOK_LOG_DIRECTORY;
+    }
+
+    public Map<String, String> getUuids() {
+        return Collections.unmodifiableMap(imageList);
+    }
+
+    public Set<ImageMetadataDTO> getMetadata(ImageType type) {
+        return metadataDTOs.stream()
+                .filter(m -> m.getImageType().equals(type))
+                .collect(Collectors.toSet());
+    }
+
     public class DockerFileHandlerCallback implements FileHandlerCallback {
         private final String uuid;
 
@@ -149,24 +169,5 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
         metadata.setImage(image);
         LOGGER.debug("caching metadata for image {}: {}", image, metadata);
         metadataDTOs.add(metadata);
-    }
-
-    @Override
-    public void stop() throws Exception {
-        //do nothing
-    }
-
-    public Map<String, String> getUuids() {
-        return Collections.unmodifiableMap(imageList);
-    }
-
-    public Set<ImageMetadataDTO> getMetadata(ImageType type) {
-        return metadataDTOs.stream().filter(m -> m.getImageType().equals(type))
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public String getResourceType() {
-        return Directories.NOTEBOOK_LOG_DIRECTORY;
     }
 }

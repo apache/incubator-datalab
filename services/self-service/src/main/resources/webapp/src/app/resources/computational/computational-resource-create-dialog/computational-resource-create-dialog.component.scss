@@ -74,9 +74,11 @@
       opacity: 1;
     }
   }
-  .preemptible {
+  &.preemptible {
+    height: 50px;
     .label {
-      padding-left: 10px;
+      height: 36px;
+      padding-bottom: 14px;
     }
     .control {
       position: relative;
@@ -88,7 +90,7 @@
   .spot-details, .preemptible-details {
     position: relative;
     .error {
-      bottom: -5px;
+      bottom: 0;
     }
 
     &.show {
