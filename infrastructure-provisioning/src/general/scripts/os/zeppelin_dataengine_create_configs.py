@@ -91,7 +91,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             if os.path.exists(livy_path + 'conf/spark-blacklist.conf'):
                 local('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf')
             local(''' sudo echo "export SPARK_HOME=''' + cluster_dir + '''spark/" >> ''' + livy_path + '''conf/livy-env.sh''')
-            local(''' sudo echo "export PYSPARK3_PYTHON=python3.6" >> ''' +
+            local(''' sudo echo "export PYSPARK3_PYTHON=python3.8" >> ''' +
                   livy_path + '''conf/livy-env.sh''')
             template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
             fr = open(template_file, 'r+')
@@ -122,7 +122,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             local('sudo systemctl start livy-server-' + str(livy_port))
         else:
             template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
-            p_versions = ["2", "3.6"]
+            p_versions = ["2", "3.8"]
             for p_version in p_versions:
                 fr = open(template_file, 'r+')
                 text = fr.read()

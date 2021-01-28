@@ -384,9 +384,9 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     text = text.replace('CLUSTER_NAME', cluster_name)
     text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
     text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('PYTHON_SHORT_VERSION', '3.6')
-    text = text.replace('PYTHON_FULL_VERSION', '3.6')
-    text = text.replace('PYTHON_PATH', '/usr/bin/python3.6')
+    text = text.replace('PYTHON_SHORT_VERSION', '3.8')
+    text = text.replace('PYTHON_FULL_VERSION', '3.8')
+    text = text.replace('PYTHON_PATH', '/usr/bin/python3.8')
     text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
@@ -737,6 +737,8 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
         sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.8 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.8 /usr/bin/pip3')
     if emr:
         sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
         sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')

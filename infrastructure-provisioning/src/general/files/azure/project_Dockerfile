@@ -27,7 +27,7 @@ ARG OS
 COPY project/ /root/
 COPY general/scripts/azure/project_* /root/scripts/
 COPY general/scripts/azure/edge_* /root/scripts/
-COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python3.6/datalab/edge_lib.py
+COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python3.8/datalab/edge_lib.py
 COPY general/templates/os/manage_step_certs.sh /root/templates/
 COPY general/templates/os/step-cert-manager.service /root/templates/
 

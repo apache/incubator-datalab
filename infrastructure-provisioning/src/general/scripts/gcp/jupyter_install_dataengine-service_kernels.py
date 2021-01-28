@@ -60,13 +60,13 @@ def configure_notebook(args):
     # put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
-    sudo('mkdir -p /usr/lib/python3.6/datalab/')
+    sudo('mkdir -p /usr/lib/python3.8/datalab/')
     run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python3.6/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
     run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python3.6/datalab/')
+    sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python3.6/datalab /usr/lib64/python3.6/datalab')
+        sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":

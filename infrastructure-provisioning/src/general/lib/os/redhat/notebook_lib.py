@@ -144,7 +144,7 @@ def ensure_matplot(os_user):
         try:
             sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python3.6 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -188,7 +188,7 @@ def ensure_additional_python_libs(os_user):
             if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('python3.5 -m pip install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python3.6 -m pip install opencv-python h5py --no-cache-dir')
+                sudo('python3.8 -m pip install opencv-python h5py --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -260,7 +260,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             # install TensorFlow and run TensorBoard
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl'.format(tensorflow_version))
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl'.format(tensorflow_version))
-            sudo('python3.6 -m pip install --upgrade tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('python3.8 -m pip install --upgrade tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
             sudo('rm -rf /home/{}/tensorflow_gpu-*'.format(os_user))
             sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
@@ -456,7 +456,7 @@ def install_keras(os_user, keras_version):
 
 def install_theano(os_user, theano_version):
     if not exists('/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
-        sudo('python3.6 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('python3.8 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
         sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
 
 

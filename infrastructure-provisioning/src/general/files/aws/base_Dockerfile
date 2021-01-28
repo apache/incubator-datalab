@@ -58,16 +58,16 @@ RUN mkdir -p /root/conf && \
     mkdir -p /root/scripts && \
     mkdir -p /root/templates && \
     mkdir -p /root/files && \
-    mkdir -p /usr/lib/python3.6/datalab && \
+    mkdir -p /usr/lib/python3.8/datalab && \
     mkdir -p /root/keys/.ssh
 
 COPY ${SRC_PATH}base/ /root
 COPY ${SRC_PATH}general/conf/* /root/conf/
 COPY ${SRC_PATH}general/api/*.py /bin/
 COPY ${SRC_PATH}general/scripts/aws/common_* /root/scripts/
-COPY ${SRC_PATH}general/lib/aws/* /usr/lib/python3.6/datalab/
-COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python3.6/datalab/common_lib.py
-COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python3.6/datalab/fab.py
+COPY ${SRC_PATH}general/lib/aws/* /usr/lib/python3.8/datalab/
+COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python3.8/datalab/common_lib.py
+COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python3.8/datalab/fab.py
 COPY ${SRC_PATH}general/files/os/${OS}/sources.list /root/files/
 COPY ${SRC_PATH}general/files/os/ivysettings.xml /root/templates/
 COPY ${SRC_PATH}general/files/os/local_endpoint.json /root/files/
