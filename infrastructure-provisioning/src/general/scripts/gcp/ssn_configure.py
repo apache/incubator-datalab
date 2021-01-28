@@ -162,7 +162,7 @@ if __name__ == "__main__":
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages " \
                  "'boto3 bcrypt==3.1.7 backoff argparse fab-classic awscli pymongo pyyaml " \
-                 "google-api-python-client google-cloud-storage pycrypto' --user {} --region {}". \
+                 "google-api-python-client google-cloud-storage pycryptodome' --user {} --region {}". \
             format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'],
                    ssn_conf['datalab_ssh_user'], ssn_conf['region'])
 

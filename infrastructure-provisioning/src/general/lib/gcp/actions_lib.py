@@ -320,9 +320,7 @@ class GCPActions:
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
-        print('key')
-        local('pip list | grep crypto')
-        ssh_key = key.publickey().exportKey("OpenSSH")
+        ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         access_configs = ''
