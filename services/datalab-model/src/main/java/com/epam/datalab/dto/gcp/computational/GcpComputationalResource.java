@@ -42,19 +42,28 @@ import java.util.Map;
 public class GcpComputationalResource extends UserComputationalResource {
 
     @JsonProperty("instance_id")
-    private String instanceId;
+    private final String instanceId;
     @JsonProperty("master_node_shape")
-    private String masterShape;
+    private final String masterShape;
     @JsonProperty("slave_node_shape")
-    private String slaveShape;
+    private final String slaveShape;
     @JsonProperty("total_slave_instance_number")
-    private String slaveNumber;
+    private final String slaveNumber;
     @JsonProperty("total_master_instance_number")
-    private String masterNumber;
+    private final String masterNumber;
     @JsonProperty("total_preemptible_number")
-    private String preemptibleNumber;
+    private final String preemptibleNumber;
     @JsonProperty("dataproc_version")
-    private String version;
+    private final String version;
+    @JsonProperty("masterGPUType")
+    private final String masterGPUType;
+    @JsonProperty("slaveGPUType")
+    private final String slaveGPUType;
+    @JsonProperty("masterGPUCount")
+    private final String masterGPUCount;
+    @JsonProperty("slaveGPUCount")
+    private final String slaveGPUCount;
+    private final Boolean enabledGPU;
 
     @Builder
     public GcpComputationalResource(String computationalName, String computationalId, String imageName,
@@ -63,7 +72,9 @@ public class GcpComputationalResource extends UserComputationalResource {
                                     String instanceId, String masterShape, String slaveShape, String slaveNumber,
                                     String masterNumber, String preemptibleNumber, String version,
                                     List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-                                    Map<String, String> tags, int totalInstanceCount) {
+                                    Map<String, String> tags, int totalInstanceCount,
+                                    String masterGPUCount, String masterGPUType, String slaveGPUCount,
+                                    String slaveGPUType, Boolean enabledGPU) {
         super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
                 reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
         this.instanceId = instanceId;
@@ -73,5 +84,10 @@ public class GcpComputationalResource extends UserComputationalResource {
         this.masterNumber = masterNumber;
         this.version = version;
         this.preemptibleNumber = preemptibleNumber;
+        this.masterGPUCount = masterGPUCount;
+        this.masterGPUType = masterGPUType;
+        this.slaveGPUCount = slaveGPUCount;
+        this.slaveGPUType = slaveGPUType;
+        this.enabledGPU = enabledGPU;
     }
 }

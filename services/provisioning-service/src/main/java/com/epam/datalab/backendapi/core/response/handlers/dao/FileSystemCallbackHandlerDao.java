@@ -26,6 +26,7 @@ import com.epam.datalab.util.FileUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -43,6 +44,7 @@ import static java.util.stream.Collectors.toList;
 
 @Singleton
 @Slf4j
+@NoArgsConstructor
 public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 
     @Inject
