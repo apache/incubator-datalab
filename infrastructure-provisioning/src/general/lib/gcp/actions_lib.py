@@ -1347,7 +1347,7 @@ def ensure_local_jars(os_user, jars_dir):
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
-                sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+                run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
         except Exception as err:
@@ -1406,7 +1406,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 spark_jars_paths = None
         put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         if os.environ['application'] == 'zeppelin':
-            sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+            run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
         sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
