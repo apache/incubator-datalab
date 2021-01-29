@@ -123,7 +123,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             sudo('wget -O - https://openresty.org/package/pubkey.gpg | sudo apt-key add -')
             sudo('add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"')
             sudo('apt-get update')
-            sudo('apt-get -y install openresty=1.15.8.1-1~bionic1')
+            sudo('apt-get -y install openresty=1.19.3.1-1~focal1')
 
             with cd('/tmp/src/luarocks-3.3.1/'):
                 sudo('./configure')
