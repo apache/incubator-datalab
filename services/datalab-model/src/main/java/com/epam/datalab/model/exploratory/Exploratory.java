@@ -40,8 +40,6 @@ public class Exploratory {
     private final String exploratoryTag;
     private final List<ClusterConfig> clusterConfig;
     private Boolean enabledGPU;
-    private String masterGPUType;
-    private String slaveGPUType;
-    private String masterGPUCount;
-    private String slaveGPUCount;
+    private String gpuType;
+    private String gpuCount;
 }
