@@ -404,7 +404,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
                 .withEndpoint(exploratory.getEndpoint())
                 .withCloudProvider(cloudProvider.toString())
                 .withTags(tagService.getResourceTags(userInfo, exploratory.getEndpoint(), project,
-                        exploratory.getExploratoryTag(), false));
+                        exploratory.getExploratoryTag(), exploratory.getEnabledGPU()));
         if (StringUtils.isNotBlank(exploratory.getImageName())) {
             final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory.getImageName(),
                     project, exploratory.getEndpoint());

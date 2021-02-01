@@ -20,6 +20,7 @@
 package com.epam.datalab.model.exploratory;
 
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -38,4 +39,9 @@ public class Exploratory {
     private final String project;
     private final String exploratoryTag;
     private final List<ClusterConfig> clusterConfig;
+    private Boolean enabledGPU;
+    private String masterGPUType;
+    private String slaveGPUType;
+    private String masterGPUCount;
+    private String slaveGPUCount;
 }

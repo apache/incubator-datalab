@@ -87,7 +87,6 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
         String uuid = exploratoryService.create(userInfo, getExploratory(formDTO), formDTO.getProject(), formDTO.getName());
         return Response.ok(uuid).build();
-
     }
 
 
@@ -170,6 +169,11 @@ public class ExploratoryResource implements ExploratoryAPI {
                 .endpoint(formDTO.getEndpoint())
                 .project(formDTO.getProject())
                 .exploratoryTag(formDTO.getExploratoryTag())
+                .enabledGPU(formDTO.getEnabledGPU())
+                .masterGPUCount(formDTO.getMasterGPUCount())
+                .masterGPUType(formDTO.getMasterGPUType())
+                .slaveGPUCount(formDTO.getSlaveGPUCount())
+                .slaveGPUType(formDTO.getSlaveGPUType())
                 .build();
     }
 }
