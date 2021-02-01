@@ -24,10 +24,11 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
-import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
+import {CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import {tap} from 'rxjs/operators';
+import {timer} from 'rxjs';
 
 @Component({
   selector: 'create-environment',
@@ -49,8 +50,19 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   images: Array<any>;
   maxNotebookLength: number = 14;
   public areShapes: boolean;
+  public selectedCloud: string = '';
+  public masterGPUcount: Array<number>;
+  public masterGPUtype = [
+    {Size: 'S', Gpu_type: 'nvidia-tesla-t4'},
+    {Size: 'M', Gpu_type: 'nvidia-tesla-v100'}
+  ];
 
-  @ViewChild('configurationNode') configuration;
+  public additionalParams = {
+    configurationNode: false,
+    gpu: false,
+  };
+
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -91,13 +103,18 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   public setEndpoints(project) {
     if (this.images) this.images = [];
-
+    if (this.selectedCloud) this.selectedCloud = '';
     this.endpoints = project.endpoints
       .filter(e => e.status === 'RUNNING')
       .map(e => e.name);
+
   }
 
   public getTemplates(project, endpoint) {
+    if (this.selectedCloud) this.selectedCloud = '';
+    const endpoints = this.data.environments.find(env => env.project === project).endpoints;
+    this.selectedCloud = endpoints.find(endp => endp.name === endpoint).cloudProvider.toLowerCase();
+
     this.userResourceService.getExploratoryTemplates(project, endpoint)
       .pipe(tap(results => {
 
@@ -153,11 +170,47 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public selectConfiguration() {
-    const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
-      ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
+    this.additionalParams.configurationNode = !this.additionalParams.configurationNode;
+    if (this.additionalParams.configurationNode) {
+      const value = (this.additionalParams.configurationNode && this.createExploratoryForm)
+        ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
+      timer(500).subscribe(_ => {
+        document.querySelector('#buttons').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+      this.createExploratoryForm.controls['cluster_config'].setValue(value);
+    }
+  }
 
-    document.querySelector('#config').scrollIntoView({ block: 'start', behavior: 'smooth' });
-    this.createExploratoryForm.controls['cluster_config'].setValue(value);
+  public addGpuFields() {
+    this.additionalParams.gpu = !this.additionalParams.gpu;
+
+    const controls = ['master_GPU_type', 'master_GPU_count'];
+    if (!this.additionalParams.gpu) {
+      controls.forEach(control => {
+        this.createExploratoryForm.controls[control].setValue(null);
+        this.createExploratoryForm.controls[control].clearValidators();
+        this.createExploratoryForm.controls[control].updateValueAndValidity();
+      });
+
+    } else {
+      controls.forEach(control => {
+        this.createExploratoryForm.controls[control].setValidators([Validators.required]);
+        this.createExploratoryForm.controls[control].updateValueAndValidity();
+      });
+      timer(100).subscribe(_ => {
+        document.querySelector('#buttons').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    }
+  }
+
+  public setCount(type: any, gpuType: any): void {
+    // if (type === 'master') {
+      const masterShape = this.createExploratoryForm.controls['shape'].value;
+      this.masterGPUcount = HelpUtils.setGPUCount(masterShape, gpuType);
+    // } else {
+    //   const slaveShape = this.resourceForm.controls['shape_slave'].value;
+    //   this.slaveGPUcount = HelpUtils.setGPUCount(slaveShape, gpuType);
+    // }
   }
 
   private initFormModel(): void {
@@ -174,7 +227,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         this.checkDuplication.bind(this)
       ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
-      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]]
+      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]],
+      master_GPU_type: [null],
+      master_GPU_count: [null],
     });
   }
 
@@ -193,8 +248,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private validConfiguration(control) {
-    if (this.configuration)
-      return this.configuration.nativeElement['checked']
+    if (this.additionalParams.configurationNode)
+      return this.additionalParams.configurationNode
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
   }

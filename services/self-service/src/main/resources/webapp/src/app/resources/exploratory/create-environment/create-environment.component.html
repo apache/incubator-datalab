@@ -164,18 +164,84 @@
         <div *ngIf="currentTemplate">
           <div class="checkbox-group"
                *ngIf="currentTemplate?.image !== 'docker.datalab-zeppelin' && currentTemplate?.image !== 'docker.datalab-superset' && currentTemplate?.image !== 'docker.datalab-jupyterlab'">
-              <label>
-                  <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Spark configurations
-              </label>
-              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
+<!--            <label>-->
+<!--              <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Spark configurations-->
+<!--            </label>-->
+            <div class="d-flex cursor-pointer label m-bott-20" (click)="selectConfiguration()">
+              <div class="empty-checkbox" [ngClass]="{'checked': this.additionalParams.configurationNode}">
+                <span class="checked-checkbox" *ngIf="this.additionalParams.configurationNode"></span>
+              </div>
+              <span class=" pl-5">Spark configurations</span>
+            </div>
+            <div class="config-details" [ngClass]="{ show: this.additionalParams.configurationNode}">
               <textarea formControlName="cluster_config" placeholder="Cluster configuration template, JSON"
                         data-gramm_editor="false" id="config"></textarea>
-                  <span class="error spark-config"
-                        *ngIf="!createExploratoryForm?.controls.cluster_config.valid && createExploratoryForm?.controls['cluster_config'].dirty">Configuration
+              <span class="error spark-config"
+                    *ngIf="!createExploratoryForm?.controls.cluster_config.valid && createExploratoryForm?.controls['cluster_config'].dirty">Configuration
                 parameters is not in a valid format.</span>
-              </div>
+            </div>
           </div>
+          <ng-template [ngIf]="selectedCloud === 'gcp'">
+            <div class="checkbox-group">
+              <div class="d-flex cursor-pointer label m-bott-20" (click)="addGpuFields()">
+                <div class="empty-checkbox" [ngClass]="{'checked': this.additionalParams.gpu}">
+                  <span class="checked-checkbox" *ngIf="this.additionalParams.gpu"></span>
+                </div>
+                <span class=" pl-5">GPU</span>
+              </div>
+              <ng-template [ngIf]="this.additionalParams.gpu">
+                <div class="control-group">
+                  <label class="label">Master GPU type</label>
+                  <div class="control selector-wrapper"
+                       [matTooltip]="'Please, select instance size.'"
+                       matTooltipPosition="above"
+                       [matTooltipClass]="'full-size-tooltip'"
+                       [matTooltipDisabled]="!!createExploratoryForm.controls['shape'].value"
+                  >
+                <span class="form-field-wrapper" [ngClass]="{ 'not-active': !createExploratoryForm.controls['shape'].value}">
+                <mat-form-field>
+                  <mat-label>Select master GPU type</mat-label>
+                  <mat-select formControlName="master_GPU_type" disableOptionCentering [disabled]="!createExploratoryForm.controls['shape'].value"
+                              panelClass="create-resources-shapes" placeholder="Master GPU type">
+                      <mat-option *ngFor="let list_item of masterGPUtype" [value]="list_item.Gpu_type" (click)="setCount('', list_item.Gpu_type)">
+                        <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Gpu_type }}
+                      </mat-option>
 
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+                </span>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="label">Master GPU count</label>
+                  <div class="control selector-wrapper"
+                       [matTooltip]="'Please, select master GPU type.'"
+                       matTooltipPosition="above"
+                       [matTooltipClass]="'full-size-tooltip'"
+                       [matTooltipDisabled]="!!createExploratoryForm.controls['master_GPU_type'].value"
+                  >
+                <span class="form-field-wrapper" [ngClass]="{ 'not-active': !createExploratoryForm.controls['master_GPU_type'].value}">
+                <mat-form-field>
+                  <mat-label>Select master GPU count</mat-label>
+                  <mat-select formControlName="master_GPU_count" disableOptionCentering [disabled]="!createExploratoryForm.controls['master_GPU_type'].value"
+                              panelClass="create-resources-shapes" placeholder="Master GPU count">
+                      <mat-option *ngFor="let list_item of masterGPUcount" [value]="list_item">
+                        {{ list_item }}
+                      </mat-option>
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+                </span>
+                  </div>
+                </div>
+              </ng-template>
+          </div>
+          </ng-template>
             <small *ngIf="currentTemplate?.image === 'docker.datalab-zeppelin'">
                 Spark default configuration for Apache Zeppelin can not be changed from DataLab UI. Currently it can be
                 done directly through Apache Zeppelin interpreter menu.
@@ -185,7 +251,7 @@
             </small>
         </div>
 
-        <div class="text-center m-top-30">
+        <div class="text-center m-top-30"  id="buttons">
           <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
           <button mat-raised-button type="button" class="butt butt-success action"
             [disabled]="!createExploratoryForm?.valid"
