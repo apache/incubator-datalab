@@ -1308,7 +1308,7 @@ class GCPActions:
                 with lcd('/tmp/'):
                     local('sudo rm -rf Python-{}/'.format(python_version))
                 local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
-                venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
+                venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
                 local('{0} && sudo -i {1} install -U pip==9.0.3'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install pyzmq==17.0.0'.format(venv_command, pip_command))
