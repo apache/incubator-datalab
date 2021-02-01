@@ -163,7 +163,7 @@
               || (element.image === 'docker.datalab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }">
             </span>
 
-              <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+              <bubble-up #actions class="list-menu scrolling" position="bottom-left" alternative="top-left">
                 <ul class="list-unstyled" *ngIf="element.shape !== 'odahu cluster'">
                   <div class="active-items" *ngIf="element.status.toLowerCase() !== 'failed'
                 && element.status !== 'terminating'
