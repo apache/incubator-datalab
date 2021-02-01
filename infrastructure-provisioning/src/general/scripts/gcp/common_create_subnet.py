@@ -80,7 +80,7 @@ if __name__ == "__main__":
                 while True:
                     try:
                         datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
-                        ipaddress.ip_network(datalab_subnet_cidr.decode('utf-8'))
+                        ipaddress.ip_network(datalab_subnet_cidr)
                         break
                     except ValueError:
                         last_ip = last_ip + 2
