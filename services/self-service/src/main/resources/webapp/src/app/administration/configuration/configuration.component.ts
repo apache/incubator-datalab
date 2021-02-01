@@ -26,7 +26,7 @@ import {ConfigurationService} from '../../core/services/configutration.service';
 import 'brace';
 import 'brace/mode/yaml';
 import {ToastrService} from 'ngx-toastr';
-import {Subject} from 'rxjs';
+import {Subject, throwError} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 @Component({
@@ -187,13 +187,18 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
             this.services['billing'].selected
           )
             .pipe(
-              takeUntil(this.unsubscribe$)
+              takeUntil(this.unsubscribe$),
+
             )
             .subscribe(res => {
                 this.clearSelectedServices();
-                 this.toastr.success('Service restarting started!', 'Success!');
+                this.toastr.success('Service restarting started!', 'Success!');
               },
-              error => this.toastr.error('Service restarting failed', 'Oops!')
+              error => {
+                return this.services['self-service'].selected ?
+                  this.toastr.success('Service restarting started!', 'Success!') :
+                  this.toastr.error('Service restarting failed', 'Oops!');
+              }
             );
         } else {
           this.clearSelectedServices();
