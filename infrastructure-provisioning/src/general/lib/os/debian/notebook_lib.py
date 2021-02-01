@@ -262,7 +262,7 @@ def ensure_python3_libraries(os_user):
             sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv future --no-cache-dir')
-            sudo('pip3 uninstall fabric fab-classic')
+            sudo('pip3 uninstall -y fabric fab-classic')
             sudo('pip3 install fab-classic')
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
