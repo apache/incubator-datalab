@@ -140,6 +140,9 @@
                 <mat-chip matTooltip="Project tag: {{ element.tags.project_tag }}" matTooltipPosition="above">
                   {{ element.tags.project_tag }}
                 </mat-chip>
+                <mat-chip matTooltip="Gpu tag: {{ element.tags.gpu_tag }}" matTooltipPosition="above" *ngIf="element.tags.gpu_tag">
+                  {{ element.tags.gpu_tag }}
+                </mat-chip>
               </mat-chip-list>
             </td>
 

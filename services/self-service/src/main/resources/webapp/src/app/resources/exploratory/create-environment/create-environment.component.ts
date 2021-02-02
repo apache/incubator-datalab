@@ -51,8 +51,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   maxNotebookLength: number = 14;
   public areShapes: boolean;
   public selectedCloud: string = '';
-  public masterGPUcount: Array<number>;
-  public masterGPUtype = [
+  public gpuCount: Array<number>;
+  public gpuTypes = [
     {Size: 'S', Gpu_type: 'nvidia-tesla-t4'},
     {Size: 'M', Gpu_type: 'nvidia-tesla-v100'}
   ];
@@ -124,11 +124,15 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       }))
       .subscribe(templates =>  {
         this.templates = templates;
-      }
+        }
       );
+
   }
 
   public getShapes(template) {
+    if (this.selectedCloud === 'gcp' && template.image === 'docker.datalab-jupyter') {
+      this.gpuTypes = template.gpu_types;
+    }
     this.currentTemplate = template;
     const allowed: any = ['GPU optimized'];
     if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
@@ -183,6 +187,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   public addGpuFields() {
     this.additionalParams.gpu = !this.additionalParams.gpu;
+    this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
 
     const controls = ['master_GPU_type', 'master_GPU_count'];
     if (!this.additionalParams.gpu) {
@@ -206,7 +211,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public setCount(type: any, gpuType: any): void {
     // if (type === 'master') {
       const masterShape = this.createExploratoryForm.controls['shape'].value;
-      this.masterGPUcount = HelpUtils.setGPUCount(masterShape, gpuType);
+      this.gpuCount = HelpUtils.setGPUCount(masterShape, gpuType);
     // } else {
     //   const slaveShape = this.resourceForm.controls['shape_slave'].value;
     //   this.slaveGPUcount = HelpUtils.setGPUCount(slaveShape, gpuType);
@@ -228,8 +233,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
       custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]],
-      master_GPU_type: [null],
-      master_GPU_count: [null],
+      gpuType: [null],
+      gpuCount: [null],
+      gpu_enabled: [false]
     });
   }
 
