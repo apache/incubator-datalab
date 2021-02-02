@@ -94,6 +94,5 @@ public class GcpComputationalResource extends UserComputationalResource {
         super.setMasterGPUType(masterGPUType);
         super.setSlaveGPUType(slaveGPUType);
         super.setEnabledGPU(enabledGPU);
-
     }
 }

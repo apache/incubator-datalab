@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -56,13 +56,14 @@ def configure_notebook(args):
     put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/datalab/')
+    sudo('mkdir -p /usr/lib/python3.8/datalab/')
     run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
     run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
+    sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+        sudo('mkdir -p /usr/lib64/python3.8')
+        sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
@@ -76,6 +77,6 @@ if __name__ == "__main__":
     hadoop_version = datalab.actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'hadoop')
     sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
     sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
-    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11} --livy_version {12} --multiple_clusters {13} --r_enabled {14}'
+    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python3 /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11} --livy_version {12} --multiple_clusters {13} --r_enabled {14}'
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name, args.dataproc_version, spark_version, hadoop_version,
                  args.region, args.project_name, args.os_user, args.pip_mirror, args.application, os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'], r_enabled))

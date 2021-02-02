@@ -23,15 +23,11 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 6.0.2",
+      "template_name": "Jupyter notebook 6.1.6",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-6.0.2",
+      "version": "jupyter_notebook-6.1.6",
       "vendor": "GCP"
     }
-  ],
-  "gpu_types": [
-    {"Size": "S",  "Gpu_type": "nvidia-tesla-t4"},
-    {"Size": "M",  "Gpu_type": "nvidia-tesla-v100"}
   ]
 }

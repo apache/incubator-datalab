@@ -163,9 +163,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag],
-      gpuType: [''],
+      master_GPU_type: [''],
       slave_GPU_type: [''],
-      gpuCount: [''],
+      master_GPU_count: [''],
       slave_GPU_count: [''],
     });
   }
@@ -349,6 +349,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       }
     }
   }
+
 
   public setCount(type: any, gpuType: any): void {
     if (type === 'master') {

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -78,7 +78,7 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
             sudo('wget --no-check-certificate https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm')
             sudo('rpm -ivh epel-release-latest-7.noarch.rpm')
             manage_pkg('repolist', 'remote', '')
-            manage_pkg('-y install', 'remote', 'python-pip gcc')
+            manage_pkg('-y install', 'remote', 'python3-pip gcc')
             sudo('rm -f epel-release-latest-7.noarch.rpm')
             sudo('export LC_ALL=C')
             manage_pkg('-y install', 'remote', requisites)

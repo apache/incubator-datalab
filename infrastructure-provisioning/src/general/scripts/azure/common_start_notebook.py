@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -93,7 +93,7 @@ if __name__ == "__main__":
                 put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
                 sudo('mv /tmp/common_notebook_update_refresh_token.py '
                      '/usr/local/bin/common_notebook_update_refresh_token.py')
-                sudo("/usr/bin/python /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
+                sudo("/usr/bin/python3 /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
             except:
                 traceback.print_exc()
                 raise Exception

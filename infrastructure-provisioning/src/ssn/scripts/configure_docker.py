@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -54,7 +54,7 @@ def modify_conf_file(args):
     local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.datalab_path))
     local('scp -i {} /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(args.keyfile,
                                                                                                  env.host_string))
-    sudo("python /tmp/configure_conf_file.py --datalab_dir {} --variables_list '{}'".format(
+    sudo("python3 /tmp/configure_conf_file.py --datalab_dir {} --variables_list '{}'".format(
         args.datalab_path, json.dumps(variables_list)))
 
 

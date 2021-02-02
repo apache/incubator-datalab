@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -152,7 +152,7 @@ if __name__ == "__main__":
             data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
         data_engine['network_tag'] = '{0}-{1}-{2}-ps'.format(data_engine['service_base_name'],
                                                              data_engine['project_name'], data_engine['endpoint_name'])
-        additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "").replace(
+        additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "").replace(
             "'}", "").lower()
 
         data_engine['slave_labels'] = {"name": data_engine['cluster_name'],

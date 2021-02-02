@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     try:
         ssn_conf['vpc_selflink'] = GCPMeta.get_vpc(ssn_conf['vpc_name'])['selfLink']
-        if os.environ['gcp_subnet_name'] == '':
+        if 'gcp_subnet_name' not in os.environ:
             raise KeyError
         else:
             ssn_conf['pre_defined_subnet'] = True

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -99,6 +99,7 @@ def configure_zeppelin(os_user):
             sudo('chown ' + os_user + ':' + os_user + ' -R /var/run/zeppelin')
             sudo('/opt/zeppelin/bin/install-interpreter.sh --name ' + zeppelin_interpreters + ' --proxy-url $http_proxy')
             sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin-' + zeppelin_version + '-bin-netinst')
+            sudo('mkdir -p /opt/zeppelin/lib/interpreter/')
             sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/md/zeppelin-markdown-*.jar /opt/zeppelin/lib/interpreter/') # necessary when executing paragraph launches java process with "-cp :/opt/zeppelin/lib/interpreter/*:"
             sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/shell/zeppelin-shell-*.jar /opt/zeppelin/lib/interpreter/')
         except:
@@ -221,8 +222,6 @@ if __name__ == "__main__":
     if os.environ['notebook_r_enabled'] == 'true':
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
     print("Install Python 3 specific version")

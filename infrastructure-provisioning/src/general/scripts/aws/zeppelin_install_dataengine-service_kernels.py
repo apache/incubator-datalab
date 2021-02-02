@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -57,13 +57,14 @@ def configure_notebook(args):
     sudo(
         '\cp /tmp/zeppelin_dataengine-service_create_configs.py /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
     sudo('chmod 755 /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/datalab/')
+    sudo('mkdir -p /usr/lib/python3.8/datalab/')
     run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
     run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
+    sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+        sudo('mkdir -p /usr/lib64/python3.8')
+        sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    command = "/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
+    command = "/usr/bin/python3 /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
              "--bucket {0} " \
              "--cluster_name {1} " \
              "--emr_version {2} " \

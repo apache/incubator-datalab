@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -51,13 +51,14 @@ def configure_notebook(args):
     sudo(
         '\cp /tmp/rstudio_dataengine-service_create_configs.py /usr/local/bin/rstudio_dataengine-service_create_configs.py')
     sudo('chmod 755 /usr/local/bin/rstudio_dataengine-service_create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/datalab/')
+    sudo('mkdir -p /usr/lib/python3.8/datalab/')
     run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
     run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
+    sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+        sudo('mkdir -p /usr/lib64/python3.8')
+        sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     configure_notebook(args)
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
-    sudo("/usr/bin/python /usr/local/bin/rstudio_dataengine-service_create_configs.py --bucket " + args.bucket +
+    sudo("/usr/bin/python3 /usr/local/bin/rstudio_dataengine-service_create_configs.py --bucket " + args.bucket +
          " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
          spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --project_name " + args.project_name + " --os_user " + args.os_user)

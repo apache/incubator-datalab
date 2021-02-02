@@ -20,13 +20,13 @@
 package com.epam.datalab.backendapi.domain;
 
 public enum NotebookTemplate {
-    JUPYTER("Jupyter notebook 6.0.2"),
+    JUPYTER("Jupyter notebook 6.1.6"),
     JUPYTER_LAB("JupyterLab 0.35.6"),
-    ZEPPELIN("Apache Zeppelin 0.8.2"),
+    ZEPPELIN("Apache Zeppelin 0.9.0"),
     DEEP_LEARNING("Deep Learning  2.4"),
-    TENSOR("Jupyter with TensorFlow 2.1.0"),
-    TENSOR_RSTUDIO("RStudio with TensorFlow 2.1.0"),
-    RSTUDIO("RStudio 1.2.5033");
+    TENSOR("Jupyter with TensorFlow 2.3.2"),
+    TENSOR_RSTUDIO("RStudio with TensorFlow 2.3.2"),
+    RSTUDIO("RStudio 1.4.1103");
 
     private String name;
 

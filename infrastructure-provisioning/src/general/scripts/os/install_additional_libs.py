@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -94,18 +94,10 @@ if __name__ == "__main__":
         pass
 
     try:
-        print('Installing other packages: {}'.format(pkgs['libraries']['others']))
+        print('Installing other packages (only tries pip3): {}'.format(pkgs['libraries']['others']))
         for pkg in pkgs['libraries']['others']:
-            if os.environ['conf_resource'] in ('dataengine-service'):#, 'dataengine'):
-                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-                general_status = general_status + status_pip3
-            else:
-                status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
-                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-                if status_pip2[0]['status'] == 'installed':
-                    general_status = general_status + status_pip2
-                else:
-                    general_status = general_status + status_pip3
+            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
+            general_status = general_status + status_pip3
     except KeyError:
         pass
 
