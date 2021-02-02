@@ -29,9 +29,5 @@
       "version": "jupyter_notebook-6.1.6",
       "vendor": "GCP"
     }
-  ],
-  "gpu_types": [
-    {"Size": "S",  "Gpu_type": "nvidia-tesla-t4"},
-    {"Size": "M",  "Gpu_type": "nvidia-tesla-v100"}
   ]
 }
