@@ -40,6 +40,9 @@ public class ExploratoryMetadataDTO extends ImageMetadataDTO {
     private HashMap<String, List<ComputationalResourceShapeDto>> exploratoryEnvironmentShapes;
     @JsonProperty("request_id")
     private String requestId;
+    //GPU
+    @JsonProperty("gpu_types")
+    private List<ComputationalGPU> computationGPU;
 
     public ExploratoryMetadataDTO(String imageName) {
         this.image = imageName;
