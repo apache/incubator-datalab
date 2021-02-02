@@ -199,9 +199,7 @@ def install_local_livy(args):
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
     # PREPARE DISK
@@ -275,3 +273,5 @@ if __name__ == "__main__":
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    datalab.fab.close_connection()

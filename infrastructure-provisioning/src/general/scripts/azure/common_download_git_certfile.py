@@ -40,11 +40,7 @@ container_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
         if ssn_storage_account_tag == storage_account.tags["Name"]:
@@ -55,3 +51,5 @@ if __name__ == "__main__":
         print('{} has been downloaded'.format(gitlab_certfile))
     else:
         print('There is no {} to download'.format(gitlab_certfile))
+
+    datalab.fab.close_connection()

@@ -34,11 +34,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     create_aws_config_files()
-    env.hosts = "{}".format(args.notebook_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'][:20], '-', True)
@@ -53,3 +49,5 @@ if __name__ == "__main__":
         print('{} has been downloaded'.format(gitlab_certfile))
     else:
         print('There is no {} to download'.format(gitlab_certfile))
+
+    datalab.fab.close_connection()

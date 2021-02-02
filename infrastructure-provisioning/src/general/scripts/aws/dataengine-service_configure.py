@@ -81,12 +81,11 @@ def configure_dataengine_service(instance, emr_conf):
         try:
             datalab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
                                                           emr_conf['key_path'], True)
-            env['connection_attempts'] = 100
-            env.key_filename = emr_conf['key_path']
-            env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
+            datalab.fab.init_datalab_connection(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
             sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
                  '/etc/yum/pluginconf.d/priorities.conf')
             manage_pkg('-y install', 'remote', 'R-devel')
+            datalab.fab.close_connection()
         except:
             traceback.print_exc()
             raise Exception

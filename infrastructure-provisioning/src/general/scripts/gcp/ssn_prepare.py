@@ -77,11 +77,11 @@ if __name__ == "__main__":
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     except Exception as err:
-        datalab.fab.datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if GCPMeta.get_instance(ssn_conf['instance_name']):
-        datalab.fab.datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
+        datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
                                               "Please try again.")
         sys.exit(1)
 

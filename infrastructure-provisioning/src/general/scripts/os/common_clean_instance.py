@@ -117,9 +117,7 @@ def clean_tensor_rstudio():
 
 if __name__ == "__main__":
     print('Configure connections')
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     if os.environ['conf_cloud_provider'] == 'azure':
         de_master_name = '{}-{}-{}-de-{}-m'.format(
@@ -155,5 +153,5 @@ if __name__ == "__main__":
                 clean_tensor_rstudio()
     else:
         print('Found default ami, do not make clean')
-
+    datalab.fab.close_connection()
     sys.exit(0)

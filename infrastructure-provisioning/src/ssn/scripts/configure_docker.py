@@ -189,9 +189,7 @@ def configure_guacamole():
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = args.os_user + '@' + args.hostname
+        datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
@@ -223,4 +221,5 @@ if __name__ == "__main__":
     if not configure_guacamole():
         sys.exit(1)
 
+    datalab.fab.close_connection()
     sys.exit(0)

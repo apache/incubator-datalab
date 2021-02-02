@@ -40,12 +40,12 @@ args = parser.parse_args()
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
 
     print("Installing proxy for notebooks.")
     configure_http_proxy_server(deeper_config)
+
+    datalab.fab.close_connection()

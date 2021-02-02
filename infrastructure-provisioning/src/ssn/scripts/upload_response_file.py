@@ -25,6 +25,7 @@ import argparse
 import logging
 import sys
 from datalab.ssn_lib import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--instance_name', type=str, default='')
@@ -36,15 +37,15 @@ args = parser.parse_args()
 
 def upload_response_file(instance_name, local_log_filepath, os_user):
     print('Connect to SSN instance with hostname: {0} and name: {1}'.format(args.instance_hostname, instance_name))
-    env['connection_attempts'] = 100
-    env.key_filename = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    env.host_string = '{}@{}'.format(os_user, args.instance_hostname)
+    pkey = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    datalab.fab.init_datalab_connection(args.instance_hostname, os_user, pkey)
     try:
         put('/root/result.json', '/home/{}/{}.json'.format(os_user, os.environ['request_id']))
         sudo('mv /home/{}/{}.json {}tmp/result/'.format(os_user, os.environ['request_id'],
                                                         os.environ['ssn_datalab_path']))
         put(local_log_filepath, '/home/{}/ssn.log'.format(os_user))
         sudo('mv /home/{}/ssn.log /var/opt/datalab/log/ssn/'.format(os_user))
+        datalab.fab.close_connection()
         return True
     except:
         print('Failed to upload response file')

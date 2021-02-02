@@ -50,13 +50,11 @@ def start_jupyterlab_container(jupyterlab_dir):
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     print("Starting Jupyter container")
     try:
         start_jupyterlab_container(jupyterlab_dir)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
-
+    datalab.fab.close_connection()

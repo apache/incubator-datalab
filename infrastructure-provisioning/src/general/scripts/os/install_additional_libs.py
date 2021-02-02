@@ -38,11 +38,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.instance_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     print('Installing libraries: {}'.format(args.libs))
     general_status = list()
@@ -117,7 +113,7 @@ if __name__ == "__main__":
             general_status = general_status + status
         except KeyError:
             pass
-
+    datalab.fab.close_connection()
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
                "Libs": general_status}

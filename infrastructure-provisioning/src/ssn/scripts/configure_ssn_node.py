@@ -213,9 +213,8 @@ def docker_build_script():
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = args.os_user + '@' + args.hostname
+        datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+        host_string = args.os_user + '@' + args.hostname
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
@@ -268,7 +267,7 @@ if __name__ == "__main__":
     #configure_jenkins(args.datalab_path, args.os_user, deeper_config, args.tag_resource_id)
 
     print("Copying key")
-    cp_key(args.keyfile, env.host_string, args.os_user)
+    cp_key(args.keyfile, host_string, args.os_user)
 
     print("Copying backup scripts")
     cp_backup_scripts(args.datalab_path)
@@ -281,3 +280,5 @@ if __name__ == "__main__":
 
     print("Configuring docker_build script")
     docker_build_script()
+
+    datalab.fab.close_connection()

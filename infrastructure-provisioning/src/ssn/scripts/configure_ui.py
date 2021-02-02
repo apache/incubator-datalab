@@ -92,7 +92,7 @@ def copy_ssn_libraries():
     try:
         sudo('mkdir -p /usr/lib/python3.8/datalab/')
         run('mkdir -p /tmp/datalab_libs/')
-        local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+        local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string))
         run('chmod a+x /tmp/datalab_libs/*')
         sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
         if exists('/usr/lib64'):
@@ -112,23 +112,23 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
             elif os.environ['conf_os_family'] == 'redhat':
                 local('sed -i "s/MONGO_USR/mongod/g" /root/templates/mongod.service_template')
             local('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
-                                                                                                    env.host_string))
+                                                                                                    host_string))
             sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
             sudo('systemctl daemon-reload')
             sudo('systemctl enable mongod.service')
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
-                                                                                             env.host_string))
+                                                                                             host_string))
         sudo('mv /tmp/resource_status.py ' + os.environ['ssn_datalab_path'] + 'tmp/')
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
-                                                                                             env.host_string))
+                                                                                             host_string))
         sudo('mv /tmp/configure_mongo.py ' + args.datalab_path + 'tmp/')
         local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
-                                                                                          env.host_string))
+                                                                                          host_string))
         local('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
-                                                                                             env.host_string))
+                                                                                             host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.datalab_path + 'tmp/')
         sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
         sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
@@ -203,9 +203,8 @@ def build_ui():
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = args.os_user + '@' + args.hostname
+        datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+        host_string = args.os_user + '@' + args.hostname
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
@@ -232,7 +231,7 @@ if __name__ == "__main__":
     build_ui()
 
     print("Starting Self-Service(UI)")
-    start_ss(args.keyfile, env.host_string, datalab_conf_dir, web_path,
+    start_ss(args.keyfile, host_string, datalab_conf_dir, web_path,
              args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
              args.service_base_name, args.tag_resource_id, args.billing_tag, args.account_id,
              args.billing_bucket, args.aws_job_enabled, args.datalab_path, args.billing_enabled, args.cloud_params,
@@ -242,3 +241,5 @@ if __name__ == "__main__":
              args.datalab_id, args.usage_date, args.product, args.usage_type,
              args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
              args.keycloak_client_secret, args.keycloak_auth_server_url)
+
+    datalab.fab.close_connection()

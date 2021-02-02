@@ -36,9 +36,7 @@ https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     print("Configuring proxy for docker")
     try:
         sudo('mkdir -p /etc/systemd/system/docker.service.d')
@@ -57,3 +55,4 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
+    datalab.fab.close_connection()

@@ -35,13 +35,12 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.os_user, args.hostname)
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     print("Setting password for Rstudio user.")
     try:
         sudo('echo "{0}:{1}" | chpasswd'.format(args.os_user, args.rstudio_pass))
+        datalab.fab.close_connection()
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

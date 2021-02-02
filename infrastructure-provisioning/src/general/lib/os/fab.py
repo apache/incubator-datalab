@@ -182,11 +182,10 @@ def append_result(error, exception=''):
 
 
 def put_resource_status(resource, status, datalab_path, os_user, hostname):
-    env['connection_attempts'] = 100
     keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
-    env.key_filename = [keyfile]
-    env.host_string = os_user + '@' + hostname
+    init_datalab_connection(hostname, os_user, keyfile)
     sudo('python3 ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
+    close_connection()
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
@@ -673,11 +672,10 @@ def install_inactivity_checker(os_user, ip_address, rstudio=False):
 
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):
-    env['connection_attempts'] = 100
-    env.key_filename = [keyfile]
-    env.host_string = os_user + '@' + hostname
+    init_datalab_connection(hostname, os_user, keyfile)
     run('git config --global http.proxy {}'.format(proxy_host))
     run('git config --global https.proxy {}'.format(proxy_host))
+    close_connection()
 
 
 def set_mongo_parameters(client, mongo_parameters):
@@ -725,9 +723,7 @@ def add_breeze_library_local(os_user):
 
 
 def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
-    env['connection_attempts'] = 100
-    env.key_filename = [keyfile]
-    env.host_string = os_user + '@' + hostname
+    init_datalab_connection(hostname, os_user, keyfile)
     manage_pkg('-y install', 'remote', 'python3-pip')
     if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
@@ -745,6 +741,7 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')
+    close_connection()
 
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):
@@ -798,12 +795,11 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
 
 def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
-        env['connection_attempts'] = 100
-        env.key_filename = [keyfile]
-        env.host_string = os_user + '@' + hostname
+        init_datalab_connection(hostname, os_user, keyfile)
     sudo("systemctl daemon-reload")
     sudo("systemctl restart zeppelin-notebook")
-
+    if creds:
+        close_connection()
 
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
@@ -1005,3 +1001,22 @@ def manage_npm_pkg(command):
                     time.sleep(50)
     except:
         sys.exit(1)
+
+def close_connection():
+    global conn
+    conn.close()
+
+def init_datalab_connection(ip, user, pkey):
+    global conn
+    attempt = 0
+    while attempt < 100:
+        logging.info('connection attempt {}'.format(attempt))
+        conn = Connection(ip, user, connect_kwargs={'key_filename': pkey})
+        try:
+            conn.run('ls')
+            return conn
+        except Exception as ex:
+            logging.error(ex)
+            traceback.print_exc()
+            attempt += 1
+            time.sleep(10)

@@ -38,9 +38,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.os_user, args.instance_ip)
+    datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     inactivity_dir = '/opt/inactivity/'
     if args.resource_type == 'dataengine':
@@ -57,3 +55,5 @@ if __name__ == "__main__":
 
     with open('/root/result.json', 'w') as outfile:
         json.dump(timestamp, outfile)
+
+    datalab.fab.close_connection()

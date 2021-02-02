@@ -37,11 +37,7 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     gitlab_certfile = os.environ['conf_gitlab_certfile']
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
@@ -89,3 +85,5 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
+
+    datalab.fab.close_connection()

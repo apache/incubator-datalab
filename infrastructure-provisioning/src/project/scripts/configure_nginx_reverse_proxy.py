@@ -49,9 +49,7 @@ if __name__ == "__main__":
 
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
     except Exception as err:
         print("Failed establish connection. Excpeption: " + str(err))
         sys.exit(1)
@@ -71,3 +69,4 @@ if __name__ == "__main__":
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)
 
+    datalab.fab.close_connection()

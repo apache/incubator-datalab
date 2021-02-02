@@ -53,9 +53,7 @@ def create_china_pip_conf_file():
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.user, args.hostname)
+    datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
     if args.region == 'cn-north-1':
@@ -74,4 +72,4 @@ if __name__ == "__main__":
     print("Installing NTPd")
     ensure_ntpd(args.user, args.edge_private_ip)
 
-
+    datalab.fab.close_connection()

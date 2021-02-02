@@ -1221,20 +1221,20 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
-        env['connection_attempts'] = 100
-        env.key_filename = [keyfile]
-        env.host_string = os_user + '@' + hostname
+        datalab.fab.init_datalab_connection(hostname, os_user, keyfile)
     sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
     sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
     sudo('mount -a')
+    if creds:
+        datalab.fab.close_connection()
 
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
-        env['connection_attempts'] = 100
-        env.key_filename = [keyfile]
-        env.host_string = os_user + '@' + hostname
+        datalab.fab.init_datalab_connection(hostname, os_user, keyfile)
     sudo('waagent -deprovision -force')
+    if creds:
+        datalab.fab.close_connection()
 
 
 def prepare_disk(os_user):

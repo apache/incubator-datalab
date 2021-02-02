@@ -1690,9 +1690,7 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         print("CONFIGURE CONNECTIONS")
-        env['connection_attempts'] = 100
-        env.key_filename = [args.key_path + args.key_name + '.pem']
-        env.host_string = 'ubuntu@' + ec2_ip_address
+        datalab.fab.init_datalab_connection(ec2_ip_address, 'ubuntu', key_filename)
         print("CONFIGURE LOCAL REPOSITORY")
         try:
             print('CREATING DATALAB USER')
@@ -1784,6 +1782,6 @@ if __name__ == "__main__":
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
             sys.exit(1)
-
+        datalab.fab.close_connection()
     else:
         print('Invalid action: {}'.format(args.action))

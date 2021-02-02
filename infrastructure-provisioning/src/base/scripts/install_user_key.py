@@ -59,9 +59,7 @@ def copy_key(config):
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
         deeper_config = json.loads(args.additional_config)
     except:
         print('Fail connection')
@@ -73,6 +71,7 @@ if __name__ == "__main__":
     print("Installing users key...")
     try:
         copy_key(deeper_config)
+        datalab.fab.close_connection()
     except:
         print("Users keyfile {0} could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
         sys.exit(1)

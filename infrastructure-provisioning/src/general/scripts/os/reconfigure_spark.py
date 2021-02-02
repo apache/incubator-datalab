@@ -39,9 +39,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.os_user, args.instance_ip)
+    datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     jars_dir = '/opt/jars/'
     templates_dir = '/root/templates/'
@@ -70,3 +68,4 @@ if __name__ == "__main__":
         sudo('/usr/bin/python3 /usr/local/bin/notebook_reconfigure_dataengine_spark.py --cluster_name {0} '
              '--jars_dir {1} --cluster_dir {2} --datalake_enabled {3} --spark_configurations "{4}"'.format(
               args.cluster_name, jars_dir, cluster_dir, datalake_enabled, os.environ['spark_configurations']))
+    datalab.fab.close_connection()

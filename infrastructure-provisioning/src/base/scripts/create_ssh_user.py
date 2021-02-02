@@ -23,6 +23,7 @@
 
 from fabric.api import *
 from fabric.contrib.files import exists
+from datalab.fab import *
 import argparse
 import sys
 
@@ -51,9 +52,7 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.initial_user, args.hostname)
+    datalab.fab.init_datalab_connection(args.hostname, args.initial_user, args.keyfile)
 
     print("Creating ssh user: {}".format(args.os_user))
     try:
@@ -61,4 +60,4 @@ if __name__ == "__main__":
     except Exception as err:
         print('Failed to create ssh user', str(err))
         sys.exit(1)
-
+    datalab.fab.close_connection()

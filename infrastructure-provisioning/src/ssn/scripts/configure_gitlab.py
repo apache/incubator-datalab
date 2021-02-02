@@ -26,6 +26,7 @@ import json
 import os
 import sys
 from fabric.api import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -44,11 +45,7 @@ def create_user(os_user):
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
 
-    env.hosts = '{}'.format(args.instance_ip)
-    env['connection_attempts'] = 100
-    env.key_filename = args.keyfile
-    env.user = initial_user
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.instance_ip, initial_user, args.keyfile)
 
     try:
         sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
@@ -63,7 +60,7 @@ def create_user(os_user):
     except Exception as err:
         print('Failed to install gitlab.{}'.format(str(err)))
         sys.exit(1)
-
+    datalab.fab.close_connection()
 
 def prepare_config():
     try:
@@ -187,14 +184,11 @@ def summary():
 if __name__ == "__main__":
     create_user(os.environ['conf_os_user'])
 
-    env.hosts = '{}'.format(args.instance_ip)
-    env['connection_attempts'] = 100
-    env.key_filename = args.keyfile
-    env.user = os.environ['conf_os_user']
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.instance_ip, os.environ['conf_os_user'], args.keyfile)
 
     prepare_config()
     install_gitlab()
     configure_gitlab()
 
     summary()
+    datalab.fab.close_connection()
