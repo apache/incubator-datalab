@@ -117,13 +117,30 @@
 
           <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
             <td class="name-col">
-              <span *ngIf="element.shape !== 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailEnvironmentModal(element)">{{ element.name }}</span>
-              <span *ngIf="element.shape === 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailOdahuModal(element)">{{ element.name }}</span>
+              <span
+                *ngIf="element.shape !== 'odahu cluster';else odahu"
+                [matTooltip]="element.name"
+                matTooltipPosition="above"
+                (click)="printDetailEnvironmentModal(element)"
+              >
+                {{ element.name }}
+              </span>
+              <ng-template #odahu>
+                <span [matTooltip]=" element.name "
+                      matTooltipPosition="above"
+                      (click)="printDetailOdahuModal(element)"
+                >
+                  {{ element.name }}
+                </span>
+              </ng-template>
             </td>
             <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">
               {{element.status | underscoreless }}
             </td>
-            <td class="shape-col">{{ element.shape }}</td>
+            <td class="shape-col">
+              <div>{{ element.shape }}</div>
+              <div *ngIf="element.gpu_type">{{ element.gpu_type }}</div>
+            </td>
 
             <td class="tag-col selection">
               <mat-chip-list aria-label="Tags">
@@ -140,8 +157,8 @@
                 <mat-chip matTooltip="Project tag: {{ element.tags.project_tag }}" matTooltipPosition="above">
                   {{ element.tags.project_tag }}
                 </mat-chip>
-                <mat-chip matTooltip="Gpu tag: {{ element.tags.gpu_tag }}" matTooltipPosition="above" *ngIf="element.tags.gpu_tag">
-                  {{ element.tags.gpu_tag }}
+                <mat-chip *ngIf="element.tags.gpu_tag">
+                  {{ element.tags.gpu_tag?.toUpperCase() }}
                 </mat-chip>
               </mat-chip-list>
             </td>

@@ -45,7 +45,10 @@
               {{notebook.status}}
             </span>
           </td>
-          <td>{{notebook.shape}}</td>
+          <td>
+            <div>{{notebook.shape}}</div>
+            <div *ngIf="notebook.gpu_type">{{notebook.gpu_type}}</div>
+          </td>
         </tr>
       </table>
 

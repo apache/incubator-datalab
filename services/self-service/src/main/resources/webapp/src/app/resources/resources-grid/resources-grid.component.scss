@@ -89,6 +89,12 @@ table.resources {
           //min-width: 187px;
         }
 
+        &.shape-col{
+          align-items: start;
+          flex-direction: column;
+          justify-content: center;
+        }
+
         &.resources-col {
           overflow: hidden;
           text-overflow: ellipsis;

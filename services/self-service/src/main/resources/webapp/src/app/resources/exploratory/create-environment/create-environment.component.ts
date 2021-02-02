@@ -189,7 +189,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     this.additionalParams.gpu = !this.additionalParams.gpu;
     this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
 
-    const controls = ['master_GPU_type', 'master_GPU_count'];
+    const controls = ['gpuType', 'gpuCount'];
     if (!this.additionalParams.gpu) {
       controls.forEach(control => {
         this.createExploratoryForm.controls[control].setValue(null);
@@ -202,8 +202,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         this.createExploratoryForm.controls[control].setValidators([Validators.required]);
         this.createExploratoryForm.controls[control].updateValueAndValidity();
       });
-      timer(100).subscribe(_ => {
-        document.querySelector('#buttons').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      timer(500).subscribe(_ => {
+        document.querySelector('#buttons').scrollIntoView({ block: 'end', behavior: 'smooth' });
       });
     }
   }
