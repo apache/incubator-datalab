@@ -26,7 +26,7 @@ import logging
 import os
 import sys
 from datalab.edge_lib import install_nginx_ldap
-from fabric.api import *
+from fabric import *
 from datalab.fab import *
 
 parser = argparse.ArgumentParser()

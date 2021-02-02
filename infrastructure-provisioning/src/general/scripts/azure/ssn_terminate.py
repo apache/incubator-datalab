@@ -30,7 +30,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 
 def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region):

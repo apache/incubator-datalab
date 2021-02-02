@@ -27,7 +27,7 @@ from datalab.common_lib import configure_nginx_LE
 from datalab.common_lib import install_certbot
 from datalab.common_lib import manage_pkg
 from datalab.common_lib import run_certbot
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 

@@ -29,7 +29,7 @@ import traceback
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'

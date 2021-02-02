@@ -25,7 +25,7 @@ import argparse
 import os
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()

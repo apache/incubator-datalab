@@ -35,7 +35,7 @@ import traceback
 import urllib3
 from Crypto.PublicKey import RSA
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors

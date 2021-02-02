@@ -25,7 +25,7 @@ import argparse
 import json
 import sys
 from datalab.edge_lib import configure_nftables
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

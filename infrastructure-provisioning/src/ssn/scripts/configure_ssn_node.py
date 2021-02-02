@@ -29,7 +29,7 @@ import traceback
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.ssn_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

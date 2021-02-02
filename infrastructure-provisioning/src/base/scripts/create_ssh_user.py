@@ -21,7 +21,7 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 from datalab.fab import *
 import argparse

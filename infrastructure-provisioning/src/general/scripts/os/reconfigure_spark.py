@@ -26,7 +26,7 @@ import os
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--os_user', type=str, default='')

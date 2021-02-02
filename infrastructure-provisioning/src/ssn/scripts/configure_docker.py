@@ -27,7 +27,7 @@ import os
 import sys
 import time
 from datalab.ssn_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

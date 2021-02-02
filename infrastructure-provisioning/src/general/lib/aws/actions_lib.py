@@ -35,7 +35,7 @@ import uuid
 from botocore.client import Config
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 

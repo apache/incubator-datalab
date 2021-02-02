@@ -21,7 +21,7 @@
 # ******************************************************************************
 
 
-from fabric.api import *
+from fabric import *
 import argparse
 
 

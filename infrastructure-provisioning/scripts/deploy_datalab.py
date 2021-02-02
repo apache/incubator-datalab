@@ -23,7 +23,7 @@
 
 import argparse
 import os
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf_service_base_name', type=str, help='unique name for DataLab environment')

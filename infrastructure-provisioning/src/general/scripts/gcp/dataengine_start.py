@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 
 def start_data_engine(zone, cluster_name):

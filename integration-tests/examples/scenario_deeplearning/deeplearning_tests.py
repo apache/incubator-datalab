@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import os, sys, json
-from fabric.api import *
+from fabric import *
 import argparse
 
 

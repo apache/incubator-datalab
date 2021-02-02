@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import logging
-from fabric.api import *
+from fabric import *
 import argparse
 import sys
 import os

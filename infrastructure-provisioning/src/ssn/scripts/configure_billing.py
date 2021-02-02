@@ -23,7 +23,7 @@
 
 import argparse
 import sys
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cloud_provider', type=str,

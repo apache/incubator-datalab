@@ -27,7 +27,7 @@ import sys
 from datalab.common_lib import manage_pkg
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 

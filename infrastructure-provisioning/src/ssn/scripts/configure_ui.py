@@ -29,7 +29,7 @@ import sys
 import traceback
 from datalab.fab import *
 from datalab.ssn_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()

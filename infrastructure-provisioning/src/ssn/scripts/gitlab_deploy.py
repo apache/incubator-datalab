@@ -22,7 +22,7 @@
 
 
 from ConfigParser import SafeConfigParser
-from fabric.api import *
+from fabric import *
 import argparse
 import boto3
 from botocore.client import Config

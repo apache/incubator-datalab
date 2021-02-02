@@ -29,7 +29,7 @@ import sys
 import time
 import traceback
 from ConfigParser import SafeConfigParser
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()

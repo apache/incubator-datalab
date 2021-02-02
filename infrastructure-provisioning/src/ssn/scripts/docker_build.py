@@ -24,7 +24,7 @@
 
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 from os.path import exists
 
 src_path = '/opt/datalab/sources/infrastructure-provisioning/src/'

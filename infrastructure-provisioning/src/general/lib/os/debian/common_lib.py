@@ -21,7 +21,7 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 import sys
 import os

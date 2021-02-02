@@ -32,7 +32,7 @@ import os
 import sys
 import traceback
 from datalab.common_lib import manage_pkg
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')

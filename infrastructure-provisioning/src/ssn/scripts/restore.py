@@ -26,7 +26,7 @@ import filecmp
 import os
 import sys
 import yaml
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser(description="Restore script for DataLab configs, keys, certs, jars & database")
 parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to DataLab. Default: /opt/datalab/')

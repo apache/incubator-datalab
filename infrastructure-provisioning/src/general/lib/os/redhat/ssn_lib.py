@@ -29,7 +29,7 @@ import traceback
 from datalab.common_lib import manage_pkg
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 
 def ensure_docker_daemon(datalab_path, os_user, region):

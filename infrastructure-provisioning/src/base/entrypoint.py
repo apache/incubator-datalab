@@ -24,7 +24,7 @@
 import os
 from configparser import SafeConfigParser
 import argparse
-from fabric.api import *
+from fabric import *
 import json
 import sys
 import select

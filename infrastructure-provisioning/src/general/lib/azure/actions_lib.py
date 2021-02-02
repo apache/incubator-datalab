@@ -41,7 +41,7 @@ from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlockBlobService
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 

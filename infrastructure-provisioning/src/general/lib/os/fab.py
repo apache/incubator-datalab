@@ -33,7 +33,7 @@ import traceback
 from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 

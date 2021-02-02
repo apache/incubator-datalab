@@ -25,7 +25,7 @@ import argparse
 import json
 import sys
 from datalab.edge_lib import configure_http_proxy_server
-from fabric.api import *
+from fabric import *
 from datalab.fab import *
 
 parser = argparse.ArgumentParser()

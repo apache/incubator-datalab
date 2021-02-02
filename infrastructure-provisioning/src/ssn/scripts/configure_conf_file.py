@@ -25,7 +25,7 @@ import configparser
 import argparse
 import json
 import sys
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--datalab_dir', type=str, default='')

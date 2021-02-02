@@ -25,7 +25,7 @@ import argparse
 import os
 from datalab.actions_lib import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')

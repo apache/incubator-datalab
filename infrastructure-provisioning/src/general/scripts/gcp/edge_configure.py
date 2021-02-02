@@ -30,7 +30,7 @@ import os
 import sys
 import traceback
 import uuid
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],

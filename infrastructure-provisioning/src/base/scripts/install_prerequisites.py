@@ -26,7 +26,7 @@ import json
 import os
 from datalab.common_lib import *
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()

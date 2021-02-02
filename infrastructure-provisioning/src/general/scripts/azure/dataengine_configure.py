@@ -31,7 +31,7 @@ import os
 import sys
 import traceback
 from Crypto.PublicKey import RSA
-from fabric.api import *
+from fabric import *
 
 
 def configure_slave(slave_number, data_engine):

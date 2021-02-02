@@ -25,7 +25,7 @@ import argparse
 import json
 import sys
 from datalab.meta_lib import get_instance_private_ip_address
-from fabric.api import *
+from fabric import *
 from jinja2 import Environment, FileSystemLoader
 
 parser = argparse.ArgumentParser()

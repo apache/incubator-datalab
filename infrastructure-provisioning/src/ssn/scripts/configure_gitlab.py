@@ -25,7 +25,7 @@ import argparse
 import json
 import os
 import sys
-from fabric.api import *
+from fabric import *
 from datalab.fab import *
 
 parser = argparse.ArgumentParser()

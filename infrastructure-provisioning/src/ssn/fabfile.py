@@ -27,7 +27,7 @@ import sys
 import traceback
 import uuid
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 
 
 def run():

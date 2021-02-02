@@ -30,7 +30,7 @@ import traceback
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 
 def install_libs_on_slaves(slave, data_engine):

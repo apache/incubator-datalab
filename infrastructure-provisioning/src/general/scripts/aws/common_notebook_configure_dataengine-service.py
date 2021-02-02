@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 
 def clear_resources():

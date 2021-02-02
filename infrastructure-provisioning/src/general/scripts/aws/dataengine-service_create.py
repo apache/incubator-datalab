@@ -32,7 +32,7 @@ import traceback
 from botocore.client import Config
 from datalab.actions_lib import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')

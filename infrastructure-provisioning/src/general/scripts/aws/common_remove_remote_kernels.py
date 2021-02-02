@@ -25,7 +25,7 @@ import argparse
 import sys
 from datalab.actions_lib import *
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
