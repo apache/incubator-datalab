@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils } from '../../../core/util';
+import {HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils, HelpUtils} from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
@@ -350,33 +350,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  public setGPUCount(type, gpuType): Array<number> {
-    let count = [];
-    switch (type) {
-      case 'n1-highmem-32' || 'n1-highcpu-32':
-        count = [4, 8];
-        break;
-      case 'n1-highmem-16':
-        count = [2, 4, 8];
-        break;
-      default:
-        count = [1, 2, 4, 8];
-        break;
-    }
-    if (gpuType === 'nvidia-tesla-t4') {
-      count.pop();
-    }
-
-    return count;
-  }
 
   public setCount(type: any, gpuType: any): void {
     if (type === 'master') {
       const masterShape = this.resourceForm.controls['shape_master'].value;
-      this.masterGPUcount = this.setGPUCount(masterShape, gpuType);
+      this.masterGPUcount = HelpUtils.setGPUCount(masterShape, gpuType);
     } else {
       const slaveShape = this.resourceForm.controls['shape_slave'].value;
-      this.slaveGPUcount = this.setGPUCount(slaveShape, gpuType);
+      this.slaveGPUcount = HelpUtils.setGPUCount(slaveShape, gpuType);
     }
   }
 

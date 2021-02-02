@@ -89,6 +89,12 @@ table.resources {
           //min-width: 187px;
         }
 
+        &.shape-col{
+          align-items: start;
+          flex-direction: column;
+          justify-content: center;
+        }
+
         &.resources-col {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -373,6 +379,7 @@ table.resources {
   0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
   border: none;
   min-width: 190px;
+  max-height: calc(100vh / 2 - 70px);
 }
 
 .settings:not(.label-header) {
