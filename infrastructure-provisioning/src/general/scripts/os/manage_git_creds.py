@@ -46,9 +46,9 @@ if __name__ == "__main__":
     git_creds = dict()
     try:
         if exists('/home/{}/.netrc'.format(args.os_user)):
-            run('rm .netrc')
+            conn.run('rm .netrc')
         if exists('/home/{}/.gitcreds'.format(args.os_user)):
-            run('rm .gitcreds')
+            conn.run('rm .gitcreds')
         git_creds = os.environ['git_creds']
     except KeyError as err:
         print('Error: {0}'.format(err))
@@ -72,14 +72,14 @@ if __name__ == "__main__":
         with open("new_netrc", "w+") as f:
             for conf in sorted(new_config, reverse=True):
                 f.writelines(conf + "\n")
-        put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
+        conn.put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
 
         creds = dict()
         with open("new_gitcreds", 'w') as gitcreds:
             for i in range(len(data)):
                 creds.update({data[i]['hostname']: [data[i]['username'], data[i]['email']]})
             gitcreds.write(json.dumps(creds))
-        put('new_gitcreds', '/home/{}/.gitcreds'.format(args.os_user))
+        conn.put('new_gitcreds', '/home/{}/.gitcreds'.format(args.os_user))
 
     except Exception as err:
         print('Error: {0}'.format(err))

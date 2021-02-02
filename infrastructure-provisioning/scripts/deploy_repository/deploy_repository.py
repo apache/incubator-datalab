@@ -781,17 +781,17 @@ def remove_efs():
 def ensure_ssh_user(initial_user):
     try:
         if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
-            sudo('useradd -m -G sudo -s /bin/bash {0}'.format(configuration['conf_os_user']))
-            sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(configuration['conf_os_user']))
-            sudo('mkdir /home/{}/.ssh'.format(configuration['conf_os_user']))
-            sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, configuration['conf_os_user']))
-            sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(
+            conn.sudo('useradd -m -G sudo -s /bin/bash {0}'.format(configuration['conf_os_user']))
+            conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(configuration['conf_os_user']))
+            conn.sudo('mkdir /home/{}/.ssh'.format(configuration['conf_os_user']))
+            conn.sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, configuration['conf_os_user']))
+            conn.sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(
                 initial_user, configuration['conf_os_user']))
-            sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(configuration['conf_os_user']))
-            sudo('chmod 700 /home/{0}/.ssh'.format(configuration['conf_os_user']))
-            sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(configuration['conf_os_user']))
-            sudo('mkdir /home/{}/.ensure_dir'.format(configuration['conf_os_user']))
-            sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
+            conn.sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(configuration['conf_os_user']))
+            conn.sudo('chmod 700 /home/{0}/.ssh'.format(configuration['conf_os_user']))
+            conn.sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(configuration['conf_os_user']))
+            conn.sudo('mkdir /home/{}/.ensure_dir'.format(configuration['conf_os_user']))
+            conn.sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with creating datalab-user: {}'.format(str(err)))
@@ -801,9 +801,9 @@ def ensure_ssh_user(initial_user):
 def install_java():
     try:
         if not exists('/home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user'])):
-            sudo('apt-get update')
-            sudo('apt-get install -y default-jdk ')
-            sudo('touch /home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user']))
+            conn.sudo('apt-get update')
+            conn.sudo('apt-get install -y default-jdk ')
+            conn.sudo('touch /home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Java: {}'.format(str(err)))
@@ -813,15 +813,15 @@ def install_java():
 def install_groovy():
     try:
         if not exists('/home/{}/.ensure_dir/groovy_ensured'.format(configuration['conf_os_user'])):
-            sudo('apt-get install -y unzip')
-            sudo('mkdir /usr/local/groovy')
-            sudo('wget https://bintray.com/artifact/download/groovy/maven/apache-groovy-binary-{0}.zip -O \
+            conn.sudo('apt-get install -y unzip')
+            conn.sudo('mkdir /usr/local/groovy')
+            conn.sudo('wget https://bintray.com/artifact/download/groovy/maven/apache-groovy-binary-{0}.zip -O \
                   /tmp/apache-groovy-binary-{0}.zip'.format(groovy_version))
-            sudo('unzip /tmp/apache-groovy-binary-{}.zip -d \
+            conn.sudo('unzip /tmp/apache-groovy-binary-{}.zip -d \
                   /usr/local/groovy'.format(groovy_version))
-            sudo('ln -s /usr/local/groovy/groovy-{} \
+            conn.sudo('ln -s /usr/local/groovy/groovy-{} \
                   /usr/local/groovy/latest'.format(groovy_version))
-            sudo('touch /home/{}/.ensure_dir/groovy_ensured'.format(configuration['conf_os_user']))
+            conn.sudo('touch /home/{}/.ensure_dir/groovy_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Groovy: {}'.format(str(err)))
@@ -835,7 +835,7 @@ def nexus_service_waiter():
         while not nexus_started and checks_count < 200:
             print('Waiting nexus to be started...')
             time.sleep(5)
-            result = sudo('nmap -p 8443 localhost | grep closed > /dev/null ; echo $?')
+            result = conn.sudo('nmap -p 8443 localhost | grep closed > /dev/null ; echo $?')
             result = result[:1]
             if result == '1':
                 nexus_started = True
@@ -853,178 +853,178 @@ def install_nexus():
                 mounting_disks()
             else:
                 mount_efs()
-            sudo('apt-get install -y maven nmap python-pip')
-            sudo('pip2 install -UI pip')
-            sudo('pip2 install -U fabric==1.14.0')
-            sudo('mkdir -p /opt/nexus')
-            sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
+            conn.sudo('apt-get install -y maven nmap python-pip')
+            conn.sudo('pip2 install -UI pip')
+            conn.sudo('pip2 install -U fabric==1.14.0')
+            conn.sudo('mkdir -p /opt/nexus')
+            conn.sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
                   /opt/nexus-{1}-unix.tar.gz'.format(
                   nexus_version.split('.')[0], nexus_version))
-            sudo('tar -zhxvf /opt/nexus-{}-unix.tar.gz -C /opt/'.format(
+            conn.sudo('tar -zhxvf /opt/nexus-{}-unix.tar.gz -C /opt/'.format(
                   nexus_version))
-            sudo('mv /opt/nexus-{}/* /opt/nexus/'.format(nexus_version))
-            sudo('mv /opt/nexus-{}/.[!.]* /opt/nexus/'.format(
+            conn.sudo('mv /opt/nexus-{}/* /opt/nexus/'.format(nexus_version))
+            conn.sudo('mv /opt/nexus-{}/.[!.]* /opt/nexus/'.format(
                   nexus_version))
-            sudo('rm -rf /opt/nexus-{}'.format(nexus_version))
-            sudo('useradd nexus')
-            sudo('echo \"run_as_user="nexus"\" > /opt/nexus/bin/nexus.rc')
+            conn.sudo('rm -rf /opt/nexus-{}'.format(nexus_version))
+            conn.sudo('useradd nexus')
+            conn.sudo('echo \"run_as_user="nexus"\" > /opt/nexus/bin/nexus.rc')
             create_keystore()
-            put('templates/jetty-https.xml', '/tmp/jetty-https.xml')
-            sudo('sed -i "s/KEYSTORE_PASSWORD/{}/g" /tmp/jetty-https.xml'.format(keystore_pass))
-            sudo('cp -f /tmp/jetty-https.xml /opt/nexus/etc/jetty/')
-            put('templates/nexus.service', '/tmp/nexus.service')
+            conn.put('templates/jetty-https.xml', '/tmp/jetty-https.xml')
+            conn.sudo('sed -i "s/KEYSTORE_PASSWORD/{}/g" /tmp/jetty-https.xml'.format(keystore_pass))
+            conn.sudo('cp -f /tmp/jetty-https.xml /opt/nexus/etc/jetty/')
+            conn.put('templates/nexus.service', '/tmp/nexus.service')
             if args.efs_enabled == 'False':
-                sudo('sed -i "s|EFS_SERVICE||g" /tmp/nexus.service')
+                conn.sudo('sed -i "s|EFS_SERVICE||g" /tmp/nexus.service')
             else:
-                sudo('sed -i "s|EFS_SERVICE|mount-efs-sequentially.service|g" /tmp/nexus.service')
-            sudo('cp /tmp/nexus.service /etc/systemd/system/')
-            put('files/nexus.properties', '/tmp/nexus.properties')
-            sudo('mkdir -p /opt/sonatype-work/nexus3/etc')
-            sudo('cp -f /tmp/nexus.properties /opt/sonatype-work/nexus3/etc/nexus.properties')
-            sudo('chown -R nexus:nexus /opt/nexus /opt/sonatype-work')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl start nexus')
+                conn.sudo('sed -i "s|EFS_SERVICE|mount-efs-sequentially.service|g" /tmp/nexus.service')
+            conn.sudo('cp /tmp/nexus.service /etc/systemd/system/')
+            conn.put('files/nexus.properties', '/tmp/nexus.properties')
+            conn.sudo('mkdir -p /opt/sonatype-work/nexus3/etc')
+            conn.sudo('cp -f /tmp/nexus.properties /opt/sonatype-work/nexus3/etc/nexus.properties')
+            conn.sudo('chown -R nexus:nexus /opt/nexus /opt/sonatype-work')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl start nexus')
             nexus_service_waiter()
-            sudo('systemctl enable nexus')
-            put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
-            sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
-            sudo('sed -i "s/ADMIN_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_admin_password))
-            sudo('sed -i "s/SERVICE_USER_NAME/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_service_user_name))
-            sudo('sed -i "s/SERVICE_USER_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(
+            conn.sudo('systemctl enable nexus')
+            conn.put('templates/configureNexus.groovy', '/tmp/configureNexus.groovy')
+            conn.sudo('sed -i "s/REGION/{}/g" /tmp/configureNexus.groovy'.format(args.region))
+            conn.sudo('sed -i "s/ADMIN_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_admin_password))
+            conn.sudo('sed -i "s/SERVICE_USER_NAME/{}/g" /tmp/configureNexus.groovy'.format(args.nexus_service_user_name))
+            conn.sudo('sed -i "s/SERVICE_USER_PASSWORD/{}/g" /tmp/configureNexus.groovy'.format(
                 args.nexus_service_user_password))
-            sudo('wget http://repo.{}.amazonaws.com/2017.09/main/mirror.list -O /tmp/main_mirror.list'.format(
+            conn.sudo('wget http://repo.{}.amazonaws.com/2017.09/main/mirror.list -O /tmp/main_mirror.list'.format(
                 args.region))
-            sudo('wget http://repo.{}.amazonaws.com/2017.09/updates/mirror.list -O /tmp/updates_mirror.list'.format(
+            conn.sudo('wget http://repo.{}.amazonaws.com/2017.09/updates/mirror.list -O /tmp/updates_mirror.list'.format(
                 args.region))
-            amazon_main_repo = sudo("cat /tmp/main_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region))
-            amazon_updates_repo = sudo("cat /tmp/updates_mirror.list  | grep {} | sed 's/$basearch//g'".format(
+            amazon_main_repo = conn.sudo("cat /tmp/main_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region))
+            amazon_updates_repo = conn.sudo("cat /tmp/updates_mirror.list  | grep {} | sed 's/$basearch//g'".format(
                 args.region))
-            sudo('sed -i "s|AMAZON_MAIN_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_main_repo))
-            sudo('sed -i "s|AMAZON_UPDATES_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_updates_repo))
-            sudo('rm -f /tmp/main_mirror.list')
-            sudo('rm -f /tmp/updates_mirror.list')
-            put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
+            conn.sudo('sed -i "s|AMAZON_MAIN_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_main_repo))
+            conn.sudo('sed -i "s|AMAZON_UPDATES_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_updates_repo))
+            conn.sudo('rm -f /tmp/main_mirror.list')
+            conn.sudo('rm -f /tmp/updates_mirror.list')
+            conn.put('scripts/addUpdateScript.groovy', '/tmp/addUpdateScript.groovy')
             script_executed = False
             while not script_executed:
                 try:
-                    sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "admin123" \
+                    conn.sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "admin123" \
                           -n "configureNexus" -f "/tmp/configureNexus.groovy" -h "http://localhost:8081"')
                     script_executed = True
                 except:
                     time.sleep(10)
                     pass
-            sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' \
+            conn.sudo('curl -u admin:admin123 -X POST --header \'Content-Type: text/plain\' \
                    http://localhost:8081/service/rest/v1/script/configureNexus/run')
-            sudo('systemctl stop nexus')
-            sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
+            conn.sudo('systemctl stop nexus')
+            conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
             with cd('nexus-repository-apt'):
-                sudo('mvn')
-            apt_plugin_version = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
+                conn.sudo('mvn')
+            apt_plugin_version = conn.sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
                                       '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-apt-',
                                                                                      '').replace('.jar', '')
-            compress_plugin_version = sudo('find /opt/nexus/ -name "commons-compress-*.jar" '
+            compress_plugin_version = conn.sudo('find /opt/nexus/ -name "commons-compress-*.jar" '
                                            '-printf "%f\\n" ').replace('commons-compress-', '').replace('.jar', '')
-            xz_plugin_version = sudo('find /opt/nexus/ -name "xz-*.jar" '
+            xz_plugin_version = conn.sudo('find /opt/nexus/ -name "xz-*.jar" '
                                      '-printf "%f\\n" ').replace('xz-', '').replace('.jar', '')
-            sudo('mkdir -p /opt/nexus/system/net/staticsnow/nexus-repository-apt/{0}/'.format(apt_plugin_version))
-            apt_plugin_jar_path = sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
+            conn.sudo('mkdir -p /opt/nexus/system/net/staticsnow/nexus-repository-apt/{0}/'.format(apt_plugin_version))
+            apt_plugin_jar_path = conn.sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
                 apt_plugin_version))
-            sudo('cp -f {0} /opt/nexus/system/net/staticsnow/nexus-repository-apt/{1}/'.format(
+            conn.sudo('cp -f {0} /opt/nexus/system/net/staticsnow/nexus-repository-apt/{1}/'.format(
                 apt_plugin_jar_path, apt_plugin_version
             ))
-            sudo('sed -i "$ d" /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
+            conn.sudo('sed -i "$ d" /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'
                  'nexus-core-feature-{0}-features.xml'.format(nexus_version))
-            sudo('''echo '<feature name="nexus-repository-apt" description="net.staticsnow:nexus-repository-apt" '''
+            conn.sudo('''echo '<feature name="nexus-repository-apt" description="net.staticsnow:nexus-repository-apt" '''
                  '''version="{1}">' >> /opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
                  '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, apt_plugin_version))
-            sudo('''echo '<details>net.staticsnow:nexus-repository-apt</details>' >> '''
+            conn.sudo('''echo '<details>net.staticsnow:nexus-repository-apt</details>' >> '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
                  '''nexus-core-feature-{0}-features.xml'''.format(nexus_version))
-            sudo('''echo '<bundle>mvn:net.staticsnow/nexus-repository-apt/{1}</bundle>' >> '''
+            conn.sudo('''echo '<bundle>mvn:net.staticsnow/nexus-repository-apt/{1}</bundle>' >> '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
                  '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, apt_plugin_version))
-            sudo('''echo '<bundle>mvn:org.apache.commons/commons-compress/{1}</bundle>' >> '''
+            conn.sudo('''echo '<bundle>mvn:org.apache.commons/commons-compress/{1}</bundle>' >> '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
                  '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, compress_plugin_version))
-            sudo('''echo '<bundle>mvn:org.tukaani/xz/{1}</bundle>' >> '''
+            conn.sudo('''echo '<bundle>mvn:org.tukaani/xz/{1}</bundle>' >> '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
                  '''nexus-core-feature-{0}-features.xml'''.format(nexus_version, xz_plugin_version))
-            sudo('''echo '</feature>' >> '''
+            conn.sudo('''echo '</feature>' >> '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
                  '''nexus-core-feature-{0}-features.xml'''.format(nexus_version))
-            sudo('''echo '</features>' >> '''
+            conn.sudo('''echo '</features>' >> '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/'''
                  '''nexus-core-feature-{0}-features.xml'''.format(nexus_version))
-            sudo('''sed -i 's|<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>|'''
+            conn.sudo('''sed -i 's|<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>|'''
                  '''<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>\\n'''
                  '''<feature prerequisite=\"false\" dependency=\"false\">nexus-repository-apt</feature>|g' '''
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'''
                  '''{0}-features.xml'''.format(nexus_version))
-            sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-r.git')
+            conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-r.git')
             with cd('nexus-repository-r'):
-                sudo('mvn clean install')
-            r_plugin_version = sudo('find nexus-repository-r/ -name "nexus-repository-r-*.jar" '
+                conn.sudo('mvn clean install')
+            r_plugin_version = conn.sudo('find nexus-repository-r/ -name "nexus-repository-r-*.jar" '
                                     '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-r-', '').replace(
                 '.jar', '')
-            sudo('mkdir -p /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{}/'.format(
+            conn.sudo('mkdir -p /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{}/'.format(
                 r_plugin_version))
-            r_plugin_jar_path = sudo('find nexus-repository-r/ -name "nexus-repository-r-{0}.jar"'.format(
+            r_plugin_jar_path = conn.sudo('find nexus-repository-r/ -name "nexus-repository-r-{0}.jar"'.format(
                 r_plugin_version))
-            sudo('cp -f {0} /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{1}/'.format(
+            conn.sudo('cp -f {0} /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{1}/'.format(
                 r_plugin_jar_path, r_plugin_version
             ))
-            sudo('sed -i "$ d" /opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'
+            conn.sudo('sed -i "$ d" /opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'
                  'nexus-oss-feature-{0}-features.xml'.format(nexus_version))
-            sudo('''echo '<feature name="nexus-repository-r" description="org.sonatype.nexus.plugins:'''
+            conn.sudo('''echo '<feature name="nexus-repository-r" description="org.sonatype.nexus.plugins:'''
                  '''nexus-repository-r" version="{1}">' >> /opt/nexus/system/com/sonatype/nexus/assemblies/'''
                  '''nexus-oss-feature/{0}/nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
-            sudo('''echo '<details>org.sonatype.nexus.plugins:nexus-repository-r</details>' >> '''
+            conn.sudo('''echo '<details>org.sonatype.nexus.plugins:nexus-repository-r</details>' >> '''
                  '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
                  '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version))
-            sudo('''echo '<bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-r/{1}</bundle>' >> '''
+            conn.sudo('''echo '<bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-r/{1}</bundle>' >> '''
                  '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
                  '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
-            sudo('''echo '</feature>' >> '''
+            conn.sudo('''echo '</feature>' >> '''
                  '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
                  '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version))
-            sudo('''echo '</features>' >> '''
+            conn.sudo('''echo '</features>' >> '''
                  '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
                  '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version))
-            sudo('''sed -i 's|<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>|'''
+            conn.sudo('''sed -i 's|<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>|'''
                  '''<feature prerequisite=\"true\" dependency=\"false\">wrap</feature>\\n'''
                  '''<feature version=\"{1}\" prerequisite=\"false\" dependency=\"false\">'''
                  '''nexus-repository-r</feature>|g' '''
                  '''/opt/nexus/system/com/sonatype/nexus/assemblies/nexus-oss-feature/{0}/'''
                  '''nexus-oss-feature-{0}-features.xml'''.format(nexus_version, r_plugin_version))
-            sudo('chown -R nexus:nexus /opt/nexus')
-            sudo('systemctl start nexus')
+            conn.sudo('chown -R nexus:nexus /opt/nexus')
+            conn.sudo('systemctl start nexus')
             nexus_service_waiter()
-            put('templates/addCustomRepository.groovy', '/tmp/addCustomRepository.groovy')
-            sudo('sed -i "s|REGION|{0}|g" /tmp/addCustomRepository.groovy'.format(args.region))
+            conn.put('templates/addCustomRepository.groovy', '/tmp/addCustomRepository.groovy')
+            conn.sudo('sed -i "s|REGION|{0}|g" /tmp/addCustomRepository.groovy'.format(args.region))
             script_executed = False
             while not script_executed:
                 try:
-                    sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "{}" '
+                    conn.sudo('/usr/local/groovy/latest/bin/groovy /tmp/addUpdateScript.groovy -u "admin" -p "{}" '
                          '-n "addCustomRepository" -f "/tmp/addCustomRepository.groovy" -h '
                          '"http://localhost:8081"'.format(args.nexus_admin_password))
                     script_executed = True
                 except:
                     time.sleep(10)
                     pass
-            sudo('curl -u admin:{} -X POST --header \'Content-Type: text/plain\' '
+            conn.sudo('curl -u admin:{} -X POST --header \'Content-Type: text/plain\' '
                  'http://localhost:8081/service/rest/v1/script/addCustomRepository/run'.format(
                   args.nexus_admin_password))
-            sudo('echo "admin:{}" > /opt/nexus/credentials'.format(args.nexus_admin_password))
-            sudo('echo "{0}:{1}" >> /opt/nexus/credentials'.format(args.nexus_service_user_name,
+            conn.sudo('echo "admin:{}" > /opt/nexus/credentials'.format(args.nexus_admin_password))
+            conn.sudo('echo "{0}:{1}" >> /opt/nexus/credentials'.format(args.nexus_service_user_name,
                                                                    args.nexus_service_user_password))
-            put('templates/updateRepositories.groovy', '/opt/nexus/updateRepositories.groovy', use_sudo=True)
-            put('scripts/update_amazon_repositories.py', '/opt/nexus/update_amazon_repositories.py', use_sudo=True)
-            sudo('sed -i "s|NEXUS_PASSWORD|{}|g" /opt/nexus/update_amazon_repositories.py'.format(
+            conn.put('templates/updateRepositories.groovy', '/opt/nexus/updateRepositories.groovy', use_sudo=True)
+            conn.put('scripts/update_amazon_repositories.py', '/opt/nexus/update_amazon_repositories.py', use_sudo=True)
+            conn.sudo('sed -i "s|NEXUS_PASSWORD|{}|g" /opt/nexus/update_amazon_repositories.py'.format(
                  args.nexus_admin_password))
-            sudo('touch /var/log/amazon_repo_update.log')
-            sudo('echo "0 0 * * * root /usr/bin/python /opt/nexus/update_amazon_repositories.py --region {} >> '
+            conn.sudo('touch /var/log/amazon_repo_update.log')
+            conn.sudo('echo "0 0 * * * root /usr/bin/python /opt/nexus/update_amazon_repositories.py --region {} >> '
                  '/var/log/amazon_repo_update.log" >> /etc/crontab'.format(args.region))
-            sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user']))
+            conn.sudo('touch /home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Nexus: {}'.format(str(err)))
@@ -1034,20 +1034,20 @@ def install_nexus():
 def install_nginx():
     try:
         if not exists('/home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user'])):
-            hostname = sudo('hostname')
-            sudo('apt-get install -y nginx')
-            sudo('rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/default')
-            put('templates/nexus.conf', '/tmp/nexus.conf')
+            hostname = conn.sudo('hostname')
+            conn.sudo('apt-get install -y nginx')
+            conn.sudo('rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/default')
+            conn.put('templates/nexus.conf', '/tmp/nexus.conf')
             if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
-                sudo('sed -i "s|SUBDOMAIN|{}|g" /tmp/nexus.conf'.format(args.subdomain))
-                sudo('sed -i "s|HOSTZONE|{}|g" /tmp/nexus.conf'.format(args.hosted_zone_name))
+                conn.sudo('sed -i "s|SUBDOMAIN|{}|g" /tmp/nexus.conf'.format(args.subdomain))
+                conn.sudo('sed -i "s|HOSTZONE|{}|g" /tmp/nexus.conf'.format(args.hosted_zone_name))
             else:
-                sudo('sed -i "s|SUBDOMAIN.HOSTZONE|{}|g" /tmp/nexus.conf'.format(hostname))
-            sudo('sed -i "s|REGION|{}|g" /tmp/nexus.conf'.format(args.region))
-            sudo('cp /tmp/nexus.conf /etc/nginx/conf.d/nexus.conf'.format(args.subdomain, args.hosted_zone_name))
-            sudo('systemctl restart nginx')
-            sudo('systemctl enable nginx')
-            sudo('touch /home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user']))
+                conn.sudo('sed -i "s|SUBDOMAIN.HOSTZONE|{}|g" /tmp/nexus.conf'.format(hostname))
+            conn.sudo('sed -i "s|REGION|{}|g" /tmp/nexus.conf'.format(args.region))
+            conn.sudo('cp /tmp/nexus.conf /etc/nginx/conf.d/nexus.conf'.format(args.subdomain, args.hosted_zone_name))
+            conn.sudo('systemctl restart nginx')
+            conn.sudo('systemctl enable nginx')
+            conn.sudo('touch /home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Error with installing Nginx: {}'.format(str(err)))
@@ -1057,17 +1057,17 @@ def install_nginx():
 def mounting_disks():
     try:
         if not exists('/home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user'])):
-            sudo('mkdir -p /opt/sonatype-work')
-            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1 | tr '\\n' ',' | sed 's|.$||g'")
-            sudo('bash -c \'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}\' '.format(disk_name))
-            sudo('sleep 10')
-            partition_name = sudo("lsblk -r | grep part | grep {} | awk {} | sort | tail -n 1 | "
+            conn.sudo('mkdir -p /opt/sonatype-work')
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1 | tr '\\n' ',' | sed 's|.$||g'")
+            conn.sudo('bash -c \'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}\' '.format(disk_name))
+            conn.sudo('sleep 10')
+            partition_name = conn.sudo("lsblk -r | grep part | grep {} | awk {} | sort | tail -n 1 | "
                                   "tr '\\n' ',' | sed 's|.$||g'".format(disk_name, "'{print $1}'"))
-            sudo('mkfs.ext4 -F -q /dev/{}'.format(partition_name))
-            sudo('mount /dev/{0} /opt/sonatype-work'.format(partition_name))
-            sudo('bash -c "echo \'/dev/{} /opt/sonatype-work ext4 errors=remount-ro 0 1\' >> /etc/fstab"'.format(
+            conn.sudo('mkfs.ext4 -F -q /dev/{}'.format(partition_name))
+            conn.sudo('mount /dev/{0} /opt/sonatype-work'.format(partition_name))
+            conn.sudo('bash -c "echo \'/dev/{} /opt/sonatype-work ext4 errors=remount-ro 0 1\' >> /etc/fstab"'.format(
                 partition_name))
-            sudo('touch /home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user']))
+            conn.sudo('touch /home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc(file=sys.stdout)
         print('Failed to mount additional volume: {}'.format(str(err)))
@@ -1077,26 +1077,26 @@ def mounting_disks():
 def mount_efs():
     try:
         if not exists('/home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user'])):
-            sudo('mkdir -p /opt/sonatype-work')
-            sudo('apt-get -y install binutils')
+            conn.sudo('mkdir -p /opt/sonatype-work')
+            conn.sudo('apt-get -y install binutils')
             with cd('/tmp/'):
-                sudo('git clone https://github.com/aws/efs-utils')
+                conn.sudo('git clone https://github.com/aws/efs-utils')
             with cd('/tmp/efs-utils'):
-                sudo('./build-deb.sh')
-                sudo('apt-get -y install ./build/amazon-efs-utils*deb')
-            sudo('sed -i "s/stunnel_check_cert_hostname.*/stunnel_check_cert_hostname = false/g" '
+                conn.sudo('./build-deb.sh')
+                conn.sudo('apt-get -y install ./build/amazon-efs-utils*deb')
+            conn.sudo('sed -i "s/stunnel_check_cert_hostname.*/stunnel_check_cert_hostname = false/g" '
                  '/etc/amazon/efs/efs-utils.conf')
-            sudo('sed -i "s/stunnel_check_cert_validity.*/stunnel_check_cert_validity = false/g" '
+            conn.sudo('sed -i "s/stunnel_check_cert_validity.*/stunnel_check_cert_validity = false/g" '
                  '/etc/amazon/efs/efs-utils.conf')
-            sudo('mount -t efs -o tls {}:/ /opt/sonatype-work'.format(
+            conn.sudo('mount -t efs -o tls {}:/ /opt/sonatype-work'.format(
                 args.efs_id))
-            sudo('bash -c "echo \'{}:/ /opt/sonatype-work efs tls,_netdev 0 0\' >> '
+            conn.sudo('bash -c "echo \'{}:/ /opt/sonatype-work efs tls,_netdev 0 0\' >> '
                  '/etc/fstab"'.format(args.efs_id))
-            put('files/mount-efs-sequentially.service', '/tmp/mount-efs-sequentially.service')
-            sudo('cp /tmp/mount-efs-sequentially.service /etc/systemd/system/')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable mount-efs-sequentially.service')
-            sudo('touch /home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user']))
+            conn.put('files/mount-efs-sequentially.service', '/tmp/mount-efs-sequentially.service')
+            conn.sudo('cp /tmp/mount-efs-sequentially.service /etc/systemd/system/')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable mount-efs-sequentially.service')
+            conn.sudo('touch /home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to mount additional volume: ', str(err))
@@ -1106,20 +1106,20 @@ def mount_efs():
 def configure_ssl():
     try:
         if not exists('/home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user'])):
-            hostname = sudo('hostname')
-            private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
+            hostname = conn.sudo('hostname')
+            private_ip = conn.sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
             subject_alt_name = 'subjectAltName = IP:{}'.format(private_ip)
             if args.network_type == 'public':
-                public_ip = sudo('curl http://169.254.169.254/latest/meta-data/public-ipv4')
+                public_ip = conn.sudo('curl http://169.254.169.254/latest/meta-data/public-ipv4')
                 subject_alt_name += ',IP:{}'.format(public_ip)
-            sudo('cp /etc/ssl/openssl.cnf /tmp/openssl.cnf')
-            sudo('echo "[ subject_alt_name ]" >> /tmp/openssl.cnf')
-            sudo('echo "{}" >> /tmp/openssl.cnf'.format(subject_alt_name))
-            sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/repository.key '
+            conn.sudo('cp /etc/ssl/openssl.cnf /tmp/openssl.cnf')
+            conn.sudo('echo "[ subject_alt_name ]" >> /tmp/openssl.cnf')
+            conn.sudo('echo "{}" >> /tmp/openssl.cnf'.format(subject_alt_name))
+            conn.sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/repository.key '
                  '-out /etc/ssl/certs/repository.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}" -config '
                  '/tmp/openssl.cnf -extensions subject_alt_name'.format(hostname))
-            sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
-            sudo('touch /home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user']))
+            conn.sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
+            conn.sudo('touch /home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to mount additional volume: ', str(err))
@@ -1133,11 +1133,11 @@ def set_hostname():
                 hostname = '{0}.{1}'.format(args.subdomain, args.hosted_zone_name)
             else:
                 if args.network_type == 'public':
-                    hostname = sudo('curl http://169.254.169.254/latest/meta-data/public-hostname')
+                    hostname = conn.sudo('curl http://169.254.169.254/latest/meta-data/public-hostname')
                 else:
-                    hostname = sudo('curl http://169.254.169.254/latest/meta-data/hostname')
-            sudo('hostnamectl set-hostname {0}'.format(hostname))
-            sudo('touch /home/{}/.ensure_dir/hostname_set'.format(configuration['conf_os_user']))
+                    hostname = conn.sudo('curl http://169.254.169.254/latest/meta-data/hostname')
+            conn.sudo('hostnamectl set-hostname {0}'.format(hostname))
+            conn.sudo('touch /home/{}/.ensure_dir/hostname_set'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to mount additional volume: ', str(err))
@@ -1147,11 +1147,11 @@ def set_hostname():
 def create_keystore():
     try:
         if not exists('/home/{}/.ensure_dir/keystore_created'.format(configuration['conf_os_user'])):
-            sudo('openssl pkcs12 -export -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
+            conn.sudo('openssl pkcs12 -export -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
                  '-out wildcard.p12 -passout pass:{}'.format(keystore_pass))
-            sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
+            conn.sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
                  'PKCS12 -srcstorepass {0} -destkeystore /opt/nexus/etc/ssl/keystore.jks'.format(keystore_pass))
-            sudo('touch /home/{}/.ensure_dir/keystore_created'.format(configuration['conf_os_user']))
+            conn.sudo('touch /home/{}/.ensure_dir/keystore_created'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to create keystore: ', str(err))
@@ -1233,16 +1233,16 @@ def download_packages():
             for package in packages_urls:
                 package_name = package.split('/')[-1]
                 packages_list.append({'url': package, 'name': package_name})
-            run('mkdir packages')
+            conn.run('mkdir packages')
             with cd('packages'):
                 for package in packages_list:
-                    run('wget {0}'.format(package['url']))
-                    run('curl -v -u admin:{2} -F "raw.directory=/" -F '
+                    conn.run('wget {0}'.format(package['url']))
+                    conn.run('curl -v -u admin:{2} -F "raw.directory=/" -F '
                         '"raw.asset1=@/home/{0}/packages/{1}" '
                         '-F "raw.asset1.filename={1}"  '
                         '"http://localhost:8081/service/rest/v1/components?repository=packages"'.format(
                          configuration['conf_os_user'], package['name'], args.nexus_admin_password))
-            sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(configuration['conf_os_user']))
+            conn.sudo('touch /home/{}/.ensure_dir/packages_downloaded'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download packages: ', str(err))
@@ -1252,16 +1252,16 @@ def download_packages():
 def install_docker():
     try:
         if not exists('/home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user'])):
-            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
-            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) '
+            conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) '
                  'stable"')
-            sudo('apt-get update')
-            sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce=5:{}~3-0~ubuntu-focal'.format(configuration['ssn_docker_version']))
-            sudo('usermod -a -G docker ' + configuration['conf_os_user'])
-            sudo('update-rc.d docker defaults')
-            sudo('update-rc.d docker enable')
-            sudo('touch /home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user']))
+            conn.sudo('apt-get update')
+            conn.sudo('apt-cache policy docker-ce')
+            conn.sudo('apt-get install -y docker-ce=5:{}~3-0~ubuntu-focal'.format(configuration['ssn_docker_version']))
+            conn.sudo('usermod -a -G docker ' + configuration['conf_os_user'])
+            conn.sudo('update-rc.d docker defaults')
+            conn.sudo('update-rc.d docker enable')
+            conn.sudo('touch /home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to install docker: ', str(err))
@@ -1271,14 +1271,14 @@ def install_docker():
 def prepare_images():
     try:
         if not exists('/home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user'])):
-            put('files/Dockerfile', '/tmp/Dockerfile')
+            conn.put('files/Dockerfile', '/tmp/Dockerfile')
             with cd('/tmp/'):
-                sudo('docker build --file Dockerfile -t pre-base .')
-            sudo('docker login -u {0} -p {1} localhost:8083'.format(args.nexus_service_user_name,
+                conn.sudo('docker build --file Dockerfile -t pre-base .')
+            conn.sudo('docker login -u {0} -p {1} localhost:8083'.format(args.nexus_service_user_name,
                                                                     args.nexus_service_user_password))
-            sudo('docker tag pre-base localhost:8083/datalab-pre-base')
-            sudo('docker push localhost:8083/datalab-pre-base')
-            sudo('touch /home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user']))
+            conn.sudo('docker tag pre-base localhost:8083/datalab-pre-base')
+            conn.sudo('docker push localhost:8083/datalab-pre-base')
+            conn.sudo('touch /home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download packages: ', str(err))
@@ -1288,19 +1288,19 @@ def prepare_images():
 def install_squid():
     try:
         if not exists('/home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user'])):
-            sudo('apt-get -y install squid')
-            put('templates/squid.conf', '/etc/squid/', use_sudo=True)
+            conn.sudo('apt-get -y install squid')
+            conn.put('templates/squid.conf', '/etc/squid/', use_sudo=True)
             replace_string = ''
             for cidr in get_vpc_cidr_by_id(args.vpc_id):
                 replace_string += 'acl AWS_VPC_CIDR src {}\\n'.format(cidr)
-            sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            conn.sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
             replace_string = ''
             for cidr in args.allowed_ip_cidr.split(','):
                 replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
-            sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
-            sudo('systemctl enable squid')
-            sudo('systemctl restart squid')
-            sudo('touch /home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user']))
+            conn.sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            conn.sudo('systemctl enable squid')
+            conn.sudo('systemctl restart squid')
+            conn.sudo('touch /home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download packages: ', str(err))

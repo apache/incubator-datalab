@@ -49,22 +49,22 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     if os.environ['notebook_multiple_clusters'] == 'true':
-        put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
+        conn.put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     else:
-        put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
-    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
+        conn.put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
+    conn.put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
         '/tmp/zeppelin_dataengine-service_create_configs.py')
-    sudo(
+    conn.sudo(
         '\cp /tmp/zeppelin_dataengine-service_create_configs.py /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
-    sudo('chmod 755 /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
-    sudo('mkdir -p /usr/lib/python3.8/datalab/')
-    run('mkdir -p /tmp/datalab_libs/')
+    conn.sudo('chmod 755 /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
+    conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+    conn.run('mkdir -p /tmp/datalab_libs/')
     local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
+    conn.run('chmod a+x /tmp/datalab_libs/*')
+    conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('mkdir -p /usr/lib64/python3.8')
-        sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
+        conn.sudo('mkdir -p /usr/lib64/python3.8')
+        conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
@@ -115,4 +115,4 @@ if __name__ == "__main__":
                 numpy_version,
                 args.application,
                 r_enabled)
-    sudo(command)
+    conn.sudo(command)

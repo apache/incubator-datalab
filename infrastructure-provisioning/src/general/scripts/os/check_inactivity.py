@@ -48,7 +48,7 @@ if __name__ == "__main__":
         inactivity_file = 'local_inactivity'
 
     if exists('{}{}'.format(inactivity_dir, inactivity_file)):
-        timestamp = sudo('cat {}{}'.format(inactivity_dir, inactivity_file))
+        timestamp = conn.sudo('cat {}{}'.format(inactivity_dir, inactivity_file))
     else:
         timestamp = '0000000000'
 

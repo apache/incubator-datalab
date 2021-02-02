@@ -38,8 +38,8 @@ args = parser.parse_args()
 def copy_key(config):
     admin_key_pub = local('ssh-keygen -y -f {}'.format(args.keyfile),
                           capture=True)
-    sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
-    sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
+    conn.sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
+    conn.sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
     try:
         user_key = '{}{}.pub'.format(
             config.get('user_keydir'),
@@ -49,7 +49,7 @@ def copy_key(config):
             key = open('{0}'.format(user_key)).read()
         else:
             key = config.get('user_key')
-        sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
+        conn.sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
     except:
         print('No user key')
 

@@ -40,11 +40,11 @@ def upload_response_file(instance_name, local_log_filepath, os_user):
     pkey = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     datalab.fab.init_datalab_connection(args.instance_hostname, os_user, pkey)
     try:
-        put('/root/result.json', '/home/{}/{}.json'.format(os_user, os.environ['request_id']))
-        sudo('mv /home/{}/{}.json {}tmp/result/'.format(os_user, os.environ['request_id'],
+        conn.put('/root/result.json', '/home/{}/{}.json'.format(os_user, os.environ['request_id']))
+        conn.sudo('mv /home/{}/{}.json {}tmp/result/'.format(os_user, os.environ['request_id'],
                                                         os.environ['ssn_datalab_path']))
-        put(local_log_filepath, '/home/{}/ssn.log'.format(os_user))
-        sudo('mv /home/{}/ssn.log /var/opt/datalab/log/ssn/'.format(os_user))
+        conn.put(local_log_filepath, '/home/{}/ssn.log'.format(os_user))
+        conn.sudo('mv /home/{}/ssn.log /var/opt/datalab/log/ssn/'.format(os_user))
         datalab.fab.close_connection()
         return True
     except:

@@ -86,9 +86,9 @@ def install_itorch(os_user):
             run('luarocks install uuid')
             run('luarocks install lzmq')
             run('luarocks make')
-        sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
-        sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
-        sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(os_user))
+        conn.sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
+        conn.sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
+        conn.sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(os_user))
 
 
 if __name__ == "__main__":
@@ -99,8 +99,8 @@ if __name__ == "__main__":
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
-            sudo('touch /home/' + args.os_user + '/.ensure_dir/deep_learning')
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/deep_learning')
     except:
         sys.exit(1)
     print("Mount additional volume")

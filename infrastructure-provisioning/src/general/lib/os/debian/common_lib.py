@@ -39,45 +39,45 @@ def manage_pkg(command, environment, requisites):
             else:
                 print('Package manager is:')
                 if environment == 'remote':
-                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
+                    if conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
                         try:
                             error_parser = "frontend is locked|locked"
-                            sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                            conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
-                            err = sudo('cat /tmp/dpkg.log')
+                            err = conn.sudo('cat /tmp/dpkg.log')
                             count = 0
                             while err != '' and count < 10:
-                                pid = sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
+                                pid = conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
                                 if pid != '':
-                                    sudo('kill -9 {}'.format(pid))
-                                    sudo('rm -f /var/lib/dpkg/lock-frontend')
-                                    pid = sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
+                                    conn.sudo('kill -9 {}'.format(pid))
+                                    conn.sudo('rm -f /var/lib/dpkg/lock-frontend')
+                                    pid = conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
                                 elif pid != '':
-                                    sudo('kill -9 {}'.format(pid))
-                                    sudo('rm -f /var/lib/dpkg/lock')
-                                sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                                    conn.sudo('kill -9 {}'.format(pid))
+                                    conn.sudo('rm -f /var/lib/dpkg/lock')
+                                conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
-                                err = sudo('cat /tmp/dpkg.log')
+                                err = conn.sudo('cat /tmp/dpkg.log')
                                 count = count + 1
-                            sudo('apt update')
+                            conn.sudo('apt update')
 
-                            sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
+                            conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
                                  '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                            err = sudo('cat /tmp/apt.log')
+                            err = conn.sudo('cat /tmp/apt.log')
                             count = 0
                             while err != '' and count < 10:
-                                sudo('lsof /var/lib/dpkg/lock')
-                                sudo('lsof /var/lib/apt/lists/lock')
-                                sudo('lsof /var/cache/apt/archives/lock')
-                                sudo('rm -f /var/lib/apt/lists/lock')
-                                sudo('rm -f /var/cache/apt/archives/lock')
-                                sudo('rm -f /var/lib/dpkg/lock')
-                                sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
+                                conn.sudo('lsof /var/lib/dpkg/lock')
+                                conn.sudo('lsof /var/lib/apt/lists/lock')
+                                conn.sudo('lsof /var/cache/apt/archives/lock')
+                                conn.sudo('rm -f /var/lib/apt/lists/lock')
+                                conn.sudo('rm -f /var/cache/apt/archives/lock')
+                                conn.sudo('rm -f /var/lib/dpkg/lock')
+                                conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
                                      '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                                err = sudo('cat /tmp/apt.log')
+                                err = conn.sudo('cat /tmp/apt.log')
                                 count = count + 1
                             allow = True
                         except Exception as err:
@@ -114,13 +114,13 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
                         print("Attempt number " + str(count) + " to install requested tools. Max 60 tries.")
                         manage_pkg('update', 'remote', '')
                         manage_pkg('-y install', 'remote', requisites)
-                        sudo('unattended-upgrades -v')
-                        sudo(
+                        conn.sudo('unattended-upgrades -v')
+                        conn.sudo(
                             'sed -i \'s|APT::Periodic::Unattended-Upgrade "1"|APT::Periodic::Unattended-Upgrade "0"|\' /etc/apt/apt.conf.d/20auto-upgrades')
-                        sudo('export LC_ALL=C')
-                        sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
-                        sudo('systemctl enable haveged')
-                        sudo('systemctl start haveged')
+                        conn.sudo('export LC_ALL=C')
+                        conn.sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
+                        conn.sudo('systemctl enable haveged')
+                        conn.sudo('systemctl start haveged')
                         if os.environ['conf_cloud_provider'] == 'aws':
                             manage_pkg('-y install --install-recommends', 'remote', 'linux-aws-hwe')
                         check = True
@@ -134,22 +134,22 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
 def renew_gpg_key():
     try:
 #        if exists('/etc/apt/trusted.gpg'):
-#            sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
-        sudo('apt-key update')
+#            conn.sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
+        conn.sudo('apt-key update')
     except:
         sys.exit(1)
 
 
 def change_pkg_repos():
     if not exists('/tmp/pkg_china_ensured'):
-        put('/root/files/sources.list', '/tmp/sources.list')
-        sudo('mv /tmp/sources.list /etc/apt/sources.list')
+        conn.put('/root/files/sources.list', '/tmp/sources.list')
+        conn.sudo('mv /tmp/sources.list /etc/apt/sources.list')
         manage_pkg('update', 'remote', '')
-        sudo('touch /tmp/pkg_china_ensured')
+        conn.sudo('touch /tmp/pkg_china_ensured')
 
 
 def find_java_path_remote():
-    java_path = sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"")
+    java_path = conn.sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"")
     return java_path
 
 
@@ -161,14 +161,14 @@ def find_java_path_local():
 def ensure_ntpd(user, edge_private_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
-            sudo('timedatectl set-ntp no')
+            conn.sudo('timedatectl set-ntp no')
             manage_pkg('-y install', 'remote', 'ntp ntpdate')
-            sudo('echo "tinker panic 0" >> /etc/ntp.conf')
+            conn.sudo('echo "tinker panic 0" >> /etc/ntp.conf')
             if os.environ['conf_resource'] != 'ssn' and os.environ['conf_resource'] != 'edge':
-                sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
-            sudo('systemctl restart ntp')
-            sudo('systemctl enable ntp')
-            sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
+                conn.sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
+            conn.sudo('systemctl restart ntp')
+            conn.sudo('systemctl enable ntp')
+            conn.sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
     except:
         sys.exit(1)
 
@@ -177,7 +177,7 @@ def ensure_java(user):
     try:
         if not exists('/home/{}/.ensure_dir/java_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
-            sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
+            conn.sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
     except:
         sys.exit(1)
 
@@ -186,10 +186,10 @@ def ensure_step(user):
     try:
         if not exists('/home/{}/.ensure_dir/step_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'wget')
-            sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
+            conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
                  '-O /tmp/step-cli_0.13.3_amd64.deb')
-            sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
-            sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
+            conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
+            conn.sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
         sys.exit(1)
 
@@ -197,12 +197,12 @@ def install_certbot(os_family):
     try:
         print('Installing Certbot')
         if os_family == 'debian':
-            sudo('apt-get -y update')
-            sudo('apt-get -y install software-properties-common')
-            sudo('add-apt-repository -y universe')
-            sudo('add-apt-repository -y ppa:certbot/certbot')
-            sudo('apt-get -y update')
-            sudo('apt-get -y install certbot')
+            conn.sudo('apt-get -y update')
+            conn.sudo('apt-get -y install software-properties-common')
+            conn.sudo('add-apt-repository -y universe')
+            conn.sudo('add-apt-repository -y ppa:certbot/certbot')
+            conn.sudo('apt-get -y update')
+            conn.sudo('apt-get -y install certbot')
         elif os_family == 'redhat':
             print('This OS family is not supported yet')
     except Exception as err:
@@ -214,13 +214,13 @@ def run_certbot(domain_name, node, email=''):
     try:
         print('Running  Certbot')
         if node == 'ssn':
-            sudo('service nginx stop')
+            conn.sudo('service nginx stop')
         else:
-            sudo('service openresty stop')
+            conn.sudo('service openresty stop')
         if email != '':
-            sudo('certbot certonly --standalone -n -d {}.{} -m {} --agree-tos'.format(node, domain_name, email))
+            conn.sudo('certbot certonly --standalone -n -d {}.{} -m {} --agree-tos'.format(node, domain_name, email))
         else:
-            sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
+            conn.sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
     except Exception as err:
         traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))
@@ -237,14 +237,14 @@ def configure_nginx_LE(domain_name, node):
             nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
         else:
             nginx_config_path = '/usr/local/openresty/nginx/conf/conf.d/proxy.conf'
-        sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
-        sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
-        sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
-        sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
+        conn.sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
+        conn.sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
+        conn.sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
+        conn.sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
         if node == 'ssn':
-            sudo('systemctl restart nginx')
+            conn.sudo('systemctl restart nginx')
         else:
-            sudo('systemctl restart openresty')
+            conn.sudo('systemctl restart openresty')
     except Exception as err:
         traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))

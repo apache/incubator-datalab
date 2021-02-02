@@ -46,8 +46,8 @@ if __name__ == "__main__":
         if ssn_storage_account_tag == storage_account.tags["Name"]:
             ssn_storage_account_name = storage_account.name
     if AzureActions().download_from_container(resource_group_name, ssn_storage_account_name, container_name, gitlab_certfile):
-        put(gitlab_certfile, gitlab_certfile)
-        sudo('chown root:root {}'.format(gitlab_certfile))
+        conn.put(gitlab_certfile, gitlab_certfile)
+        conn.sudo('chown root:root {}'.format(gitlab_certfile))
         print('{} has been downloaded'.format(gitlab_certfile))
     else:
         print('There is no {} to download'.format(gitlab_certfile))

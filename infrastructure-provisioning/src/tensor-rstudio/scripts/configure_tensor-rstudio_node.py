@@ -80,7 +80,7 @@ if __name__ == "__main__":
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")

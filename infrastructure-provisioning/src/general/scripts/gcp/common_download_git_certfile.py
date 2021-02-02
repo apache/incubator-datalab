@@ -39,8 +39,8 @@ if __name__ == "__main__":
                                                os.environ['endpoint_name'])).lower().replace('_', '-')
     gitlab_certfile = os.environ['conf_gitlab_certfile']
     if GCPActions().get_gitlab_cert(bucket_name, gitlab_certfile):
-        put(gitlab_certfile, gitlab_certfile)
-        sudo('chown root:root {}'.format(gitlab_certfile))
+        conn.put(gitlab_certfile, gitlab_certfile)
+        conn.sudo('chown root:root {}'.format(gitlab_certfile))
         print('{} has been downloaded'.format(gitlab_certfile))
     else:
         print('There is no {} to download'.format(gitlab_certfile))

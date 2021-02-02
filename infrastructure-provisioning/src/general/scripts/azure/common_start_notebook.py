@@ -90,10 +90,10 @@ if __name__ == "__main__":
             env.host_string = env.user + "@" + env.hosts
             params = '--refresh_token {}'.format(os.environ['azure_user_refresh_token'])
             try:
-                put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
-                sudo('mv /tmp/common_notebook_update_refresh_token.py '
+                conn.put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
+                conn.sudo('mv /tmp/common_notebook_update_refresh_token.py '
                      '/usr/local/bin/common_notebook_update_refresh_token.py')
-                sudo("/usr/bin/python3 /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
+                conn.sudo("/usr/bin/python3 /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
             except:
                 traceback.print_exc()
                 raise Exception

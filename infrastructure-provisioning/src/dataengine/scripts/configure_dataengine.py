@@ -82,33 +82,33 @@ if os.environ['application'] == 'deeplearning':
 def start_spark(os_user, master_ip, node):
     if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
         if not exists('/opt/spark/conf/spark-env.sh'):
-            sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
+            conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        conn.sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
         if os.environ['application'] in ('tensor', 'tensor-rstudio'):
-            sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
+            conn.sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
         if os.environ['application'] == 'deeplearning':
-            sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
+            conn.sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
             with cd('/opt/spark/sbin/'):
-                sudo("sed -i '/start-slaves.sh/d' start-all.sh")
-                sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> start-all.sh'''.format('{SPARK_HOME}', master_ip))
-            put('~/templates/spark-master.service', '/tmp/spark-master.service')
-            sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable spark-master.service')
-            sudo('systemctl start spark-master.service')
+                conn.sudo("sed -i '/start-slaves.sh/d' start-all.sh")
+                conn.sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> start-all.sh'''.format('{SPARK_HOME}', master_ip))
+            conn.put('~/templates/spark-master.service', '/tmp/spark-master.service')
+            conn.sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable spark-master.service')
+            conn.sudo('systemctl start spark-master.service')
         if node == 'slave':
             with open('/root/templates/spark-slave.service', 'r') as f:
                 text = f.read()
             text = text.replace('MASTER', 'spark://{}:7077'.format(master_ip))
             with open('/root/templates/spark-slave.service', 'w') as f:
                 f.write(text)
-            put('~/templates/spark-slave.service', '/tmp/spark-slave.service')
-            sudo('mv /tmp/spark-slave.service /etc/systemd/system/spark-slave.service')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable spark-slave.service')
-            sudo('systemctl start spark-slave.service')
-        sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
+            conn.put('~/templates/spark-slave.service', '/tmp/spark-slave.service')
+            conn.sudo('mv /tmp/spark-slave.service /etc/systemd/system/spark-slave.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable spark-slave.service')
+            conn.sudo('systemctl start spark-slave.service')
+        conn.sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
 ##############
 # Run script #
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
 
@@ -200,22 +200,22 @@ if __name__ == "__main__":
     # INSTALL LIVY
     if not exists('/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
         livy_version = '0.7.0'
-        sudo(
+        conn.sudo(
             'wget -nv --timeout=30 --tries=5 --retry-connrefused https://archive.apache.org/dist/incubator/livy/{0}-incubating/apache-livy-{0}-incubating-bin.zip -P /tmp/'.format(
                 livy_version))
-        sudo('unzip -q /tmp/apache-livy-{}-incubating-bin.zip -d /tmp/'.format(livy_version))
-        sudo('mv /tmp/apache-livy-{}-incubating-bin /opt/livy'.format(livy_version))
-        sudo('mkdir /var/log/livy')
-        put('~/templates/livy-env.sh', '/tmp/livy-env.sh')
-        sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
-        sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
-        sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))
-        put('~/templates/livy.service', '/tmp/livy.service')
-        sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(args.os_user))
-        sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
-        sudo('systemctl daemon-reload')
-        sudo('systemctl enable livy.service')
-        sudo('systemctl start livy.service')
-        sudo('touch /home/{0}/.ensure_dir/livy_ensured'.format(args.os_user))
+        conn.sudo('unzip -q /tmp/apache-livy-{}-incubating-bin.zip -d /tmp/'.format(livy_version))
+        conn.sudo('mv /tmp/apache-livy-{}-incubating-bin /opt/livy'.format(livy_version))
+        conn.sudo('mkdir /var/log/livy')
+        conn.put('~/templates/livy-env.sh', '/tmp/livy-env.sh')
+        conn.sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
+        conn.sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
+        conn.sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))
+        conn.put('~/templates/livy.service', '/tmp/livy.service')
+        conn.sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(args.os_user))
+        conn.sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
+        conn.sudo('systemctl daemon-reload')
+        conn.sudo('systemctl enable livy.service')
+        conn.sudo('systemctl start livy.service')
+        conn.sudo('touch /home/{0}/.ensure_dir/livy_ensured'.format(args.os_user))
 
     datalab.fab.close_connection()

@@ -48,15 +48,15 @@ def create_user(os_user):
     datalab.fab.init_datalab_connection(args.instance_ip, initial_user, args.keyfile)
 
     try:
-        sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
-        sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
-        sudo('mkdir /home/{}/.ssh'.format(os_user))
-        sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
-        sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
-        sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
-        sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
-        sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
-        sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
+        conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
+        conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
+        conn.sudo('mkdir /home/{}/.ssh'.format(os_user))
+        conn.sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
+        conn.sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
+        conn.sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
+        conn.sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
+        conn.sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+        conn.sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
     except Exception as err:
         print('Failed to install gitlab.{}'.format(str(err)))
         sys.exit(1)
@@ -105,32 +105,32 @@ def install_gitlab():
     try:
         print('Installing gitlab...')
         if os.environ['conf_os_family'] == 'debian':
-            sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash')
-            sudo('apt install gitlab-ce -y')
+            conn.sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash')
+            conn.sudo('apt install gitlab-ce -y')
         elif os.environ['conf_os_family'] == 'redhat':
-            sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash')
-            sudo('yum install gitlab-ce -y')
+            conn.sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash')
+            conn.sudo('yum install gitlab-ce -y')
         else:
             print('Failed to install gitlab.')
             raise Exception
 
         with lcd('{}tmp/gitlab'.format(os.environ['conf_datalab_path'])):
-            put('gitlab.rb', '/tmp/gitlab.rb')
+            conn.put('gitlab.rb', '/tmp/gitlab.rb')
             local('rm gitlab.rb')
-        sudo('rm /etc/gitlab/gitlab.rb')
-        sudo('mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb')
+        conn.sudo('rm /etc/gitlab/gitlab.rb')
+        conn.sudo('mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb')
 
         if json.loads(os.environ['gitlab_ssl_enabled']):
-            sudo('mkdir -p /etc/gitlab/ssl')
-            sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {0} \
+            conn.sudo('mkdir -p /etc/gitlab/ssl')
+            conn.sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {0} \
                     -out {1} -subj "/C=US/ST=US/L=US/O=datalab/CN={2}"'.format(os.environ['gitlab_ssl_certificate_key'],
                                                                                os.environ['gitlab_ssl_certificate'],
                                                                                os.environ['instance_hostname']))
-            sudo('openssl dhparam -out {} 2048'.format(os.environ['gitlab_ssl_dhparams']))
+            conn.sudo('openssl dhparam -out {} 2048'.format(os.environ['gitlab_ssl_dhparams']))
             get('{}'.format(os.environ['gitlab_ssl_certificate']),
                 '{}tmp/gitlab'.format(os.environ['conf_datalab_path']))
 
-        sudo('gitlab-ctl reconfigure')
+        conn.sudo('gitlab-ctl reconfigure')
     except Exception as err:
         print('Failed to install gitlab.{}'.format(str(err)))
         sys.exit(1)
@@ -145,16 +145,16 @@ def configure_gitlab():
             proto = 'http'
 
         with settings(hide('everything')):
-            raw = run('curl -k --request POST "{0}://localhost/api/v4/session?login=root&password={1}"'
+            raw = conn.run('curl -k --request POST "{0}://localhost/api/v4/session?login=root&password={1}"'
                     .format(proto, os.environ['gitlab_root_password']))
             data = json.loads(raw)
             if not json.loads(os.environ['gitlab_signup_enabled']):
                 print('Disabling signup...')
-                run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&signup_enabled=false"'
+                conn.run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&signup_enabled=false"'
                     .format(proto, data['private_token']))
             if not json.loads(os.environ['gitlab_public_repos']):
                 print('Disabling public repos...')
-                run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&restricted_visibility_levels=public"'
+                conn.run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&restricted_visibility_levels=public"'
                     .format(proto, data['private_token']))
     except Exception as err:
         print("Failed to connect to GitLab via API..{}".format(str(err)))

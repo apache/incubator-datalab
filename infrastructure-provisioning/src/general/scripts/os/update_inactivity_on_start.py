@@ -43,6 +43,6 @@ if __name__ == "__main__":
     else:
         kernel = args.cluster_ip.replace('.', '-')
 
-    sudo("date +%s > /opt/inactivity/{}_inactivity".format(kernel))
+    conn.sudo("date +%s > /opt/inactivity/{}_inactivity".format(kernel))
 
     datalab.fab.close_connection()

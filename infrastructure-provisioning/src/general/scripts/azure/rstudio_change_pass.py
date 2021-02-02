@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     print("Setting password for Rstudio user.")
     try:
-        sudo('echo "{0}:{1}" | chpasswd'.format(args.os_user, args.rstudio_pass))
+        conn.sudo('echo "{0}:{1}" | chpasswd'.format(args.os_user, args.rstudio_pass))
         datalab.fab.close_connection()
     except Exception as err:
         print('Error: {0}'.format(err))

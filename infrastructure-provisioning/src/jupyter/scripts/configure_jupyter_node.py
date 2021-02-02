@@ -78,7 +78,7 @@ if __name__ == "__main__":
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-    local_spark_scala_version = sudo('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"')
+    local_spark_scala_version = conn.sudo('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"')
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")

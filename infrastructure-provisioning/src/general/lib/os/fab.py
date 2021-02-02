@@ -40,12 +40,12 @@ from fabric.contrib.files import exists
 def ensure_pip(requisites):
     try:
         if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
-            sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
-            sudo('echo export PATH >> /etc/profile')
-            sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            sudo('pip3 install --upgrade setuptools')
-            sudo('pip3 install -UI {} --no-cache-dir'.format(requisites))
-            sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
+            conn.sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
+            conn.sudo('echo export PATH >> /etc/profile')
+            conn.sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+            conn.sudo('pip3 install --upgrade setuptools')
+            conn.sudo('pip3 install -UI {} --no-cache-dir'.format(requisites))
+            conn.sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
     except:
         sys.exit(1)
 
@@ -61,10 +61,10 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             for v in range(4, 8):
                 if exists('/bin/pip3.{}'.format(v)):
-                    sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
-        sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
-        sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
-        sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
+                    conn.sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
+        conn.sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
+        conn.sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
+        conn.sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             name, vers = pip_pkg
             if pip_pkg[1] == '' or pip_pkg[1] == 'N/A':
@@ -73,20 +73,20 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             else:
                 version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
+            conn.sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
                  ' /tmp/{0}install_{3}.log; then  echo "" > /tmp/{0}install_{3}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
-            err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).replace('"', "'")
-            sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
-            sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            installed_out = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
+            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).replace('"', "'")
+            conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
+            res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
+            conn.sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
+            installed_out = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
             changed_pip_pkg = False
             if res == '':
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
                 changed_pip_pkg = changed_pip_pkg[0]
-                sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
+                conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
-                res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
+                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
             if err and name not in installed_out:
                 status_msg = 'installation_error'
                 if 'ERROR: No matching distribution found for {}'.format(name) in err:
@@ -110,9 +110,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 else:
                     versions = []
 
-            sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
+            conn.sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
                  'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, name))
-            dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, name)).replace('\r\n', '').strip()[31:]
+            dep = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, name)).replace('\r\n', '').strip()[31:]
             if dep == '':
                 dep = []
             else:
@@ -121,9 +121,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     if i == name:
                         dep[n] = ''
                     else:
-                        sudo('{0} show {1} 2>&1 | if ! grep Version: /tmp/tee.tmp > '
+                        conn.sudo('{0} show {1} 2>&1 | if ! grep Version: /tmp/tee.tmp > '
                              '/tmp/{0}_install_{1}.log; then echo "" > /tmp/{0}_install_{1}.log;fi'.format(pip_version, i))
-                        dep[n] = sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
+                        dep[n] = conn.sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             status.append({"group": lib_group, "name": name, "version": version, "status": status_msg,
                            "error_message": err, "available_versions": versions, "add_pkgs": dep})
@@ -184,63 +184,63 @@ def append_result(error, exception=''):
 def put_resource_status(resource, status, datalab_path, os_user, hostname):
     keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
     init_datalab_connection(hostname, os_user, keyfile)
-    sudo('python3 ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
+    conn.sudo('python3 ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
     close_connection()
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
-            sudo('pip3 install jupyter --no-cache-dir')
-            sudo('rm -rf {}'.format(jupyter_conf_file))
-            run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
+            conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            conn.sudo('pip3 install jupyter --no-cache-dir')
+            conn.sudo('rm -rf {}'.format(jupyter_conf_file))
+            conn.run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             with cd('/home/{}'.format(os_user)):
-                run('mkdir -p ~/.jupyter/custom/')
-                run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
-            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
-            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
-            sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
-            sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
-            sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
-            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
-            put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
-            sudo("chmod 644 /tmp/jupyter-notebook.service")
+                conn.run('mkdir -p ~/.jupyter/custom/')
+                conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
+            conn.sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
+            conn.sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
+            conn.sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
+            conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
+            conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
+            conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+            conn.put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
+            conn.sudo("chmod 644 /tmp/jupyter-notebook.service")
             if os.environ['application'] == 'tensor':
-                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+                conn.sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
             elif os.environ['application'] == 'deeplearning':
-                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
+                conn.sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
                      "/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
                      "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
-            sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
-            sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-            http_proxy = run('echo $http_proxy')
-            https_proxy = run('echo $https_proxy')
+            conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+            conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+            http_proxy = conn.run('echo $http_proxy')
+            https_proxy = conn.run('echo $https_proxy')
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    http_proxy))
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    https_proxy))
-            java_home = run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
-            sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
+            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
+            conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
                 java_home))
-            sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
-            sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
-            sudo('mkdir -p /mnt/var')
-            sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            conn.sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
+            conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
+            conn.sudo('mkdir -p /mnt/var')
+            conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
-                sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
-                sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
-            sudo("systemctl daemon-reload")
-            sudo("systemctl enable jupyter-notebook")
-            sudo("systemctl start jupyter-notebook")
-            sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
+                conn.sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
+                conn.sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
+            conn.sudo("systemctl daemon-reload")
+            conn.sudo("systemctl enable jupyter-notebook")
+            conn.sudo("systemctl start jupyter-notebook")
+            conn.sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
     else:
         try:
-            sudo(
+            conn.sudo(
                 'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(exploratory_name, jupyter_conf_file))
-            sudo("systemctl restart jupyter-notebook")
+            conn.sudo("systemctl restart jupyter-notebook")
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
@@ -249,13 +249,13 @@ def configure_docker(os_user):
     try:
         if not exists('/home/' + os_user + '/.ensure_dir/docker_ensured'):
             docker_version = os.environ['ssn_docker_version']
-            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
-            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+            conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
             manage_pkg('update', 'remote', '')
-            sudo('apt-cache policy docker-ce')
+            conn.sudo('apt-cache policy docker-ce')
             manage_pkg('-y install', 'remote', 'docker-ce=5:{}~3-0~ubuntu-focal'.format(docker_version))
-            sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
+            conn.sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
@@ -263,76 +263,76 @@ def configure_docker(os_user):
 def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_conf_file, jupyterlab_conf_file, exploratory_name, edge_ip):
     if not exists(jupyterlab_dir):
         try:
-            sudo('mkdir {}'.format(jupyterlab_dir))
-#            put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
-#            put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
-            put('/root/Dockerfile_jupyterlab', '/tmp/Dockerfile_jupyterlab')
-            put('/root/scripts/*', '/tmp/')
-#            sudo('\cp /tmp/pyspark_local_template.json ' + jupyterlab_dir + 'pyspark_local_template.json')
-#            sudo('\cp /tmp/py3spark_local_template.json ' + jupyterlab_dir + 'py3spark_local_template.json')
-#            sudo('sed -i \'s/3.5/3.6/g\' {}py3spark_local_template.json'.format(jupyterlab_dir))
-            sudo('mv /tmp/jupyterlab_run.sh {}jupyterlab_run.sh'.format(jupyterlab_dir))
-            sudo('mv /tmp/Dockerfile_jupyterlab {}Dockerfile_jupyterlab'.format(jupyterlab_dir))
-            sudo('mv /tmp/build.sh {}build.sh'.format(jupyterlab_dir))
-            sudo('mv /tmp/start.sh {}start.sh'.format(jupyterlab_dir))
-            sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyterlab'.format(os_user, jupyterlab_dir))
-            sudo('sed -i \'s/jupyterlab_image/{}/g\' {}Dockerfile_jupyterlab'.format(jupyterlab_image, jupyterlab_dir))
-            sudo('sed -i \'s/nb_user/{}/g\' {}start.sh'.format(os_user, jupyterlab_dir))
-#            sudo('sed -i \'s/jup_version/{}/g\' {}Dockerfile_jupyterlab'.format(jupyter_version, jupyterlab_dir))
-#            sudo('sed -i \'s/hadoop_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_hadoop_version'], jupyterlab_dir))
-#            sudo('sed -i \'s/tornado_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_tornado_version'], jupyterlab_dir))
-#            sudo('sed -i \'s/matplotlib_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_matplotlib_version'], jupyterlab_dir))
-#            sudo('sed -i \'s/numpy_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_numpy_version'], jupyterlab_dir))
-#            sudo('sed -i \'s/spark_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_spark_version'], jupyterlab_dir))
-#            sudo('sed -i \'s/scala_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_scala_version'], jupyterlab_dir))
-            sudo('sed -i \'s/CONF_PATH/{}/g\' {}jupyterlab_run.sh'.format(jupyterlab_conf_file, jupyterlab_dir))
-            sudo('touch {}'.format(jupyter_conf_file))
-            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
-            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
-            sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
-            sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
-            sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
-            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
-            sudo('chown datalab-user:datalab-user /opt')
-            sudo(
+            conn.sudo('mkdir {}'.format(jupyterlab_dir))
+#            conn.put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
+#            conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
+            conn.put('/root/Dockerfile_jupyterlab', '/tmp/Dockerfile_jupyterlab')
+            conn.put('/root/scripts/*', '/tmp/')
+#            conn.sudo('\cp /tmp/pyspark_local_template.json ' + jupyterlab_dir + 'pyspark_local_template.json')
+#            conn.sudo('\cp /tmp/py3spark_local_template.json ' + jupyterlab_dir + 'py3spark_local_template.json')
+#            conn.sudo('sed -i \'s/3.5/3.6/g\' {}py3spark_local_template.json'.format(jupyterlab_dir))
+            conn.sudo('mv /tmp/jupyterlab_run.sh {}jupyterlab_run.sh'.format(jupyterlab_dir))
+            conn.sudo('mv /tmp/Dockerfile_jupyterlab {}Dockerfile_jupyterlab'.format(jupyterlab_dir))
+            conn.sudo('mv /tmp/build.sh {}build.sh'.format(jupyterlab_dir))
+            conn.sudo('mv /tmp/start.sh {}start.sh'.format(jupyterlab_dir))
+            conn.sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyterlab'.format(os_user, jupyterlab_dir))
+            conn.sudo('sed -i \'s/jupyterlab_image/{}/g\' {}Dockerfile_jupyterlab'.format(jupyterlab_image, jupyterlab_dir))
+            conn.sudo('sed -i \'s/nb_user/{}/g\' {}start.sh'.format(os_user, jupyterlab_dir))
+#            conn.sudo('sed -i \'s/jup_version/{}/g\' {}Dockerfile_jupyterlab'.format(jupyter_version, jupyterlab_dir))
+#            conn.sudo('sed -i \'s/hadoop_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_hadoop_version'], jupyterlab_dir))
+#            conn.sudo('sed -i \'s/tornado_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_tornado_version'], jupyterlab_dir))
+#            conn.sudo('sed -i \'s/matplotlib_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_matplotlib_version'], jupyterlab_dir))
+#            conn.sudo('sed -i \'s/numpy_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_numpy_version'], jupyterlab_dir))
+#            conn.sudo('sed -i \'s/spark_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_spark_version'], jupyterlab_dir))
+#            conn.sudo('sed -i \'s/scala_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_scala_version'], jupyterlab_dir))
+            conn.sudo('sed -i \'s/CONF_PATH/{}/g\' {}jupyterlab_run.sh'.format(jupyterlab_conf_file, jupyterlab_dir))
+            conn.sudo('touch {}'.format(jupyter_conf_file))
+            conn.sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
+            conn.sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
+            conn.sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
+            conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
+            conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
+            conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+            conn.sudo('chown datalab-user:datalab-user /opt')
+            conn.sudo(
                 'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(
                     edge_ip, os_user))
-            sudo('echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(edge_ip, os_user))
-#            sudo('touch {}'.format(spark_script))
-#            sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
-#            sudo(
+            conn.sudo('echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(edge_ip, os_user))
+#            conn.sudo('touch {}'.format(spark_script))
+#            conn.sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
+#            conn.sudo(
 #                'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/pyspark_local_template.json" >> {}'.format(
 #                spark_script))
-        #            sudo(
+        #            conn.sudo(
         #                'echo "sed -i \'14s/:",/:\\/home\\/datalab-user\\/caffe\\/python:\\/home\\/datalab-user\\/pytorch\\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
         #                    spark_script))
-#            sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/pyspark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
-#            sudo(
+#            conn.sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/pyspark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
+#            conn.sudo(
 #                'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/py3spark_local_template.json" >> {}'.format(
 #                spark_script))
-        #            sudo(
+        #            conn.sudo(
         #                'echo "sed -i \'14s/:",/:\\/home\\/datalab-user\\/caffe\\/python:\\/home\\/datalab-user\\/pytorch\\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
         #                    spark_script))
-#            sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/py3spark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
-#            sudo('echo "cp /tmp/pyspark_local_template.json /home/{}/.local/share/jupyter/kernels/pyspark_local/kernel.json" >> {}'.format(os_user, spark_script))
-#            sudo(
+#            conn.sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/py3spark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
+#            conn.sudo('echo "cp /tmp/pyspark_local_template.json /home/{}/.local/share/jupyter/kernels/pyspark_local/kernel.json" >> {}'.format(os_user, spark_script))
+#            conn.sudo(
 #                'echo "cp /tmp/py3spark_local_template.json /home/{}/.local/share/jupyter/kernels/py3spark_local/kernel.json" >> {}'.format(
 #                    os_user, spark_script))
-#            sudo('git clone https://github.com/legion-platform/legion.git')
-#            sudo('cp {}sdk/Pipfile {}sdk_Pipfile'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp {}sdk/Pipfile.lock {}sdk_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp {}toolchains/python/Pipfile {}toolchains_Pipfile'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp {}toolchains/python/Pipfile.lock {}toolchains_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp {}cli/Pipfile {}cli_Pipfile'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp {}cli/Pipfile.lock {}cli_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp -r {}sdk {}sdk'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp -r {}toolchains/python {}toolchains_python'.format(legion_dir, jupyterlab_dir))
-#            sudo('cp -r {}cli {}cli'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('git clone https://github.com/legion-platform/legion.git')
+#            conn.sudo('cp {}sdk/Pipfile {}sdk_Pipfile'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp {}sdk/Pipfile.lock {}sdk_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp {}toolchains/python/Pipfile {}toolchains_Pipfile'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp {}toolchains/python/Pipfile.lock {}toolchains_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp {}cli/Pipfile {}cli_Pipfile'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp {}cli/Pipfile.lock {}cli_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp -r {}sdk {}sdk'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp -r {}toolchains/python {}toolchains_python'.format(legion_dir, jupyterlab_dir))
+#            conn.sudo('cp -r {}cli {}cli'.format(legion_dir, jupyterlab_dir))
         except:
            sys.exit(1)
     else:
         try:
-            sudo(
+            conn.sudo(
                 'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(
                     exploratory_name, jupyter_conf_file))
         except Exception as err:
@@ -343,15 +343,15 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
 def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version):
     if not exists('/home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured'):
         try:
-            sudo('mkdir -p ' + pyspark_local_path_dir)
-            sudo('touch ' + pyspark_local_path_dir + 'kernel.json')
-            put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
-            sudo(
+            conn.sudo('mkdir -p ' + pyspark_local_path_dir)
+            conn.sudo('touch ' + pyspark_local_path_dir + 'kernel.json')
+            conn.put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
+            conn.sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
-            sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
-            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
-            sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
-            sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
+            conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
+            conn.sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
+            conn.sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
         except:
             sys.exit(1)
 
@@ -359,15 +359,15 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
 def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version):
     if not exists('/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
         try:
-            sudo('mkdir -p ' + py3spark_local_path_dir)
-            sudo('touch ' + py3spark_local_path_dir + 'kernel.json')
-            put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
-            sudo(
+            conn.sudo('mkdir -p ' + py3spark_local_path_dir)
+            conn.sudo('touch ' + py3spark_local_path_dir + 'kernel.json')
+            conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
+            conn.sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
-            sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
-            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
-            sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
-            sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
+            conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
+            conn.sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
+            conn.sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
         except:
             sys.exit(1)
 
@@ -421,14 +421,14 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
 
 def ensure_ciphers():
     try:
-        sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
-        sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
-        sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
-        sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
+        conn.sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
+        conn.sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
+        conn.sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
+        conn.sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
         try:
-            sudo('service ssh reload')
+            conn.sudo('service ssh reload')
         except:
-            sudo('service sshd reload')
+            conn.sudo('service sshd reload')
     except Exception as err:
         traceback.print_exc()
         print('Failed to ensure ciphers: ', str(err))
@@ -447,13 +447,13 @@ def install_r_pkg(requisites):
             else:
                 vers = '"{}"'.format(vers)
             if name == 'sparklyr':
-                run('sudo -i R -e \'devtools::install_version("{0}", version = {1}, repos = "http://cran.us.r-project.org", dependencies = NA)\' 2>&1 | '
+                conn.run('sudo -i R -e \'devtools::install_version("{0}", version = {1}, repos = "http://cran.us.r-project.org", dependencies = NA)\' 2>&1 | '
                         'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
             else:
-                sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dependencies = NA)\' 2>&1 | '
+                conn.sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dependencies = NA)\' 2>&1 | '
                          'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
-            dep = sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
-            dep_ver = sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').replace('\r\n', ' ').replace(')', '').split(' ')
+            dep = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
+            dep_ver = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').replace('\r\n', ' ').replace(')', '').split(' ')
             if dep == '':
                 dep = []
             else:
@@ -464,9 +464,9 @@ def install_r_pkg(requisites):
                     else:
                         dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
                 dep = [i for i in dep if i]
-            err = sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
-            sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
-            res = sudo('cat /tmp/install_{0}.list'.format(name))
+            err = conn.sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
+            conn.sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
+            res = conn.sudo('cat /tmp/install_{0}.list'.format(name))
             if err:
                 status_msg = 'installation_error'
                 if 'couldn\'t find package \'{}\''.format(name) in err:
@@ -476,8 +476,8 @@ def install_r_pkg(requisites):
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
                 status_msg = 'installed'
             if 'Error in download_version_url(package, version, repos, type) :' in err or 'Error in parse_deps(paste(spec,' in err:
-                sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
-                versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
+                conn.sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
+                versions = conn.sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
                 if versions != ['']:
                     status_msg = 'invalid_version'
@@ -498,18 +498,18 @@ def install_r_pkg(requisites):
 
 def update_spark_jars(jars_dir='/opt/jars'):
     try:
-        configs = sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
+        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
         if exists(jars_dir):
             for conf in filter(None, configs):
                 des_path = ''
-                all_jars = sudo('find {0} -name "*.jar"'.format(jars_dir)).split('\r\n')
+                all_jars = conn.sudo('find {0} -name "*.jar"'.format(jars_dir)).split('\r\n')
                 if ('-des-' in conf):
                     des_path = '/'.join(conf.split('/')[:3])
                     all_jars = find_des_jars(all_jars, des_path)
-                sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
-                sudo('echo "# Generated spark.jars by DataLab from {0}\nspark.jars {1}" >> {2}'
+                conn.sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
+                conn.sudo('echo "# Generated spark.jars by DataLab from {0}\nspark.jars {1}" >> {2}'
                      .format(','.join(filter(None, [jars_dir, des_path])), ','.join(all_jars), conf))
-                # sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
+                # conn.sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
         else:
             print("Can't find directory {0} with jar files".format(jars_dir))
     except Exception as err:
@@ -527,28 +527,28 @@ def install_java_pkg(requisites):
     ivy_settings = 'ivysettings.xml'
     dest_dir = '/opt/jars/java'
     try:
-        ivy_jar = sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version']))
-        sudo('mkdir -p {0} {1}'.format(ivy_dir, dest_dir))
-        put('{0}{1}'.format(templates_dir, ivy_settings), '{0}/{1}'.format(ivy_dir, ivy_settings), use_sudo=True)
-        proxy_string = sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="')
+        ivy_jar = conn.sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version']))
+        conn.sudo('mkdir -p {0} {1}'.format(ivy_dir, dest_dir))
+        conn.put('{0}{1}'.format(templates_dir, ivy_settings), '{0}/{1}'.format(ivy_dir, ivy_settings), use_sudo=True)
+        proxy_string = conn.sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="')
         proxy_re = '(?P<proto>http.*)://(?P<host>[^:/ ]+):(?P<port>[0-9]*)'
         proxy_find = re.search(proxy_re, proxy_string)
         java_proxy = "export _JAVA_OPTIONS='-Dhttp.proxyHost={0} -Dhttp.proxyPort={1} \
             -Dhttps.proxyHost={0} -Dhttps.proxyPort={1}'".format(proxy_find.group('host'), proxy_find.group('port'))
         for java_pkg in requisites:
-            sudo('rm -rf {0}'.format(ivy_cache_dir))
-            sudo('mkdir -p {0}'.format(ivy_cache_dir))
+            conn.sudo('rm -rf {0}'.format(ivy_cache_dir))
+            conn.sudo('mkdir -p {0}'.format(ivy_cache_dir))
             group, artifact, version, override = java_pkg
             print("Installing package (override: {3}): {0}:{1}:{2}".format(group, artifact, version, override))
-            sudo('{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; \
+            conn.sudo('{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; \
                 if ! grep -w -E  "({7})" /tmp/tee.tmp > /tmp/install_{5}.log; then echo "" > /tmp/install_{5}.log;fi'
                  .format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser, java_proxy))
-            err = sudo('cat /tmp/install_{0}.log'.format(artifact)).replace('"', "'").strip()
-            sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
+            err = conn.sudo('cat /tmp/install_{0}.log'.format(artifact)).replace('"', "'").strip()
+            conn.sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
                 if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(ivy_cache_dir, artifact))
-            res = sudo('cat /tmp/install_{0}.list'.format(artifact))
+            res = conn.sudo('cat /tmp/install_{0}.list'.format(artifact))
             if res:
-                sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
+                conn.sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
             else:
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error", "error_message": err})
@@ -565,7 +565,7 @@ def install_java_pkg(requisites):
 def get_available_r_pkgs():
     try:
         r_pkgs = dict()
-        sudo('R -e \'write.table(available.packages(contriburl="https://cloud.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+        conn.sudo('R -e \'write.table(available.packages(contriburl="https://cloud.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
         get("/tmp/r.csv", "r.csv")
         with open('r.csv', 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
@@ -580,16 +580,16 @@ def get_available_r_pkgs():
 def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
     if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
         try:
-            sudo('pip install ' + toree_link + ' --no-cache-dir')
-            sudo('ln -s /opt/spark/ /usr/local/spark')
-            sudo('jupyter toree install')
-            sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
-            put(files_dir + 'toree-assembly-0.3.0.jar', '/tmp/toree-assembly-0.3.0.jar')
-            sudo('mv /tmp/toree-assembly-0.3.0.jar ' + scala_kernel_path + 'lib/')
-            sudo(
+            conn.sudo('pip install ' + toree_link + ' --no-cache-dir')
+            conn.sudo('ln -s /opt/spark/ /usr/local/spark')
+            conn.sudo('jupyter toree install')
+            conn.sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
+            conn.put(files_dir + 'toree-assembly-0.3.0.jar', '/tmp/toree-assembly-0.3.0.jar')
+            conn.sudo('mv /tmp/toree-assembly-0.3.0.jar ' + scala_kernel_path + 'lib/')
+            conn.sudo(
                 'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
                 ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
-            sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
         except:
             sys.exit(1)
 
@@ -598,74 +598,74 @@ def install_ungit(os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
-            put('/root/templates/ungit.service', '/tmp/ungit.service')
-            sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            http_proxy = run('echo $http_proxy')
-            sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
-            sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
+            conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
+            conn.sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
+            http_proxy = conn.run('echo $http_proxy')
+            conn.sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
+            conn.sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
                 notebook_name))
-            sudo("mv -f /tmp/ungit.service /etc/systemd/system/ungit.service")
-            run('git config --global user.name "Example User"')
-            run('git config --global user.email "example@example.com"')
-            run('mkdir -p ~/.git/templates/hooks')
-            put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0o755)
-            run('git config --global init.templatedir ~/.git/templates')
-            run('touch ~/.gitignore')
-            run('git config --global core.excludesfile ~/.gitignore')
-            run('echo ".ipynb_checkpoints/" >> ~/.gitignore')
-            run('echo "spark-warehouse/" >> ~/.gitignore')
-            run('echo "metastore_db/" >> ~/.gitignore')
-            run('echo "derby.log" >> ~/.gitignore')
-            sudo(
+            conn.sudo("mv -f /tmp/ungit.service /etc/systemd/system/ungit.service")
+            conn.run('git config --global user.name "Example User"')
+            conn.run('git config --global user.email "example@example.com"')
+            conn.run('mkdir -p ~/.git/templates/hooks')
+            conn.put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0o755)
+            conn.run('git config --global init.templatedir ~/.git/templates')
+            conn.run('touch ~/.gitignore')
+            conn.run('git config --global core.excludesfile ~/.gitignore')
+            conn.run('echo ".ipynb_checkpoints/" >> ~/.gitignore')
+            conn.run('echo "spark-warehouse/" >> ~/.gitignore')
+            conn.run('echo "metastore_db/" >> ~/.gitignore')
+            conn.run('echo "derby.log" >> ~/.gitignore')
+            conn.sudo(
                 'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(
                     edge_ip, os_user))
-            sudo(
+            conn.sudo(
                 'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
                     edge_ip, os_user))
-            sudo(
+            conn.sudo(
                 'echo -e "Host gitlab.com\n   HostName gitlab.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
                     edge_ip, os_user))
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable ungit.service')
-            sudo('systemctl start ungit.service')
-            sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable ungit.service')
+            conn.sudo('systemctl start ungit.service')
+            conn.sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
         except:
             sys.exit(1)
     else:
         try:
-            sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
+            conn.sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
-            http_proxy = run('echo $http_proxy')
-            sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
-            sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
-            sudo('systemctl daemon-reload')
-            sudo('systemctl restart ungit.service')
+            http_proxy = conn.run('echo $http_proxy')
+            conn.sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            conn.sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl restart ungit.service')
         except:
             sys.exit(1)
-    run('git config --global http.proxy $http_proxy')
-    run('git config --global https.proxy $https_proxy')
+    conn.run('git config --global http.proxy $http_proxy')
+    conn.run('git config --global https.proxy $https_proxy')
 
 
 def install_inactivity_checker(os_user, ip_address, rstudio=False):
     if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
         try:
             if not exists('/opt/inactivity'):
-                sudo('mkdir /opt/inactivity')
-            put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
-            put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
+                conn.sudo('mkdir /opt/inactivity')
+            conn.put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
+            conn.put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
             if rstudio:
-                put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+                conn.put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
             else:
-                put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
-            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_address))
-            sudo("chmod 755 /opt/inactivity/inactive.sh")
-            sudo("chown root:root /etc/systemd/system/inactive.service")
-            sudo("chown root:root /etc/systemd/system/inactive.timer")
-            sudo("date +%s > /opt/inactivity/local_inactivity")
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable inactive.timer')
-            sudo('systemctl start inactive.timer')
-            sudo('touch /home/{}/.ensure_dir/inactive_ensured'.format(os_user))
+                conn.put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+            conn.sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_address))
+            conn.sudo("chmod 755 /opt/inactivity/inactive.sh")
+            conn.sudo("chown root:root /etc/systemd/system/inactive.service")
+            conn.sudo("chown root:root /etc/systemd/system/inactive.timer")
+            conn.sudo("date +%s > /opt/inactivity/local_inactivity")
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable inactive.timer')
+            conn.sudo('systemctl start inactive.timer')
+            conn.sudo('touch /home/{}/.ensure_dir/inactive_ensured'.format(os_user))
         except Exception as err:
             print('Failed to setup inactivity check service!', str(err))
             sys.exit(1)
@@ -673,8 +673,8 @@ def install_inactivity_checker(os_user, ip_address, rstudio=False):
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):
     init_datalab_connection(hostname, os_user, keyfile)
-    run('git config --global http.proxy {}'.format(proxy_host))
-    run('git config --global https.proxy {}'.format(proxy_host))
+    conn.run('git config --global http.proxy {}'.format(proxy_host))
+    conn.run('git config --global https.proxy {}'.format(proxy_host))
     close_connection()
 
 
@@ -685,13 +685,13 @@ def set_mongo_parameters(client, mongo_parameters):
 
 def install_r_packages(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
-        sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
-        sudo('R -e "install.packages(\'knitr\', repos = \'https://cloud.r-project.org\')"')
-        sudo('R -e "install.packages(\'ggplot2\', repos = \'https://cloud.r-project.org\')"')
-        sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
+        conn.sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
+        conn.sudo('R -e "install.packages(\'knitr\', repos = \'https://cloud.r-project.org\')"')
+        conn.sudo('R -e "install.packages(\'ggplot2\', repos = \'https://cloud.r-project.org\')"')
+        conn.sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
              'repos = \'https://cloud.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
-        sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
-        sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
+        conn.sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
+        conn.sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
 
 
 def add_breeze_library_local(os_user):
@@ -699,25 +699,25 @@ def add_breeze_library_local(os_user):
         try:
             breeze_tmp_dir = '/tmp/breeze_tmp_local/'
             jars_dir = '/opt/jars/'
-            sudo('mkdir -p {}'.format(breeze_tmp_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O \
+            conn.sudo('mkdir -p {}'.format(breeze_tmp_dir))
+            conn.sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O \
                     {2}breeze_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar -O \
+            conn.sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar -O \
                     {2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-viz_{0}/{1}/breeze-viz_{0}-{1}.jar -O \
+            conn.sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-viz_{0}/{1}/breeze-viz_{0}-{1}.jar -O \
                     {2}breeze-viz_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-macros_{0}/{1}/breeze-macros_{0}-{1}.jar -O \
+            conn.sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-macros_{0}/{1}/breeze-macros_{0}-{1}.jar -O \
                     {2}breeze-macros_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-parent_{0}/{1}/breeze-parent_{0}-{1}.jar -O \
+            conn.sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-parent_{0}/{1}/breeze-parent_{0}-{1}.jar -O \
                     {2}breeze-parent_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar -O \
+            conn.sudo('wget https://repo1.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar -O \
                     {1}jfreechart-{0}.jar'.format('1.0.19', breeze_tmp_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar -O \
+            conn.sudo('wget https://repo1.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar -O \
                     {1}jcommon-{0}.jar'.format('1.0.24', breeze_tmp_dir))
-            sudo('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar -O \
+            conn.sudo('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar -O \
                     {1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir))
-            sudo('mv {0}* {1}'.format(breeze_tmp_dir, jars_dir))
-            sudo('touch /home/' + os_user + '/.ensure_dir/breeze_local_ensured')
+            conn.sudo('mv {0}* {1}'.format(breeze_tmp_dir, jars_dir))
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/breeze_local_ensured')
         except:
             sys.exit(1)
 
@@ -725,22 +725,22 @@ def add_breeze_library_local(os_user):
 def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     init_datalab_connection(hostname, os_user, keyfile)
     manage_pkg('-y install', 'remote', 'python3-pip')
-    if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
-        sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
-        sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
-        sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
-        sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and sudo("python3.8 -V 2>/dev/null | awk '{print $2}'"):
-        sudo('ln -s /usr/bin/pip-3.8 /usr/bin/pip3')
+    if not exists('/usr/bin/pip3') and conn.sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
+        conn.sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and conn.sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
+        conn.sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and conn.sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
+        conn.sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and conn.sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
+        conn.sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and conn.sudo("python3.8 -V 2>/dev/null | awk '{print $2}'"):
+        conn.sudo('ln -s /usr/bin/pip-3.8 /usr/bin/pip3')
     if emr:
-        sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
-        sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
-    sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
-    sudo('source /etc/profile')
-    run('source /etc/profile')
+        conn.sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
+        conn.sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
+    conn.sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
+    conn.sudo('source /etc/profile')
+    conn.run('source /etc/profile')
     close_connection()
 
 
@@ -766,7 +766,7 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         with open('.Rprofile', 'w') as f:
             for line in conf:
                 f.write('{}\n'.format(line))
-        put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
+        conn.put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
         get('/home/{}/.Renviron'.format(os_user), 'Renviron')
         data = open('Renviron').read()
         conf = filter(None, data.split('\n'))
@@ -784,11 +784,11 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         with open('.Renviron', 'w') as f:
             for line in conf:
                 f.write('{}\n'.format(line))
-        put('.Renviron', '/home/{}/.Renviron'.format(os_user))
+        conn.put('.Renviron', '/home/{}/.Renviron'.format(os_user))
         if len(conf) == 1:
-           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
-           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
-        sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
+           conn.sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+           conn.sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
+        conn.sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
     except:
         sys.exit(1)
 
@@ -796,18 +796,18 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
 def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         init_datalab_connection(hostname, os_user, keyfile)
-    sudo("systemctl daemon-reload")
-    sudo("systemctl restart zeppelin-notebook")
+    conn.sudo("systemctl daemon-reload")
+    conn.sudo("systemctl restart zeppelin-notebook")
     if creds:
         close_connection()
 
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         with settings(host_string='{}@{}'.format(os_user, hostname)):
-            mem = sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
+            mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
             instance_memory = int(mem)
     else:
-        mem = sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
+        mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
         instance_memory = int(mem)
     try:
         if instance_memory > int(os.environ['dataengine_expl_instance_memory']):
@@ -844,8 +844,8 @@ def update_pyopenssl_lib(os_user):
     if not exists('/home/{}/.ensure_dir/pyopenssl_updated'.format(os_user)):
         try:
             if exists('/usr/bin/pip3'):
-                sudo('pip3 install -U pyopenssl')
-            sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
+                conn.sudo('pip3 install -U pyopenssl')
+            conn.sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
         except:
             sys.exit(1)
 
@@ -853,9 +853,9 @@ def update_pyopenssl_lib(os_user):
 def find_cluster_kernels():
     try:
         with settings(sudo_user='root'):
-            de = [i for i in sudo('find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | '
+            de = [i for i in conn.sudo('find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | '
                                   'cut -f 1 -d "/" | rev | xargs -r').split(' ') if i != '']
-            des =  [i for i in sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
+            des =  [i for i in conn.sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
                                     'cut -f 1,2 -d "/" | rev | xargs -r').split(' ') if i != '']
         return (de, des)
     except:
@@ -899,9 +899,9 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         if interpreter_mode != 'remote':
             with open(local_interpreters_config, 'w') as f:
                 f.write(json.dumps(data, indent=2))
-            put(local_interpreters_config, local_interpreters_config)
-            sudo('cp -f {0} {1}'.format(local_interpreters_config, interpreters_config))
-            sudo('systemctl restart zeppelin-notebook')
+            conn.put(local_interpreters_config, local_interpreters_config)
+            conn.sudo('cp -f {0} {1}'.format(local_interpreters_config, interpreters_config))
+            conn.sudo('systemctl restart zeppelin-notebook')
         else:
             with open(interpreters_config, 'w') as f:
                 f.write(json.dumps(data, indent=2))
@@ -914,8 +914,8 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
 def update_hosts_file(os_user):
     try:
         if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
-            sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
-            sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
+            conn.sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
+            conn.sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
     except Exception as err:
         print('Failed to update hosts file', str(err))
         sys.exit(1)
@@ -925,11 +925,11 @@ def ensure_docker_compose(os_user):
         configure_docker(os_user)
         if not exists('/home/{}/.ensure_dir/docker_compose_ensured'.format(os_user)):
             docker_compose_version = "1.24.1"
-            sudo('curl -L https://github.com/docker/compose/releases/download/{}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'.format(docker_compose_version))
-            sudo('chmod +x /usr/local/bin/docker-compose')
-            sudo('touch /home/{}/.ensure_dir/docker_compose_ensured'.format(os_user))
-        sudo('systemctl daemon-reload')
-        sudo('systemctl restart docker')
+            conn.sudo('curl -L https://github.com/docker/compose/releases/download/{}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'.format(docker_compose_version))
+            conn.sudo('chmod +x /usr/local/bin/docker-compose')
+            conn.sudo('touch /home/{}/.ensure_dir/docker_compose_ensured'.format(os_user))
+        conn.sudo('systemctl daemon-reload')
+        conn.sudo('systemctl restart docker')
         return True
     except:
         return False
@@ -939,42 +939,42 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
     try:
         if not exists('/home/{}/incubator-superset'.format(os_user)):
             with cd('/home/{}'.format(os_user)):
-                sudo('wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(
+                conn.sudo('wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(
                     os.environ['notebook_superset_version']))
-                sudo('tar -xzf {}.tar.gz'.format(os.environ['notebook_superset_version']))
-                sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
+                conn.sudo('tar -xzf {}.tar.gz'.format(os.environ['notebook_superset_version']))
+                conn.sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
         if not exists('/tmp/superset-notebook_installed'):
-            sudo('mkdir -p /opt/datalab/templates')
-            put('/root/templates', '/opt/datalab', use_sudo=True)
-            sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/.env'.format(os_user))
+            conn.sudo('mkdir -p /opt/datalab/templates')
+            conn.put('/root/templates', '/opt/datalab', use_sudo=True)
+            conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/.env'.format(os_user))
             proxy_string = '{}:3128'.format(edge_instance_private_ip)
-            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/datalab/templates/id_provider.json'.format(
+            conn.sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/datalab/templates/id_provider.json'.format(
                 keycloak_auth_server_url))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/id_provider.json'.format(
+            conn.sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/id_provider.json'.format(
                 keycloak_realm_name))
-            sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/datalab/templates/id_provider.json'.format(keycloak_client_id))
-            sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/datalab/templates/id_provider.json'.format(
+            conn.sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/datalab/templates/id_provider.json'.format(keycloak_client_id))
+            conn.sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/datalab/templates/id_provider.json'.format(
                 keycloak_client_secret))
-            sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/datalab/templates/docker-compose.yml'.format(proxy_string))
-            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/datalab/templates/superset_config.py'.format(
+            conn.sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/datalab/templates/docker-compose.yml'.format(proxy_string))
+            conn.sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/datalab/templates/superset_config.py'.format(
                 keycloak_auth_server_url))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(
+            conn.sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(
                 keycloak_realm_name))
-            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/superset_config.py'.format(edge_instance_public_ip))
-            sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(superset_name))
-            sudo('cp -f /opt/datalab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
-            sudo('cp -f /opt/datalab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(
+            conn.sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/superset_config.py'.format(edge_instance_public_ip))
+            conn.sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(superset_name))
+            conn.sudo('cp -f /opt/datalab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            conn.sudo('cp -f /opt/datalab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(
                 os_user))
-            sudo('cp -f /opt/datalab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(
+            conn.sudo('cp -f /opt/datalab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(
                 os_user))
-            sudo(
+            conn.sudo(
                 'cp -f /opt/datalab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(
                     os_user))
-            sudo('cp -f /opt/datalab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(
+            conn.sudo('cp -f /opt/datalab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(
                 os_user))
-            sudo('cp -f /opt/datalab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(
+            conn.sudo('cp -f /opt/datalab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(
                 os_user))
-            sudo('touch /tmp/superset-notebook_installed')
+            conn.sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:
         print("Failed configure superset: " + str(err))
         sys.exit(1)
@@ -991,10 +991,10 @@ def manage_npm_pkg(command):
             else:
                 try:
                     if npm_count % 2 == 0:
-                        sudo('npm config set registry {}'.format(npm_registry[0]))
+                        conn.sudo('npm config set registry {}'.format(npm_registry[0]))
                     else:
-                        sudo('npm config set registry {}'.format(npm_registry[1]))
-                    sudo('npm {}'.format(command))
+                        conn.sudo('npm config set registry {}'.format(npm_registry[1]))
+                    conn.sudo('npm {}'.format(command))
                     installed = True
                 except:
                     npm_count += 1
