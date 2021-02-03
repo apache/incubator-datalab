@@ -65,7 +65,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public libSearch: FormControl = new FormControl();
   public groupsListMap = {
     'r_pkg': 'R packages',
-    'pip2': 'Python 2',
     'pip3': 'Python 3',
     'os_pkg': 'Apt/Yum',
     'others': 'Others',
@@ -132,13 +131,17 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       )
       .subscribe(
         response => {
-          this.libsUploadingStatus(response);
+          const groups = [].concat(response);
+
+          // Remove when will be removed pip2 from Backend
+          const groupWithoutPip2 = groups.filter(group => group !== 'pip2');
+
+          this.libsUploadingStatus(groupWithoutPip2);
           this.changeDetector.detectChanges();
 
           this.resource_select && this.resource_select.setDefaultOptions(
             this.getResourcesList(),
             this.destination.title, 'destination', 'title', 'array');
-
           this.group_select && this.group_select.setDefaultOptions(
             this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
@@ -366,6 +369,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
+
       this.groupsList = this.filterGroups(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
