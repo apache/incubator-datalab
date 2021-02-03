@@ -122,7 +122,11 @@
               <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
           </button> </th>
-        <td mat-cell *matCellDef="let element" class="shape">{{ element.shape || element.ip }}</td>
+        <td mat-cell *matCellDef="let element" class="shape">
+          <div>{{ element.shape || element.ip }}</div>
+          <div *ngIf="element.gpu_type">{{ element.gpu_type }}</div>
+          <div *ngIf="element.gpu_count">GPU count: {{ element.gpu_count }}</div>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="status">

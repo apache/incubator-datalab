@@ -130,9 +130,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public getShapes(template) {
-    if (this.selectedCloud === 'gcp' && template.image === 'docker.datalab-jupyter') {
-      this.gpuTypes = template.gpu_types;
-    }
+    // if (this.selectedCloud === 'gcp' && template.image === 'docker.datalab-jupyter') {
+    //   this.gpuTypes = template.gpu_types;
+    // }
     this.currentTemplate = template;
     const allowed: any = ['GPU optimized'];
     if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1

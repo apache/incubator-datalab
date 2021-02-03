@@ -140,6 +140,7 @@
             <td class="shape-col">
               <div>{{ element.shape }}</div>
               <div *ngIf="element.gpu_type">{{ element.gpu_type }}</div>
+              <div *ngIf="element.gpu_count">GPU count: {{ element.gpu_count }}</div>
             </td>
 
             <td class="tag-col selection">

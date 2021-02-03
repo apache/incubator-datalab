@@ -48,6 +48,7 @@
           <td>
             <div>{{notebook.shape}}</div>
             <div *ngIf="notebook.gpu_type">{{notebook.gpu_type}}</div>
+            <div *ngIf="notebook.gpu_count">GPU count: {{notebook.gpu_count}}</div>
           </td>
         </tr>
       </table>
