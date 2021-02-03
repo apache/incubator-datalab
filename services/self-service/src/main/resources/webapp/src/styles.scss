@@ -442,7 +442,6 @@ input[type='number'] {
   &::after{
     content: '';
     display: block;
-    pointer-events: none;
   }
 }
 
@@ -519,6 +518,10 @@ input[type='number'] {
   max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
+  &::after{
+    content: '';
+    display: block;
+  }
 }
 
 .mat-tooltip-for-users {
