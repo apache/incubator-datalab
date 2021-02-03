@@ -515,3 +515,7 @@ input[type='number'] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.mat-tooltip-for-users {
+  overflow-wrap: break-word;
+}
