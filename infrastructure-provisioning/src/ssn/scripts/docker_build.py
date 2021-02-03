@@ -60,18 +60,15 @@ def image_build(src_path, node):
                 local('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path))
         else:
             cloud_provider = 'gcp'
-        with lcd(src_path):
-            local(
-                'docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.datalab-base:latest .'.format(
-                    os_family, cloud_provider))
-            try:
-                for i in range(len(node)):
-                    local(
-                        'docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.datalab-{2} .'.format(
-                            os_family, cloud_provider, node[i]))
-            except Exception as err:
-                print("Failed to build {} image".format(node[i]), str(err))
-                raise Exception
+        local('cd {2}; docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.datalab-base:latest .'.format(
+                    os_family, cloud_provider, src_path))
+        try:
+            for i in range(len(node)):
+                local('cd {3}; docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.datalab-{2} .'.format(
+                            os_family, cloud_provider, node[i], src_path))
+        except Exception as err:
+            print("Failed to build {} image".format(node[i]), str(err))
+            raise Exception
     except Exception as err:
         traceback.print_exc()
         sys.exit(1)

@@ -1302,11 +1302,9 @@ class GCPActions:
             if not os.path.exists('/opt/python/python{}'.format(python_version)):
                 local('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_version))
                 local('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_version))
-                with lcd('/tmp/Python-{}'.format(python_version)):
-                    local('./configure --prefix=/opt/python/python{} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version))
-                    local('sudo make altinstall')
-                with lcd('/tmp/'):
-                    local('sudo rm -rf Python-{}/'.format(python_version))
+                local('cd /tmp/Python-{0}; ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version))
+                local('cd /tmp/Python-{}; sudo make altinstall'.format(python_version))
+                local('cd /tmp/; sudo rm -rf Python-{}/'.format(python_version))
                 local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
                 venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])

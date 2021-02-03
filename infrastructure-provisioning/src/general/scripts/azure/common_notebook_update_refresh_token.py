@@ -27,7 +27,6 @@ import argparse
 import os
 import sys
 import time
-from fabric import lcd
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()

@@ -1529,12 +1529,9 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         local('wget https://www.python.org/ftp/python/' + python_version +
               '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz')
         local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
-        with lcd('/tmp/Python-' + python_version):
-            local('./configure --prefix=/opt/python/python' + python_version +
-                  ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
-            local('sudo make altinstall')
-        with lcd('/tmp/'):
-            local('sudo rm -rf Python-' + python_version + '/')
+        local('cd /tmp/Python-{0}; ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version))
+        local('cd /tmp/Python-{0}; sudo make altinstall'.format(python_version))
+        local('cd /tmp/; sudo rm -rf Python-' + python_version + '/')
         if region == 'cn-north-1':
             local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip=={} --no-cache-dir'.format(
                 python_version, python_version[0:3], os.environ['conf_pip_version']))
