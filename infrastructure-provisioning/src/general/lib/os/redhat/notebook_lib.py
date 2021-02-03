@@ -249,14 +249,14 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
-            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
+            conn.run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
+            conn.run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             conn.sudo('mkdir -p /opt/cudnn/include')
             conn.sudo('mkdir -p /opt/cudnn/lib64')
             conn.sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             conn.sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             conn.sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
+            conn.run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
             conn.sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl'.format(tensorflow_version))
             conn.sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl'.format(tensorflow_version))
@@ -402,13 +402,13 @@ def install_opencv(os_user):
         manage_pkg('-y install', 'remote', 'cmake python34 python34-devel python34-pip gcc gcc-c++')
         conn.sudo('pip3.4 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         conn.sudo('pip3.5 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
-        run('git clone https://github.com/opencv/opencv.git')
-        with cd('/home/{}/opencv/'.format(os_user)):
-            run('git checkout 3.2.0')
-            run('mkdir release')
-        with cd('/home/{}/opencv/release/'.format(os_user)):
-            run('cmake -DINSTALL_TESTS=OFF -D CUDA_GENERATION=Auto -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
-            run('make -j$(nproc)')
+        conn.run('git clone https://github.com/opencv/opencv.git')
+        with conn.cd('/home/{}/opencv/'.format(os_user)):
+            conn.run('git checkout 3.2.0')
+            conn.run('mkdir release')
+        with conn.cd('/home/{}/opencv/release/'.format(os_user)):
+            conn.run('cmake -DINSTALL_TESTS=OFF -D CUDA_GENERATION=Auto -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
+            conn.run('make -j$(nproc)')
             conn.sudo('make install')
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
 
@@ -425,11 +425,11 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        with cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
+        with conn.cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
             conn.sudo('./bootstrap --prefix=/usr/local && make && make install')
         conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        with cd('/home/{}/pytorch/'.format(os_user)):
+        with conn.cd('/home/{}/pytorch/'.format(os_user)):
             conn.sudo('git submodule update --init')
             with settings(warn_only=True):
                 conn.sudo('git checkout v{}'.format(caffe2_version))

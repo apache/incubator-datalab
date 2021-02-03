@@ -917,7 +917,7 @@ def install_nexus():
                    http://localhost:8081/service/rest/v1/script/configureNexus/run')
             conn.sudo('systemctl stop nexus')
             conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
-            with cd('nexus-repository-apt'):
+            with conn.cd('nexus-repository-apt'):
                 conn.sudo('mvn')
             apt_plugin_version = conn.sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
                                       '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-apt-',
@@ -961,7 +961,7 @@ def install_nexus():
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'''
                  '''{0}-features.xml'''.format(nexus_version))
             conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-r.git')
-            with cd('nexus-repository-r'):
+            with conn.cd('nexus-repository-r'):
                 conn.sudo('mvn clean install')
             r_plugin_version = conn.sudo('find nexus-repository-r/ -name "nexus-repository-r-*.jar" '
                                     '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-r-', '').replace(
@@ -1079,9 +1079,9 @@ def mount_efs():
         if not exists('/home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user'])):
             conn.sudo('mkdir -p /opt/sonatype-work')
             conn.sudo('apt-get -y install binutils')
-            with cd('/tmp/'):
+            with conn.cd('/tmp/'):
                 conn.sudo('git clone https://github.com/aws/efs-utils')
-            with cd('/tmp/efs-utils'):
+            with conn.cd('/tmp/efs-utils'):
                 conn.sudo('./build-deb.sh')
                 conn.sudo('apt-get -y install ./build/amazon-efs-utils*deb')
             conn.sudo('sed -i "s/stunnel_check_cert_hostname.*/stunnel_check_cert_hostname = false/g" '
@@ -1234,7 +1234,7 @@ def download_packages():
                 package_name = package.split('/')[-1]
                 packages_list.append({'url': package, 'name': package_name})
             conn.run('mkdir packages')
-            with cd('packages'):
+            with conn.cd('packages'):
                 for package in packages_list:
                     conn.run('wget {0}'.format(package['url']))
                     conn.run('curl -v -u admin:{2} -F "raw.directory=/" -F '
@@ -1272,7 +1272,7 @@ def prepare_images():
     try:
         if not exists('/home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user'])):
             conn.put('files/Dockerfile', '/tmp/Dockerfile')
-            with cd('/tmp/'):
+            with conn.cd('/tmp/'):
                 conn.sudo('docker build --file Dockerfile -t pre-base .')
             conn.sudo('docker login -u {0} -p {1} localhost:8083'.format(args.nexus_service_user_name,
                                                                     args.nexus_service_user_password))

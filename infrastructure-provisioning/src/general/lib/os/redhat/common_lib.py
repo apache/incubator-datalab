@@ -65,7 +65,7 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
             conn.sudo('setenforce 0')
             conn.sudo("sed -i '/^SELINUX=/s/SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config")
             mirror = 'mirror.centos.org'
-            with cd('/etc/yum.repos.d/'):
+            with conn.cd('/etc/yum.repos.d/'):
                 conn.sudo('echo "[Centos-repo]" > centOS-base.repo')
                 conn.sudo('echo "name=Centos 7 Repository" >> centOS-base.repo')
                 conn.sudo('echo "baseurl=http://{}/centos/7/os/x86_64/" >> centOS-base.repo'.format(mirror))

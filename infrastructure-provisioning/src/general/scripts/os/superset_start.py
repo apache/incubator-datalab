@@ -37,7 +37,7 @@ superset_dir = '/home/' + args.os_user + '/incubator-superset/contrib/docker'
 
 def start_superset(superset_dir):
     try:
-        with cd('{}'.format(superset_dir)):
+        with conn.cd('{}'.format(superset_dir)):
             conn.sudo('docker-compose run --rm superset ./docker-init.sh')
         conn.sudo('cp /opt/datalab/templates/superset-notebook.service /tmp/')
         conn.sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(args.os_user))

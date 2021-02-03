@@ -73,7 +73,7 @@ def cp_key(keyfile, host_string, os_user):
 
 def cp_backup_scripts(datalab_path):
     try:
-        with cd(datalab_path + "tmp/"):
+        with conn.cd(datalab_path + "tmp/"):
             conn.put('/root/scripts/backup.py', "backup.py")
             conn.put('/root/scripts/restore.py', "restore.py")
             conn.run('chmod +x backup.py restore.py')
@@ -87,7 +87,7 @@ def cp_gitlab_scripts(datalab_path):
     try:
         if not exists('{}tmp/gitlab'.format(datalab_path)):
             conn.run('mkdir -p {}tmp/gitlab'.format(datalab_path))
-        with cd('{}tmp/gitlab'.format(datalab_path)):
+        with conn.cd('{}tmp/gitlab'.format(datalab_path)):
             conn.put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
             conn.put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
             conn.run('chmod +x gitlab_deploy.py configure_gitlab.py')

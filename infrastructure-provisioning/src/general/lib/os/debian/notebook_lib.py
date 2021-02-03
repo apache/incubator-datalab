@@ -279,7 +279,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             with settings(warn_only=True):
                 reboot(wait=180)
             manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
-            kernel_version = run('uname -r | tr -d "[..0-9-]"')
+            kernel_version = conn.run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
                 manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
             else:
@@ -300,15 +300,15 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
+            conn.run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
                 cudnn_version, cudnn_file_name))
-            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
+            conn.run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             conn.sudo('mkdir -p /opt/cudnn/include')
             conn.sudo('mkdir -p /opt/cudnn/lib64')
             conn.sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             conn.sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             conn.sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run(
+            conn.run(
                 'echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
             # conn.sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
@@ -316,8 +316,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             conn.sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             conn.put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
-            http_proxy = run('echo $http_proxy')
-            https_proxy = run('echo $https_proxy')
+            http_proxy = conn.run('echo $http_proxy')
+            https_proxy = conn.run('echo $https_proxy')
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/tensorboard.service'.format(
                 http_proxy))
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/tensorboard.service'.format(
@@ -477,11 +477,11 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        with cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
+        with conn.cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
             conn.sudo('./bootstrap --prefix=/usr/local && make && make install')
         conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        with cd('/home/{}/pytorch/'.format(os_user)):
+        with conn.cd('/home/{}/pytorch/'.format(os_user)):
             conn.sudo('git submodule update --init')
             with settings(warn_only=True):
                 conn.sudo('git checkout {}'.format(os.environ['notebook_pytorch_branch']))

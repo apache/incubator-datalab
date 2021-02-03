@@ -37,7 +37,7 @@ jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
 
 def start_jupyterlab_container(jupyterlab_dir):
     try:
-        with cd('{}'.format(jupyterlab_dir)):
+        with conn.cd('{}'.format(jupyterlab_dir)):
             conn.run('docker build --network=host --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
             container_id = conn.run('docker ps | awk \'NR==2{print $1}\'')
             if container_id != '':

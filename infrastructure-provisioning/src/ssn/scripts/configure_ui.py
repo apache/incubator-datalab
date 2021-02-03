@@ -146,7 +146,7 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
 def build_ui():
     try:
         # Building Front-end
-        with cd(args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/'):
+        with conn.cd(args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/'):
             conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
 
             if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
@@ -158,7 +158,7 @@ def build_ui():
             conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        with cd(args.datalab_path + '/sources/'):
+        with conn.cd(args.datalab_path + '/sources/'):
             conn.sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
         conn.sudo('mkdir -p {}/webapp/'.format(args.datalab_path))

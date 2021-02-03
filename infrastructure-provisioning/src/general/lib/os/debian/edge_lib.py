@@ -116,7 +116,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                      -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}"'.format(hostname))
 
             conn.sudo('mkdir -p /tmp/src')
-            with cd('/tmp/src/'):
+            with conn.cd('/tmp/src/'):
                 conn.sudo('wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz')
                 conn.sudo('tar -xzf luarocks-3.3.1.tar.gz')
 
@@ -125,7 +125,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             conn.sudo('apt-get update')
             conn.sudo('apt-get -y install openresty=1.19.3.1-1~focal1')
 
-            with cd('/tmp/src/luarocks-3.3.1/'):
+            with conn.cd('/tmp/src/luarocks-3.3.1/'):
                 conn.sudo('./configure')
                 conn.sudo('make install')
                 conn.sudo('luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/')

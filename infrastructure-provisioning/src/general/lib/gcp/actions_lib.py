@@ -1347,7 +1347,7 @@ def ensure_local_jars(os_user, jars_dir):
             conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
             conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
-                run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+                conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             conn.sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             conn.sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
         except Exception as err:
@@ -1406,7 +1406,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 spark_jars_paths = None
         conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         if os.environ['application'] == 'zeppelin':
-            run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+            conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
         conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
@@ -1415,7 +1415,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                                                                               spark_memory))
         if not exists('/opt/spark/conf/spark-env.sh'):
             conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
+        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
         conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
             datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
