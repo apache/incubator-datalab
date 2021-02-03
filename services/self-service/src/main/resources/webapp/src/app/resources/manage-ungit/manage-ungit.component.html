@@ -40,12 +40,12 @@
 
           <div class="scrollingList" id="scrolling">
             <mat-list-item *ngFor="let item of gitCredentials">
-              <div class="hostname-field">
+              <div class="hostname-field ellipsis">
                 <strong>{{ item.hostname }}</strong>
               </div>
-              <div class="user-field">{{ item.username }}</div>
-              <div class="mail-field">{{ item.email }}</div>
-              <div class="login-field">{{ item.login }}</div>
+              <div class="user-field ellipsis">{{ item.username }}</div>
+              <div class="mail-field ellipsis">{{ item.email }}</div>
+              <div class="login-field ellipsis">{{ item.login }}</div>
               <div class="actions">
                 <span class="git-actions" (click)="editSpecificAccount(item)">
                   <i class="material-icons">mode_edit</i>

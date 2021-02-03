@@ -439,6 +439,10 @@ input[type='number'] {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  &::after{
+    content: '';
+    display: block;
+  }
 }
 
 .capitalize {
@@ -514,6 +518,10 @@ input[type='number'] {
   max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
+  &::after{
+    content: '';
+    display: block;
+  }
 }
 
 .mat-tooltip-for-users {
