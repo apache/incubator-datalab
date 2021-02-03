@@ -24,6 +24,7 @@
 import argparse
 import os
 from fabric import *
+from invoke import task
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf_service_base_name', type=str, help='unique name for DataLab environment')
