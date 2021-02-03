@@ -29,6 +29,8 @@ export class EnvironmentModel {
     public project?: string,
     public endpoint?: string,
     public cloud_provider?: string,
+    public gpu_type?: string,
+    public gpu_count?: string,
     public exploratory_urls?: Array<any>
   ) { }
 
@@ -45,6 +47,8 @@ export class EnvironmentModel {
         value.project,
         value.endpoint,
         value.cloud_provider,
+        value.gpu_type,
+        value.gpu_count,
         value.exploratory_urls
       ));
     }

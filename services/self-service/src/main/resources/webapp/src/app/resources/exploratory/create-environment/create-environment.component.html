@@ -183,7 +183,7 @@
                 <mat-form-field>
                   <mat-label>Select GPU type</mat-label>
                   <mat-select formControlName="gpuType" disableOptionCentering [disabled]="!createExploratoryForm.controls['shape'].value"
-                              panelClass="create-resources-shapes" placeholder="GPU type">
+                              panelClass="create-resources-dialog" placeholder="GPU type">
                       <mat-option *ngFor="let list_item of gpuTypes" [value]="list_item.Gpu_type" (click)="setCount('', list_item.Gpu_type)">
                         <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Gpu_type }}
                       </mat-option>
@@ -208,7 +208,7 @@
                 <mat-form-field>
                   <mat-label>Select GPU count</mat-label>
                   <mat-select formControlName="gpuCount" disableOptionCentering [disabled]="!createExploratoryForm.controls['gpuType'].value"
-                              panelClass="create-resources-shapes" placeholder="GPU count">
+                              panelClass="create-resources-dialog" placeholder="GPU count">
                       <mat-option *ngFor="let list_item of gpuCount" [value]="list_item">
                         {{ list_item }}
                       </mat-option>
