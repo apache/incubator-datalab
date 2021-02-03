@@ -168,15 +168,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public filterGroups(groupsList) {
     const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
-    const filteredGroupsList = groupsList.filter(group => group !== 'pip2');
     if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1  || CURRENT_TEMPLATE.indexOf('deep learning') !== -1) {
-      const filtered = filteredGroupsList.filter(group => group !== 'r_pkg');
+      const filtered = groupsList.filter(group => group !== 'r_pkg');
       return SortUtils.libGroupsSort(filtered);
     }
 
     const PREVENT_TEMPLATES = ['rstudio', 'rstudio with tensorflow'];
     const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
-    const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : filteredGroupsList;
+    const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
     return SortUtils.libGroupsSort(filteredGroups);
 
   }
