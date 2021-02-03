@@ -196,25 +196,25 @@ def generate_docker_command():
     return docker_command.join(command)
 
 
-def build_docker_images(args):
+def build_docker_images(args,c):
     # Building base and ssn docker images
-    local('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
+    c.local('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
               'infrastructure-provisioning/src/general/files/{1}/'
               'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path))
-    local('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+    c.local('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
               'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path))
 
 
-def deploy_datalab(args):
+def deploy_datalab(args,c):
     # Creating SSN node
     docker_command = generate_docker_command()
-    local(docker_command)
+    c.local(docker_command)
 
 
-def terminate_datalab(args):
+def terminate_datalab(args,c):
     # Dropping datalab environment with selected infrastructure tag
     docker_command = generate_docker_command()
-    local(docker_command)
+    c.local(docker_command)
 
 
 if __name__ == "__main__":
