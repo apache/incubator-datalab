@@ -1184,7 +1184,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
         additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-                                             cluster_name, cluster_dir), capture=True)
+                                             cluster_name, cluster_dir), capture_output=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
     if os.path.exists('{0}'.format(cluster_dir)):
@@ -1196,10 +1196,10 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
         local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
         datalab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
-                               capture=True)
+                               capture_output=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
-        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             if param.split(' ')[0] != '#':
@@ -1341,7 +1341,7 @@ def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_ver
             local("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir))
             local('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
             local('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
-            spark_dist_classpath = local('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture=True)
+            spark_dist_classpath = local('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture_output=True)
             local('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
                 spark_dist_classpath, cluster_dir))
     except:

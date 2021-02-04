@@ -24,7 +24,8 @@
 import json
 import os
 import sys
-from fabric import local
+import subprocess
+import subprocess
 
 if __name__ == "__main__":
     success = True

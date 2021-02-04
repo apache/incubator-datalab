@@ -36,9 +36,9 @@ if __name__ == "__main__":
     local('wget http://repo.{}.amazonaws.com/2017.09/updates/mirror.list -O /tmp/updates_mirror.list'.format(
         args.region))
     amazon_main_repo = local("cat /tmp/main_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region),
-                             capture=True)
+                             capture_output=True)
     amazon_updates_repo = local("cat /tmp/updates_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region),
-                                capture=True)
+                                capture_output=True)
     local('cp -f /opt/nexus/updateRepositories.groovy /tmp/updateRepositories.groovy')
     local('sed -i "s|AMAZON_MAIN_URL|{}|g" /tmp/updateRepositories.groovy'.format(amazon_main_repo))
     local('sed -i "s|AMAZON_UPDATES_URL|{}|g" /tmp/updateRepositories.groovy'.format(amazon_updates_repo))

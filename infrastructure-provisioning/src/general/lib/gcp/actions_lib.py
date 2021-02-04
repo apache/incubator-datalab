@@ -1094,10 +1094,10 @@ class GCPActions:
         print("Downloading jars...")
         GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.dataproc_version), '/tmp/jars.tar.gz')
         GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars-checksum.chk'.format(args.dataproc_version), '/tmp/jars-checksum.chk')
-        if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+        if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture_output=True):
             local('rm -f /tmp/jars.tar.gz')
             GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.cluster_name), '/tmp/jars.tar.gz')
-            if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+            if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture_output=True):
                 print("The checksum of jars.tar.gz is mismatched. It could be caused by gcp network issue.")
                 sys.exit(1)
         local('tar -zhxvf /tmp/jars.tar.gz -C {}'.format(dataproc_dir))
@@ -1117,10 +1117,10 @@ class GCPActions:
         print("Installing spark...")
         GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
         GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark-checksum.chk'.format(args.user_name, args.cluster_name), '/tmp/spark-checksum.chk')
-        if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+        if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture_output=True):
             local('rm -f /tmp/spark.tar.gz')
             GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
-            if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+            if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture_output=True):
                 print("The checksum of spark.tar.gz is mismatched. It could be caused by gcp network issue.")
                 sys.exit(1)
         local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name))
@@ -1221,7 +1221,7 @@ class GCPActions:
             local('sudo systemctl restart zeppelin-notebook.service')
             while not zeppelin_restarted:
                 local('sleep 5')
-                result = local('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture=True)
+                result = local('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture_output=True)
                 result = result[:1]
                 if result == '1':
                     zeppelin_restarted = True
@@ -1230,7 +1230,7 @@ class GCPActions:
             if multiple_clusters == 'true':
                 while not port_number_found:
                     port_free = local('sudo bash -c "nmap -p ' + str(default_port) +
-                                      ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
+                                      ' localhost | grep closed > /dev/null" ; echo $?', capture_output=True)
                     port_free = port_free[:1]
                     if port_free == '0':
                         livy_port = default_port
@@ -1520,7 +1520,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
         additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-                                             cluster_name, cluster_dir), capture=True)
+                                             cluster_name, cluster_dir), capture_output=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
     if os.path.exists('{0}'.format(cluster_dir)):
@@ -1529,10 +1529,10 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
     local('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
         datalab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
-                               capture=True)
+                               capture_output=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
-        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             if param.split(' ')[0] != '#':

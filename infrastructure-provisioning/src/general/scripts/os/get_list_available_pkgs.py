@@ -24,6 +24,7 @@
 import argparse
 import json
 import sys
+import time
 import xmlrpc.client
 from datalab.fab import *
 from datalab.notebook_lib import *
@@ -49,7 +50,7 @@ def get_available_pip_pkgs(version):
                     pip_pkgs[pkg] = "N/A"
                 return pip_pkgs
             else:
-                local('sleep 5')
+                time.sleep(5)
                 continue
     except Exception as err:
         print('Error: {0}'.format(err))

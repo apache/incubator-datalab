@@ -1427,11 +1427,11 @@ def install_emr_spark(args):
                             '/tmp/spark.tar.gz')
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark-checksum.chk',
                             '/tmp/spark-checksum.chk')
-    if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+    if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture_output=True):
         local('rm -f /tmp/spark.tar.gz')
         s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark.tar.gz',
                                 '/tmp/spark.tar.gz')
-        if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+        if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture_output=True):
             print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/' + args.emr_version + '/' + args.cluster_name + '/')
@@ -1442,10 +1442,10 @@ def jars(args, emr_dir):
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars-checksum.chk', '/tmp/jars-checksum.chk')
-    if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+    if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture_output=True):
         local('rm -f /tmp/jars.tar.gz')
         s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
-        if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+        if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture_output=True):
             print("The checksum of jars.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     local('tar -zhxvf /tmp/jars.tar.gz -C ' + emr_dir)
@@ -1498,8 +1498,8 @@ def get_gitlab_cert(bucket, certfile):
 def create_aws_config_files(generate_full_config=False):
     try:
         aws_user_dir = os.environ['AWS_DIR']
-        logging.info(local("rm -rf " + aws_user_dir + " 2>&1", capture=True))
-        logging.info(local("mkdir -p " + aws_user_dir + " 2>&1", capture=True))
+        logging.info(local("rm -rf " + aws_user_dir + " 2>&1", capture_output=True))
+        logging.info(local("mkdir -p " + aws_user_dir + " 2>&1", capture_output=True))
 
         with open(aws_user_dir + '/config', 'w') as aws_file:
             aws_file.write("[default]\n")
@@ -1511,8 +1511,8 @@ def create_aws_config_files(generate_full_config=False):
                 aws_file.write("aws_access_key_id = {}\n".format(os.environ['aws_access_key']))
                 aws_file.write("aws_secret_access_key = {}\n".format(os.environ['aws_secret_access_key']))
 
-        logging.info(local("chmod 600 " + aws_user_dir + "/*" + " 2>&1", capture=True))
-        logging.info(local("chmod 550 " + aws_user_dir + " 2>&1", capture=True))
+        logging.info(local("chmod 600 " + aws_user_dir + "/*" + " 2>&1", capture_output=True))
+        logging.info(local("chmod 550 " + aws_user_dir + " 2>&1", capture_output=True))
 
         return True
     except Exception as err:
@@ -1736,7 +1736,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         local('sudo service zeppelin-notebook start')
         while not zeppelin_restarted:
             local('sleep 5')
-            result = local('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture=True)
+            result = local('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture_output=True)
             result = result[:1]
             if result == '1':
                 zeppelin_restarted = True
@@ -1745,7 +1745,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         if multiple_emrs == 'true':
             while not port_number_found:
                 port_free = local('sudo bash -c "nmap -p ' + str(default_port) +
-                                  ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
+                                  ' localhost | grep closed > /dev/null" ; echo $?', capture_output=True)
                 port_free = port_free[:1]
                 if port_free == '0':
                     livy_port = default_port
@@ -1819,7 +1819,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
     local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
-    region = local('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture=True)[:-1]
+    region = local('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture_output=True)[:-1]
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
@@ -1834,7 +1834,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
         additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-            cluster_name, cluster_dir), capture=True)
+            cluster_name, cluster_dir), capture_output=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
     if os.path.exists('{0}'.format(cluster_dir)):
@@ -1842,10 +1842,10 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                                                                                         cluster_dir))
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
         datalab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
-                               capture=True)
+                               capture_output=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
-        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
+        spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             if param.split(' ')[0] != '#':

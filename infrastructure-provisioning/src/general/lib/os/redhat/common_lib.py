@@ -44,12 +44,12 @@ def manage_pkg(command, environment, requisites):
                         allow = True
                         conn.sudo('yum {0} {1}'.format(command, requisites))
                 elif environment == 'local':
-                    if local('sudo pgrep yum -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                    if local('sudo pgrep yum -a && echo "busy" || echo "ready"', capture_output=True) == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
                         allow = True
-                        local('sudo yum {0} {1}'.format(command, requisites), capture=True)
+                        local('sudo yum {0} {1}'.format(command, requisites), capture_output=True)
                 else:
                     print('Wrong environment')
     except:
@@ -100,7 +100,7 @@ def find_java_path_remote():
 
 
 def find_java_path_local():
-    java_path = local("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'", capture=True)
+    java_path = local("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'", capture_output=True)
     return java_path
 
 

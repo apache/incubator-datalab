@@ -168,7 +168,7 @@ def run_spark():
 
 if __name__ == "__main__":
     try:
-        notebook_ip = local('hostname -I', capture=True)
+        notebook_ip = local('hostname -I', capture_output=True)
         prepare_templates()
         run_pyspark()
         run_sparkr()

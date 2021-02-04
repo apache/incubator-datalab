@@ -74,7 +74,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
-    scala_version = local('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture=True)
+    scala_version = local('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True)
     local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
     local('tar zxvf /tmp/{}/toree_kernel.tar.gz -C '.format(args.cluster_name) + kernels_dir + 'toree_' + args.cluster_name + '/')
     local('sudo mv {0}toree_{1}/toree-0.3.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
@@ -152,7 +152,7 @@ def pyspark_kernel(args):
 def install_sparkamagic_kernels(args):
     try:
         local('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
-        sparkmagic_dir = local("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture=True)
+        sparkmagic_dir = local("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True)
         local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir))
         local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir))
         local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir))
@@ -160,12 +160,12 @@ def install_sparkamagic_kernels(args):
                                                                          args.cluster_name)
         local('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user))
-        scala_version = local('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture=True)
+        scala_version = local('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True)
         spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(scala_version, args.spark_version,
                                                                          args.cluster_name)
         local('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
             spark_kernel_name, args.os_user))
-        r_version = local("R --version | awk '/version / {print $3}'", capture=True)
+        r_version = local("R --version | awk '/version / {print $3}'", capture_output=True)
         sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(str(r_version), args.spark_version,
                                                                             args.cluster_name)
         local('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(

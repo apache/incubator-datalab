@@ -48,13 +48,13 @@ else:
 
 def image_build(src_path, node):
     try:
-        if local("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture=True).stdout == 'Ubuntu':
+        if local("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture_output=True).stdout == 'Ubuntu':
             os_family = 'debian'
         else:
             os_family = 'redhat'
-        if local("uname -r | awk -F '-' '{print $3}'", capture=True).stdout == 'aws':
+        if local("uname -r | awk -F '-' '{print $3}'", capture_output=True).stdout == 'aws':
             cloud_provider = 'aws'
-        elif local("uname -r | awk -F '-' '{print $3}'", capture=True).stdout == 'azure':
+        elif local("uname -r | awk -F '-' '{print $3}'", capture_output=True).stdout == 'azure':
             cloud_provider = 'azure'
             if not exists('{}base/azure_auth.json'.format(src_path)):
                 local('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path))
