@@ -855,7 +855,7 @@ def install_nexus():
                 mount_efs()
             sudo('apt-get install -y maven nmap python-pip')
             sudo('pip2 install -UI pip')
-            sudo('pip2 install -U fabric==1.14.0')
+            sudo('pip2 install -U fab-classic')
             sudo('mkdir -p /opt/nexus')
             sudo('wget https://sonatype-download.global.ssl.fastly.net/nexus/{0}/nexus-{1}-unix.tar.gz -O \
                   /opt/nexus-{1}-unix.tar.gz'.format(
