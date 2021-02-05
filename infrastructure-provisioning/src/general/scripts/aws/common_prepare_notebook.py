@@ -30,6 +30,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -147,7 +148,7 @@ if __name__ == "__main__":
             notebook_config['tag_name'], notebook_config['instance_name'], instance_class,
             os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
 
         except:
             traceback.print_exc()
