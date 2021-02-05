@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from fabric import *
 
 
@@ -106,7 +107,7 @@ if __name__ == "__main__":
                     edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],
                     os.environ['conf_pypi_mirror'])
         try:
-            local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
+            subprocess.run("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params), shell=True)
             GCPActions.update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['cluster_labels'])
         except:
             traceback.print_exc()
@@ -126,7 +127,7 @@ if __name__ == "__main__":
                     notebook_config['key_path'],
                     os.environ['conf_os_user'])
         try:
-            local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
+            subprocess.run("~/scripts/{0}.py {1}".format('common_configure_spark', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception

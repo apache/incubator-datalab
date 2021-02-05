@@ -31,6 +31,7 @@ import multiprocessing
 import os
 import sys
 import traceback
+import subprocess
 from fabric import *
 
 
@@ -45,7 +46,7 @@ def configure_dataengine_service(instance, dataproc_conf):
             .format(dataproc_conf['instance_ip'], dataproc_conf['cluster_name'], dataproc_conf['key_path'],
                     json.dumps(additional_config), dataproc_conf['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -103,7 +104,7 @@ def configure_dataengine_service(instance, dataproc_conf):
                     dataproc_conf['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
