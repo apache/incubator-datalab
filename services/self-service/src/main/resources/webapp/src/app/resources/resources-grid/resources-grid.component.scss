@@ -85,8 +85,6 @@ table.resources {
           padding-left: 21px;
           cursor: pointer;
           overflow: hidden;
-          text-overflow: ellipsis;
-          //min-width: 187px;
         }
 
         &.shape-col{
@@ -97,7 +95,6 @@ table.resources {
 
         &.resources-col {
           overflow: hidden;
-          text-overflow: ellipsis;
         }
       }
     }
@@ -163,7 +160,6 @@ table.resources {
       padding: 5px 10px;
       font-size: 13px;
       max-width: 110px !important;
-      text-overflow: ellipsis;
       white-space: nowrap;
       display: inline-block;
       line-height: 10px;
@@ -289,6 +285,10 @@ table.resources {
     cursor: pointer;
     overflow: hidden;
     text-overflow: ellipsis;
+    &::after{
+      content: '';
+      display: block;
+    }
   }
 
   .dashboard_table tr:nth-child(2n + 1) {

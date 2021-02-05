@@ -367,7 +367,7 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        conn.sudo('curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -')
+        conn.sudo('curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
         conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 

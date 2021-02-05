@@ -443,6 +443,16 @@ input[type='number'] {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  &::after{
+    content: '';
+    display: block;
+  }
+}
+
+.mat-chip.mat-standard-chip::after {
+  height: 0;
+  width: 0;
+  position: unset;
 }
 
 .capitalize {
@@ -518,4 +528,12 @@ input[type='number'] {
   max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
+  &::after{
+    content: '';
+    display: block;
+  }
+}
+
+.mat-tooltip-for-users {
+  overflow-wrap: break-word;
 }

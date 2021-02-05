@@ -317,7 +317,7 @@
           <ng-container *ngFor="let lib of filtredNotebookLibs">
             <mat-list-item class="table-item">
             <div class="lib-name lib-name-col ellipsis" >
-              <span [matTooltip]="lib.name + ' ' + lib.version" matTooltipPosition="above" class="lib-name-wrapper">
+              <span [matTooltip]="lib.name + ' ' + lib.version" matTooltipPosition="above" class="lib-name-wrapper ellipsis">
                 <span class="stong" >{{ lib.name }}</span>&nbsp;
                 <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
               </span>

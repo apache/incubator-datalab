@@ -288,7 +288,6 @@ mat-expansion-panel-header {
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 mat-chip.mat-chip a {
@@ -354,7 +353,6 @@ table {
     overflow: hidden;
     span{
       overflow: hidden;
-      text-overflow: ellipsis;
       display: block;
     }
   }

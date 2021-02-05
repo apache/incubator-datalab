@@ -59,7 +59,7 @@
           </button> </th>
         <td
           mat-cell *matCellDef="let element"
-          class="user-name"
+          class="user-name ellipsis"
           matTooltip="{{element.user}}"
           matTooltipPosition="above"
           [matTooltipDisabled]="element.user?.length<30"

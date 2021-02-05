@@ -26,7 +26,7 @@ import {ConfigurationService} from '../../core/services/configutration.service';
 import 'brace';
 import 'brace/mode/yaml';
 import {ToastrService} from 'ngx-toastr';
-import {Subject} from 'rxjs';
+import {Subject, throwError} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 @Component({
@@ -42,7 +42,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   public services = {
     'self-service': {label: 'Self service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
     'provisioning-service': {label: 'Provisioning service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
-    'billing': {label: 'Billing', selected: false, config: '', serverConfig: '', isConfigChanged: false},
+    'billing-service': {label: 'Billing service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
   };
 
   private confirmMessages = {
@@ -146,7 +146,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     } else if (this.activeTab.index === 2) {
       this.activeService = 'self-service';
     } else if (this.activeTab.index === 3) {
-      this.activeService = 'billing';
+      this.activeService = 'billing-service';
     } else {
       this.activeService = '';
     }
@@ -177,23 +177,38 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   }
 
   public restartServices(): void  {
+    const selectedServices = [];
+    for (const service in this.services) {
+      if (this.services[service].selected) {
+        selectedServices.push(service);
+      }
+    }
+
     this.dialog.open(SettingsConfirmationDialogComponent, { data: {
-        action: 'Restart services', message: this.confirmMessages.restartService
+        action: 'restart', services: selectedServices
       }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
         if (result) {
           this.configurationService.restartServices(this.services['self-service'].selected,
             this.services['provisioning-service'].selected,
-            this.services['billing'].selected
+            this.services['billing-service'].selected
           )
             .pipe(
-              takeUntil(this.unsubscribe$)
+              takeUntil(this.unsubscribe$),
+
             )
             .subscribe(res => {
                 this.clearSelectedServices();
-                 this.toastr.success('Service restarting started!', 'Success!');
+                this.toastr.success('Service restarting started!', 'Success!');
               },
-              error => this.toastr.error('Service restarting failed', 'Oops!')
+              error => {
+              if (this.services['self-service'].selected) {
+                this.clearSelectedServices();
+                return this.toastr.success('Service restarting started!', 'Success!');
+              } else {
+                this.toastr.error('Service restarting failed', 'Oops!');
+              }
+              }
             );
         } else {
           this.clearSelectedServices();
@@ -215,12 +230,17 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   template: `
   <div id="dialog-box">
     <div class="dialog-header">
-      <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> <span *ngIf="data.action === 'save' || data.action === 'discard'"> changes</span></h4>
+      <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> <span *ngIf="data.action === 'save' || data.action === 'discard'"> changes</span><span *ngIf="data.action === 'restart'">
+        service<span *ngIf="data.services.length > 1">s</span>
+      </span></h4>
       <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
     </div>
 
     <div mat-dialog-content class="content">
       {{data.message}}
+      <ng-template [ngIf]="data.action === 'restart'" ]>Restarting <span class="strong">{{data.services.join(', ')}}</span> will make DataLab unavailable for some time.</ng-template>
+      <ng-template [ngIf]="data.action === 'discard'" ]>Discard all unsaved changes.</ng-template>
+      <ng-template [ngIf]="data.action === 'save'" ]>After you save changes you need to restart service.</ng-template>
     </div>
     <div class="text-center ">
       <p class="strong">Do you want to proceed?</p>

@@ -40,7 +40,7 @@
       </ng-container> -->
 
       <ng-container matColumnDef="name" sticky>
-        <th mat-header-cell *matHeaderCellDef class="name-col label-header">
+        <th mat-header-cell *matHeaderCellDef class="name-col ellipsis label-header">
           <span class="label">Environment name</span>
           <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
             <i class="material-icons">
@@ -145,17 +145,17 @@
 
             <td class="tag-col selection">
               <mat-chip-list aria-label="Tags">
-                <mat-chip matTooltip="Endpoint tag: {{ element.tags.endpoint_tag }}" matTooltipPosition="above">
+                <mat-chip matTooltip="Endpoint tag: {{ element.tags.endpoint_tag }}" matTooltipPosition="above" class="ellipsis">
                   {{ element.tags.endpoint_tag }}
                 </mat-chip>
                 <mat-chip *ngIf="element.tags.custom_tag" matTooltip="Custom tag: {{ element.tags.custom_tag }}"
-                          matTooltipPosition="above">
+                          matTooltipPosition="above" class="ellipsis">
                   {{ element.tags.custom_tag }}
                 </mat-chip>
-                <mat-chip matTooltip="User tag: {{ element.tags.user_tag }}" matTooltipPosition="above">
+                <mat-chip matTooltip="User tag: {{ element.tags.user_tag }}" matTooltipPosition="above" class="ellipsis">
                   {{ element.tags.user_tag }}
                 </mat-chip>
-                <mat-chip matTooltip="Project tag: {{ element.tags.project_tag }}" matTooltipPosition="above">
+                <mat-chip matTooltip="Project tag: {{ element.tags.project_tag }}" matTooltipPosition="above" class="ellipsis">
                   {{ element.tags.project_tag }}
                 </mat-chip>
                 <mat-chip *ngIf="element.tags.gpu_tag">
@@ -302,7 +302,7 @@
 
       <!-- FILTER START -->
       <ng-container matColumnDef="name-filter" sticky>
-        <th mat-header-cell *matHeaderCellDef class="name-col filter-row-item">
+        <th mat-header-cell *matHeaderCellDef class="name-col filter-row-item ">
           <div class="input-wrapper">
             <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
                    [value]="filterForm.name" (input)="onFilterNameUpdate($event.target['value'])"/>
@@ -328,7 +328,7 @@
         </th>
       </ng-container>
       <ng-container matColumnDef="resource-filter">
-        <th mat-header-cell *matHeaderCellDef class="resources-col filter-row-item">
+        <th mat-header-cell *matHeaderCellDef class="resources-col ellipsis filter-row-item">
           <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
                                  [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
         </th>
