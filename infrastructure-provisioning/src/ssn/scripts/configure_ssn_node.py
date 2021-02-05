@@ -63,7 +63,7 @@ def cp_key(keyfile, host_string, os_user):
         key_name=keyfile.split("/")
         conn.sudo('mkdir -p /home/' + os_user + '/keys')
         conn.sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/keys')
-        local('scp -r -q -i {0} {0} {1}:/home/{3}/keys/{2}'.format(keyfile, host_string, key_name[-1], os_user))
+        conn.local('scp -r -q -i {0} {0} {1}:/home/{3}/keys/{2}'.format(keyfile, host_string, key_name[-1], os_user))
         conn.sudo('chmod 600 /home/' + os_user + '/keys/*.pem')
     except Exception as err:
         traceback.print_exc()

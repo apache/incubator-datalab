@@ -27,6 +27,7 @@ import re
 import sys
 import time
 import traceback
+import subprocess
 from fabric import *
 from datalab.fab import *
 from google.cloud import exceptions
@@ -724,7 +725,7 @@ class GCPMeta:
                 '/response/.emr_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
                 os.environ['notebook_instance_name']):
             with hide('stderr', 'running', 'warnings'):
-                local("echo 'Some Dataproc cluster is still being created/terminated, waiting..'")
+                subprocess.run("echo 'Some Dataproc cluster is still being created/terminated, waiting..'", shell=True)
             time.sleep(60)
             self.dataproc_waiter(labels)
         else:
