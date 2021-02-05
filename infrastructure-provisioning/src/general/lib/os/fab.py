@@ -30,6 +30,7 @@ import string
 import sys
 import time
 import traceback
+import subprocess
 from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.meta_lib import *
@@ -51,7 +52,7 @@ def ensure_pip(requisites):
 
 
 def dataengine_dir_prepare(cluster_dir):
-    local('mkdir -p ' + cluster_dir)
+    subprocess.run('mkdir -p ' + cluster_dir, shell=True)
 
 
 def install_pip_pkg(requisites, pip_version, lib_group):
@@ -141,21 +142,21 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 
 
 def ensure_dataengine_tensorflow_jars(jars_dir):
-    local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
-         -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
+    subprocess.run('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+         -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir), shell=True)
 
 
 def prepare(dataengine_service_dir, yarn_dir):
-    local('mkdir -p ' + dataengine_service_dir)
-    local('mkdir -p ' + yarn_dir)
-    local('sudo mkdir -p /opt/python/')
+    subprocess.run('mkdir -p ' + dataengine_service_dir, shell=True)
+    subprocess.run('mkdir -p ' + yarn_dir, shell=True)
+    subprocess.run('sudo mkdir -p /opt/python/', shell=True)
     result = os.path.exists(dataengine_service_dir + 'usr/')
     return result
 
 
 def configuring_notebook(dataengine_service_version):
     jars_path = '/opt/' + dataengine_service_version + '/jars/'
-    local("""sudo bash -c "find """ + jars_path + """ -name '*netty*' | xargs rm -f" """)
+    subprocess.run("""sudo bash -c "find """ + jars_path + """ -name '*netty*' | xargs rm -f" """, shell=True)
 
 
 def append_result(error, exception=''):
@@ -375,7 +376,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
 def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
                    application='', pip_mirror='', numpy_version='1.14.3'):
     spark_path = '/opt/{0}/{1}/spark/'.format(dataengine_service_version, cluster_name)
-    local('mkdir -p {0}pyspark_{1}/'.format(kernels_dir, cluster_name))
+    subprocess.run('mkdir -p {0}pyspark_{1}/'.format(kernels_dir, cluster_name), shell=True)
     kernel_path = '{0}pyspark_{1}/kernel.json'.format(kernels_dir, cluster_name)
     template_file = "/tmp/pyspark_dataengine-service_template.json"
     with open(template_file, 'r') as f:
@@ -389,16 +390,16 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/kernel_var.json')
-    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json".
-          format(dataengine_service_version, cluster_name, kernel_path, os_user))
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+    subprocess.run('touch /tmp/kernel_var.json', shell=True)
+    subprocess.run("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json".
+          format(dataengine_service_version, cluster_name, kernel_path, os_user), shell=True)
+    subprocess.run('sudo mv /tmp/kernel_var.json ' + kernel_path, shell=True)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with open('/tmp/python_version') as f:
         python_version = f.read()
     if python_version != '\n':
         installing_python(region, bucket, user_name, cluster_name, application, pip_mirror, numpy_version)
-        local('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name))
+        subprocess.run('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name), shell=True)
         kernel_path = '{0}py3spark_{1}/kernel.json'.format(kernels_dir, cluster_name)
         template_file = "/tmp/pyspark_dataengine-service_template.json"
         with open(template_file, 'r') as f:
@@ -413,10 +414,10 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
         text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
-        local('touch /tmp/kernel_var.json')
-        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json"
-              .format(dataengine_service_version, cluster_name, kernel_path, os_user))
-        local('sudo mv /tmp/kernel_var.json {}'.format(kernel_path))
+        subprocess.run('touch /tmp/kernel_var.json', shell=True)
+        subprocess.run("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json"
+              .format(dataengine_service_version, cluster_name, kernel_path, os_user), shell=True)
+        subprocess.run('sudo mv /tmp/kernel_var.json {}'.format(kernel_path), shell=True)
 
 
 def ensure_ciphers():
@@ -905,7 +906,7 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         else:
             with open(interpreters_config, 'w') as f:
                 f.write(json.dumps(data, indent=2))
-            local('sudo systemctl restart zeppelin-notebook')
+            subprocess.run('sudo systemctl restart zeppelin-notebook', shell=True)
     except Exception as err:
         print('Failed to update Zeppelin interpreters', str(err))
         sys.exit(1)

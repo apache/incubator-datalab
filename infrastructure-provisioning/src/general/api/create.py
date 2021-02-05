@@ -25,12 +25,11 @@ import json
 import os
 import sys
 import subprocess
-import subprocess
 
 if __name__ == "__main__":
     success = True
     try:
-        local('cd /root; fab run')
+        subprocess.run('cd /root; fab run', shell=True)
     except:
         success = False
 
@@ -64,7 +63,7 @@ if __name__ == "__main__":
             response_file.write(json.dumps(reply))
 
     try:
-        local('chmod 666 /response/*')
+        subprocess.run('chmod 666 /response/*', shell=True)
     except:
         success = False
 

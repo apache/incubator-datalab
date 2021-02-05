@@ -30,7 +30,7 @@ from datalab.common_lib import manage_pkg
 from datalab.fab import *
 from datalab.meta_lib import *
 from fabric import *
-
+import subprocess
 
 def ensure_docker_daemon(datalab_path, os_user, region):
     try:
@@ -191,10 +191,10 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
         if not exists(os.environ['ssn_datalab_path'] + 'tmp/ss_started'):
             java_path = conn.sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
-            local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
-            local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
-            local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
-            local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
+            conn.local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            conn.local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            conn.local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
+            conn.local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
             conn.sudo('sed -i "s|KEYNAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
                  format(os.environ['conf_key_name'], datalab_path))
             conn.put('/root/templates/ssn.yml', '/tmp/ssn.yml')
@@ -267,7 +267,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                conn.local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
                                                                                                          host_string))
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \
