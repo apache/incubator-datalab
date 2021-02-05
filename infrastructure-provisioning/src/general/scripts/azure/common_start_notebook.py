@@ -70,7 +70,7 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -107,7 +107,7 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+            subprocess.run("~/scripts/{}.py {}".format('update_inactivity_on_start', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
