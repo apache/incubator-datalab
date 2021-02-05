@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -24,7 +24,7 @@
 import json
 import os
 import sys
-from fabric.api import local
+from fabric import local
 
 if __name__ == "__main__":
     success = True

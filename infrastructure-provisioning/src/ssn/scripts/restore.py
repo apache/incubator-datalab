@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -26,7 +26,7 @@ import filecmp
 import os
 import sys
 import yaml
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser(description="Restore script for DataLab configs, keys, certs, jars & database")
 parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to DataLab. Default: /opt/datalab/')
@@ -90,7 +90,7 @@ def restore_prepare():
         if ask("Maybe you want to create backup of existing configuration before restoring?"):
             with settings(hide('everything')):
                 print("Creating new backup...")
-                local("python backup.py --configs all --keys all --certs all --jar all --db")
+                local("python3 backup.py --configs all --keys all --certs all --jar all --db")
     except:
         print("Failed to create new backup.")
         sys.exit(1)

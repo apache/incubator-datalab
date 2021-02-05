@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -32,7 +32,7 @@ import os
 import sys
 import traceback
 from datalab.common_lib import manage_pkg
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
@@ -81,12 +81,11 @@ def configure_dataengine_service(instance, emr_conf):
         try:
             datalab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
                                                           emr_conf['key_path'], True)
-            env['connection_attempts'] = 100
-            env.key_filename = emr_conf['key_path']
-            env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
-            sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
+            datalab.fab.init_datalab_connection(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
+            conn.sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
                  '/etc/yum/pluginconf.d/priorities.conf')
             manage_pkg('-y install', 'remote', 'R-devel')
+            datalab.fab.close_connection()
         except:
             traceback.print_exc()
             raise Exception

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssn_unique_index', type=str, default='')
@@ -45,6 +45,7 @@ if __name__ == "__main__":
 
     def clear_resources():
         GCPActions.remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
+        GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions.remove_role(ssn_conf['role_name'])
         if not ssn_conf['pre_defined_firewall']:
@@ -72,6 +73,7 @@ if __name__ == "__main__":
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
+        ssn_conf['static_address_name'] = '{}-ssn-static-ip'.format(ssn_conf['service_base_name'])
         ssn_conf['role_name'] = '{}-{}-ssn-role'.format(ssn_conf['service_base_name'], ssn_conf['ssn_unique_index'])
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
@@ -159,8 +161,8 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages " \
-                 "'boto3 bcrypt==3.1.7 backoff argparse fabric==1.14.0 awscli pymongo pyyaml " \
-                 "google-api-python-client google-cloud-storage pycrypto' --user {} --region {}". \
+                 "'boto3 bcrypt==3.1.7 backoff argparse fabric awscli pymongo pyyaml " \
+                 "google-api-python-client google-cloud-storage pycryptodome' --user {} --region {}". \
             format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'],
                    ssn_conf['datalab_ssh_user'], ssn_conf['region'])
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import logging
-from fabric.api import *
+from fabric import *
 import argparse
 import sys
 import os
@@ -46,42 +46,42 @@ private_ip_address = "127.0.0.1"
 def ensure_jre_jdk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
         try:
-            sudo('mkdir -p /home/' + os_user + '/.ensure_dir')
-            sudo('apt-get update')
-            sudo('apt-get install -y default-jre')
-            sudo('apt-get install -y default-jdk')
-            sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
+            conn.sudo('mkdir -p /home/' + os_user + '/.ensure_dir')
+            conn.sudo('apt-get update')
+            conn.sudo('apt-get install -y default-jre')
+            conn.sudo('apt-get install -y default-jdk')
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
 
 def configure_keycloak():
-    sudo('wget https://downloads.jboss.org/keycloak/' + keycloak_version + '/keycloak-' + keycloak_version + '.tar.gz -O /tmp/keycloak-' + keycloak_version + '.tar.gz')
-    sudo('tar -zxvf /tmp/keycloak-' + keycloak_version + '.tar.gz -C /opt/')
-    sudo('ln -s /opt/keycloak-' + keycloak_version + ' /opt/keycloak')
-    sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/keycloak-' + keycloak_version)
-    sudo('/opt/keycloak/bin/add-user-keycloak.sh -r master -u ' + args.keycloak_user + ' -p ' + args.keycloak_user_password) #create initial admin user in master realm
-    put(templates_dir + 'realm.json', '/tmp/' + args.keycloak_realm_name + '-realm.json')
-    put(templates_dir + 'keycloak.service', '/tmp/keycloak.service')
-    sudo("cp /tmp/keycloak.service /etc/systemd/system/keycloak.service")
-    sudo("sed -i 's|realm-name|" + args.keycloak_realm_name + "|' /tmp/" + args.keycloak_realm_name + "-realm.json")
-    sudo("sed -i 's|OS_USER|" + args.os_user + "|' /etc/systemd/system/keycloak.service")
-    sudo("sed -i 's|private_ip_address|" + private_ip_address + "|' /etc/systemd/system/keycloak.service")
-    sudo("sed -i 's|keycloak_realm_name|" + args.keycloak_realm_name + "|' /etc/systemd/system/keycloak.service")
-    sudo("systemctl daemon-reload")
-    sudo("systemctl enable keycloak")
-    sudo("systemctl start keycloak")
+    conn.sudo('wget https://downloads.jboss.org/keycloak/' + keycloak_version + '/keycloak-' + keycloak_version + '.tar.gz -O /tmp/keycloak-' + keycloak_version + '.tar.gz')
+    conn.sudo('tar -zxvf /tmp/keycloak-' + keycloak_version + '.tar.gz -C /opt/')
+    conn.sudo('ln -s /opt/keycloak-' + keycloak_version + ' /opt/keycloak')
+    conn.sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/keycloak-' + keycloak_version)
+    conn.sudo('/opt/keycloak/bin/add-user-keycloak.sh -r master -u ' + args.keycloak_user + ' -p ' + args.keycloak_user_password) #create initial admin user in master realm
+    conn.put(templates_dir + 'realm.json', '/tmp/' + args.keycloak_realm_name + '-realm.json')
+    conn.put(templates_dir + 'keycloak.service', '/tmp/keycloak.service')
+    conn.sudo("cp /tmp/keycloak.service /etc/systemd/system/keycloak.service")
+    conn.sudo("sed -i 's|realm-name|" + args.keycloak_realm_name + "|' /tmp/" + args.keycloak_realm_name + "-realm.json")
+    conn.sudo("sed -i 's|OS_USER|" + args.os_user + "|' /etc/systemd/system/keycloak.service")
+    conn.sudo("sed -i 's|private_ip_address|" + private_ip_address + "|' /etc/systemd/system/keycloak.service")
+    conn.sudo("sed -i 's|keycloak_realm_name|" + args.keycloak_realm_name + "|' /etc/systemd/system/keycloak.service")
+    conn.sudo("systemctl daemon-reload")
+    conn.sudo("systemctl enable keycloak")
+    conn.sudo("systemctl start keycloak")
 
 def configure_nginx():
-    sudo('apt install -y nginx')
-    put(templates_dir + 'nginx.conf', '/tmp/nginx.conf')
-    sudo("cp /tmp/nginx.conf /etc/nginx/conf.d/nginx.conf")
-    sudo("sed -i 's|80|81|' /etc/nginx/sites-enabled/default")
-    sudo("sed -i 's|external_port|" + external_port + "|' /etc/nginx/conf.d/nginx.conf")
-    sudo("sed -i 's|internal_port|" + internal_port + "|' /etc/nginx/conf.d/nginx.conf")
-    sudo("sed -i 's|private_ip_address|" + private_ip_address + "|' /etc/nginx/conf.d/nginx.conf")
-    sudo("systemctl daemon-reload")
-    sudo("systemctl enable nginx")
-    sudo("systemctl restart nginx")
+    conn.sudo('apt install -y nginx')
+    conn.put(templates_dir + 'nginx.conf', '/tmp/nginx.conf')
+    conn.sudo("cp /tmp/nginx.conf /etc/nginx/conf.d/nginx.conf")
+    conn.sudo("sed -i 's|80|81|' /etc/nginx/sites-enabled/default")
+    conn.sudo("sed -i 's|external_port|" + external_port + "|' /etc/nginx/conf.d/nginx.conf")
+    conn.sudo("sed -i 's|internal_port|" + internal_port + "|' /etc/nginx/conf.d/nginx.conf")
+    conn.sudo("sed -i 's|private_ip_address|" + private_ip_address + "|' /etc/nginx/conf.d/nginx.conf")
+    conn.sudo("systemctl daemon-reload")
+    conn.sudo("systemctl enable nginx")
+    conn.sudo("systemctl restart nginx")
 
 if __name__ == "__main__":
     local("sudo mkdir /logs/keycloak -p")

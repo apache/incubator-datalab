@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,7 @@ import os
 import sys
 from datalab.common_lib import ensure_step
 from datalab.edge_lib import install_nginx_lua
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -49,9 +49,7 @@ if __name__ == "__main__":
 
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
     except Exception as err:
         print("Failed establish connection. Excpeption: " + str(err))
         sys.exit(1)
@@ -71,3 +69,4 @@ if __name__ == "__main__":
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)
 
+    datalab.fab.close_connection()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -26,7 +26,7 @@ import json
 import os
 import sys
 import yaml
-from fabric.api import *
+from fabric import *
 from time import gmtime, strftime
 
 parser = argparse.ArgumentParser(description="Backup script for DataLab configs, keys, certs, jars, database & logs")

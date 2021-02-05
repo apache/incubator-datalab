@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,7 @@ import json
 import sys
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -38,11 +38,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.instance_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     print('Installing libraries: {}'.format(args.libs))
     general_status = list()
@@ -94,18 +90,10 @@ if __name__ == "__main__":
         pass
 
     try:
-        print('Installing other packages: {}'.format(pkgs['libraries']['others']))
+        print('Installing other packages (only tries pip3): {}'.format(pkgs['libraries']['others']))
         for pkg in pkgs['libraries']['others']:
-            if os.environ['conf_resource'] in ('dataengine-service'):#, 'dataengine'):
-                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-                general_status = general_status + status_pip3
-            else:
-                status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
-                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-                if status_pip2[0]['status'] == 'installed':
-                    general_status = general_status + status_pip2
-                else:
-                    general_status = general_status + status_pip3
+            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
+            general_status = general_status + status_pip3
     except KeyError:
         pass
 
@@ -120,12 +108,12 @@ if __name__ == "__main__":
                 elif os.environ['conf_cloud_provider'] in ('gcp'):
                     manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
                     manage_pkg('-y install', 'remote', 'libcurl4-gnutls-dev libgit2-dev libxml2-dev')
-                sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
+                conn.sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
             general_status = general_status + status
         except KeyError:
             pass
-
+    datalab.fab.close_connection()
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
                "Libs": general_status}

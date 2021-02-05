@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 
 def clear_resources():
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     else:
         application = os.environ['application']
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+    additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "" ).replace(
         "'}", "").lower()
 
     notebook_config['cluster_labels'] = {

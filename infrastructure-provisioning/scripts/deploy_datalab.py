@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -23,7 +23,8 @@
 
 import argparse
 import os
-from fabric.api import *
+from fabric import *
+from invoke import task
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf_service_base_name', type=str, help='unique name for DataLab environment')
@@ -197,24 +198,23 @@ def generate_docker_command():
 
 def build_docker_images(args):
     # Building base and ssn docker images
-    with lcd(args.workspace_path):
-        local('sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
+    c.local('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
               'infrastructure-provisioning/src/general/files/{1}/'
-              'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider))
-        local('sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
-              'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider))
+              'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path))
+    c.local('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+              'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path))
 
 
 def deploy_datalab(args):
     # Creating SSN node
     docker_command = generate_docker_command()
-    local(docker_command)
+    c.local(docker_command)
 
 
 def terminate_datalab(args):
     # Dropping datalab environment with selected infrastructure tag
     docker_command = generate_docker_command()
-    local(docker_command)
+    c.local(docker_command)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import argparse
 import sys
 from datalab.actions_lib import *
 from datalab.fab import find_cluster_kernels
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -38,9 +38,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     print('Configure connections')
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     try:
         de_clusters, des_clusters = find_cluster_kernels()
@@ -50,3 +48,4 @@ if __name__ == "__main__":
     except Exception as err:
         print('Failed to remove cluster kernels.', str(err))
         sys.exit(1)
+    datalab.fab.close_connection()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -22,7 +22,7 @@
 
 
 from ConfigParser import SafeConfigParser
-from fabric.api import *
+from fabric import *
 import argparse
 import boto3
 from botocore.client import Config

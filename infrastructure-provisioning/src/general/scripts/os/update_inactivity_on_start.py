@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import argparse
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -36,15 +36,13 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     if args.cluster_ip == "none":
         kernel = 'local'
     else:
         kernel = args.cluster_ip.replace('.', '-')
 
-    sudo("date +%s > /opt/inactivity/{}_inactivity".format(kernel))
+    conn.sudo("date +%s > /opt/inactivity/{}_inactivity".format(kernel))
+
+    datalab.fab.close_connection()

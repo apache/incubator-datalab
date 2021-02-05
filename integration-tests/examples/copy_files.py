@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -23,7 +23,7 @@
 
 import os, sys, json
 import argparse
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--storage', type=str, default='S3/GCP buckets, Azure Blob container / Datalake folder')

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import argparse
 import os
 from datalab.actions_lib import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -50,29 +50,30 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
-    put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
-    # put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
-    # put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
-    # put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
-    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
-    # put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
-    # put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
-    # put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
-    sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
-    sudo('chmod 755 /usr/local/bin/create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/datalab/')
-    run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
+    conn.put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
+    # conn.put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
+    # conn.put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
+    # conn.put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
+    conn.put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
+    # conn.put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
+    # conn.put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
+    # conn.put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
+    conn.sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
+    conn.sudo('chmod 755 /usr/local/bin/create_configs.py')
+    conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+    conn.run('mkdir -p /tmp/datalab_libs/')
+    local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    conn.run('chmod a+x /tmp/datalab_libs/*')
+    conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+        conn.sudo('mkdir -p /usr/lib64/python3.8')
+        conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
     GCPActions().get_from_bucket(args.bucket, '{0}/{1}/scala_version'.format(args.project_name, args.cluster_name),
                                  '/tmp/scala_version')
-    with file('/tmp/scala_version') as f:
+    with open('/tmp/scala_version') as f:
         scala_version = str(f.read()).replace(',', '')
     env.hosts = "{}".format(args.notebook_ip)
     env.user = args.os_user
@@ -90,10 +91,10 @@ if __name__ == "__main__":
     r_enabled = os.environ['notebook_r_enabled']
     master_host = '{}-m'.format(args.cluster_name)
     master_ip = get_instance_private_ip_address(os.environ['gcp_zone'], master_host)
-    sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
-    sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
-    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; '
-         '/usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4}'
+    conn.sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
+    conn.sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
+    conn.sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; '
+         '/usr/bin/python3 /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4}'
          ' --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} '
          '--application {11} --r_version {12} --r_enabled {13} --python_version {14}  --master_ip {15} --scala_version {16}'
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name,

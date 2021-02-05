@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -26,7 +26,7 @@ import os
 import sys
 import traceback
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 
 
 def run():

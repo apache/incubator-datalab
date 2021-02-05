@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 
 def start_data_engine(cluster_name):

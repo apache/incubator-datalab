@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -72,15 +72,13 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -94,8 +92,6 @@ if __name__ == "__main__":
     if os.environ['notebook_r_enabled'] == 'true':
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
@@ -106,7 +102,7 @@ if __name__ == "__main__":
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-    local_spark_scala_version = sudo('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"')
+    local_spark_scala_version = conn.sudo('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"')
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
@@ -149,5 +145,4 @@ if __name__ == "__main__":
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
 
-
-
+    datalab.fab.close_connection()

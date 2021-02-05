@@ -86,6 +86,12 @@ public class UserInstanceDTO {
     private List<ClusterConfig> clusterConfig;
     @JsonProperty
     private Map<String, String> tags;
+    @JsonProperty("gpu_enabled")
+    private boolean enabledGPU = false;
+    @JsonProperty("gpuType")
+    private String gpuType;
+    @JsonProperty("gpuCount")
+    private String gpuCount;
 
     /**
      * Sets the user login name.
@@ -189,6 +195,21 @@ public class UserInstanceDTO {
 
     public UserInstanceDTO withTags(Map<String, String> tags) {
         setTags(tags);
+        return this;
+    }
+
+    public UserInstanceDTO withGPUType(String gpuType) {
+        setGpuType(gpuType);
+        return this;
+    }
+
+    public UserInstanceDTO withGPUEnabled(boolean gpuEnabled) {
+        setEnabledGPU(gpuEnabled);
+        return this;
+    }
+
+    public UserInstanceDTO withGPUCount(String gpuCount) {
+        setGpuCount(gpuCount);
         return this;
     }
 }

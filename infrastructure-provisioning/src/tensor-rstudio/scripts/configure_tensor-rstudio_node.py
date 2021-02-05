@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -28,7 +28,7 @@ from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
@@ -74,15 +74,13 @@ r_libs = ['R6', 'pbdZMQ', 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['n
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -93,8 +91,6 @@ if __name__ == "__main__":
     ensure_jre_jdk(args.os_user)
     print("Install R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
@@ -135,3 +131,5 @@ if __name__ == "__main__":
     # POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    datalab.fab.close_connection()

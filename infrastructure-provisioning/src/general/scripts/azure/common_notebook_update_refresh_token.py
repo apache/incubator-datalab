@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,12 +22,11 @@
 # ******************************************************************************
 
 from xml.etree.ElementTree import parse, Element
-from fabric.api import *
+from fabric import *
 import argparse
 import os
 import sys
 import time
-from fabric.api import lcd
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()

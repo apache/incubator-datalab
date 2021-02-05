@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,7 @@ import datalab.meta_lib
 import json
 import os
 import sys
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     try:

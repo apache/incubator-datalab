@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import argparse
 import boto3
 import os
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -50,25 +50,26 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
-    put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
-    # put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
-    # put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
-    # put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
-    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
+    conn.put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
+    # conn.put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
+    # conn.put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
+    # conn.put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
+    conn.put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
         '/tmp/jupyter_dataengine-service_create_configs.py')
-    # put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
-    # put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
-    # put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
-    sudo(
+    # conn.put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
+    # conn.put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
+    # conn.put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
+    conn.sudo(
         '\cp /tmp/jupyter_dataengine-service_create_configs.py /usr/local/bin/jupyter_dataengine-service_create_configs.py')
-    sudo('chmod 755 /usr/local/bin/jupyter_dataengine-service_create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/datalab/')
-    run('mkdir -p /tmp/datalab_libs/')
-    local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/datalab_libs/*')
-    sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
+    conn.sudo('chmod 755 /usr/local/bin/jupyter_dataengine-service_create_configs.py')
+    conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+    conn.run('mkdir -p /tmp/datalab_libs/')
+    local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    conn.run('chmod a+x /tmp/datalab_libs/*')
+    conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+        conn.sudo('mkdir -p /usr/lib64/python3.8')
+        conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
@@ -86,15 +87,15 @@ if __name__ == "__main__":
                             '/tmp/scala_version')
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/python_version',
                             '/tmp/python_version')
-    with file('/tmp/scala_version') as f:
+    with open('/tmp/scala_version') as f:
         scala_version = str(f.read()).rstrip()
         print(scala_version)
-    with file('/tmp/python_version') as f:
+    with open('/tmp/python_version') as f:
         python_version = str(f.read()).rstrip()
         print(python_version)
     if r_enabled == 'true':
         s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/r_version', '/tmp/r_version')
-        with file('/tmp/r_version') as g:
+        with open('/tmp/r_version') as g:
             r_version = str(g.read()).rstrip()
             print(r_version)
     else:
@@ -102,7 +103,7 @@ if __name__ == "__main__":
     cluster_id = get_emr_id_by_name(args.cluster_name)
     master_instances = get_emr_instances_list(cluster_id, 'MASTER')
     master_ip = master_instances[0].get('PrivateIpAddress')
-    sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket
+    conn.sudo("/usr/bin/python3 /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket
          + " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version "
          + spark_version + " --scala_version " + scala_version + " --r_version " + r_version + " --hadoop_version "
          + hadoop_version + " --region " + args.region + " --excluded_lines '" + args.emr_excluded_spark_properties

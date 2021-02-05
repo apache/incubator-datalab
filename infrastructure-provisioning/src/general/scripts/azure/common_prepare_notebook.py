@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,7 @@ import os
 import sys
 import traceback
 from Crypto.PublicKey import RSA
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'

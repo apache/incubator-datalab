@@ -25,7 +25,7 @@ ARG OS
 
 COPY infrastructure-provisioning/src/ssn/ /root/
 COPY infrastructure-provisioning/src/general/scripts/aws/ssn_* /root/scripts/
-COPY infrastructure-provisioning/src/general/lib/os/${OS}/ssn_lib.py /usr/lib/python2.7/datalab/ssn_lib.py
+COPY infrastructure-provisioning/src/general/lib/os/${OS}/ssn_lib.py /usr/lib/python3.8/datalab/ssn_lib.py
 COPY infrastructure-provisioning/src/general/files/aws/ssn_policy.json /root/files/
 COPY infrastructure-provisioning/src/general/templates/aws/jenkins_jobs /root/templates/jenkins_jobs
 COPY infrastructure-provisioning/src/general/templates/os/manage_step_certs.sh /root/templates/

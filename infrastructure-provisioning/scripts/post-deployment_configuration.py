@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import argparse
 import requests
 import uuid
 from Crypto.PublicKey import RSA
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
 

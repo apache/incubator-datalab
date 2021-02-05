@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,7 @@ from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
@@ -55,7 +55,6 @@ caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
-cntk2_version = os.environ['notebook_cntk2_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 keras_version = os.environ['notebook_keras_version']
 theano_version = os.environ['notebook_theano_version']
@@ -81,29 +80,27 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 def install_itorch(os_user):
     if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(os_user)):
-        run('git clone https://github.com/facebook/iTorch.git')
-        with cd('/home/{}/iTorch/'.format(os_user)):
-            run('luarocks install luacrypto')
-            run('luarocks install uuid')
-            run('luarocks install lzmq')
-            run('luarocks make')
-        sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
-        sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
-        sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(os_user))
+        conn.run('git clone https://github.com/facebook/iTorch.git')
+        with conn.cd('/home/{}/iTorch/'.format(os_user)):
+            conn.run('luarocks install luacrypto')
+            conn.run('luarocks install uuid')
+            conn.run('luarocks install lzmq')
+            conn.run('luarocks make')
+        conn.sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
+        conn.sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
+        conn.sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(os_user))
 
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
-            sudo('touch /home/' + args.os_user + '/.ensure_dir/deep_learning')
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/deep_learning')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -112,8 +109,6 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
@@ -131,7 +126,7 @@ if __name__ == "__main__":
     #print("Installing Torch")
     #install_torch(args.os_user)
     print("Install CNTK Python library")
-    install_cntk(args.os_user,cntk2_version, cntk_version)
+    install_cntk(args.os_user, cntk_version)
     print("Installing MXNET")
     install_mxnet(args.os_user, mxnet_version)
 
@@ -176,3 +171,5 @@ if __name__ == "__main__":
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    datalab.fab.close_connection()

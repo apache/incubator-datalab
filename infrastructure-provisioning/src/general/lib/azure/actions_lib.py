@@ -24,9 +24,9 @@ import azure.common
 import backoff
 import datalab.common_lib
 import datalab.fab
+import datalab.meta_lib
 import json
 import logging
-import meta_lib
 import os
 import sys
 import time
@@ -41,7 +41,7 @@ from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlockBlobService
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 
@@ -973,21 +973,21 @@ class AzureActions:
             env.user = "{}".format(os_user)
             env.key_filename = "{}".format(key_path)
             env.host_string = env.user + "@" + env.hosts
-            sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+            conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
-                        livy_port = sudo("cat /opt/" + cluster_name +
+                        livy_port = conn.sudo("cat /opt/" + cluster_name +
                                          "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
-                        process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                        process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                               "' | awk '{print $7}' | sed 's|/.*||g'")
-                        sudo('kill -9 ' + process_number)
-                        sudo('systemctl disable livy-server-' + livy_port)
+                        conn.sudo('kill -9 ' + process_number)
+                        conn.sudo('systemctl disable livy-server-' + livy_port)
                     except:
                         print("Wasn't able to find Livy server for this dataengine!")
-                sudo(
+                conn.sudo(
                     'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-                sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+                conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
                 zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
                 opener = urllib2.build_opener(urllib2.ProxyHandler({}))
                 req = opener.open(urllib2.Request(zeppelin_url))
@@ -1002,22 +1002,22 @@ class AzureActions:
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
                         print(url.read())
-                sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-                sudo('systemctl daemon-reload')
-                sudo("service zeppelin-notebook stop")
-                sudo("service zeppelin-notebook start")
+                conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+                conn.sudo('systemctl daemon-reload')
+                conn.sudo("service zeppelin-notebook stop")
+                conn.sudo("service zeppelin-notebook start")
                 zeppelin_restarted = False
                 while not zeppelin_restarted:
-                    sudo('sleep 5')
-                    result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                    conn.sudo('sleep 5')
+                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
                     result = result[:1]
                     if result == '1':
                         zeppelin_restarted = True
-                sudo('sleep 5')
-                sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+                conn.sudo('sleep 5')
+                conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
                 datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
-            sudo('rm -rf  /opt/' + cluster_name + '/')
+            conn.sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
             logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -1063,27 +1063,27 @@ class AzureActions:
 def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
+            hadoop_version = conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
             print("Downloading local jars for Azure")
-            sudo('mkdir -p {}'.format(jars_dir))
+            conn.sudo('mkdir -p {}'.format(jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
-                sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
-                sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
                     -O {1}azure-storage-{0}.jar'.format('2.2.0', jars_dir))
             else:
-                sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format('3.0.0', jars_dir))
-                sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
                                     -O {1}azure-storage-{0}.jar'.format('6.1.0', jars_dir))
-                sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/{0}/azure-data-lake-store-sdk-{0}.jar \
+                conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/{0}/azure-data-lake-store-sdk-{0}.jar \
                     -O {1}azure-data-lake-store-sdk-{0}.jar'.format('2.2.3', jars_dir))
-                sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/{0}/hadoop-azure-datalake-{0}.jar \
+                conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/{0}/hadoop-azure-datalake-{0}.jar \
                     -O {1}hadoop-azure-datalake-{0}.jar'.format('3.0.0', jars_dir))
             if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
-                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
+                conn.sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
                      -O {1}spark-tensorflow-connector-{0}.jar'.format('1.0.0-s_2.11', jars_dir))
-            sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
+            conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except Exception as err:
             logging.info(
                 "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -1099,7 +1099,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         spark_jars_paths = None
         if exists('/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
             except:
                 spark_jars_paths = None
         user_storage_account_tag = "{}-{}-{}-bucket".format(os.environ['conf_service_base_name'],
@@ -1117,42 +1117,42 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(
                     os.environ['azure_resource_group_name'], shared_storage_account_name)[0]
         if os.environ['azure_datalake_enable'] == 'false':
-            put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
+            conn.put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
         else:
-            put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
-        sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-        sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
-        sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
-        sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+            conn.put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
+        conn.sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+        conn.sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+        conn.sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+        conn.sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
         if os.environ['azure_datalake_enable'] == 'true':
             client_id = os.environ['azure_application_id']
             refresh_token = os.environ['azure_user_refresh_token']
-            sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
-            sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
+            conn.sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
+            conn.sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
         if os.environ['azure_datalake_enable'] == 'false':
-            sudo('rm -f /opt/spark/conf/core-site.xml')
-            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            conn.sudo('rm -f /opt/spark/conf/core-site.xml')
+            conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
         else:
-            sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
-            sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
-        put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-        sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+            conn.sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
+            conn.sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
+        conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        conn.sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
               /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
-            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+            conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
         if not exists('/opt/spark/conf/spark-env.sh'):
-            sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
-        sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
+            conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
+        conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
-            datalab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
+            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
+            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf')
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':
@@ -1165,13 +1165,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
+            conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
-                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
-            sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+                conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
-                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+                conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1221,20 +1221,20 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
-        env['connection_attempts'] = 100
-        env.key_filename = [keyfile]
-        env.host_string = os_user + '@' + hostname
-    sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
-    sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
-    sudo('mount -a')
+        datalab.fab.init_datalab_connection(hostname, os_user, keyfile)
+    conn.sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
+    conn.sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
+    conn.sudo('mount -a')
+    if creds:
+        datalab.fab.close_connection()
 
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
-        env['connection_attempts'] = 100
-        env.key_filename = [keyfile]
-        env.host_string = os_user + '@' + hostname
-    sudo('waagent -deprovision -force')
+        datalab.fab.init_datalab_connection(hostname, os_user, keyfile)
+    conn.sudo('waagent -deprovision -force')
+    if creds:
+        datalab.fab.close_connection()
 
 
 def prepare_disk(os_user):
@@ -1243,33 +1243,33 @@ def prepare_disk(os_user):
             allow = False
             counter = 0
             remount_azure_disk()
-            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
             with settings(warn_only=True):
-                sudo('umount -l /dev/{}1'.format(disk_name))
+                conn.sudo('umount -l /dev/{}1'.format(disk_name))
             while not allow:
                 if counter > 4:
                     print("Unable to prepare disk")
                     sys.exit(1)
                 else:
-                    sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' 2>&1 | tee /tmp/tee.tmp '''.format(
+                    conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' 2>&1 | tee /tmp/tee.tmp '''.format(
                         disk_name), warn_only=True)
-                    out = sudo('cat /tmp/tee.tmp')
+                    out = conn.sudo('cat /tmp/tee.tmp')
                     if 'Syncing disks' in out:
                         allow = True
                     elif 'The kernel still uses the old table.' in out:
-                        if sudo('partprobe'):
+                        if conn.sudo('partprobe'):
                             with settings(warn_only=True):
                                 reboot(wait=180)
                         allow = True
                     else:
                         counter += 1
                         time.sleep(5)
-            sudo('umount -l /dev/{}1'.format(disk_name), warn_only=True)
-            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
+            conn.sudo('umount -l /dev/{}1'.format(disk_name), warn_only=True)
+            conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
                 disk_name))
-            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except Exception as err:
             traceback.print_exc()
             print('Error:', str(err))
@@ -1280,35 +1280,35 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
     if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
             if os.environ['azure_datalake_enable'] == 'false':
-                sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-                sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-                sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-                sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-                sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+                conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+                conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+                conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+                conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+                conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
             else:
                 # Downloading Spark without Hadoop
-                sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
+                conn.sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
                     .format(spark_version))
-                sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
-                sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
-                sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
+                conn.sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+                conn.sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
+                conn.sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
                 # Downloading Hadoop
                 hadoop_version = '3.0.0'
-                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
+                conn.sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
                     .format(hadoop_version))
-                sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
-                sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
-                sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
+                conn.sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+                conn.sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
+                conn.sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
                 # Configuring Hadoop and Spark
                 java_path = datalab.common_lib.find_java_path_remote()
-                sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
-                sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
-                sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
-                sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
-                spark_dist_classpath = sudo('/opt/hadoop/bin/hadoop classpath')
-                sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
+                conn.sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
+                conn.sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
+                conn.sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
+                conn.sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
+                spark_dist_classpath = conn.sudo('/opt/hadoop/bin/hadoop classpath')
+                conn.sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
                     spark_dist_classpath))
-                sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
+                conn.sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)

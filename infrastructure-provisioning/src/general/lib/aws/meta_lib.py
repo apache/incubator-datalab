@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-import actions_lib
+import datalab.actions_lib
 import backoff
 import boto3
 import json

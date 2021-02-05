@@ -35,4 +35,24 @@ export class HelpUtils {
         return;
     }
   }
+
+  public static setGPUCount(type, gpuType): Array<number> {
+    let count = [];
+    switch (type) {
+      case 'n1-highmem-32' || 'n1-highcpu-32':
+        count = [4, 8];
+        break;
+      case 'n1-highmem-16':
+        count = [2, 4, 8];
+        break;
+      default:
+        count = [1, 2, 4, 8];
+        break;
+    }
+    if (gpuType === 'nvidia-tesla-t4') {
+      count.pop();
+    }
+
+    return count;
+  }
 }

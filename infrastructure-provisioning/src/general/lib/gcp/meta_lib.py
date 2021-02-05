@@ -27,6 +27,7 @@ import re
 import sys
 import time
 import traceback
+from fabric import *
 from datalab.fab import *
 from google.cloud import exceptions
 from google.cloud import storage

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,7 @@ import traceback
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.ssn_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 def set_hostname(subdomain, hosted_zone_name):
     try:
-        sudo('hostnamectl set-hostname {0}.{1}'.format(subdomain, hosted_zone_name))
+        conn.sudo('hostnamectl set-hostname {0}.{1}'.format(subdomain, hosted_zone_name))
     except Exception as err:
         traceback.print_exc()
         print('Failed to set hostname: ', str(err))
@@ -52,7 +52,7 @@ def set_hostname(subdomain, hosted_zone_name):
 
 def set_resolve():
     try:
-        sudo('ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf')
+        conn.sudo('ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf')
     except Exception as err:
         traceback.print_exc()
         print('Failed to set resolve: ', str(err))
@@ -61,10 +61,10 @@ def set_resolve():
 def cp_key(keyfile, host_string, os_user):
     try:
         key_name=keyfile.split("/")
-        sudo('mkdir -p /home/' + os_user + '/keys')
-        sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/keys')
+        conn.sudo('mkdir -p /home/' + os_user + '/keys')
+        conn.sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/keys')
         local('scp -r -q -i {0} {0} {1}:/home/{3}/keys/{2}'.format(keyfile, host_string, key_name[-1], os_user))
-        sudo('chmod 600 /home/' + os_user + '/keys/*.pem')
+        conn.sudo('chmod 600 /home/' + os_user + '/keys/*.pem')
     except Exception as err:
         traceback.print_exc()
         print('Failed to copy key: ', str(err))
@@ -73,10 +73,10 @@ def cp_key(keyfile, host_string, os_user):
 
 def cp_backup_scripts(datalab_path):
     try:
-        with cd(datalab_path + "tmp/"):
-            put('/root/scripts/backup.py', "backup.py")
-            put('/root/scripts/restore.py', "restore.py")
-            run('chmod +x backup.py restore.py')
+        with conn.cd(datalab_path + "tmp/"):
+            conn.put('/root/scripts/backup.py', "backup.py")
+            conn.put('/root/scripts/restore.py', "restore.py")
+            conn.run('chmod +x backup.py restore.py')
     except Exception as err:
         traceback.print_exc()
         print('Failed to copy backup scripts: ', str(err))
@@ -86,18 +86,18 @@ def cp_backup_scripts(datalab_path):
 def cp_gitlab_scripts(datalab_path):
     try:
         if not exists('{}tmp/gitlab'.format(datalab_path)):
-            run('mkdir -p {}tmp/gitlab'.format(datalab_path))
-        with cd('{}tmp/gitlab'.format(datalab_path)):
-            put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
-            put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
-            run('chmod +x gitlab_deploy.py configure_gitlab.py')
-            put('/root/templates/gitlab.rb', 'gitlab.rb')
-            put('/root/templates/gitlab.ini', 'gitlab.ini')
-            run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
-            run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
-            run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
-            run('sed -i "s,CONF_DATALAB_PATH,{},g" gitlab.ini'.format(datalab_path))
-            run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
+            conn.run('mkdir -p {}tmp/gitlab'.format(datalab_path))
+        with conn.cd('{}tmp/gitlab'.format(datalab_path)):
+            conn.put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
+            conn.put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
+            conn.run('chmod +x gitlab_deploy.py configure_gitlab.py')
+            conn.put('/root/templates/gitlab.rb', 'gitlab.rb')
+            conn.put('/root/templates/gitlab.ini', 'gitlab.ini')
+            conn.run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
+            conn.run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
+            conn.run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
+            conn.run('sed -i "s,CONF_DATALAB_PATH,{},g" gitlab.ini'.format(datalab_path))
+            conn.run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to copy gitlab scripts: ', str(err))
@@ -107,22 +107,22 @@ def cp_gitlab_scripts(datalab_path):
 def creating_service_directories(datalab_path, os_user):
     try:
         if not exists(datalab_path):
-            sudo('mkdir -p ' + datalab_path)
-            sudo('mkdir -p ' + datalab_path + 'conf')
-            sudo('mkdir -p ' + datalab_path + 'webapp/static')
-            sudo('mkdir -p ' + datalab_path + 'template')
-            sudo('mkdir -p ' + datalab_path + 'tmp')
-            sudo('mkdir -p ' + datalab_path + 'tmp/result')
-            sudo('mkdir -p ' + datalab_path + 'sources')
-            sudo('mkdir -p /var/opt/datalab/log/ssn')
-            sudo('mkdir -p /var/opt/datalab/log/edge')
-            sudo('mkdir -p /var/opt/datalab/log/notebook')
-            sudo('mkdir -p /var/opt/datalab/log/dataengine-service')
-            sudo('mkdir -p /var/opt/datalab/log/dataengine')
-            sudo('ln -s ' + datalab_path + 'conf /etc/opt/datalab')
-            sudo('ln -s /var/opt/datalab/log /var/log/datalab')
-            sudo('chown -R ' + os_user + ':' + os_user + ' /var/opt/datalab/log')
-            sudo('chown -R ' + os_user + ':' + os_user + ' ' + datalab_path)
+            conn.sudo('mkdir -p ' + datalab_path)
+            conn.sudo('mkdir -p ' + datalab_path + 'conf')
+            conn.sudo('mkdir -p ' + datalab_path + 'webapp/static')
+            conn.sudo('mkdir -p ' + datalab_path + 'template')
+            conn.sudo('mkdir -p ' + datalab_path + 'tmp')
+            conn.sudo('mkdir -p ' + datalab_path + 'tmp/result')
+            conn.sudo('mkdir -p ' + datalab_path + 'sources')
+            conn.sudo('mkdir -p /var/opt/datalab/log/ssn')
+            conn.sudo('mkdir -p /var/opt/datalab/log/edge')
+            conn.sudo('mkdir -p /var/opt/datalab/log/notebook')
+            conn.sudo('mkdir -p /var/opt/datalab/log/dataengine-service')
+            conn.sudo('mkdir -p /var/opt/datalab/log/dataengine')
+            conn.sudo('ln -s ' + datalab_path + 'conf /etc/opt/datalab')
+            conn.sudo('ln -s /var/opt/datalab/log /var/log/datalab')
+            conn.sudo('chown -R ' + os_user + ':' + os_user + ' /var/opt/datalab/log')
+            conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + datalab_path)
     except Exception as err:
         traceback.print_exc()
         print('Failed to create service directories: ', str(err))
@@ -132,64 +132,64 @@ def creating_service_directories(datalab_path, os_user):
 def configure_ssl_certs(hostname, custom_ssl_cert):
     try:
         if custom_ssl_cert:
-            put('/root/certs/datalab.crt', 'datalab.crt')
-            put('/root/certs/datalab.key', 'datalab.key')
-            sudo('mv datalab.crt /etc/ssl/certs/datalab.crt')
-            sudo('mv datalab.key /etc/ssl/certs/datalab.key')
+            conn.put('/root/certs/datalab.crt', 'datalab.crt')
+            conn.put('/root/certs/datalab.key', 'datalab.key')
+            conn.sudo('mv datalab.crt /etc/ssl/certs/datalab.crt')
+            conn.sudo('mv datalab.key /etc/ssl/certs/datalab.key')
         else:
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 ensure_step(args.os_user)
-                sudo('mkdir -p /home/{0}/keys'.format(args.os_user))
-                sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
+                conn.sudo('mkdir -p /home/{0}/keys'.format(args.os_user))
+                conn.sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
                      os.environ['conf_stepcerts_root_ca']))
-                fingerprint = sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
-                sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
+                fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
+                conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                  os.environ['conf_stepcerts_ca_url']))
-                sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
+                conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
                      os.environ['conf_stepcerts_kid_password'], args.os_user))
                 sans = "--san localhost --san 127.0.0.1 {0}".format(args.step_cert_sans)
                 cn = hostname
-                sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
+                conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
                               os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'],
                               args.os_user, cn, sans))
-                token = sudo('cat /tmp/step_token')
-                sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
+                token = conn.sudo('cat /tmp/step_token')
+                conn.sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
-                sudo('touch /var/log/renew_certificates.log')
-                put('/root/templates/renew_certificates.sh', '/tmp/renew_certificates.sh')
-                sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
-                sudo('chmod +x /usr/local/bin/renew_certificates.sh')
-                sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
-                sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(find_java_path_remote()))
-                sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/renew_certificates.sh')
-                sudo('sed -i "s|CONF_FILE|ssn|g" /usr/local/bin/renew_certificates.sh')
-                put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
-                sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
+                conn.sudo('touch /var/log/renew_certificates.log')
+                conn.put('/root/templates/renew_certificates.sh', '/tmp/renew_certificates.sh')
+                conn.sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
+                conn.sudo('chmod +x /usr/local/bin/renew_certificates.sh')
+                conn.sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
+                conn.sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(find_java_path_remote()))
+                conn.sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/renew_certificates.sh')
+                conn.sudo('sed -i "s|CONF_FILE|ssn|g" /usr/local/bin/renew_certificates.sh')
+                conn.put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
+                conn.sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
+                conn.sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
                      '/usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/datalab.crt|g" /usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/datalab.key|g" /usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
+                conn.sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/datalab.crt|g" /usr/local/bin/manage_step_certs.sh')
+                conn.sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/datalab.key|g" /usr/local/bin/manage_step_certs.sh')
+                conn.sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
                     os.environ['conf_stepcerts_ca_url']))
-                sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/manage_step_certs.sh')
-                sudo('sed -i "s|SANS|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(sans))
-                sudo('sed -i "s|CN|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(cn))
-                sudo('sed -i "s|KID|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
+                conn.sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/manage_step_certs.sh')
+                conn.sudo('sed -i "s|SANS|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(sans))
+                conn.sudo('sed -i "s|CN|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(cn))
+                conn.sudo('sed -i "s|KID|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
                     os.environ['conf_stepcerts_kid']))
-                sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
+                conn.sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
                      '/usr/local/bin/manage_step_certs.sh'.format(args.os_user))
-                sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
+                conn.sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
                      '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
-                put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
+                conn.put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
                     use_sudo=True)
-                sudo('systemctl daemon-reload')
-                sudo('systemctl enable step-cert-manager.service')
+                conn.sudo('systemctl daemon-reload')
+                conn.sudo('systemctl enable step-cert-manager.service')
             else:
-                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/datalab.key \
+                conn.sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/datalab.key \
                      -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}"'.format(hostname))
-        sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
+        conn.sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure SSL certificates: ', str(err))
@@ -197,9 +197,9 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
 
 def docker_build_script():
     try:
-        put('/root/scripts/docker_build.py', 'docker_build')
-        sudo('chmod +x docker_build')
-        sudo('mv docker_build /usr/bin/docker-build')
+        conn.put('/root/scripts/docker_build.py', 'docker_build')
+        conn.sudo('chmod +x docker_build')
+        conn.sudo('mv docker_build /usr/bin/docker-build')
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure docker_build script: ', str(err))
@@ -213,9 +213,8 @@ def docker_build_script():
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = args.os_user + '@' + args.hostname
+        datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+        host_string = args.os_user + '@' + args.hostname
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
@@ -268,7 +267,7 @@ if __name__ == "__main__":
     #configure_jenkins(args.datalab_path, args.os_user, deeper_config, args.tag_resource_id)
 
     print("Copying key")
-    cp_key(args.keyfile, env.host_string, args.os_user)
+    cp_key(args.keyfile, host_string, args.os_user)
 
     print("Copying backup scripts")
     cp_backup_scripts(args.datalab_path)
@@ -281,3 +280,5 @@ if __name__ == "__main__":
 
     print("Configuring docker_build script")
     docker_build_script()
+
+    datalab.fab.close_connection()

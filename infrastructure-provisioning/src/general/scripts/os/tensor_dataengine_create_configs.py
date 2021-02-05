@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,7 @@ from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
@@ -62,10 +62,10 @@ def pyspark_kernel(args):
     text = text.replace('CLUSTER_NAME', args.cluster_name)
     text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
     text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('PYTHON_SHORT_VERSION', '2.7')
-    text = text.replace('PYTHON_FULL_VERSION', '2.7')
+    text = text.replace('PYTHON_SHORT_VERSION', '3.8')
+    text = text.replace('PYTHON_FULL_VERSION', '3.8')
     text = text.replace('MASTER', args.spark_master)
-    text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
+    text = text.replace('PYTHON_PATH', '/usr/bin/python3.8')
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/{}/kernel_var.json'.format(args.cluster_name))
@@ -83,9 +83,9 @@ def pyspark_kernel(args):
     text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
     text = text.replace('SPARK_PATH', spark_path)
     text = text.replace('MASTER', args.spark_master)
-    text = text.replace('PYTHON_SHORT_VERSION', '3.6')
-    text = text.replace('PYTHON_FULL_VERSION', '3.6')
-    text = text.replace('PYTHON_PATH', '/usr/bin/python3.6')
+    text = text.replace('PYTHON_SHORT_VERSION', '3.8')
+    text = text.replace('PYTHON_FULL_VERSION', '3.8')
+    text = text.replace('PYTHON_PATH', '/usr/bin/python3.8')
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/{}/kernel_var.json'.format(args.cluster_name))
@@ -101,7 +101,7 @@ def install_sparkamagic_kernels(args):
         local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir))
         local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir))
 
-        pyspark_kernel_name = 'PySpark (Python-3.6 / Spark-{0} ) [{1}]'.format(args.spark_version,
+        pyspark_kernel_name = 'PySpark (Python-3.8 / Spark-{0} ) [{1}]'.format(args.spark_version,
                                                                          args.cluster_name)
         local('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user))

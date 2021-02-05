@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -26,14 +26,14 @@ import json
 import os
 from datalab.common_lib import *
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--pip_packages', type=str,
-                    default='boto3 argparse fabric==1.14.0 awscli google-api-python-client google-auth-httplib2 google-cloud-storage pycrypto azure==2.0.0')
+                    default='boto3 argparse fabric awscli google-api-python-client google-auth-httplib2 google-cloud-storage pycryptodome azure==2.0.0')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--user', type=str, default='')
 parser.add_argument('--edge_private_ip', type=str, default='')
@@ -43,19 +43,17 @@ args = parser.parse_args()
 
 def create_china_pip_conf_file():
     if not exists('/home/{}/pip_china_ensured'.format(args.user)):
-        sudo('touch /etc/pip.conf')
-        sudo('echo "[global]" >> /etc/pip.conf')
-        sudo('echo "timeout = 600" >> /etc/pip.conf')
-        sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        sudo('touch /home/{}/pip_china_ensured'.format(args.user))
+        conn.sudo('touch /etc/pip.conf')
+        conn.sudo('echo "[global]" >> /etc/pip.conf')
+        conn.sudo('echo "timeout = 600" >> /etc/pip.conf')
+        conn.sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
+        conn.sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
+        conn.sudo('touch /home/{}/pip_china_ensured'.format(args.user))
 
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.user, args.hostname)
+    datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
     if args.region == 'cn-north-1':
@@ -74,4 +72,4 @@ if __name__ == "__main__":
     print("Installing NTPd")
     ensure_ntpd(args.user, args.edge_private_ip)
 
-
+    datalab.fab.close_connection()

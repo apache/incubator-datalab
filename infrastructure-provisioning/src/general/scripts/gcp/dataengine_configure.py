@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,7 @@ import multiprocessing
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 
 def configure_slave(slave_number, data_engine):

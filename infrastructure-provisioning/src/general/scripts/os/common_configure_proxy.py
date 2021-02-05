@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -24,7 +24,7 @@
 import argparse
 import json
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -40,12 +40,10 @@ args = parser.parse_args()
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
     print("Enabling proxy for notebook server for repositories access.")
     enable_proxy(deeper_config['proxy_host'], deeper_config['proxy_port'])
 
-
+    datalab.fab.close_connection()

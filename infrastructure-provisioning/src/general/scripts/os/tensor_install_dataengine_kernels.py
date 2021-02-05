@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import argparse
 import os
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
@@ -44,27 +44,28 @@ args = parser.parse_args()
 def configure_notebook(keyfile, hoststring):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
-    run('mkdir -p /tmp/{}/'.format(args.cluster_name))
-    put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
-    # put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
-    # put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
+    conn.run('mkdir -p /tmp/{}/'.format(args.cluster_name))
+    conn.put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
+    # conn.put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
+    # conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     # spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
-    # run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
+    # conn.run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
     if not exists('/usr/local/bin/tensor_dataengine_create_configs.py'):
-        put(scripts_dir + 'tensor_dataengine_create_configs.py', '/usr/local/bin/tensor_dataengine_create_configs.py',
+        conn.put(scripts_dir + 'tensor_dataengine_create_configs.py', '/usr/local/bin/tensor_dataengine_create_configs.py',
             use_sudo=True)
-        sudo('chmod 755 /usr/local/bin/tensor_dataengine_create_configs.py')
-    if not exists('/usr/lib/python2.7/datalab/'):
-        sudo('mkdir -p /usr/lib/python2.7/datalab/')
-        put('/usr/lib/python2.7/datalab/*', '/usr/lib/python2.7/datalab/', use_sudo=True)
-        sudo('chmod a+x /usr/lib/python2.7/datalab/*')
+        conn.sudo('chmod 755 /usr/local/bin/tensor_dataengine_create_configs.py')
+    if not exists('/usr/lib/python3.8/datalab/'):
+        conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+        conn.put('/usr/lib/python3.8/datalab/*', '/usr/lib/python3.8/datalab/', use_sudo=True)
+        conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')
         if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+            conn.sudo('mkdir -p /usr/lib64/python3.8')
+            conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')
-    sudo("date +%s > /opt/inactivity/{}_inactivity".format(reworked_ip))
+    conn.sudo("date +%s > /opt/inactivity/{}_inactivity".format(reworked_ip))
 
 if __name__ == "__main__":
     env.hosts = "{}".format(args.notebook_ip)
@@ -79,7 +80,7 @@ if __name__ == "__main__":
         os.environ['spark_configurations'] = '[]'
     configure_notebook(args.keyfile, env.host_string)
     create_inactivity_log(args.spark_master_ip, env.host_string)
-    sudo('/usr/bin/python /usr/local/bin/tensor_dataengine_create_configs.py '
+    conn.sudo('/usr/bin/python3 /usr/local/bin/tensor_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
          '--datalake_enabled {} --spark_configurations "{}"'.
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,

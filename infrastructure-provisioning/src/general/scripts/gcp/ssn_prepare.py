@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssn_unique_index', type=str, default='')
@@ -77,11 +77,11 @@ if __name__ == "__main__":
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     except Exception as err:
-        datalab.fab.datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if GCPMeta.get_instance(ssn_conf['instance_name']):
-        datalab.fab.datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
+        datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
                                               "Please try again.")
         sys.exit(1)
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     try:
         ssn_conf['vpc_selflink'] = GCPMeta.get_vpc(ssn_conf['vpc_name'])['selfLink']
-        if os.environ['gcp_subnet_name'] == '':
+        if 'gcp_subnet_name' not in os.environ:
             raise KeyError
         else:
             ssn_conf['pre_defined_subnet'] = True

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,8 +21,9 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
+from fabric import *
 from fabric.contrib.files import exists
+from datalab.fab import *
 import argparse
 import sys
 
@@ -37,23 +38,21 @@ args = parser.parse_args()
 
 def ensure_ssh_user(initial_user, os_user, sudo_group):
     if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
-        sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
-        sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
-        sudo('mkdir /home/{}/.ssh'.format(os_user))
-        sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
-        sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
-        sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
-        sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
-        sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
-        sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
-        sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
+        conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
+        conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
+        conn.sudo('mkdir /home/{}/.ssh'.format(os_user))
+        conn.sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
+        conn.sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
+        conn.sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
+        conn.sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
+        conn.sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+        conn.sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
+        conn.sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
 
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.initial_user, args.hostname)
+    datalab.fab.init_datalab_connection(args.hostname, args.initial_user, args.keyfile)
 
     print("Creating ssh user: {}".format(args.os_user))
     try:
@@ -61,4 +60,4 @@ if __name__ == "__main__":
     except Exception as err:
         print('Failed to create ssh user', str(err))
         sys.exit(1)
-
+    datalab.fab.close_connection()

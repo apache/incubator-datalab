@@ -87,6 +87,12 @@ table.resources {
           overflow: hidden;
         }
 
+        &.shape-col{
+          align-items: start;
+          flex-direction: column;
+          justify-content: center;
+        }
+
         &.resources-col {
           overflow: hidden;
         }

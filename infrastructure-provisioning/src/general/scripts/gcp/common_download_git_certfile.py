@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -24,7 +24,7 @@
 import argparse
 import os
 from datalab.actions_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -33,18 +33,16 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     bucket_name = ('{0}-{1}-{2}-bucket'.format(os.environ['conf_service_base_name'], os.environ['project_name'],
                                                os.environ['endpoint_name'])).lower().replace('_', '-')
     gitlab_certfile = os.environ['conf_gitlab_certfile']
     if GCPActions().get_gitlab_cert(bucket_name, gitlab_certfile):
-        put(gitlab_certfile, gitlab_certfile)
-        sudo('chown root:root {}'.format(gitlab_certfile))
+        conn.put(gitlab_certfile, gitlab_certfile)
+        conn.sudo('chown root:root {}'.format(gitlab_certfile))
         print('{} has been downloaded'.format(gitlab_certfile))
     else:
         print('There is no {} to download'.format(gitlab_certfile))
+
+    datalab.fab.close_connection()

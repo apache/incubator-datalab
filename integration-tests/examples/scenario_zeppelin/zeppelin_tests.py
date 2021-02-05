@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import os, sys, json
-from fabric.api import *
+from fabric import *
 import argparse
 import requests
 

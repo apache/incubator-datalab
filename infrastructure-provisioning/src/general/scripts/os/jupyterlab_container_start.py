@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import sys
 import argparse
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -37,12 +37,12 @@ jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
 
 def start_jupyterlab_container(jupyterlab_dir):
     try:
-        with cd('{}'.format(jupyterlab_dir)):
-            run('docker build --network=host --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
-            container_id = run('docker ps | awk \'NR==2{print $1}\'')
+        with conn.cd('{}'.format(jupyterlab_dir)):
+            conn.run('docker build --network=host --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
+            container_id = conn.run('docker ps | awk \'NR==2{print $1}\'')
             if container_id != '':
-                run('docker stop ' + container_id)
-            run('docker run -d --restart unless-stopped -p 8888:8888 \
+                conn.run('docker stop ' + container_id)
+            conn.run('docker run -d --restart unless-stopped -p 8888:8888 \
                      -v /home/{0}:/opt/legion/repository \
                      -v /home/{0}/.ssh/:/home/{0}/.ssh/ \
                      jupyter-lab:latest'.format(args.os_user))
@@ -50,13 +50,11 @@ def start_jupyterlab_container(jupyterlab_dir):
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     print("Starting Jupyter container")
     try:
         start_jupyterlab_container(jupyterlab_dir)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
-
+    datalab.fab.close_connection()

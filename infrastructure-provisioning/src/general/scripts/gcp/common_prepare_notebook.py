@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -154,7 +154,8 @@ if __name__ == "__main__":
             data = {"notebook_name": notebook_config['instance_name'], "error": ""}
             json.dump(data, f)
 
-        additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+        print('Additional tags will be added: {}'.format(os.environ['tags']))
+        additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "" ).replace(
             "'}", "").lower()
 
         print('Additional tags will be added: {}'.format(additional_tags))

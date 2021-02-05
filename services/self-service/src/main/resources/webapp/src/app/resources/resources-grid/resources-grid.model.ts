@@ -51,7 +51,9 @@ export class ExploratoryModel {
     public endpoint: string,
     public tags: any,
     public edgeNodeStatus: string,
-    public activeCompute: boolean
+    public activeCompute: boolean,
+    public gpu_type?: string,
+    public gpu_count?: string
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -180,7 +182,9 @@ export class ExploratoryModel {
               el.endpoint,
               el.tags,
               value.shared[el.endpoint].status,
-              !!el.computational_resources.filter(resource => resource.status !== 'terminated' && resource.status !== 'failed').length
+              !!el.computational_resources.filter(resource => resource.status !== 'terminated' && resource.status !== 'failed').length,
+              el.gpuType,
+              el.gpuCount,
             );
           })
         };

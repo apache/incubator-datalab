@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,7 @@ import argparse
 import json
 import sys
 from datalab.meta_lib import get_instance_private_ip_address
-from fabric.api import *
+from fabric import *
 from jinja2 import Environment, FileSystemLoader
 
 parser = argparse.ArgumentParser()
@@ -103,11 +103,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.edge_hostname
-    put('/tmp/{}.conf'.format(conf_file_name), '/usr/local/openresty/nginx/conf/locations', use_sudo=True)
-    sudo('service openresty reload')
+    datalab.fab.init_datalab_connection(args.edge_hostname, args.os_user, args.keyfile)
+    conn.put('/tmp/{}.conf'.format(conf_file_name), '/usr/local/openresty/nginx/conf/locations', use_sudo=True)
+    conn.sudo('service openresty reload')
 
-
+    datalab.fab.close_connection()
 

@@ -23,19 +23,19 @@ import ast
 import backoff
 import datalab.common_lib
 import datalab.fab
+import datalab.meta_lib
 import google.auth
 import json
 import logging
-import meta_lib
 import os
 import random
 import sys
 import time
 import traceback
-import urllib2
+import urllib3
 from Crypto.PublicKey import RSA
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors
@@ -83,7 +83,7 @@ class GCPActions:
         try:
             print("Create VPC {}".format(vpc_name))
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print("VPC {} has been created".format(vpc_name))
             return result
         except Exception as err:
@@ -98,7 +98,7 @@ class GCPActions:
         request = self.service.networks().delete(project=self.project, network=vpc_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print("VPC {} has been removed".format(vpc_name))
             return result
         except Exception as err:
@@ -121,7 +121,7 @@ class GCPActions:
         try:
             print("Create subnet {}".format(subnet_name))
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print("Subnet {} has been created".format(subnet_name))
             return result
         except Exception as err:
@@ -136,7 +136,7 @@ class GCPActions:
         request = self.service.subnetworks().delete(project=self.project, region=region, subnetwork=subnet_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print("Subnet {} has been removed".format(subnet_name))
             return result
         except Exception as err:
@@ -151,7 +151,7 @@ class GCPActions:
         request = self.service.firewalls().insert(project=self.project, body=firewall_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('Firewall {} created.'.format(firewall_params['name']))
             return result
         except Exception as err:
@@ -166,7 +166,7 @@ class GCPActions:
         request = self.service.firewalls().delete(project=self.project, firewall=firewall_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('Firewall {} removed.'.format(firewall_name))
             return result
         except Exception as err:
@@ -181,7 +181,7 @@ class GCPActions:
         request = self.service.routes().insert(project=self.project, body=nat_route_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('NAT route {} created.'.format(nat_route_params['name']))
             return result
         except Exception as err:
@@ -196,7 +196,7 @@ class GCPActions:
         request = self.service.routes().delete(project=self.project, route=nat_route_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
             print('NAT route {} deleteed.'.format(nat_route_name))
             return result
         except Exception as err:
@@ -280,7 +280,7 @@ class GCPActions:
                           "sourceImage": secondary_image_name}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Disk {}-secondary created.'.format(instance_name))
             return request
         except Exception as err:
@@ -296,7 +296,7 @@ class GCPActions:
             request = self.service.disks().delete(project=self.project, zone=zone, disk=instance_name + '-secondary')
             try:
                 result = request.execute()
-                meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+                datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
                 print('Disk {}-secondary removed.'.format(instance_name))
             except errors.HttpError as err:
                 if err.resp.status == 404:
@@ -320,8 +320,8 @@ class GCPActions:
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
-        ssh_key = key.publickey().exportKey("OpenSSH")
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         access_configs = ''
         if instance_class == 'edge':
@@ -455,7 +455,7 @@ class GCPActions:
                                                   body=instance_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Instance {} created.'.format(instance_name))
             request = self.service.instances().get(instance=instance_name, project=self.project,
                                                    zone=zone)
@@ -510,7 +510,7 @@ class GCPActions:
                                                   instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Instance {} removed.'.format(instance_name))
             return result
         except Exception as err:
@@ -525,7 +525,7 @@ class GCPActions:
         request = self.service.instances().stop(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             return True
         except Exception as err:
             logging.info(
@@ -539,7 +539,7 @@ class GCPActions:
         request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             return True
         except Exception as err:
             logging.info(
@@ -550,16 +550,16 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def remove_service_account(self, service_account_name, service_base_name):
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         request = self.service_iam.projects().serviceAccounts().delete(
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
         try:
             result = request.execute()
-            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+            service_account_removed = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while service_account_removed:
                 time.sleep(5)
-                service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+                service_account_removed = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} removed.'.format(service_account_name))
             return result
@@ -580,10 +580,10 @@ class GCPActions:
                                                                        body=params)
         try:
             result = request.execute()
-            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+            service_account_created = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while not service_account_created:
                 time.sleep(5)
-                service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
+                service_account_created = datalab.meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} created.'.format(service_account_name))
             return result
@@ -601,7 +601,7 @@ class GCPActions:
         num += 1
         request = GCPActions().service_resource.projects().getIamPolicy(resource=self.project, body={})
         project_policy = request.execute()
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
@@ -644,10 +644,10 @@ class GCPActions:
                                                                  }})
         try:
             result = request.execute()
-            role_created = meta_lib.GCPMeta().get_role(role_name)
+            role_created = datalab.meta_lib.GCPMeta().get_role(role_name)
             while not role_created:
                 time.sleep(5)
-                role_created = meta_lib.GCPMeta().get_role(role_name)
+                role_created = datalab.meta_lib.GCPMeta().get_role(role_name)
             time.sleep(30)
             print('IAM role {} created.'.format(role_name))
             return result
@@ -667,14 +667,14 @@ class GCPActions:
                                                              { })
         try:
             result = request.execute()
-            role = meta_lib.GCPMeta().get_role(role_name)
+            role = datalab.meta_lib.GCPMeta().get_role(role_name)
             if 'deleted' in role:
                 role_removed = True
             else:
                 role_removed = False
             while role_removed:
                 time.sleep(5)
-                role = meta_lib.GCPMeta().get_role(role_name)
+                role = datalab.meta_lib.GCPMeta().get_role(role_name)
                 if 'deleted' in role:
                     role_removed = True
             time.sleep(30)
@@ -694,14 +694,14 @@ class GCPActions:
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
         try:
             result = request.execute()
-            role = meta_lib.GCPMeta().get_role(role_name)
+            role = datalab.meta_lib.GCPMeta().get_role(role_name)
             if 'deleted' in role:
                 role_removed = True
             else:
                 role_removed = False
             while not role_removed:
                 time.sleep(5)
-                role = meta_lib.GCPMeta().get_role(role_name)
+                role = datalab.meta_lib.GCPMeta().get_role(role_name)
                 if 'deleted' in role:
                     role_removed = True
             time.sleep(30)
@@ -739,7 +739,7 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def set_service_account_to_instance(self, service_account_name, instance_name, service_base_name):
-        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "email": service_account_email
@@ -762,7 +762,7 @@ class GCPActions:
         request = self.service.addresses().insert(project=self.project, region=region, body=params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print('Static address {} created.'.format(address_name))
             return result
         except Exception as err:
@@ -778,7 +778,7 @@ class GCPActions:
         request = self.service.addresses().delete(project=self.project, region=region, address=address_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
+            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print('Static address {} removed.'.format(address_name))
             return result
         except Exception as err:
@@ -802,16 +802,16 @@ class GCPActions:
         id_list=[]
         try:
             GCPActions().stop_instance(instance_name, zone)
-            primary_image_check = meta_lib.GCPMeta().get_image_by_name(primary_image_name)
+            primary_image_check = datalab.meta_lib.GCPMeta().get_image_by_name(primary_image_name)
             if primary_image_check != '':
                 GCPActions().start_instance(instance_name, zone)
                 return ''
             primary_result = primary_request.execute()
             secondary_result = secondary_request.execute()
-            meta_lib.GCPMeta().wait_for_operation(primary_result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(primary_result['name'])
             print('Image {} has been created.'.format(primary_image_name))
             id_list.append(primary_result.get('id'))
-            meta_lib.GCPMeta().wait_for_operation(secondary_result['name'])
+            datalab.meta_lib.GCPMeta().wait_for_operation(secondary_result['name'])
             print('Image {} has been created.'.format(secondary_image_name))
             id_list.append(secondary_result.get('id'))
             GCPActions().start_instance(instance_name, zone)
@@ -831,7 +831,7 @@ class GCPActions:
             request = self.service.images().delete(project=self.project, image=image_name)
             try:
                 result = request.execute()
-                meta_lib.GCPMeta().wait_for_operation(result['name'])
+                datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
                 print('Image {} was removed.'.format(image_name))
             except errors.HttpError as err:
                 if err.resp.status == 404:
@@ -870,7 +870,7 @@ class GCPActions:
 
     def set_bucket_owner(self, bucket_name, service_account_name, service_base_name):
         try:
-            unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+            unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
             service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index,
                                                                                   self.project)
             bucket = self.storage_client.get_bucket(bucket_name)
@@ -919,11 +919,11 @@ class GCPActions:
         try:
             result = request.execute()
             time.sleep(5)
-            cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             while cluster_status[0]['status'] != 'running':
                 time.sleep(5)
                 print('The cluster is being created... Please wait')
-                cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+                cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
                 if cluster_status[0]['status'] == 'terminated':
                     raise Exception
             return result
@@ -979,11 +979,11 @@ class GCPActions:
         request = self.dataproc.projects().regions().clusters().delete(projectId=self.project, region=region, clusterName=cluster_name)
         try:
             result = request.execute()
-            cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             while cluster_status[0]['status'] != 'terminated':
                 time.sleep(5)
                 print('The cluster is being terminated... Please wait')
-                cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+                cluster_status = datalab.meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             GCPActions().delete_dataproc_jobs(cluster_name)
             return result
         except Exception as err:
@@ -1027,10 +1027,10 @@ class GCPActions:
         try:
             res = request.execute()
             print("Job ID: {}".format(res['reference']['jobId']))
-            job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+            job_status = datalab.meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
             while job_status != 'done':
                 time.sleep(5)
-                job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+                job_status = datalab.meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
                 if job_status in ('failed', 'error'):
                     raise Exception
             return job_status
@@ -1047,7 +1047,7 @@ class GCPActions:
 
     def delete_dataproc_jobs(self, cluster_filter):
         try:
-            jobs = meta_lib.GCPMeta().get_dataproc_jobs()
+            jobs = datalab.meta_lib.GCPMeta().get_dataproc_jobs()
             cluster_jobs_ids = [job['reference']['jobId'] for job in jobs
                                 if cluster_filter in job['placement']['clusterName']]
             for job_id in list(set(cluster_jobs_ids)):
@@ -1075,7 +1075,7 @@ class GCPActions:
         try:
             version_file = '{0}/{1}/{2}_version'.format(user_name, cluster_name, application)
             if GCPActions().get_from_bucket(bucket, version_file, '/tmp/{}_version'.format(application)):
-                with file('/tmp/{}_version'.format(application)) as f:
+                with open('/tmp/{}_version'.format(application)) as f:
                     version = f.read()
                 return version[0:5]
             else:
@@ -1140,25 +1140,25 @@ class GCPActions:
 
     def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path, computational_name):
         try:
-            notebook_ip = meta_lib.GCPMeta().get_private_ip_address(notebook_name)
+            notebook_ip = datalab.meta_lib.GCPMeta().get_private_ip_address(notebook_name)
             env.hosts = "{}".format(notebook_ip)
             env.user = "{}".format(ssh_user)
             env.key_filename = "{}".format(key_path)
             env.host_string = env.user + "@" + env.hosts
-            sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
+            conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
-                        livy_port = sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
+                        livy_port = conn.sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
                                          + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
-                        process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                        process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                               "' | awk '{print $7}' | sed 's|/.*||g'")
-                        sudo('kill -9 ' + process_number)
-                        sudo('systemctl disable livy-server-' + livy_port)
+                        conn.sudo('kill -9 ' + process_number)
+                        conn.sudo('systemctl disable livy-server-' + livy_port)
                     except:
                         print("Wasn't able to find Livy server for this EMR!")
-                sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-                sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
+                conn.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                 zeppelin_url = 'http://' + notebook_ip + ':8080/api/interpreter/setting/'
                 opener = urllib2.build_opener(urllib2.ProxyHandler({}))
                 req = opener.open(urllib2.Request(zeppelin_url))
@@ -1173,20 +1173,20 @@ class GCPActions:
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
                         print(url.read())
-                sudo('chown {0}:{0} -R /opt/zeppelin/'.format(ssh_user))
-                sudo('systemctl restart zeppelin-notebook.service')
+                conn.sudo('chown {0}:{0} -R /opt/zeppelin/'.format(ssh_user))
+                conn.sudo('systemctl restart zeppelin-notebook.service')
                 zeppelin_restarted = False
                 while not zeppelin_restarted:
-                    sudo('sleep 5')
-                    result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                    conn.sudo('sleep 5')
+                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
                     result = result[:1]
                     if result == '1':
                         zeppelin_restarted = True
-                sudo('sleep 5')
-                sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
+                conn.sudo('sleep 5')
+                conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                 datalab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
-            sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
+            conn.sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
             logging.info(
@@ -1205,7 +1205,7 @@ class GCPActions:
             zeppelin_restarted = False
             default_port = 8998
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
-            with file('/tmp/python_version') as f:
+            with open('/tmp/python_version') as f:
                 python_version = f.read()
             python_version = python_version[0:5]
             livy_port = ''
@@ -1296,19 +1296,17 @@ class GCPActions:
     def install_python(self, bucket, user_name, cluster_name, application, numpy_version='1.14.3'):
         try:
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
-            with file('/tmp/python_version') as f:
+            with open('/tmp/python_version') as f:
                 python_version = f.read()
             python_version = python_version[0:5]
             if not os.path.exists('/opt/python/python{}'.format(python_version)):
                 local('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_version))
                 local('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_version))
-                with lcd('/tmp/Python-{}'.format(python_version)):
-                    local('./configure --prefix=/opt/python/python{} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version))
-                    local('sudo make altinstall')
-                with lcd('/tmp/'):
-                    local('sudo rm -rf Python-{}/'.format(python_version))
+                local('cd /tmp/Python-{0}; ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version))
+                local('cd /tmp/Python-{}; sudo make altinstall'.format(python_version))
+                local('cd /tmp/; sudo rm -rf Python-{}/'.format(python_version))
                 local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
-                venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
+                venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
                 local('{0} && sudo -i {1} install -U pip==9.0.3'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install pyzmq==17.0.0'.format(venv_command, pip_command))
@@ -1337,19 +1335,19 @@ def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
         try:
             templates_dir = '/root/templates/'
-            sudo('mkdir -p {}'.format(jars_dir))
-            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-{0}.jar -O {1}'
+            conn.sudo('mkdir -p {}'.format(jars_dir))
+            conn.sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-{0}.jar -O {1}'
                  'gcs-connector-hadoop2-{0}.jar'.format(os.environ['notebook_gcs_connector_version'], jars_dir))
-            sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
+            conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
                  .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
-            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
-            sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
-            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
-            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+            conn.put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            conn.sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
+            conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
-                sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
+                conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+            conn.sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            conn.sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
@@ -1372,12 +1370,12 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
 def prepare_disk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
-            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
-            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
-            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
+            conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except:
             sys.exit(1)
 
@@ -1385,11 +1383,11 @@ def prepare_disk(os_user):
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
     if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
-            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+            conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
@@ -1401,27 +1399,27 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         spark_jars_paths = None
         if exists('/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
             except:
                 spark_jars_paths = None
-        put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         if os.environ['application'] == 'zeppelin':
-            sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-        sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+        conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
-            sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+            conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
         if not exists('/opt/spark/conf/spark-env.sh'):
-            sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
-        sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
+            conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
+        conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
-            datalab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
+            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
+            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf')
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':
@@ -1434,13 +1432,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
+            conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
-                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
-            sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+                conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
-                sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+                conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1449,26 +1447,26 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
     try:
         computational_name = os.environ['computational_name'].replace('_', '-').lower()
-        private = meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
+        private = datalab.meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
         env.hosts = "{}".format(private)
         env.user = "{}".format(os_user)
         env.key_filename = "{}".format(key_path)
         env.host_string = env.user + "@" + env.hosts
-        sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+        conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
             if os.environ['notebook_multiple_clusters'] == 'true':
                 try:
-                    livy_port = sudo("cat /opt/" + cluster_name +
+                    livy_port = conn.sudo("cat /opt/" + cluster_name +
                                      "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
-                    process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                    process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                           "' | awk '{print $7}' | sed 's|/.*||g'")
-                    sudo('kill -9 ' + process_number)
-                    sudo('systemctl disable livy-server-' + livy_port)
+                    conn.sudo('kill -9 ' + process_number)
+                    conn.sudo('systemctl disable livy-server-' + livy_port)
                 except:
                     print("Wasn't able to find Livy server for this EMR!")
-            sudo(
+            conn.sudo(
                 'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-            sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+            conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
             zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
             opener = urllib2.build_opener(urllib2.ProxyHandler({}))
             req = opener.open(urllib2.Request(zeppelin_url))
@@ -1483,22 +1481,22 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
                     request.get_method = lambda: 'DELETE'
                     url = opener.open(request)
                     print(url.read())
-            sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-            sudo('systemctl daemon-reload')
-            sudo("service zeppelin-notebook stop")
-            sudo("service zeppelin-notebook start")
+            conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo("service zeppelin-notebook stop")
+            conn.sudo("service zeppelin-notebook start")
             zeppelin_restarted = False
             while not zeppelin_restarted:
-                sudo('sleep 5')
-                result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                conn.sudo('sleep 5')
+                result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
                 result = result[:1]
                 if result == '1':
                     zeppelin_restarted = True
-            sudo('sleep 5')
-            sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+            conn.sudo('sleep 5')
+            conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
             datalab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
-        sudo('rm -rf  /opt/' + cluster_name + '/')
+        conn.sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
         logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
