@@ -22,13 +22,13 @@
     <ng-template [ngIf]="activeTab.index !== 0">
       <button mat-raised-button class="butt"
               (click)="action('save')"
-              [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+              [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing-service'].isConfigChanged"
       >
         Save
       </button>
       <button mat-raised-button class="butt"
               (click)="action('discard')"
-              [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+              [disabled]="!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing-service'].isConfigChanged"
       >
         Discard changes
       </button>
@@ -41,7 +41,7 @@
   <div class="configuration-wrapper">
     <mat-tab-group animationDuration="0.5ms" (selectedTabChange)="tabChanged($event)">
       <mat-tab label="Main"
-               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 0"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing-service'].isConfigChanged) && activeTab.index !== 0"
       >
         <h4>Main settings</h4>
         <div class="main-wrapper">
@@ -75,7 +75,7 @@
       <mat-tab label="Provisioning"
                [disabled]="!(!services['provisioning-service'].isConfigChanged
                && !services['self-service'].isConfigChanged
-               && !services['billing'].isConfigChanged)
+               && !services['billing-service'].isConfigChanged)
                && activeTab.index !== 1"
       >
         <h4>Edit provisioning.yml</h4>
@@ -84,7 +84,7 @@
         </div>
       </mat-tab>
       <mat-tab label="Self service"
-               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 2"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing-service'].isConfigChanged) && activeTab.index !== 2"
       >
          <h4>Edit self-service.yml</h4>
         <div class="editor-wrap">
@@ -92,11 +92,11 @@
         </div>
       </mat-tab>
       <mat-tab label="Billing"
-               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 3"
+               [disabled]="!(!services['provisioning-service'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing-service'].isConfigChanged) && activeTab.index !== 3"
       >
         <h4>Edit billing.yml</h4>
         <div class="editor-wrap">
-          <div ace-editor [(text)]="services.billing.config" mode="yaml" (textChange)="configUpdate('billing')"></div>
+          <div ace-editor [(text)]="services['billing-service'].config" mode="yaml" (textChange)="configUpdate('billing')"></div>
         </div>
       </mat-tab>
     </mat-tab-group>

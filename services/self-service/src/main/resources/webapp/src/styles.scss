@@ -448,7 +448,7 @@ input[type='number'] {
 .mat-chip.mat-standard-chip::after {
   height: 0;
   width: 0;
-  opacity: 0;
+  position: unset;
 }
 
 .capitalize {
