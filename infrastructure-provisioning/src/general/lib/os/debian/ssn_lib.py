@@ -379,7 +379,7 @@ def install_build_dep():
                         maven_version.split('.')[0], maven_version))
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
-            sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_12.x | bash -"')
+            sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_15.x | bash -"')
             manage_pkg('-y install', 'remote', 'nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path']))

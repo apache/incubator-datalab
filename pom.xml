@@ -109,7 +109,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <io.dropwizard.version>1.3.2</io.dropwizard.version>
+        <io.dropwizard.version>1.3.21</io.dropwizard.version>
         <dropwizard.swagger.version>1.3.5-1</dropwizard.swagger.version>
         <com.google.inject.version>4.2.0</com.google.inject.version>
         <dropwizard-template-config.version>1.4.0</dropwizard-template-config.version>
