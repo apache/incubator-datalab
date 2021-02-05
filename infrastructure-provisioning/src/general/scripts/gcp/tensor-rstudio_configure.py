@@ -30,6 +30,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -117,7 +118,7 @@ if __name__ == "__main__":
             notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -135,7 +136,7 @@ if __name__ == "__main__":
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
                     json.dumps(additional_config), notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -152,7 +153,7 @@ if __name__ == "__main__":
             format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['datalab_ssh_user'],
                    os.environ['gcp_region'], edge_instance_private_ip)
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -174,7 +175,7 @@ if __name__ == "__main__":
                     os.environ['notebook_rstudio_version'], notebook_config['datalab_ssh_user'],
                     os.environ['notebook_r_mirror'], notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
-            local("~/scripts/{}.py {}".format('configure_tensor-rstudio_node', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_tensor-rstudio_node', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -192,7 +193,7 @@ if __name__ == "__main__":
             instance_hostname, notebook_config['ssh_key_path'], json.dumps(additional_config),
             notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
         except:
             datalab.fab.append_result("Failed installing users key")
             raise Exception
@@ -207,8 +208,8 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['datalab_ssh_user'], instance_hostname, notebook_config['ssh_key_path'])
         try:
-            local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True)
         except:
             datalab.fab.append_result("Failed setup git credentials")
             raise Exception
@@ -260,7 +261,7 @@ if __name__ == "__main__":
                     notebook_config['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
