@@ -45,7 +45,7 @@ def configure_slave(slave_number, data_engine):
              data_engine['datalab_ssh_user'], sudo_group)
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -63,7 +63,7 @@ def configure_slave(slave_number, data_engine):
             slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem",
             json.dumps(additional_config), data_engine['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -78,7 +78,7 @@ def configure_slave(slave_number, data_engine):
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
             .format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
-            local("~/scripts/{}.py {}".format('common_clean_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_clean_instance', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -95,7 +95,7 @@ def configure_slave(slave_number, data_engine):
             .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
                     data_engine['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -111,7 +111,7 @@ def configure_slave(slave_number, data_engine):
             format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], data_engine['region'],
                    edge_instance_private_hostname)
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -130,7 +130,7 @@ def configure_slave(slave_number, data_engine):
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
                    'slave')
         try:
-            local("~/scripts/{}.py {}".format('configure_dataengine', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_dataengine', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -236,7 +236,7 @@ if __name__ == "__main__":
              data_engine['datalab_ssh_user'], sudo_group)
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -254,7 +254,7 @@ if __name__ == "__main__":
             master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(
                 additional_config), data_engine['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -270,7 +270,7 @@ if __name__ == "__main__":
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
             .format(master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
-            local("~/scripts/{}.py {}".format('common_clean_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_clean_instance', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -287,7 +287,7 @@ if __name__ == "__main__":
             .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
                     data_engine['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -303,7 +303,7 @@ if __name__ == "__main__":
             format(master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'], data_engine['region'],
                    edge_instance_private_hostname)
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -322,7 +322,7 @@ if __name__ == "__main__":
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
                    'master')
         try:
-            local("~/scripts/{}.py {}".format('configure_dataengine', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_dataengine', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -374,7 +374,7 @@ if __name__ == "__main__":
                     data_engine['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception

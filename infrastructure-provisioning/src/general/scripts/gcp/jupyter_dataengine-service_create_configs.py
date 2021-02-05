@@ -23,6 +23,7 @@
 
 import argparse
 import sys
+import subprocess
 from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
@@ -56,7 +57,7 @@ yarn_dir = '/opt/{}/{}/conf/'.format(args.dataproc_version, args.cluster_name)
 
 def r_kernel(args):
     spark_path = '/opt/{}/{}/spark/'.format(args.dataproc_version, args.cluster_name)
-    local('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name))
+    subprocess.run('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name), shell=True)
     kernel_path = "{}/r_{}/kernel.json".format(kernels_dir, args.cluster_name)
     template_file = "/tmp/r_dataengine-service_template.json"
 
@@ -75,10 +76,10 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/{0}/{1}/spark/'.format(args.dataproc_version, args.cluster_name)
-    local('mkdir -p {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
-    local('tar zxvf /tmp/toree_kernel.tar.gz -C {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
-    local('sudo mv {0}toree_{1}/toree-0.3.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
-    local('sudo rm -r {0}toree_{1}/toree-0.3.0-incubating'.format(kernels_dir, args.cluster_name))
+    subprocess.run('mkdir -p {0}toree_{1}/'.format(kernels_dir, args.cluster_name), shell=True)
+    subprocess.run('tar zxvf /tmp/toree_kernel.tar.gz -C {0}toree_{1}/'.format(kernels_dir, args.cluster_name), shell=True)
+    subprocess.run('sudo mv {0}toree_{1}/toree-0.3.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name), shell=True)
+    subprocess.run('sudo rm -r {0}toree_{1}/toree-0.3.0-incubating'.format(kernels_dir, args.cluster_name), shell=True)
     kernel_path = '{0}toree_{1}/kernel.json'.format(kernels_dir, args.cluster_name)
     template_file = "/tmp/toree_dataengine-service_templatev2.json"
     with open(template_file, 'r') as f:
@@ -91,12 +92,12 @@ def toree_kernel(args):
     text = text.replace('SCALA_VERSION', args.scala_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
-    local('touch /tmp/kernel_var.json')
-    local(
+    subprocess.run('touch /tmp/kernel_var.json', shell=True)
+    subprocess.run(
         "PYJ=`find /opt/" + args.dataproc_version + "/" + args.cluster_name +
         "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json", shell=True)
+    subprocess.run('sudo mv /tmp/kernel_var.json ' + kernel_path, shell=True)
     run_sh_path = kernels_dir + "toree_" + args.cluster_name + "/bin/run.sh"
     template_sh_file = '/tmp/run_template.sh'
     with open(template_sh_file, 'r') as f:
@@ -108,28 +109,28 @@ def toree_kernel(args):
 
 def install_sparkamagic_kernels(args):
     try:
-        local('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
-        sparkmagic_dir = local("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True)
-        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir))
-        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir))
-        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir))
+        subprocess.run('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
+        sparkmagic_dir = subprocess.run("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True, shell=True)
+        subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir), shell=True)
+        subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir), shell=True)
+        subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir), shell=True)
         pyspark_kernel_name = 'PySpark (Python-{0} / Spark-{1} ) [{2}]'.format(args.python_version, args.spark_version,
                                                                          args.cluster_name)
-        local('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
-            pyspark_kernel_name, args.os_user))
+        subprocess.run('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
+            pyspark_kernel_name, args.os_user), shell=True)
         spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(args.scala_version, args.spark_version,
                                                                          args.cluster_name)
-        local('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
-            spark_kernel_name, args.os_user))
+        subprocess.run('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
+            spark_kernel_name, args.os_user), shell=True)
         sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(args.r_version, args.spark_version,
                                                                             args.cluster_name)
-        local('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(
-            sparkr_kernel_name, args.os_user))
-        local('mkdir -p /home/' + args.os_user + '/.sparkmagic')
-        local('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json')
-        local('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
-                args.master_ip, args.os_user))
-        local('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user))
+        subprocess.run('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(
+            sparkr_kernel_name, args.os_user), shell=True)
+        subprocess.run('mkdir -p /home/' + args.os_user + '/.sparkmagic', shell=True)
+        subprocess.run('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json', shell=True)
+        subprocess.run('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
+                args.master_ip, args.os_user), shell=True)
+        subprocess.run('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user), shell=True)
     except:
         sys.exit(1)
 
