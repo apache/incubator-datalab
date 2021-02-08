@@ -31,7 +31,7 @@ RUN apt-get update && \
 
 # Install any python dependencies
 RUN pip install -UI qtconsole==4.7.7 pip==21.0.1 && \
-    pip install backoff fabric==1.14.0 fabvenv argparse requests ujson jupyter pycryptodome azure==2.0.0 azure-mgmt-authorization pyyaml
+    pip install backoff patchwork fabric==1.14.0 fabvenv argparse requests ujson jupyter pycryptodome azure==2.0.0 azure-mgmt-authorization pyyaml
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
