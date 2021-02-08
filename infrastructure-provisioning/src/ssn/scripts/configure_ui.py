@@ -31,7 +31,7 @@ import subprocess
 from datalab.fab import *
 from datalab.ssn_lib import *
 from fabric import *
-from fabric.contrib.files import exists
+from patchwork.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

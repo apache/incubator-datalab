@@ -27,7 +27,7 @@ import os
 from datalab.common_lib import *
 from datalab.fab import *
 from fabric import *
-from fabric.contrib.files import exists
+from patchwork.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

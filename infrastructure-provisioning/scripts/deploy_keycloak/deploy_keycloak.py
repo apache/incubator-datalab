@@ -27,7 +27,7 @@ import argparse
 import sys
 import os
 import subprocess
-from fabric.contrib.files import exists
+from patchwork.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--os_user', type=str, default='')

@@ -27,7 +27,7 @@ import argparse
 import os
 import sys
 import time
-from fabric.contrib.files import exists
+from patchwork.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--refresh_token', type=str, default='')

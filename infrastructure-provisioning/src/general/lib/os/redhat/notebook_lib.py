@@ -28,7 +28,7 @@ from datalab.common_lib import manage_pkg
 from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric import *
-from fabric.contrib.files import exists
+from patchwork.files import exists
 
 
 def enable_proxy(proxy_host, proxy_port):

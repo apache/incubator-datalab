@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 from fabric import *
-from fabric.contrib.files import exists
+from patchwork.files import exists
 from datalab.fab import *
 import argparse
 import sys

@@ -28,7 +28,7 @@ from datalab.common_lib import install_certbot
 from datalab.common_lib import manage_pkg
 from datalab.common_lib import run_certbot
 from fabric import *
-from fabric.contrib.files import exists
+from patchwork.files import exists
 
 
 def configure_http_proxy_server(config):

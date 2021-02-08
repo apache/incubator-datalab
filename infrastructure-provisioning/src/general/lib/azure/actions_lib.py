@@ -43,7 +43,7 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlockBlobService
 from fabric import *
-from fabric.contrib.files import exists
+from patchwork.files import exists
 
 
 class AzureActions:
