@@ -25,6 +25,7 @@ import logging
 import os
 import sys
 import uuid
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
@@ -44,7 +45,7 @@ def run():
 
     try:
         params = "--uuid {}".format(notebook_config['uuid'])
-        local("~/scripts/{}.py {}".format('common_prepare_notebook', params))
+        subprocess.run("~/scripts/{}.py {}".format('common_prepare_notebook', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Notebook node.", str(err))
@@ -52,7 +53,7 @@ def run():
 
     try:
         params = "--uuid {}".format(notebook_config['uuid'])
-        local("~/scripts/{}.py {}".format('tensor_configure', params))
+        subprocess.run("~/scripts/{}.py {}".format('tensor_configure', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))
@@ -67,7 +68,7 @@ def terminate():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('common_terminate_notebook'))
+        subprocess.run("~/scripts/{}.py".format('common_terminate_notebook'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating Notebook node.", str(err))
@@ -82,7 +83,7 @@ def stop():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('common_stop_notebook'))
+        subprocess.run("~/scripts/{}.py".format('common_stop_notebook'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed stopping Notebook node.", str(err))
@@ -98,7 +99,7 @@ def start():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('common_start_notebook'))
+        subprocess.run("~/scripts/{}.py".format('common_start_notebook'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed starting Notebook node.", str(err))
@@ -116,7 +117,7 @@ def configure():
 
     try:
         if os.environ['conf_resource'] == 'dataengine':
-            local("~/scripts/{}.py".format('common_notebook_configure_dataengine'))
+            subprocess.run("~/scripts/{}.py".format('common_notebook_configure_dataengine'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring dataengine on Notebook node.", str(err))
@@ -133,7 +134,7 @@ def install_libs():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('notebook_install_libs'))
+        subprocess.run("~/scripts/{}.py".format('notebook_install_libs'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed installing additional libs for Notebook node.", str(err))
@@ -150,7 +151,7 @@ def list_libs():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('notebook_list_libs'))
+        subprocess.run("~/scripts/{}.py".format('notebook_list_libs'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed get available libraries for notebook node.", str(err))
@@ -167,7 +168,7 @@ def git_creds():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('notebook_git_creds'))
+        subprocess.run("~/scripts/{}.py".format('notebook_git_creds'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to manage git credentials for notebook node.", str(err))
@@ -184,7 +185,7 @@ def create_image():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('common_create_notebook_image'))
+        subprocess.run("~/scripts/{}.py".format('common_create_notebook_image'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to create image from notebook node.", str(err))
@@ -201,7 +202,7 @@ def terminate_image():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('common_terminate_notebook_image'))
+        subprocess.run("~/scripts/{}.py".format('common_terminate_notebook_image'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to create image from notebook node.", str(err))
@@ -218,7 +219,7 @@ def reconfigure_spark():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('notebook_reconfigure_spark'))
+        subprocess.run("~/scripts/{}.py".format('notebook_reconfigure_spark'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to reconfigure Spark for Notebook node.", str(err))
@@ -234,7 +235,7 @@ def check_inactivity():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('notebook_inactivity_check'))
+        subprocess.run("~/scripts/{}.py".format('notebook_inactivity_check'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to check inactivity status.", str(err))

@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
 from fabric import *
 
@@ -168,7 +169,7 @@ if __name__ == "__main__":
                    notebook_config['instance_storage_account_type'], notebook_config['image_name'],
                    notebook_config['image_type'], json.dumps(notebook_config['tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
