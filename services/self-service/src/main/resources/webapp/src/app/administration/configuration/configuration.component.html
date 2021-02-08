@@ -88,7 +88,7 @@
                && !services['self-service'].isConfigChanged
                && !services['billing'].isConfigChanged)
                && activeTab.index !== 2"
-
+        >
         <h4>Edit provisioning.yml</h4>
         <div class="editor-wrap">
           <div ace-editor [(text)]="services['provisioning'].config" mode="yaml" (textChange)="configUpdate('provisioning')"></div>
