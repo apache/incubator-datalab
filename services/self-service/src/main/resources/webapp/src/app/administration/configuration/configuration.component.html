@@ -75,6 +75,7 @@
 
       <mat-tab label="Self-service"
                [disabled]="!(!services['provisioning'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 1"
+
       >
         <h4>Edit self-service.yml</h4>
         <div class="editor-wrap">
@@ -87,7 +88,7 @@
                && !services['self-service'].isConfigChanged
                && !services['billing'].isConfigChanged)
                && activeTab.index !== 2"
-      >
+
         <h4>Edit provisioning.yml</h4>
         <div class="editor-wrap">
           <div ace-editor [(text)]="services['provisioning'].config" mode="yaml" (textChange)="configUpdate('provisioning')"></div>
@@ -100,6 +101,7 @@
         <h4>Edit billing.yml</h4>
         <div class="editor-wrap">
           <div ace-editor [(text)]="services['billing'].config" mode="yaml" (textChange)="configUpdate('billing')"></div>
+
         </div>
       </mat-tab>
     </mat-tab-group>
