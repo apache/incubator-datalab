@@ -30,7 +30,7 @@ from datalab.fab import *
 from fabric import *
 
 @task
-def run():
+def run(ctx):
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -53,7 +53,7 @@ def run():
         sys.exit(1)
 
 @task
-def terminate():
+def terminate(ctx):
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
