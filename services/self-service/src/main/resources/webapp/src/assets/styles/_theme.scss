@@ -42,7 +42,10 @@
       i {
         margin: 0 5px 0 0;
         font-size: 20px;
-        vertical-align: sub;
+        vertical-align: middle;
+        &.arrow-icon{
+          vertical-align: -5px
+        }
       }
     }
 
@@ -364,6 +367,9 @@ span.mat-slide-toggle-content {
   .mat-chip{
     overflow: hidden;
     pointer-events: all;
+    &.mat-standard-chip.mat-chip-disabled{
+      opacity: 1;
+    }
   }
 }
 
@@ -1033,6 +1039,28 @@ mat-progress-bar {
     }
   }
 }
+.configuration-wrapper{
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  .mat-tab-header{
+    margin: 0 30px;
+  }
+  .mat-tab-label{
+    .mat-tab-label-content{
+      font-family: "Open Sans", sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+    }
+  }
+
+  .ace-monokai{
+    height: calc(100%);
+  }
+
+  .ace_scrollbar{
+
+  }
+}
+
 
 
 

@@ -181,6 +181,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public onUpdate($event): void {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
+      this.autoComplete = '';
       this.isLibSelected = false;
       if (this.group) {
         this.libSearch.enable();
@@ -223,7 +224,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       this.selectedLib = {
         name: this.lib.name,
         version: this.lib.version,
-        isInSelectedList: this.model.selectedLibs.some(el => el.name.toLowerCase() === this.lib.name.toLowerCase())
+        isInSelectedList: this.model.selectedLibs.some(el => el.name.toLowerCase() === this.lib.name.toLowerCase().trim())
       };
     } else {
       this.selectedLib = null;
@@ -231,20 +232,20 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public addLibrary(item): void {
-    if ((this.autoComplete === 'ENABLED' && !this.isLibSelected )
+    if ((this.autoComplete === 'ENABLED' && !this.isLibSelected && this.filteredList?.length)
       || (this.selectedLib && this.selectedLib.isInSelectedList) || this.isVersionInvalid || this.autoComplete === 'UPDATING') {
       return;
     }
-
+    this.validity_format = '';
     this.isLibSelected = false;
     if ( (!this.selectedLib && !this.isVersionInvalid) || (!this.selectedLib.isInSelectedList && !this.isVersionInvalid)) {
       if ( this.group !== 'java') {
-        this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version || 'N/A' });
+        this.model.selectedLibs.push({ group: this.group, name: item.name.trim(), version: item.version.trim() || 'N/A' });
       } else {
         this.model.selectedLibs.push({
           group: this.group,
           name: item.name.substring(0, item.name.lastIndexOf(':')),
-          version: item.name.substring(item.name.lastIndexOf(':') + 1) || 'N/A'
+          version: item.name.substring(item.name.lastIndexOf(':') + 1).trim() || 'N/A'
         });
       }
       this.libSearch.setValue('');
@@ -427,10 +428,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private getMatchedLibs() {
-    if (!this.lib.name || this.lib.name.length < 2) {
+    if (!this.lib.name || this.lib.name.trim().length < 2) {
       return;
     }
-    this.model.getLibrariesList(this.group, this.lib.name.toLowerCase())
+    this.model.getLibrariesList(this.group, this.lib.name.trim().toLowerCase())
       .pipe(
         takeUntil(this.unsubscribe$)
       )

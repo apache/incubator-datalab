@@ -18,18 +18,17 @@
  */
 
 import {Component, OnInit, ViewChild, Inject, OnDestroy} from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import {ApplicationSecurityService, ManageUngitService, StorageService} from '../../core/services';
 
 import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
-import {FileUtils} from '../../core/util';
+import {FileUtils, HelpUtils} from '../../core/util';
 import {BucketDataService} from './bucket-data.service';
 import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
-import {logger} from 'codelyzer/util/logger';
-import {HttpEventType, HttpResponse} from '@angular/common/http';
+import {HttpEventType} from '@angular/common/http';
 import {CopyPathUtils} from '../../core/util/copyPathUtils';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
@@ -40,7 +39,12 @@ import {takeUntil} from 'rxjs/operators';
   styleUrls: ['./bucket-browser.component.scss', './upload-window.component.scss']
 })
 export class BucketBrowserComponent implements OnInit, OnDestroy {
+  public readonly uploadingQueueLength: number = 4;
+  public readonly maxFileSize: number = 4294967296;
+  public readonly refreshTokenLimit = 1500000;
+
   private unsubscribe$ = new Subject();
+  private isTokenRefreshing = false;
   public addedFiles = [];
   public folderItems = [];
   public originFolderItems = [];
@@ -59,14 +63,10 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
   public selectedItems;
   public searchValue: string;
   public isQueueFull: boolean;
-  public refreshTokenLimit = 1500000;
-  private isTokenRefreshing = false;
   public isSelectionOpened: any;
   public isFilterVisible: boolean;
   public buckets;
   public isFileUploading: boolean;
-  public uploadingQueueLength: number = 4;
-  public maxFileSize: number = 4294967296;
   public cloud: string;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
@@ -93,6 +93,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
     this.cloud = this.getCloud();
+    // this.cloud = 'azure';
   }
 
   ngOnDestroy() {
@@ -127,7 +128,6 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.addedFiles = [];
   }
 
-
   public toggleSelectedFile(file, type): void {
     type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
     this.selected = this.folderItems.filter(item => item.isSelected);
@@ -161,38 +161,30 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
           } , width: '550px'})
           .afterClosed().subscribe((res) => {
          if (res) {
-           if (this.refreshTokenLimit > this.getTokenValidTime()) {
-             this.isTokenRefreshing = true;
-             this.auth.refreshToken()
-               .pipe(
-                 takeUntil(this.unsubscribe$)
-               )
-               .subscribe(v => {
-               this.uploadingQueue(files);
-               this.isTokenRefreshing = false;
-             });
-           } else {
-             this.uploadingQueue(files);
-           }
+           this.checkQueue(files);
          }
         });
       } else {
-        if (this.refreshTokenLimit > this.getTokenValidTime()) {
-          this.isTokenRefreshing = true;
-          this.auth.refreshToken()
-            .pipe(
-              takeUntil(this.unsubscribe$)
-            )
-            .subscribe(v => {
-            this.uploadingQueue(files);
-            this.isTokenRefreshing = false;
-          });
-        } else {
-          this.uploadingQueue(files);
-        }
+        this.checkQueue(files);
       }
     }
     event.target.value = '';
+  }
+
+  private checkQueue(files) {
+    if (this.refreshTokenLimit > this.getTokenValidTime()) {
+      this.isTokenRefreshing = true;
+      this.auth.refreshToken()
+        .pipe(
+          takeUntil(this.unsubscribe$)
+        )
+        .subscribe(v => {
+          this.uploadingQueue(files);
+          this.isTokenRefreshing = false;
+        });
+    } else {
+      this.uploadingQueue(files);
+    }
   }
 
   private async uploadingQueue(files) {
@@ -448,7 +440,16 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
 
   public copyPath(): void {
     const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
-    CopyPathUtils.copyPath(selected.object.bucket + '/' + selected.object.object);
+    const cloud = this.getCloud();
+    const protocol = HelpUtils.getBucketProtocol(cloud);
+    if (cloud !== 'azure') {
+      CopyPathUtils.copyPath(protocol + selected.object.bucket + '/' + selected.object.object);
+    } else {
+      const bucketName = selected.object.bucket;
+      const accountName = this.bucketName.replace(selected.object.bucket, '').slice(0, -1);
+      const azureBucket = bucketName + '@' + accountName + '.blob.core.windows.net' + '/' + selected.object.object;
+      CopyPathUtils.copyPath(protocol + azureBucket);
+    }
     this.clearSelection();
     this.isActionsOpen = false;
     this.toastr.success('Object path successfully copied!', 'Success!');

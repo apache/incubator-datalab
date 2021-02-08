@@ -110,13 +110,17 @@ export class ProjectListComponent implements OnInit, OnDestroy {
           return endpoint.status === 'TERMINATED' || endpoint.status === 'FAILED';
         }
       });
-      this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
-        .afterClosed().subscribe(endpoint => {
-        if (endpoint && endpoint.length) {
-        this.toggleStatus.emit({project, endpoint, action});
-        }
-      }, error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
-      );
+      if (action === 'terminate' && endpoints.length === 1) {
+        this.toggleStatus.emit({project, endpoint: endpoints, action, oneEdge: true});
+      } else {
+        this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
+          .afterClosed().subscribe(endpoint => {
+            if (endpoint && endpoint.length) {
+              this.toggleStatus.emit({project, endpoint, action});
+            }
+          }, error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
+        );
+      }
     }
 
   public areResoursesInStatuses(resources, statuses: Array<string>) {

@@ -17,16 +17,33 @@
  * under the License.
  */
 
+
+.table-wrapper{
+  height: calc(100vh - 120px);
+  overflow: auto;
+  position: relative;
+  margin:  0 -15px -15px -15px;
+  padding: 0 15px 15px 15px;
+  .mat-header-cell {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: white;
+  }
+}
 table {
   width: 100%;
 
   td {
-    vertical-align: top;
+    vertical-align: middle;
   }
 
   .name {
     width: 25%;
     padding: 20px 0 10px 24px;
+    &.project-name{
+      padding-top: 10px;
+    }
   }
 
   th.name{
@@ -109,6 +126,7 @@ td.settings {
   vertical-align: middle !important;
   text-align: right;
   .actions {
+    margin-top: 3px;
     background-image: url(../../../../assets/svg/settings_icon.svg);
     width: 16px;
     height: 16px;
@@ -154,7 +172,6 @@ td.settings {
 
 .mat-chip{
   max-width: 200px !important;
-  text-overflow: ellipsis;
   white-space: nowrap;
   display: inline-block;
 }

@@ -146,8 +146,9 @@ export class BucketDataService {
           parent.children.unshift(name as TodoItemNode);
         } else {
           if (name) {
+            console.log('parentObject', parent.object);
             const child = {item: name, children: [], object: JSON.parse(JSON.stringify(parent.object))};
-            child.object.object = child.object.object.slice(0, -1) + child.item + '/';
+            child.object.object = child.object.object.replace(/ا/g, '') + child.item + '/';
             parent.children.unshift(child as TodoItemNode);
           } else {
             parent.children.unshift({item: '', children: [], object: {}} as TodoItemNode);
@@ -166,35 +167,35 @@ export class BucketDataService {
   public removeItem(parent, child) {
      parent.children.splice( parent.children.indexOf(child), 1);
      this._bucketData.next(this.data);
-    }
+  }
 
-    public processFiles = (files, target, object) => {
-      let pointer = target;
-      files.forEach((file) => {
-        if (!pointer[file]) {
-          pointer[file] = {};
-        }
-        pointer = pointer[file];
-        if (!pointer.obj) {
-          pointer.obj = object;
-        }
-
-      });
-    }
-
-    public processFolderArray = (acc, curr) => {
-      const files = curr.object.split('/');
-      this.processFiles(files, acc, curr);
-
-      return acc;
-    }
-
-    public convertToFolderTree = (data) => {
-      const finalData = data.reduce(this.processFolderArray, {});
-      if (Object.keys(finalData).length === 0) {
-        return '';
+  public processFiles = (files, target, object) => {
+    let pointer = target;
+    files.forEach((file) => {
+      if (!pointer[file]) {
+        pointer[file] = {};
       }
-      return finalData;
+      pointer = pointer[file];
+      if (!pointer.obj) {
+        pointer.obj = object;
+      }
+
+    });
+  }
+
+  public processFolderArray = (acc, curr) => {
+    const files = curr.object.split('/');
+    this.processFiles(files, acc, curr);
+
+    return acc;
+  }
+
+  public convertToFolderTree = (data) => {
+    const finalData = data.reduce(this.processFolderArray, {});
+    if (Object.keys(finalData).length === 0) {
+      return '';
     }
+    return finalData;
+  }
 
 }

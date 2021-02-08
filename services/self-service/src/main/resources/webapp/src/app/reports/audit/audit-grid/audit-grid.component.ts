@@ -209,7 +209,15 @@ export class AuditGridComponent implements OnInit {
                       </div>
                     </div>
                     <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}" *ngIf="action[0] !== 'File(s)'">
-                       <div *ngFor="let description of action[1]?.split(',')">{{description}}</div>
+                       <div 
+                          *ngFor="let description of action[1]?.split(',')"
+                          [matTooltip]="description"
+                          class="ellipsis"
+                          [ngStyle]="description.length < 20 ? {'width' :'fit-content'} : {'width':'100%'}"
+                          matTooltipPosition="above"
+                          matTooltipClass="mat-tooltip-description">
+                        {{description}}
+                        </div>
                     </div>
                   </mat-list-item>
                 </div>
@@ -276,7 +284,7 @@ export class AuditGridComponent implements OnInit {
     .info-item-title{width: 40%; padding: 10px 0;font-size: 14px;}
     .info-item-quota{width: 30%; padding: 10px 0;font-size: 14px;}
     .list-header {padding-top: 5px;}
-    .info-item-data{width: 60%; text-align: left; padding: 10px 0; font-size: 14px;}
+    .info-item-data{width: 60%; text-align: left; padding: 10px 0; font-size: 14px; cursor: default;}
     .file-description{ overflow: hidden; display: block; direction: rtl; font-size: 14px;}
     .same-column-width{width: 50%; padding: 10px 0; font-size: 14px;}
   `]

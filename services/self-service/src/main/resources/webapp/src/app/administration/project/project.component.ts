@@ -120,25 +120,29 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public toggleStatus($event) {
     const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
-      this.toggleStatusRequest(data, $event.action);
+    this.toggleStatusRequest(data, $event.action, $event.oneEdge);
   }
 
-  private toggleStatusRequest(data, action) {
+  private toggleStatusRequest(data, action, isOnlyOneEdge?) {
     if ( action === 'terminate') {
-      const projectsResources = this.resources.filter(resource => resource.project === data.project_name );
+      const projectsResources = this.resources.filter(resource => resource.project === data.project_name);
       const activeProjectsResources = projectsResources.length ? projectsResources[0].exploratory
         .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
-      let termResources = [];
-      data.endpoint.forEach(v => {
-        termResources = [...termResources, ...activeProjectsResources.filter(resource => resource.endpoint === v)];
-      });
+      const termResources = data.endpoint.reduce((res, endp) => {
+        res.push(...activeProjectsResources.filter(resource => resource.endpoint === endp));
+        return res;
+        }, []).map(resource => resource.name);
 
-      this.dialog.open(NotificationDialogComponent, { data: {
-        type: 'terminateNode', item: {action: data, resources: termResources.map(resource => resource.name)}
-        }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(result => {
-        result && this.edgeNodeAction(data, action);
-      });
+      if (termResources.length === 0 && !isOnlyOneEdge) {
+        this.edgeNodeAction(data, action);
+      } else {
+        this.dialog.open(NotificationDialogComponent, { data: {
+            type: 'terminateNode', item: {action: data, resources: termResources}
+          }, panelClass: 'modal-sm' })
+          .afterClosed().subscribe(result => {
+          result && this.edgeNodeAction(data, action);
+        });
+      }
     } else {
       this.edgeNodeAction(data, action);
     }
@@ -148,7 +152,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.projectService.toggleProjectStatus(data, action).subscribe(() => {
       this.refreshGrid();
       this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
-    }, error => this.toastr.error(error.message, 'Oops!'));
+    }, error => {
+      this.toastr.error(error.message, 'Oops!');
+    });
   }
 
   private getEnvironmentHealthStatus() {

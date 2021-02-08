@@ -112,7 +112,7 @@
                  matTooltip="{{item.url}}"
                  matTooltipPosition="above"
                  (mouseover)="showCopyIcon(item.description)"
-                 class="spark-url"
+                 class="spark-url ellipsis"
                  (contextmenu)="false"
               >{{ item.url }}</a>
               <span
@@ -120,7 +120,7 @@
                 *ngIf="isCopyIconVissible[item.description]"
                 [matTooltip]="isCopied ? 'Copy ' + item.description + (item.description.indexOf('url')  === -1 ? ' url' : ''): 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper"
               >
-                <span  class="link-icon" (click)="copyBucketName(item.url)" >
+                <span  class="link-icon" (click)="copyLink(item.url)" >
                   <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
                  </span>
               </span>

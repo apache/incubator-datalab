@@ -51,7 +51,7 @@
                   [disabled]="!setupGroup || setupGroupName.errors?.long || setupGroupName.errors?.duplicate || setupGroupName.errors?.patterns"
           >
             Next
-            <i class="material-icons">keyboard_arrow_right</i>
+            <i class="material-icons arrow-icon">keyboard_arrow_right</i>
           </button>
         </div>
       </mat-step>
@@ -63,10 +63,10 @@
         </div>
         <div class="text-center m-bott-10">
           <button mat-raised-button matStepperPrevious class="butt"><i
-              class="material-icons">keyboard_arrow_left</i>Back</button>
+              class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
           <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
           <button mat-raised-button matStepperNext class="butt">Next<i
-              class="material-icons">keyboard_arrow_right</i></button>
+              class="material-icons arrow-icon">keyboard_arrow_right</i></button>
         </div>
       </mat-step>
 
@@ -86,7 +86,7 @@
         </div>
         <div class="text-center m-bott-10">
           <button mat-raised-button matStepperPrevious class="butt"><i
-              class="material-icons">keyboard_arrow_left</i>Back</button>
+              class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
           <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
           <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
             [disabled]="!setupGroup || setupGroupName.errors?.patterns || setupGroupName.errors?.duplicate || !setupRoles.length">Create</button>
@@ -107,6 +107,7 @@
                   matTooltipPosition="above"
                   [matTooltipClass]="'full-size-tooltip'"
                   [matTooltipDisabled]="element.group.length<30"
+                  class="ellipsis"
             >
               {{element.group}}
             </span>
@@ -141,12 +142,20 @@
             </button>
           </mat-form-field>
           <div class="list-selected list-container ani">
-            <mat-chip-list>
-              <mat-chip *ngFor="let user of element.users">
-                {{ user }}
-                <a class="material-icons" (click)="removeUser(element.users, user)">clear</a>
-              </mat-chip>
-            </mat-chip-list>
+            <div class="scrolling">
+              <mat-chip-list [disabled]="true">
+                <mat-chip
+                  *ngFor="let user of element.users"
+                  [matTooltip]="user"
+                  matTooltipPosition="above"
+                  matTooltipClass="mat-tooltip-for-users"
+                  class="ellipsis"
+                >
+                  {{ user }}
+                  <a class="material-icons" (click)="removeUser(element.users, user)">clear</a>
+                </mat-chip>
+              </mat-chip-list>
+            </div>
           </div>
         </td>
       </ng-container>

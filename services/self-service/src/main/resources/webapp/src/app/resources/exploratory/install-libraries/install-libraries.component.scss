@@ -218,8 +218,133 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 .mat-dialog-container {
   position: relative;
 }
+  .mat-list {
+    width: 100%;
+    overflow-y: auto;
+    position: relative;
+    height: 350px;
+    padding-top: 0;
+    margin-top: 8px;
+
+    .list-header{
+      line-height: 40px;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      background-color: #fff;
+    }
+
+    .filter-row{
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+      background-color: #fff;
+    }
 
 
+    .scrollingList {
+      .info {
+        p {
+          text-align: center;
+          padding: 40px;
+        }
+      }
+    }
+  }
+
+  .lib-name {
+    width: 27%;
+    padding-right: 10px;
+    padding-left: 20px;
+
+    &-col{
+      display: flex;
+    }
+
+    .lib-name-wrapper{
+      overflow: hidden;
+      display: block;
+    }
+
+    strong {
+      font-weight: 400;
+    }
+  }
+
+  .lib-group,
+  .lib-destination {
+    width: 17%;
+    padding-left: 15px;
+    padding-right: 10px;
+  }
+
+  .lib-status {
+    width: 17%;
+    padding-left: 15px;
+    padding-right: 10px;
+  }
+
+  .lib-resource-type {
+    width: 17%;
+    padding-left: 15px;
+    padding-right: 10px;
+  }
+
+  .lib-group-col {
+    width: 17%;
+    padding-left: 17px;
+    padding-right: 10px;
+  }
+
+  .st-group {
+    display: flex;
+    flex-direction: column;
+    width: 51%;
+
+    .wrap-col {
+      display: flex;
+      padding: 5px 0;
+
+      .lib-destination-col {
+        width: 33.3%;
+        padding-left: 15px;
+      }
+
+      .lib-resource-type-col {
+        width: 33.3%;
+        color: #36afd5;
+        padding-left: 15px;
+      }
+
+      .lib-status-col {
+        position: relative;
+        width: 33.3%;
+        padding-left: 15px;
+
+        .warn-action {
+          position: absolute;
+          top: -3px;
+          right: -50px;
+
+          div {
+            display: inline-block;
+            cursor: pointer;
+            width: 25px;
+            pointer-events: auto;
+
+            span {
+              display: block;
+            }
+          }
+
+          .lib-error {
+            color: #35afd5;
+          }
+        }
+      }
+    }
+  }
+}
 
 .mat-dialog-container.mat-dialog-container .install-libraries#dialog-box {
   .mat-header-cell{
@@ -333,7 +458,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .libs-info {
     .mat-list {
       height: 250px;
-
+      .dropdown-multiselect .list-menu{
+        max-height: 143px;
+      }
     }
   }
 }
@@ -342,6 +469,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     .libs-info {
       .mat-list {
         height: 200px;
+        .dropdown-multiselect .list-menu{
+          max-height: 94px;
+        }
       }
     }
   }
@@ -359,6 +489,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .libs-info {
     .mat-list {
       height: 160px;
+      .dropdown-multiselect .list-menu{
+        max-height: 54px;
+      }
     }
   }
 

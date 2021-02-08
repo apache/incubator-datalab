@@ -87,7 +87,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = 'https://cloud.r-project.org'
             add_marruter_key()
             sudo('apt update')
-            manage_pkg('-y install', 'remote', 'libcurl4-openssl-dev libssl-dev libreadline-dev')
+            manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
             manage_pkg('-y install', 'remote', 'cmake')
             #sudo('apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9')
             #sudo("add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/'")
@@ -95,8 +95,16 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
+            sudo('R -e "install.packages(\'devtools\',repos=\'{}\')"'.format(r_repository))
             for i in r_libs:
-                sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
+                if '=' in i:
+                    name = i.split('=')[0]
+                    vers = '"{}"'.format(i.split('=')[1])
+                else:
+                    name = i
+                    vers = ''
+                sudo('R -e \'devtools::install_version("{}", version = {}, repos ="{}", dependencies = NA)\''.format(name, vers, r_repository))
+                #sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
             sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
             try:
                 sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
@@ -517,8 +525,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
 
 def install_cntk(os_user, cntk2_version, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk2_version))
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk_gpu-{}.post1-cp36-cp36m-manylinux1_x86_64.whl --no-cache-dir'.format(cntk_version))
+        sudo('pip2 install cntk=={} --no-cache-dir'.format(cntk2_version))
+        sudo('pip3 install cntk-gpu=={} --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 

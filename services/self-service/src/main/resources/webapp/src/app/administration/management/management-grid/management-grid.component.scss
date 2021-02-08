@@ -207,7 +207,6 @@
     .user-name{
       padding-right: 22px;
       overflow: hidden;
-      text-overflow: ellipsis;
       word-break: break-all;
       white-space: nowrap;
       max-width: 250px;
@@ -215,6 +214,8 @@
 
     .buttons-wrap{
       padding: 0;
+      border-top: 1px solid rgba(0,0,0,.12);
+      transform: translateY(-1px);
     }
 
     .buttons{

@@ -100,18 +100,24 @@
               <span *ngIf="isExpanded; else env">Environment Management</span>
               <ng-template #env><i class="material-icons">settings</i></ng-template>
             </a>
+            <a *ngIf="healthStatus?.admin" class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
+               [routerLink]="['/configuration']" [routerLinkActive]="['active']"
+               [routerLinkActiveOptions]="{exact:true}" >
+              <span *ngIf="isExpanded; else env">Configuration</span>
+              <ng-template #env><i class="material-icons">build_circle</i></ng-template>
+            </a>
           </a>
           <a class="nav-item has-children" *ngIf="healthStatus?.billingEnabled || healthStatus?.auditEnabled">
             <span *ngIf="isExpanded">Reports</span>
-            <a *ngIf="healthStatus?.billingEnabled" class="sub-nav-item" [routerLink]="['/billing_report']"
-              [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [style.margin-left.px]="isExpanded ? '30' : '0'">
-              <span *ngIf="isExpanded; else billing">Billing</span>
-              <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
-            </a>
             <a *ngIf="healthStatus?.auditEnabled" class="sub-nav-item" [routerLink]="['/audit']" [style.margin-left.px]="isExpanded ? '30' : '0'"
                [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
               <span *ngIf="isExpanded; else audit">Audit</span>
               <ng-template #audit><i class="material-icons">library_books</i></ng-template>
+            </a>
+            <a *ngIf="healthStatus?.billingEnabled" class="sub-nav-item" [routerLink]="['/billing_report']"
+              [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [style.margin-left.px]="isExpanded ? '30' : '0'">
+              <span *ngIf="isExpanded; else billing">Billing</span>
+              <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
             </a>
           </a>
         </div>

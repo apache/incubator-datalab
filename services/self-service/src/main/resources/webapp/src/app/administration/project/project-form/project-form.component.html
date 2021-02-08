@@ -52,7 +52,7 @@
           <div class="text-center m-bott-10">
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button type="button" class="butt next" matStepperNext>Next
-              <i class="material-icons">keyboard_arrow_right</i></button>
+              <i class="material-icons arrow-icon">keyboard_arrow_right</i></button>
           </div>
         </div>
       </section>
@@ -121,9 +121,9 @@
           <div class="text-center m-bott-10">
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt"><i
-                class="material-icons">keyboard_arrow_left</i>Back</button>
+                class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
             <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i
-                class="material-icons">keyboard_arrow_right</i></button>
+                class="material-icons arrow-icon">keyboard_arrow_right</i></button>
           </div>
         </div>
 
@@ -167,7 +167,7 @@
 <!--            </div>-->
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt"><i
-                class="material-icons">keyboard_arrow_left</i>Back</button>
+                class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
             <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
               (click)="confirm(projectForm.value)">
               <span *ngIf="item; else update">Update</span>

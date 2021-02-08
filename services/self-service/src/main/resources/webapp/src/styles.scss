@@ -382,12 +382,13 @@ input[type='number'] {
     text-align: center;
   }
 }
-#scrolling, .scrolling{
+#scrolling, .scrolling, ace_scrollbar{
   scrollbar-width: thin;
 }
 
 #scrolling::-webkit-scrollbar,
 .scrolling::-webkit-scrollbar,
+.ace_scrollbar::-webkit-scrollbar,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -395,6 +396,7 @@ input[type='number'] {
 
 #scrolling::-webkit-scrollbar-track,
 .scrolling::-webkit-scrollbar-track,
+.ace_scrollbar::-webkit-scrollbar-track,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-track {
   box-shadow: none;
   -webkit-box-shadow: none;
@@ -403,6 +405,7 @@ input[type='number'] {
 
 #scrolling::-webkit-scrollbar-thumb,
 .scrolling::-webkit-scrollbar-thumb,
+.ace_scrollbar::-webkit-scrollbar-thumb,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-thumb {
   background-color: #f6fafe;
   background-color: rgba(0, 0, 0, 0.4);
@@ -436,6 +439,16 @@ input[type='number'] {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  &::after{
+    content: '';
+    display: block;
+  }
+}
+
+.mat-chip.mat-standard-chip::after {
+  height: 0;
+  width: 0;
+  position: unset;
 }
 
 .capitalize {
@@ -511,4 +524,16 @@ input[type='number'] {
   max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
+  &::after{
+    content: '';
+    display: block;
+  }
+}
+
+.mat-tooltip-for-users {
+  overflow-wrap: break-word;
+}
+
+.mat-tooltip-description {
+  overflow-wrap: break-word;
 }
