@@ -148,7 +148,7 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'backoff bcrypt==3.1.7 argparse babric3 pymongo pyyaml " \
+        params = "--hostname {} --keyfile {} --pip_packages 'backoff bcrypt==3.1.7 argparse fabric3 pymongo pyyaml " \
                  "pycrypto azure==2.0.0' --user {} --region {}".format(ssn_conf['instance_host'],
                                                                        ssn_conf['ssh_key_path'],
                                                                        ssn_conf['datalab_ssh_user'],
