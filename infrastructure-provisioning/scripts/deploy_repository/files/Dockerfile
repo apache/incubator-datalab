@@ -29,4 +29,4 @@ RUN	apt-get update && \
 
 # Install any python dependencies
 RUN pip install -UI pip==9.0.3
-RUN pip install boto3 backoff fab-classic fabvenv awscli argparse ujson jupyter pycrypto
+RUN pip install boto3 backoff babric3 fabvenv awscli argparse ujson jupyter pycrypto

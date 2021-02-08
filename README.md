@@ -271,7 +271,7 @@ To build Keycloak node, following steps should be executed:
 sudo su
 apt-get update
 apt-get install -y python-pip
-pip install fab-classic
+pip install babric3
 ```
 - Go to *datalab* directory
 - Run *infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py* deployment script:
@@ -498,7 +498,7 @@ apt-cache policy docker-ce
 apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
 usermod -a -G docker *username*
 apt-get install -y python-pip
-pip install fab-classic
+pip install babric3
 cd incubator-datalab
 ```
 - Go to *datalab* directory

@@ -198,7 +198,7 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'boto3 bcrypt==3.1.7 backoff argparse fab-classic awscli pymongo " \
+        params = "--hostname {} --keyfile {} --pip_packages 'boto3 bcrypt==3.1.7 backoff argparse babric3 awscli pymongo " \
                  "pyyaml jinja2' --user {} --region {}". \
             format(ssn_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
                    ssn_conf['datalab_ssh_user'], os.environ['aws_region'])
