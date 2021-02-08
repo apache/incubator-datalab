@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import os
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 import argparse
 from fabric import *
 import json
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Get config (defaults) from files. Will not overwrite any env
     for filename in os.listdir('/root/conf'):
         if filename.endswith('.ini'):
-            config = SafeConfigParser()
+            config = ConfigParser()
             config.read(os.path.join('/root/conf', filename))
             for section in config.sections():
                 for option in config.options(section):
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     # Overwrite config if overwrite.ini is provided
     for filename in os.listdir('/root/conf'):
         if filename.endswith('overwrite.ini'):
-            config = SafeConfigParser()
+            config = ConfigParser()
             config.read(os.path.join('/root/conf', filename))
             for section in config.sections():
                 for option in config.options(section):

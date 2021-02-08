@@ -21,7 +21,7 @@
 # ******************************************************************************
 
 
-from ConfigParser import SafeConfigParser
+from ConfigParser import ConfigParser
 from fabric import *
 import argparse
 import boto3
@@ -41,7 +41,7 @@ def read_ini():
         head, tail = os.path.split(os.path.realpath(__file__))
         for filename in os.listdir(head):
             if filename.endswith('.ini'):
-                config = SafeConfigParser()
+                config = ConfigParser()
                 config.read(os.path.join(head, filename))
                 for section in config.sections():
                     for option in config.options(section):

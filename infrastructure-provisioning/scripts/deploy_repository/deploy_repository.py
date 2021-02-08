@@ -28,7 +28,7 @@ import string
 import sys
 import time
 import traceback
-from ConfigParser import SafeConfigParser
+from ConfigParser import ConfigParser
 from fabric import *
 from fabric.contrib.files import exists
 
@@ -1331,7 +1331,7 @@ if __name__ == "__main__":
         print('Please provide argument --datalab_conf_file_path ! Aborting... ')
         sys.exit(1)
     configuration = dict()
-    config = SafeConfigParser()
+    config = ConfigParser()
     config.read(args.datalab_conf_file_path)
     for section in config.sections():
         for option in config.options(section):
