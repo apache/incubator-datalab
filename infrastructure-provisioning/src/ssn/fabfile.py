@@ -29,7 +29,7 @@ import uuid
 from datalab.fab import *
 from fabric import *
 
-
+@task
 def run():
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -52,7 +52,7 @@ def run():
         append_result("Failed configuring SSN node.", str(err))
         sys.exit(1)
 
-
+@task
 def terminate():
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
