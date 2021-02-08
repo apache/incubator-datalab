@@ -25,6 +25,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
@@ -54,8 +55,8 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to manage git credentials
-            local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception

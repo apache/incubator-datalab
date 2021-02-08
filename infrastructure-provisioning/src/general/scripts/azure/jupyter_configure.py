@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from fabric import *
 
 if __name__ == "__main__":
@@ -139,7 +140,7 @@ if __name__ == "__main__":
             notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -157,7 +158,7 @@ if __name__ == "__main__":
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
                     notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -174,7 +175,7 @@ if __name__ == "__main__":
             format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['azure_region'],
                    edge_instance_private_hostname)
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -198,7 +199,7 @@ if __name__ == "__main__":
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
                    notebook_config['ip_address'], notebook_config['exploratory_name'], edge_hostname)
         try:
-            local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_jupyter_node', params), shell=True)
             datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,
                                                    os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
         except:
@@ -217,7 +218,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
         except:
             datalab.fab.append_result("Failed installing users key")
             raise Exception
@@ -232,8 +233,8 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name)
         try:
-            # local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            # subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True)
         except:
             datalab.fab.append_result("Failed setup git credentials")
             raise Exception
@@ -250,7 +251,7 @@ if __name__ == "__main__":
                 .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
                         notebook_config['resource_group_name'], notebook_config['instance_name'])
             try:
-                local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_remove_remote_kernels', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -274,7 +275,7 @@ if __name__ == "__main__":
                                                         notebook_config['expected_image_name'],
                                                         json.dumps(notebook_config['image_tags']))
                 print("Image was successfully created.")
-                local("~/scripts/{}.py".format('common_prepare_notebook'))
+                subprocess.run("~/scripts/{}.py".format('common_prepare_notebook'), shell=True)
                 instance_running = False
                 while not instance_running:
                     if AzureMeta.get_instance_status(notebook_config['resource_group_name'],
@@ -290,7 +291,7 @@ if __name__ == "__main__":
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
                             json.dumps(additional_config), notebook_config['datalab_ssh_user'])
-                local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
         except Exception as err:
             datalab.fab.append_result("Failed creating image.", str(err))
             AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
@@ -316,7 +317,7 @@ if __name__ == "__main__":
                     notebook_config['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception

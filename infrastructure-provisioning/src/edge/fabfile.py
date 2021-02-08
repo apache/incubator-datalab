@@ -25,6 +25,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from datalab.fab import *
 from fabric import *
 
@@ -38,7 +39,7 @@ def status():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('edge_status'))
+        subprocess.run("~/scripts/{}.py".format('edge_status'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed obtaining EDGE status.", str(err))
@@ -53,7 +54,7 @@ def stop():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('edge_stop'))
+        subprocess.run("~/scripts/{}.py".format('edge_stop'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed stopping Edge node.", str(err))
@@ -68,7 +69,7 @@ def start():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('edge_start'))
+        subprocess.run("~/scripts/{}.py".format('edge_start'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed starting Edge node.", str(err))

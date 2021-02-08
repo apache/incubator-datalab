@@ -24,12 +24,12 @@
 import json
 import os
 import sys
-from fabric import local
+import subprocess
 
 if __name__ == "__main__":
     success = True
     try:
-        local('cd /root; fab check_inactivity')
+        subprocess.run('cd /root; fab check_inactivity', shell=True)
     except:
         success = False
 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         response_file.write(json.dumps(reply))
 
     try:
-        local('chmod 666 /response/*')
+        subprocess.run('chmod 666 /response/*', shell=True)
     except:
         success = False
 

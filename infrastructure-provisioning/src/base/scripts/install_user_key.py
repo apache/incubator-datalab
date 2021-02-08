@@ -24,6 +24,7 @@
 import argparse
 import json
 import sys
+import subprocess
 from datalab.fab import *
 from fabric import *
 
@@ -36,8 +37,8 @@ args = parser.parse_args()
 
 
 def copy_key(config):
-    admin_key_pub = local('ssh-keygen -y -f {}'.format(args.keyfile),
-                          capture=True)
+    admin_key_pub = subprocess.run('ssh-keygen -y -f {}'.format(args.keyfile),
+                          capture_output=True, shell=True)
     conn.sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
     conn.sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
     try:

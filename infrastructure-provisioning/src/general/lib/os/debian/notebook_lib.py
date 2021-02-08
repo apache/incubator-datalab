@@ -25,6 +25,7 @@ import backoff
 import os
 import re
 import sys
+import subprocess
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
@@ -355,14 +356,14 @@ def install_livy_dependencies(os_user):
 def install_maven_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/maven_ensured'):
         manage_pkg('-y install', 'local', 'maven')
-        local('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
+        conn.local('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
 
 
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         manage_pkg('-y install', 'local', 'libkrb5-dev')
-        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
-        local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
+        conn.local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        conn.local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
 def install_nodejs(os_user):

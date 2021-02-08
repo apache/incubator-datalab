@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
 from fabric import *
 
@@ -130,8 +131,8 @@ if __name__ == "__main__":
         try:
             project_conf['user_key'] = os.environ['key']
             try:
-                local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
-                                                        project_conf['project_name']))
+                subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
+                                                        project_conf['project_name']), shell=True)
             except:
                 print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
@@ -152,7 +153,7 @@ if __name__ == "__main__":
             format(project_conf['resource_group_name'], project_conf['vpc_name'], project_conf['region'],
                    project_conf['vpc_cidr'], project_conf['private_subnet_name'], project_conf['private_subnet_prefix'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -206,7 +207,7 @@ if __name__ == "__main__":
                 format(project_conf['resource_group_name'], os.environ['azure_edge_security_group_name'],
                        project_conf['region'], json.dumps({"product": "datalab"}), json.dumps(edge_list_rules))
             try:
-                local("~/scripts/{}.py {}".format('common_create_security_group', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
             except Exception as err:
                 AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                            project_conf['private_subnet_name'])
@@ -483,7 +484,7 @@ if __name__ == "__main__":
                 format(project_conf['resource_group_name'], project_conf['edge_security_group_name'],
                        project_conf['region'], json.dumps(project_conf['instance_tags']), json.dumps(edge_list_rules))
             try:
-                local("~/scripts/{}.py {}".format('common_create_security_group', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
             except Exception as err:
                 AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                            project_conf['private_subnet_name'])
@@ -589,7 +590,7 @@ if __name__ == "__main__":
             format(project_conf['resource_group_name'], project_conf['notebook_security_group_name'],
                    project_conf['region'], json.dumps(project_conf['instance_tags']), json.dumps(notebook_list_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -697,7 +698,7 @@ if __name__ == "__main__":
             project_conf['resource_group_name'], project_conf['master_security_group_name'], project_conf['region'],
             json.dumps(project_conf['instance_tags']), json.dumps(cluster_list_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -724,7 +725,7 @@ if __name__ == "__main__":
             project_conf['resource_group_name'], project_conf['slave_security_group_name'], project_conf['region'],
             json.dumps(project_conf['instance_tags']), json.dumps(cluster_list_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -752,7 +753,7 @@ if __name__ == "__main__":
         params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
             format(project_conf['shared_container_name'], json.dumps(project_conf['shared_storage_account_tags']),
                    project_conf['resource_group_name'], project_conf['region'])
-        local("~/scripts/{}.py {}".format('common_create_storage_account', params))
+        subprocess.run("~/scripts/{}.py {}".format('common_create_storage_account', params), shell=True)
     except Exception as err:
         datalab.fab.append_result("Failed to create storage account.", str(err))
         AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
@@ -779,7 +780,7 @@ if __name__ == "__main__":
             format(project_conf['edge_container_name'], json.dumps(project_conf['storage_account_tags']),
                    project_conf['resource_group_name'], project_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_storage_account', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -814,7 +815,7 @@ if __name__ == "__main__":
                                                      project_conf['azure_ad_user_name'],
                                                      project_conf['service_base_name'])
             try:
-                local("~/scripts/{}.py {}".format('common_create_datalake_directory', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_datalake_directory', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -870,7 +871,7 @@ if __name__ == "__main__":
                    project_conf['instance_storage_account_type'],
                    project_conf['image_name'], json.dumps(project_conf['instance_tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception

@@ -30,6 +30,7 @@ import os
 import sys
 import traceback
 import uuid
+import subprocess
 from fabric import *
 
 if __name__ == "__main__":
@@ -130,8 +131,8 @@ if __name__ == "__main__":
         try:
             project_conf['user_key'] = os.environ['key']
             try:
-                local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
-                                                        project_conf['project_name']))
+                subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
+                                                        project_conf['project_name']), shell=True)
             except:
                 print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
@@ -153,7 +154,7 @@ if __name__ == "__main__":
                          project_conf['private_subnet_prefix'], project_conf['vpc_cidr'],
                          project_conf['user_subnets_range'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True)
             project_conf['private_subnet_cidr'] = GCPMeta.get_subnet(project_conf['private_subnet_name'],
                                                                      project_conf['region'])['ipCidrRange']
         except:
@@ -177,7 +178,7 @@ if __name__ == "__main__":
             project_conf['edge_unique_index'], project_conf['service_base_name'])
 
         try:
-            local("~/scripts/{}.py {}".format('common_create_service_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -201,7 +202,7 @@ if __name__ == "__main__":
                   project_conf['ps_roles_path'], project_conf['ps_unique_index'], project_conf['service_base_name'])
 
         try:
-            local("~/scripts/{}.py {}".format('common_create_service_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -302,7 +303,7 @@ if __name__ == "__main__":
 
         params = "--firewall '{}'".format(json.dumps(firewall_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_firewall', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -380,7 +381,7 @@ if __name__ == "__main__":
 
         params = "--firewall '{}'".format(json.dumps(firewall_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_firewall', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -410,7 +411,7 @@ if __name__ == "__main__":
         params = "--bucket_name {} --tags '{}'".format(project_conf['shared_bucket_name'],
                                                        json.dumps(project_conf['shared_bucket_tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -426,7 +427,7 @@ if __name__ == "__main__":
                                                        json.dumps(project_conf['bucket_tags']))
 
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -477,7 +478,7 @@ if __name__ == "__main__":
         print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(project_conf['static_address_name'], project_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('edge_create_static_ip', params))
+            subprocess.run("~/scripts/{}.py {}".format('edge_create_static_ip', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -524,7 +525,7 @@ if __name__ == "__main__":
                   'edge', project_conf['static_ip'], project_conf['network_tag'],
                   json.dumps(project_conf['instance_labels']), project_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -560,7 +561,7 @@ if __name__ == "__main__":
                                                                                                        project_conf['ps_firewall_target'],
                                                                                                        edge_instance)
             try:
-                local("~/scripts/{}.py {}".format('common_create_nat_route', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_nat_route', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception

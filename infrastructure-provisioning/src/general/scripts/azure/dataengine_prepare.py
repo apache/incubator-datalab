@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
 from fabric import *
 
@@ -177,7 +178,7 @@ if __name__ == "__main__":
                    data_engine['project_name'], data_engine['instance_storage_account_type'],
                    data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['master_tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -211,7 +212,7 @@ if __name__ == "__main__":
                        data_engine['project_name'], data_engine['instance_storage_account_type'],
                        data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['slave_tags']))
             try:
-                local("~/scripts/{}.py {}".format('common_create_instance', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception

@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
 from fabric import *
 
@@ -110,7 +111,7 @@ if __name__ == "__main__":
             logging.info('[CREATING RESOURCE GROUP]')
             print("[CREATING RESOURCE GROUP]")
             params = "--resource_group_name {} --region {}".format(ssn_conf['resource_group_name'], ssn_conf['region'])
-            local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_resource_group', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Failed to create Resource Group.", str(err))
@@ -125,7 +126,7 @@ if __name__ == "__main__":
             print("[CREATING VIRTUAL NETWORK]")
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
                 ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
-            local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Failed to create VPC.", str(err))
@@ -146,7 +147,7 @@ if __name__ == "__main__":
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
                 format(ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
                        ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Failed to create Subnet.", str(err))
@@ -168,7 +169,7 @@ if __name__ == "__main__":
                      "--source_virtual_network_name {} --destination_virtual_network_name {}".format(
                       ssn_conf['source_resource_group_name'], ssn_conf['resource_group_name'],
                       os.environ['azure_source_vpc_name'], ssn_conf['vpc_name'])
-            local("~/scripts/{}.py {}".format('ssn_create_peering', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_peering', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         try:
@@ -238,7 +239,7 @@ if __name__ == "__main__":
             params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}'  --list_rules '{}'".\
                 format(ssn_conf['resource_group_name'], ssn_conf['security_group_name'], ssn_conf['region'],
                        json.dumps(ssn_conf['instance_tags']), json.dumps(list_rules))
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Error creating Security group", str(err))
@@ -263,7 +264,7 @@ if __name__ == "__main__":
                      format(ssn_conf['datalake_store_name'], json.dumps(ssn_conf['datalake_store_tags']),
                             ssn_conf['resource_group_name'], ssn_conf['region'])
             try:
-                local("~/scripts/{}.py {}".format('ssn_create_datalake', params))
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_datalake', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -275,7 +276,7 @@ if __name__ == "__main__":
                        ssn_conf['datalake_shared_directory_name'], ssn_conf['service_base_name'],
                        os.environ['azure_ad_group_id'])
             try:
-                local("~/scripts/{}.py {}".format('common_create_datalake_directory', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_datalake_directory', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -316,7 +317,7 @@ if __name__ == "__main__":
                    initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'],
                    ssn_conf['primary_disk_size'], 'ssn', ssn_conf['instance_storage_account_type'],
                    ssn_conf['ssn_image_name'], json.dumps(ssn_conf['instance_tags']))
-        local("~/scripts/{}.py {}".format('common_create_instance', params))
+        subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Failed to create instance.", str(err))

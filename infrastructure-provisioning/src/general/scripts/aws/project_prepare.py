@@ -31,6 +31,7 @@ import os
 import sys
 import time
 import traceback
+import subprocess
 from fabric import *
 
 if __name__ == "__main__":
@@ -137,8 +138,8 @@ if __name__ == "__main__":
         try:
             project_conf['user_key'] = os.environ['key']
             try:
-                local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
-                                                        project_conf['project_name']))
+                subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
+                                                        project_conf['project_name']), shell=True)
             except:
                 print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
@@ -196,7 +197,7 @@ if __name__ == "__main__":
                   project_conf['private_subnet_name'],
                   project_conf['zone'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -223,7 +224,7 @@ if __name__ == "__main__":
                          project_conf['edge_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
                          project_conf['service_base_name'], user_tag)
         try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -243,7 +244,7 @@ if __name__ == "__main__":
                          project_conf['notebook_dataengine_policy_name'], os.environ['aws_region'],
                          project_conf['tag_name'], project_conf['service_base_name'], user_tag)
         try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -418,7 +419,7 @@ if __name__ == "__main__":
                        project_conf['service_base_name'], project_conf['edge_instance_name'], json.dumps(edge_sg_egress),
                        True, project_conf['notebook_instance_name'], 'edge')
             try:
-                local("~/scripts/{}.py {}".format('common_create_security_group', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
             except Exception as err:
                 traceback.print_exc()
                 datalab.fab.append_result("Failed creating security group for edge node.", str(err))
@@ -500,7 +501,7 @@ if __name__ == "__main__":
                                                           project_conf['service_base_name'],
                                                           project_conf['notebook_instance_name'], True)
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -526,7 +527,7 @@ if __name__ == "__main__":
                                                           project_conf['service_base_name'],
                                                           project_conf['dataengine_instances_name'], True)
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -548,7 +549,7 @@ if __name__ == "__main__":
                                                           project_conf['service_base_name'],
                                                           project_conf['dataengine_instances_name'], True)
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -572,7 +573,7 @@ if __name__ == "__main__":
             format(project_conf['shared_bucket_name'], project_conf['shared_bucket_tags'], project_conf['region'],
                    project_conf['shared_bucket_name_tag'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -584,7 +585,7 @@ if __name__ == "__main__":
                  .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'],
                          project_conf['bucket_name_tag'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -608,7 +609,7 @@ if __name__ == "__main__":
                   project_conf['service_base_name'], project_conf['region'],
                   os.environ['aws_user_predefined_s3_policies'], project_conf['endpoint_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_policy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_policy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -636,7 +637,7 @@ if __name__ == "__main__":
                     project_conf['edge_role_profile_name'], project_conf['tag_name'],
                     project_conf['edge_instance_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
             edge_instance = datalab.meta_lib.get_instance_by_name(project_conf['tag_name'],
                                                                   project_conf['edge_instance_name'])
             if os.environ['edge_is_nat']:
@@ -672,7 +673,7 @@ if __name__ == "__main__":
                 project_conf['elastic_ip'], project_conf['edge_id'], project_conf['tag_name'],
                 project_conf['elastic_ip_name'])
             try:
-                local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
+                subprocess.run("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -703,7 +704,7 @@ if __name__ == "__main__":
             params = "--vpc_id {} --infra_tag_value {} --edge_instance_id {} --private_subnet_id {}".format(
                 project_conf['vpc2_id'], project_conf['nat_rt_name'], edge_instance, subnet_id)
             try:
-                local("~/scripts/{}.py {}".format('edge_configure_route_table', params))
+                subprocess.run("~/scripts/{}.py {}".format('edge_configure_route_table', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception

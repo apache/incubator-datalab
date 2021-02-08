@@ -24,7 +24,7 @@
 import os, sys, json
 from fabric import *
 import argparse
-
+import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--storage', type=str, default='')
@@ -37,7 +37,7 @@ args = parser.parse_args()
 
 
 def prepare_templates():
-    local('mv /tmp/jupyter /home/{0}/test_templates'.format(args.os_user))
+    subprocess.run('mv /tmp/jupyter /home/{0}/test_templates'.format(args.os_user), shell=True)
 
 def get_storage():
     storages = {"aws": args.storage,
@@ -59,7 +59,7 @@ def prepare_ipynb(kernel_name, template_path, ipynb_name):
         f.write(text)
 
 def run_ipynb(ipynb_name):
-    local('jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name))
+    subprocess.run('jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name), shell=True)
 
 def run_pyspark():
     interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]

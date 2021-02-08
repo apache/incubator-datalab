@@ -24,6 +24,7 @@
 
 import os
 import sys
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
@@ -43,7 +44,7 @@ if __name__ == "__main__":
         print('[COLLECTING DATA]')
         params = '--list_resources "{}"'.format(os.environ['edge_list_resources'])
         try:
-            local("~/scripts/{}.py {}".format('common_collect_data', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_collect_data', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception

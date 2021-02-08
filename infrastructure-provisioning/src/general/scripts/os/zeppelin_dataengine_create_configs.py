@@ -24,6 +24,7 @@
 import argparse
 import os
 import sys
+import subprocess
 from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
@@ -61,38 +62,38 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
         default_port = 8998
         livy_port = ''
         livy_path = '/opt/' + cluster_name + '/livy/'
-        local('echo \"Configuring Data Engine path for Zeppelin\"')
-        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/' + cluster_name +
-              '\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-        local('sudo chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-        local('sudo systemctl daemon-reload')
-        local('sudo service zeppelin-notebook stop')
-        local('sudo service zeppelin-notebook start')
+        subprocess.run('echo \"Configuring Data Engine path for Zeppelin\"', shell=True)
+        subprocess.run('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/' + cluster_name +
+              '\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh', shell=True)
+        subprocess.run('sudo chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/', shell=True)
+        subprocess.run('sudo systemctl daemon-reload', shell=True)
+        subprocess.run('sudo service zeppelin-notebook stop', shell=True)
+        subprocess.run('sudo service zeppelin-notebook start', shell=True)
         while not zeppelin_restarted:
-            local('sleep 5')
-            result = local('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture=True)
+            subprocess.run('sleep 5', shell=True)
+            result = subprocess.run('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True)
             result = result[:1]
             if result == '1':
                 zeppelin_restarted = True
-        local('sleep 5')
-        local('echo \"Configuring Data Engine spark interpreter for Zeppelin\"')
+        subprocess.run('sleep 5', shell=True)
+        subprocess.run('echo \"Configuring Data Engine spark interpreter for Zeppelin\"', shell=True)
         if multiple_clusters == 'true':
             while not port_number_found:
-                port_free = local('sudo bash -c "nmap -p ' + str(default_port) +
-                                  ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
+                port_free = subprocess.run('sudo bash -c "nmap -p ' + str(default_port) +
+                                  ' localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True)
                 port_free = port_free[:1]
                 if port_free == '0':
                     livy_port = default_port
                     port_number_found = True
                 else:
                     default_port += 1
-            local('sudo echo "livy.server.port = ' + str(livy_port) + '" >> ' + livy_path + 'conf/livy.conf')
-            local('sudo echo "livy.spark.master = ' + spark_master + '" >> ' + livy_path + 'conf/livy.conf')
+            subprocess.run('sudo echo "livy.server.port = ' + str(livy_port) + '" >> ' + livy_path + 'conf/livy.conf', shell=True)
+            subprocess.run('sudo echo "livy.spark.master = ' + spark_master + '" >> ' + livy_path + 'conf/livy.conf', shell=True)
             if os.path.exists(livy_path + 'conf/spark-blacklist.conf'):
-                local('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf')
-            local(''' sudo echo "export SPARK_HOME=''' + cluster_dir + '''spark/" >> ''' + livy_path + '''conf/livy-env.sh''')
-            local(''' sudo echo "export PYSPARK3_PYTHON=python3.8" >> ''' +
-                  livy_path + '''conf/livy-env.sh''')
+                subprocess.run('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf', shell=True)
+            subprocess.run(''' sudo echo "export SPARK_HOME=''' + cluster_dir + '''spark/" >> ''' + livy_path + '''conf/livy-env.sh''', shell=True)
+            subprocess.run(''' sudo echo "export PYSPARK3_PYTHON=python3.8" >> ''' +
+                  livy_path + '''conf/livy-env.sh''', shell=True)
             template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
             fr = open(template_file, 'r+')
             text = fr.read()
@@ -105,21 +106,21 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             fw.close()
             for _ in range(5):
                 try:
-                    local("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
-                          "@/tmp/{}/dataengine_interpreter.json http://localhost:8080/api/interpreter/setting".format(args.cluster_name))
+                    subprocess.run("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
+                          "@/tmp/{}/dataengine_interpreter.json http://localhost:8080/api/interpreter/setting".format(args.cluster_name), shell=True)
                     break
                 except:
-                    local('sleep 5')
-            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
-                  '.service')
-            local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
-                  '.service')
-            local("sudo sed -i 's|LIVY_PATH|" + livy_path + "|' /etc/systemd/system/livy-server-" + str(livy_port)
-                  + '.service')
-            local('sudo chmod 644 /etc/systemd/system/livy-server-' + str(livy_port) + '.service')
-            local("sudo systemctl daemon-reload")
-            local("sudo systemctl enable livy-server-" + str(livy_port))
-            local('sudo systemctl start livy-server-' + str(livy_port))
+                    subprocess.run('sleep 5', shell=True)
+            subprocess.run('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
+                  '.service', shell=True)
+            subprocess.run("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
+                  '.service', shell=True)
+            subprocess.run("sudo sed -i 's|LIVY_PATH|" + livy_path + "|' /etc/systemd/system/livy-server-" + str(livy_port)
+                  + '.service', shell=True)
+            subprocess.run('sudo chmod 644 /etc/systemd/system/livy-server-' + str(livy_port) + '.service', shell=True)
+            subprocess.run("sudo systemctl daemon-reload", shell=True)
+            subprocess.run("sudo systemctl enable livy-server-" + str(livy_port), shell=True)
+            subprocess.run('sudo systemctl start livy-server-' + str(livy_port), shell=True)
         else:
             template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
             p_versions = ["2", "3.8"]
@@ -137,32 +138,32 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
                 fw.close()
                 for _ in range(5):
                     try:
-                        local("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
+                        subprocess.run("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
                               "@/tmp/dataengine_spark_py" + p_version +
-                              "_interpreter.json http://localhost:8080/api/interpreter/setting")
+                              "_interpreter.json http://localhost:8080/api/interpreter/setting", shell=True)
                         break
                     except:
-                        local('sleep 5')
-        local('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured')
+                        subprocess.run('sleep 5', shell=True)
+        subprocess.run('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured', shell=True)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
 
 
 def install_remote_livy(args):
-    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
-    local('sudo service zeppelin-notebook stop')
-    local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/' +
-          args.cluster_name + '/livy-server-' + args.livy_version + '.zip')
-    local('sudo unzip /opt/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip -d /opt/' +
-          args.cluster_name + '/')
-    local('sudo mv /opt/' + args.cluster_name + '/livy-server-' + args.livy_version + '/ /opt/' + args.cluster_name +
-          '/livy/')
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/', shell=True)
+    subprocess.run('sudo service zeppelin-notebook stop', shell=True)
+    subprocess.run('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/' +
+          args.cluster_name + '/livy-server-' + args.livy_version + '.zip', shell=True)
+    subprocess.run('sudo unzip /opt/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip -d /opt/' +
+          args.cluster_name + '/', shell=True)
+    subprocess.run('sudo mv /opt/' + args.cluster_name + '/livy-server-' + args.livy_version + '/ /opt/' + args.cluster_name +
+          '/livy/', shell=True)
     livy_path = '/opt/' + args.cluster_name + '/livy/'
-    local('sudo mkdir -p ' + livy_path + '/logs')
-    local('sudo mkdir -p /var/run/livy')
-    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /var/run/livy')
-    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R ' + livy_path)
+    subprocess.run('sudo mkdir -p ' + livy_path + '/logs', shell=True)
+    subprocess.run('sudo mkdir -p /var/run/livy', shell=True)
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /var/run/livy', shell=True)
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R ' + livy_path, shell=True)
 
 
 if __name__ == "__main__":

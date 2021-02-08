@@ -25,6 +25,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
@@ -60,7 +61,7 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'], notebook_config['group_name'])
         try:
             # Run script to get available libs
-            local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
+            subprocess.run("~/scripts/{}.py {}".format('get_list_available_pkgs', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception

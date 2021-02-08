@@ -28,6 +28,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from fabric import *
 
 if __name__ == "__main__":
@@ -48,7 +49,7 @@ if __name__ == "__main__":
         params = '--resource_group_name {} --list_resources "{}"'.format(edge_conf['resource_group_name'],
                                                                          os.environ['edge_list_resources'])
         try:
-            local("~/scripts/{}.py {}".format('common_collect_data', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_collect_data', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception

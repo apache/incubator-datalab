@@ -26,6 +26,7 @@ import json
 import os
 import sys
 import traceback
+import subprocess
 from datalab.common_lib import manage_pkg
 from datalab.fab import *
 from datalab.meta_lib import *
@@ -211,10 +212,10 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_datalab_path'])):
             java_path = conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
-            local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
-            local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
-            local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
-            local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
+            conn.local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            conn.local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            conn.local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
+            conn.local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
             conn.sudo('sed -i "s|KEYNAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
                  format(os.environ['conf_key_name'], datalab_path))
             conn.put('/root/templates/ssn.yml', '/tmp/ssn.yml')
@@ -288,7 +289,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                 sys.exit(1)
 
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                conn.local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
                                                                                                          host_string))
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \

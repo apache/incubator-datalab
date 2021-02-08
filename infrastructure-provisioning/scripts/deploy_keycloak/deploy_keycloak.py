@@ -26,6 +26,7 @@ from fabric import *
 import argparse
 import sys
 import os
+import subprocess
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
@@ -84,8 +85,8 @@ def configure_nginx():
     conn.sudo("systemctl restart nginx")
 
 if __name__ == "__main__":
-    local("sudo mkdir /logs/keycloak -p")
-    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /logs/keycloak')
+    subprocess.run("sudo mkdir /logs/keycloak -p", shell=True)
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /logs/keycloak', shell=True)
     local_log_filename = "keycloak_deployment_script.log"
     local_log_filepath = "/logs/keycloak/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',

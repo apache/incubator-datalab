@@ -27,7 +27,7 @@ import sys
 import traceback
 from datalab.fab import *
 from fabric import *
-
+import subprocess
 
 def run():
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -38,14 +38,14 @@ def run():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('project_prepare'))
+        subprocess.run("~/scripts/{}.py".format('project_prepare'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Project.", str(err))
         sys.exit(1)
 
     try:
-        local("~/scripts/{}.py".format('edge_configure'))
+        subprocess.run("~/scripts/{}.py".format('edge_configure'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Edge node.", str(err))
@@ -60,7 +60,7 @@ def terminate():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('project_terminate'))
+        subprocess.run("~/scripts/{}.py".format('project_terminate'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating Edge node.", str(err))
@@ -75,14 +75,14 @@ def recreate():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('project_prepare'))
+        subprocess.run("~/scripts/{}.py".format('project_prepare'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Edge node.", str(err))
         sys.exit(1)
 
     try:
-        local("~/scripts/{}.py".format('edge_configure'))
+        subprocess.run("~/scripts/{}.py".format('edge_configure'), shell=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Edge node.", str(err))

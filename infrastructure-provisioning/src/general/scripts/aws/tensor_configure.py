@@ -30,6 +30,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -118,7 +119,7 @@ if __name__ == "__main__":
             notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -136,7 +137,7 @@ if __name__ == "__main__":
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
                     notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -153,7 +154,7 @@ if __name__ == "__main__":
             format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['aws_region'],
                    edge_instance_private_ip)
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -173,7 +174,7 @@ if __name__ == "__main__":
                          os.environ['aws_region'], notebook_config['datalab_ssh_user'],
                          notebook_config['ip_address'], notebook_config['exploratory_name'], edge_ip)
         try:
-            local("~/scripts/{}.py {}".format('configure_tensor_node', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_tensor_node', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -190,7 +191,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -205,7 +206,7 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name)
         try:
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True)
         except:
             datalab.fab.append_result("Failed setup git credentials")
             raise Exception
@@ -222,7 +223,7 @@ if __name__ == "__main__":
                 .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
                         notebook_config['tag_name'], notebook_config['instance_name'])
             try:
-                local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_remove_remote_kernels', params), shell=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -242,7 +243,7 @@ if __name__ == "__main__":
             .format(edge_instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], 'jupyter',
                     notebook_config['exploratory_name'], json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception

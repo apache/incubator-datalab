@@ -25,6 +25,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
@@ -61,7 +62,7 @@ if __name__ == "__main__":
                     notebook_config['keyfile'], notebook_config['libs'])
         try:
             # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('install_additional_libs', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True)
         except:
             traceback.print_exc()
             raise Exception
