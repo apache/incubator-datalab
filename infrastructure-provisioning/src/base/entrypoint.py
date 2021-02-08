@@ -107,9 +107,8 @@ if __name__ == "__main__":
     except:
         pass
 
-    with fabric.context_managers.hide('running'):
-        if args.action != 'terminate':
-            subprocess.run('chmod 600 /root/keys/*.pem', shell=True)
+    if args.action != 'terminate':
+        subprocess.run('chmod 600 /root/keys/*.pem', shell=True)
 
     if dry_run:
         with open("/response/{}.json".format(request_id), 'w') as response_file:
@@ -118,12 +117,10 @@ if __name__ == "__main__":
 
     # Run execution routines
     elif args.action == 'create':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/create.py", shell=True)
+        subprocess.run("/bin/create.py", shell=True)
 
     elif args.action == 'status':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/status.py", shell=True)
+        subprocess.run("/bin/status.py", shell=True)
 
     elif args.action == 'describe':
         with open('/root/description.json') as json_file:
@@ -133,53 +130,40 @@ if __name__ == "__main__":
                 response_file.write(json.dumps(description))
 
     elif args.action == 'stop':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/stop.py", shell=True)
+        subprocess.run("/bin/stop.py", shell=True)
 
     elif args.action == 'start':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/start.py", shell=True)
+        subprocess.run("/bin/start.py", shell=True)
 
     elif args.action == 'terminate':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/terminate.py", shell=True)
+        subprocess.run("/bin/terminate.py", shell=True)
 
     elif args.action == 'configure':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/configure.py", shell=True)
+        subprocess.run("/bin/configure.py", shell=True)
 
     elif args.action == 'recreate':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/recreate.py", shell=True)
+        subprocess.run("/bin/recreate.py", shell=True)
 
     elif args.action == 'reupload_key':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/reupload_key.py", shell=True)
+        subprocess.run("/bin/reupload_key.py", shell=True)
 
     elif args.action == 'lib_install':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/install_libs.py", shell=True)
+        subprocess.run("/bin/install_libs.py", shell=True)
 
     elif args.action == 'lib_list':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/list_libs.py", shell=True)
+        subprocess.run("/bin/list_libs.py", shell=True)
 
     elif args.action == 'git_creds':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/git_creds.py", shell=True)
+        subprocess.run("/bin/git_creds.py", shell=True)
 
     elif args.action == 'create_image':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/create_image.py", shell=True)
+        subprocess.run("/bin/create_image.py", shell=True)
 
     elif args.action == 'terminate_image':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/terminate_image.py", shell=True)
+        subprocess.run("/bin/terminate_image.py", shell=True)
 
     elif args.action == 'reconfigure_spark':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/reconfigure_spark.py", shell=True)
+        subprocess.run("/bin/reconfigure_spark.py", shell=True)
 
     elif args.action == 'check_inactivity':
-        with fabric.context_managers.hide('running'):
-            subprocess.run("/bin/check_inactivity.py", shell=True)
+        subprocess.run("/bin/check_inactivity.py", shell=True)
