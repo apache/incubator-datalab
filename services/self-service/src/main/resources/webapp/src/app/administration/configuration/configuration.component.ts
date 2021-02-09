@@ -146,7 +146,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     } else if (this.activeTab.index === 2) {
       this.activeService = 'provisioning';
     } else if (this.activeTab.index === 3) {
-      this.activeService = 'billing-service';
+      this.activeService = 'billing';
     } else {
       this.activeService = '';
     }
