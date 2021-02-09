@@ -448,7 +448,7 @@ input[type='number'] {
 .mat-chip.mat-standard-chip::after {
   height: 0;
   width: 0;
-  opacity: 0;
+  position: unset;
 }
 
 .capitalize {
@@ -531,5 +531,9 @@ input[type='number'] {
 }
 
 .mat-tooltip-for-users {
+  overflow-wrap: break-word;
+}
+
+.mat-tooltip-description {
   overflow-wrap: break-word;
 }

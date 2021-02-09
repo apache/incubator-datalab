@@ -40,8 +40,10 @@ export class ConfigurationService {
     const settings = {
       ymlString: config
     };
+    const selectedService = service === 'provisioning' ? 'provisioning-service' : service;
+
     return this.applicationServiceFacade
-      .buildSetServiceConfig(service, settings)
+      .buildSetServiceConfig(selectedService, settings)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
