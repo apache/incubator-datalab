@@ -55,7 +55,7 @@ if __name__ == "__main__":
     print('-------------'+args.keyfile)
     key = RSA.importKey(open(args.keyfile, 'rb').read())
     print('-------------'+str(key))
-    datalab.fab.init_datalab_connection(args.hostname, args.initial_user, args.keyfile)
+    datalab.fab.init_datalab_connection(args.hostname, args.initial_user, key)
 
     print("Creating ssh user: {}".format(args.os_user))
     try:
