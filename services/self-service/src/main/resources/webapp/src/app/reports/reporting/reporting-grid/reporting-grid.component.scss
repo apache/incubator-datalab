@@ -328,13 +328,14 @@
   }
 }
 
-  .left {
-  }
+.user-name-cell {
+  cursor: default;
+}
 
-  .right {
-    position: absolute;
-    right: 0;
-  }
+.right {
+  position: absolute;
+  right: 0;
+}
 
 .wrapper{
   .table-wrapper{

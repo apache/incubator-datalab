@@ -330,6 +330,7 @@ table.resources {
   }
 
   .currency_details {
+    display: flex;
     color: #35afd5;
     cursor: pointer;
     transition: all 0.45s ease-in-out;
