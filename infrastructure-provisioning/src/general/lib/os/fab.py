@@ -1011,7 +1011,7 @@ def init_datalab_connection(ip, user_name, pkey):
     try:
         global conn
         attempt = 0
-        while attempt < 4:
+        while attempt < 1:
             logging.info('connection attempt {}'.format(attempt))
             conn = Connection(host = ip, user = user_name, connect_kwargs={'key_filename': pkey})
             try:
