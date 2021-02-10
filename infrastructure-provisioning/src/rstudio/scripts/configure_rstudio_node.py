@@ -57,8 +57,8 @@ local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
-r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
-          'Rcpp', 'rmarkdown', 'base64enc', 'tibble']
+r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
+          'Rcpp', 'rmarkdown', 'base64enc', 'tibble', 'sparklyr']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 

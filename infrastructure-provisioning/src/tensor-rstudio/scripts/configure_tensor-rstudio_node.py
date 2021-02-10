@@ -66,7 +66,7 @@ jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 gitlab_certfile = os.environ['conf_gitlab_certfile']
-r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
+r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
           'Rcpp', 'rmarkdown', 'base64enc', 'tibble', 'tensorflow']
 
 

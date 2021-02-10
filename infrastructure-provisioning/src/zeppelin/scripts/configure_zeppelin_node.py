@@ -73,7 +73,7 @@ local_spark_path = '/opt/spark/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jars_dir = '/opt/jars/'
-r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
+r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2']
 r_enabled = os.environ['notebook_r_enabled']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
