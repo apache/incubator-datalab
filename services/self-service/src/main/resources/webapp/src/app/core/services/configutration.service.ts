@@ -29,33 +29,38 @@ export class ConfigurationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public getServiceSettings(service): Observable<{}> {
-     return this.applicationServiceFacade
+    service = this.convertProvisioning(service);
+    return this.applicationServiceFacade
       .buildGetServiceConfig(service)
        .pipe(
       map(response => response),
       catchError(ErrorUtils.handleServiceError));
     }
 
-  public setServiceConfig(service, config) {
+  public setServiceConfig(service: string, config: string): Observable<{}> {
     const settings = {
       ymlString: config
     };
-    const selectedService = service === 'provisioning' ? 'provisioning-service' : service;
+    service = this.convertProvisioning(service);
 
     return this.applicationServiceFacade
-      .buildSetServiceConfig(selectedService, settings)
+      .buildSetServiceConfig(service, settings)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public restartServices(self, prov, billing) {
+  public restartServices(self: string, prov: string, billing: string): Observable<{}> {
     const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}`;
     return this.applicationServiceFacade
       .buildRestartServices(queryString)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
+  }
+
+  private convertProvisioning(service: string): string {
+    return (service === 'provisioning') ? 'provisioning-service' : service;
   }
 
 }
