@@ -428,20 +428,21 @@ input[type='file'] {
   }
 }
 
-.upload-window{
+.upload-window {
   margin-top: 2vh;
-  border: 2px solid rgba(0,0,0,.12);
+  border: 2px solid rgba(0, 0, 0, .12);
   border-radius: 5px;
   background-color: white;
   height: 15vh;
   color: black;
 
-  .upload-header{
+  .upload-header {
     padding-left: 8px;
     background: #f6fafe;
     height: 30px;
     line-height: 30px;
     position: relative;
+
     .modal-title {
       width: 90%;
       margin: 0;
@@ -452,13 +453,14 @@ input[type='file'] {
       color: #455c74;
       font-size: 13px;
       background: #f6fafe;
-      &::after{
+
+      &::after {
         content: '';
         display: block;
       }
-  }
+    }
 
-    .close{
+    .close {
       position: absolute;
       top: 0;
       right: 0;
@@ -473,15 +475,17 @@ input[type='file'] {
       cursor: pointer;
       transition: all 0.45s ease-in-out;
 
-      &:hover{
+      &:hover {
         color: #36afd5;
       }
     }
   }
+}
 
 .events-none{
   pointer-events: none;
 }
+
 
 
 
