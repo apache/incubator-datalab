@@ -50,7 +50,7 @@ export class ConfigurationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public restartServices(self: string, prov: string, billing: string): Observable<{}> {
+  public restartServices(self: boolean, prov: boolean, billing: boolean): Observable<{}> {
     const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}`;
     return this.applicationServiceFacade
       .buildRestartServices(queryString)
