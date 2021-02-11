@@ -40,9 +40,9 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   public activeTab = {index: 0};
   public activeService: string;
   public services = {
-    'self-service': {label: 'Self service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
-    'provisioning-service': {label: 'Provisioning service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
-    'billing-service': {label: 'Billing service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
+    'self-service': {label: 'Self-service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
+    'provisioning': {label: 'Provisioning', selected: false, config: '', serverConfig: '', isConfigChanged: false},
+    'billing': {label: 'Billing', selected: false, config: '', serverConfig: '', isConfigChanged: false},
   };
 
   private confirmMessages = {
@@ -135,18 +135,18 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       this.getServicesConfig(service);
       this.toastr.success('Service configuration saved!', 'Success!');
       },
-      error => this.toastr.error('Service configuration is not saved', 'Oops!')
+      error => this.toastr.error( error.message || 'Service configuration is not saved', 'Oops!')
     );
   }
 
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.activeTab = tabChangeEvent;
     if (this.activeTab.index === 1) {
-      this.activeService = 'provisioning-service';
-    } else if (this.activeTab.index === 2) {
       this.activeService = 'self-service';
+    } else if (this.activeTab.index === 2) {
+      this.activeService = 'provisioning';
     } else if (this.activeTab.index === 3) {
-      this.activeService = 'billing-service';
+      this.activeService = 'billing';
     } else {
       this.activeService = '';
     }
@@ -190,8 +190,8 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       .afterClosed().subscribe(result => {
         if (result) {
           this.configurationService.restartServices(this.services['self-service'].selected,
-            this.services['provisioning-service'].selected,
-            this.services['billing-service'].selected
+            this.services['provisioning'].selected,
+            this.services['billing'].selected
           )
             .pipe(
               takeUntil(this.unsubscribe$),
@@ -237,8 +237,10 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     </div>
 
     <div mat-dialog-content class="content">
-      {{data.message}}
-      <ng-template [ngIf]="data.action === 'restart'" ]>Restarting <span class="strong">{{data.services.join(', ')}}</span> will make DataLab unavailable for some time.</ng-template>
+      <ng-template [ngIf]="data.action === 'restart'" ]>
+        Restarting <span class="strong">{{data.services.join(', ')}}</span> <span *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')">
+        service</span><span [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span> will make DataLab unavailable for some time.
+      </ng-template>
       <ng-template [ngIf]="data.action === 'discard'" ]>Discard all unsaved changes.</ng-template>
       <ng-template [ngIf]="data.action === 'save'" ]>After you save changes you need to restart service.</ng-template>
     </div>
@@ -258,7 +260,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       header h4 i { vertical-align: bottom; }
       header a i { font-size: 20px; }
       header a:hover i { color: #35afd5; cursor: pointer; }
-      .content{padding: 35px 30px 30px 30px;}
+      .content{padding: 35px 30px 30px 30px; text-align: center;}
       label{cursor: pointer}`
   ]
 })
@@ -268,7 +270,6 @@ export class SettingsConfirmationDialogComponent {
     public dialogRef: MatDialogRef<SettingsConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-
   }
 }
 
