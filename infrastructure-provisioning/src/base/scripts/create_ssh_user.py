@@ -26,6 +26,8 @@ from patchwork.files import exists
 from datalab.fab import *
 import argparse
 import sys
+import time
+import traceback
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -52,10 +54,23 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
 
 if __name__ == "__main__":
     print("Configure connections")
-    print('-------------'+args.keyfile)
-    key = RSA.importKey(open(args.keyfile, 'rb').read())
-    print('-------------'+str(key))
-    datalab.fab.init_datalab_connection(args.hostname, args.initial_user, key)
+    try:
+        global conn
+        attempt = 0
+        while attempt < 1:
+            print('connection attempt {}'.format(attempt))
+            conn = Connection(host=args.hostname, user=args.initial_user,
+                                  connect_kwargs={'key_filename': args.keyfile})
+            try:
+                conn.run('ls')
+                return conn
+            except Exception as ex:
+                traceback.print_exc()
+                attempt += 1
+                time.sleep(10)
+    except:
+        sys.exit(1)
+    #datalab.fab.init_datalab_connection(args.hostname, args.initial_user, key)
 
     print("Creating ssh user: {}".format(args.os_user))
     try:
