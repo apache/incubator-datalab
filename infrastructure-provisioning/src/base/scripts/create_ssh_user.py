@@ -51,16 +51,13 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
         conn.sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
         conn.sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
 
-
-if __name__ == "__main__":
-    print("Configure connections")
+def init_datalab_connection(hostname, username, keyfile):
     try:
         global conn
         attempt = 0
         while attempt < 1:
             print('connection attempt {}'.format(attempt))
-            conn = Connection(host=args.hostname, user=args.initial_user,
-                                  connect_kwargs={'key_filename': args.keyfile})
+            conn = Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile})
             try:
                 conn.run('ls')
                 return conn
@@ -69,8 +66,14 @@ if __name__ == "__main__":
                 attempt += 1
                 time.sleep(10)
     except:
+        traceback.print_exc()
         sys.exit(1)
-    #datalab.fab.init_datalab_connection(args.hostname, args.initial_user, key)
+
+
+
+if __name__ == "__main__":
+    print("Configure connections")
+    init_datalab_connection(args.hostname, args.initial_user, args.keyfile)
 
     print("Creating ssh user: {}".format(args.os_user))
     try:
