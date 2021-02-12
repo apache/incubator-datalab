@@ -150,6 +150,8 @@ if __name__ == "__main__":
 
         try:
             subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
+            if subprocess.CompletedProcess.returncode != 0:
+                raise Exception
         except:
             traceback.print_exc()
             raise Exception
