@@ -352,13 +352,8 @@ table {
     padding-right: 10px;
     overflow: hidden;
     span{
-      overflow: hidden;
-      display: block;
+      cursor: default;
     }
-  }
-
-  .roles {
-    width: 35%;
   }
 
   .users {
