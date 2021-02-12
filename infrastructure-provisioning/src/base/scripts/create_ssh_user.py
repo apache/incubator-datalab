@@ -57,14 +57,14 @@ def init_datalab_connection(hostname, username, keyfile):
         attempt = 0
         while attempt < 10:
             print('connection attempt {}'.format(attempt))
-            conn = Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile})
-            try:
-                conn.run('ls')
-                return conn
-            except Exception as ex:
-                traceback.print_exc()
-                attempt += 1
-                time.sleep(10)
+            with Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile}) as conn:
+                try:
+                    conn.run('ls')
+                    return conn
+                except Exception as ex:
+                    traceback.print_exc()
+                    attempt += 1
+                    time.sleep(10)
     except:
         traceback.print_exc()
         sys.exit(1)
