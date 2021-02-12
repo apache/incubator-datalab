@@ -28,6 +28,7 @@ import argparse
 import sys
 import time
 import traceback
+from patchwork.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -40,7 +41,7 @@ args = parser.parse_args()
 
 def ensure_ssh_user(initial_user, os_user, sudo_group, conn):
     print('ensure_ssh_user function')
-    if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
+    if not exists(conn, '/home/{}/.ssh_user_ensured'.format(initial_user)):
         print('ensure_ssh_user function2')
         conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
         conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
