@@ -150,7 +150,7 @@
 
 .dropdown-list .list-menu a,
 .dropdown-multiselect .list-menu li a {
-  display: block;
+  display: flex;
   padding: 10px;
   padding-left: 15px;
   position: relative;
@@ -161,7 +161,7 @@
 }
 
 .dropdown-multiselect .list-menu li a {
-  padding-left: 45px;
+  padding-left: 25px;
   transition: all .45s ease-in-out;
 }
 
@@ -330,3 +330,6 @@
   display: none;
 }
 
+datalab-checkbox{
+  margin: 2px 5px 0 0;
+}

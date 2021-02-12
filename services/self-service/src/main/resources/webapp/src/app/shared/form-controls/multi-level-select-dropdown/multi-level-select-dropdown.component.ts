@@ -52,24 +52,24 @@ export class MultiLevelSelectDropdownComponent {
   constructor() {
   }
 
-  toggleSelectedOptions($event, model, value) {
-    $event.preventDefault();
+  toggleSelectedOptions( model, value, event?) {
+    if (event) event.preventDefault();
     const currRole = model.filter(v => v.role === value.role).length;
     currRole ? this.model = model.filter(v => v.role !== value.role) : model.push(value);
-    this.onUpdate($event);
+    this.onUpdate(event);
   }
 
-  toggleselectedCategory($event, model, value) {
-    $event.preventDefault();
+  toggleselectedCategory( model, value, event?) {
+    if (event) event.preventDefault();
     const categoryItems = this.items.filter(role => role.type === value);
     this.selectedAllInCattegory(value) ? this.model = this.model.filter(role => role.type !== value) : categoryItems.forEach(role => {
       if (!model.filter(mod => mod.role === role.role).length) {this.model.push(role); }
     });
-    this.onUpdate($event);
+    this.onUpdate(event);
   }
 
-  toggleSelectedCloud($event, model, category, cloud) {
-    $event.preventDefault();
+  toggleSelectedCloud( model, category, cloud, event?) {
+    if (event) event.preventDefault();
     const categoryItems = this.items.filter(role => role.type === category && role.cloud === cloud);
     this.selectedAllInCloud(category, cloud) ? this.model = this.model.filter(role => {
       if (role.type === category && role.cloud === cloud) {
@@ -79,7 +79,7 @@ export class MultiLevelSelectDropdownComponent {
     }) : categoryItems.forEach(role => {
       if (!model.filter(mod => mod.role === role.role).length) {this.model.push(role); }
     });
-    this.onUpdate($event);
+    this.onUpdate(event);
   }
 
   selectAllOptions($event) {

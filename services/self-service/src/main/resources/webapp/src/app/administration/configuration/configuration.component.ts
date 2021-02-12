@@ -172,7 +172,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     Object.keys(this.services).forEach(service => this.services[service].selected = false);
   }
 
-  public toggleSetings(service): void {
+  public toggleSettings(service): void {
     this.services[service].selected = !this.services[service].selected;
   }
 

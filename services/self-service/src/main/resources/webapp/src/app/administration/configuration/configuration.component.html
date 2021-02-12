@@ -51,10 +51,14 @@
               <ul class="list-menu selection-list">
                 <li *ngFor="let service of services | keys">
                   <p class="list-item" role="menuitem">
-                    <span (click)="toggleSetings(service.key);$event.stopPropagation()" class="d-flex">
-                      <span class="empty-checkbox" [ngClass]="{'checked': services[service.key].selected}">
-                        <span class="checked-checkbox" *ngIf="services[service.key].selected"></span>
-                      </span>
+                    <span (click)="toggleSettings(service.key);$event.stopPropagation()" class="d-flex">
+                      <div class="checkbox-wrap">
+                        <datalab-checkbox
+                          [checked]="services[service.key].selected"
+                          (toggleSelection)="toggleSettings(service.key)"
+                        >
+                        </datalab-checkbox>
+                      </div>
                       {{service.value.label}}
                     </span>
                   </p>

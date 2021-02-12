@@ -499,10 +499,7 @@ span.mat-slide-toggle-content {
   margin-top: 2px;
   position: relative;
   cursor: pointer;
-  &.header-checkbox{
-    margin-top: 7px;
-    float: left;
-  }
+
   &.checked {
     border-color: #35afd5;
     background-color: #35afd5;

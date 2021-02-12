@@ -27,19 +27,21 @@ import {ConfigurationComponent, SettingsConfirmationDialogComponent} from './con
 import {AceEditorModule} from 'ng2-ace-editor';
 import {ConvertActionPipeModule} from '../../core/pipes/convert-action-pipe';
 import {KeysPipeModule} from '../../core/pipes/keys-pipe';
+import {CheckboxModule} from '../../shared/checkbox';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    FormControlsModule,
-    InformMessageModule,
-    AceEditorModule,
-    ConvertActionPipeModule,
-    KeysPipeModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MaterialModule,
+        FormControlsModule,
+        InformMessageModule,
+        AceEditorModule,
+        ConvertActionPipeModule,
+        KeysPipeModule,
+        CheckboxModule
+    ],
   declarations: [ConfigurationComponent, SettingsConfirmationDialogComponent],
   entryComponents: [SettingsConfirmationDialogComponent],
   exports: [ConfigurationComponent]

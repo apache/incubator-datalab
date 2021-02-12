@@ -34,20 +34,22 @@ import {BucketTreeComponent} from './buckets-tree/bucket-tree.component';
 import {ConvertFileSizePipeModule} from '../../core/pipes/convert-file-size';
 import {LocalDatePipeModule} from '../../core/pipes/local-date-pipe';
 import {ConvertActionPipeModule} from '../../core/pipes/convert-action-pipe';
+import {CheckboxModule} from '../../shared/checkbox';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ResourcesGridModule,
-    ExploratoryEnvironmentCreateModule,
-    MaterialModule,
-    MatTreeModule,
-    ConvertFileSizePipeModule,
-    LocalDatePipeModule,
-    ConvertActionPipeModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ResourcesGridModule,
+        ExploratoryEnvironmentCreateModule,
+        MaterialModule,
+        MatTreeModule,
+        ConvertFileSizePipeModule,
+        LocalDatePipeModule,
+        ConvertActionPipeModule,
+        CheckboxModule
+    ],
   declarations: [
     BucketBrowserComponent,
     FolderTreeComponent,

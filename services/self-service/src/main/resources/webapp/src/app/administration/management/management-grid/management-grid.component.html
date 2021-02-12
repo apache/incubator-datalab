@@ -22,13 +22,12 @@
       <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6" #table >
       <ng-container matColumnDef="checkbox">
         <th mat-header-cell *matHeaderCellDef class="checkbox label-header">
-          <div  class="empty-checkbox header-checkbox"
-                *ngIf="allActiveNotebooks?.length>0"
-                [ngClass]="{'checked': selected?.length === allActiveNotebooks?.length}"
-                (click)="toggleSelectionAll();$event.stopPropagation()"
+          <datalab-checkbox
+            class="header-checkbox"
+            [checked]="selected?.length === allActiveNotebooks?.length"
+            (toggleSelection)="toggleSelectionAll()"
           >
-            <span class="checked-checkbox" *ngIf="selected?.length === allActiveNotebooks?.length"></span>
-          </div>
+          </datalab-checkbox>
           <button mat-icon-button aria-label="More" class="ar checkbox-border" (click)="toggleFilterRow()">
             <i class="material-icons">
   <!--            <span *ngIf="filtering && filterForm.users.length > 0 && !collapsedFilterRow">filter_list</span>-->
@@ -37,14 +36,13 @@
           </button>
         </th>
         <td mat-cell *matCellDef="let element">
-          <div
-            *ngIf="element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)"
-             class="empty-checkbox"
-             [ngClass]="{'checked': element.isSelected}"
-             (click)="toggleActionForAll(element);$event.stopPropagation()"
-          >
-            <span class="checked-checkbox" *ngIf="element.isSelected"></span>
-          </div>
+          <ng-template [ngIf]="element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)">
+            <datalab-checkbox
+              [checked]="element.isSelected"
+              (toggleSelection)="toggleActionForAll(element)"
+            >
+            </datalab-checkbox>
+          </ng-template>
         </td>
       </ng-container>
 

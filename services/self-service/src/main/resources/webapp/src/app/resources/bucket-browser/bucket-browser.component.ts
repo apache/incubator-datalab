@@ -129,6 +129,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
   }
 
   public toggleSelectedFile(file, type): void {
+    console.log(file, type);
     type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
     this.selected = this.folderItems.filter(item => item.isSelected);
     this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
@@ -225,7 +226,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
-  async openResolveDialog(existFile){
+  async openResolveDialog(existFile) {
     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {
       data: {items: existFile, type: 'resolve_conflicts'} , width: '550px'
     });
@@ -464,6 +465,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.searchValue = '';
     this.filterObjects();
   }
+
 }
 
 

@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<div class="bucket-browser" id="dialog-box"  (click)="closeActions()">
+<div class="bucket-browser" id="dialog-box" (click)="closeActions()">
   <header class="dialog-header">
     <h4 class="modal-title">Bucket browser</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
@@ -153,10 +153,12 @@
           <li *ngFor="let file of folderItems" class="folder-item" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
               <div class="name name-folder">
-<!--                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >-->
-                <span class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >
-                    <span class="checked-checkbox" *ngIf="file.isFolderSelected"></span>
-                </span>
+                <datalab-checkbox
+                  [checked]="file.isFolderSelected"
+                  (toggleSelection)="toggleSelectedFile(file, 'folder')"
+                >
+                </datalab-checkbox>
+
                   <i class="material-icons folder-icon folder-name">folder</i>
                   <span class="item-name name-wrap ellipsis"
                         matTooltip="{{file.item}}"
@@ -172,12 +174,13 @@
             </div>
             <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children && file.item !== 'ا'">
               <div class="name name-file">
-
-                 <span class="empty-checkbox" [ngClass]="{'checked': file.isSelected, 'not-allowed': file.isDownloading}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
-                    <span class="checked-checkbox" *ngIf="file.isSelected"></span>
-                  </span>
+                <datalab-checkbox
+                  [checked]="file.isSelected"
+                  [disabled]="file.isDownloading"
+                  (toggleSelection)="toggleSelectedFile(file, 'file')"
+                >
+                </datalab-checkbox>
                 <i class="material-icons folder-icon" >description</i>
-
                 <span
                   class="item-name name-wrap ellipsis"
                   matTooltip="{{file.item}}"
