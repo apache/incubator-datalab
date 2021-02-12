@@ -55,7 +55,7 @@ def init_datalab_connection(hostname, username, keyfile):
     try:
         global conn
         attempt = 0
-        while attempt < 1:
+        while attempt < 10:
             print('connection attempt {}'.format(attempt))
             conn = Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile})
             try:
