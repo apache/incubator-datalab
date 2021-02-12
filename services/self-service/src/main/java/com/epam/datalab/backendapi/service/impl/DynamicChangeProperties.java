@@ -1,10 +1,16 @@
 package com.epam.datalab.backendapi.service.impl;
 
+import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.annotation.Audit;
+import com.epam.datalab.backendapi.dao.EndpointDAO;
+import com.epam.datalab.backendapi.domain.EndpointDTO;
+import com.epam.datalab.backendapi.resources.dto.YmlDTO;
 import com.epam.datalab.exceptions.DynamicChangePropertiesException;
+import com.epam.datalab.rest.client.RESTService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
+import javax.inject.Inject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -16,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE;
@@ -23,19 +30,9 @@ import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE
 @Slf4j
 public class DynamicChangeProperties {
 
-    private static final String SELF_SERVICE = "self-service.yml";
-    //services/self-service/self-service.yml";
-    private static final String SELF_SERVICE_PROP_PATH = "/opt/datalab/conf/self-service.yml";
+
     private static final String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
-    private static final String PROVISIONING_SERVICE = "provisioning.yml";
-    //"services/provisioning-service/provisioning.yml";
-    private static final String PROVISIONING_SERVICE_PROP_PATH = "/opt/datalab/conf/provisioning.yml";
     private static final String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
-    private static final String BILLING_SERVICE = "billing.yml";
-    //"services/billing-aws/billing.yml";
-    //"services/billing-azure/billing.yml";
-    //"services/billing-gcp/billing.yml";
-    private static final String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
     private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
     private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
     private static final String SECRET_REPLACEMENT_FORMAT = " ***********";
@@ -65,39 +62,73 @@ public class DynamicChangeProperties {
                     "# specific language governing permissions and limitations\n" +
                     "# under the License.\n" +
                     "#\n" +
-                    "# ******************************************************************************\n";
+                    "# ******************************************************************************";
 
     private static final int DEFAULT_VALUE_PLACE = 1;
     private static final int DEFAULT_NAME_PLACE = 0;
 
+    @Inject
+    private static RESTService externalSelfService;
+    @Inject
+    private static EndpointDAO endpointDAO;
+
     @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static String getSelfServiceProperties() {
-        return readFileAsString(SELF_SERVICE_PROP_PATH, SELF_SERVICE);
+    public static String getProperties(String path, String name) {
+        return readFileAsString(path, name);
     }
 
     @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static String getProvisioningServiceProperties() {
-        return readFileAsString(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE);
+    public static void overwriteProperties(String path, String name, String ymlString) {
+        writeFileFromString(ymlString, name, path);
     }
 
     @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static String getBillingServiceProperties() {
-        return readFileAsString(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE);
+    public static Map<String, String> getPropertiesWithExternal(String path, String name, UserInfo userInfo) {
+        List<EndpointDTO> externalEndpoints = endpointDAO.getEndpointsWithStatus("ACTIVE");
+        Map<String, String> endpoints = externalEndpoints.stream()
+                .filter(endpointDTO -> !endpointDTO.getName().equals("Local"))
+                .collect(Collectors.toMap(EndpointDTO::getName,
+                        dto -> readFileAsString(path, name, dto, userInfo)));
+        endpoints.put("Local", getProperties(path, name));
+        return endpoints;
+
     }
 
     @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwriteSelfServiceProperties(String ymlString) {
-        writeFileFromString(ymlString, SELF_SERVICE, SELF_SERVICE_PROP_PATH);
+    public static void overwritePropertiesWithExternal(String path, String name, Map<String, YmlDTO> ymlDTOS,
+                                                       UserInfo userInfo) {
+
+        List<EndpointDTO> allEndpoints = endpointDAO.getEndpointsWithStatus("ACTIVE");
+        Map<EndpointDTO, String> endpointsToChange = allEndpoints.stream()
+                .filter(e -> ymlDTOS.containsKey(e.getName()))
+                .filter(e -> !e.getName().equals("Local"))
+                .collect(Collectors.toMap(e -> e, e -> ymlDTOS.get(e.getName()).getYmlString()));
+
+        endpointsToChange.forEach((endpoint, ymlString) -> {
+            log.info("Trying to write {}, for external endpoint : {} , for user: {}",
+                    name, endpoint.getName(), userInfo.getSimpleName());
+            String url = endpoint.getUrl() + "/api/configuration/" + findMethodName(name);
+            externalSelfService.post(url, ymlString, userInfo.getAccessToken(), String.class);
+        });
+        if (ymlDTOS.containsKey("Local")) {
+            overwriteProperties(path, name, ymlDTOS.get("Local").getYmlString());
+        }
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwriteProvisioningServiceProperties(String ymlString) {
-        writeFileFromString(ymlString, PROVISIONING_SERVICE, PROVISIONING_SERVICE_PROP_PATH);
-    }
-
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwriteBillingServiceProperties(String ymlString) {
-        writeFileFromString(ymlString, BILLING_SERVICE, BILLING_SERVICE_PROP_PATH);
+    private static String findMethodName(String name) {
+        switch (name) {
+            case "self-service.yml": {
+                return "self-service";
+            }
+            case "provisioning.yml": {
+                return "provisioning-service";
+            }
+            case "billing.yml": {
+                return "billing";
+            }
+            default:
+                return "";
+        }
     }
 
     public static void restart(boolean billing, boolean provserv, boolean ui) {
@@ -128,6 +159,14 @@ public class DynamicChangeProperties {
             log.error(e.getMessage());
             throw new DynamicChangePropertiesException(String.format("Failed while read file %s", serviceName));
         }
+    }
+
+    private static String readFileAsString(String selfServicePropPath, String serviceName, EndpointDTO endpoint, UserInfo userInfo) {
+        log.info("Trying to read self-service.yml, for external endpoint : {} , for user: {}",
+                endpoint, userInfo.getSimpleName());
+        String currentConf = externalSelfService.get(endpoint.getUrl() + "/api/admin/self-service",
+                userInfo.getAccessToken(), String.class);
+        return hideSecretsAndRemoveLicence(currentConf);
     }
 
     private static String hideSecretsAndRemoveLicence(String currentConf) {
@@ -164,7 +203,6 @@ public class DynamicChangeProperties {
             log.error("Failed during overwriting {}", serviceName);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
         }
-
     }
 
     private static void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
