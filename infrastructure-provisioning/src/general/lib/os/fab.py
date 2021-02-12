@@ -1007,20 +1007,19 @@ def close_connection():
     global conn
     conn.close()
 
-def init_datalab_connection(ip, user_name, pkey):
+def init_datalab_connection(hostname, username, keyfile):
     try:
         global conn
         attempt = 0
-        while attempt < 1:
-            logging.info('connection attempt {}'.format(attempt))
-            conn = Connection(host = ip, user = user_name, connect_kwargs={'key_filename': pkey})
-            try:
-                conn.run('ls')
-                return conn
-            except Exception as ex:
-                logging.error(ex)
-                traceback.print_exc()
-                attempt += 1
-                time.sleep(10)
+        while attempt < 10:
+            print('connection attempt {}'.format(attempt))
+            with Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile}) as conn:
+                try:
+                    conn.run('ls')
+                    return conn
+                except Exception as ex:
+                    traceback.print_exc()
+                    attempt += 1
+                    time.sleep(10)
     except:
         sys.exit(1)
