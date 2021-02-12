@@ -247,8 +247,7 @@
     justify-content: space-between;
     padding-right: 10px;
     span{
-      overflow: hidden;
-      text-overflow: ellipsis;
+      cursor: default;
     }
   }
 

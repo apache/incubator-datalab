@@ -515,3 +515,8 @@ input[type='number'] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.group-updated-tooltip {
+  word-break: break-all;
+  max-width: 400px !important;
+}

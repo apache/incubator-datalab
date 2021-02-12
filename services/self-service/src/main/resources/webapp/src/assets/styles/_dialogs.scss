@@ -357,7 +357,9 @@ mat-dialog-container {
 .confirmation-dialog p.delete-user{
   font-weight: 500;
   max-height: 200px;
-  overflow: auto;
+  padding: 5px;
+  overflow: hidden auto;
+  text-overflow: ellipsis;
 }
 
 .bucket-browser{
