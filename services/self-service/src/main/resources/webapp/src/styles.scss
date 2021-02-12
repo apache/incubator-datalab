@@ -530,11 +530,12 @@ input[type='number'] {
   }
 }
 
-.mat-tooltip-for-users {
-  overflow-wrap: break-word;
+.group-updated-tooltip {
+  word-break: break-all;
+  max-width: 400px !important;
 }
 
-.mat-tooltip-description {
+.mat-tooltip-for-users, .mat-tooltip-description {
   overflow-wrap: break-word;
 }
 
