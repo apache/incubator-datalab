@@ -20,14 +20,14 @@
   <table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6 selection">
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef class="name"> Project name </th>
-    <td mat-cell *matCellDef="let element" class="name"> {{element.name}} </td>
+    <td mat-cell *matCellDef="let element" class="name project-name"> {{element.name}} </td>
   </ng-container>
 
   <ng-container matColumnDef="groups">
     <th mat-header-cell *matHeaderCellDef class="groups"> Group </th>
     <td mat-cell *matCellDef="let element" class="groups">
       <mat-chip-list>
-        <mat-chip *ngFor="let group of element.groups" [matTooltip]="group" matTooltipPosition="above">{{ group }}</mat-chip>
+        <mat-chip *ngFor="let group of element.groups" [matTooltip]="group" matTooltipPosition="above" class="ellipsis">{{ group }}</mat-chip>
       </mat-chip-list>
     </td>
   </ng-container>

@@ -194,7 +194,6 @@
       padding: 5px 10px;
       font-size: 13px;
       max-width: 110px !important;
-      text-overflow: ellipsis;
       white-space: nowrap;
       display: inline-block;
       line-height: 10px;
@@ -328,13 +327,14 @@
   }
 }
 
-  .left {
-  }
+.user-name-cell {
+  cursor: default;
+}
 
-  .right {
-    position: absolute;
-    right: 0;
-  }
+.right {
+  position: absolute;
+  right: 0;
+}
 
 .wrapper{
   .table-wrapper{

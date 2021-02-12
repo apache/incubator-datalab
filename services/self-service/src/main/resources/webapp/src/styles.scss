@@ -439,6 +439,16 @@ input[type='number'] {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  &::after{
+    content: '';
+    display: block;
+  }
+}
+
+.mat-chip.mat-standard-chip::after {
+  height: 0;
+  width: 0;
+  position: unset;
 }
 
 .capitalize {
@@ -514,9 +524,21 @@ input[type='number'] {
   max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
+  &::after{
+    content: '';
+    display: block;
+  }
 }
 
 .group-updated-tooltip {
   word-break: break-all;
   max-width: 400px !important;
+}
+
+.mat-tooltip-for-users, .mat-tooltip-description {
+  overflow-wrap: break-word;
+}
+
+.billing-user-name {
+  word-break: break-all;
 }

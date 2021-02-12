@@ -143,7 +143,13 @@
           <div class="list-selected list-container ani">
             <div class="scrolling">
               <mat-chip-list [disabled]="true">
-                <mat-chip *ngFor="let user of element.users">
+                <mat-chip
+                  *ngFor="let user of element.users"
+                  [matTooltip]="user"
+                  matTooltipPosition="above"
+                  matTooltipClass="mat-tooltip-for-users"
+                  class="ellipsis"
+                >
                   {{ user }}
                   <a class="material-icons" (click)="removeUser(element.users, user)">clear</a>
                 </mat-chip>

@@ -310,7 +310,6 @@
 
         .name-wrap {
           overflow: hidden;
-          text-overflow: ellipsis;
           white-space: nowrap;
           padding-right: 10px;
         }
@@ -556,6 +555,10 @@ input[type='file'] {
       color: #455c74;
       font-size: 13px;
       background: #f6fafe;
+      &::after{
+        content: '';
+        display: block;
+      }
   }
 
     .close{
