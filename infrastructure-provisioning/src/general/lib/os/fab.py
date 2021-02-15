@@ -1017,9 +1017,9 @@ def init_datalab_connection(hostname, username, keyfile):
             try:
                 conn.run('ls')
                 return conn
-            except Exception as ex:
-                traceback.print_exc()
+            except:
                 attempt += 1
                 time.sleep(10)
     except:
+        traceback.print_exc()
         sys.exit(1)
