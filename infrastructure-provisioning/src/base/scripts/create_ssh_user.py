@@ -41,6 +41,7 @@ args = parser.parse_args()
 
 def ensure_ssh_user(initial_user, os_user, sudo_group, conn):
     if not exists(conn, '/home/{}/.ssh_user_ensured'.format(initial_user)):
+        conn.sudo('hostname; pwd; ls -lah')
         conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
         conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
         conn.sudo('mkdir /home/{}/.ssh'.format(os_user))
