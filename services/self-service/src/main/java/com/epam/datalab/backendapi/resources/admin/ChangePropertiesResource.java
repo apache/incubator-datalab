@@ -7,16 +7,16 @@ import com.epam.datalab.backendapi.service.impl.DynamicChangeProperties;
 import io.dropwizard.auth.Auth;
 import lombok.NoArgsConstructor;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 
-@Path("configuration")
+@Path("config")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@NoArgsConstructor
 public class ChangePropertiesResource {
 
     private static final String SELF_SERVICE = "self-service.yml";
@@ -31,12 +31,20 @@ public class ChangePropertiesResource {
     //"services/billing-gcp/billing.yml";
     private static final String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
 
+    private final DynamicChangeProperties dynamicChangeProperties;
+
+    @Inject
+    public ChangePropertiesResource(DynamicChangeProperties dynamicChangeProperties) {
+        this.dynamicChangeProperties = dynamicChangeProperties;
+    }
+
+
     @GET
     @Path("/self-service")
     public Response getSelfServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE))
+                    .ok(dynamicChangeProperties.getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE))
                     .build();
         } else {
             return Response
@@ -50,7 +58,7 @@ public class ChangePropertiesResource {
     public Response getProvisioningServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE))
+                    .ok(dynamicChangeProperties.getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE))
                     .build();
         } else {
             return Response
@@ -64,7 +72,7 @@ public class ChangePropertiesResource {
     public Response getBillingServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE))
+                    .ok(dynamicChangeProperties.getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE))
                     .build();
         } else {
             return Response
@@ -77,7 +85,7 @@ public class ChangePropertiesResource {
     @Path("/self-service")
     public Response overwriteSelfServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwriteProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE, ymlDTO.getYmlString());
+            dynamicChangeProperties.overwriteProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE, ymlDTO.getYmlString());
             return Response.ok().build();
         } else {
             return Response
@@ -90,7 +98,7 @@ public class ChangePropertiesResource {
     @Path("/provisioning-service")
     public Response overwriteProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwriteProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
+            dynamicChangeProperties.overwriteProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
                     ymlDTO.getYmlString());
             return Response.ok().build();
         } else {
@@ -104,7 +112,7 @@ public class ChangePropertiesResource {
     @Path("/billing")
     public Response overwriteBillingServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwriteProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, ymlDTO.getYmlString());
+            dynamicChangeProperties.overwriteProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, ymlDTO.getYmlString());
             return Response.ok().build();
         } else {
             return Response
@@ -114,11 +122,11 @@ public class ChangePropertiesResource {
     }
 
     @GET
-    @Path("multiple/self-service")
+    @Path("/multiple/self-service")
     public Response getAllSelfServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getPropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE, userInfo))
+                    .ok(dynamicChangeProperties.getPropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE, userInfo))
                     .build();
         } else {
             return Response
@@ -128,11 +136,11 @@ public class ChangePropertiesResource {
     }
 
     @GET
-    @Path("multiple/provisioning-service")
+    @Path("/multiple/provisioning-service")
     public Response getAllProvisioningServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getPropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE, userInfo))
+                    .ok(dynamicChangeProperties.getPropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE, userInfo))
                     .build();
         } else {
             return Response
@@ -142,11 +150,11 @@ public class ChangePropertiesResource {
     }
 
     @GET
-    @Path("multiple/billing")
+    @Path("/multiple/billing")
     public Response getAllBillingServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getPropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, userInfo))
+                    .ok(dynamicChangeProperties.getPropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, userInfo))
                     .build();
         } else {
             return Response
@@ -156,10 +164,10 @@ public class ChangePropertiesResource {
     }
 
     @POST
-    @Path("multiple/self-service")
+    @Path("/multiple/self-service")
     public Response overwriteAllSelfServiceProperties(@Auth UserInfo userInfo, Map<String, YmlDTO> ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwritePropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE, ymlDTO, userInfo);
+            dynamicChangeProperties.overwritePropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE, ymlDTO, userInfo);
             return Response.ok().build();
         } else {
             return Response
@@ -169,10 +177,10 @@ public class ChangePropertiesResource {
     }
 
     @POST
-    @Path("multiple/provisioning-service")
+    @Path("/multiple/provisioning-service")
     public Response overwriteAllProvisioningServiceProperties(@Auth UserInfo userInfo, Map<String, YmlDTO> ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
+            dynamicChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
                     ymlDTO, userInfo);
             return Response.ok().build();
         } else {
@@ -183,10 +191,10 @@ public class ChangePropertiesResource {
     }
 
     @POST
-    @Path("multiple/billing")
+    @Path("/multiple/billing")
     public Response overwriteAllBillingServiceProperties(@Auth UserInfo userInfo, Map<String, YmlDTO> ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, ymlDTO,
+            dynamicChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, ymlDTO,
                     userInfo);
             return Response.ok().build();
         } else {
@@ -204,7 +212,7 @@ public class ChangePropertiesResource {
                             @QueryParam("ui") boolean ui,
                             @QueryParam("endpoints") List<String> endpoints) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.restart(billing, provserv, ui);
+            dynamicChangeProperties.restart(billing, provserv, ui);
             return Response.ok().build();
         } else {
             return Response

@@ -30,7 +30,6 @@ import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE
 @Slf4j
 public class DynamicChangeProperties {
 
-
     private static final String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
     private static final String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
     private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
@@ -67,55 +66,55 @@ public class DynamicChangeProperties {
     private static final int DEFAULT_VALUE_PLACE = 1;
     private static final int DEFAULT_NAME_PLACE = 0;
 
-    @Inject
-    private static RESTService externalSelfService;
-    @Inject
-    private static EndpointDAO endpointDAO;
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static String getProperties(String path, String name) {
+    private final RESTService externalSelfService;
+    private final EndpointDAO endpointDAO;
+
+    @Inject
+    public DynamicChangeProperties(RESTService externalSelfService, EndpointDAO endpointDAO) {
+        this.externalSelfService = externalSelfService;
+        this.endpointDAO = endpointDAO;
+    }
+
+    public String getProperties(String path, String name) {
         return readFileAsString(path, name);
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwriteProperties(String path, String name, String ymlString) {
+    public void overwriteProperties(String path, String name, String ymlString) {
         writeFileFromString(ymlString, name, path);
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static Map<String, String> getPropertiesWithExternal(String path, String name, UserInfo userInfo) {
+    public Map<String, String> getPropertiesWithExternal(String path, String name, UserInfo userInfo) {
         List<EndpointDTO> externalEndpoints = endpointDAO.getEndpointsWithStatus("ACTIVE");
         Map<String, String> endpoints = externalEndpoints.stream()
-                .filter(endpointDTO -> !endpointDTO.getName().equals("Local"))
+                .filter(endpointDTO -> !endpointDTO.getName().equals("local"))
                 .collect(Collectors.toMap(EndpointDTO::getName,
                         dto -> readFileAsString(path, name, dto, userInfo)));
-        endpoints.put("Local", getProperties(path, name));
+        endpoints.put("local", getProperties(path, name));
         return endpoints;
 
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwritePropertiesWithExternal(String path, String name, Map<String, YmlDTO> ymlDTOS,
-                                                       UserInfo userInfo) {
+    public void overwritePropertiesWithExternal(String path, String name, Map<String, YmlDTO> ymlDTOS,
+                                                UserInfo userInfo) {
 
         List<EndpointDTO> allEndpoints = endpointDAO.getEndpointsWithStatus("ACTIVE");
         Map<EndpointDTO, String> endpointsToChange = allEndpoints.stream()
                 .filter(e -> ymlDTOS.containsKey(e.getName()))
-                .filter(e -> !e.getName().equals("Local"))
+                .filter(e -> !e.getName().equals("local"))
                 .collect(Collectors.toMap(e -> e, e -> ymlDTOS.get(e.getName()).getYmlString()));
-
         endpointsToChange.forEach((endpoint, ymlString) -> {
             log.info("Trying to write {}, for external endpoint : {} , for user: {}",
                     name, endpoint.getName(), userInfo.getSimpleName());
-            String url = endpoint.getUrl() + "/api/configuration/" + findMethodName(name);
+            String url = endpoint.getUrl() + "/api/admin/" + findMethodName(name);
             externalSelfService.post(url, ymlString, userInfo.getAccessToken(), String.class);
         });
-        if (ymlDTOS.containsKey("Local")) {
-            overwriteProperties(path, name, ymlDTOS.get("Local").getYmlString());
+        if (ymlDTOS.containsKey("local")) {
+            overwriteProperties(path, name, ymlDTOS.get("local").getYmlString());
         }
     }
 
-    private static String findMethodName(String name) {
+    private String findMethodName(String name) {
         switch (name) {
             case "self-service.yml": {
                 return "self-service";
@@ -131,7 +130,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    public static void restart(boolean billing, boolean provserv, boolean ui) {
+    public void restart(boolean billing, boolean provserv, boolean ui) {
         try {
             String shCommand = buildSHRestartCommand(billing, provserv, ui);
             log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
@@ -142,7 +141,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
+    private String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
         StringBuilder stringBuilder = new StringBuilder(SUPERVISORCTL_RESTART_SH_COMMAND);
         if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
         if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
@@ -150,7 +149,7 @@ public class DynamicChangeProperties {
         return stringBuilder.toString();
     }
 
-    private static String readFileAsString(String selfServicePropPath, String serviceName) {
+    private String readFileAsString(String selfServicePropPath, String serviceName) {
         try {
             log.info("Trying to read self-service.yml, file from path {} :", selfServicePropPath);
             String currentConf = FileUtils.readFileToString(new File(selfServicePropPath), Charset.defaultCharset());
@@ -161,7 +160,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String readFileAsString(String selfServicePropPath, String serviceName, EndpointDTO endpoint, UserInfo userInfo) {
+    private String readFileAsString(String selfServicePropPath, String serviceName, EndpointDTO endpoint, UserInfo userInfo) {
         log.info("Trying to read self-service.yml, for external endpoint : {} , for user: {}",
                 endpoint, userInfo.getSimpleName());
         String currentConf = externalSelfService.get(endpoint.getUrl() + "/api/admin/self-service",
@@ -169,7 +168,7 @@ public class DynamicChangeProperties {
         return hideSecretsAndRemoveLicence(currentConf);
     }
 
-    private static String hideSecretsAndRemoveLicence(String currentConf) {
+    private String hideSecretsAndRemoveLicence(String currentConf) {
         Matcher m = Pattern.compile(SECRET_REGEX).matcher(currentConf);
         List<String> secrets = new ArrayList<>();
         String confWithReplacedSecretConf = removeLicence(currentConf);
@@ -184,11 +183,11 @@ public class DynamicChangeProperties {
         return confWithReplacedSecretConf;
     }
 
-    private static String removeLicence(String conf) {
+    private String removeLicence(String conf) {
         return conf.split(LICENCE_REGEX)[conf.split(LICENCE_REGEX).length - 1];
     }
 
-    private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
+    private void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
             String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
             changeCHMODE(serviceName, servicePath, DEFAULT_CHMOD, WRITE_CHMOD);
@@ -205,7 +204,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
+    private void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
         try {
             String command = String.format(CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
             log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
@@ -216,16 +215,16 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String addLicence() {
+    private String addLicence() {
         return LICENCE;
     }
 
-    private static String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
+    private String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
         Map<String, String> emptySecrets = findEmptySecret(newPropFile);
         return emptySecrets.isEmpty() ? newPropFile : replaceEmptySecret(newPropFile, oldProf, emptySecrets);
     }
 
-    private static String replaceEmptySecret(String newPropFile, String oldProf, Map<String, String> emptySecrets) {
+    private String replaceEmptySecret(String newPropFile, String oldProf, Map<String, String> emptySecrets) {
         String fileWithReplacedEmptySecrets = newPropFile;
         Matcher oldProfMatcher = Pattern.compile(SECRET_REGEX).matcher(oldProf);
         while (oldProfMatcher.find()) {
@@ -237,7 +236,7 @@ public class DynamicChangeProperties {
         return fileWithReplacedEmptySecrets;
     }
 
-    private static Map<String, String> findEmptySecret(String newPropFile) {
+    private Map<String, String> findEmptySecret(String newPropFile) {
         Matcher newPropFileMatcher = Pattern.compile(SECRET_REGEX).matcher(newPropFile);
         Map<String, String> emptySecrets = new HashMap<>();
         while (newPropFileMatcher.find()) {
