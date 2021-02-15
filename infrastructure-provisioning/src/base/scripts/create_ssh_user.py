@@ -41,7 +41,7 @@ args = parser.parse_args()
 
 def ensure_ssh_user(initial_user, os_user, sudo_group, conn):
     if not exists(conn, '/home/{}/.ssh_user_ensured'.format(initial_user)):
-        conn.sudo('hostname; pwd; ls -lah')
+        conn.sudo('hostname; pwd; whoami; ls -lah /etc/sudoers')
         conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
         conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
         conn.sudo('mkdir /home/{}/.ssh'.format(os_user))
@@ -53,26 +53,9 @@ def ensure_ssh_user(initial_user, os_user, sudo_group, conn):
         conn.sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
         conn.sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
 
-def init_datalab_connection(hostname, username, keyfile):
-    try:
-        global conn
-        attempt = 0
-        while attempt < 10:
-            print('connection attempt {}'.format(attempt))
-            conn = Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile})
-            try:
-                conn.run('ls')
-                return conn
-            except Exception as ex:
-                traceback.print_exc()
-                attempt += 1
-                time.sleep(10)
-    except:
-        sys.exit(1)
-
 if __name__ == "__main__":
     print("Configure connections")
-    init_datalab_connection(args.hostname, args.initial_user, args.keyfile)
+    datalab.fab.init_datalab_connection(args.hostname, args.initial_user, args.keyfile)
     print("Creating ssh user: {}".format(args.os_user))
     try:
         ensure_ssh_user(args.initial_user, args.os_user, args.sudo_group, conn)
