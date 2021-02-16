@@ -39,7 +39,7 @@ export class ConfigurationService {
 
   public setServiceConfig(service: string, config: string): Observable<{}> {
     const settings = {
-      ymlString: config
+      local: config
     };
     service = this.convertProvisioning(service);
 
@@ -51,7 +51,7 @@ export class ConfigurationService {
   }
 
   public restartServices(self: boolean, prov: boolean, billing: boolean): Observable<{}> {
-    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}`;
+    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoints=${'local'}`;
     return this.applicationServiceFacade
       .buildRestartServices(queryString)
       .pipe(

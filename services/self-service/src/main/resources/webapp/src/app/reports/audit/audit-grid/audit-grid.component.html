@@ -177,7 +177,12 @@
       </th>
       <td mat-cell *matCellDef="let element" class="th_resource">
         <div class="table-item-wrapper">
-          <span class="table-item">{{element.resourceName || 'N/A'}}</span>
+          <span 
+            class="ellipsis"
+            [matTooltip]="element.resourceName || 'N/A'"
+            matTooltipPosition="above">
+            {{element.resourceName || 'N/A'}}
+          </span>
         </div>
       </td>
       <td mat-footer-cell *matFooterCellDef class="table-footer" [hidden]="true">

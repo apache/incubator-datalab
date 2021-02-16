@@ -50,6 +50,8 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     discardChanges: 'Discard all unsaved changes.',
     saveChanges: 'After you save changes you need to restart service.',
   };
+  public activeEndpoint: string;
+  public endpoints: Array<string> = ['local', 'endpointAws', 'endpointGcp'];
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -222,6 +224,10 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   public isServiceSelected(): boolean {
     return Object.keys(this.services).every(service => !this.services[service].selected);
+  }
+
+  public setActiveEndpoint(endpoint: string) {
+    this.activeEndpoint = endpoint;
   }
 }
 

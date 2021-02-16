@@ -328,7 +328,7 @@ mat-dialog-container {
     }
   }
 
-  .create-resources-dialog {
+  .create-resources-dialog, .top-select {
     margin-left: 6px;
     min-width: calc(100% + 10px) !important;
   }
@@ -369,7 +369,9 @@ mat-dialog-container {
 .confirmation-dialog p.delete-user{
   font-weight: 500;
   max-height: 200px;
-  overflow: auto;
+  padding: 5px;
+  overflow: hidden auto;
+  text-overflow: ellipsis;
 }
 
 .bucket-browser{
