@@ -20,7 +20,6 @@
 import { Injectable } from '@angular/core';
 import {Observable, of} from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
 
@@ -29,7 +28,7 @@ export class ConfigurationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public getServiceSettings(service): Observable<{}> {
-    service = this.convertProvisioning(service);
+    service = ConfigurationService.convertProvisioning(service);
     return this.applicationServiceFacade
       .buildGetServiceConfig(service)
        .pipe(
@@ -37,11 +36,11 @@ export class ConfigurationService {
       catchError(ErrorUtils.handleServiceError));
     }
 
-  public setServiceConfig(service: string, config: string): Observable<{}> {
+  public setServiceConfig(service: string, config: string, endpoint: string): Observable<{}> {
     const settings = {
-      local: config
+      [endpoint]: config
     };
-    service = this.convertProvisioning(service);
+    service = ConfigurationService.convertProvisioning(service);
 
     return this.applicationServiceFacade
       .buildSetServiceConfig(service, settings)
@@ -50,8 +49,8 @@ export class ConfigurationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public restartServices(self: boolean, prov: boolean, billing: boolean): Observable<{}> {
-    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoints=${'local'}`;
+  public restartServices(self: boolean, prov: boolean, billing: boolean, endpoint: string): Observable<{}> {
+    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoints=${endpoint}`;
     return this.applicationServiceFacade
       .buildRestartServices(queryString)
       .pipe(
@@ -59,7 +58,7 @@ export class ConfigurationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  private convertProvisioning(service: string): string {
+  private static convertProvisioning(service: string): string {
     return (service === 'provisioning') ? 'provisioning-service' : service;
   }
 

@@ -119,8 +119,10 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
           takeUntil(this.unsubscribe$)
         )
         .subscribe(config => {
-          this.services[service].config = config;
-          this.services[service].serverConfig = config;
+          console.log(config);
+          if (!this.activeEndpoint) this.activeEndpoint = Object.keys(config)[0];
+          this.services[service].config = config[this.activeEndpoint];
+          this.services[service].serverConfig = config[this.activeEndpoint];
         this.configUpdate(service);
         }
       );
@@ -128,8 +130,8 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.clearSelectedServices();
   }
 
-  private setServiceConfig(service, config): void {
-    this.configurationService.setServiceConfig(service, config)
+  private setServiceConfig(service: string, config: string): void {
+    this.configurationService.setServiceConfig(service, config, this.activeEndpoint)
       .pipe(
         takeUntil(this.unsubscribe$)
       )
@@ -193,11 +195,11 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
         if (result) {
           this.configurationService.restartServices(this.services['self-service'].selected,
             this.services['provisioning'].selected,
-            this.services['billing'].selected
+            this.services['billing'].selected,
+            this.activeEndpoint
           )
             .pipe(
               takeUntil(this.unsubscribe$),
-
             )
             .subscribe(res => {
                 this.clearSelectedServices();

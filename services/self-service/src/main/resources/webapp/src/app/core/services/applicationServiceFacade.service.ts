@@ -683,10 +683,7 @@ export class ApplicationServiceFacade {
   public buildSetServiceConfig(data, body): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + data,
-      body, {
-        // responseType: 'text',
-        // headers: { 'Content-Type': 'text/plain' }
-      });
+      body);
   }
 
   public buildRestartServices(data): Observable<any> {
