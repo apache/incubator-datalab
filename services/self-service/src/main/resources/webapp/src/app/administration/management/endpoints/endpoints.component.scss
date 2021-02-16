@@ -50,7 +50,9 @@
     }
 
     .endpoints {
-      height: 265px;
+      height: 310px;
+      padding-right: 5px;
+      overflow: auto;
 
       table.mat-table {
         width: 100%;

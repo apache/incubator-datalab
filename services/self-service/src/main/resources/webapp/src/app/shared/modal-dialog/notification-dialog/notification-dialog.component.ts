@@ -29,7 +29,7 @@ import {Endpoint} from '../../../administration/project/project.component';
               <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
-          <div mat-dialog-content class="content message">
+          <div mat-dialog-content class="content message scrolling">
             <div *ngIf="data.type === 'terminateNode'" class="table-header">
               <div *ngIf="data.item.action.endpoint.length > 0">
                 Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>&nbsp;<span class="strong">{{ data.item.action.endpoint.join(', ') }}</span> in project
