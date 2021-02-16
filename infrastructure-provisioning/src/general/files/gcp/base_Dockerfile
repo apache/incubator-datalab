@@ -31,7 +31,7 @@ RUN	apt-get update && \
 
 # Install any python dependencies
 RUN pip install -UI qtconsole==4.7.7 pip==20.1 && \
-    pip install boto3 backoff fabric==1.14.0 fabvenv  argparse ujson jupyter pycrypto google-api-python-client google-cloud-storage \
+    pip install boto3 backoff fabric==1.14.0 rsa==4.5 fabvenv  argparse ujson jupyter pycrypto google-api-python-client google-cloud-storage \
     pyyaml google-auth-httplib2 oauth2client
 
 # Configuring ssh for user
