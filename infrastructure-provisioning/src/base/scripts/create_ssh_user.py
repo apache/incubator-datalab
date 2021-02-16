@@ -43,7 +43,7 @@ def ensure_ssh_user(initial_user, os_user, sudo_group, conn):
     if not exists(conn, '/home/{}/.ssh_user_ensured'.format(initial_user)):
         conn.sudo('hostname; pwd; whoami; ls -lah /etc/sudoers')
         conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
-        conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
+        conn.sudo('bash -c "echo \'{} ALL = NOPASSWD:ALL\' >> /etc/sudoers"'.format(os_user))
         conn.sudo('mkdir /home/{}/.ssh'.format(os_user))
         conn.sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
         conn.sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
