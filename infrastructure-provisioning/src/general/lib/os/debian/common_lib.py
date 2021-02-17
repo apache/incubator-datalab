@@ -105,7 +105,7 @@ def ensure_pkg(user, conn, requisites='linux-headers-generic python3-pip python3
             count = 0
             check = False
             while not check:
-                if count > 60:
+                if count > 5:
                     print("Repositories are not available. Please, try again later.")
                     sys.exit(1)
                 else:
