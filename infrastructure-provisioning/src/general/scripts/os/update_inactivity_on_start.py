@@ -36,6 +36,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    global conn
     conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     if args.cluster_ip == "none":

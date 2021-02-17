@@ -46,7 +46,8 @@ if __name__ == "__main__":
 
     print("Configure connections")
     try:
-        conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
+        global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
     except Exception as err:
         print("Failed establish connection. Excpeption: " + str(err))
         sys.exit(1)

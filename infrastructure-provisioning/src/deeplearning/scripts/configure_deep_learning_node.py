@@ -93,6 +93,7 @@ def install_itorch(os_user):
 
 if __name__ == "__main__":
     print("Configure connections")
+    global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK

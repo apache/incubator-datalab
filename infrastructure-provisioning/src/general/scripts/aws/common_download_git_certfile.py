@@ -34,6 +34,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     create_aws_config_files()
+    global conn
     conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(

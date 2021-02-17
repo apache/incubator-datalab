@@ -103,6 +103,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Configure connections")
+    global conn
     conn = datalab.fab.init_datalab_connection(args.edge_hostname, args.os_user, args.keyfile)
     conn.put('/tmp/{}.conf'.format(conf_file_name), '/usr/local/openresty/nginx/conf/locations', use_sudo=True)
     conn.sudo('service openresty reload')

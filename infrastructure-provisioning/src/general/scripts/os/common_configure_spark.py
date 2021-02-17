@@ -82,6 +82,7 @@ def add_custom_spark_properties(cluster_name):
 
 if __name__ == "__main__":
     print('Configure connections')
+    global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     if (args.spark_conf != ''):

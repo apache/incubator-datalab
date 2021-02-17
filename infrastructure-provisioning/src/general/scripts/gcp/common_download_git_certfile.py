@@ -33,6 +33,7 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
+    global conn
     conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     bucket_name = ('{0}-{1}-{2}-bucket'.format(os.environ['conf_service_base_name'], os.environ['project_name'],

@@ -36,6 +36,7 @@ https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 
 if __name__ == "__main__":
     print("Configure connections")
+    global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     print("Configuring proxy for docker")
     try:

@@ -46,6 +46,7 @@ def create_user(os_user):
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
 
+    global conn
     conn = datalab.fab.init_datalab_connection(args.instance_ip, initial_user, args.keyfile)
 
     try:
@@ -185,6 +186,7 @@ def summary():
 if __name__ == "__main__":
     create_user(os.environ['conf_os_user'])
 
+    global conn
     conn = datalab.fab.init_datalab_connection(args.instance_ip, os.environ['conf_os_user'], args.keyfile)
 
     prepare_config()

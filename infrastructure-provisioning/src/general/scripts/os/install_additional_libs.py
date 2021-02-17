@@ -38,6 +38,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    global conn
     conn = datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     print('Installing libraries: {}'.format(args.libs))

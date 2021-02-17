@@ -204,7 +204,8 @@ def build_ui():
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+        global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
         host_string = args.os_user + '@' + args.hostname
         deeper_config = json.loads(args.additional_config)
     except:

@@ -38,6 +38,7 @@ args = parser.parse_args()
 def upload_response_file(instance_name, local_log_filepath, os_user):
     print('Connect to SSN instance with hostname: {0} and name: {1}'.format(args.instance_hostname, instance_name))
     pkey = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    global conn
     conn = datalab.fab.init_datalab_connection(args.instance_hostname, os_user, pkey)
     try:
         conn.put('/root/result.json', '/home/{}/{}.json'.format(os_user, os.environ['request_id']))
