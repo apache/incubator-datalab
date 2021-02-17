@@ -96,10 +96,10 @@ def manage_pkg(command, environment, requisites):
     except:
         sys.exit(1)
 
-def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev python3-virtualenv '
+def ensure_pkg(user, conn, requisites='linux-headers-generic python3-pip python3-dev python3-virtualenv '
                                 'groff gcc vim less git wget '
                                 'libssl-dev unattended-upgrades nmap '
-                                'libffi-dev unzip libxml2-dev haveged', conn):
+                                'libffi-dev unzip libxml2-dev haveged'):
     try:
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             count = 0
@@ -159,7 +159,7 @@ def find_java_path_local():
     return java_path
 
 
-def ensure_ntpd(user, edge_private_ip='', conn):
+def ensure_ntpd(user, conn, edge_private_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             conn.sudo('timedatectl set-ntp no')

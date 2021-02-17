@@ -70,6 +70,6 @@ if __name__ == "__main__":
     ensure_pip(args.pip_packages, conn)
 
     print("Installing NTPd")
-    ensure_ntpd(args.user, args.edge_private_ip, conn)
+    ensure_ntpd(args.user, conn, args.edge_private_ip)
 
     datalab.fab.close_connection()

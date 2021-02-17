@@ -56,7 +56,7 @@ def manage_pkg(command, environment, requisites):
     except:
         sys.exit(1)
 
-def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip libxml2-devel', conn):
+def ensure_pkg(user, conn, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip libxml2-devel'):
     try:
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories and installing requested tools: {}".format(requisites))
@@ -105,7 +105,7 @@ def find_java_path_local():
     return java_path
 
 
-def ensure_ntpd(user, edge_private_ip='', conn):
+def ensure_ntpd(user, conn, edge_private_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             conn.sudo('systemctl disable chronyd')
