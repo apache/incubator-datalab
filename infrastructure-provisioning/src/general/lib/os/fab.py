@@ -1005,7 +1005,6 @@ def manage_npm_pkg(command):
         sys.exit(1)
 
 def close_connection():
-    global conn
     conn.close()
 
 def init_datalab_connection(hostname, username, keyfile):
