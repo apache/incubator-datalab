@@ -56,7 +56,7 @@ def manage_pkg(command, environment, requisites):
     except:
         sys.exit(1)
 
-def ensure_pkg(user, conn, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip libxml2-devel'):
+def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip libxml2-devel'):
     try:
         if not exists(conn,'/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories and installing requested tools: {}".format(requisites))
@@ -88,7 +88,7 @@ def ensure_pkg(user, conn, requisites='git vim gcc python-devel openssl-devel nm
         sys.exit(1)
 
 
-def change_pkg_repos(conn):
+def change_pkg_repos():
     if not exists(conn,'/tmp/pkg_china_ensured'):
         conn.put('/root/files/sources.list', '/tmp/sources.list')
         conn.sudo('mv /tmp/sources.list  /etc/yum.repos.d/CentOS-Base-aliyun.repo')
@@ -105,7 +105,7 @@ def find_java_path_local():
     return java_path
 
 
-def ensure_ntpd(user, conn, edge_private_ip=''):
+def ensure_ntpd(user, edge_private_ip=''):
     try:
         if not exists(conn,'/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             conn.sudo('systemctl disable chronyd')

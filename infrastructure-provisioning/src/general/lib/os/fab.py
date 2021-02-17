@@ -38,7 +38,7 @@ from fabric import *
 from patchwork.files import exists
 
 
-def ensure_pip(requisites, conn):
+def ensure_pip(requisites):
     try:
         if not exists(conn,'/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             conn.sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')

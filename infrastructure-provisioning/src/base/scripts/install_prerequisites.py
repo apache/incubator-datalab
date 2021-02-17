@@ -58,19 +58,19 @@ if __name__ == "__main__":
     deeper_config = json.loads(args.additional_config)
 
     if args.region == 'cn-north-1':
-        change_pkg_repos(conn)
-        create_china_pip_conf_file(conn)
+        change_pkg_repos()
+        create_china_pip_conf_file()
 
     print("Updating hosts file")
-    update_hosts_file(args.user, conn)
+    update_hosts_file(args.user)
 
     print("Updating repositories and installing requested tools.")
-    ensure_pkg(args.user, conn)
+    ensure_pkg(args.user)
 
     print("Installing python packages: {}".format(args.pip_packages))
-    ensure_pip(args.pip_packages, conn)
+    ensure_pip(args.pip_packages)
 
     print("Installing NTPd")
-    ensure_ntpd(args.user, conn, args.edge_private_ip)
+    ensure_ntpd(args.user, args.edge_private_ip)
 
     datalab.fab.close_connection()
