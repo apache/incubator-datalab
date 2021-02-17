@@ -49,24 +49,24 @@ else:
 
 def image_build(src_path, node):
     try:
-        if subprocess.run("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture_output=True, shell=True).stdout == 'Ubuntu':
+        if subprocess.run("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture_output=True, shell=True, check=True).stdout == 'Ubuntu':
             os_family = 'debian'
         else:
             os_family = 'redhat'
-        if subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True).stdout == 'aws':
+        if subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout == 'aws':
             cloud_provider = 'aws'
-        elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True).stdout == 'azure':
+        elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout == 'azure':
             cloud_provider = 'azure'
             if not exists('{}base/azure_auth.json'.format(src_path)):
-                subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True)
+                subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True, check=True)
         else:
             cloud_provider = 'gcp'
         subprocess.run('cd {2}; docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.datalab-base:latest .'.format(
-                    os_family, cloud_provider, src_path), shell=True)
+                    os_family, cloud_provider, src_path), shell=True, check=True)
         try:
             for i in range(len(node)):
                 subprocess.run('cd {3}; docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.datalab-{2} .'.format(
-                            os_family, cloud_provider, node[i], src_path), shell=True)
+                            os_family, cloud_provider, node[i], src_path), shell=True, check=True)
         except Exception as err:
             print("Failed to build {} image".format(node[i]), str(err))
             raise Exception

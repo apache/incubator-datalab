@@ -98,7 +98,7 @@ if __name__ == "__main__":
             print('[CREATE VPC]')
             params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
                 os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
             except:
                 traceback.print_exc()
@@ -127,7 +127,7 @@ if __name__ == "__main__":
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
                        ssn_conf['vpc_cidr'], True)
             try:
-                subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
                 os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
             except:
                 traceback.print_exc()
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
             params = "--firewall '{}'".format(json.dumps(firewall_rules))
             try:
-                subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True, check=True)
                 os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
             except:
                 traceback.print_exc()
@@ -214,7 +214,7 @@ if __name__ == "__main__":
                                                   ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'],
                                                   ssn_conf['ssn_unique_index'], ssn_conf['service_base_name'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -239,7 +239,7 @@ if __name__ == "__main__":
         print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(ssn_conf['static_address_name'], ssn_conf['region'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('ssn_create_static_ip', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_static_ip', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -284,7 +284,7 @@ if __name__ == "__main__":
                    ssn_conf['static_ip'], ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20',
                    ssn_conf['service_base_name'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

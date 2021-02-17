@@ -85,12 +85,12 @@ def manage_pkg(command, environment, requisites):
                             traceback.print_exc()
                             append_result("Failed to manage_pkgs", str(err))
                 elif environment == 'local':
-                    if subprocess.run('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture_output=True, shell=True) == 'busy':
+                    if subprocess.run('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture_output=True, shell=True, check=True) == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
                         allow = True
-                        subprocess.run('sudo apt-get {0} {1}'.format(command, requisites), capture_output=True, shell=True)
+                        subprocess.run('sudo apt-get {0} {1}'.format(command, requisites), capture_output=True, shell=True, check=True)
                 else:
                     print('Wrong environment')
     except:
@@ -155,7 +155,7 @@ def find_java_path_remote():
 
 
 def find_java_path_local():
-    java_path = subprocess.run("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"", capture_output=True, shell=True)
+    java_path = subprocess.run("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"", capture_output=True, shell=True, check=True)
     return java_path
 
 

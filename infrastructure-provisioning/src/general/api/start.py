@@ -29,7 +29,7 @@ import subprocess
 if __name__ == "__main__":
     success = True
     try:
-        subprocess.run('cd /root; fab start', shell=True)
+        subprocess.run('cd /root; fab start', shell=True, check=True)
     except:
         success = False
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         response_file.write(json.dumps(reply))
 
     try:
-        subprocess.run('chmod 666 /response/*', shell=True)
+        subprocess.run('chmod 666 /response/*', shell=True, check=True)
     except:
         success = False
 

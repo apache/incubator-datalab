@@ -108,7 +108,7 @@ if __name__ == "__main__":
         pass
 
     if args.action != 'terminate':
-        subprocess.run('chmod 600 /root/keys/*.pem', shell=True)
+        subprocess.run('chmod 600 /root/keys/*.pem', shell=True, check=True)
 
     if dry_run:
         with open("/response/{}.json".format(request_id), 'w') as response_file:
@@ -117,10 +117,10 @@ if __name__ == "__main__":
 
     # Run execution routines
     elif args.action == 'create':
-        subprocess.run("/bin/create.py", shell=True)
+        subprocess.run("/bin/create.py", shell=True, check=True)
 
     elif args.action == 'status':
-        subprocess.run("/bin/status.py", shell=True)
+        subprocess.run("/bin/status.py", shell=True, check=True)
 
     elif args.action == 'describe':
         with open('/root/description.json') as json_file:
@@ -130,40 +130,40 @@ if __name__ == "__main__":
                 response_file.write(json.dumps(description))
 
     elif args.action == 'stop':
-        subprocess.run("/bin/stop.py", shell=True)
+        subprocess.run("/bin/stop.py", shell=True, check=True)
 
     elif args.action == 'start':
-        subprocess.run("/bin/start.py", shell=True)
+        subprocess.run("/bin/start.py", shell=True, check=True)
 
     elif args.action == 'terminate':
-        subprocess.run("/bin/terminate.py", shell=True)
+        subprocess.run("/bin/terminate.py", shell=True, check=True)
 
     elif args.action == 'configure':
-        subprocess.run("/bin/configure.py", shell=True)
+        subprocess.run("/bin/configure.py", shell=True, check=True)
 
     elif args.action == 'recreate':
-        subprocess.run("/bin/recreate.py", shell=True)
+        subprocess.run("/bin/recreate.py", shell=True, check=True)
 
     elif args.action == 'reupload_key':
-        subprocess.run("/bin/reupload_key.py", shell=True)
+        subprocess.run("/bin/reupload_key.py", shell=True, check=True)
 
     elif args.action == 'lib_install':
-        subprocess.run("/bin/install_libs.py", shell=True)
+        subprocess.run("/bin/install_libs.py", shell=True, check=True)
 
     elif args.action == 'lib_list':
-        subprocess.run("/bin/list_libs.py", shell=True)
+        subprocess.run("/bin/list_libs.py", shell=True, check=True)
 
     elif args.action == 'git_creds':
-        subprocess.run("/bin/git_creds.py", shell=True)
+        subprocess.run("/bin/git_creds.py", shell=True, check=True)
 
     elif args.action == 'create_image':
-        subprocess.run("/bin/create_image.py", shell=True)
+        subprocess.run("/bin/create_image.py", shell=True, check=True)
 
     elif args.action == 'terminate_image':
-        subprocess.run("/bin/terminate_image.py", shell=True)
+        subprocess.run("/bin/terminate_image.py", shell=True, check=True)
 
     elif args.action == 'reconfigure_spark':
-        subprocess.run("/bin/reconfigure_spark.py", shell=True)
+        subprocess.run("/bin/reconfigure_spark.py", shell=True, check=True)
 
     elif args.action == 'check_inactivity':
-        subprocess.run("/bin/check_inactivity.py", shell=True)
+        subprocess.run("/bin/check_inactivity.py", shell=True, check=True)

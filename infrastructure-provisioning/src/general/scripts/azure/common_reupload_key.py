@@ -45,7 +45,7 @@ if __name__ == "__main__":
         params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
             args.os_user, ip, args.keyfile, args.additional_config)
         try:
-            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)

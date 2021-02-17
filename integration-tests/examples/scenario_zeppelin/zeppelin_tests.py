@@ -38,7 +38,7 @@ args = parser.parse_args()
 
 
 def prepare_templates():
-    subprocess.run('mv /tmp/zeppelin /home/{0}/test_templates'.format(args.os_user), shell=True)
+    subprocess.run('mv /tmp/zeppelin /home/{0}/test_templates'.format(args.os_user), shell=True, check=True)
 
 def get_storage():
     storages = {"aws": args.storage,
@@ -52,7 +52,7 @@ def get_storage():
 
 def get_note_status(note_id, notebook_ip):
     running = False
-    subprocess.run('sleep 5', shell=True)
+    subprocess.run('sleep 5', shell=True, check=True)
     response = requests.get('http://{0}:8080/api/notebook/job/{1}'.format(notebook_ip, note_id))
     status = json.loads(response.content)
     for i in status.get('body'):
@@ -63,7 +63,7 @@ def get_note_status(note_id, notebook_ip):
             print('Error in notebook')
             sys.exit(1)
     if running:
-        subprocess.run('sleep 5', shell=True)
+        subprocess.run('sleep 5', shell=True, check=True)
         get_note_status(note_id, notebook_ip)
     else:
         return "OK"
@@ -113,7 +113,7 @@ def restart_interpreter(notebook_ip, interpreter):
         response = requests.put('http://{0}:8080/api/interpreter/setting/restart/{1}'.format(notebook_ip, id))
         status = json.loads(response.content)
         if status.get('status') == 'OK':
-            subprocess.run('sleep 5', shell=True)
+            subprocess.run('sleep 5', shell=True, check=True)
             return "OK"
         else:
             print('Failed to restart interpreter')
@@ -168,7 +168,7 @@ def run_spark():
 
 if __name__ == "__main__":
     try:
-        notebook_ip = subprocess.run('hostname -I', capture_output=True, shell=True)
+        notebook_ip = subprocess.run('hostname -I', capture_output=True, shell=True, check=True)
         prepare_templates()
         run_pyspark()
         run_sparkr()

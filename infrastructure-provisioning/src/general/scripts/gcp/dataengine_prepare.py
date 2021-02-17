@@ -195,7 +195,7 @@ if __name__ == "__main__":
                    data_engine['network_tag'], data_engine['cluster_name'],
                    json.dumps(data_engine['master_labels']), data_engine['service_base_name'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -223,7 +223,7 @@ if __name__ == "__main__":
                        data_engine['network_tag'], data_engine['cluster_name'],
                        json.dumps(data_engine['slave_labels']), data_engine['service_base_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception

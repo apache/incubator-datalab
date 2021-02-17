@@ -132,13 +132,13 @@ if __name__ == "__main__":
 
     try:
         GCPMeta.dataproc_waiter(dataproc_conf['cluster_labels'])
-        subprocess.run('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True)
+        subprocess.run('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Dataproc waiter fail.", str(err))
         sys.exit(1)
 
-    subprocess.run("echo Waiting for changes to propagate; sleep 10", shell=True)
+    subprocess.run("echo Waiting for changes to propagate; sleep 10", shell=True, check=True)
 
     dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read())
     print(dataproc_cluster)
@@ -179,14 +179,14 @@ if __name__ == "__main__":
                                                                    json.dumps(dataproc_cluster))
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
 
         keyfile_name = "/root/keys/{}.pem".format(dataproc_conf['key_name'])
-        subprocess.run('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True)
+        subprocess.run('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
     except Exception as err:
         datalab.fab.append_result("Failed to create Dataproc Cluster.", str(err))
-        subprocess.run('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True)
+        subprocess.run('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
         sys.exit(1)

@@ -41,7 +41,7 @@ def install_libs_on_slaves(slave, data_engine):
         .format(data_engine['os_user'], data_engine['slave_ip'], data_engine['keyfile'])
     try:
         # Run script to install additional libs
-        subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True)
+        subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -81,7 +81,7 @@ if __name__ == "__main__":
             .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
         try:
             # Run script to install additional libs
-            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -105,7 +105,7 @@ if __name__ == "__main__":
                                             data_engine['cluster_name'])
         try:
             # Run script to get available libs
-            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

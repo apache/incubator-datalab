@@ -107,7 +107,7 @@ if __name__ == "__main__":
                     edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],
                     os.environ['conf_pypi_mirror'])
         try:
-            subprocess.run("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params), shell=True)
+            subprocess.run("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params), shell=True, check=True)
             GCPActions.update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['cluster_labels'])
         except:
             traceback.print_exc()
@@ -127,7 +127,7 @@ if __name__ == "__main__":
                     notebook_config['key_path'],
                     os.environ['conf_os_user'])
         try:
-            subprocess.run("~/scripts/{0}.py {1}".format('common_configure_spark', params), shell=True)
+            subprocess.run("~/scripts/{0}.py {1}".format('common_configure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

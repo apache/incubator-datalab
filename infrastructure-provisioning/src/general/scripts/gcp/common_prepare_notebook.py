@@ -192,7 +192,7 @@ if __name__ == "__main__":
                    notebook_config['network_tag'], json.dumps(notebook_config['labels']),
                    notebook_config['service_base_name'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

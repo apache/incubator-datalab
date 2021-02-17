@@ -725,7 +725,7 @@ class GCPMeta:
                 '/response/.emr_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
                 os.environ['notebook_instance_name']):
             with hide('stderr', 'running', 'warnings'):
-                subprocess.run("echo 'Some Dataproc cluster is still being created/terminated, waiting..'", shell=True)
+                subprocess.run("echo 'Some Dataproc cluster is still being created/terminated, waiting..'", shell=True, check=True)
             time.sleep(60)
             self.dataproc_waiter(labels)
         else:

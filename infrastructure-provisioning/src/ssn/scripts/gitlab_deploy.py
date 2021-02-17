@@ -55,10 +55,10 @@ def read_ini():
 
 def create_instance():
     try:
-        subprocess.run('mkdir -p ~/.aws', shell=True)
-        subprocess.run('touch ~/.aws/config', shell=True)
-        subprocess.run('echo "[default]" > ~/.aws/config', shell=True)
-        subprocess.run('echo "region = {}" >> ~/.aws/config'.format(os.environ['aws_region']), shell=True)
+        subprocess.run('mkdir -p ~/.aws', shell=True, check=True)
+        subprocess.run('touch ~/.aws/config', shell=True, check=True)
+        subprocess.run('echo "[default]" > ~/.aws/config', shell=True, check=True)
+        subprocess.run('echo "region = {}" >> ~/.aws/config'.format(os.environ['aws_region']), shell=True, check=True)
         ec2 = boto3.resource('ec2')
         security_groups_ids = []
         ami_id = get_ami_id(os.environ['aws_{}_ami_name'.format(os.environ['conf_os_family'])])
@@ -208,7 +208,7 @@ if __name__ == "__main__":
 
         # Main script for configure gitlab
         try:
-            subprocess.run('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params), shell=True)
+            subprocess.run('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params), shell=True, check=True)
         except Exception as err:
             print('Failed to configure gitlab. {}'.format(str(err)))
             terminate_gitlab()

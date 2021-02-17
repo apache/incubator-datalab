@@ -67,35 +67,35 @@ def prepare_config():
     try:
         with lcd('{}tmp/gitlab'.format(os.environ['conf_datalab_path'])):
             if os.path.exists('{}tmp/gitlab/gitlab.rb.bak'.format(os.environ['conf_datalab_path'])):
-                subprocess.run('cp gitlab.rb.bak gitlab.rb', shell=True)
+                subprocess.run('cp gitlab.rb.bak gitlab.rb', shell=True, check=True)
             else:
-                subprocess.run('cp gitlab.rb gitlab.rb.bak', shell=True)
+                subprocess.run('cp gitlab.rb gitlab.rb.bak', shell=True, check=True)
             if json.loads(os.environ['gitlab_ssl_enabled']):
-                subprocess.run('sed -i "s,EXTERNAL_URL,https://{}:443,g" gitlab.rb'.format(os.environ['instance_hostname']), shell=True)
-                subprocess.run('sed -i "s/.*NGINX_ENABLED/nginx[\'enable\'] = true/g" gitlab.rb', shell=True)
+                subprocess.run('sed -i "s,EXTERNAL_URL,https://{}:443,g" gitlab.rb'.format(os.environ['instance_hostname']), shell=True, check=True)
+                subprocess.run('sed -i "s/.*NGINX_ENABLED/nginx[\'enable\'] = true/g" gitlab.rb', shell=True, check=True)
                 subprocess.run(
                     'sed -i "s,.*NGINX_SSL_CERTIFICATE_KEY,nginx[\'ssl_certificate_key\'] = \'{}\',g" gitlab.rb'.format(
-                        os.environ['gitlab_ssl_certificate_key']), shell=True)
+                        os.environ['gitlab_ssl_certificate_key']), shell=True, check=True)
                 subprocess.run('sed -i "s,.*NGINX_SSL_CERTIFICATE,nginx[\'ssl_certificate\'] = \'{}\',g" gitlab.rb'.format(
-                    os.environ['gitlab_ssl_certificate']), shell=True)
+                    os.environ['gitlab_ssl_certificate']), shell=True, check=True)
                 subprocess.run('sed -i "s,.*NGINX_SSL_DHPARAMS.*,nginx[\'ssl_dhparam\'] = \'{}\',g" gitlab.rb'.format(
                     os.environ['gitlab_ssl_dhparams']))
                 if json.loads(os.environ['gitlab_https_redirect_enabled']):
-                    subprocess.run('sed -i "s,.*NGINX_REDIRECT_TO_HTTPS,nginx[\'redirect_http_to_https\'] = true,g" gitlab.rb', shell=True)
-                    subprocess.run('sed -i "s,.*NGINX_REDIRECT_PORT,nginx[\'redirect_http_to_https_port\'] = 80,g" gitlab.rb', shell=True)
+                    subprocess.run('sed -i "s,.*NGINX_REDIRECT_TO_HTTPS,nginx[\'redirect_http_to_https\'] = true,g" gitlab.rb', shell=True, check=True)
+                    subprocess.run('sed -i "s,.*NGINX_REDIRECT_PORT,nginx[\'redirect_http_to_https_port\'] = 80,g" gitlab.rb', shell=True, check=True)
             else:
-                subprocess.run('sed -i "s,EXTERNAL_URL,http://{},g" gitlab.rb'.format(os.environ['instance_hostname']), shell=True)
+                subprocess.run('sed -i "s,EXTERNAL_URL,http://{},g" gitlab.rb'.format(os.environ['instance_hostname']), shell=True, check=True)
 
-            subprocess.run('sed -i "s/LDAP_HOST/{}/g" gitlab.rb'.format(os.environ['ldap_hostname']), shell=True)
-            subprocess.run('sed -i "s/LDAP_PORT/{}/g" gitlab.rb'.format(os.environ['ldap_port']), shell=True)
-            subprocess.run('sed -i "s/LDAP_UID/{}/g" gitlab.rb'.format(os.environ['ldap_uid']), shell=True)
-            subprocess.run('sed -i "s/LDAP_BIND_DN/{}/g" gitlab.rb'.format(os.environ['ldap_bind_dn']), shell=True)
-            subprocess.run("sed -i 's/LDAP_PASSWORD/{}/g' gitlab.rb".format(os.environ['ldap_password']), shell=True)
-            subprocess.run('sed -i "s/LDAP_BASE/{}/g" gitlab.rb'.format(os.environ['ldap_base']), shell=True)
-            subprocess.run("sed -i 's/LDAP_ATTR_USERNAME/{}/g' gitlab.rb".format(os.environ['ldap_attr_username']), shell=True)
-            subprocess.run("sed -i 's/LDAP_ATTR_EMAIL/{}/g' gitlab.rb".format(os.environ['ldap_attr_email']), shell=True)
+            subprocess.run('sed -i "s/LDAP_HOST/{}/g" gitlab.rb'.format(os.environ['ldap_hostname']), shell=True, check=True)
+            subprocess.run('sed -i "s/LDAP_PORT/{}/g" gitlab.rb'.format(os.environ['ldap_port']), shell=True, check=True)
+            subprocess.run('sed -i "s/LDAP_UID/{}/g" gitlab.rb'.format(os.environ['ldap_uid']), shell=True, check=True)
+            subprocess.run('sed -i "s/LDAP_BIND_DN/{}/g" gitlab.rb'.format(os.environ['ldap_bind_dn']), shell=True, check=True)
+            subprocess.run("sed -i 's/LDAP_PASSWORD/{}/g' gitlab.rb".format(os.environ['ldap_password']), shell=True, check=True)
+            subprocess.run('sed -i "s/LDAP_BASE/{}/g" gitlab.rb'.format(os.environ['ldap_base']), shell=True, check=True)
+            subprocess.run("sed -i 's/LDAP_ATTR_USERNAME/{}/g' gitlab.rb".format(os.environ['ldap_attr_username']), shell=True, check=True)
+            subprocess.run("sed -i 's/LDAP_ATTR_EMAIL/{}/g' gitlab.rb".format(os.environ['ldap_attr_email']), shell=True, check=True)
 
-            subprocess.run("sed -i 's/GITLAB_ROOT_PASSWORD/{}/g' gitlab.rb".format(os.environ['gitlab_root_password']), shell=True)
+            subprocess.run("sed -i 's/GITLAB_ROOT_PASSWORD/{}/g' gitlab.rb".format(os.environ['gitlab_root_password']), shell=True, check=True)
         print('Initial config is ready.')
     except Exception as err:
         print('Failed to install gitlab.{}'.format(str(err)))
@@ -117,7 +117,7 @@ def install_gitlab():
 
         with lcd('{}tmp/gitlab'.format(os.environ['conf_datalab_path'])):
             conn.put('gitlab.rb', '/tmp/gitlab.rb')
-            subprocess.run('rm gitlab.rb', shell=True)
+            subprocess.run('rm gitlab.rb', shell=True, check=True)
         conn.sudo('rm /etc/gitlab/gitlab.rb')
         conn.sudo('mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb')
 

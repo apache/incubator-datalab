@@ -58,7 +58,7 @@ if __name__ == "__main__":
                 os.environ['conf_resource'], reupload_config['resource_id'],
                 reupload_config['os_user'],  reupload_config['keyfile'],
                 json.dumps(reupload_config['additional_config']))
-            subprocess.run("~/scripts/{}.py {}".format('common_reupload_key', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_reupload_key', params), shell=True, check=True)
         except Exception as err:
             traceback.print_exc()
             raise Exception

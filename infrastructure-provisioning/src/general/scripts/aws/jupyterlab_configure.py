@@ -119,7 +119,7 @@ if __name__ == "__main__":
              notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -137,7 +137,7 @@ if __name__ == "__main__":
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
                     notebook_config['datalab_ssh_user'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -153,7 +153,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --user {} --region {}". \
             format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['aws_region'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -189,7 +189,7 @@ if __name__ == "__main__":
                    notebook_config['ip_address'],
                    notebook_config['exploratory_name'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_jupyterlab_node', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_jupyterlab_node', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['datalab_ssh_user'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except:
             datalab.fab.append_result("Failed installing users key")
             raise Exception
@@ -221,8 +221,8 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name)
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True)
-            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True, check=True)
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True, check=True)
         except:
             datalab.fab.append_result("Failed setup git credentials")
             raise Exception
@@ -239,7 +239,7 @@ if __name__ == "__main__":
                 .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
                         notebook_config['tag_name'], notebook_config['instance_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('common_remove_remote_kernels', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('common_remove_remote_kernels', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -268,7 +268,7 @@ if __name__ == "__main__":
                     notebook_config['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True, check=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
@@ -303,7 +303,7 @@ if __name__ == "__main__":
                    keyfile_name,
                    notebook_config['datalab_ssh_user'])
         try:
-            subprocess.run("~/scripts/configure_proxy_for_docker.py {}".format(params), shell=True)
+            subprocess.run("~/scripts/configure_proxy_for_docker.py {}".format(params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -322,7 +322,7 @@ if __name__ == "__main__":
                    keyfile_name,
                    notebook_config['datalab_ssh_user'])
         try:
-           subprocess.run("~/scripts/jupyterlab_container_start.py {}".format(params), shell=True)
+           subprocess.run("~/scripts/jupyterlab_container_start.py {}".format(params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

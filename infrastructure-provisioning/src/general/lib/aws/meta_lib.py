@@ -679,7 +679,7 @@ def check_security_group(security_group_name, count=0):
 def emr_waiter(tag_name, tag_value):
     if len(get_emr_list(tag_value, 'Value', False, True)) > 0 or os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']) or get_not_configured_emr(tag_name, tag_value):
         with hide('stderr', 'running', 'warnings'):
-            subprocess.run("echo 'Some EMR cluster is still being created/terminated, waiting..'", shell=True)
+            subprocess.run("echo 'Some EMR cluster is still being created/terminated, waiting..'", shell=True, check=True)
         time.sleep(60)
         emr_waiter(tag_name, tag_value)
     else:

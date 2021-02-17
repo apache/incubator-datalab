@@ -58,7 +58,7 @@ if __name__ == "__main__":
                  format(ssn_conf['tag_name'], ssn_conf['edge_sg'], ssn_conf['nb_sg'], ssn_conf['de_sg'],
                         ssn_conf['service_base_name'], ssn_conf['de-service_sg'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

@@ -54,17 +54,17 @@ yarn_dir = '/opt/' + args.dataproc_version + '/' + args.cluster_name + '/conf/'
 
 
 def install_remote_livy(args):
-    subprocess.run('sudo chown {0}:{0} -R /opt/zeppelin/'.format(args.os_user), shell=True)
-    subprocess.run('sudo service zeppelin-notebook stop', shell=True)
+    subprocess.run('sudo chown {0}:{0} -R /opt/zeppelin/'.format(args.os_user), shell=True, check=True)
+    subprocess.run('sudo service zeppelin-notebook stop', shell=True, check=True)
     subprocess.run('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-{0}.zip -O /opt/{1}/{2}/livy-server-{0}.zip'
-          .format(args.livy_version, args.dataproc_version, args.cluster_name), shell=True)
-    subprocess.run('sudo unzip /opt/{0}/{1}/livy-server-{2}.zip -d /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name, args.livy_version), shell=True)
-    subprocess.run('sudo mv /opt/{0}/{1}/livy-server-{2}/ /opt/{0}/{1}/livy/'.format(args.dataproc_version, args.cluster_name, args.livy_version), shell=True)
+          .format(args.livy_version, args.dataproc_version, args.cluster_name), shell=True, check=True)
+    subprocess.run('sudo unzip /opt/{0}/{1}/livy-server-{2}.zip -d /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name, args.livy_version), shell=True, check=True)
+    subprocess.run('sudo mv /opt/{0}/{1}/livy-server-{2}/ /opt/{0}/{1}/livy/'.format(args.dataproc_version, args.cluster_name, args.livy_version), shell=True, check=True)
     livy_path = '/opt/{0}/{1}/livy/'.format(args.dataproc_version, args.cluster_name)
-    subprocess.run('sudo mkdir -p {0}/logs'.format(livy_path), shell=True)
-    subprocess.run('sudo mkdir -p /var/run/livy', shell=True)
-    subprocess.run('sudo chown {0}:{0} -R /var/run/livy'.format(args.os_user), shell=True)
-    subprocess.run('sudo chown {0}:{0} -R {1}'.format(args.os_user, livy_path), shell=True)
+    subprocess.run('sudo mkdir -p {0}/logs'.format(livy_path), shell=True, check=True)
+    subprocess.run('sudo mkdir -p /var/run/livy', shell=True, check=True)
+    subprocess.run('sudo chown {0}:{0} -R /var/run/livy'.format(args.os_user), shell=True, check=True)
+    subprocess.run('sudo chown {0}:{0} -R {1}'.format(args.os_user, livy_path), shell=True, check=True)
 
 
 if __name__ == "__main__":

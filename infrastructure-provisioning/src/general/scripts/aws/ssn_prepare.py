@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 ssn_conf['vpc_cidr'], ssn_conf['region'], ssn_conf['tag_name'], ssn_conf['service_base_name'],
                 ssn_conf['vpc_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -132,7 +132,7 @@ if __name__ == "__main__":
                      "--vpc_name {}".format(ssn_conf['vpc2_cidr'], ssn_conf['region'], ssn_conf['tag2_name'],
                                             ssn_conf['service_base_name'], ssn_conf['vpc2_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -160,7 +160,7 @@ if __name__ == "__main__":
                       os.environ['aws_vpc_id'], 'ssn', ssn_conf['tag_name'],ssn_conf['service_base_name'], '20',
                       True, ssn_conf['zone_full'], ssn_conf['subnet_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -275,7 +275,7 @@ if __name__ == "__main__":
                        json.dumps(ssn_conf['ingress_sg_rules_template']), json.dumps(egress_sg_rules_template),
                        ssn_conf['service_base_name'], ssn_conf['tag_name'], False, True)
             try:
-                subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -308,7 +308,7 @@ if __name__ == "__main__":
                    ssn_conf['policy_path'], os.environ['aws_region'], ssn_conf['tag_name'],
                    ssn_conf['service_base_name'], ssn_conf['user_tag'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -339,7 +339,7 @@ if __name__ == "__main__":
         params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
             os.environ['aws_vpc_id'], os.environ['aws_region'], ssn_conf['tag_name'], ssn_conf['service_base_name'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -373,7 +373,7 @@ if __name__ == "__main__":
                 os.environ['aws_vpc2_id'], os.environ['aws_region'], ssn_conf['tag2_name'],
                 ssn_conf['service_base_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -410,7 +410,7 @@ if __name__ == "__main__":
                    ssn_conf['role_profile_name'], ssn_conf['tag_name'], ssn_conf['instance_name'], 'ssn', '20')
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -450,7 +450,7 @@ if __name__ == "__main__":
             params = "--elastic_ip {} --ssn_id {} --infra_tag_name {} --infra_tag_value {}".format(
                 ssn_conf['elastic_ip'], ssn_conf['ssn_id'], ssn_conf['tag_name'], ssn_conf['elastic_ip_name'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception

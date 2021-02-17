@@ -100,7 +100,7 @@ if __name__ == "__main__":
             .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
                     data_engine['computational_ip'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('update_inactivity_on_start', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('update_inactivity_on_start', params), shell=True, check=True)
         except Exception as err:
             traceback.print_exc()
             datalab.fab.append_result("Failed to update last activity time.", str(err))

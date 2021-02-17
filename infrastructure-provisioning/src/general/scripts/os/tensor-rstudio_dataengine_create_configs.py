@@ -52,30 +52,30 @@ spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/
 def configure_rstudio():
     if not os.path.exists('/home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured'):
         try:
-            subprocess.run('echo "export R_LIBS_USER=' + cluster_dir + 'spark/R/lib:" >> /home/' + args.os_user + '/.bashrc', shell=True)
-            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run('echo \'SPARK_HOME="' + cluster_dir + 'spark/"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True)
+            subprocess.run('echo "export R_LIBS_USER=' + cluster_dir + 'spark/R/lib:" >> /home/' + args.os_user + '/.bashrc', shell=True, check=True)
+            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run('echo \'SPARK_HOME="' + cluster_dir + 'spark/"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True, check=True)
             subprocess.run('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
-                  args.os_user + '/.Rprofile', shell=True)
-            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True)
-            subprocess.run('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured', shell=True)
+                  args.os_user + '/.Rprofile', shell=True, check=True)
+            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True, check=True)
+            subprocess.run('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured', shell=True, check=True)
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
-            subprocess.run("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1" + cluster_dir + "spark/R/lib:| }' /home/" + args.os_user + "/.bashrc", shell=True)
-            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run('echo \'SPARK_HOME="' + cluster_dir + 'spark/"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True)
+            subprocess.run("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1" + cluster_dir + "spark/R/lib:| }' /home/" + args.os_user + "/.bashrc", shell=True, check=True)
+            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run('echo \'SPARK_HOME="' + cluster_dir + 'spark/"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True, check=True)
             subprocess.run('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
-                  args.os_user + '/.Rprofile', shell=True)
-            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True)
+                  args.os_user + '/.Rprofile', shell=True, check=True)
+            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True, check=True)
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)

@@ -61,7 +61,7 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to get available libs
-            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

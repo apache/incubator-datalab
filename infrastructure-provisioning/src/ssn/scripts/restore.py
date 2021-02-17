@@ -74,15 +74,15 @@ def restore_prepare():
                 print("Use folder path '{}' in --file key".format(temp_folder))
                 raise Exception
             print("Backup acrhive will be unpacked to: {}".format(temp_folder))
-            subprocess.run("mkdir {}".format(temp_folder), shell=True)
-            subprocess.run("tar -xf {0} -C {1}".format(backup_file, temp_folder), shell=True)
+            subprocess.run("mkdir {}".format(temp_folder), shell=True, check=True)
+            subprocess.run("tar -xf {0} -C {1}".format(backup_file, temp_folder), shell=True, check=True)
         elif os.path.isdir(backup_file):
             temp_folder = backup_file
         else:
             print("Please, specify file or folder. Try --help for more details.")
             raise Exception
         print("Backup acrhive: {} contains following files (exclude logs):".format(backup_file))
-        subprocess.run("find {} -not -name '*log'".format(temp_folder), shell=True)
+        subprocess.run("find {} -not -name '*log'".format(temp_folder), shell=True, check=True)
     except Exception as err:
         print("Failed to open backup.{}".format(str(err)))
         sys.exit(1)
@@ -91,14 +91,14 @@ def restore_prepare():
         if ask("Maybe you want to create backup of existing configuration before restoring?"):
             with settings(hide('everything')):
                 print("Creating new backup...")
-                subprocess.run("python3 backup.py --configs all --keys all --certs all --jar all --db", shell=True)
+                subprocess.run("python3 backup.py --configs all --keys all --certs all --jar all --db", shell=True, check=True)
     except:
         print("Failed to create new backup.")
         sys.exit(1)
 
     try:
         if ask("Stop all services before restoring?"):
-            subprocess.run("sudo supervisorctl stop all", shell=True)
+            subprocess.run("sudo supervisorctl stop all", shell=True, check=True)
         else:
             raise Exception
     except:
@@ -131,14 +131,14 @@ def restore_configs():
                         destfile = "{0}{1}{2}".format(args.datalab_path, conf_folder, filename)
                         if not filecmp.cmp(backupfile, destfile):
                             if ask("Config {} was changed, rewrite it?".format(filename)):
-                                subprocess.run("cp -f {0} {1}".format(backupfile, destfile), shell=True)
+                                subprocess.run("cp -f {0} {1}".format(backupfile, destfile), shell=True, check=True)
                             else:
                                 print("Config {} was skipped.".format(destfile))
                         else:
                             print("Config {} was not changed. Skipped.".format(filename))
                     else:
                         print("Config {} does not exist. Creating.".format(filename))
-                        subprocess.run("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.datalab_path), shell=True)
+                        subprocess.run("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.datalab_path), shell=True, check=True)
     except:
         print("Restore configs failed.")
 
@@ -165,14 +165,14 @@ def restore_keys():
                         print("Key {} already exist.".format(filename))
                         if not filecmp.cmp("{0}keys/{1}".format(temp_folder, filename), "{0}{1}".format(keys_folder, filename)):
                             if ask("Key {} was changed, rewrite it?".format(filename)):
-                                subprocess.run("cp -f {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename), shell=True)
+                                subprocess.run("cp -f {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename), shell=True, check=True)
                             else:
                                 print("Key {} was skipped.".format(filename))
                         else:
                             print("Key {} was not changed. Skipped.".format(filename))
                     else:
                         print("Key {} does not exist. Creating.".format(filename))
-                        subprocess.run("cp {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename), shell=True)
+                        subprocess.run("cp {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename), shell=True, check=True)
     except:
         print("Restore keys failed.")
 
@@ -199,16 +199,16 @@ def restore_certs():
                         print("Cert {} already exist.".format(filename))
                         if not filecmp.cmp("{0}certs/{1}".format(temp_folder, filename), "{0}{1}".format(certs_folder, filename)):
                             if ask("Cert {} was changed, rewrite it?".format(filename)):
-                                subprocess.run("sudo cp -f {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename), shell=True)
-                                subprocess.run("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename), shell=True)
+                                subprocess.run("sudo cp -f {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename), shell=True, check=True)
+                                subprocess.run("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename), shell=True, check=True)
                             else:
                                 print("Cert {} was skipped.".format(filename))
                         else:
                             print("Cert {} was not changed. Skipped.".format(filename))
                     else:
                         print("Cert {} does not exist. Creating.".format(filename))
-                        subprocess.run("sudo cp {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename), shell=True)
-                        subprocess.run("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename), shell=True)
+                        subprocess.run("sudo cp {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename), shell=True, check=True)
+                        subprocess.run("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename), shell=True, check=True)
     except:
         print("Restore certs failed.")
 
@@ -239,7 +239,7 @@ def restore_jars():
                                 destfile = "{0}{1}{2}/{3}".format(args.datalab_path, jars_folder, service, filename)
                                 if not filecmp.cmp(backupfile, destfile):
                                     if ask("Jar {} was changed, rewrite it?".format(filename)):
-                                        subprocess.run("cp -fP {0} {1}".format(backupfile, destfile), shell=True)
+                                        subprocess.run("cp -fP {0} {1}".format(backupfile, destfile), shell=True, check=True)
                                     else:
                                         print("Jar {} was skipped.".format(destfile))
                                 else:
@@ -247,7 +247,7 @@ def restore_jars():
                             else:
                                 print("Jar {} does not exist. Creating.".format(filename))
                                 subprocess.run("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename,
-                                                                               args.datalab_path, jars_folder), shell=True)
+                                                                               args.datalab_path, jars_folder), shell=True, check=True)
     except:
         print("Restore jars failed.")
 
@@ -266,7 +266,7 @@ def restore_database():
                     print("Restoring database from backup")
                     subprocess.run("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
                             .format(data['mongo']['host'], data['mongo']['port'], temp_folder,
-                                    data['mongo']['username'], data['mongo']['password'], data['mongo']['database']), shell=True)
+                                    data['mongo']['username'], data['mongo']['password'], data['mongo']['database']), shell=True, check=True)
         else:
             print("Restore database was skipped.")
     except:
@@ -276,13 +276,13 @@ def restore_database():
 def restore_finalize():
     try:
         if ask("Start all services after restoring?"):
-            subprocess.run("sudo supervisorctl start all", shell=True)
+            subprocess.run("sudo supervisorctl start all", shell=True, check=True)
     except:
         print("Failed to start all services.")
 
     try:
         if ask("Clean temporary folder {}?".format(temp_folder)) and temp_folder != "/":
-            subprocess.run("rm -rf {}".format(temp_folder), shell=True)
+            subprocess.run("rm -rf {}".format(temp_folder), shell=True, check=True)
     except Exception as err:
         print("Clear temp folder failed. {}".format(str(err)))
 

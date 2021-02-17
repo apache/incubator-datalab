@@ -37,7 +37,7 @@ args = parser.parse_args()
 
 
 def prepare_templates():
-    subprocess.run('mv /tmp/rstudio /home/{0}/test_templates'.format(args.os_user), shell=True)
+    subprocess.run('mv /tmp/rstudio /home/{0}/test_templates'.format(args.os_user), shell=True, check=True)
 
 def get_storage():
     storages = {"aws": args.storage,
@@ -65,13 +65,13 @@ def prepare_rscript(template_path, rscript_name, kernel='remote'):
         f.write(text)
 
 def enable_local_kernel():
-    subprocess.run("sed -i 's/^master/#master/' /home/{0}/.Rprofile".format(args.os_user), shell=True)
-    subprocess.run('''sed -i "s/^/#/g" /home/{0}/.Renviron'''.format(args.os_user), shell=True)
-    subprocess.run('''sed -i "/\/opt\/spark\//s/#//g" /home/{0}/.Renviron'''.format(args.os_user), shell=True)
-    subprocess.run('rm -f metastore_db/db* derby.log', shell=True)
+    subprocess.run("sed -i 's/^master/#master/' /home/{0}/.Rprofile".format(args.os_user), shell=True, check=True)
+    subprocess.run('''sed -i "s/^/#/g" /home/{0}/.Renviron'''.format(args.os_user), shell=True, check=True)
+    subprocess.run('''sed -i "/\/opt\/spark\//s/#//g" /home/{0}/.Renviron'''.format(args.os_user), shell=True, check=True)
+    subprocess.run('rm -f metastore_db/db* derby.log', shell=True, check=True)
 
 def run_rscript(rscript_name):
-    subprocess.run('R < /home/{0}/{1}.r --no-save'.format(args.os_user, rscript_name), shell=True)
+    subprocess.run('R < /home/{0}/{1}.r --no-save'.format(args.os_user, rscript_name), shell=True, check=True)
 
 
 if __name__ == "__main__":

@@ -100,7 +100,7 @@ if __name__ == "__main__":
                    notebook_config['spark_master_url'], notebook_config['key_path'],
                    notebook_config['notebook_ip'], notebook_config['spark_master_ip'])
         try:
-            subprocess.run("~/scripts/{}_{}.py {}".format(os.environ['application'], 'install_dataengine_kernels', params), shell=True)
+            subprocess.run("~/scripts/{}_{}.py {}".format(os.environ['application'], 'install_dataengine_kernels', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -121,7 +121,7 @@ if __name__ == "__main__":
                     notebook_config['datalab_ssh_user'],
                     notebook_config['cluster_name'])
         try:
-            subprocess.run("~/scripts/{0}.py {1}".format('common_configure_spark', params), shell=True)
+            subprocess.run("~/scripts/{0}.py {1}".format('common_configure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

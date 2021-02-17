@@ -47,7 +47,7 @@ if __name__ == "__main__":
         print('[COLLECTING DATA]')
         params = '--list_resources "{}"'.format(os.environ['edge_list_resources'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_collect_data', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_collect_data', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

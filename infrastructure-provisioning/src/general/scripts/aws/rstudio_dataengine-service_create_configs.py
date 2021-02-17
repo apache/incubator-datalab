@@ -52,34 +52,34 @@ yarn_dir = '/opt/{0}/{1}/conf/'.format(args.emr_version, args.cluster_name)
 def configure_rstudio():
     if not os.path.exists('/home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured'):
         try:
-            subprocess.run('echo "export R_LIBS_USER=' + spark_dir + '/R/lib:" >> /home/' + args.os_user + '/.bashrc', shell=True)
-            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True)
-            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True)
+            subprocess.run('echo "export R_LIBS_USER=' + spark_dir + '/R/lib:" >> /home/' + args.os_user + '/.bashrc', shell=True, check=True)
+            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True, check=True)
+            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True, check=True)
             #fix emr 5.19 problem with warnings in rstudio because of bug in AWS configuration
             if args.emr_version == "emr-5.19.0":
-                subprocess.run("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties", shell=True)
-            subprocess.run('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured', shell=True)
+                subprocess.run("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties", shell=True, check=True)
+            subprocess.run('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured', shell=True, check=True)
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
-            subprocess.run("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1" + spark_dir + "/R/lib:| }' /home/" + args.os_user + "/.bashrc", shell=True)
-            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True)
-            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True)
-            subprocess.run('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True)
-            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True)
+            subprocess.run("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1" + spark_dir + "/R/lib:| }' /home/" + args.os_user + "/.bashrc", shell=True, check=True)
+            subprocess.run("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron", shell=True, check=True)
+            subprocess.run("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile", shell=True, check=True)
+            subprocess.run('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron', shell=True, check=True)
+            subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True, check=True)
             #fix emr 5.19 problem with warnings in rstudio because of bug in AWS configuration
             if args.emr_version == "emr-5.19.0":
-                subprocess.run("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties", shell=True)
+                subprocess.run("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties", shell=True, check=True)
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)

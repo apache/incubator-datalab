@@ -291,16 +291,16 @@ def install_livy_dependencies(os_user):
 
 def install_maven_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/maven_ensured'):
-        subprocess.run('wget http://apache.volia.net/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz -O /tmp/maven.tar.gz', shell=True)
-        subprocess.run('sudo tar -zxvf /tmp/maven.tar.gz -C /opt/', shell=True)
-        subprocess.run('sudo ln -fs /opt/apache-maven-3.3.9/bin/mvn /usr/bin/mvn', shell=True)
-        subprocess.run('touch /home/' + os_user + '/.ensure_dir/maven_ensured', shell=True)
+        subprocess.run('wget http://apache.volia.net/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz -O /tmp/maven.tar.gz', shell=True, check=True)
+        subprocess.run('sudo tar -zxvf /tmp/maven.tar.gz -C /opt/', shell=True, check=True)
+        subprocess.run('sudo ln -fs /opt/apache-maven-3.3.9/bin/mvn /usr/bin/mvn', shell=True, check=True)
+        subprocess.run('touch /home/' + os_user + '/.ensure_dir/maven_ensured', shell=True, check=True)
 
 
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        subprocess.run('sudo -i pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir', shell=True)
-        subprocess.run('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured', shell=True)
+        subprocess.run('sudo -i pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir', shell=True, check=True)
+        subprocess.run('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured', shell=True, check=True)
 
 
 def install_nodejs(os_user):

@@ -162,7 +162,7 @@ if __name__ == "__main__":
             edge_conf['initial_user'], edge_conf['datalab_ssh_user'], edge_conf['sudo_group'])
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -178,7 +178,7 @@ if __name__ == "__main__":
             edge_conf['instance_hostname'], edge_conf['ssh_key_path'], edge_conf['datalab_ssh_user'],
             os.environ['gcp_region'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -203,7 +203,7 @@ if __name__ == "__main__":
                  .format(edge_conf['instance_hostname'], edge_conf['ssh_key_path'], json.dumps(additional_config),
                          edge_conf['datalab_ssh_user'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_http_proxy', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_http_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -222,7 +222,7 @@ if __name__ == "__main__":
             edge_conf['instance_hostname'], edge_conf['ssh_key_path'], json.dumps(additional_config),
             edge_conf['datalab_ssh_user'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -244,7 +244,7 @@ if __name__ == "__main__":
                                                 edge_conf['keycloak_client_secret'], edge_conf['step_cert_sans'])
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -262,7 +262,7 @@ if __name__ == "__main__":
                     edge_conf['keycloak_client_secret'], edge_conf['instance_hostname'], edge_conf['project_name'],
                     edge_conf['endpoint_name'], edge_conf['edge_hostname'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -281,7 +281,7 @@ if __name__ == "__main__":
                 edge_conf['instance_hostname'], edge_conf['ssh_key_path'], json.dumps(additional_config),
                 edge_conf['datalab_ssh_user'])
             try:
-                subprocess.run("~/scripts/{}.py {}".format('configure_nftables', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('configure_nftables', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception

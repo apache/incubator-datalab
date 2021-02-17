@@ -38,14 +38,14 @@ def run():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('project_prepare'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('project_prepare'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Project.", str(err))
         sys.exit(1)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('edge_configure'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('edge_configure'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Edge node.", str(err))
@@ -60,7 +60,7 @@ def terminate():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        subprocess.run("~/scripts/{}.py".format('project_terminate'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('project_terminate'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating Edge node.", str(err))
@@ -75,14 +75,14 @@ def recreate():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('project_prepare'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('project_prepare'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Edge node.", str(err))
         sys.exit(1)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('edge_configure'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('edge_configure'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Edge node.", str(err))

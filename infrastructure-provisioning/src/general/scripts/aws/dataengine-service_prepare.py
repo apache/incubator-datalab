@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
     try:
         datalab.meta_lib.emr_waiter(emr_conf['tag_name'], os.environ['notebook_instance_name'])
-        subprocess.run('touch /response/.emr_creating_{}'.format(emr_conf['exploratory_name']), shell=True)
+        subprocess.run('touch /response/.emr_creating_{}'.format(emr_conf['exploratory_name']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("EMR waiter fail.", str(err))
@@ -248,7 +248,7 @@ if __name__ == "__main__":
                 os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'],
                                                                                                emr_conf['endpoint_tag'])
             print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
-            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         datalab.fab.append_result("Failed to create sg.", str(err))
         sys.exit(1)
 
-    subprocess.run("echo Waiting for changes to propagate; sleep 10", shell=True)
+    subprocess.run("echo Waiting for changes to propagate; sleep 10", shell=True, check=True)
 
     try:
         logging.info('[Creating EMR Cluster]')
@@ -314,10 +314,10 @@ if __name__ == "__main__":
             raise Exception
         cluster_name = emr_conf['cluster_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], emr_conf['key_name'])
-        subprocess.run('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']), shell=True)
+        subprocess.run('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']), shell=True, check=True)
     except Exception as err:
         datalab.fab.append_result("Failed to create EMR Cluster.", str(err))
-        subprocess.run('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']), shell=True)
+        subprocess.run('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']), shell=True, check=True)
         emr_id = datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])
         datalab.actions_lib.terminate_emr(emr_id)
         sys.exit(1)

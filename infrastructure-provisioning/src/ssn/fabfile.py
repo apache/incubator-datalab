@@ -39,14 +39,14 @@ def run(ctx):
     ssn_config = dict()
     ssn_config['ssn_unique_index'] = str(uuid.uuid4())[:5]
     try:
-        subprocess.run("~/scripts/{}.py --ssn_unique_index {}".format('ssn_prepare', ssn_config['ssn_unique_index']), shell=True)
+        subprocess.run("~/scripts/{}.py --ssn_unique_index {}".format('ssn_prepare', ssn_config['ssn_unique_index']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing SSN node.", str(err))
         sys.exit(1)
 
     try:
-        subprocess.run("~/scripts/{}.py --ssn_unique_index {}".format('ssn_configure', ssn_config['ssn_unique_index']), shell=True)
+        subprocess.run("~/scripts/{}.py --ssn_unique_index {}".format('ssn_configure', ssn_config['ssn_unique_index']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring SSN node.", str(err))
@@ -61,7 +61,7 @@ def terminate(ctx):
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('ssn_terminate'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('ssn_terminate'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating SSN node.", str(err))

@@ -40,7 +40,7 @@ def install_libs(instance, data_engine):
                 data_engine['keyfile'], data_engine['libs'])
     try:
         # Run script to install additional libs
-        subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True)
+        subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
     except:
         traceback.print_exc()
         raise Exception

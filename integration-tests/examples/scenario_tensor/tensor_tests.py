@@ -38,17 +38,17 @@ args = parser.parse_args()
 
 def prepare_templates():
     try:
-        subprocess.run('/bin/bash -c "source /etc/profile && wget http://files.fast.ai/data/dogscats.zip -O /tmp/dogscats.zip"', shell=True)
-        subprocess.run('unzip -q /tmp/dogscats.zip -d /tmp', shell=True)
-        subprocess.run('/bin/bash -c "mkdir -p /home/{0}/{1}"'.format(args.os_user, "{test,train}"), shell=True)
-        subprocess.run('mv /tmp/dogscats/test1/* /home/{0}/test'.format(args.os_user), shell=True)
-        subprocess.run('/bin/bash -c "mv /tmp/dogscats/valid/{0}/* /home/{1}/train"'.format("{cats,dogs}", args.os_user), shell=True)
-        subprocess.run('/bin/bash -c "mv /tmp/dogscats/train/{0}/* /home/{1}/train"'.format("{cats,dogs}", args.os_user), shell=True)
+        subprocess.run('/bin/bash -c "source /etc/profile && wget http://files.fast.ai/data/dogscats.zip -O /tmp/dogscats.zip"', shell=True, check=True)
+        subprocess.run('unzip -q /tmp/dogscats.zip -d /tmp', shell=True, check=True)
+        subprocess.run('/bin/bash -c "mkdir -p /home/{0}/{1}"'.format(args.os_user, "{test,train}"), shell=True, check=True)
+        subprocess.run('mv /tmp/dogscats/test1/* /home/{0}/test'.format(args.os_user), shell=True, check=True)
+        subprocess.run('/bin/bash -c "mv /tmp/dogscats/valid/{0}/* /home/{1}/train"'.format("{cats,dogs}", args.os_user), shell=True, check=True)
+        subprocess.run('/bin/bash -c "mv /tmp/dogscats/train/{0}/* /home/{1}/train"'.format("{cats,dogs}", args.os_user), shell=True, check=True)
     except Exception as err:
         print('Failed to download/unpack image dataset!', str(err))
         sys.exit(1)
-    subprocess.run('mkdir -p /home/{0}/logs'.format(args.os_user), shell=True)
-    subprocess.run('mv /tmp/tensor /home/{0}/test_templates'.format(args.os_user), shell=True)
+    subprocess.run('mkdir -p /home/{0}/logs'.format(args.os_user), shell=True, check=True)
+    subprocess.run('mv /tmp/tensor /home/{0}/test_templates'.format(args.os_user), shell=True, check=True)
 
 def get_storage():
     storages = {"aws": args.storage,
@@ -69,7 +69,7 @@ def prepare_ipynb(kernel_name, template_path, ipynb_name):
 
 def run_ipynb(ipynb_name):
     subprocess.run('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; ' \
-            'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name), shell=True)
+            'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name), shell=True, check=True)
 
 def run_tensor():
     interpreters = ['pyspark_local']

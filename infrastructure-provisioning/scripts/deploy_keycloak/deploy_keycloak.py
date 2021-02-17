@@ -85,8 +85,8 @@ def configure_nginx():
     conn.sudo("systemctl restart nginx")
 
 if __name__ == "__main__":
-    subprocess.run("sudo mkdir /logs/keycloak -p", shell=True)
-    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /logs/keycloak', shell=True)
+    subprocess.run("sudo mkdir /logs/keycloak -p", shell=True, check=True)
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /logs/keycloak', shell=True, check=True)
     local_log_filename = "keycloak_deployment_script.log"
     local_log_filepath = "/logs/keycloak/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',

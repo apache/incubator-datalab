@@ -42,7 +42,7 @@ def install_libs_on_slaves(slave, data_engine):
                 data_engine['keyfile'], data_engine['libs'])
     try:
         # Run script to install additional libs
-        subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True)
+        subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                     data_engine['keyfile'], data_engine['libs'])
         try:
             # Run script to install additional libs
-            subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

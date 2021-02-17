@@ -49,7 +49,7 @@ def configure_dataengine_service(instance, emr_conf):
             (emr_conf['instance_ip'], emr_conf['key_path'], emr_conf['initial_user'],
              emr_conf['os_user'], emr_conf['sudo_group'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -67,7 +67,7 @@ def configure_dataengine_service(instance, emr_conf):
             .format(emr_conf['instance_ip'], emr_conf['cluster_name'], emr_conf['key_path'],
                     json.dumps(additional_config), emr_conf['os_user'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -128,7 +128,7 @@ def configure_dataengine_service(instance, emr_conf):
                     emr_conf['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True, check=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
@@ -144,7 +144,7 @@ def configure_dataengine_service(instance, emr_conf):
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             emr_conf['instance_ip'], emr_conf['key_path'], json.dumps(additional_config), emr_conf['os_user'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

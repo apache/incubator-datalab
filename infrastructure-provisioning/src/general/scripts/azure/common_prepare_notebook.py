@@ -169,7 +169,7 @@ if __name__ == "__main__":
                    notebook_config['instance_storage_account_type'], notebook_config['image_name'],
                    notebook_config['image_type'], json.dumps(notebook_config['tags']))
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

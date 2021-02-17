@@ -149,7 +149,7 @@ if __name__ == "__main__":
             ssn_conf['datalab_ssh_user'], ssn_conf['sudo_group'])
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
             #if subprocess.returncode != 0:
              #   raise Exception
         except:
@@ -170,7 +170,7 @@ if __name__ == "__main__":
                    ssn_conf['datalab_ssh_user'], ssn_conf['region'])
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -193,7 +193,7 @@ if __name__ == "__main__":
                    ssn_conf['step_cert_sans'])
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_ssn_node', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_ssn_node', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -225,7 +225,7 @@ if __name__ == "__main__":
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
 
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_docker', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_docker', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -518,7 +518,7 @@ if __name__ == "__main__":
                    json.dumps(cloud_params), os.environ['keycloak_client_name'], os.environ['keycloak_client_secret'],
                    os.environ['keycloak_auth_server_url'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -571,7 +571,7 @@ if __name__ == "__main__":
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}". \
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'],
                    ssn_conf['instance_hostname'])
-        subprocess.run("~/scripts/{}.py {}".format('upload_response_file', params), shell=True)
+        subprocess.run("~/scripts/{}.py {}".format('upload_response_file', params), shell=True, check=True)
     except Exception as err:
         datalab.fab.append_result("Error with writing results.", str(err))
         clear_resources()

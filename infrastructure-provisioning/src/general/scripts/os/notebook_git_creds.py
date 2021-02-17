@@ -55,8 +55,8 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to manage git credentials
-            subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True)
-            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True, check=True)
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

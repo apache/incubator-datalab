@@ -39,14 +39,14 @@ def run():
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_prepare'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_prepare'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Data Engine.", str(err))
         sys.exit(1)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_configure'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_configure'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Data Engine.", str(err))
@@ -61,7 +61,7 @@ def start():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_start'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_start'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed starting Data Engine.", str(err))
@@ -78,7 +78,7 @@ def install_libs():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_install_libs'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_install_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed installing additional libs for DataEngine.", str(err))
@@ -95,7 +95,7 @@ def list_libs():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_list_libs'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_list_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed get available libraries for Data Engine.", str(err))
@@ -110,7 +110,7 @@ def stop():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_stop'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_stop'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed stopping Data Engine.", str(err))
@@ -125,7 +125,7 @@ def terminate():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_terminate'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_terminate'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating Data Engine.", str(err))
@@ -142,7 +142,7 @@ def reconfigure_spark():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine_reconfigure_spark'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine_reconfigure_spark'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to reconfigure Spark for Data Engine.", str(err))

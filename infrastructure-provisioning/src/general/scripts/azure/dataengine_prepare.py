@@ -178,7 +178,7 @@ if __name__ == "__main__":
                    data_engine['project_name'], data_engine['instance_storage_account_type'],
                    data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['master_tags']))
         try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -212,7 +212,7 @@ if __name__ == "__main__":
                        data_engine['project_name'], data_engine['instance_storage_account_type'],
                        data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['slave_tags']))
             try:
-                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True)
+                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception

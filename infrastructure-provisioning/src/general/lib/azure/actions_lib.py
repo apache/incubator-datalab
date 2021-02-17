@@ -1180,27 +1180,27 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
     subprocess.run("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
-          /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name), shell=True)
+          /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name), shell=True, check=True)
     if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
         additional_spark_properties = subprocess.run('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-                                             cluster_name, cluster_dir), capture_output=True, shell=True)
+                                             cluster_name, cluster_dir), capture_output=True, shell=True, check=True)
         for property in additional_spark_properties.split('\n'):
-            subprocess.run('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name), shell=True)
+            subprocess.run('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name), shell=True, check=True)
     if os.path.exists('{0}'.format(cluster_dir)):
         subprocess.run('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
-                                                                                                        cluster_dir), shell=True)
+                                                                                                        cluster_dir), shell=True, check=True)
     if datalake_enabled == 'false':
-        subprocess.run('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir), shell=True)
+        subprocess.run('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir), shell=True, check=True)
     else:
-        subprocess.run('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir), shell=True)
+        subprocess.run('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir), shell=True, check=True)
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
         datalab_header = subprocess.run('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
-                               capture_output=True, shell=True)
+                               capture_output=True, shell=True, check=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
-        spark_defaults = subprocess.run('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True, shell=True)
+        spark_defaults = subprocess.run('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True, shell=True, check=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             if param.split(' ')[0] != '#':
@@ -1213,11 +1213,11 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                 new_spark_defaults.append(property + ' ' + config['Properties'][property])
                 new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        subprocess.run("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(datalab_header, cluster_dir), shell=True)
+        subprocess.run("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(datalab_header, cluster_dir), shell=True, check=True)
         for prop in new_spark_defaults:
             prop = prop.rstrip()
-            subprocess.run('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir), shell=True)
-        subprocess.run('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir), shell=True)
+            subprocess.run('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir), shell=True, check=True)
+        subprocess.run('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir), shell=True, check=True)
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
@@ -1318,33 +1318,33 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
 def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
     try:
         if datalake_enabled == 'false':
-            subprocess.run('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz', shell=True)
-            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/', shell=True)
-            subprocess.run('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/', shell=True)
-            subprocess.run('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/', shell=True)
+            subprocess.run('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz', shell=True, check=True)
+            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/', shell=True, check=True)
+            subprocess.run('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/', shell=True, check=True)
+            subprocess.run('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/', shell=True, check=True)
         else:
             # Downloading Spark without Hadoop
             subprocess.run('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/{1}/spark-{0}-bin-without-hadoop.tgz'
-                 .format(spark_version, cluster_name), shell=True)
-            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version), shell=True)
-            subprocess.run('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir), shell=True)
-            subprocess.run('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir), shell=True)
+                 .format(spark_version, cluster_name), shell=True, check=True)
+            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version), shell=True, check=True)
+            subprocess.run('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir), shell=True, check=True)
+            subprocess.run('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir), shell=True, check=True)
             # Downloading Hadoop
             hadoop_version = '3.0.0'
             subprocess.run('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/{1}/hadoop-{0}.tar.gz'
-                 .format(hadoop_version, cluster_name), shell=True)
-            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version), shell=True)
-            subprocess.run('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir), shell=True)
-            subprocess.run('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir), shell=True)
+                 .format(hadoop_version, cluster_name), shell=True, check=True)
+            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version), shell=True, check=True)
+            subprocess.run('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir), shell=True, check=True)
+            subprocess.run('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir), shell=True, check=True)
             # Configuring Hadoop and Spark
             java_path = datalab.common_lib.find_java_path_local()
-            subprocess.run('echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir), shell=True)
-            subprocess.run("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir), shell=True)
-            subprocess.run('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir), shell=True)
-            subprocess.run('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir), shell=True)
-            spark_dist_classpath = subprocess.run('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture_output=True, shell=True)
+            subprocess.run('echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir), shell=True, check=True)
+            subprocess.run("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir), shell=True, check=True)
+            subprocess.run('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir), shell=True, check=True)
+            subprocess.run('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir), shell=True, check=True)
+            spark_dist_classpath = subprocess.run('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture_output=True, shell=True, check=True)
             subprocess.run('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
-                spark_dist_classpath, cluster_dir), shell=True)
+                spark_dist_classpath, cluster_dir), shell=True, check=True)
     except:
         sys.exit(1)
 

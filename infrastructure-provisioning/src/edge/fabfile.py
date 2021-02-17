@@ -39,7 +39,7 @@ def status():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('edge_status'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('edge_status'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed obtaining EDGE status.", str(err))
@@ -54,7 +54,7 @@ def stop():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        subprocess.run("~/scripts/{}.py".format('edge_stop'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('edge_stop'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed stopping Edge node.", str(err))
@@ -69,7 +69,7 @@ def start():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        subprocess.run("~/scripts/{}.py".format('edge_start'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('edge_start'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed starting Edge node.", str(err))

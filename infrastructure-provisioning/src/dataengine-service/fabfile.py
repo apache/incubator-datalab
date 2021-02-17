@@ -42,14 +42,14 @@ def run():
     dataengine_service_config = dict()
     dataengine_service_config['uuid'] = str(uuid.uuid4())[:5]
     try:
-        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_prepare', dataengine_service_config['uuid']), shell=True)
+        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_prepare', dataengine_service_config['uuid']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Data Engine service.", str(err))
         sys.exit(1)
 
     try:
-        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_configure', dataengine_service_config['uuid']), shell=True)
+        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_configure', dataengine_service_config['uuid']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Data Engine service.", str(err))
@@ -66,7 +66,7 @@ def install_libs():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine-service_install_libs'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine-service_install_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed installing additional libs for DataEngine service.", str(err))
@@ -83,7 +83,7 @@ def list_libs():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine-service_list_libs'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine-service_list_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed get available libraries for Data Engine service.", str(err))
@@ -98,7 +98,7 @@ def terminate():
                         filename=local_log_filepath)
 
     try:
-        subprocess.run("~/scripts/{}.py".format('dataengine-service_terminate'), shell=True)
+        subprocess.run("~/scripts/{}.py".format('dataengine-service_terminate'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))

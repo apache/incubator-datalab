@@ -29,7 +29,7 @@ import subprocess
 if __name__ == "__main__":
     success = True
     try:
-        subprocess.run('cd /root; fab reupload_key', shell=True)
+        subprocess.run('cd /root; fab reupload_key', shell=True, check=True)
     except:
         success = False
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     except:
         print('Can not write to responce')
     try:
-        subprocess.run('chmod 666 /response/*', shell=True)
+        subprocess.run('chmod 666 /response/*', shell=True, check=True)
     except:
         success = False
 
