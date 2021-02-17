@@ -71,7 +71,7 @@
             <span class="form-field-wrapper"  [ngClass]="{ 'not-active' : !templates.length  || (templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)}">
               <mat-form-field>
                 <mat-select formControlName="version" disableOptionCentering [disabled]="!templates.length || (templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)"
-                  panelClass="create-resources-dialog" placeholder="Select template">
+                  panelClass="create-resources-dialog scrolling" placeholder="Select template">
                   <mat-option *ngFor="let template of templates"
                     [value]="template.exploratory_environment_versions[0].version" (click)="getShapes(template)">
                     {{ template.exploratory_environment_versions[0].template_name }}
@@ -136,7 +136,7 @@
             <mat-form-field>
               <mat-label>Select instance size</mat-label>
               <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate || !areShapes && currentTemplate"
-                panelClass="create-resources-shapes" placeholder="Instance size">
+                panelClass="create-resources-shapes scrolling" placeholder="Instance size">
                 <mat-optgroup *ngFor="let item of (shapes | keys)" [label]="item.key | underscoreless">
                   <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
                     <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Type }}
