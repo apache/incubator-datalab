@@ -85,7 +85,7 @@ def cp_backup_scripts(datalab_path):
 
 def cp_gitlab_scripts(datalab_path):
     try:
-        if not exists('{}tmp/gitlab'.format(datalab_path)):
+        if not exists(conn,'{}tmp/gitlab'.format(datalab_path)):
             conn.run('mkdir -p {}tmp/gitlab'.format(datalab_path))
         with conn.cd('{}tmp/gitlab'.format(datalab_path)):
             conn.put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
@@ -106,7 +106,7 @@ def cp_gitlab_scripts(datalab_path):
 
 def creating_service_directories(datalab_path, os_user):
     try:
-        if not exists(datalab_path):
+        if not exists(conn,datalab_path):
             conn.sudo('mkdir -p ' + datalab_path)
             conn.sudo('mkdir -p ' + datalab_path + 'conf')
             conn.sudo('mkdir -p ' + datalab_path + 'webapp/static')

@@ -107,7 +107,7 @@ def copy_ssn_libraries():
 
 def configure_mongo(mongo_passwd, default_endpoint_name):
     try:
-        if not exists("/lib/systemd/system/mongod.service"):
+        if not exists(conn,"/lib/systemd/system/mongod.service"):
             if os.environ['conf_os_family'] == 'debian':
                 subprocess.run('sed -i "s/MONGO_USR/mongodb/g" /root/templates/mongod.service_template', shell=True, check=True)
             elif os.environ['conf_os_family'] == 'redhat':

@@ -34,7 +34,7 @@ import subprocess
 
 def ensure_docker_daemon(datalab_path, os_user, region):
     try:
-        if not exists(datalab_path + 'tmp/docker_daemon_ensured'):
+        if not exists(conn,datalab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
             conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
@@ -53,7 +53,7 @@ def ensure_docker_daemon(datalab_path, os_user, region):
 
 def ensure_nginx(datalab_path):
     try:
-        if not exists(datalab_path + 'tmp/nginx_ensured'):
+        if not exists(conn,datalab_path + 'tmp/nginx_ensured'):
             manage_pkg('-y install', 'remote', 'nginx')
             conn.sudo('service nginx restart')
             conn.sudo('update-rc.d nginx defaults')
@@ -67,7 +67,7 @@ def ensure_nginx(datalab_path):
 
 def ensure_jenkins(datalab_path):
     try:
-        if not exists(datalab_path + 'tmp/jenkins_ensured'):
+        if not exists(conn,datalab_path + 'tmp/jenkins_ensured'):
             conn.sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
             conn.sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
             manage_pkg('-y update', 'remote', '')
@@ -81,7 +81,7 @@ def ensure_jenkins(datalab_path):
 
 def configure_jenkins(datalab_path, os_user, config, tag_resource_id):
     try:
-        if not exists(datalab_path + 'tmp/jenkins_configured'):
+        if not exists(conn,datalab_path + 'tmp/jenkins_configured'):
             conn.sudo('echo \'JENKINS_ARGS="--prefix=/jenkins --httpPort=8070"\' >> /etc/default/jenkins')
             conn.sudo('rm -rf /var/lib/jenkins/*')
             conn.sudo('mkdir -p /var/lib/jenkins/jobs/')
@@ -106,7 +106,7 @@ def configure_jenkins(datalab_path, os_user, config, tag_resource_id):
 def configure_nginx(config, datalab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
-        if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
+        if not exists(conn,"/etc/nginx/conf.d/nginx_proxy.conf"):
             conn.sudo('useradd -r nginx')
             conn.sudo('rm -f /etc/nginx/conf.d/*')
             conn.put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
@@ -124,7 +124,7 @@ def configure_nginx(config, datalab_path, hostname):
         sys.exit(1)
 
     try:
-        if not exists("/etc/nginx/locations/proxy_location_jenkins.conf"):
+        if not exists(conn,"/etc/nginx/locations/proxy_location_jenkins.conf"):
             nginx_password = id_generator()
             template_file = config['nginx_template_dir'] + 'proxy_location_jenkins_template.conf'
             with open("/tmp/%s-tmpproxy_location_jenkins_template.conf" % random_file_part, 'w') as out:
@@ -150,7 +150,7 @@ def configure_nginx(config, datalab_path, hostname):
 
 def ensure_supervisor():
     try:
-        if not exists(os.environ['ssn_datalab_path'] + 'tmp/superv_ensured'):
+        if not exists(conn,os.environ['ssn_datalab_path'] + 'tmp/superv_ensured'):
             manage_pkg('-y install', 'remote', 'supervisor')
             conn.sudo('update-rc.d supervisor defaults')
             conn.sudo('update-rc.d supervisor enable')
@@ -163,7 +163,7 @@ def ensure_supervisor():
 
 def ensure_mongo():
     try:
-        if not exists(os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured'):
+        if not exists(conn,os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured'):
             conn.sudo('wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -')
             conn.sudo('ver=`lsb_release -cs`; echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu '
                  '$ver/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list; '
@@ -188,7 +188,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
              usage_type, usage, cost, resource_id, tags, billing_dataset_name, keycloak_client_id,
              keycloak_client_secret, keycloak_auth_server_url, report_path=''):
     try:
-        if not exists(os.environ['ssn_datalab_path'] + 'tmp/ss_started'):
+        if not exists(conn,os.environ['ssn_datalab_path'] + 'tmp/ss_started'):
             java_path = conn.sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             conn.local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
@@ -370,7 +370,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
 
 def install_build_dep():
     try:
-        if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
+        if not exists(conn,'{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
             maven_version = '3.5.4'
             manage_pkg('-y install', 'remote', 'openjdk-8-jdk git wget unzip')
             with conn.cd('/opt/'):

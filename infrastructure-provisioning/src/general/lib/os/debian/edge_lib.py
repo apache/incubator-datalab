@@ -33,7 +33,7 @@ from patchwork.files import exists
 
 def configure_http_proxy_server(config):
     try:
-        if not exists('/tmp/http_proxy_ensured'):
+        if not exists(conn,'/tmp/http_proxy_ensured'):
             manage_pkg('-y install', 'remote', 'squid')
             template_file = config['template_file']
             proxy_subnet = config['exploratory_subnet']
@@ -168,7 +168,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
 
 def configure_nftables(config):
     try:
-        if not exists('/tmp/nftables_ensured'):
+        if not exists(conn,'/tmp/nftables_ensured'):
             manage_pkg('-y install', 'remote', 'nftables')
             conn.sudo('systemctl enable nftables.service')
             conn.sudo('systemctl start nftables')

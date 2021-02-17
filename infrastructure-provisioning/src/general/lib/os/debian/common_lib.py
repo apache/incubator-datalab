@@ -101,7 +101,7 @@ def ensure_pkg(user, conn, requisites='linux-headers-generic python3-pip python3
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):
     try:
-        if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             count = 0
             check = False
             while not check:
@@ -142,7 +142,7 @@ def renew_gpg_key():
 
 
 def change_pkg_repos(conn):
-    if not exists('/tmp/pkg_china_ensured'):
+    if not exists(conn,'/tmp/pkg_china_ensured'):
         conn.put('/root/files/sources.list', '/tmp/sources.list')
         conn.sudo('mv /tmp/sources.list /etc/apt/sources.list')
         manage_pkg('update', 'remote', '')
@@ -161,7 +161,7 @@ def find_java_path_local():
 
 def ensure_ntpd(user, conn, edge_private_ip=''):
     try:
-        if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             conn.sudo('timedatectl set-ntp no')
             manage_pkg('-y install', 'remote', 'ntp ntpdate')
             conn.sudo('echo "tinker panic 0" >> /etc/ntp.conf')
@@ -176,7 +176,7 @@ def ensure_ntpd(user, conn, edge_private_ip=''):
 
 def ensure_java(user):
     try:
-        if not exists('/home/{}/.ensure_dir/java_ensured'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/java_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
             conn.sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
     except:
@@ -185,7 +185,7 @@ def ensure_java(user):
 
 def ensure_step(user):
     try:
-        if not exists('/home/{}/.ensure_dir/step_ensured'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/step_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'wget')
             conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
                  '-O /tmp/step-cli_0.13.3_amd64.deb')

@@ -53,7 +53,7 @@ def enable_proxy(proxy_host, proxy_port):
 
 
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
-    if not exists('/home/' + os_user + '/.ensure_dir/r_local_kernel_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/r_local_kernel_ensured'):
         try:
             conn.sudo('R -e "IRkernel::installspec()"')
             r_version = conn.sudo("R --version | awk '/version / {print $3}'")
@@ -80,7 +80,7 @@ def add_marruter_key():
         sys.exit(1)
 
 def ensure_r(os_user, r_libs, region, r_mirror):
-    if not exists('/home/' + os_user + '/.ensure_dir/r_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/r_ensured'):
         try:
             if region == 'cn-north-1':
                 r_repository = r_mirror
@@ -120,7 +120,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
 
 
 def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
-    if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'r-base')
             manage_pkg('-y install', 'remote', 'gdebi-core')
@@ -169,7 +169,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 
 
 def ensure_matplot(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/matplot_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/matplot_ensured'):
         try:
             conn.sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
             manage_pkg('update', 'remote', '')
@@ -187,7 +187,7 @@ def add_sbt_key():
         'curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add')
 
 def ensure_sbt(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'apt-transport-https')
             conn.sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
@@ -201,7 +201,7 @@ def ensure_sbt(os_user):
 
 
 def ensure_scala(scala_link, scala_version, os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/scala_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/scala_ensured'):
         try:
             conn.sudo('wget {}scala-{}.deb -O /tmp/scala.deb'.format(scala_link, scala_version))
             conn.sudo('dpkg -i /tmp/scala.deb')
@@ -211,7 +211,7 @@ def ensure_scala(scala_link, scala_version, os_user):
 
 
 def ensure_jre_jdk(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'default-jre')
             manage_pkg('-y install', 'remote', 'default-jdk')
@@ -223,7 +223,7 @@ def ensure_jre_jdk(os_user):
 
 
 def ensure_additional_python_libs(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/additional_python_libs_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/additional_python_libs_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
@@ -236,7 +236,7 @@ def ensure_additional_python_libs(os_user):
 
 
 def ensure_python3_specific_version(python3_version, os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/python3_specific_version_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/python3_specific_version_ensured'):
         try:
             if len(python3_version) < 4:
                 python3_version = python3_version + ".0"
@@ -247,7 +247,7 @@ def ensure_python3_specific_version(python3_version, os_user):
             sys.exit(1)
 
 def ensure_python3_libraries(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
         try:
             #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
@@ -271,7 +271,7 @@ def ensure_python3_libraries(os_user):
 def install_tensor(os_user, cuda_version, cuda_file_name,
                    cudnn_version, cudnn_file_name, tensorflow_version,
                    templates_dir, nvidia_version):
-    if not exists('/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
         try:
             # install nvidia drivers
             conn.sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
@@ -335,19 +335,19 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
 
 
 def install_maven(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/maven_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/maven_ensured'):
         manage_pkg('-y install', 'remote', 'maven')
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
 
 def install_gcloud(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/gcloud_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/gcloud_ensured'):
         conn.sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
         conn.sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
         manage_pkg('-y install', 'remote', 'google-cloud-sdk')
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/gcloud_ensured')
 
 def install_livy_dependencies(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         manage_pkg('-y install', 'remote', 'libkrb5-dev')
         conn.sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
@@ -367,7 +367,7 @@ def install_livy_dependencies_emr(os_user):
 
 
 def install_nodejs(os_user):
-    if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         conn.sudo('curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
         conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
@@ -462,7 +462,7 @@ def get_available_os_pkgs():
 
 
 def install_caffe2(os_user, caffe2_version, cmake_version):
-    if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         manage_pkg('update', 'remote', '')
         manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
@@ -492,31 +492,31 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
 
 
 def install_cntk(os_user, cntk_version):
-    if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
         conn.sudo('pip3 install cntk-gpu=={} --no-cache-dir'.format(cntk_version))
         conn.sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
 def install_keras(os_user, keras_version):
-    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
         conn.sudo('pip3 install keras=={} --no-cache-dir'.format(keras_version))
         conn.sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
 def install_theano(os_user, theano_version):
-    if not exists('/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
         conn.sudo('python3 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
         conn.sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
 
 
 def install_mxnet(os_user, mxnet_version):
-    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
         conn.sudo('pip3 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
         conn.sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 
 #def install_torch(os_user):
-#    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+#    if not exists(conn,'/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
 #        run('git clone https://github.com/nagadomi/distro.git ~/torch --recursive')
 #        with cd('/home/{}/torch/'.format(os_user)):
 #           run('bash install-deps;')

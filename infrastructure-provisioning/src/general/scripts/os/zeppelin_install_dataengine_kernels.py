@@ -57,11 +57,11 @@ def configure_notebook(keyfile, hoststring):
     conn.run('sed -i "s|EXECUTOR_MEMORY|{}m|g " /tmp/{}/dataengine_interpreter.json'.format(spark_memory, args.cluster_name))
     conn.run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory,
                                                                                                   args.cluster_name))
-    if not exists('/usr/local/bin/zeppelin_dataengine_create_configs.py'):
+    if not exists(conn,'/usr/local/bin/zeppelin_dataengine_create_configs.py'):
         conn.put(scripts_dir + 'zeppelin_dataengine_create_configs.py',
             '/usr/local/bin/zeppelin_dataengine_create_configs.py', use_sudo=True)
         conn.sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
-    if not exists('/usr/lib/python3.8/datalab/'):
+    if not exists(conn,'/usr/lib/python3.8/datalab/'):
         conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
         conn.put('/usr/lib/python3.8/datalab/*', '/usr/lib/python3.8/datalab/', use_sudo=True)
         conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')

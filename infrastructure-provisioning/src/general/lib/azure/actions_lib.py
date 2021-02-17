@@ -1062,7 +1062,7 @@ class AzureActions:
 
 
 def ensure_local_jars(os_user, jars_dir):
-    if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             hadoop_version = conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
             print("Downloading local jars for Azure")
@@ -1145,7 +1145,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
             conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
-        if not exists('/opt/spark/conf/spark-env.sh'):
+        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
             conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
         conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
@@ -1239,7 +1239,7 @@ def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
 
 
 def prepare_disk(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
             allow = False
             counter = 0
@@ -1278,7 +1278,7 @@ def prepare_disk(os_user):
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
             if os.environ['azure_datalake_enable'] == 'false':
                 conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')

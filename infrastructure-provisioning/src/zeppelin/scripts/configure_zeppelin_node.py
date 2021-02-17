@@ -77,7 +77,7 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
 def configure_zeppelin(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/zeppelin_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/zeppelin_ensured'):
         try:
             conn.sudo('wget ' + zeppelin_link + ' -O /tmp/zeppelin-' + zeppelin_version + '-bin-netinst.tgz')
             conn.sudo('tar -zxvf /tmp/zeppelin-' + zeppelin_version + '-bin-netinst.tgz -C /opt/')
@@ -127,7 +127,7 @@ def configure_zeppelin(os_user):
 
 
 def configure_local_livy_kernels(args):
-    if not exists('/home/' + args.os_user + '/.ensure_dir/local_livy_kernel_ensured'):
+    if not exists(conn,'/home/' + args.os_user + '/.ensure_dir/local_livy_kernel_ensured'):
         port_number_found = False
         default_port = 8998
         livy_port = ''
@@ -159,7 +159,7 @@ def configure_local_livy_kernels(args):
 
 
 def configure_local_spark_kernels(args):
-    if not exists('/home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured'):
+    if not exists(conn,'/home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured'):
         conn.put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
         conn.sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         conn.sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
@@ -174,7 +174,7 @@ def configure_local_spark_kernels(args):
 
 
 def install_local_livy(args):
-    if not exists('/home/' + args.os_user + '/.ensure_dir/local_livy_ensured'):
+    if not exists(conn,'/home/' + args.os_user + '/.ensure_dir/local_livy_ensured'):
         conn.sudo('wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/livy-server-'
              + args.livy_version + '.zip')
         conn.sudo('unzip /opt/livy-server-' + args.livy_version + '.zip -d /opt/')
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
             conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)

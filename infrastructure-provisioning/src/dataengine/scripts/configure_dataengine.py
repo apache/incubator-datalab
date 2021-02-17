@@ -80,8 +80,8 @@ if os.environ['application'] == 'deeplearning':
 
 
 def start_spark(os_user, master_ip, node):
-    if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
-        if not exists('/opt/spark/conf/spark-env.sh'):
+    if not exists(conn,'/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
+        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
             conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         conn.sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
         if os.environ['application'] in ('tensor', 'tensor-rstudio'):
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
             conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
@@ -198,7 +198,7 @@ if __name__ == "__main__":
         install_r_packages(args.os_user)
 
     # INSTALL LIVY
-    if not exists('/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
+    if not exists(conn,'/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
         livy_version = '0.7.0'
         conn.sudo(
             'wget -nv --timeout=30 --tries=5 --retry-connrefused https://archive.apache.org/dist/incubator/livy/{0}-incubating/apache-livy-{0}-incubating-bin.zip -P /tmp/'.format(

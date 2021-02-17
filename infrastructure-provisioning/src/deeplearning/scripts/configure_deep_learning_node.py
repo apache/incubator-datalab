@@ -79,7 +79,7 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
 def install_itorch(os_user):
-    if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/itorch_ensured'.format(os_user)):
         conn.run('git clone https://github.com/facebook/iTorch.git')
         with conn.cd('/home/{}/iTorch/'.format(os_user)):
             conn.run('luarocks install luacrypto')
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
             conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
             conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/deep_learning')
     except:

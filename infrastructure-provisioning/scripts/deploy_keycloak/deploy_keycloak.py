@@ -45,7 +45,7 @@ internal_port = "8080"
 private_ip_address = "127.0.0.1"
 
 def ensure_jre_jdk(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
         try:
             conn.sudo('mkdir -p /home/' + os_user + '/.ensure_dir')
             conn.sudo('apt-get update')

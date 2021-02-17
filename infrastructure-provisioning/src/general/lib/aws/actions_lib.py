@@ -1623,7 +1623,7 @@ def spark_defaults(args):
 
 
 def ensure_local_jars(os_user, jars_dir):
-    if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             conn.sudo('mkdir -p {0}'.format(jars_dir))
             conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
@@ -1658,7 +1658,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             endpoint_url))
         conn.sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
              '/tmp/notebook_spark-defaults_local.conf')
-        if not exists('/opt/spark/conf/spark-env.sh'):
+        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
             conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
         conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
@@ -1928,7 +1928,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
 
 
 def prepare_disk(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
             disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
             conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
@@ -1941,7 +1941,7 @@ def prepare_disk(os_user):
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
             conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
             conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')

@@ -58,7 +58,7 @@ def manage_pkg(command, environment, requisites):
 
 def ensure_pkg(user, conn, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip libxml2-devel'):
     try:
-        if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories and installing requested tools: {}".format(requisites))
             if conn.sudo("systemctl list-units  --all | grep firewalld | awk '{print $1}'") != '':
                 conn.sudo('systemctl disable firewalld.service')
@@ -89,7 +89,7 @@ def ensure_pkg(user, conn, requisites='git vim gcc python-devel openssl-devel nm
 
 
 def change_pkg_repos(conn):
-    if not exists('/tmp/pkg_china_ensured'):
+    if not exists(conn,'/tmp/pkg_china_ensured'):
         conn.put('/root/files/sources.list', '/tmp/sources.list')
         conn.sudo('mv /tmp/sources.list  /etc/yum.repos.d/CentOS-Base-aliyun.repo')
         conn.sudo('touch /tmp/pkg_china_ensured')
@@ -107,7 +107,7 @@ def find_java_path_local():
 
 def ensure_ntpd(user, conn, edge_private_ip=''):
     try:
-        if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             conn.sudo('systemctl disable chronyd')
             manage_pkg('-y install', 'remote', 'ntp')
             conn.sudo('echo "tinker panic 0" >> /etc/ntp.conf')
@@ -123,7 +123,7 @@ def ensure_ntpd(user, conn, edge_private_ip=''):
 
 def ensure_java(user):
     try:
-        if not exists('/home/{}/.ensure_dir/java_ensured'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/java_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk-devel')
             conn.sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
     except:
@@ -132,7 +132,7 @@ def ensure_java(user):
 
 def ensure_step(user):
     try:
-        if not exists('/home/{}/.ensure_dir/step_ensured'.format(user)):
+        if not exists(conn,'/home/{}/.ensure_dir/step_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'wget')
             conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step_0.13.3_linux_amd64.tar.gz '
                  '-O /tmp/step_0.13.3_linux_amd64.tar.gz')

@@ -780,7 +780,7 @@ def remove_efs():
 
 def ensure_ssh_user(initial_user):
     try:
-        if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
+        if not exists(conn,'/home/{}/.ssh_user_ensured'.format(initial_user)):
             conn.sudo('useradd -m -G sudo -s /bin/bash {0}'.format(configuration['conf_os_user']))
             conn.sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(configuration['conf_os_user']))
             conn.sudo('mkdir /home/{}/.ssh'.format(configuration['conf_os_user']))
@@ -800,7 +800,7 @@ def ensure_ssh_user(initial_user):
 
 def install_java():
     try:
-        if not exists('/home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user'])):
             conn.sudo('apt-get update')
             conn.sudo('apt-get install -y default-jdk ')
             conn.sudo('touch /home/{}/.ensure_dir/java_ensured'.format(configuration['conf_os_user']))
@@ -812,7 +812,7 @@ def install_java():
 
 def install_groovy():
     try:
-        if not exists('/home/{}/.ensure_dir/groovy_ensured'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/groovy_ensured'.format(configuration['conf_os_user'])):
             conn.sudo('apt-get install -y unzip')
             conn.sudo('mkdir /usr/local/groovy')
             conn.sudo('wget https://bintray.com/artifact/download/groovy/maven/apache-groovy-binary-{0}.zip -O \
@@ -848,7 +848,7 @@ def nexus_service_waiter():
     
 def install_nexus():
     try:
-        if not exists('/home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/nexus_ensured'.format(configuration['conf_os_user'])):
             if args.efs_enabled == 'False':
                 mounting_disks()
             else:
@@ -1033,7 +1033,7 @@ def install_nexus():
 
 def install_nginx():
     try:
-        if not exists('/home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user'])):
             hostname = conn.sudo('hostname')
             conn.sudo('apt-get install -y nginx')
             conn.sudo('rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/default')
@@ -1056,7 +1056,7 @@ def install_nginx():
 
 def mounting_disks():
     try:
-        if not exists('/home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user'])):
             conn.sudo('mkdir -p /opt/sonatype-work')
             disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1 | tr '\\n' ',' | sed 's|.$||g'")
             conn.sudo('bash -c \'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}\' '.format(disk_name))
@@ -1076,7 +1076,7 @@ def mounting_disks():
 
 def mount_efs():
     try:
-        if not exists('/home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user'])):
             conn.sudo('mkdir -p /opt/sonatype-work')
             conn.sudo('apt-get -y install binutils')
             with conn.cd('/tmp/'):
@@ -1105,7 +1105,7 @@ def mount_efs():
 
 def configure_ssl():
     try:
-        if not exists('/home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user'])):
             hostname = conn.sudo('hostname')
             private_ip = conn.sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
             subject_alt_name = 'subjectAltName = IP:{}'.format(private_ip)
@@ -1128,7 +1128,7 @@ def configure_ssl():
 
 def set_hostname():
     try:
-        if not exists('/home/{}/.ensure_dir/hostname_set'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/hostname_set'.format(configuration['conf_os_user'])):
             if args.hosted_zone_id and args.hosted_zone_name and args.subdomain:
                 hostname = '{0}.{1}'.format(args.subdomain, args.hosted_zone_name)
             else:
@@ -1146,7 +1146,7 @@ def set_hostname():
 
 def create_keystore():
     try:
-        if not exists('/home/{}/.ensure_dir/keystore_created'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/keystore_created'.format(configuration['conf_os_user'])):
             conn.sudo('openssl pkcs12 -export -in /etc/ssl/certs/repository.crt -inkey /etc/ssl/certs/repository.key '
                  '-out wildcard.p12 -passout pass:{}'.format(keystore_pass))
             conn.sudo('keytool -importkeystore  -deststorepass {0} -destkeypass {0} -srckeystore wildcard.p12 -srcstoretype '
@@ -1160,7 +1160,7 @@ def create_keystore():
 
 def download_packages():
     try:
-        if not exists('/home/{}/.ensure_dir/packages_downloaded'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/packages_downloaded'.format(configuration['conf_os_user'])):
             packages_urls = [
                 'https://pkg.jenkins.io/debian/jenkins-ci.org.key',
                 'http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
@@ -1251,7 +1251,7 @@ def download_packages():
 
 def install_docker():
     try:
-        if not exists('/home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user'])):
             conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) '
                  'stable"')
@@ -1270,7 +1270,7 @@ def install_docker():
 
 def prepare_images():
     try:
-        if not exists('/home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user'])):
             conn.put('files/Dockerfile', '/tmp/Dockerfile')
             with conn.cd('/tmp/'):
                 conn.sudo('docker build --file Dockerfile -t pre-base .')
@@ -1287,7 +1287,7 @@ def prepare_images():
 
 def install_squid():
     try:
-        if not exists('/home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user'])):
             conn.sudo('apt-get -y install squid')
             conn.put('templates/squid.conf', '/etc/squid/', use_sudo=True)
             replace_string = ''

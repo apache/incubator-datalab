@@ -35,7 +35,7 @@ from fabric import *
 
 def ensure_docker_daemon(datalab_path, os_user, region):
     try:
-        if not exists('{}tmp/docker_daemon_ensured'.format(datalab_path)):
+        if not exists(conn,'{}tmp/docker_daemon_ensured'.format(datalab_path)):
             docker_version = os.environ['ssn_docker_version']
             if region == 'cn-north-1':
                 mirror = 'mirror.lzu.edu.cn'
@@ -63,7 +63,7 @@ def ensure_docker_daemon(datalab_path, os_user, region):
 
 def ensure_nginx(datalab_path):
     try:
-        if not exists('{}tmp/nginx_ensured'.format(datalab_path)):
+        if not exists(conn,'{}tmp/nginx_ensured'.format(datalab_path)):
             manage_pkg('-y install', 'remote', 'nginx')
             conn.sudo('systemctl restart nginx.service')
             conn.sudo('chkconfig nginx on')
@@ -76,7 +76,7 @@ def ensure_nginx(datalab_path):
 
 def ensure_jenkins(datalab_path):
     try:
-        if not exists('{}tmp/jenkins_ensured'.format(datalab_path)):
+        if not exists(conn,'{}tmp/jenkins_ensured'.format(datalab_path)):
             conn.sudo('wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo')
             try:
                 conn.sudo('rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key')
@@ -93,7 +93,7 @@ def ensure_jenkins(datalab_path):
 
 def configure_jenkins(datalab_path, os_user, config, tag_resource_id):
     try:
-        if not exists('{}tmp/jenkins_configured'.format(datalab_path)):
+        if not exists(conn,'{}tmp/jenkins_configured'.format(datalab_path)):
             conn.sudo('rm -rf /var/lib/jenkins/*')
             conn.sudo('mkdir -p /var/lib/jenkins/jobs/')
             conn.sudo('chown -R {0}:{0} /var/lib/jenkins/'.format(os_user))
@@ -123,7 +123,7 @@ def configure_jenkins(datalab_path, os_user, config, tag_resource_id):
 def configure_nginx(config, datalab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
-        if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
+        if not exists(conn,"/etc/nginx/conf.d/nginx_proxy.conf"):
             conn.sudo('rm -f /etc/nginx/conf.d/*')
             conn.put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
             conn.put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
@@ -139,7 +139,7 @@ def configure_nginx(config, datalab_path, hostname):
         sys.exit(1)
 
     try:
-        if not exists("/etc/nginx/locations/proxy_location_jenkins.conf"):
+        if not exists(conn,"/etc/nginx/locations/proxy_location_jenkins.conf"):
             nginx_password = id_generator()
             template_file = config['nginx_template_dir'] + 'proxy_location_jenkins_template.conf'
             with open("/tmp/%s-tmpproxy_location_jenkins_template.conf" % random_file_part, 'w') as out:
@@ -164,7 +164,7 @@ def configure_nginx(config, datalab_path, hostname):
 
 def ensure_supervisor():
     try:
-        if not exists('{}tmp/superv_ensured'.format(os.environ['ssn_datalab_path'])):
+        if not exists(conn,'{}tmp/superv_ensured'.format(os.environ['ssn_datalab_path'])):
             manage_pkg('-y install', 'remote', 'supervisor')
             # conn.sudo('pip install supervisor')
             conn.sudo('chkconfig supervisord on')
@@ -178,7 +178,7 @@ def ensure_supervisor():
 
 def ensure_mongo():
     try:
-        if not exists('{}tmp/mongo_ensured'.format(os.environ['ssn_datalab_path'])):
+        if not exists(conn,'{}tmp/mongo_ensured'.format(os.environ['ssn_datalab_path'])):
             conn.sudo('echo -e "[mongodb-org-3.2]\nname=MongoDB Repository'
                  '\nbaseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/3.2/x86_64/'
                  '\ngpgcheck=1'
@@ -209,7 +209,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
              usage_type, usage, cost, resource_id, tags, billing_dataset_name, keycloak_client_id,
              keycloak_client_secret, keycloak_auth_server_url, report_path=''):
     try:
-        if not exists('{}tmp/ss_started'.format(os.environ['ssn_datalab_path'])):
+        if not exists(conn,'{}tmp/ss_started'.format(os.environ['ssn_datalab_path'])):
             java_path = conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
             conn.local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
@@ -387,7 +387,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
 
 def install_build_dep():
     try:
-        if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
+        if not exists(conn,'{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
             maven_version = '3.5.4'
             manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk java-1.8.0-openjdk-devel git wget unzip')
             with conn.cd('/opt/'):

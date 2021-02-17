@@ -1333,7 +1333,7 @@ class GCPActions:
 
 
 def ensure_local_jars(os_user, jars_dir):
-    if not exists('/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
         try:
             templates_dir = '/root/templates/'
             conn.sudo('mkdir -p {}'.format(jars_dir))
@@ -1369,7 +1369,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
 
 
 def prepare_disk(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
             disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
             conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
@@ -1382,7 +1382,7 @@ def prepare_disk(os_user):
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
             conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
             conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
@@ -1412,7 +1412,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
             conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
-        if not exists('/opt/spark/conf/spark-env.sh'):
+        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
             conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
         conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))

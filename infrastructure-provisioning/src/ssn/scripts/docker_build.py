@@ -57,7 +57,7 @@ def image_build(src_path, node):
             cloud_provider = 'aws'
         elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout == 'azure':
             cloud_provider = 'azure'
-            if not exists('{}base/azure_auth.json'.format(src_path)):
+            if not exists(conn,'{}base/azure_auth.json'.format(src_path)):
                 subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True, check=True)
         else:
             cloud_provider = 'gcp'

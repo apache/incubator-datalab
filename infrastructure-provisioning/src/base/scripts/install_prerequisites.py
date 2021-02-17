@@ -42,7 +42,7 @@ args = parser.parse_args()
 
 
 def create_china_pip_conf_file(conn):
-    if not exists('/home/{}/pip_china_ensured'.format(args.user)):
+    if not exists(conn,'/home/{}/pip_china_ensured'.format(args.user)):
         conn.sudo('touch /etc/pip.conf')
         conn.sudo('echo "[global]" >> /etc/pip.conf')
         conn.sudo('echo "timeout = 600" >> /etc/pip.conf')

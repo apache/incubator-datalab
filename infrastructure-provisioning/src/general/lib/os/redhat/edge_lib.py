@@ -30,7 +30,7 @@ from patchwork.files import exists
 
 def configure_http_proxy_server(config):
     try:
-        if not exists('/tmp/http_proxy_ensured'):
+        if not exists(conn,'/tmp/http_proxy_ensured'):
             manage_pkg('-y install', 'remote', 'squid')
             template_file = config['template_file']
             proxy_subnet = config['exploratory_subnet']

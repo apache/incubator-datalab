@@ -50,7 +50,7 @@ if __name__ == "__main__":
     if args.spark_type == 'local':
         configure_local_spark(jars_dir, templates_dir, memory_type)
     elif args.spark_type == 'dataengine':
-        if not exists('/usr/local/bin/notebook_reconfigure_dataengine_spark.py'):
+        if not exists(conn,'/usr/local/bin/notebook_reconfigure_dataengine_spark.py'):
             conn.put('/root/scripts/notebook_reconfigure_dataengine_spark.py',
                 '/tmp/notebook_reconfigure_dataengine_spark.py')
             conn.sudo('mv /tmp/notebook_reconfigure_dataengine_spark.py '

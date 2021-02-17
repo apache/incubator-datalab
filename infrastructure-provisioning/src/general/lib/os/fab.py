@@ -40,7 +40,7 @@ from patchwork.files import exists
 
 def ensure_pip(requisites, conn):
     try:
-        if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
+        if not exists(conn,'/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             conn.sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             conn.sudo('echo export PATH >> /etc/profile')
             conn.sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
@@ -190,7 +190,7 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
-    if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
             conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
             conn.sudo('pip3 install jupyter --no-cache-dir')
@@ -248,7 +248,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
 
 def configure_docker(os_user):
     try:
-        if not exists('/home/' + os_user + '/.ensure_dir/docker_ensured'):
+        if not exists(conn,'/home/' + os_user + '/.ensure_dir/docker_ensured'):
             docker_version = os.environ['ssn_docker_version']
             conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
@@ -262,7 +262,7 @@ def configure_docker(os_user):
         sys.exit(1)
 
 def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_conf_file, jupyterlab_conf_file, exploratory_name, edge_ip):
-    if not exists(jupyterlab_dir):
+    if not exists(conn,jupyterlab_dir):
         try:
             conn.sudo('mkdir {}'.format(jupyterlab_dir))
 #            conn.put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
@@ -342,7 +342,7 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
 
 
 def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version):
-    if not exists('/home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured'):
         try:
             conn.sudo('mkdir -p ' + pyspark_local_path_dir)
             conn.sudo('touch ' + pyspark_local_path_dir + 'kernel.json')
@@ -358,7 +358,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
 
 
 def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version):
-    if not exists('/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
         try:
             conn.sudo('mkdir -p ' + py3spark_local_path_dir)
             conn.sudo('touch ' + py3spark_local_path_dir + 'kernel.json')
@@ -579,7 +579,7 @@ def get_available_r_pkgs():
 
 
 def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
-    if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
         try:
             conn.sudo('pip install ' + toree_link + ' --no-cache-dir')
             conn.sudo('ln -s /opt/spark/ /usr/local/spark')
@@ -596,7 +596,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
 
 
 def install_ungit(os_user, notebook_name, edge_ip):
-    if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
@@ -648,9 +648,9 @@ def install_ungit(os_user, notebook_name, edge_ip):
 
 
 def install_inactivity_checker(os_user, ip_address, rstudio=False):
-    if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
         try:
-            if not exists('/opt/inactivity'):
+            if not exists(conn,'/opt/inactivity'):
                 conn.sudo('mkdir /opt/inactivity')
             conn.put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
             conn.put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
@@ -685,7 +685,7 @@ def set_mongo_parameters(client, mongo_parameters):
 
 
 def install_r_packages(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
         conn.sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
         conn.sudo('R -e "install.packages(\'knitr\', repos = \'https://cloud.r-project.org\')"')
         conn.sudo('R -e "install.packages(\'ggplot2\', repos = \'https://cloud.r-project.org\')"')
@@ -696,7 +696,7 @@ def install_r_packages(os_user):
 
 
 def add_breeze_library_local(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/breeze_local_ensured'):
+    if not exists(conn,'/home/' + os_user + '/.ensure_dir/breeze_local_ensured'):
         try:
             breeze_tmp_dir = '/tmp/breeze_tmp_local/'
             jars_dir = '/opt/jars/'
@@ -726,15 +726,15 @@ def add_breeze_library_local(os_user):
 def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     init_datalab_connection(hostname, os_user, keyfile)
     manage_pkg('-y install', 'remote', 'python3-pip')
-    if not exists('/usr/bin/pip3') and conn.sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
+    if not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
         conn.sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and conn.sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
         conn.sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and conn.sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
         conn.sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and conn.sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
         conn.sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
-    elif not exists('/usr/bin/pip3') and conn.sudo("python3.8 -V 2>/dev/null | awk '{print $2}'"):
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.8 -V 2>/dev/null | awk '{print $2}'"):
         conn.sudo('ln -s /usr/bin/pip-3.8 /usr/bin/pip3')
     if emr:
         conn.sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
@@ -842,7 +842,7 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
 
 
 def update_pyopenssl_lib(os_user):
-    if not exists('/home/{}/.ensure_dir/pyopenssl_updated'.format(os_user)):
+    if not exists(conn,'/home/{}/.ensure_dir/pyopenssl_updated'.format(os_user)):
         try:
             if exists('/usr/bin/pip3'):
                 conn.sudo('pip3 install -U pyopenssl')
@@ -914,7 +914,7 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
 
 def update_hosts_file(os_user, conn):
     try:
-        if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
+        if not exists(conn,'/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
             conn.sudo('ls -lah; pwd; hostname; whoami')
             conn.sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
             conn.sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
@@ -926,7 +926,7 @@ def update_hosts_file(os_user, conn):
 def ensure_docker_compose(os_user):
     try:
         configure_docker(os_user)
-        if not exists('/home/{}/.ensure_dir/docker_compose_ensured'.format(os_user)):
+        if not exists(conn,'/home/{}/.ensure_dir/docker_compose_ensured'.format(os_user)):
             docker_compose_version = "1.24.1"
             conn.sudo('curl -L https://github.com/docker/compose/releases/download/{}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'.format(docker_compose_version))
             conn.sudo('chmod +x /usr/local/bin/docker-compose')
@@ -940,13 +940,13 @@ def ensure_docker_compose(os_user):
 def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret, edge_instance_private_ip, edge_instance_public_ip, superset_name):
     print('Superset configuring')
     try:
-        if not exists('/home/{}/incubator-superset'.format(os_user)):
+        if not exists(conn,'/home/{}/incubator-superset'.format(os_user)):
             with conn.cd('/home/{}'.format(os_user)):
                 conn.sudo('wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(
                     os.environ['notebook_superset_version']))
                 conn.sudo('tar -xzf {}.tar.gz'.format(os.environ['notebook_superset_version']))
                 conn.sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
-        if not exists('/tmp/superset-notebook_installed'):
+        if not exists(conn,'/tmp/superset-notebook_installed'):
             conn.sudo('mkdir -p /opt/datalab/templates')
             conn.put('/root/templates', '/opt/datalab', use_sudo=True)
             conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/.env'.format(os_user))
