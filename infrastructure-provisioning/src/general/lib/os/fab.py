@@ -915,9 +915,11 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
 def update_hosts_file(os_user, conn):
     try:
         if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
+            conn.sudo('ls -lah; pwd; hostname; whoami')
             conn.sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
             conn.sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
     except Exception as err:
+        traceback.print_exc()
         print('Failed to update hosts file', str(err))
         sys.exit(1)
 
