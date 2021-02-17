@@ -27,7 +27,7 @@ import sys
 import os
 import time
 import subprocess
-
+import datalab.fab
 
 def manage_pkg(command, environment, requisites):
     try:
@@ -40,45 +40,45 @@ def manage_pkg(command, environment, requisites):
             else:
                 print('Package manager is:')
                 if environment == 'remote':
-                    if conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
+                    if datalab.fab.conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or datalab.fab.conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
                         try:
                             error_parser = "frontend is locked|locked"
-                            conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                            datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
-                            err = conn.sudo('cat /tmp/dpkg.log')
+                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log')
                             count = 0
                             while err != '' and count < 10:
-                                pid = conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
+                                pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
                                 if pid != '':
-                                    conn.sudo('kill -9 {}'.format(pid))
-                                    conn.sudo('rm -f /var/lib/dpkg/lock-frontend')
-                                    pid = conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
+                                    datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+                                    datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock-frontend')
+                                    pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
                                 elif pid != '':
-                                    conn.sudo('kill -9 {}'.format(pid))
-                                    conn.sudo('rm -f /var/lib/dpkg/lock')
-                                conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                                    datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+                                    datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
+                                datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
-                                err = conn.sudo('cat /tmp/dpkg.log')
+                                err = datalab.fab.conn.sudo('cat /tmp/dpkg.log')
                                 count = count + 1
-                            conn.sudo('apt update')
+                            datalab.fab.conn.sudo('apt update')
 
-                            conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
+                            datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
                                  '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                            err = conn.sudo('cat /tmp/apt.log')
+                            err = datalab.fab.conn.sudo('cat /tmp/apt.log')
                             count = 0
                             while err != '' and count < 10:
-                                conn.sudo('lsof /var/lib/dpkg/lock')
-                                conn.sudo('lsof /var/lib/apt/lists/lock')
-                                conn.sudo('lsof /var/cache/apt/archives/lock')
-                                conn.sudo('rm -f /var/lib/apt/lists/lock')
-                                conn.sudo('rm -f /var/cache/apt/archives/lock')
-                                conn.sudo('rm -f /var/lib/dpkg/lock')
-                                conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
+                                datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock')
+                                datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock')
+                                datalab.fab.conn.sudo('lsof /var/cache/apt/archives/lock')
+                                datalab.fab.conn.sudo('rm -f /var/lib/apt/lists/lock')
+                                datalab.fab.conn.sudo('rm -f /var/cache/apt/archives/lock')
+                                datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
+                                datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
                                      '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                                err = conn.sudo('cat /tmp/apt.log')
+                                err = datalab.fab.conn.sudo('cat /tmp/apt.log')
                                 count = count + 1
                             allow = True
                         except Exception as err:
@@ -101,7 +101,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):
     try:
-        if not exists(conn,'/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
+        if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             count = 0
             check = False
             while not check:
@@ -115,13 +115,13 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
                         print("Attempt number " + str(count) + " to install requested tools. Max 60 tries.")
                         manage_pkg('update', 'remote', '')
                         manage_pkg('-y install', 'remote', requisites)
-                        conn.sudo('unattended-upgrades -v')
-                        conn.sudo(
+                        datalab.fab.conn.sudo('unattended-upgrades -v')
+                        datalab.fab.conn.sudo(
                             'sed -i \'s|APT::Periodic::Unattended-Upgrade "1"|APT::Periodic::Unattended-Upgrade "0"|\' /etc/apt/apt.conf.d/20auto-upgrades')
-                        conn.sudo('export LC_ALL=C')
-                        conn.sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
-                        conn.sudo('systemctl enable haveged')
-                        conn.sudo('systemctl start haveged')
+                        datalab.fab.conn.sudo('export LC_ALL=C')
+                        datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
+                        datalab.fab.conn.sudo('systemctl enable haveged')
+                        datalab.fab.conn.sudo('systemctl start haveged')
                         if os.environ['conf_cloud_provider'] == 'aws':
                             manage_pkg('-y install --install-recommends', 'remote', 'linux-aws-hwe')
                         check = True
@@ -135,22 +135,22 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
 def renew_gpg_key():
     try:
 #        if exists('/etc/apt/trusted.gpg'):
-#            conn.sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
-        conn.sudo('apt-key update')
+#            datalab.fab.conn.sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
+        datalab.fab.conn.sudo('apt-key update')
     except:
         sys.exit(1)
 
 
 def change_pkg_repos():
-    if not exists(conn,'/tmp/pkg_china_ensured'):
-        conn.put('/root/files/sources.list', '/tmp/sources.list')
-        conn.sudo('mv /tmp/sources.list /etc/apt/sources.list')
+    if not exists(datalab.fab.conn,'/tmp/pkg_china_ensured'):
+        datalab.fab.conn.put('/root/files/sources.list', '/tmp/sources.list')
+        datalab.fab.conn.sudo('mv /tmp/sources.list /etc/apt/sources.list')
         manage_pkg('update', 'remote', '')
-        conn.sudo('touch /tmp/pkg_china_ensured')
+        datalab.fab.conn.sudo('touch /tmp/pkg_china_ensured')
 
 
 def find_java_path_remote():
-    java_path = conn.sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"")
+    java_path = datalab.fab.conn.sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"")
     return java_path
 
 
@@ -161,36 +161,36 @@ def find_java_path_local():
 
 def ensure_ntpd(user, edge_private_ip=''):
     try:
-        if not exists(conn,'/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
-            conn.sudo('timedatectl set-ntp no')
+        if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
+            datalab.fab.conn.sudo('timedatectl set-ntp no')
             manage_pkg('-y install', 'remote', 'ntp ntpdate')
-            conn.sudo('echo "tinker panic 0" >> /etc/ntp.conf')
+            datalab.fab.conn.sudo('echo "tinker panic 0" >> /etc/ntp.conf')
             if os.environ['conf_resource'] != 'ssn' and os.environ['conf_resource'] != 'edge':
-                conn.sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
-            conn.sudo('systemctl restart ntp')
-            conn.sudo('systemctl enable ntp')
-            conn.sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
+                datalab.fab.conn.sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
+            datalab.fab.conn.sudo('systemctl restart ntp')
+            datalab.fab.conn.sudo('systemctl enable ntp')
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
     except:
         sys.exit(1)
 
 
 def ensure_java(user):
     try:
-        if not exists(conn,'/home/{}/.ensure_dir/java_ensured'.format(user)):
+        if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/java_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
-            conn.sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
     except:
         sys.exit(1)
 
 
 def ensure_step(user):
     try:
-        if not exists(conn,'/home/{}/.ensure_dir/step_ensured'.format(user)):
+        if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/step_ensured'.format(user)):
             manage_pkg('-y install', 'remote', 'wget')
-            conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
+            datalab.fab.conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
                  '-O /tmp/step-cli_0.13.3_amd64.deb')
-            conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
-            conn.sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
+            datalab.fab.conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
         sys.exit(1)
 
@@ -198,12 +198,12 @@ def install_certbot(os_family):
     try:
         print('Installing Certbot')
         if os_family == 'debian':
-            conn.sudo('apt-get -y update')
-            conn.sudo('apt-get -y install software-properties-common')
-            conn.sudo('add-apt-repository -y universe')
-            conn.sudo('add-apt-repository -y ppa:certbot/certbot')
-            conn.sudo('apt-get -y update')
-            conn.sudo('apt-get -y install certbot')
+            datalab.fab.conn.sudo('apt-get -y update')
+            datalab.fab.conn.sudo('apt-get -y install software-properties-common')
+            datalab.fab.conn.sudo('add-apt-repository -y universe')
+            datalab.fab.conn.sudo('add-apt-repository -y ppa:certbot/certbot')
+            datalab.fab.conn.sudo('apt-get -y update')
+            datalab.fab.conn.sudo('apt-get -y install certbot')
         elif os_family == 'redhat':
             print('This OS family is not supported yet')
     except Exception as err:
@@ -215,13 +215,13 @@ def run_certbot(domain_name, node, email=''):
     try:
         print('Running  Certbot')
         if node == 'ssn':
-            conn.sudo('service nginx stop')
+            datalab.fab.conn.sudo('service nginx stop')
         else:
-            conn.sudo('service openresty stop')
+            datalab.fab.conn.sudo('service openresty stop')
         if email != '':
-            conn.sudo('certbot certonly --standalone -n -d {}.{} -m {} --agree-tos'.format(node, domain_name, email))
+            datalab.fab.conn.sudo('certbot certonly --standalone -n -d {}.{} -m {} --agree-tos'.format(node, domain_name, email))
         else:
-            conn.sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
+            datalab.fab.conn.sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
     except Exception as err:
         traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))
@@ -238,14 +238,14 @@ def configure_nginx_LE(domain_name, node):
             nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
         else:
             nginx_config_path = '/usr/local/openresty/nginx/conf/conf.d/proxy.conf'
-        conn.sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
-        conn.sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
-        conn.sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
-        conn.sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
+        datalab.fab.conn.sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
+        datalab.fab.conn.sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
+        datalab.fab.conn.sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
+        datalab.fab.conn.sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
         if node == 'ssn':
-            conn.sudo('systemctl restart nginx')
+            datalab.fab.conn.sudo('systemctl restart nginx')
         else:
-            conn.sudo('systemctl restart openresty')
+            datalab.fab.conn.sudo('systemctl restart openresty')
     except Exception as err:
         traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))
