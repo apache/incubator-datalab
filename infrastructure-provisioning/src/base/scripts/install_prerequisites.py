@@ -53,7 +53,8 @@ def create_china_pip_conf_file(conn):
 
 if __name__ == "__main__":
     print("Configure connections")
-    global conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
     if args.region == 'cn-north-1':
