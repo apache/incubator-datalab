@@ -274,4 +274,4 @@ if __name__ == "__main__":
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
 
-    datalab.fab.close_connection()
+    conn.close()

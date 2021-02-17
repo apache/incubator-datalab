@@ -243,4 +243,4 @@ if __name__ == "__main__":
              args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
              args.keycloak_client_secret, args.keycloak_auth_server_url)
 
-    datalab.fab.close_connection()
+    conn.close()

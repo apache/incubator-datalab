@@ -86,4 +86,4 @@ if __name__ == "__main__":
         append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
 
-    datalab.fab.close_connection()
+    conn.close()

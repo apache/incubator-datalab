@@ -100,4 +100,4 @@ if __name__ == "__main__":
     with open("/root/all_pkgs.json", 'w') as result:
         result.write(json.dumps(all_pkgs))
 
-    datalab.fab.close_connection()
+    conn.close()

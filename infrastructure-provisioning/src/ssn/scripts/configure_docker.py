@@ -221,5 +221,5 @@ if __name__ == "__main__":
     if not configure_guacamole():
         sys.exit(1)
 
-    datalab.fab.close_connection()
+    conn.close()
     sys.exit(0)

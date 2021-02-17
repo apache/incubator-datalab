@@ -112,4 +112,4 @@ if __name__ == "__main__":
     print("Install inactivity checker")
     install_inactivity_checker(args.os_user, args.ip_address)
 
-    datalab.fab.close_connection()
+    conn.close()

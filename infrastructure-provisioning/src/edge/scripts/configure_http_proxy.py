@@ -48,4 +48,4 @@ if __name__ == "__main__":
 
     print("Installing proxy for notebooks.")
     configure_http_proxy_server(deeper_config)
-    datalab.fab.close_connection()
+    conn.close()

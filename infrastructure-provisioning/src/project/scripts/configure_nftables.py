@@ -47,4 +47,4 @@ if __name__ == "__main__":
 
     print("Configuring nftables on edge node.")
     configure_nftables(deeper_config)
-    datalab.fab.close_connection()
+    conn.close()

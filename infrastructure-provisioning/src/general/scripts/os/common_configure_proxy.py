@@ -46,4 +46,4 @@ if __name__ == "__main__":
     print("Enabling proxy for notebook server for repositories access.")
     enable_proxy(deeper_config['proxy_host'], deeper_config['proxy_port'])
 
-    datalab.fab.close_connection()
+    conn.close()

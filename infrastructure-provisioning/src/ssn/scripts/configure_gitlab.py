@@ -61,7 +61,7 @@ def create_user(os_user):
     except Exception as err:
         print('Failed to install gitlab.{}'.format(str(err)))
         sys.exit(1)
-    datalab.fab.close_connection()
+    conn.close()
 
 def prepare_config():
     try:
@@ -192,4 +192,4 @@ if __name__ == "__main__":
     configure_gitlab()
 
     summary()
-    datalab.fab.close_connection()
+    conn.close()

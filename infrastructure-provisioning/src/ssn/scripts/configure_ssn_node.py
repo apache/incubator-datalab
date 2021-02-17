@@ -281,4 +281,4 @@ if __name__ == "__main__":
     print("Configuring docker_build script")
     docker_build_script()
 
-    datalab.fab.close_connection()
+    conn.close()

@@ -45,7 +45,7 @@ def upload_response_file(instance_name, local_log_filepath, os_user):
                                                         os.environ['ssn_datalab_path']))
         conn.put(local_log_filepath, '/home/{}/ssn.log'.format(os_user))
         conn.sudo('mv /home/{}/ssn.log /var/opt/datalab/log/ssn/'.format(os_user))
-        datalab.fab.close_connection()
+        conn.close()
         return True
     except:
         print('Failed to upload response file')

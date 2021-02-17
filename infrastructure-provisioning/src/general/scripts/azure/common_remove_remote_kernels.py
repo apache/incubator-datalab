@@ -48,4 +48,4 @@ if __name__ == "__main__":
     except Exception as err:
         print('Failed to remove cluster kernels.', str(err))
         sys.exit(1)
-    datalab.fab.close_connection()
+    conn.close()

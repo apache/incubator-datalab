@@ -113,7 +113,7 @@ if __name__ == "__main__":
             general_status = general_status + status
         except KeyError:
             pass
-    datalab.fab.close_connection()
+    conn.close()
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
                "Libs": general_status}

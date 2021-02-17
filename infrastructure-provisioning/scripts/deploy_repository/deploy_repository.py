@@ -1782,6 +1782,6 @@ if __name__ == "__main__":
                 remove_route_tables()
                 remove_vpc(args.vpc_id)
             sys.exit(1)
-        datalab.fab.close_connection()
+        conn.close()
     else:
         print('Invalid action: {}'.format(args.action))

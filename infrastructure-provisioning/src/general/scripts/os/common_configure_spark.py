@@ -92,4 +92,4 @@ if __name__ == "__main__":
     if 'spark_configurations' in os.environ:
         add_custom_spark_properties(args.cluster_name)
 
-    datalab.fab.close_connection()
+    conn.close()

@@ -50,4 +50,4 @@ if __name__ == "__main__":
     else:
         print('There is no {} to download'.format(gitlab_certfile))
 
-    datalab.fab.close_connection()
+    conn.close()

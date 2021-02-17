@@ -107,5 +107,5 @@ if __name__ == "__main__":
     conn.put('/tmp/{}.conf'.format(conf_file_name), '/usr/local/openresty/nginx/conf/locations', use_sudo=True)
     conn.sudo('service openresty reload')
 
-    datalab.fab.close_connection()
+    conn.close()
 

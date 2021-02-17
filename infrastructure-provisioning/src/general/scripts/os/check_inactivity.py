@@ -56,4 +56,4 @@ if __name__ == "__main__":
     with open('/root/result.json', 'w') as outfile:
         json.dump(timestamp, outfile)
 
-    datalab.fab.close_connection()
+    conn.close()

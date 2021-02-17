@@ -57,4 +57,4 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         sys.exit(1)
 
-    datalab.fab.close_connection()
+    conn.close()

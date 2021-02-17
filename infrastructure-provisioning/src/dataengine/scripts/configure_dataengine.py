@@ -218,4 +218,4 @@ if __name__ == "__main__":
         conn.sudo('systemctl start livy.service')
         conn.sudo('touch /home/{0}/.ensure_dir/livy_ensured'.format(args.os_user))
 
-    datalab.fab.close_connection()
+    conn.close()

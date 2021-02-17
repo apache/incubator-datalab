@@ -186,7 +186,7 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
     keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
     init_datalab_connection(hostname, os_user, keyfile)
     conn.sudo('python3 ' + datalab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
-    close_connection()
+    conn.close()
 
 
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
@@ -676,7 +676,7 @@ def set_git_proxy(os_user, hostname, keyfile, proxy_host):
     init_datalab_connection(hostname, os_user, keyfile)
     conn.run('git config --global http.proxy {}'.format(proxy_host))
     conn.run('git config --global https.proxy {}'.format(proxy_host))
-    close_connection()
+    conn.close()
 
 
 def set_mongo_parameters(client, mongo_parameters):
@@ -742,7 +742,7 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     conn.sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     conn.sudo('source /etc/profile')
     conn.run('source /etc/profile')
-    close_connection()
+    conn.close()
 
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):
@@ -800,7 +800,7 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
     conn.sudo("systemctl daemon-reload")
     conn.sudo("systemctl restart zeppelin-notebook")
     if creds:
-        close_connection()
+        conn.close()
 
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
@@ -912,7 +912,7 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         sys.exit(1)
 
 
-def update_hosts_file(os_user, conn):
+def update_hosts_file(os_user):
     try:
         if not exists(conn,'/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
             conn.sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
@@ -1003,9 +1003,6 @@ def manage_npm_pkg(command):
                     time.sleep(50)
     except:
         sys.exit(1)
-
-def close_connection():
-    conn.close()
 
 def init_datalab_connection(hostname, username, keyfile):
     try:

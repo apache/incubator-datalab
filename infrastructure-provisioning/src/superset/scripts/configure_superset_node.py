@@ -86,6 +86,6 @@ if __name__ == "__main__":
                            args.keycloak_client_id, args.keycloak_client_secret, args.edge_instance_private_ip, args.edge_instance_public_ip, args.superset_name)
     except:
         sys.exit(1)
-    datalab.fab.close_connection()
+    conn.close()
 
 

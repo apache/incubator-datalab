@@ -153,5 +153,5 @@ if __name__ == "__main__":
                 clean_tensor_rstudio()
     else:
         print('Found default ami, do not make clean')
-    datalab.fab.close_connection()
+    conn.close()
     sys.exit(0)

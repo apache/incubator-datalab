@@ -45,4 +45,4 @@ if __name__ == "__main__":
 
     conn.sudo("date +%s > /opt/inactivity/{}_inactivity".format(kernel))
 
-    datalab.fab.close_connection()
+    conn.close()

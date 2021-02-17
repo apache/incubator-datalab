@@ -69,4 +69,4 @@ if __name__ == "__main__":
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)
 
-    datalab.fab.close_connection()
+    conn.close()

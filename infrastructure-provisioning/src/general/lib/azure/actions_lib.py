@@ -1227,7 +1227,7 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     conn.sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
     conn.sudo('mount -a')
     if creds:
-        datalab.fab.close_connection()
+        conn.close()
 
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
@@ -1235,7 +1235,7 @@ def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
         conn = datalab.fab.init_datalab_connection(hostname, os_user, keyfile)
     conn.sudo('waagent -deprovision -force')
     if creds:
-        datalab.fab.close_connection()
+        conn.close()
 
 
 def prepare_disk(os_user):

@@ -86,7 +86,7 @@ def configure_dataengine_service(instance, emr_conf):
             conn.sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
                  '/etc/yum/pluginconf.d/priorities.conf')
             manage_pkg('-y install', 'remote', 'R-devel')
-            datalab.fab.close_connection()
+            conn.close()
         except:
             traceback.print_exc()
             raise Exception
