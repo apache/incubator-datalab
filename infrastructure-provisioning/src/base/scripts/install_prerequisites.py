@@ -50,16 +50,6 @@ def create_china_pip_conf_file(conn):
         conn.sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
         conn.sudo('touch /home/{}/pip_china_ensured'.format(args.user))
 
-def update_hosts_files(os_user):
-    try:
-        if not exists(conn,'/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
-            conn.sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
-            conn.sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to update hosts file', str(err))
-        sys.exit(1)
-
 if __name__ == "__main__":
     print("Configure connections")
     global conn
@@ -71,7 +61,7 @@ if __name__ == "__main__":
         create_china_pip_conf_file()
 
     print("Updating hosts file")
-    update_hosts_files(args.user)
+    update_hosts_file(args.user)
 
     print("Updating repositories and installing requested tools.")
     ensure_pkg(args.user)
