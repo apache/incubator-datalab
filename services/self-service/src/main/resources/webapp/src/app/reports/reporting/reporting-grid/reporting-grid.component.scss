@@ -80,6 +80,10 @@
       font-size: 13px;
       padding-left: 20px;
 
+      &.mat-cell{
+        border-bottom-color: #e3e5e8;
+      }
+
       &.info {
         z-index: 1 !important;
         text-align: center;
@@ -155,7 +159,7 @@
   }
 
   .th_empty {
-    width: 1%;
+    width: 3%;
     z-index: 4 !important;
   }
 
@@ -376,7 +380,7 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  height: 49px;
+  height: 48px;
   width: 135px;
   display: flex;
   justify-content: flex-end;
@@ -384,7 +388,7 @@
   align-items: center;
   font-size: 13px;
   background-color: white;
-  border-top: 1px solid rgba(0,0,0,.12);
+
   &.scrollbar-right{
     right: 3px;
   }

@@ -146,7 +146,7 @@
 }
 
 .dropdown-multiselect .list-menu li a {
-  padding-left: 20px;
+  padding-left: 30px;
   transition: all .45s ease-in-out;
 }
 
@@ -246,9 +246,10 @@
 
 .dropdown-multiselect .list-menu a span {
   position: absolute;
-  top: 8px;
-  left: 12px;
+  top: 10px;
+  left: 9px;
   color: #35afd5;
+  font-size: 18px;
 }
 
 .dropdown-multiselect.btn-group.open .dropdown-toggle {
