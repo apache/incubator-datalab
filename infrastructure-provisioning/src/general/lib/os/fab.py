@@ -913,7 +913,6 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
 
 
 def update_hosts_file(os_user):
-    global conn
     try:
         if not exists(conn,'/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
             conn.sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')
