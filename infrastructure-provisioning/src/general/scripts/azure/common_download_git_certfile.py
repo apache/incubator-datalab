@@ -40,7 +40,7 @@ container_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 if __name__ == "__main__":
-    datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
         if ssn_storage_account_tag == storage_account.tags["Name"]:

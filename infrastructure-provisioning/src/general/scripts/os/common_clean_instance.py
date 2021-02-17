@@ -117,7 +117,7 @@ def clean_tensor_rstudio():
 
 if __name__ == "__main__":
     print('Configure connections')
-    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     if os.environ['conf_cloud_provider'] == 'azure':
         de_master_name = '{}-{}-{}-de-{}-m'.format(

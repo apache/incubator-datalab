@@ -46,7 +46,7 @@ def create_user(os_user):
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
 
-    datalab.fab.init_datalab_connection(args.instance_ip, initial_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.instance_ip, initial_user, args.keyfile)
 
     try:
         conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
@@ -185,7 +185,7 @@ def summary():
 if __name__ == "__main__":
     create_user(os.environ['conf_os_user'])
 
-    datalab.fab.init_datalab_connection(args.instance_ip, os.environ['conf_os_user'], args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.instance_ip, os.environ['conf_os_user'], args.keyfile)
 
     prepare_config()
     install_gitlab()

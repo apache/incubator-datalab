@@ -38,7 +38,7 @@ from fabric import *
 from patchwork.files import exists
 
 
-def ensure_pip(requisites):
+def ensure_pip(requisites, conn):
     try:
         if not exists('/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
             conn.sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
@@ -912,7 +912,7 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         sys.exit(1)
 
 
-def update_hosts_file(os_user):
+def update_hosts_file(os_user, conn):
     try:
         if not exists('/home/{}/.ensure_dir/hosts_file_updated'.format(os_user)):
             conn.sudo('sed -i "s/^127.0.0.1 localhost/127.0.0.1 localhost localhost.localdomain/g" /etc/hosts')

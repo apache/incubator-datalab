@@ -40,7 +40,7 @@ args = parser.parse_args()
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
     print("Enabling proxy for notebook server for repositories access.")

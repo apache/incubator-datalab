@@ -38,7 +38,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     inactivity_dir = '/opt/inactivity/'
     if args.resource_type == 'dataengine':

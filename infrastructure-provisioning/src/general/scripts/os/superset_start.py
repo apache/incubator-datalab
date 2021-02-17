@@ -49,7 +49,7 @@ def start_superset(superset_dir):
 
 if __name__ == "__main__":
     print("Configure connections")
-    datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     print("Starting Superset")
     try:
         start_superset(superset_dir)

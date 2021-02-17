@@ -75,7 +75,7 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
 
 
 if __name__ == "__main__":
-    datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
     all_pkgs = dict()
     if args.group == 'os_pkg':
         all_pkgs['os_pkg'] = get_available_os_pkgs()

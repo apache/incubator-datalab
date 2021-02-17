@@ -39,7 +39,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     jars_dir = '/opt/jars/'
     templates_dir = '/root/templates/'
