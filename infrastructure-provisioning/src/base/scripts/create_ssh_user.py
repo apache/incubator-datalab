@@ -39,7 +39,7 @@ parser.add_argument('--sudo_group', type=str, default='')
 args = parser.parse_args()
 
 
-def ensure_ssh_user(initial_user, os_user, sudo_group, conn):
+def ensure_ssh_user(initial_user, os_user, sudo_group):
     if not exists(conn, '/home/{}/.ssh_user_ensured'.format(initial_user)):
         conn.sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
         conn.sudo('bash -c "echo \'{} ALL = NOPASSWD:ALL\' >> /etc/sudoers"'.format(os_user))
