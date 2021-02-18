@@ -27,10 +27,10 @@ import { ErrorUtils } from '../util';
 export class ConfigurationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public getServiceSettings(service): Observable<{}> {
-    service = ConfigurationService.convertProvisioning(service);
+  public getServiceSettings(endpoint): Observable<{}> {
+    const queryString = `?endpoint=${endpoint}`;
     return this.applicationServiceFacade
-      .buildGetServiceConfig(service)
+      .buildGetServiceConfig(queryString)
        .pipe(
       map(response => response),
       catchError(ErrorUtils.handleServiceError));
@@ -38,7 +38,8 @@ export class ConfigurationService {
 
   public setServiceConfig(service: string, config: string, endpoint: string): Observable<{}> {
     const settings = {
-      [endpoint]: config
+      ymlDto: config,
+      endpoint: endpoint
     };
     service = ConfigurationService.convertProvisioning(service);
 
@@ -50,7 +51,7 @@ export class ConfigurationService {
   }
 
   public restartServices(self: boolean, prov: boolean, billing: boolean, endpoint: string): Observable<{}> {
-    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoints=${endpoint}`;
+    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoint=${endpoint}`;
     return this.applicationServiceFacade
       .buildRestartServices(queryString)
       .pipe(

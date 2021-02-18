@@ -79,7 +79,7 @@ export class ApplicationServiceFacade {
   private static readonly ENDPOINT = 'endpoint';
   private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
   private static readonly AUDIT = 'audit';
-  private static readonly CONFIG = 'admin';
+  private static readonly CONFIG = 'config';
   private static readonly QUOTA = 'quota';
 
   private requestRegistry: Dictionary<string>;
@@ -677,18 +677,19 @@ export class ApplicationServiceFacade {
   public buildGetServiceConfig(data): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.CONFIG),
-      data);
+      data
+      );
   }
 
   public buildSetServiceConfig(data, body): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + data,
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/' + data,
       body);
   }
 
   public buildRestartServices(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + 'restart' + data,
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/restart' + data,
       null );
   }
 
@@ -780,7 +781,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.AUDIT, '/api/audit');
 
     // configuration
-    this.requestRegistry.Add(ApplicationServiceFacade.CONFIG, '/api/config/multiple/');
+    this.requestRegistry.Add(ApplicationServiceFacade.CONFIG, '/api/config/multiple');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {

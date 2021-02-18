@@ -254,10 +254,13 @@
   .mat-select-placeholder {
     cursor: not-allowed;
   }
-
+  .mat-select-value{
+    cursor: not-allowed;
+  }
 }
 
-.mat-select-disabled + .caret {
+.mat-select-disabled + .caret,
+.mat-tab-disabled{
   cursor: not-allowed !important;
 }
 
