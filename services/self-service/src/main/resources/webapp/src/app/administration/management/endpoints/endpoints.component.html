@@ -106,7 +106,7 @@
           </div>
         </mat-tab>
         <mat-tab label="ENDPOINTS LIST">
-          <div class="endpoints">
+          <div class="endpoints scrolling">
             <table mat-table [dataSource]="endpoints" class="endpoints-table" *ngIf="endpoints?.length; else empty">
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef class="name"> Endpoint name </th>

@@ -89,6 +89,11 @@ mat-dialog-container {
           font-size: 18px;
           background: $modal-header-color;
 
+          &::after{
+            content: '';
+            display: block;
+          }
+
           i {
             vertical-align: middle;
           }
@@ -254,6 +259,10 @@ mat-dialog-container {
       text-overflow: ellipsis;
       overflow: hidden;
       cursor: default;
+      &::after{
+        content: '';
+        display: block;
+      }
     }
 
     &.tooltip-wrap {
@@ -262,7 +271,6 @@ mat-dialog-container {
         font-weight: 600;
         color: #455c74;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
     }
   }
@@ -287,6 +295,10 @@ mat-dialog-container {
     display: block;
     max-width: 450px;
     white-space: nowrap;
+    &::after{
+      content: '';
+      display: block;
+    }
     &.link-icon{
       //margin-left: 10px;
       cursor: pointer;
@@ -357,7 +369,9 @@ mat-dialog-container {
 .confirmation-dialog p.delete-user{
   font-weight: 500;
   max-height: 200px;
-  overflow: auto;
+  padding: 5px;
+  overflow: hidden auto;
+  text-overflow: ellipsis;
 }
 
 .bucket-browser{

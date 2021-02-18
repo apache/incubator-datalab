@@ -179,7 +179,6 @@
         padding: 5px 10px;
         font-size: 13px;
         max-width: 110px !important;
-        text-overflow: ellipsis;
         white-space: nowrap;
         display: inline-block;
         line-height: 10px;
@@ -247,8 +246,12 @@
     justify-content: space-between;
     padding-right: 10px;
     span{
-      overflow: hidden;
-      text-overflow: ellipsis;
+      cursor: default;
+
+      &::after{
+        content: '';
+        display: block;
+      }
     }
   }
 

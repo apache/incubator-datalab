@@ -69,7 +69,7 @@
                   class="library-input"
                 >
               </div>
-              <mat-autocomplete #auto="matAutocomplete" class="suggestions" >
+              <mat-autocomplete #auto="matAutocomplete" class="suggestions scrolling">
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
                   <mat-option>
                     <div class="option" (click)="selectLibrary(item);$event.stopPropagation()" [ngClass]="{'not-allow': item.isInSelectedList}">
@@ -314,7 +314,7 @@
           <ng-container *ngFor="let lib of filtredNotebookLibs">
             <mat-list-item class="table-item">
             <div class="lib-name lib-name-col ellipsis" >
-              <span [matTooltip]="lib.name + ' ' + lib.version" matTooltipPosition="above" class="lib-name-wrapper">
+              <span [matTooltip]="lib.name + ' ' + lib.version" matTooltipPosition="above" class="lib-name-wrapper ellipsis">
                 <span class="stong" >{{ lib.name }}</span>&nbsp;
                 <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
               </span>

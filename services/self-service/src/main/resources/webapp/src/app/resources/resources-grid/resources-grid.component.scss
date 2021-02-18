@@ -85,13 +85,10 @@ table.resources {
           padding-left: 21px;
           cursor: pointer;
           overflow: hidden;
-          text-overflow: ellipsis;
-          //min-width: 187px;
         }
 
         &.resources-col {
           overflow: hidden;
-          text-overflow: ellipsis;
         }
       }
     }
@@ -157,7 +154,6 @@ table.resources {
       padding: 5px 10px;
       font-size: 13px;
       max-width: 110px !important;
-      text-overflow: ellipsis;
       white-space: nowrap;
       display: inline-block;
       line-height: 10px;
@@ -283,6 +279,10 @@ table.resources {
     cursor: pointer;
     overflow: hidden;
     text-overflow: ellipsis;
+    &::after{
+      content: '';
+      display: block;
+    }
   }
 
   .dashboard_table tr:nth-child(2n + 1) {
@@ -330,6 +330,7 @@ table.resources {
   }
 
   .currency_details {
+    display: flex;
     color: #35afd5;
     cursor: pointer;
     transition: all 0.45s ease-in-out;
@@ -373,6 +374,7 @@ table.resources {
   0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
   border: none;
   min-width: 190px;
+  max-height: calc(100vh / 2 - 70px);
 }
 
 .settings:not(.label-header) {
