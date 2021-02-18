@@ -1,11 +1,12 @@
 package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.annotation.Audit;
 import com.epam.datalab.backendapi.dao.EndpointDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
+import com.epam.datalab.backendapi.modules.ChangePropertiesConst;
 import com.epam.datalab.backendapi.resources.dto.YmlDTO;
 import com.epam.datalab.exceptions.DynamicChangePropertiesException;
+import com.epam.datalab.exceptions.ResourceNotFoundException;
 import com.epam.datalab.rest.client.RESTService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -24,49 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
-import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE;
-
 @Slf4j
-public class DynamicChangeProperties {
-
-    private static final String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
-    private static final String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
-    private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
-    private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
-    private static final String SECRET_REPLACEMENT_FORMAT = " ***********";
-    private static final String SUPERVISORCTL_RESTART_SH_COMMAND = "sudo supervisorctl restart";
-    private static final String CHANGE_CHMOD_SH_COMMAND_FORMAT = "sudo chmod %s %s";
-    private static final String DEFAULT_CHMOD = "644";
-    private static final String WRITE_CHMOD = "777";
-
-    private static final String LICENCE_REGEX = "# \\*{50,}";
-    private static final String LICENCE =
-            "# *****************************************************************************\n" +
-                    "#\n" +
-                    "# Licensed to the Apache Software Foundation (ASF) under one\n" +
-                    "# or more contributor license agreements. See the NOTICE file\n" +
-                    "# distributed with this work for additional information\n" +
-                    "# regarding copyright ownership. The ASF licenses this file\n" +
-                    "# to you under the Apache License, Version 2.0 (the\n" +
-                    "# \"License\"); you may not use this file except in compliance\n" +
-                    "# with the License. You may obtain a copy of the License at\n" +
-                    "#\n" +
-                    "# http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    "#\n" +
-                    "# Unless required by applicable law or agreed to in writing,\n" +
-                    "# software distributed under the License is distributed on an\n" +
-                    "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n" +
-                    "# KIND, either express or implied. See the License for the\n" +
-                    "# specific language governing permissions and limitations\n" +
-                    "# under the License.\n" +
-                    "#\n" +
-                    "# ******************************************************************************";
-
-    private static final int DEFAULT_VALUE_PLACE = 1;
-    private static final int DEFAULT_NAME_PLACE = 0;
-
-
+public class DynamicChangeProperties implements ChangePropertiesConst {
     private final RESTService externalSelfService;
     private final EndpointDAO endpointDAO;
 
@@ -84,20 +44,30 @@ public class DynamicChangeProperties {
         writeFileFromString(ymlString, name, path);
     }
 
-    public Map<String, String> getPropertiesWithExternal(String path, String name, UserInfo userInfo) {
-        List<EndpointDTO> externalEndpoints = endpointDAO.getEndpointsWithStatus("ACTIVE");
-        Map<String, String> endpoints = externalEndpoints.stream()
-                .filter(endpointDTO -> !endpointDTO.getName().equals("local"))
-                .collect(Collectors.toMap(EndpointDTO::getName,
-                        dto -> readFileAsString(path, name, dto, userInfo)));
-        endpoints.put("local", getProperties(path, name));
-        return endpoints;
-
+    public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo) {
+        EndpointDTO endpointDTO = endpointDAO.get(endpoint)
+                .orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + endpoint + " not found"));
+        Map<String, String> properties = new HashMap<>();
+        if (endpoint.equals("local")) {
+            properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
+            properties.put(PROVISIONING_SERVICE, getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE));
+            properties.put(BILLING_SERVICE, getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE));
+        } else {
+            log.info("Trying to read properties, for external endpoint : {} , for user: {}",
+                    endpoint, userInfo.getSimpleName());
+            String url = endpointDTO.getUrl() + "/api/config";
+            properties.put(SELF_SERVICE,
+                    externalSelfService.get(url + "/self-service", userInfo.getAccessToken(), String.class));
+            properties.put(PROVISIONING_SERVICE,
+                    externalSelfService.get(url + "/provisioning-service", userInfo.getAccessToken(), String.class));
+            properties.put(BILLING_SERVICE,
+                    externalSelfService.get(url + "/billing", userInfo.getAccessToken(), String.class));
+        }
+        return properties;
     }
 
     public void overwritePropertiesWithExternal(String path, String name, Map<String, YmlDTO> ymlDTOS,
                                                 UserInfo userInfo) {
-
         List<EndpointDTO> allEndpoints = endpointDAO.getEndpointsWithStatus("ACTIVE");
         Map<EndpointDTO, String> endpointsToChange = allEndpoints.stream()
                 .filter(e -> ymlDTOS.containsKey(e.getName()))
@@ -111,6 +81,17 @@ public class DynamicChangeProperties {
         });
         if (ymlDTOS.containsKey("local")) {
             overwriteProperties(path, name, ymlDTOS.get("local").getYmlString());
+        }
+    }
+
+    public void restart(boolean billing, boolean provserv, boolean ui) {
+        try {
+            String shCommand = buildSHRestartCommand(billing, provserv, ui);
+            log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
+                    provserv, billing, shCommand);
+            Runtime.getRuntime().exec(shCommand).waitFor();
+        } catch (IOException | InterruptedException e) {
+            log.error(e.getMessage());
         }
     }
 
@@ -130,16 +111,6 @@ public class DynamicChangeProperties {
         }
     }
 
-    public void restart(boolean billing, boolean provserv, boolean ui) {
-        try {
-            String shCommand = buildSHRestartCommand(billing, provserv, ui);
-            log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
-                    provserv, billing, shCommand);
-            Runtime.getRuntime().exec(shCommand).waitFor();
-        } catch (IOException | InterruptedException e) {
-            log.error(e.getMessage());
-        }
-    }
 
     private String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
         StringBuilder stringBuilder = new StringBuilder(SUPERVISORCTL_RESTART_SH_COMMAND);
@@ -158,14 +129,6 @@ public class DynamicChangeProperties {
             log.error(e.getMessage());
             throw new DynamicChangePropertiesException(String.format("Failed while read file %s", serviceName));
         }
-    }
-
-    private String readFileAsString(String selfServicePropPath, String serviceName, EndpointDTO endpoint, UserInfo userInfo) {
-        log.info("Trying to read self-service.yml, for external endpoint : {} , for user: {}",
-                endpoint, userInfo.getSimpleName());
-        String currentConf = externalSelfService.get(endpoint.getUrl() + "/api/admin/self-service",
-                userInfo.getAccessToken(), String.class);
-        return hideSecretsAndRemoveLicence(currentConf);
     }
 
     private String hideSecretsAndRemoveLicence(String currentConf) {

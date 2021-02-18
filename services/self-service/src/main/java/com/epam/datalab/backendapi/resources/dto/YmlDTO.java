@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class YmlDTO {
 
+    private String endpointName;
     private String ymlString;
 }
