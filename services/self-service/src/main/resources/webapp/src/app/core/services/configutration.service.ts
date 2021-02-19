@@ -51,7 +51,6 @@ export class ConfigurationService {
   }
 
   public restartServices(ui: boolean, provserv: boolean, billing: boolean, endpoint: string): Observable<{}> {
-    // const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoint=${endpoint}`;
     const body = {
       billing, provserv, ui, endpoint
     };
