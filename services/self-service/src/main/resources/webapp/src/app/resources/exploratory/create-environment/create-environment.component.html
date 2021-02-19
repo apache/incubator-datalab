@@ -29,7 +29,7 @@
           <label class="label">Select project</label>
           <div class="control selector-wrapper">
             <mat-form-field>
-              <mat-select formControlName="project" panelClass="create-resources-dialog" placeholder="Select project">
+              <mat-select formControlName="project" panelClass="create-resources-dialog scrolling" placeholder="Select project">
                 <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
                   {{ project.name }}</mat-option>
                 <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty
@@ -47,7 +47,7 @@
           <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !endpoints.length }">
             <mat-form-field>
               <mat-select formControlName="endpoint" disableOptionCentering [disabled]="!endpoints.length"
-                panelClass="create-resources-dialog" placeholder="Select endpoint">
+                panelClass="create-resources-dialog scrolling" placeholder="Select endpoint">
                 <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint"
                   (click)="getTemplates(createExploratoryForm?.controls['project'].value, endpoint)">{{ endpoint }}
                 </mat-option>
