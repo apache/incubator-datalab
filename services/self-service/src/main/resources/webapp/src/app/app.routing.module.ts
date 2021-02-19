@@ -26,17 +26,17 @@ import { ResourcesComponent } from './resources/resources.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './service-pages/not-found/not-found.component';
 import { AccessDeniedComponent } from './service-pages/access-denied/access-denied.component';
-import { ReportingComponent } from './reports/reporting/reporting.component';
 import { WebterminalComponent } from './webterminal/webterminal.component';
-import { ManagementComponent } from './administration/management/management.component';
+import { ManagementComponent } from './administration/management';
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
-import { SwaggerComponent } from './swagger/swagger.component';
+import { SwaggerComponent } from './swagger';
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard, AuditGuard } from './core/services';
-import {AuditComponent} from './reports/audit/audit.component';
 import {ConfigurationComponent} from './administration/configuration/configuration.component';
-import {OdahuComponent} from './administration/odahu/odahu.component';
 import {ProjectAdminGuard} from './core/services/projectAdmin.guard';
+import {ReportingComponent} from './reports/reporting/reporting.component';
+import {OdahuComponent} from './administration/odahu/odahu.component';
+import {AuditComponent} from './reports/audit/audit.component';
 
 const routes: Routes = [{
   path: 'login',

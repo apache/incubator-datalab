@@ -268,7 +268,6 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
   }
 
   public deleteAddedFile(file) {
-    console.log('deleteAddedFile');
     if ( file.subscr && file.request) {
       this.dialog.open(BucketConfirmationDialogComponent, {data: {items: file, type: 'cancel-uploading'} , width: '550px'})
         .afterClosed().subscribe((res) => {
