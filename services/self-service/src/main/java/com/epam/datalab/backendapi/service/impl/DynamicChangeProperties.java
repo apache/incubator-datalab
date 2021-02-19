@@ -74,7 +74,7 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
         if (ymlDTO.getEndpointName().equals("local")) {
             writeFileFromString(ymlDTO.getYmlString(), name, path);
         } else {
-            String url = endpoint.getUrl() + "/api/config/" + findMethodName(name);
+            String url = endpoint.getUrl() + "/api/config/multiple/" + findMethodName(name);
             externalSelfService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
         }
     }
