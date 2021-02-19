@@ -40,7 +40,7 @@
       </ng-container> -->
 
       <ng-container matColumnDef="name" sticky>
-        <th mat-header-cell *matHeaderCellDef class="name-col ellipsis label-header">
+        <th mat-header-cell *matHeaderCellDef class="name-col label-header">
           <span class="label">Environment name</span>
           <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
             <i class="material-icons">
@@ -313,7 +313,7 @@
         </th>
       </ng-container>
       <ng-container matColumnDef="resource-filter">
-        <th mat-header-cell *matHeaderCellDef class="resources-col ellipsis filter-row-item">
+        <th mat-header-cell *matHeaderCellDef class="resources-col filter-row-item">
           <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
                                  [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
         </th>
