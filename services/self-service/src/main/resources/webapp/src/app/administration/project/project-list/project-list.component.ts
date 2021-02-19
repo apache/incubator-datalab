@@ -67,14 +67,14 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   private getProjectList() {
-    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.progressBarService.startProgressBar();
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
       this.projectList = value;
       if (this.projectList) {
         this.projectList.forEach(project => {
-          project.areRunningNode = this.areStartedEndpoints(project);
-          project.areStoppedNode = this.areStoppedEndpoints(project);
-          project.areTerminatedNode = this.areTerminatedOrFailedEndpoints(project);
+          project.areRunningNode = this.areResoursesInStatuses(project.endpoints, ['RUNNING']);
+          project.areStoppedNode = this.areResoursesInStatuses(project.endpoints, ['STOPPED']);
+          project.areTerminatedNode = this.areResoursesInStatuses(project.endpoints, ['TERMINATED', 'FAILED']);
         });
       }
       if (value) this.dataSource = new MatTableDataSource(value);
@@ -91,26 +91,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.dataSource = new MatTableDataSource(filteredList);
   }
 
-  public toggleEndpointAction(project, action, endpoint) {
-    this.toggleStatus.emit({project, endpoint, action});
-  }
-
   public editProject(item: Project[]) {
     this.editItem.emit(item);
-  }
-
-  public isInProgress(project) {
-    if (project)
-      return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED');
-  }
-
-  public isActiveEndpoint(project) {
-    if (project)
-      return project.endpoints.some(e => e.status !== 'TERMINATED' && e.status !== 'FAILED');
-  }
-
-  public toEndpointStatus(status) {
-    return CheckUtils.endpointStatus[status] || status;
   }
 
   public openEdgeDialog(action, project) {
@@ -141,14 +123,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       }
     }
 
-  public areStartedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status === 'RUNNING').length > 0;
-  }
-
-  public areStoppedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status === 'STOPPED').length > 0;
-  }
-  public areTerminatedOrFailedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status === 'TERMINATED' || endpoint.status === 'FAILED').length > 0;
+  public areResoursesInStatuses(resources, statuses: Array<string>) {
+    return resources.some(resource => statuses.some(status => resource.status === status));
   }
 }

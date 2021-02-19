@@ -43,10 +43,18 @@
               <span class="arrow" [ngClass]="{'rotate-arrow': isOpenCategory[item.type], 'arrow-checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}">
                 <i class="material-icons">keyboard_arrow_right</i>
               </span>
-              <span class="empty-checkbox" [ngClass]="{'checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}" (click)="toggleselectedCategory($event, model, item.type);$event.stopPropagation()" >
-                <span class="checked-checkbox" *ngIf="selectedAllInCattegory(item.type)"></span>
-                <span class="line-checkbox" *ngIf="selectedSomeInCattegory(item.type)"></span>
-              </span>
+<!--              <span class="empty-checkbox" [ngClass]="{'checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}" (click)="toggleselectedCategory($event, model, item.type);$event.stopPropagation()" >-->
+<!--                <span class="checked-checkbox" *ngIf="selectedAllInCattegory(item.type)"></span>-->
+<!--                <span class="line-checkbox" *ngIf="selectedSomeInCattegory(item.type)"></span>-->
+<!--              </span>-->
+              <datalab-checkbox
+                class="header-checkbox"
+                [checked]="selectedAllInCattegory(item.type)"
+                [someChecked]="selectedSomeInCattegory(item.type)"
+                (toggleSelection)="toggleselectedCategory(model, item.type)"
+              >
+              </datalab-checkbox>
+
               {{labels[item.type] || item.type | titlecase}}
             </a>
           </li>
@@ -56,10 +64,16 @@
               *ngIf="model && isOpenCategory[item.type] && item.type !== 'COMPUTATIONAL_SHAPE' && item.type !== 'NOTEBOOK_SHAPE'"
               [hidden]="!isAdmin && item.role === 'Allow to execute administration operation'"
           >
-            <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
-              <span class="empty-checkbox" [ngClass]="{'checked': checkInModel(item.role)}">
-                <span class="checked-checkbox" *ngIf="checkInModel(item.role)"></span>
-              </span>
+            <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions(model, item, $event)">
+<!--              <span class="empty-checkbox" [ngClass]="{'checked': checkInModel(item.role)}">-->
+<!--                <span class="checked-checkbox" *ngIf="checkInModel(item.role)"></span>-->
+<!--              </span>-->
+              <datalab-checkbox
+                class="header-checkbox"
+                [checked]="checkInModel(item.role)"
+                (toggleSelection)="toggleSelectedOptions(model, item)"
+              >
+              </datalab-checkbox>
               {{item.role}}
             </a>
           </li>
@@ -73,24 +87,37 @@
               <span class="arrow" [ngClass]="{'rotate-arrow': isCloudOpen[item.type + item.cloud], 'arrow-checked': selectedAllInCloud(item.type, item.cloud) || selectedSomeInCloud(item.type, item.cloud)}">
                  <i class="material-icons">keyboard_arrow_right</i>
               </span>
-              <span class="empty-checkbox"
-                    [ngClass]="{
-                    'checked': selectedAllInCloud(item.type, item.cloud)
-                    || selectedSomeInCloud(item.type, item.cloud)}"
-                    (click)="toggleSelectedCloud($event, model, item.type, item.cloud);
-                    $event.stopPropagation()"
+<!--              <span class="empty-checkbox"-->
+<!--                    [ngClass]="{-->
+<!--                    'checked': selectedAllInCloud(item.type, item.cloud)-->
+<!--                    || selectedSomeInCloud(item.type, item.cloud)}"-->
+<!--                    (click)="toggleSelectedCloud($event, model, item.type, item.cloud);-->
+<!--                    $event.stopPropagation()"-->
+<!--              >-->
+<!--                <span class="checked-checkbox" *ngIf="selectedAllInCloud(item.type, item.cloud)"></span>-->
+<!--                <span class="line-checkbox" *ngIf="selectedSomeInCloud(item.type, item.cloud)"></span>-->
+<!--              </span>-->
+              <datalab-checkbox
+                class="header-checkbox"
+                [checked]="selectedAllInCloud(item.type, item.cloud)"
+                [someChecked]="selectedSomeInCloud(item.type, item.cloud)"
+                (toggleSelection)="toggleSelectedCloud(model, item.type, item.cloud)"
               >
-                <span class="checked-checkbox" *ngIf="selectedAllInCloud(item.type, item.cloud)"></span>
-                <span class="line-checkbox" *ngIf="selectedSomeInCloud(item.type, item.cloud)"></span>
-              </span>
+              </datalab-checkbox>
               {{item.cloud}}
             </a>
           </li>
           <li class="role-cloud-item" role="presentation" *ngIf="model && isCloudOpen[item.type + item.cloud] && isOpenCategory[item.type]" >
-            <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
-              <span class="empty-checkbox" [ngClass]="{'checked': checkInModel(item.role)}">
-                <span class="checked-checkbox" *ngIf="checkInModel(item.role)"></span>
-              </span>
+            <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions( model, item, $event)">
+<!--              <span class="empty-checkbox" [ngClass]="{'checked': checkInModel(item.role)}">-->
+<!--                <span class="checked-checkbox" *ngIf="checkInModel(item.role)"></span>-->
+<!--              </span>-->
+              <datalab-checkbox
+                class="header-checkbox"
+                [checked]="checkInModel(item.role)"
+                (toggleSelection)="toggleSelectedOptions(model, item)"
+              >
+              </datalab-checkbox>
               {{item.role}}
             </a>
           </li>

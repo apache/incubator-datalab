@@ -26,19 +26,21 @@ import { DirectivesModule } from '../../core/directives';
 import {ConvertActionPipeModule, KeysPipeModule, UnderscorelessPipeModule} from '../../core/pipes';
 import { BubbleModule } from '..';
 import {MultiLevelSelectDropdownComponent} from './multi-level-select-dropdown/multi-level-select-dropdown.component';
+import {CheckboxModule} from '../checkbox';
 
 export * from './multi-select-dropdown/multi-select-dropdown.component';
 export * from './dropdown-list/dropdown-list.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        DirectivesModule,
-        KeysPipeModule,
-        UnderscorelessPipeModule,
-        BubbleModule,
-        ConvertActionPipeModule
-    ],
+  imports: [
+    CommonModule,
+    DirectivesModule,
+    KeysPipeModule,
+    UnderscorelessPipeModule,
+    BubbleModule,
+    ConvertActionPipeModule,
+    CheckboxModule
+  ],
   declarations: [DropdownListComponent, MultiSelectDropdownComponent, MultiLevelSelectDropdownComponent],
   exports: [DropdownListComponent, MultiSelectDropdownComponent, MultiLevelSelectDropdownComponent]
 })

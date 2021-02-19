@@ -81,10 +81,11 @@ table.resources {
         align-items: center;
 
         &.name-col {
-          padding-right: 5px;
           padding-left: 21px;
-          cursor: pointer;
           overflow: hidden;
+          span{
+            cursor: pointer;
+          }
         }
 
         &.resources-col {
@@ -123,7 +124,6 @@ table.resources {
     padding-right: 5px;
     padding-left: 24px;
     background-color: inherit;
-    //min-width: 187px;
   }
 
   .project-name{
@@ -136,7 +136,6 @@ table.resources {
   .status-col,
   .shape-col {
     width: 11%;
-    //min-width: 105px;
   }
   .shape-col{
     color: #577289;
@@ -147,7 +146,6 @@ table.resources {
 
   .tag-col {
     width: 13%;
-    //min-width: 95px;
 
     mat-chip {
       min-height: 20px;
@@ -163,12 +161,10 @@ table.resources {
 
   .resources-col {
     width: 32%;
-    //min-width: 420px;
   }
 
   .cost-col {
     width: 10%;
-    //min-width: 95px;
     justify-content: space-between;
   }
 
@@ -199,7 +195,6 @@ table.resources {
   }
 
   .actions-col {
-    //width: 10%;
     padding-right: 24px;
     text-align: right;
     background-color: inherit;
@@ -211,8 +206,7 @@ table.resources {
   tr.detail-row {
     height: 0;
   }
-
-
+  
   .element-diagram {
     min-width: 80px;
     border: 2px solid black;
@@ -314,7 +308,7 @@ table.resources {
     padding-left: 12px;
     font-size: 13px;
   }
-
+  
   &.data-grid .status-col .status {
     text-transform: capitalize;
   }

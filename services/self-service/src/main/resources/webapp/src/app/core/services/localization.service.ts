@@ -19,20 +19,19 @@
 
 import { Injectable } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
-import * as _moment from 'moment';
-import 'moment-timezone';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocalizationService {
-  public timezone = _moment().format('Z');
   private _locale;
 
-  constructor() { }
+  constructor() {
+
+  }
 
   get locale() {
+
     if (!this._locale) {
       let locale = window.navigator.language;
       if (locale.indexOf('-') !== -1 && locale !== 'en-GB') {
@@ -44,7 +43,6 @@ export class LocalizationService {
   }
 
   public static registerCulture(culture: string) {
-    console.log(culture);
     if (culture.indexOf('-') !== -1 && culture !== 'en-GB') {
       culture = culture.substr(0, culture.indexOf('-'));
     }
