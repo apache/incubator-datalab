@@ -17,23 +17,27 @@
  * under the License.
  */
 
-import {ApplicationRef, ChangeDetectorRef, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject, timer} from 'rxjs';
-import {take} from 'rxjs/operators';
+import {Component, EventEmitter, HostListener, Input, Output} from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
+
+@Component({
+  selector: 'datalab-checkbox',
+  templateUrl: 'checkbox.component.html',
+  styleUrls: ['./checkbox.component.css'],
 })
-export class ProgressBarService {
-  public showProgressBar = new BehaviorSubject(false);
 
-  constructor() { }
+export class CheckboxComponent {
 
-  public stopProgressBar() {
-    this.showProgressBar.next(false);
+  @Input() checked: boolean;
+  @Input() someChecked: boolean;
+  @Input() disabled: boolean;
+  @Output() toggleSelection: EventEmitter<{}> = new EventEmitter();
+
+  @HostListener('click', ['$event']) onClick(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.toggleSelection.emit(!this.checked);
   }
 
-  public startProgressBar() {
-    timer(0).subscribe(_ => this.showProgressBar.next(true));
-  }
+  constructor() {}
 }

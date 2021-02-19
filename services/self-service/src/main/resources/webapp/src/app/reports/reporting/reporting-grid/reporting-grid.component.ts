@@ -33,6 +33,7 @@ import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
 import {BehaviorSubject, fromEvent, Observable, of, Subject, timer} from 'rxjs';
 import {logger} from 'codelyzer/util/logger';
 import {take} from 'rxjs/operators';
+import {CompareUtils} from '../../../core/util/compareUtils';
 
 export interface IFullReport {
   currency: string;
@@ -105,7 +106,6 @@ export class ReportingGridComponent implements OnInit {
       this.tableEl = this.table._elementRef.nativeElement;
     }, 1000);
     this.checkFilters();
-    // this.compareFilters();
   }
 
   onUpdate($event): void {
@@ -114,9 +114,9 @@ export class ReportingGridComponent implements OnInit {
   }
 
   private checkFilters() {
-    this.isFilterChanged = JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
+    this.isFilterChanged = CompareUtils.compareFilters(this.filteredReportData, this.previousFilterData);
     this.isFilterSelected = Object.keys(this.filteredReportData)
-      .filter(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0).length > 0;
+      .some(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0);
   }
 
   refreshData(fullReport, report) {

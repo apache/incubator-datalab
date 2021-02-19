@@ -17,23 +17,22 @@
  * under the License.
  */
 
-import {ApplicationRef, ChangeDetectorRef, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject, timer} from 'rxjs';
-import {take} from 'rxjs/operators';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class ProgressBarService {
-  public showProgressBar = new BehaviorSubject(false);
-
-  constructor() { }
-
-  public stopProgressBar() {
-    this.showProgressBar.next(false);
+export class CompareUtils {
+  public static compareFilters(currentData, previousData) {
+    return Object.keys(currentData).every(el => {
+      if (Array.isArray(previousData[el])) {
+        // console.log('arr', el, previousData[el], currentData[el]);
+        if (previousData[el].length === 0 && currentData[el].length === 0) return true;
+        if (previousData[el].length === currentData[el].length) {
+          return currentData[el].every(element => previousData[el].includes(element));
+        } else {
+          return false;
+        }
+      } else {
+        // console.log(el, previousData[el] === currentData[el]);
+        return previousData[el] === currentData[el];
+      }
+    });
   }
 
-  public startProgressBar() {
-    timer(0).subscribe(_ => this.showProgressBar.next(true));
-  }
 }

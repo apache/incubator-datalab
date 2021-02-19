@@ -28,7 +28,6 @@ interface BucketNode {
   children?: BucketNode[];
 }
 
-/** Flat node with expandable and level information */
 interface BucketFlatNode {
   expandable: boolean;
   name: string;
@@ -74,22 +73,22 @@ export class BucketTreeComponent implements OnInit {
     this.setActiveBucket();
   }
 
-  public openBucketData(bucket) {
+  public openBucketData(bucket): void {
     this.dataSource['_treeControl'].collapseAll();
     this.setActiveBucket(bucket);
     this.emitActiveBucket.emit(bucket);
   }
 
-  public setActiveBucket(bucket?) {
+  public setActiveBucket(bucket?): void {
     this.activeBacket = bucket || this.dataSource._flattenedData.getValue().filter(v => v.name === this.openedBucket)[0];
     this.expandAllParents(this.activeBacket);
   }
 
-  public toggleProject(el, isExpanded){
+  public toggleProject(el, isExpanded): void {
     isExpanded ? this.treeControl.collapse(el) : this.treeControl.expand(el);
   }
 
-  private expandAllParents(el) {
+  private expandAllParents(el): void {
     if (el) {
       this.treeControl.expand(el);
       if (this.getParentNode(el) !== null) {

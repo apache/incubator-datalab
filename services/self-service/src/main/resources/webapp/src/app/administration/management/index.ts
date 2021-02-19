@@ -38,22 +38,24 @@ import { DirectivesModule } from '../../core/directives';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import {EndpointsComponent, EndpointTestResultDialogComponent} from './endpoints/endpoints.component';
 import { ProjectModule } from '../project';
+import {CheckboxModule} from '../../shared/checkbox';
 
 export * from './management.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ProjectModule,
-    BubbleModule,
-    ConfirmationDialogModule,
-    ComputationalResourcesModule,
-    FormControlsModule,
-    DirectivesModule,
-    MaterialModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ProjectModule,
+        BubbleModule,
+        ConfirmationDialogModule,
+        ComputationalResourcesModule,
+        FormControlsModule,
+        DirectivesModule,
+        MaterialModule,
+        CheckboxModule
+    ],
   declarations: [
     ManagementComponent,
     ManagementGridComponent,

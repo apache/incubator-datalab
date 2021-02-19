@@ -93,7 +93,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getGeneralBillingData() {
-    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.progressBarService.startProgressBar();
     this.cashedFilterData = JSON.parse(JSON.stringify(this.reportData));
     Object.setPrototypeOf(this.cashedFilterData, Object.getPrototypeOf(this.reportData));
     this.billingReportService.getGeneralBillingData(this.reportData)

@@ -17,23 +17,14 @@
  * under the License.
  */
 
-import {ApplicationRef, ChangeDetectorRef, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject, timer} from 'rxjs';
-import {take} from 'rxjs/operators';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MaterialModule } from '../material.module';
+import {CheckboxComponent} from './checkbox.component';
 
-@Injectable({
-  providedIn: 'root'
+@NgModule({
+    imports: [CommonModule, MaterialModule],
+    declarations: [CheckboxComponent],
+    exports: [CheckboxComponent]
 })
-export class ProgressBarService {
-  public showProgressBar = new BehaviorSubject(false);
-
-  constructor() { }
-
-  public stopProgressBar() {
-    this.showProgressBar.next(false);
-  }
-
-  public startProgressBar() {
-    timer(0).subscribe(_ => this.showProgressBar.next(true));
-  }
-}
+export class CheckboxModule { }
