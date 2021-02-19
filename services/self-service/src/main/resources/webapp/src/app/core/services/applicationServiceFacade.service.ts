@@ -689,8 +689,8 @@ export class ApplicationServiceFacade {
 
   public buildRestartServices(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/restart' + data,
-      null );
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/restart',
+      data );
   }
 
   private setupRegistry(): void {

@@ -50,10 +50,13 @@ export class ConfigurationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public restartServices(self: boolean, prov: boolean, billing: boolean, endpoint: string): Observable<{}> {
-    const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoint=${endpoint}`;
+  public restartServices(ui: boolean, provserv: boolean, billing: boolean, endpoint: string): Observable<{}> {
+    // const queryString = `?billing=${billing}&provserv=${prov}&ui=${self}&endpoint=${endpoint}`;
+    const body = {
+      billing, provserv, ui, endpoint
+    };
     return this.applicationServiceFacade
-      .buildRestartServices(queryString)
+      .buildRestartServices(body)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
