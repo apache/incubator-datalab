@@ -153,7 +153,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
       const files = fullFilesList.filter(v => v.size < this.maxFileSize);
       const toBigFile = fullFilesList.length !== files.length;
       const toMany = files.length > 50;
-      if (files.length > 50) {
+      if (toMany) {
         files.length = 50;
       }
       if (toBigFile || toMany) {
@@ -193,15 +193,22 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
       let askForAll = true;
       let skipAll = false;
 
-      const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
+      const folderFiles = this.folderItems.reduce((existFiles, item) => {
+        if (!item.children) {
+          existFiles.push(item.item);
+        }
+        return existFiles;
+      }, []);
+
       for (const file of files) {
-        const existFile = folderFiles.filter(v => v === file['name'])[0];
+        const existFile = folderFiles.find(v => v === file['name']);
         const uploadItem = {
           name: file['name'],
           file: file,
           size: file.size,
           path: this.path,
         };
+
         if (existFile && askForAll) {
           const result = await this.openResolveDialog(existFile);
           if (result) {
@@ -223,7 +230,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       const element = document.querySelector('#upload-list');
       element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
-    }, 0);
+    }, 10);
   }
 
   async openResolveDialog(existFile) {
@@ -273,15 +280,15 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
         .afterClosed().subscribe((res) => {
           res && file.subscr.unsubscribe();
           res && this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
-          this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+          this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
           this.sendFile();
       }, () => {
-        this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+        this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
         this.sendFile();
       });
     } else {
       this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
-      this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+      this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
       this.sendFile();
     }
   }
@@ -296,6 +303,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     formData.append('endpoint', this.endpoint);
     formData.append('file', file.file);
     file.status = 'waiting';
+
     file.request = this.bucketBrowserService.uploadFile(formData);
     this.sendFile(file);
   }
@@ -304,7 +312,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     const waitUploading = this.addedFiles.filter(v => v.status === 'waiting');
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
     this.isQueueFull = !!waitUploading.length;
-    this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+    this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
     // console.log((this.getTokenValidTime() / 1000 / 60 ).toFixed(0) + ' minutes');
     if ((this.refreshTokenLimit > this.getTokenValidTime()) && !this.isTokenRefreshing) {
       this.refreshToken();
@@ -314,8 +322,8 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
         file = waitUploading[0];
       }
       file.status = 'uploading';
-      this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
-      this.isQueueFull = !!this.addedFiles.filter(v => v.status === 'waiting').length;
+      this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
+      this.isQueueFull = this.addedFiles.some(v => v.status === 'waiting');
       file.subscr =  file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
              file.progress = Math.round(95 * event.loaded / event.total);
@@ -330,14 +338,14 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
             window.clearInterval(file.interval);
             file.status = 'uploaded';
             delete file.request;
-            this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
+            this.sendFile(this.addedFiles.find(v => v.status === 'waiting'));
             this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
           }
         }, error => {
         window.clearInterval(file.interval);
           file.status = 'failed';
           delete file.request;
-          this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
+          this.sendFile(this.addedFiles.find(v => v.status === 'waiting'));
         }
       );
     }
