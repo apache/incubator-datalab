@@ -397,3 +397,15 @@
     bottom: 3px;
   }
 }
+
+@-moz-document url-prefix() {
+  .totaL-item {
+    &.scrollbar-right{
+      right: 8px !important;
+    }
+
+    &.scrollbar-bottom{
+      bottom: 8px !important;
+    }
+  }
+}
