@@ -64,10 +64,10 @@ const routes: Routes = [{
       canActivate: [AuthorizationGuard, AdminGuard],
     },
      {
-      path: 'odahu',
-      component: OdahuComponent,
-      canActivate: [AuthorizationGuard, AdminGuard],
-    }, {
+    //   path: 'odahu',
+    //   component: OdahuComponent,
+    //   canActivate: [AuthorizationGuard, AdminGuard],
+    // }, {
       path: 'roles',
       component: RolesComponent,
       canActivate: [AuthorizationGuard, AdminGuard],
