@@ -777,6 +777,9 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT_CONNECTION, '/api/endpoint/url/');
 
+    // Odahu
+    this.requestRegistry.Add(ApplicationServiceFacade.ODAHU, '/api/odahu');
+
     // audit
     this.requestRegistry.Add(ApplicationServiceFacade.AUDIT, '/api/audit');
 

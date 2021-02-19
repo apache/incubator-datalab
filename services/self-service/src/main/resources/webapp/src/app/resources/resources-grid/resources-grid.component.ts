@@ -23,7 +23,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import {ProjectService, UserResourceService, OdahuDeploymentService} from '../../core/services';
-import { ExploratoryModel, Exploratory } from './resources-grid.model';
+import { ExploratoryModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
@@ -37,12 +37,12 @@ import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmat
 import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 import {AuditService} from '../../core/services/audit.service';
-import {JAN} from '@angular/material/core';
-import {ReconfirmationDialogComponent} from '../../administration/management/management-grid/management-grid.component';
+import {NotificationDialogComponent} from '../../shared/modal-dialog/notification-dialog';
+import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
+
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -96,7 +96,7 @@ export class ResourcesGridComponent implements OnInit {
   @Input() projects: Array<any>;
   @Output() getEnvironments: EventEmitter<any> = new EventEmitter();
 
-  environments: Exploratory[];
+  environments;
 
   collapseFilterRow: boolean = false;
   filtering: boolean = false;
@@ -104,7 +104,7 @@ export class ResourcesGridComponent implements OnInit {
   activeProject: any;
   healthStatus: GeneralEnvironmentStatus;
 
-  filteredEnvironments: Exploratory[] = [];
+  filteredEnvironments = [];
   filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
 
@@ -322,7 +322,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private getDefaultFilterConfiguration(): void {
-    const data: Exploratory[] = this.environments;
+    const data = this.environments;
     const shapes = [], statuses = [], resources = [];
 
     data.filter(elem => elem.exploratory.map((item: any) => {
