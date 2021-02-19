@@ -17,29 +17,51 @@
   ~ under the License.
   -->
 
-<div class="base-retreat">
+<div class="base-retreat configuration">
   <div class="sub-nav">
-    <ng-template [ngIf]="activeTab.index !== 0">
-      <button mat-raised-button class="butt"
-              (click)="action('save')"
-              [disabled]="!services['provisioning'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
-      >
-        Save
+    <div class="selection">
+      <ng-template [ngIf]="endpoints?.length > 1">
+        <label class="label">Selected endpoint: </label>
+        <div class="mat-reset">
+          <div class="control selector-wrapper">
+            <mat-form-field [ngClass]="{ 'not-active' : services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged }">
+              <mat-label>Select endpoint</mat-label>
+                <mat-select [(value)]="activeEndpoint" panelClass="top-select" [disabled]="services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged">
+                  <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint"
+                              (click)="setActiveEndpoint(endpoint)">
+                    {{ endpoint }}</mat-option>
+                </mat-select>
+              <button class="caret">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+    <div>
+      <ng-template [ngIf]="activeTab.index !== 0">
+        <button mat-raised-button class="butt"
+                (click)="action('save')"
+                [disabled]="!services['provisioning'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+        >
+          Save
+        </button>
+        <button mat-raised-button class="butt"
+                (click)="action('discard')"
+                [disabled]="!services['provisioning'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
+        >
+          Discard changes
+        </button>
+      </ng-template>
+      <button mat-raised-button class="butt" (click)="refreshConfig()">
+        <i class="material-icons refresh-icon">autorenew</i>Refresh
       </button>
-      <button mat-raised-button class="butt"
-              (click)="action('discard')"
-              [disabled]="!services['provisioning'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged"
-      >
-        Discard changes
-      </button>
-    </ng-template>
-    <button mat-raised-button class="butt" (click)="refreshConfig()">
-      <i class="material-icons refresh-icon">autorenew</i>Refresh
-    </button>
+    </div>
   </div>
   <mat-divider></mat-divider>
   <div class="configuration-wrapper">
-    <mat-tab-group animationDuration="0.5ms" (selectedTabChange)="tabChanged($event)">
+    <mat-tab-group animationDuration="0.5ms" (selectedTabChange)="tabChanged($event)" [selectedIndex]=activeTab.index>
       <mat-tab label="Main"
                [disabled]="!(!services['provisioning'].isConfigChanged && !services['self-service'].isConfigChanged && !services['billing'].isConfigChanged) && activeTab.index !== 0"
       >

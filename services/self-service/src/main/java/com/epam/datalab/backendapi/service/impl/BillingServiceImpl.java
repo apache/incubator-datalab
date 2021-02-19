@@ -24,12 +24,7 @@ import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.dao.BillingDAO;
 import com.epam.datalab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
-import com.epam.datalab.backendapi.domain.BillingReport;
-import com.epam.datalab.backendapi.domain.BillingReportLine;
-import com.epam.datalab.backendapi.domain.BudgetDTO;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
-import com.epam.datalab.backendapi.domain.ProjectDTO;
-import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.datalab.backendapi.domain.*;
 import com.epam.datalab.backendapi.resources.dto.BillingFilter;
 import com.epam.datalab.backendapi.resources.dto.ExportBillingFilter;
 import com.epam.datalab.backendapi.resources.dto.QuotaUsageDTO;
@@ -59,16 +54,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,21 +69,21 @@ public class BillingServiceImpl implements BillingService {
     private final EndpointService endpointService;
     private final ExploratoryService exploratoryService;
     private final SelfServiceApplicationConfiguration configuration;
-    private final RESTService provisioningService;
+    private final RESTService billingService;
     private final ImageExploratoryDAO imageExploratoryDao;
     private final BillingDAO billingDAO;
 
     @Inject
     public BillingServiceImpl(ProjectService projectService, ProjectDAO projectDAO, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
-                              @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDAO imageExploratoryDao,
-                              BillingDAO billingDAO) {
+                              @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService billingService,
+                              ImageExploratoryDAO imageExploratoryDao, BillingDAO billingDAO) {
         this.projectService = projectService;
         this.projectDAO = projectDAO;
         this.endpointService = endpointService;
         this.exploratoryService = exploratoryService;
         this.configuration = configuration;
-        this.provisioningService = provisioningService;
+        this.billingService = billingService;
         this.imageExploratoryDao = imageExploratoryDao;
         this.billingDAO = billingDAO;
     }
@@ -126,17 +112,17 @@ public class BillingServiceImpl implements BillingService {
                 .build();
     }
 
-	@Override
-	public String downloadReport(UserInfo user, ExportBillingFilter filter, String locale) {
-		BillingReport report = getBillingReport(user, filter);
-		boolean isReportComplete = report.isReportHeaderCompletable();
-		StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo(), locale));
-		String stringOfAdjustedHeader = BillingUtils.getHeader(isReportComplete);
-		reportHead.append(stringOfAdjustedHeader);
-		report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isReportComplete)));
-		reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
-		return reportHead.toString();
-	}
+    @Override
+    public String downloadReport(UserInfo user, ExportBillingFilter filter, String locale) {
+        BillingReport report = getBillingReport(user, filter);
+        boolean isReportComplete = report.isReportHeaderCompletable();
+        StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo(), locale));
+        String stringOfAdjustedHeader = BillingUtils.getHeader(isReportComplete);
+        reportHead.append(stringOfAdjustedHeader);
+        report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isReportComplete)));
+        reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
+        return reportHead.toString();
+    }
 
     @Override
     public BillingReport getExploratoryBillingData(String project, String endpoint, String exploratoryName, List<String> compNames) {
@@ -174,6 +160,7 @@ public class BillingServiceImpl implements BillingService {
             log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
             if (!billingData.isEmpty()) {
                 updateBillingData(endpointDTO, billingData, endpoints);
+                log.info("Updating billing information for endpoint {}. Billing data {} success", endpointDTO.getName(), billingData);
             }
         });
     }
@@ -254,10 +241,10 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .peek(bd -> bd.setApplication(endpointName))
                 .map(bd -> toBillingReport(bd, getOrDefault(billableResources, bd.getTag())));
-
         if (cloudProvider == CloudProvider.GCP) {
             final Map<String, List<BillingReportLine>> gcpBillingData = billingReportLineStream
-                    .collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
+//                    .collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
+                    .collect(Collectors.groupingBy(BillingReportLine::getUsageDate));
             updateGcpBillingData(endpointName, gcpBillingData);
         } else if (cloudProvider == CloudProvider.AWS) {
             final Map<String, List<BillingReportLine>> awsBillingData = billingReportLineStream
@@ -275,6 +262,10 @@ public class BillingServiceImpl implements BillingService {
     }
 
     private void updateGcpBillingData(String endpointName, Map<String, List<BillingReportLine>> billingData) {
+        log.info("!!!TEST OUT!!! BillingReportLine: {}", billingData);
+        log.info("!!!TEST OUT!!! endpointName: {}", endpointName);
+
+
         billingData.forEach((usageDate, billingReportLines) -> {
             billingDAO.deleteByUsageDateRegex(endpointName, usageDate);
             billingDAO.save(billingReportLines);
@@ -294,7 +285,7 @@ public class BillingServiceImpl implements BillingService {
 
     private List<BillingData> getBillingData(UserInfo userInfo, EndpointDTO endpointDTO) {
         try {
-            return provisioningService.get(getBillingUrl(endpointDTO.getUrl(), BILLING_PATH), userInfo.getAccessToken(),
+            return billingService.get(getBillingUrl(endpointDTO.getUrl(), BILLING_PATH), userInfo.getAccessToken(),
                     new GenericType<List<BillingData>>() {
                     });
         } catch (Exception e) {
@@ -312,9 +303,9 @@ public class BillingServiceImpl implements BillingService {
             throw new DatalabException("Wrong URI syntax");
         }
         return new URIBuilder()
-		        .setScheme(uri.getScheme())
-		        .setHost(uri.getHost())
-		        .setPort(configuration.getBillingPort())
+                .setScheme(uri.getScheme())
+                .setHost(uri.getHost())
+                .setPort(configuration.getBillingPort())
                 .setPath(path)
                 .toString();
     }

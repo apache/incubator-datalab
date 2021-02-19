@@ -1,10 +1,18 @@
 package com.epam.datalab.backendapi.service.impl;
 
-import com.epam.datalab.backendapi.annotation.Audit;
+import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.dao.EndpointDAO;
+import com.epam.datalab.backendapi.domain.EndpointDTO;
+import com.epam.datalab.backendapi.modules.ChangePropertiesConst;
+import com.epam.datalab.backendapi.modules.RestartForm;
+import com.epam.datalab.backendapi.resources.dto.YmlDTO;
 import com.epam.datalab.exceptions.DynamicChangePropertiesException;
+import com.epam.datalab.exceptions.ResourceNotFoundException;
+import com.epam.datalab.rest.client.RESTService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
+import javax.inject.Inject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -17,91 +25,69 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
-import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE;
-
 @Slf4j
-public class DynamicChangeProperties {
+public class DynamicChangeProperties implements ChangePropertiesConst {
+    private final RESTService externalSelfService;
+    private final EndpointDAO endpointDAO;
 
-    private static final String SELF_SERVICE = "self-service.yml";
-    //services/self-service/self-service.yml";
-    private static final String SELF_SERVICE_PROP_PATH = "/opt/datalab/conf/self-service.yml";
-    private static final String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
-    private static final String PROVISIONING_SERVICE = "provisioning.yml";
-    //"services/provisioning-service/provisioning.yml";
-    private static final String PROVISIONING_SERVICE_PROP_PATH = "/opt/datalab/conf/provisioning.yml";
-    private static final String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
-    private static final String BILLING_SERVICE = "billing.yml";
-    //"services/billing-aws/billing.yml";
-    //"services/billing-azure/billing.yml";
-    //"services/billing-gcp/billing.yml";
-    private static final String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
-    private static final String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
-    private static final String SECRET_REGEX = "((.*)[sS]ecret(.*)|password): (.*)";
-    private static final String SECRET_REPLACEMENT_FORMAT = " ***********";
-    private static final String SUPERVISORCTL_RESTART_SH_COMMAND = "sudo supervisorctl restart";
-    private static final String CHANGE_CHMOD_SH_COMMAND_FORMAT = "sudo chmod %s %s";
-    private static final String DEFAULT_CHMOD = "644";
-    private static final String WRITE_CHMOD = "777";
-
-    private static final String LICENCE_REGEX = "# \\*{50,}";
-    private static final String LICENCE =
-            "# *****************************************************************************\n" +
-                    "#\n" +
-                    "# Licensed to the Apache Software Foundation (ASF) under one\n" +
-                    "# or more contributor license agreements. See the NOTICE file\n" +
-                    "# distributed with this work for additional information\n" +
-                    "# regarding copyright ownership. The ASF licenses this file\n" +
-                    "# to you under the Apache License, Version 2.0 (the\n" +
-                    "# \"License\"); you may not use this file except in compliance\n" +
-                    "# with the License. You may obtain a copy of the License at\n" +
-                    "#\n" +
-                    "# http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    "#\n" +
-                    "# Unless required by applicable law or agreed to in writing,\n" +
-                    "# software distributed under the License is distributed on an\n" +
-                    "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n" +
-                    "# KIND, either express or implied. See the License for the\n" +
-                    "# specific language governing permissions and limitations\n" +
-                    "# under the License.\n" +
-                    "#\n" +
-                    "# ******************************************************************************\n";
-
-    private static final int DEFAULT_VALUE_PLACE = 1;
-    private static final int DEFAULT_NAME_PLACE = 0;
-
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static String getSelfServiceProperties() {
-        return readFileAsString(SELF_SERVICE_PROP_PATH, SELF_SERVICE);
+    @Inject
+    public DynamicChangeProperties(RESTService externalSelfService, EndpointDAO endpointDAO) {
+        this.externalSelfService = externalSelfService;
+        this.endpointDAO = endpointDAO;
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static String getProvisioningServiceProperties() {
-        return readFileAsString(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE);
+    public String getProperties(String path, String name) {
+        return readFileAsString(path, name);
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static String getBillingServiceProperties() {
-        return readFileAsString(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE);
+    public void overwriteProperties(String path, String name, String ymlString) {
+        writeFileFromString(ymlString, name, path);
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwriteSelfServiceProperties(String ymlString) {
-        writeFileFromString(ymlString, SELF_SERVICE, SELF_SERVICE_PROP_PATH);
+    public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo) {
+        EndpointDTO endpointDTO = findEndpointDTO(endpoint);
+        Map<String, String> properties = new HashMap<>();
+        if (endpoint.equals("local")) {
+            properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
+            properties.put(PROVISIONING_SERVICE, getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE));
+            properties.put(BILLING_SERVICE, getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE));
+        } else {
+            log.info("Trying to read properties, for external endpoint : {} , for user: {}",
+                    endpoint, userInfo.getSimpleName());
+            String url = endpointDTO.getUrl() + "/api/config";
+            properties.put(SELF_SERVICE,
+                    externalSelfService.get(url + "/self-service", userInfo.getAccessToken(), String.class));
+            properties.put(PROVISIONING_SERVICE,
+                    externalSelfService.get(url + "/provisioning-service", userInfo.getAccessToken(), String.class));
+            properties.put(BILLING_SERVICE,
+                    externalSelfService.get(url + "/billing", userInfo.getAccessToken(), String.class));
+        }
+        return properties;
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwriteProvisioningServiceProperties(String ymlString) {
-        writeFileFromString(ymlString, PROVISIONING_SERVICE, PROVISIONING_SERVICE_PROP_PATH);
+    public void overwritePropertiesWithExternal(String path, String name, YmlDTO ymlDTO, UserInfo userInfo) {
+        log.info("Trying to write {}, for external endpoint : {} , for user: {}",
+                name, ymlDTO.getEndpointName(), userInfo.getSimpleName());
+        EndpointDTO endpoint = findEndpointDTO(ymlDTO.getEndpointName());
+        if (ymlDTO.getEndpointName().equals("local")) {
+            writeFileFromString(ymlDTO.getYmlString(), name, path);
+        } else {
+            String url = endpoint.getUrl() + "/api/config/multiple/" + findMethodName(name);
+            externalSelfService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
+        }
     }
 
-    @Audit(action = RECONFIGURE, type = EDGE_NODE)
-    public static void overwriteBillingServiceProperties(String ymlString) {
-        writeFileFromString(ymlString, BILLING_SERVICE, BILLING_SERVICE_PROP_PATH);
+    private EndpointDTO findEndpointDTO(String endpointName) {
+        return endpointDAO.get(endpointName)
+                .orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + endpointName
+                        + " not found"));
     }
 
-    public static void restart(boolean billing, boolean provserv, boolean ui) {
+    public void restart(RestartForm restartForm) {
         try {
+            boolean billing = restartForm.isBilling();
+            boolean provserv = restartForm.isProvserv();
+            boolean ui = restartForm.isUi();
             String shCommand = buildSHRestartCommand(billing, provserv, ui);
             log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
@@ -111,7 +97,32 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
+
+    public void restartForExternal(RestartForm restartForm, UserInfo userInfo) {
+        EndpointDTO endpointDTO = findEndpointDTO(restartForm.getEndpoint());
+        String url = endpointDTO.getUrl() + "/api/config/multiple/restart";
+        log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
+        externalSelfService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
+    }
+
+    private String findMethodName(String name) {
+        switch (name) {
+            case "self-service.yml": {
+                return "self-service";
+            }
+            case "provisioning.yml": {
+                return "provisioning-service";
+            }
+            case "billing.yml": {
+                return "billing";
+            }
+            default:
+                return "";
+        }
+    }
+
+
+    private String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
         StringBuilder stringBuilder = new StringBuilder(SUPERVISORCTL_RESTART_SH_COMMAND);
         if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
         if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
@@ -119,7 +130,7 @@ public class DynamicChangeProperties {
         return stringBuilder.toString();
     }
 
-    private static String readFileAsString(String selfServicePropPath, String serviceName) {
+    private String readFileAsString(String selfServicePropPath, String serviceName) {
         try {
             log.info("Trying to read self-service.yml, file from path {} :", selfServicePropPath);
             String currentConf = FileUtils.readFileToString(new File(selfServicePropPath), Charset.defaultCharset());
@@ -130,7 +141,7 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String hideSecretsAndRemoveLicence(String currentConf) {
+    private String hideSecretsAndRemoveLicence(String currentConf) {
         Matcher m = Pattern.compile(SECRET_REGEX).matcher(currentConf);
         List<String> secrets = new ArrayList<>();
         String confWithReplacedSecretConf = removeLicence(currentConf);
@@ -145,11 +156,11 @@ public class DynamicChangeProperties {
         return confWithReplacedSecretConf;
     }
 
-    private static String removeLicence(String conf) {
+    private String removeLicence(String conf) {
         return conf.split(LICENCE_REGEX)[conf.split(LICENCE_REGEX).length - 1];
     }
 
-    private static void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
+    private void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
             String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
             changeCHMODE(serviceName, servicePath, DEFAULT_CHMOD, WRITE_CHMOD);
@@ -164,10 +175,9 @@ public class DynamicChangeProperties {
             log.error("Failed during overwriting {}", serviceName);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
         }
-
     }
 
-    private static void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
+    private void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
         try {
             String command = String.format(CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
             log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
@@ -178,16 +188,16 @@ public class DynamicChangeProperties {
         }
     }
 
-    private static String addLicence() {
+    private String addLicence() {
         return LICENCE;
     }
 
-    private static String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
+    private String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
         Map<String, String> emptySecrets = findEmptySecret(newPropFile);
         return emptySecrets.isEmpty() ? newPropFile : replaceEmptySecret(newPropFile, oldProf, emptySecrets);
     }
 
-    private static String replaceEmptySecret(String newPropFile, String oldProf, Map<String, String> emptySecrets) {
+    private String replaceEmptySecret(String newPropFile, String oldProf, Map<String, String> emptySecrets) {
         String fileWithReplacedEmptySecrets = newPropFile;
         Matcher oldProfMatcher = Pattern.compile(SECRET_REGEX).matcher(oldProf);
         while (oldProfMatcher.find()) {
@@ -199,7 +209,7 @@ public class DynamicChangeProperties {
         return fileWithReplacedEmptySecrets;
     }
 
-    private static Map<String, String> findEmptySecret(String newPropFile) {
+    private Map<String, String> findEmptySecret(String newPropFile) {
         Matcher newPropFileMatcher = Pattern.compile(SECRET_REGEX).matcher(newPropFile);
         Map<String, String> emptySecrets = new HashMap<>();
         while (newPropFileMatcher.find()) {

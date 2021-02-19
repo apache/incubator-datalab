@@ -79,7 +79,7 @@ export class ApplicationServiceFacade {
   private static readonly ENDPOINT = 'endpoint';
   private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
   private static readonly AUDIT = 'audit';
-  private static readonly ADMIN = 'admin';
+  private static readonly CONFIG = 'config';
   private static readonly QUOTA = 'quota';
 
   private requestRegistry: Dictionary<string>;
@@ -676,23 +676,21 @@ export class ApplicationServiceFacade {
 
   public buildGetServiceConfig(data): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.ADMIN),
-      data, { responseType: 'text' });
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG),
+      data
+      );
   }
 
   public buildSetServiceConfig(data, body): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.ADMIN) + data,
-      body, {
-        // responseType: 'text',
-        // headers: { 'Content-Type': 'text/plain' }
-      });
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/' + data,
+      body);
   }
 
   public buildRestartServices(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.ADMIN) + 'restart' + data,
-      null );
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/restart',
+      data );
   }
 
   private setupRegistry(): void {
@@ -779,14 +777,14 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT_CONNECTION, '/api/endpoint/url/');
 
-    //Odahu
+    // Odahu
     this.requestRegistry.Add(ApplicationServiceFacade.ODAHU, '/api/odahu');
 
     // audit
     this.requestRegistry.Add(ApplicationServiceFacade.AUDIT, '/api/audit');
 
     // configuration
-    this.requestRegistry.Add(ApplicationServiceFacade.ADMIN, '/api/admin/');
+    this.requestRegistry.Add(ApplicationServiceFacade.CONFIG, '/api/config/multiple');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {
