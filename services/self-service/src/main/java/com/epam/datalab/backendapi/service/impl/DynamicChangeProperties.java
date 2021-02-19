@@ -4,6 +4,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.dao.EndpointDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.modules.ChangePropertiesConst;
+import com.epam.datalab.backendapi.modules.RestartForm;
 import com.epam.datalab.backendapi.resources.dto.YmlDTO;
 import com.epam.datalab.exceptions.DynamicChangePropertiesException;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
@@ -44,8 +45,7 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
     }
 
     public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo) {
-        EndpointDTO endpointDTO = endpointDAO.get(endpoint)
-                .orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + endpoint + " not found"));
+        EndpointDTO endpointDTO = findEndpointDTO(endpoint);
         Map<String, String> properties = new HashMap<>();
         if (endpoint.equals("local")) {
             properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
@@ -68,9 +68,7 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
     public void overwritePropertiesWithExternal(String path, String name, YmlDTO ymlDTO, UserInfo userInfo) {
         log.info("Trying to write {}, for external endpoint : {} , for user: {}",
                 name, ymlDTO.getEndpointName(), userInfo.getSimpleName());
-        EndpointDTO endpoint = endpointDAO.get(ymlDTO.getEndpointName())
-                .orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + ymlDTO.getEndpointName()
-                        + " not found"));
+        EndpointDTO endpoint = findEndpointDTO(ymlDTO.getEndpointName());
         if (ymlDTO.getEndpointName().equals("local")) {
             writeFileFromString(ymlDTO.getYmlString(), name, path);
         } else {
@@ -79,8 +77,17 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
         }
     }
 
-    public void restart(boolean billing, boolean provserv, boolean ui) {
+    private EndpointDTO findEndpointDTO(String endpointName) {
+        return endpointDAO.get(endpointName)
+                .orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + endpointName
+                        + " not found"));
+    }
+
+    public void restart(RestartForm restartForm) {
         try {
+            boolean billing = restartForm.isBilling();
+            boolean provserv = restartForm.isProvserv();
+            boolean ui = restartForm.isUi();
             String shCommand = buildSHRestartCommand(billing, provserv, ui);
             log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
@@ -88,6 +95,14 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage());
         }
+    }
+
+
+    public void restartForExternal(RestartForm restartForm, UserInfo userInfo) {
+        EndpointDTO endpointDTO = findEndpointDTO(restartForm.getEndpoint());
+        String url = endpointDTO.getUrl() + "/api/config/multiple/restart";
+        log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
+        externalSelfService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
     }
 
     private String findMethodName(String name) {

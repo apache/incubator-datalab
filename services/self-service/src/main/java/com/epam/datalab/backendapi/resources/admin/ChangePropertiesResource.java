@@ -2,6 +2,7 @@ package com.epam.datalab.backendapi.resources.admin;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.modules.ChangePropertiesConst;
+import com.epam.datalab.backendapi.modules.RestartForm;
 import com.epam.datalab.backendapi.resources.dto.YmlDTO;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.impl.DynamicChangeProperties;
@@ -108,12 +109,9 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
 
     @POST
     @Path("restart")
-    public Response restart(@Auth UserInfo userInfo,
-                            @QueryParam("billing") boolean billing,
-                            @QueryParam("provserv") boolean provserv,
-                            @QueryParam("ui") boolean ui) {
+    public Response restart(@Auth UserInfo userInfo, RestartForm restartForm) {
         if (UserRoles.isAdmin(userInfo)) {
-            dynamicChangeProperties.restart(billing, provserv, ui);
+            dynamicChangeProperties.restart(restartForm);
             return Response.ok().build();
         } else {
             return Response
@@ -171,6 +169,20 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
             dynamicChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE,
                     ymlDTO, userInfo);
             return Response.status(Response.Status.OK).build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+
+    @POST
+    @Path("/multiple/restart")
+    public Response restartWithExternal(@Auth UserInfo userInfo, RestartForm restartForm) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.restartForExternal(restartForm, userInfo);
+            return Response.ok().build();
         } else {
             return Response
                     .status(Response.Status.FORBIDDEN)
