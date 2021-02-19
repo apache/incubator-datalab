@@ -38,8 +38,8 @@ export class ConfigurationService {
 
   public setServiceConfig(service: string, config: string, endpoint: string): Observable<{}> {
     const settings = {
-      ymlDto: config,
-      endpoint: endpoint
+      ymlString: config,
+      endpointName: endpoint
     };
     service = ConfigurationService.convertProvisioning(service);
 
