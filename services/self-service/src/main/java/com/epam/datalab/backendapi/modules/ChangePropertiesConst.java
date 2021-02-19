@@ -1,7 +1,8 @@
 package com.epam.datalab.backendapi.modules;
 
 public interface ChangePropertiesConst {
-
+    // /root/self-service.yaml
+    // /root/billing.yaml
     String SELF_SERVICE = "self-service.yml";
     String SELF_SERVICE_PROP_PATH = "services/self-service/self-service.yml";
     //   String SELF_SERVICE_PROP_PATH = "/opt/datalab/conf/self-service.yml";

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class DynamicChangeProperties implements ChangePropertiesConst {
@@ -66,21 +65,17 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
         return properties;
     }
 
-    public void overwritePropertiesWithExternal(String path, String name, Map<String, YmlDTO> ymlDTOS,
-                                                UserInfo userInfo) {
-        List<EndpointDTO> allEndpoints = endpointDAO.getEndpointsWithStatus("ACTIVE");
-        Map<EndpointDTO, String> endpointsToChange = allEndpoints.stream()
-                .filter(e -> ymlDTOS.containsKey(e.getName()))
-                .filter(e -> !e.getName().equals("local"))
-                .collect(Collectors.toMap(e -> e, e -> ymlDTOS.get(e.getName()).getYmlString()));
-        endpointsToChange.forEach((endpoint, ymlString) -> {
-            log.info("Trying to write {}, for external endpoint : {} , for user: {}",
-                    name, endpoint.getName(), userInfo.getSimpleName());
-            String url = endpoint.getUrl() + "/api/admin/" + findMethodName(name);
-            externalSelfService.post(url, ymlString, userInfo.getAccessToken(), String.class);
-        });
-        if (ymlDTOS.containsKey("local")) {
-            overwriteProperties(path, name, ymlDTOS.get("local").getYmlString());
+    public void overwritePropertiesWithExternal(String path, String name, YmlDTO ymlDTO, UserInfo userInfo) {
+        log.info("Trying to write {}, for external endpoint : {} , for user: {}",
+                name, ymlDTO.getEndpointName(), userInfo.getSimpleName());
+        EndpointDTO endpoint = endpointDAO.get(ymlDTO.getEndpointName())
+                .orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + ymlDTO.getEndpointName()
+                        + " not found"));
+        if (ymlDTO.getEndpointName().equals("local")) {
+            writeFileFromString(ymlDTO.getYmlString(), name, path);
+        } else {
+            String url = endpoint.getUrl() + "/api/config/multiple/" + findMethodName(name);
+            externalSelfService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
         }
     }
 

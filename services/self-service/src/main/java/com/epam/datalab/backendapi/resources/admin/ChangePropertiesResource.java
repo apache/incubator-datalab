@@ -124,11 +124,53 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
 
     @GET
     @Path("/multiple")
-    public Response getAllSelfServiceProperties(@Auth UserInfo userInfo, @QueryParam("endpoint") String endpoint) {
+    public Response getAllPropertiesForEndpoint(@Auth UserInfo userInfo, @QueryParam("endpoint") String endpoint) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
                     .ok(dynamicChangeProperties.getPropertiesWithExternal(endpoint, userInfo))
                     .build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/multiple/self-service")
+    public Response overwriteExternalSelfServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.overwritePropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE,
+                    ymlDTO, userInfo);
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/multiple/provisioning-service")
+    public Response overwriteExternalProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
+                    ymlDTO, userInfo);
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/multiple/billing")
+    public Response overwriteExternalBillingProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE,
+                    ymlDTO, userInfo);
+            return Response.status(Response.Status.OK).build();
         } else {
             return Response
                     .status(Response.Status.FORBIDDEN)
