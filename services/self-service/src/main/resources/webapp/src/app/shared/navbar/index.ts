@@ -22,10 +22,11 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
 import { ProgressDialogModule, BubbleModule } from '../index';
-
 import { NavbarComponent } from './navbar.component';
 import { NotificationDialogModule } from '../modal-dialog/notification-dialog';
 import {EdgeActionDialogModule} from '../modal-dialog/edge-action-dialog';
+import {OdahuActionDialogModule} from '../modal-dialog/odahu-action-dialog';
+
 
 export * from './navbar.component';
 
@@ -38,6 +39,7 @@ export * from './navbar.component';
     EdgeActionDialogModule,
     ProgressDialogModule,
     BubbleModule,
+    OdahuActionDialogModule
   ],
   declarations: [NavbarComponent],
   exports: [NavbarComponent, RouterModule]

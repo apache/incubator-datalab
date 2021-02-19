@@ -21,4 +21,3 @@ export * from './modal-dialog/confirmation-dialog';
 export * from './modal-dialog/progress-dialog';
 
 export * from './bubble';
-export * from './inform-message';

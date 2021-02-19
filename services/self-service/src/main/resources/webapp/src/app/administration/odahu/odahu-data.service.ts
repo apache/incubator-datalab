@@ -3,10 +3,7 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {OdahuDeploymentService} from '../../core/services';
 
 
-@Injectable({
-  providedIn: 'root'
-})
-
+@Injectable()
 export class OdahuDataService {
   _odahuClasters = new BehaviorSubject<any>(null);
 

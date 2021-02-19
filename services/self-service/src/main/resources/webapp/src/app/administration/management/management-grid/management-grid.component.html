@@ -38,7 +38,7 @@
         </th>
         <td mat-cell *matCellDef="let element">
           <div
-            *ngIf="element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)"
+            *ngIf="element.type !== 'odahu' && element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources || [])"
              class="empty-checkbox"
              [ngClass]="{'checked': element.isSelected}"
              (click)="toggleActionForAll(element);$event.stopPropagation()"

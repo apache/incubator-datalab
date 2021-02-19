@@ -52,14 +52,14 @@ public class OdahuResource {
 	}
 
 	@GET
-	@RolesAllowed("/api/odahu")
+//	@RolesAllowed("/api/odahu")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getOdahuClusters(@Parameter(hidden = true) @Auth UserInfo userInfo) {
 		return Response.ok(odahuService.findOdahu()).build();
 	}
 
 	@POST
-	@RolesAllowed("/api/odahu")
+//	@RolesAllowed("/api/odahu")
 	public Response createOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
 	                                   @Parameter(hidden = true) @Context UriInfo uriInfo,
 	                                   @Valid OdahuCreateDTO odahuCreateDTO) {
@@ -70,7 +70,7 @@ public class OdahuResource {
 
 	@Path("start")
 	@POST
-	@RolesAllowed("/api/odahu")
+//	@RolesAllowed("/api/odahu")
 	public Response startOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
 	                                  @Valid OdahuActionDTO startOdahuDTO) {
 		odahuService.start(startOdahuDTO.getName(), startOdahuDTO.getProject(), startOdahuDTO.getEndpoint(), userInfo);
@@ -79,7 +79,7 @@ public class OdahuResource {
 
 	@Path("stop")
 	@POST
-	@RolesAllowed("/api/odahu")
+//	@RolesAllowed("/api/odahu")
 	public Response stopOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
 	                                 @Valid OdahuActionDTO stopOdahuDTO) {
 		odahuService.stop(stopOdahuDTO.getName(), stopOdahuDTO.getProject(), stopOdahuDTO.getEndpoint(), userInfo);
@@ -88,7 +88,7 @@ public class OdahuResource {
 
 	@Path("terminate")
 	@POST
-	@RolesAllowed("/api/odahu")
+//	@RolesAllowed("/api/odahu")
 	public Response terminateOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
 	                                      @Valid OdahuActionDTO terminateOdahuDTO) {
 		odahuService.terminate(terminateOdahuDTO.getName(), terminateOdahuDTO.getProject(), terminateOdahuDTO.getEndpoint(), userInfo);

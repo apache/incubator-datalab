@@ -213,7 +213,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
     this.allActiveNotebooks = this.allFilteredEnvironmentData
       .filter(v => v.name &&
       (v.status === 'running' || v.status === 'stopped') &&
-      !this.clustersInProgress(v.resources));
+      !this.clustersInProgress(v.resources || []));
     this.checkFilters();
   }
 
