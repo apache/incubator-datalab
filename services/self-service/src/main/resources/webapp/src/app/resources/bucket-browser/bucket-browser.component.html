@@ -149,7 +149,7 @@
             <div class="date"><span class="th_date">Last modified</span></div>
           </div>
         </div>
-        <ul class="folder-tree scrolling" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}" >
+        <ul class="folder-tree scrolling" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
           <li *ngFor="let file of folderItems" class="folder-item" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
               <div class="name name-folder">

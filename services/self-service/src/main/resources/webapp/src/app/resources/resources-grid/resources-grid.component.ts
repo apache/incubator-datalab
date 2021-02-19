@@ -29,7 +29,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import {ProjectService, UserResourceService, OdahuDeploymentService} from '../../core/services';
-import { ExploratoryModel, Exploratory } from './resources-grid.model';
+import { ExploratoryModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
@@ -43,12 +43,12 @@ import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmat
 import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 import {AuditService} from '../../core/services/audit.service';
 import {CompareUtils} from '../../core/util/compareUtils';
 import {timer} from 'rxjs';
+import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -102,16 +102,16 @@ export class ResourcesGridComponent implements OnInit {
   @Input() projects: Array<any>;
   @Output() getEnvironments: EventEmitter<any> = new EventEmitter();
 
-  public environments: Exploratory[];
+  public environments;
   public collapseFilterRow: boolean = false;
   public filtering: boolean = false;
   public activeFiltering: boolean = false;
   public activeProject: any;
   public healthStatus: GeneralEnvironmentStatus;
-
-  public filteredEnvironments: Exploratory[] = [];
+  public filteredEnvironments = [];
   public filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
   public filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
+
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
@@ -326,7 +326,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private getDefaultFilterConfiguration(): void {
-    const data: Exploratory[] = this.environments;
+    const data = this.environments;
     const shapes = [], statuses = [], resources = [];
 
     data.filter(elem => elem.exploratory.map((item: any) => {

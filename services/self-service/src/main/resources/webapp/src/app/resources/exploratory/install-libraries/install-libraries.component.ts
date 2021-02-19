@@ -220,7 +220,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           return lib.name.toLowerCase() === item.name.substring(0, item.name.lastIndexOf(':')).toLowerCase();
         });
       }
-    } else if ( this.autoComplete === 'NONE') {
+    } else if ( this.autoComplete === 'NONE' || (this.autoComplete === 'ENABLED' && !this.filteredList?.length && this.group !== 'java')) {
       this.selectedLib = {
         name: this.lib.name,
         version: this.lib.version,
@@ -233,6 +233,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public addLibrary(item): void {
     if ((this.autoComplete === 'ENABLED' && !this.isLibSelected && this.filteredList?.length)
+      || this.lib.name.trim().length < 2
       || (this.selectedLib && this.selectedLib.isInSelectedList) || this.isVersionInvalid || this.autoComplete === 'UPDATING') {
       return;
     }
@@ -586,6 +587,7 @@ export class ErrorLibMessageDialogComponent {
   `
   ]
 })
+
 export class LibInfoDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,

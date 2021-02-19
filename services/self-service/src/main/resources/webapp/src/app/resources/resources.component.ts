@@ -23,10 +23,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
-import { Exploratory } from './resources-grid/resources-grid.model';
 import {ApplicationSecurityService, HealthStatusService} from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
+
 
 @Component({
   selector: 'datalab-resources',
@@ -35,7 +35,7 @@ import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component'
 })
 
 export class ResourcesComponent implements OnInit, AfterViewInit {
-  public exploratoryEnvironments: Exploratory[] = [];
+  public exploratoryEnvironments = [];
   public healthStatus: any;
   projects = [];
 

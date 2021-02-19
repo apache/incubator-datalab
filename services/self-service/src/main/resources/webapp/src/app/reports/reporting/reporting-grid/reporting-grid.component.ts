@@ -35,6 +35,18 @@ import {logger} from 'codelyzer/util/logger';
 import {take} from 'rxjs/operators';
 import {CompareUtils} from '../../../core/util/compareUtils';
 
+export interface IFullReport {
+  currency: string;
+  from: Array<number>;
+  is_full: boolean;
+  name: string;
+  reportHeaderCompletable: true;
+  report_lines:  Array<any>;
+  sbn: string;
+  to: Array<number>;
+  total_cost: number;
+}
+
 @Component({
   selector: 'datalab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
@@ -49,7 +61,7 @@ export class ReportingGridComponent implements OnInit {
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
   collapseFilterRow: boolean = false;
   reportData: Array<any> = [];
-  fullReport: Array<any>;
+  fullReport: IFullReport;
   isFiltered: boolean = false;
   active: object = {};
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'empty', 'charge'];
@@ -109,6 +121,7 @@ export class ReportingGridComponent implements OnInit {
 
   refreshData(fullReport, report) {
     this.reportData = [...report];
+    console.log(fullReport);
     this.fullReport = fullReport;
     this.checkFilters();
   }

@@ -61,6 +61,16 @@
   height: calc(100% - 48px);
 }
 
+
+.mat-chip-list-wrap {
+  max-height: 120px;
+  overflow: auto;
+  margin-right: 5px;
+  .mat-chip-list-wrapper{
+    margin: 0;
+  }
+}
+
 mat-chip.mat-chip {
   outline: none;
   color: #758ea8;
@@ -390,8 +400,8 @@ input[type='number'] {
 .scrolling::-webkit-scrollbar,
 .ace_scrollbar::-webkit-scrollbar,
 .list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 3px;
+  height: 3px;
 }
 
 #scrolling::-webkit-scrollbar-track,
@@ -530,11 +540,12 @@ input[type='number'] {
   }
 }
 
-.mat-tooltip-for-users {
-  overflow-wrap: break-word;
+.group-updated-tooltip {
+  word-break: break-all;
+  max-width: 400px !important;
 }
 
-.mat-tooltip-description {
+.mat-tooltip-for-users, .mat-tooltip-description {
   overflow-wrap: break-word;
 }
 

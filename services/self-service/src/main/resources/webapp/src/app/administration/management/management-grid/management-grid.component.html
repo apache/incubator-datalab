@@ -36,7 +36,7 @@
           </button>
         </th>
         <td mat-cell *matCellDef="let element">
-          <ng-template [ngIf]="element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)">
+          <ng-template [ngIf]="element.type !== 'odahu' && element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)">
             <datalab-checkbox
               [checked]="element.isSelected"
               (toggleSelection)="toggleActionForAll(element)"
