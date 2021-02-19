@@ -66,13 +66,16 @@ export class CreateOdahuClusterComponent implements OnInit {
   }
 
   public setEndpoints(project): void {
+    console.log(project);
+    console.log(this.data);
     this.endpoints = project.endpoints
-      .filter(e => e.status === 'RUNNING' && !this.data.some(odahu => odahu.status !== 'FAILED'
-        && odahu.status !== 'TERMINATED'
-        && odahu.endpoint === e.name
-        && odahu.project === project.name)
-      )
+      // .filter(e => e.status === 'RUNNING' && !this.data.some(odahu => odahu.status !== 'FAILED'
+      //   && odahu.status !== 'TERMINATED'
+      //   && odahu.endpoint === e.name
+      //   && odahu.project === project.name)
+      // )
       .map(e => e.name);
+    console.log(project.endpoints);
   }
 
   private initFormModel(): void {
