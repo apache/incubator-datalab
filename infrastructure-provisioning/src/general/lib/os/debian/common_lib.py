@@ -164,9 +164,9 @@ def ensure_ntpd(user, edge_private_ip=''):
         if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             datalab.fab.conn.sudo('timedatectl set-ntp no')
             manage_pkg('-y install', 'remote', 'ntp ntpdate')
-            datalab.fab.conn.sudo('echo "tinker panic 0" >> /etc/ntp.conf')
+            datalab.fab.conn.sudo('bash -c \"echo "tinker panic 0" >> /etc/ntp.conf\"')
             if os.environ['conf_resource'] != 'ssn' and os.environ['conf_resource'] != 'edge':
-                datalab.fab.conn.sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
+                datalab.fab.conn.sudo('bash -c \"echo "server {} prefer iburst" >> /etc/ntp.conf\"'.format(edge_private_ip))
             datalab.fab.conn.sudo('systemctl restart ntp')
             datalab.fab.conn.sudo('systemctl enable ntp')
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))

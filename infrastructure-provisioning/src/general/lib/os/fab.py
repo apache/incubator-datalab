@@ -41,8 +41,8 @@ from patchwork.files import exists
 def ensure_pip(requisites):
     try:
         if not exists(conn,'/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
-            conn.sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
-            conn.sudo('echo export PATH >> /etc/profile')
+            conn.sudo('bash -c "echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile"')
+            conn.sudo('bash -c "echo export PATH >> /etc/profile"')
             conn.sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             conn.sudo('pip3 install --upgrade setuptools')
             conn.sudo('pip3 install -UI {} --no-cache-dir'.format(requisites))
