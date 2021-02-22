@@ -1266,9 +1266,9 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                         try:
                             livy_port = conn.sudo("cat /opt/" + emr_version + "/" + emr_name +
                                              "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | "
-                                             "awk '{printf $3}'").stdout
+                                             "awk '{printf $3}'").stdout.replace('\n','')
                             process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                                  "' | awk '{print $7}' | sed 's|/.*||g'").stdout
+                                                  "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
                             conn.sudo('kill -9 ' + process_number)
                             conn.sudo('systemctl disable livy-server-' + livy_port)
                         except:
@@ -1878,9 +1878,9 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             if os.environ['notebook_multiple_clusters'] == 'true':
                 try:
                     livy_port = conn.sudo("cat /opt/" + cluster_name +
-                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout
+                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
                     process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                          "' | awk '{print $7}' | sed 's|/.*||g'").stdout
+                                          "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
                     conn.sudo('kill -9 ' + process_number)
                     conn.sudo('systemctl disable livy-server-' + livy_port)
                 except:
@@ -1930,7 +1930,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
 def prepare_disk(os_user):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
             conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))

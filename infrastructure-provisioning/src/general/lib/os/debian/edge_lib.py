@@ -75,7 +75,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 datalab.fab.conn.sudo('mkdir -p /home/{0}/keys'.format(user))
                 datalab.fab.conn.sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
                      os.environ['conf_stepcerts_root_ca']))
-                fingerprint = datalab.fab.conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
+                fingerprint = datalab.fab.conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout.replace('\n','')
                 datalab.fab.conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                  os.environ['conf_stepcerts_ca_url']))
                 datalab.fab.conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
@@ -85,7 +85,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 datalab.fab.conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
                     os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'], user, cn, sans))
-                token = datalab.fab.conn.sudo('cat /tmp/step_token')
+                token = datalab.fab.conn.sudo('cat /tmp/step_token').stdout.replace('\n','')
                 datalab.fab.conn.sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))

@@ -528,10 +528,10 @@ def install_java_pkg(requisites):
     ivy_settings = 'ivysettings.xml'
     dest_dir = '/opt/jars/java'
     try:
-        ivy_jar = conn.sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version'])).stdout
+        ivy_jar = conn.sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version'])).stdout.replace('\n','')
         conn.sudo('mkdir -p {0} {1}'.format(ivy_dir, dest_dir))
         conn.put('{0}{1}'.format(templates_dir, ivy_settings), '{0}/{1}'.format(ivy_dir, ivy_settings), use_sudo=True)
-        proxy_string = conn.sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="').stdout
+        proxy_string = conn.sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="').stdout.replace('\n','')
         proxy_re = '(?P<proto>http.*)://(?P<host>[^:/ ]+):(?P<port>[0-9]*)'
         proxy_find = re.search(proxy_re, proxy_string)
         java_proxy = "export _JAVA_OPTIONS='-Dhttp.proxyHost={0} -Dhttp.proxyPort={1} \
@@ -805,10 +805,10 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         with settings(host_string='{}@{}'.format(os_user, hostname)):
-            mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout
+            mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout.replace('\n','')
             instance_memory = int(mem)
     else:
-        mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout
+        mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout.replace('\n','')
         instance_memory = int(mem)
     try:
         if instance_memory > int(os.environ['dataengine_expl_instance_memory']):

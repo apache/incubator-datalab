@@ -979,9 +979,9 @@ class AzureActions:
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
                         livy_port = conn.sudo("cat /opt/" + cluster_name +
-                                         "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout
+                                         "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
                         process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                              "' | awk '{print $7}' | sed 's|/.*||g'").stdout
+                                              "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
                         conn.sudo('kill -9 ' + process_number)
                         conn.sudo('systemctl disable livy-server-' + livy_port)
                     except:
@@ -1064,7 +1064,7 @@ class AzureActions:
 def ensure_local_jars(os_user, jars_dir):
     if not exists(conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            hadoop_version = conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'").stdout
+            hadoop_version = conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'").stdout.replace('\n','')
             print("Downloading local jars for Azure")
             conn.sudo('mkdir -p {}'.format(jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
@@ -1246,7 +1246,7 @@ def prepare_disk(os_user):
             allow = False
             counter = 0
             remount_azure_disk()
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
             with settings(warn_only=True):
                 conn.sudo('umount -l /dev/{}1'.format(disk_name))
             while not allow:

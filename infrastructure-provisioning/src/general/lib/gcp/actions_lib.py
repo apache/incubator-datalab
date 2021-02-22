@@ -1151,9 +1151,9 @@ class GCPActions:
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
                         livy_port = conn.sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
-                                         + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout
+                                         + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
                         process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                              "' | awk '{print $7}' | sed 's|/.*||g'").stdout
+                                              "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
                         conn.sudo('kill -9 ' + process_number)
                         conn.sudo('systemctl disable livy-server-' + livy_port)
                     except:
@@ -1179,7 +1179,7 @@ class GCPActions:
                 zeppelin_restarted = False
                 while not zeppelin_restarted:
                     conn.sudo('sleep 5')
-                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
+                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout.replace('\n','')
                     result = result[:1]
                     if result == '1':
                         zeppelin_restarted = True
@@ -1371,7 +1371,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
 def prepare_disk(os_user):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
             conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
@@ -1400,7 +1400,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         spark_jars_paths = None
         if exists('/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
+                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout.replace('\n','')
             except:
                 spark_jars_paths = None
         conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
@@ -1458,9 +1458,9 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             if os.environ['notebook_multiple_clusters'] == 'true':
                 try:
                     livy_port = conn.sudo("cat /opt/" + cluster_name +
-                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout
+                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
                     process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                          "' | awk '{print $7}' | sed 's|/.*||g'").stdout
+                                          "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
                     conn.sudo('kill -9 ' + process_number)
                     conn.sudo('systemctl disable livy-server-' + livy_port)
                 except:

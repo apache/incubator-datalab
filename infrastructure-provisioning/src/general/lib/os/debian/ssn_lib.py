@@ -189,7 +189,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
              keycloak_client_secret, keycloak_auth_server_url, report_path=''):
     try:
         if not exists(datalab.fab.conn,os.environ['ssn_datalab_path'] + 'tmp/ss_started'):
-            java_path = datalab.fab.conn.sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
+            java_path = datalab.fab.conn.sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'").stdout.replace('\n','')
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             datalab.fab.conn.local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             datalab.fab.conn.local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
@@ -227,7 +227,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                 datalab.fab.conn.sudo('mkdir -p /var/log/application')
                 datalab.fab.conn.run('mkdir -p /tmp/yml_tmp/')
                 for service in ['self-service', 'provisioning-service', 'billing']:
-                    jar = datalab.fab.conn.sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service))
+                    jar = datalab.fab.conn.sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service)).stdout.replace('\n','')
                     datalab.fab.conn.sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     datalab.fab.conn.sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(datalab_path, service))
                 # Replacing Keycloak and cloud parameters

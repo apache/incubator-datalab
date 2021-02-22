@@ -56,7 +56,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/r_local_kernel_ensured'):
         try:
             datalab.fab.conn.sudo('R -e "IRkernel::installspec()"')
-            r_version = datalab.fab.conn.sudo("R --version | awk '/version / {print $3}'")
+            r_version = datalab.fab.conn.sudo("R --version | awk '/version / {print $3}'").stdout.replace('\n','')
             datalab.fab.conn.put(templates_dir + 'r_template.json', '/tmp/r_template.json')
             datalab.fab.conn.sudo('sed -i "s|R_VER|' + r_version + '|g" /tmp/r_template.json')
             datalab.fab.conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/r_template.json')
@@ -390,10 +390,10 @@ def install_os_pkg(requisites):
                 os_pkg = os_pkg[0]
             datalab.fab.conn.sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{2}.log; then echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
-            err = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).replace('"', "'")
+            err = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout.replace('"', "'")
             datalab.fab.conn.sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
-            dep = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name))
+            dep = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout
             if dep == '':
                 dep = []
             else:
@@ -420,7 +420,7 @@ def install_os_pkg(requisites):
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
                 status_msg = "installed"
             if 'E: Version' in err and 'was not found' in err:
-                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(name))\
+                versions = datalab.fab.conn.sudo('apt-cache policy {} | grep 500 | grep -v Packages'.format(name)).stdout\
                     .replace('\r\n', '').replace(' 500', '').replace('     ', ' ').replace('***', '').strip().split(' ')
                 if versions != '':
                     status_msg = 'invalid_version'
@@ -451,7 +451,7 @@ def get_available_os_pkgs():
         os_pkgs = dict()
         ansi_escape = re.compile(r'\x1b[^m]*m')
         manage_pkg('update', 'remote', '')
-        apt_raw = datalab.fab.conn.sudo("apt list")
+        apt_raw = datalab.fab.conn.sudo("apt list").stdout
         apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
         for pkg in apt_list:
             if "/" in pkg:

@@ -96,7 +96,7 @@ def change_pkg_repos():
 
 
 def find_java_path_remote():
-    java_path = conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'").stdout
+    java_path = conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'").stdout.replace('\n','')
     return java_path
 
 

@@ -48,14 +48,14 @@ def manage_pkg(command, environment, requisites):
                             error_parser = "frontend is locked|locked"
                             datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                                   '/tmp/dpkg.log; then echo "no_error" > /tmp/dpkg.log;fi'.format(error_parser))
-                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
+                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout.replace('\n','')
                             count = 0
                             while 'no_error' not in err and count < 10:
-                                pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'').stdout
+                                pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'').stdout.replace('\n','')
                                 if pid != '':
                                     datalab.fab.conn.sudo('kill -9 {}'.format(pid))
                                     datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock-frontend')
-                                    pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'').stdout
+                                    pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'').stdout.replace('\n','')
                                 elif pid != '':
                                     datalab.fab.conn.sudo('kill -9 {}'.format(pid))
                                     datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
@@ -149,7 +149,7 @@ def change_pkg_repos():
 
 
 def find_java_path_remote():
-    java_path = datalab.fab.conn.sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"").stdout
+    java_path = datalab.fab.conn.sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"").stdout.replace('\n','')
     return java_path
 
 

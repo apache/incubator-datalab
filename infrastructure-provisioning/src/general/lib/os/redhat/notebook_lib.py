@@ -67,7 +67,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             except:
                 pass
             conn.sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
-            r_version = conn.sudo("R --version | awk '/version / {print $3}'").stdout
+            r_version = conn.sudo("R --version | awk '/version / {print $3}'").stdout.replace('\n','')
             conn.put(templates_dir + 'r_template.json', '/tmp/r_template.json')
             conn.sudo('sed -i "s|R_VER|' + r_version + '|g" /tmp/r_template.json')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/r_template.json')
