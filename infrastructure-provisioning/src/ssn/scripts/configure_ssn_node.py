@@ -142,7 +142,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 conn.sudo('mkdir -p /home/{0}/keys'.format(args.os_user))
                 conn.sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
                      os.environ['conf_stepcerts_root_ca']))
-                fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout
+                fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout.replace('\n', '')
                 conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                  os.environ['conf_stepcerts_ca_url']))
                 conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
