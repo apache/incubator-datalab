@@ -107,8 +107,8 @@ def configure_zeppelin(os_user):
         try:
             conn.put(templates_dir + 'zeppelin-notebook.service', '/tmp/zeppelin-notebook.service')
             conn.sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/zeppelin-notebook.service")
-            http_proxy = conn.run('echo $http_proxy').stdout
-            https_proxy = conn.run('echo $https_proxy').stdout
+            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
+            https_proxy = conn.run('echo $https_proxy').stdout.replace('\n','')
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
                 http_proxy))
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(

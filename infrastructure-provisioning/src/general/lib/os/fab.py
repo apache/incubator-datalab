@@ -215,13 +215,13 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                      "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-            http_proxy = conn.run('echo $http_proxy').stdout
-            https_proxy = conn.run('echo $https_proxy').stdout
+            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
+            https_proxy = conn.run('echo $https_proxy').stdout.replace('\n','')
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    http_proxy))
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    https_proxy))
-            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
+            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.replace('\n','').splitlines()[0]
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
                 java_home))
             conn.sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
@@ -601,7 +601,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
             manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            http_proxy = conn.run('echo $http_proxy').stdout
+            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
             conn.sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
             conn.sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
                 notebook_name))
@@ -636,7 +636,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
         try:
             conn.sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
-            http_proxy = conn.run('echo $http_proxy').stdout
+            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
             conn.sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             conn.sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             conn.sudo('systemctl daemon-reload')

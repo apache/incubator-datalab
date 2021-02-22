@@ -120,8 +120,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             conn.sudo('touch /home/{}/.Rprofile'.format(os_user))
             conn.sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             conn.sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
-            http_proxy = conn.run('echo $http_proxy').stdout
-            https_proxy = conn.run('echo $https_proxy').stdout
+            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
+            https_proxy = conn.run('echo $https_proxy').stdout.replace('\n','')
             conn.sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
             conn.sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             conn.sudo('rstudio-server start')
