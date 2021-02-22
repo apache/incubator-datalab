@@ -29,7 +29,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import {ProjectService, UserResourceService, OdahuDeploymentService} from '../../core/services';
-import { ExploratoryModel } from './resources-grid.model';
+import { Exploratory, ExploratoryModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
@@ -102,7 +102,7 @@ export class ResourcesGridComponent implements OnInit {
   @Input() projects: Array<any>;
   @Output() getEnvironments: EventEmitter<any> = new EventEmitter();
 
-  public environments;
+  public environments: Exploratory[];
   public collapseFilterRow: boolean = false;
   public filtering: boolean = false;
   public activeFiltering: boolean = false;

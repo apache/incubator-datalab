@@ -89,11 +89,11 @@
               <span *ngIf="isExpanded; else projects">Projects</span>
               <ng-template #projects><i class="material-icons">dns</i></ng-template>
             </a>
-<!--            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/odahu']"-->
-<!--               [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">-->
-<!--              <span *ngIf="isExpanded; else odahu">Odahu deployment</span>-->
-<!--              <ng-template #odahu><i class="material-icons">get_app</i></ng-template>-->
-<!--            </a>-->
+           <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/odahu']"
+              [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+             <span *ngIf="isExpanded; else odahu">Odahu deployment</span>
+             <ng-template #odahu><i class="material-icons">get_app</i></ng-template>
+           </a>
             <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
               [routerLink]="['/environment_management']" [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}">

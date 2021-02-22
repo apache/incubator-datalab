@@ -136,6 +136,8 @@ export class ExploratoryModel {
           ); });
         return {
           project: value.project,
+          endpoints: value.endpoints,
+          projectEndpoints: value.shared,
           exploratory: [...exploratory, ...odahu]
         };
       });
@@ -143,9 +145,9 @@ export class ExploratoryModel {
   }
 }
 
-// export interface Exploratory {
-//   project: string;
-//   endpoints: [];
-//   projectEndpoints: [];
-//   exploratory: ExploratoryModel[];
-// }
+export interface Exploratory {
+  project: string;
+  endpoints: [];
+  projectEndpoints: [];
+  exploratory: ExploratoryModel[];
+}
