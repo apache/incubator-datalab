@@ -1691,7 +1691,7 @@ if __name__ == "__main__":
 
         print("CONFIGURE CONNECTIONS")
         global conn
-    conn = datalab.fab.init_datalab_connection(ec2_ip_address, 'ubuntu', key_filename)
+        conn = datalab.fab.init_datalab_connection(ec2_ip_address, 'ubuntu', key_filename)
         print("CONFIGURE LOCAL REPOSITORY")
         try:
             print('CREATING DATALAB USER')

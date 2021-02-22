@@ -83,7 +83,7 @@ def configure_dataengine_service(instance, emr_conf):
             datalab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
                                                           emr_conf['key_path'], True)
             global conn
-    conn = datalab.fab.init_datalab_connection(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
+            conn = datalab.fab.init_datalab_connection(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
             conn.sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
                  '/etc/yum/pluginconf.d/priorities.conf')
             manage_pkg('-y install', 'remote', 'R-devel')
