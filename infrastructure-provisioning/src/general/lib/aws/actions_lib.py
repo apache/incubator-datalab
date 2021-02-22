@@ -591,7 +591,7 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None, us
     if service == 'ec2':
         try:
             conn.create_instance_profile(InstanceProfileName=role_profile)
-            waiter = conn.get_waiter('instance_profile_exists')
+            waiter = conn.get_waiter('instance_profile_exists').stdout
             waiter.wait(InstanceProfileName=role_profile)
         except botocore.exceptions.ClientError as e_profile:
             if e_profile.response['Error']['Code'] == 'EntityAlreadyExists':
@@ -1266,9 +1266,9 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                         try:
                             livy_port = conn.sudo("cat /opt/" + emr_version + "/" + emr_name +
                                              "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | "
-                                             "awk '{printf $3}'")
+                                             "awk '{printf $3}'").stdout
                             process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                                  "' | awk '{print $7}' | sed 's|/.*||g'")
+                                                  "' | awk '{print $7}' | sed 's|/.*||g'").stdout
                             conn.sudo('kill -9 ' + process_number)
                             conn.sudo('systemctl disable livy-server-' + livy_port)
                         except:
@@ -1297,7 +1297,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                     zeppelin_restarted = False
                     while not zeppelin_restarted:
                         conn.sudo('sleep 5')
-                        result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                        result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
                         result = result[:1]
                         if result == '1':
                             zeppelin_restarted = True
@@ -1643,10 +1643,10 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         spark_jars_paths = None
         if exists('/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
             except:
                 spark_jars_paths = None
-        region = conn.sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone')[:-1]
+        region = conn.sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone').stdout[:-1]
         if region == 'us-east-1':
             endpoint_url = 'https://s3.amazonaws.com'
         elif region == 'cn-north-1':
@@ -1660,7 +1660,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
              '/tmp/notebook_spark-defaults_local.conf')
         if not exists(conn,'/opt/spark/conf/spark-env.sh'):
             conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
+        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
         conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if os.environ['application'] == 'zeppelin':
             conn.sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> '
@@ -1672,10 +1672,10 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
         if 'spark_configurations' in os.environ:
-            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
+            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf')
+            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':
@@ -1878,9 +1878,9 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             if os.environ['notebook_multiple_clusters'] == 'true':
                 try:
                     livy_port = conn.sudo("cat /opt/" + cluster_name +
-                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout
                     process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                          "' | awk '{print $7}' | sed 's|/.*||g'")
+                                          "' | awk '{print $7}' | sed 's|/.*||g'").stdout
                     conn.sudo('kill -9 ' + process_number)
                     conn.sudo('systemctl disable livy-server-' + livy_port)
                 except:
@@ -1909,7 +1909,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             zeppelin_restarted = False
             while not zeppelin_restarted:
                 conn.sudo('sleep 5')
-                result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
                 result = result[:1]
                 if result == '1':
                     zeppelin_restarted = True
@@ -1930,7 +1930,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
 def prepare_disk(os_user):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout
             conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
@@ -1974,7 +1974,7 @@ def find_des_jars(all_jars, des_path):
                     all_jars.remove(j)
         additional_jars = ['hadoop-aws', 'aws-java-sdk-s3', 'hadoop-lzo', 'aws-java-sdk-core']
         aws_filter = '\|'.join(additional_jars)
-        aws_jars = conn.sudo('find {0} -name *.jar | grep "{1}"'.format(des_path, aws_filter)).split('\r\n')
+        aws_jars = conn.sudo('find {0} -name *.jar | grep "{1}"'.format(des_path, aws_filter)).stdout.split('\r\n')
         all_jars.extend(aws_jars)
         return all_jars
     except Exception as err:

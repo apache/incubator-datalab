@@ -67,7 +67,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             except:
                 pass
             conn.sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
-            r_version = conn.sudo("R --version | awk '/version / {print $3}'")
+            r_version = conn.sudo("R --version | awk '/version / {print $3}'").stdout
             conn.put(templates_dir + 'r_template.json', '/tmp/r_template.json')
             conn.sudo('sed -i "s|R_VER|' + r_version + '|g" /tmp/r_template.json')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/r_template.json')
@@ -120,8 +120,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             conn.sudo('touch /home/{}/.Rprofile'.format(os_user))
             conn.sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             conn.sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
-            http_proxy = conn.run('echo $http_proxy')
-            https_proxy = conn.run('echo $https_proxy')
+            http_proxy = conn.run('echo $http_proxy').stdout
+            https_proxy = conn.run('echo $https_proxy').stdout
             conn.sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
             conn.sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             conn.sudo('rstudio-server start')
@@ -328,11 +328,11 @@ def install_os_pkg(requisites):
                 os_pkg = name
             manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" '
                                                '/tmp/tee.tmp >  /tmp/os_install_{2}.log; then  echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
-            install_output = conn.sudo('cat /tmp/tee.tmp')
-            err = conn.sudo('cat /tmp/os_install_{}.log'.format(name)).replace('"', "'")
+            install_output = conn.sudo('cat /tmp/tee.tmp').stdout
+            err = conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout.replace('"', "'")
             conn.sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
-            dep = conn.sudo('cat /tmp/os_install_{}.log'.format(name))
+            dep = conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout
             if dep == '':
                 dep = []
             else:
@@ -345,14 +345,14 @@ def install_os_pkg(requisites):
             versions = []
             res = conn.sudo(
                 'python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(
-                    name)).split('\r\n')[1]
+                    name)).stdout.split('\r\n')[1]
             if err:
                 status_msg = 'installation_error'
             elif res != []:
                 version = res.split("'")[1].split("-")[0]
                 status_msg = "installed"
             if 'No package {} available'.format(os_pkg) in install_output:
-                versions = conn.sudo('yum --showduplicates list ' + name + ' | expand | grep ' + name + ' | awk \'{print $2}\'').replace('\r\n', '')
+                versions = conn.sudo('yum --showduplicates list ' + name + ' | expand | grep ' + name + ' | awk \'{print $2}\'').stdout.replace('\r\n', '')
                 if versions and versions != 'Error: No matching Packages to list':
                     versions = versions.split(' ')
                     status_msg = 'invalid_version'
@@ -386,7 +386,8 @@ def get_available_os_pkgs():
     try:
         manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
         downgrade_python_version()
-        yum_raw = conn.sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
+        yum_raw = conn.sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); '
+                            'print {pkg.name:pkg.vr for pkg in pl.available}"').stdout
         yum_re = re.sub\
             (r'\w*\s\w*\D\s\w*.\w*.\s\w*.\w*.\w.\w*.\w*.\w*', '', yum_raw)
         yum_list = yum_re.replace("'", "\"")

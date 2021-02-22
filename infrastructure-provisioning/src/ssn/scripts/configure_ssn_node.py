@@ -142,7 +142,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 conn.sudo('mkdir -p /home/{0}/keys'.format(args.os_user))
                 conn.sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
                      os.environ['conf_stepcerts_root_ca']))
-                fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
+                fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout
                 conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                  os.environ['conf_stepcerts_ca_url']))
                 conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
@@ -153,7 +153,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
                               os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'],
                               args.os_user, cn, sans))
-                token = conn.sudo('cat /tmp/step_token')
+                token = conn.sudo('cat /tmp/step_token').stdout
                 conn.sudo('step ca certificate "{0}" /etc/ssl/certs/datalab.crt /etc/ssl/certs/datalab.key '
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))

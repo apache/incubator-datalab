@@ -835,7 +835,7 @@ def nexus_service_waiter():
         while not nexus_started and checks_count < 200:
             print('Waiting nexus to be started...')
             time.sleep(5)
-            result = conn.sudo('nmap -p 8443 localhost | grep closed > /dev/null ; echo $?')
+            result = conn.sudo('nmap -p 8443 localhost | grep closed > /dev/null ; echo $?').stdout
             result = result[:1]
             if result == '1':
                 nexus_started = True
@@ -896,9 +896,9 @@ def install_nexus():
                 args.region))
             conn.sudo('wget http://repo.{}.amazonaws.com/2017.09/updates/mirror.list -O /tmp/updates_mirror.list'.format(
                 args.region))
-            amazon_main_repo = conn.sudo("cat /tmp/main_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region))
+            amazon_main_repo = conn.sudo("cat /tmp/main_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region)).stdout
             amazon_updates_repo = conn.sudo("cat /tmp/updates_mirror.list  | grep {} | sed 's/$basearch//g'".format(
-                args.region))
+                args.region)).stdout
             conn.sudo('sed -i "s|AMAZON_MAIN_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_main_repo))
             conn.sudo('sed -i "s|AMAZON_UPDATES_URL|{}|g" /tmp/configureNexus.groovy'.format(amazon_updates_repo))
             conn.sudo('rm -f /tmp/main_mirror.list')
@@ -920,15 +920,15 @@ def install_nexus():
             with conn.cd('nexus-repository-apt'):
                 conn.sudo('mvn')
             apt_plugin_version = conn.sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
-                                      '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-apt-',
+                                      '-printf "%f\\n" | grep -v "sources"').stdout.replace('nexus-repository-apt-',
                                                                                      '').replace('.jar', '')
             compress_plugin_version = conn.sudo('find /opt/nexus/ -name "commons-compress-*.jar" '
-                                           '-printf "%f\\n" ').replace('commons-compress-', '').replace('.jar', '')
+                                           '-printf "%f\\n" ').stdout.replace('commons-compress-', '').replace('.jar', '')
             xz_plugin_version = conn.sudo('find /opt/nexus/ -name "xz-*.jar" '
-                                     '-printf "%f\\n" ').replace('xz-', '').replace('.jar', '')
+                                     '-printf "%f\\n" ').stdout.replace('xz-', '').replace('.jar', '')
             conn.sudo('mkdir -p /opt/nexus/system/net/staticsnow/nexus-repository-apt/{0}/'.format(apt_plugin_version))
             apt_plugin_jar_path = conn.sudo('find nexus-repository-apt/ -name "nexus-repository-apt-{0}.jar"'.format(
-                apt_plugin_version))
+                apt_plugin_version)).stdout
             conn.sudo('cp -f {0} /opt/nexus/system/net/staticsnow/nexus-repository-apt/{1}/'.format(
                 apt_plugin_jar_path, apt_plugin_version
             ))
@@ -964,12 +964,12 @@ def install_nexus():
             with conn.cd('nexus-repository-r'):
                 conn.sudo('mvn clean install')
             r_plugin_version = conn.sudo('find nexus-repository-r/ -name "nexus-repository-r-*.jar" '
-                                    '-printf "%f\\n" | grep -v "sources"').replace('nexus-repository-r-', '').replace(
+                                    '-printf "%f\\n" | grep -v "sources"').stdout.replace('nexus-repository-r-', '').replace(
                 '.jar', '')
             conn.sudo('mkdir -p /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{}/'.format(
                 r_plugin_version))
             r_plugin_jar_path = conn.sudo('find nexus-repository-r/ -name "nexus-repository-r-{0}.jar"'.format(
-                r_plugin_version))
+                r_plugin_version)).stdout
             conn.sudo('cp -f {0} /opt/nexus/system/org/sonatype/nexus/plugins/nexus-repository-r/{1}/'.format(
                 r_plugin_jar_path, r_plugin_version
             ))
@@ -1034,7 +1034,7 @@ def install_nexus():
 def install_nginx():
     try:
         if not exists(conn,'/home/{}/.ensure_dir/nginx_ensured'.format(configuration['conf_os_user'])):
-            hostname = conn.sudo('hostname')
+            hostname = conn.sudo('hostname').stdout
             conn.sudo('apt-get install -y nginx')
             conn.sudo('rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/default')
             conn.put('templates/nexus.conf', '/tmp/nexus.conf')
@@ -1058,11 +1058,11 @@ def mounting_disks():
     try:
         if not exists(conn,'/home/{}/.ensure_dir/additional_disk_mounted'.format(configuration['conf_os_user'])):
             conn.sudo('mkdir -p /opt/sonatype-work')
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1 | tr '\\n' ',' | sed 's|.$||g'")
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1 | tr '\\n' ',' | sed 's|.$||g'").stdout
             conn.sudo('bash -c \'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}\' '.format(disk_name))
             conn.sudo('sleep 10')
             partition_name = conn.sudo("lsblk -r | grep part | grep {} | awk {} | sort | tail -n 1 | "
-                                  "tr '\\n' ',' | sed 's|.$||g'".format(disk_name, "'{print $1}'"))
+                                  "tr '\\n' ',' | sed 's|.$||g'".format(disk_name, "'{print $1}'")).stdout
             conn.sudo('mkfs.ext4 -F -q /dev/{}'.format(partition_name))
             conn.sudo('mount /dev/{0} /opt/sonatype-work'.format(partition_name))
             conn.sudo('bash -c "echo \'/dev/{} /opt/sonatype-work ext4 errors=remount-ro 0 1\' >> /etc/fstab"'.format(
@@ -1106,11 +1106,11 @@ def mount_efs():
 def configure_ssl():
     try:
         if not exists(conn,'/home/{}/.ensure_dir/ssl_ensured'.format(configuration['conf_os_user'])):
-            hostname = conn.sudo('hostname')
-            private_ip = conn.sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
+            hostname = conn.sudo('hostname').stdout
+            private_ip = conn.sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').stdout
             subject_alt_name = 'subjectAltName = IP:{}'.format(private_ip)
             if args.network_type == 'public':
-                public_ip = conn.sudo('curl http://169.254.169.254/latest/meta-data/public-ipv4')
+                public_ip = conn.sudo('curl http://169.254.169.254/latest/meta-data/public-ipv4').stdout
                 subject_alt_name += ',IP:{}'.format(public_ip)
             conn.sudo('cp /etc/ssl/openssl.cnf /tmp/openssl.cnf')
             conn.sudo('echo "[ subject_alt_name ]" >> /tmp/openssl.cnf')
@@ -1133,9 +1133,9 @@ def set_hostname():
                 hostname = '{0}.{1}'.format(args.subdomain, args.hosted_zone_name)
             else:
                 if args.network_type == 'public':
-                    hostname = conn.sudo('curl http://169.254.169.254/latest/meta-data/public-hostname')
+                    hostname = conn.sudo('curl http://169.254.169.254/latest/meta-data/public-hostname').stdout
                 else:
-                    hostname = conn.sudo('curl http://169.254.169.254/latest/meta-data/hostname')
+                    hostname = conn.sudo('curl http://169.254.169.254/latest/meta-data/hostname').stdout
             conn.sudo('hostnamectl set-hostname {0}'.format(hostname))
             conn.sudo('touch /home/{}/.ensure_dir/hostname_set'.format(configuration['conf_os_user']))
     except Exception as err:

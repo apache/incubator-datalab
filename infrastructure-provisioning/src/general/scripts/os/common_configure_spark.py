@@ -42,7 +42,7 @@ args = parser.parse_args()
 def update_spark_defaults_conf(spark_conf):
     try:
         timestamp = time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.gmtime())
-        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
+        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').stdout.split('\r\n')
         for conf in filter(None, configs):
             conn.sudo('''sed -i '/^# Updated/d' {0}'''.format(conf))
             conn.sudo('''echo "# Updated by DATALAB at {0} >> {1}'''.format(timestamp, conf))
@@ -54,10 +54,10 @@ def update_spark_defaults_conf(spark_conf):
 def add_custom_spark_properties(cluster_name):
     try:
         if os.path.exists('/opt/{0}'.format(cluster_name)):
-            datalab_header = conn.sudo('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name))
+            datalab_header = conn.sudo('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name)).stdout
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = conn.sudo('cat /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
+            spark_defaults = conn.sudo('cat /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name)).stdout
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':

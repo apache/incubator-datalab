@@ -83,7 +83,7 @@ def configure_zeppelin(os_user):
             conn.sudo('tar -zxvf /tmp/zeppelin-' + zeppelin_version + '-bin-netinst.tgz -C /opt/')
             conn.sudo('ln -s /opt/zeppelin-' + zeppelin_version + '-bin-netinst /opt/zeppelin')
             conn.sudo('cp /opt/zeppelin/conf/zeppelin-env.sh.template /opt/zeppelin/conf/zeppelin-env.sh')
-            java_home = conn.run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            java_home = conn.run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
             conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/zeppelin/conf/zeppelin-env.sh".format(java_home))
             conn.sudo('cp /opt/zeppelin/conf/zeppelin-site.xml.template /opt/zeppelin/conf/zeppelin-site.xml')
             conn.sudo('sed -i \"/# export ZEPPELIN_PID_DIR/c\export ZEPPELIN_PID_DIR=/var/run/zeppelin\" /opt/zeppelin/conf/zeppelin-env.sh')
@@ -107,8 +107,8 @@ def configure_zeppelin(os_user):
         try:
             conn.put(templates_dir + 'zeppelin-notebook.service', '/tmp/zeppelin-notebook.service')
             conn.sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/zeppelin-notebook.service")
-            http_proxy = conn.run('echo $http_proxy')
-            https_proxy = conn.run('echo $https_proxy')
+            http_proxy = conn.run('echo $http_proxy').stdout
+            https_proxy = conn.run('echo $https_proxy').stdout
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
                 http_proxy))
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
@@ -137,7 +137,7 @@ def configure_local_livy_kernels(args):
         spark_memory = get_spark_memory()
         conn.sudo('sed -i "s|DRIVER_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
         while not port_number_found:
-            port_free = conn.sudo('nmap -p ' + str(default_port) + ' localhost | grep "closed" > /dev/null; echo $?')
+            port_free = conn.sudo('nmap -p ' + str(default_port) + ' localhost | grep "closed" > /dev/null; echo $?').stdout
             port_free = port_free[:1]
             if port_free == '0':
                 livy_port = default_port

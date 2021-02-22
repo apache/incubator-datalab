@@ -148,7 +148,7 @@ def configure_gitlab():
 
         with settings(hide('everything')):
             raw = conn.run('curl -k --request POST "{0}://localhost/api/v4/session?login=root&password={1}"'
-                    .format(proto, os.environ['gitlab_root_password']))
+                    .format(proto, os.environ['gitlab_root_password'])).stdout
             data = json.loads(raw)
             if not json.loads(os.environ['gitlab_signup_enabled']):
                 print('Disabling signup...')

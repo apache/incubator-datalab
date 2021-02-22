@@ -210,7 +210,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
              keycloak_client_secret, keycloak_auth_server_url, report_path=''):
     try:
         if not exists(conn,'{}tmp/ss_started'.format(os.environ['ssn_datalab_path'])):
-            java_path = conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
+            java_path = conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'").stdout
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
             conn.local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             conn.local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
@@ -248,7 +248,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                 conn.sudo('mkdir -p /var/log/application')
                 conn.run('mkdir -p /tmp/yml_tmp/')
                 for service in ['self-service', 'provisioning-service', 'billing']:
-                    jar = conn.sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service))
+                    jar = conn.sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service)).stdout
                     conn.sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     conn.sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(datalab_path, service))
                 # Replacing Keycloak and cloud parameters

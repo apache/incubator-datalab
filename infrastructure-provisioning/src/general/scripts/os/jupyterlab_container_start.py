@@ -39,7 +39,7 @@ def start_jupyterlab_container(jupyterlab_dir):
     try:
         with conn.cd('{}'.format(jupyterlab_dir)):
             conn.run('docker build --network=host --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
-            container_id = conn.run('docker ps | awk \'NR==2{print $1}\'')
+            container_id = conn.run('docker ps | awk \'NR==2{print $1}\'').stdout
             if container_id != '':
                 conn.run('docker stop ' + container_id)
             conn.run('docker run -d --restart unless-stopped -p 8888:8888 \

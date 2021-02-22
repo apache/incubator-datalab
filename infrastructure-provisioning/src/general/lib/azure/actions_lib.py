@@ -979,9 +979,9 @@ class AzureActions:
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
                         livy_port = conn.sudo("cat /opt/" + cluster_name +
-                                         "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                                         "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout
                         process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                              "' | awk '{print $7}' | sed 's|/.*||g'")
+                                              "' | awk '{print $7}' | sed 's|/.*||g'").stdout
                         conn.sudo('kill -9 ' + process_number)
                         conn.sudo('systemctl disable livy-server-' + livy_port)
                     except:
@@ -1010,7 +1010,7 @@ class AzureActions:
                 zeppelin_restarted = False
                 while not zeppelin_restarted:
                     conn.sudo('sleep 5')
-                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
                     result = result[:1]
                     if result == '1':
                         zeppelin_restarted = True
@@ -1064,7 +1064,7 @@ class AzureActions:
 def ensure_local_jars(os_user, jars_dir):
     if not exists(conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            hadoop_version = conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
+            hadoop_version = conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'").stdout
             print("Downloading local jars for Azure")
             conn.sudo('mkdir -p {}'.format(jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
@@ -1100,7 +1100,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         spark_jars_paths = None
         if exists('/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
+                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
             except:
                 spark_jars_paths = None
         user_storage_account_tag = "{}-{}-{}-bucket".format(os.environ['conf_service_base_name'],
@@ -1147,13 +1147,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                                                                               spark_memory))
         if not exists(conn,'/opt/spark/conf/spark-env.sh'):
             conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
+        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
         conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
-            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
+            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf')
+            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':
@@ -1246,7 +1246,7 @@ def prepare_disk(os_user):
             allow = False
             counter = 0
             remount_azure_disk()
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout
             with settings(warn_only=True):
                 conn.sudo('umount -l /dev/{}1'.format(disk_name))
             while not allow:
@@ -1256,7 +1256,7 @@ def prepare_disk(os_user):
                 else:
                     conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' 2>&1 | tee /tmp/tee.tmp '''.format(
                         disk_name), warn_only=True)
-                    out = conn.sudo('cat /tmp/tee.tmp')
+                    out = conn.sudo('cat /tmp/tee.tmp').stdout
                     if 'Syncing disks' in out:
                         allow = True
                     elif 'The kernel still uses the old table.' in out:
@@ -1308,7 +1308,7 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 conn.sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
                 conn.sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
                 conn.sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
-                spark_dist_classpath = conn.sudo('/opt/hadoop/bin/hadoop classpath')
+                spark_dist_classpath = conn.sudo('/opt/hadoop/bin/hadoop classpath').stdout
                 conn.sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
                     spark_dist_classpath))
                 conn.sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))

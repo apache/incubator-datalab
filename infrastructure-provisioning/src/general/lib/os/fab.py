@@ -76,18 +76,18 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
             conn.sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
                  ' /tmp/{0}install_{3}.log; then  echo "" > /tmp/{0}install_{3}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
-            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).replace('"', "'")
+            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace('"', "'")
             conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
+            res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout
             conn.sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            installed_out = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
+            installed_out = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout
             changed_pip_pkg = False
             if res == '':
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
                 changed_pip_pkg = changed_pip_pkg[0]
                 conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
-                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
+                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout
             if err and name not in installed_out:
                 status_msg = 'installation_error'
                 if 'ERROR: No matching distribution found for {}'.format(name) in err:
@@ -124,7 +124,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     else:
                         conn.sudo('{0} show {1} 2>&1 | if ! grep Version: /tmp/tee.tmp > '
                              '/tmp/{0}_install_{1}.log; then echo "" > /tmp/{0}_install_{1}.log;fi'.format(pip_version, i))
-                        dep[n] = conn.sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
+                        dep[n] = conn.sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).stdout.replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             status.append({"group": lib_group, "name": name, "version": version, "status": status_msg,
                            "error_message": err, "available_versions": versions, "add_pkgs": dep})
@@ -215,13 +215,13 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                      "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-            http_proxy = conn.run('echo $http_proxy')
-            https_proxy = conn.run('echo $https_proxy')
+            http_proxy = conn.run('echo $http_proxy').stdout
+            https_proxy = conn.run('echo $https_proxy').stdout
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    http_proxy))
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    https_proxy))
-            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").splitlines()[0]
+            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
                 java_home))
             conn.sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
@@ -453,8 +453,8 @@ def install_r_pkg(requisites):
             else:
                 conn.sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dependencies = NA)\' 2>&1 | '
                          'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
-            dep = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
-            dep_ver = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').replace('\r\n', ' ').replace(')', '').split(' ')
+            dep = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').stdout.replace('\r\n', ' ')
+            dep_ver = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').stdout.replace('\r\n', ' ').replace(')', '').split(' ')
             if dep == '':
                 dep = []
             else:
@@ -465,9 +465,9 @@ def install_r_pkg(requisites):
                     else:
                         dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
                 dep = [i for i in dep if i]
-            err = conn.sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
+            err = conn.sudo('cat /tmp/install_{0}.log'.format(name)).stdout.replace('"', "'")
             conn.sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
-            res = conn.sudo('cat /tmp/install_{0}.list'.format(name))
+            res = conn.sudo('cat /tmp/install_{0}.list'.format(name)).stdout
             if err:
                 status_msg = 'installation_error'
                 if 'couldn\'t find package \'{}\''.format(name) in err:
@@ -479,7 +479,7 @@ def install_r_pkg(requisites):
             if 'Error in download_version_url(package, version, repos, type) :' in err or 'Error in parse_deps(paste(spec,' in err:
                 conn.sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
                 versions = conn.sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
-                                    '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
+                                    '\'date available\' | awk \'{print $2}\'').stdout.replace('\r\n', ' ')[5:].split(' ')
                 if versions != ['']:
                     status_msg = 'invalid_version'
                 else:
@@ -499,11 +499,11 @@ def install_r_pkg(requisites):
 
 def update_spark_jars(jars_dir='/opt/jars'):
     try:
-        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').split('\r\n')
+        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').stdout.split('\r\n')
         if exists(jars_dir):
             for conf in filter(None, configs):
                 des_path = ''
-                all_jars = conn.sudo('find {0} -name "*.jar"'.format(jars_dir)).split('\r\n')
+                all_jars = conn.sudo('find {0} -name "*.jar"'.format(jars_dir)).stdout.split('\r\n')
                 if ('-des-' in conf):
                     des_path = '/'.join(conf.split('/')[:3])
                     all_jars = find_des_jars(all_jars, des_path)
@@ -528,10 +528,10 @@ def install_java_pkg(requisites):
     ivy_settings = 'ivysettings.xml'
     dest_dir = '/opt/jars/java'
     try:
-        ivy_jar = conn.sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version']))
+        ivy_jar = conn.sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version'])).stdout
         conn.sudo('mkdir -p {0} {1}'.format(ivy_dir, dest_dir))
         conn.put('{0}{1}'.format(templates_dir, ivy_settings), '{0}/{1}'.format(ivy_dir, ivy_settings), use_sudo=True)
-        proxy_string = conn.sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="')
+        proxy_string = conn.sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="').stdout
         proxy_re = '(?P<proto>http.*)://(?P<host>[^:/ ]+):(?P<port>[0-9]*)'
         proxy_find = re.search(proxy_re, proxy_string)
         java_proxy = "export _JAVA_OPTIONS='-Dhttp.proxyHost={0} -Dhttp.proxyPort={1} \
@@ -544,10 +544,10 @@ def install_java_pkg(requisites):
             conn.sudo('{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; \
                 if ! grep -w -E  "({7})" /tmp/tee.tmp > /tmp/install_{5}.log; then echo "" > /tmp/install_{5}.log;fi'
                  .format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser, java_proxy))
-            err = conn.sudo('cat /tmp/install_{0}.log'.format(artifact)).replace('"', "'").strip()
+            err = conn.sudo('cat /tmp/install_{0}.log'.format(artifact)).stdout.replace('"', "'").strip()
             conn.sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
                 if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(ivy_cache_dir, artifact))
-            res = conn.sudo('cat /tmp/install_{0}.list'.format(artifact))
+            res = conn.sudo('cat /tmp/install_{0}.list'.format(artifact)).stdout
             if res:
                 conn.sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
@@ -601,7 +601,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
             manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            http_proxy = conn.run('echo $http_proxy')
+            http_proxy = conn.run('echo $http_proxy').stdout
             conn.sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
             conn.sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
                 notebook_name))
@@ -636,7 +636,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
         try:
             conn.sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
-            http_proxy = conn.run('echo $http_proxy')
+            http_proxy = conn.run('echo $http_proxy').stdout
             conn.sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             conn.sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             conn.sudo('systemctl daemon-reload')
@@ -805,10 +805,10 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         with settings(host_string='{}@{}'.format(os_user, hostname)):
-            mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
+            mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout
             instance_memory = int(mem)
     else:
-        mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"')
+        mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout
         instance_memory = int(mem)
     try:
         if instance_memory > int(os.environ['dataengine_expl_instance_memory']):
