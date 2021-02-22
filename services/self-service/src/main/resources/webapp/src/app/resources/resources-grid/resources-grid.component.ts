@@ -49,6 +49,8 @@ import {AuditService} from '../../core/services/audit.service';
 import {CompareUtils} from '../../core/util/compareUtils';
 import {timer} from 'rxjs';
 import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
+import {NotificationDialogComponent} from '../../shared/modal-dialog/notification-dialog';
+
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -111,8 +113,6 @@ export class ResourcesGridComponent implements OnInit {
   public filteredEnvironments = [];
   public filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
   public filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
-
-
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
     { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },

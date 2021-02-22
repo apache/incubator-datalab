@@ -128,8 +128,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.addedFiles = [];
   }
 
-  public toggleSelectedFile(file, type): void {
-    console.log(file, type);
+  public toggleSelectedFile(file, type): void {    
     type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
     this.selected = this.folderItems.filter(item => item.isSelected);
     this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
