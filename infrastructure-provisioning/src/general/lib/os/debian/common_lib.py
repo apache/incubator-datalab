@@ -66,7 +66,6 @@ def manage_pkg(command, environment, requisites):
                             datalab.fab.conn.sudo('apt update')
                             datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
                                  '/tmp/apt.log; then echo "no_error" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                            datalab.fab.conn.sudo('ls -la /tmp/')
                             err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
                             count = 0
                             while 'no_error' not in err and count < 10:
