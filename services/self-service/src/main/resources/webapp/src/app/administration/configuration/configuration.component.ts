@@ -19,15 +19,16 @@
 
 import {Component, OnInit, Inject, HostListener, OnDestroy} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {HealthStatusService, AppRoutingService} from '../../core/services';
+import {HealthStatusService, AppRoutingService, EndpointService} from '../../core/services';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import {Router} from '@angular/router';
 import {ConfigurationService} from '../../core/services/configutration.service';
 import 'brace';
 import 'brace/mode/yaml';
 import {ToastrService} from 'ngx-toastr';
-import {Subject, throwError} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {Endpoint} from '../management/endpoints/endpoints.component';
 
 @Component({
   selector: 'datalab-configuration',
@@ -51,7 +52,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     saveChanges: 'After you save changes you need to restart service.',
   };
   public activeEndpoint: string;
-  public endpoints: Array<string> = ['local', 'endpointAws', 'endpointGcp'];
+  public endpoints: Array<string> | any;
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -69,6 +70,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   constructor(
     private healthStatusService: HealthStatusService,
     private appRoutingService: AppRoutingService,
+    private endpointService: EndpointService,
     private configurationService: ConfigurationService,
     private router: Router,
     public dialog: MatDialog,
@@ -77,7 +79,13 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.getServicesConfig(...Object.keys(this.services));
+    this.getEndpoints()
+      .subscribe(endpoints => {
+      this.endpoints = endpoints;
+      this.endpoints = this.endpoints.map(endpoint => endpoint.name);
+      this.activeEndpoint = this.endpoints[0];
+      this.getServicesConfig(this.activeEndpoint);
+    });
   }
 
   ngOnDestroy() {
@@ -97,8 +105,12 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       );
   }
 
+  private getEndpoints(): Observable<{}> {
+    return this.endpointService.getEndpointsData();
+  }
+
   public refreshConfig(): void {
-    this.getServicesConfig(...Object.keys(this.services));
+    this.getServicesConfig(this.activeEndpoint);
   }
 
   public action(action: string): void {
@@ -112,29 +124,31 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     });
   }
 
-  private getServicesConfig(...services): void {
-    services.forEach(service => {
-      this.configurationService.getServiceSettings(service)
+  private getServicesConfig(endpoint): void {
+      this.configurationService.getServiceSettings(endpoint)
         .pipe(
           takeUntil(this.unsubscribe$)
         )
         .subscribe(config => {
-          this.services[service].config = config;
-          this.services[service].serverConfig = config;
-        this.configUpdate(service);
+          for (const service in this.services) {
+            const file = `${service}.yml`;
+            this.services[service].config = config[file];
+            this.services[service].serverConfig = config[file];
+            this.configUpdate(service);
+          }
         }
       );
-    });
+
     this.clearSelectedServices();
   }
 
-  private setServiceConfig(service, config): void {
-    this.configurationService.setServiceConfig(service, config)
+  private setServiceConfig(service: string, config: string): void {
+    this.configurationService.setServiceConfig(service, config, this.activeEndpoint)
       .pipe(
         takeUntil(this.unsubscribe$)
       )
       .subscribe(res => {
-      this.getServicesConfig(service);
+      this.getServicesConfig(this.activeEndpoint);
       this.toastr.success('Service configuration saved!', 'Success!');
       },
       error => this.toastr.error( error.message || 'Service configuration is not saved', 'Oops!')
@@ -174,7 +188,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     Object.keys(this.services).forEach(service => this.services[service].selected = false);
   }
 
-  public toggleSetings(service): void {
+  public toggleSettings(service): void {
     this.services[service].selected = !this.services[service].selected;
   }
 
@@ -193,11 +207,11 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
         if (result) {
           this.configurationService.restartServices(this.services['self-service'].selected,
             this.services['provisioning'].selected,
-            this.services['billing'].selected
+            this.services['billing'].selected,
+            this.activeEndpoint
           )
             .pipe(
               takeUntil(this.unsubscribe$),
-
             )
             .subscribe(res => {
                 this.clearSelectedServices();
@@ -226,8 +240,11 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     return Object.keys(this.services).every(service => !this.services[service].selected);
   }
 
-  public setActiveEndpoint(endpoint: string) {
+
+  public setActiveEndpoint(endpoint) {
     this.activeEndpoint = endpoint;
+    this.getServicesConfig(this.activeEndpoint);
+    this.activeTab.index = 0;
   }
 }
 

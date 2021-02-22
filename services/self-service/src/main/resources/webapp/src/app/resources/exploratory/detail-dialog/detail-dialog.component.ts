@@ -26,9 +26,9 @@ import {DateUtils, CheckUtils, HelpUtils} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
-import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
 import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 import {AuditService} from '../../../core/services/audit.service';
+import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
 
 @Component({
   selector: 'detail-dialog',
@@ -38,7 +38,7 @@ import {AuditService} from '../../../core/services/audit.service';
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  readonly PROVIDER = this.data.notebook.cloud_provider.toLowerCase();
+  readonly PROVIDER = this.data.pro?.cloud_provider?.toLowerCase() || this.data.odahu?.cloud_provider?.toLowerCase();
   public isCopied: boolean = true;
   notebook: any;
   upTimeInHours: number;

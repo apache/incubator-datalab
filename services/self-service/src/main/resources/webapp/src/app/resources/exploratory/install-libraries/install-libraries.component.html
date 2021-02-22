@@ -69,7 +69,7 @@
                   class="library-input"
                 >
               </div>
-              <mat-autocomplete #auto="matAutocomplete" class="suggestions" >
+              <mat-autocomplete #auto="matAutocomplete" class="suggestions scrolling">
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
                   <mat-option>
                     <div class="option" (click)="selectLibrary(item);$event.stopPropagation()" [ngClass]="{'not-allow': item.isInSelectedList}">
@@ -298,7 +298,7 @@
                    <i class="material-icons">close</i>
                  </button>
 
-                 <button mat-icon-button class="btn apply" (click)="filterLibs(true)" [disabled]="!isFilterChanged">
+                 <button mat-icon-button class="btn apply" (click)="filterLibs(true)" [disabled]="isFilterChanged">
                    <i class="material-icons"  [ngClass]="{'not-allowed': filterModel['length'] === 0}">done</i>
                  </button>
                </div>

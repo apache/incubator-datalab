@@ -76,8 +76,6 @@ export class FolderTreeComponent implements OnDestroy {
         this.dataSource.data = data;
         const subject = this.dataSource._flattenedData;
         const subjectData = subject.getValue();
-        console.log('selected', this.selectedFolder);
-        console.log('data', subjectData);
           if (this.selectedFolder) {
             if (this.cloud !== 'azure') {
               this.selectedFolder = subjectData.find(v => v.item === this.selectedFolder.item &&
@@ -86,8 +84,6 @@ export class FolderTreeComponent implements OnDestroy {
               const selectedFolderPath = this.selectedFolder.obj.slice(0, this.selectedFolder.obj.lastIndexOf('/') + 1);
               this.selectedFolder = subjectData.find(v => {
                 const objectPath = v.obj.slice(0, v.obj.lastIndexOf('/') + 1);
-                console.log('objectPath', selectedFolderPath);
-                console.log('selectedFolderPath', selectedFolderPath);
                 return v.item === this.selectedFolder.item &&
                   v.level === this.selectedFolder.level && objectPath === selectedFolderPath;
               });
@@ -164,7 +160,6 @@ export class FolderTreeComponent implements OnDestroy {
     if (el) {
       this.treeControl.expand(el);
       this.selectedFolder = el;
-      console.log(this.selectedFolder);
       const path = this.getPath(el);
       this.path = [];
       const data = {

@@ -34,7 +34,9 @@
                     <div class="control selector-wrapper">
                         <mat-form-field>
                             <!--                  <mat-label>Select cluster type</mat-label>-->
-                            <mat-select formControlName="template_name" disableOptionCentering
+                            <mat-select formControlName="template_name" 
+                                        disableOptionCentering
+                                        panelClass="scrolling"
                                         placeholder="Select cluster type">
                                 <mat-option *ngFor="let type of clusterTypes" [value]="type.template_name"
                                             (click)="selectImage(type)">{{ type.template_name }}
@@ -54,7 +56,7 @@
               <div class="control selector-wrapper">
                 <mat-form-field>
                   <mat-label>Select template</mat-label>
-                  <mat-select formControlName="version" disableOptionCentering>
+                  <mat-select panelClass="scrolling" formControlName="version" disableOptionCentering>
                     <mat-option *ngFor="let template of selectedImage.templates" [value]="template.version">
                       {{ template.version }}</mat-option>
                     <mat-option *ngIf="!selectedImage.templates" class="multiple-select ml-10" disabled>Templates list
@@ -108,7 +110,7 @@
               <div class="control selector-wrapper">
                 <mat-form-field>
                   <mat-label>Select instance size</mat-label>
-                  <mat-select formControlName="shape_master" disableOptionCentering>
+                  <mat-select panelClass="scrolling" formControlName="shape_master" disableOptionCentering>
                     <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless">
                       <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
@@ -129,7 +131,7 @@
                   <div class="control selector-wrapper">
                       <mat-form-field>
                           <mat-label>Select instance size</mat-label>
-                          <mat-select formControlName="shape_slave" disableOptionCentering>
+                          <mat-select panelClass="scrolling" formControlName="shape_slave" disableOptionCentering>
                               <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                                             [label]="item.key | underscoreless">
                                   <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">

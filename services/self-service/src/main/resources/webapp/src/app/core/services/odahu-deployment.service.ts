@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 
 export class OdahuDeploymentService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }

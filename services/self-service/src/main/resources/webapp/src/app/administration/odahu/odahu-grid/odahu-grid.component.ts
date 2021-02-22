@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import {Subscription} from 'rxjs';
 import {OdahuDataService} from '../odahu-data.service';
 import { MatTableDataSource } from '@angular/material/table';
-import {OdahuDeploymentService} from '../../../core/services';
+
 import {ToastrService} from 'ngx-toastr';
 import {MatDialog} from '@angular/material/dialog';
+import {OdahuDeploymentService} from '../../../core/services';
 import {OdahuActionDialogComponent} from '../../../shared/modal-dialog/odahu-action-dialog';
 
 @Component({
