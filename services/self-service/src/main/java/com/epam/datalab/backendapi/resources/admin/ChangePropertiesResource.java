@@ -1,6 +1,7 @@
 package com.epam.datalab.backendapi.resources.admin;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.modules.ChangePropertiesConst;
 import com.epam.datalab.backendapi.modules.RestartForm;
 import com.epam.datalab.backendapi.resources.dto.YmlDTO;
@@ -13,16 +14,18 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("config")
+@Path("admin")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ChangePropertiesResource implements ChangePropertiesConst {
 
     private final DynamicChangeProperties dynamicChangeProperties;
+    private final String deployedOn;
 
     @Inject
-    public ChangePropertiesResource(DynamicChangeProperties dynamicChangeProperties) {
+    public ChangePropertiesResource(DynamicChangeProperties dynamicChangeProperties, SelfServiceApplicationConfiguration selfServiceApplicationConfiguration) {
         this.dynamicChangeProperties = dynamicChangeProperties;
+        deployedOn = selfServiceApplicationConfiguration.getDeployed();
     }
 
     @GET
@@ -30,7 +33,9 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response getSelfServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(dynamicChangeProperties.getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE))
+                    .ok(deployedOn.equals("onPremise") ?
+                            dynamicChangeProperties.getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE) :
+                            dynamicChangeProperties.getProperties(GKE_SELF_SERVICE_PATH, GKE_SELF_SERVICE))
                     .build();
         } else {
             return Response
@@ -58,7 +63,9 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response getBillingServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(dynamicChangeProperties.getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE))
+                    .ok(deployedOn.equals("onPremise") ?
+                            dynamicChangeProperties.getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE) :
+                            dynamicChangeProperties.getProperties(GKE_BILLING_PATH, GKE_BILLING_SERVICE))
                     .build();
         } else {
             return Response
