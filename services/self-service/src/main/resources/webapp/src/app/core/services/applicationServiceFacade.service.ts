@@ -683,12 +683,14 @@ export class ApplicationServiceFacade {
 
   public buildSetServiceConfig(data, body): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
+
       this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/' + data,
       body);
   }
 
   public buildRestartServices(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
+
       this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/restart',
       data );
   }
@@ -784,6 +786,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.AUDIT, '/api/audit');
 
     // configuration
+
     this.requestRegistry.Add(ApplicationServiceFacade.CONFIG, '/api/config/multiple');
   }
 

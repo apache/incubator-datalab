@@ -149,6 +149,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
         return gcpOuauth2AuthenticationEnabled;
     }
 
+    public String deployed;
+
     /**
      * Returns the minimum number of slave EMR instances than could be created.
      */
@@ -268,4 +270,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     public String getOs() {
         return os;
     }
+
+    public String getDeployed() {
+        return deployed;
+    }
+
 }

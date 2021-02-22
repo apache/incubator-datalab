@@ -240,6 +240,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     return Object.keys(this.services).every(service => !this.services[service].selected);
   }
 
+
   public setActiveEndpoint(endpoint) {
     this.activeEndpoint = endpoint;
     this.getServicesConfig(this.activeEndpoint);

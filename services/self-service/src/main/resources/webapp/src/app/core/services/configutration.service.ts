@@ -38,6 +38,7 @@ export class ConfigurationService {
 
   public setServiceConfig(service: string, config: string, endpoint: string): Observable<{}> {
     const settings = {
+
       ymlString: config,
       endpointName: endpoint
     };
@@ -49,6 +50,7 @@ export class ConfigurationService {
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
+
 
   public restartServices(ui: boolean, provserv: boolean, billing: boolean, endpoint: string): Observable<{}> {
     const body = {
