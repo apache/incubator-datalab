@@ -136,7 +136,9 @@ export class ExploratoryModel {
           ); });
         return {
           project: value.project,
-          exploratory: [...exploratory, ...odahu]
+          exploratory: [...exploratory, ...odahu],
+          endpoints: value.endpoints,
+          projectEndpoints: value.shared
         };
       });
     }
