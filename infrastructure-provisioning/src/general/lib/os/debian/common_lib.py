@@ -47,29 +47,29 @@ def manage_pkg(command, environment, requisites):
                         try:
                             error_parser = "frontend is locked|locked"
                             datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
-                                     '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
-                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log')
+                                                  '/tmp/dpkg.log; then echo "no_error" > /tmp/dpkg.log;fi'.format(error_parser))
+                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
                             count = 0
-                            while err != '' and count < 10:
-                                pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'')
+                            while 'no_error' not in err and count < 10:
+                                pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'').stdout
                                 if pid != '':
                                     datalab.fab.conn.sudo('kill -9 {}'.format(pid))
                                     datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock-frontend')
-                                    pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
+                                    pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'').stdout
                                 elif pid != '':
                                     datalab.fab.conn.sudo('kill -9 {}'.format(pid))
                                     datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
                                 datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
-                                     '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
-                                err = datalab.fab.conn.sudo('cat /tmp/dpkg.log')
+                                     '/tmp/dpkg.log; then echo "no_error" > /tmp/dpkg.log;fi'.format(error_parser))
+                                err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
                                 count = count + 1
                             datalab.fab.conn.sudo('apt update')
-
                             datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
-                                 '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                            err = datalab.fab.conn.sudo('cat /tmp/apt.log')
+                                 '/tmp/apt.log; then echo "no_error" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
+                            datalab.fab.conn.sudo('ls -la /tmp/')
+                            err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
                             count = 0
-                            while err != '' and count < 10:
+                            while 'no_error' not in err and count < 10:
                                 datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock')
                                 datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock')
                                 datalab.fab.conn.sudo('lsof /var/cache/apt/archives/lock')
@@ -77,8 +77,8 @@ def manage_pkg(command, environment, requisites):
                                 datalab.fab.conn.sudo('rm -f /var/cache/apt/archives/lock')
                                 datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
                                 datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
-                                     '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                                err = datalab.fab.conn.sudo('cat /tmp/apt.log')
+                                     '/tmp/apt.log; then echo "no_error" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
+                                err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
                                 count = count + 1
                             allow = True
                         except Exception as err:
@@ -105,7 +105,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
             count = 0
             check = False
             while not check:
-                if count > 5:
+                if count > 60:
                     print("Repositories are not available. Please, try again later.")
                     sys.exit(1)
                 else:
@@ -118,7 +118,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
                         datalab.fab.conn.sudo('unattended-upgrades -v')
                         datalab.fab.conn.sudo(
                             'sed -i \'s|APT::Periodic::Unattended-Upgrade "1"|APT::Periodic::Unattended-Upgrade "0"|\' /etc/apt/apt.conf.d/20auto-upgrades')
-                        datalab.fab.conn.sudo('export LC_ALL=C')
+                        datalab.fab.conn.run('export LC_ALL=C')
                         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
                         datalab.fab.conn.sudo('systemctl enable haveged')
                         datalab.fab.conn.sudo('systemctl start haveged')
@@ -150,7 +150,7 @@ def change_pkg_repos():
 
 
 def find_java_path_remote():
-    java_path = datalab.fab.conn.sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"")
+    java_path = datalab.fab.conn.sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"").stdout
     return java_path
 
 
