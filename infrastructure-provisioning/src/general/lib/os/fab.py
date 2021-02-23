@@ -530,7 +530,8 @@ def install_java_pkg(requisites):
     try:
         ivy_jar = conn.sudo('find /opt /usr -name "*ivy-{0}.jar" | head -n 1'.format(os.environ['notebook_ivy_version'])).stdout.replace('\n','')
         conn.sudo('mkdir -p {0} {1}'.format(ivy_dir, dest_dir))
-        conn.put('{0}{1}'.format(templates_dir, ivy_settings), '{0}/{1}'.format(ivy_dir, ivy_settings), use_sudo=True)
+        conn.put('{0}{1}'.format(templates_dir, ivy_settings), '/tmp/{}'.format(ivy_settings))
+        conn.sudo('cp -f /tmp/{1} {0}/{1}'.format(ivy_dir, ivy_settings))
         proxy_string = conn.sudo('cat /etc/profile | grep http_proxy | cut -f2 -d"="').stdout.replace('\n','')
         proxy_re = '(?P<proto>http.*)://(?P<host>[^:/ ]+):(?P<port>[0-9]*)'
         proxy_find = re.search(proxy_re, proxy_string)
@@ -951,7 +952,9 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
                 conn.sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
         if not exists(conn,'/tmp/superset-notebook_installed'):
             conn.sudo('mkdir -p /opt/datalab/templates')
-            conn.put('/root/templates', '/opt/datalab', use_sudo=True)
+            conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')
+            conn.put('/tmp/templates.tar.gz', '/tmp/templates.tar.gz')
+            conn.sudo('tar -zxvf /tmp/templates.tar.gz -C /opt/datalab/templates')
             conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/.env'.format(os_user))
             proxy_string = '{}:3128'.format(edge_instance_private_ip)
             conn.sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/datalab/templates/id_provider.json'.format(

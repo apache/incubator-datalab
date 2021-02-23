@@ -107,8 +107,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                      '/usr/local/bin/manage_step_certs.sh'.format(user))
                 conn.sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
                      '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
-                conn.put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
-                    use_sudo=True)
+                conn.put('/root/templates/step-cert-manager.service', '/tmp/step-cert-manager.service')
+                conn.sudo('cd -f /tmp/step-cert-manager.service /etc/systemd/system/step-cert-manager.service')
                 conn.sudo('systemctl daemon-reload')
                 conn.sudo('systemctl enable step-cert-manager.service')
             else:
@@ -169,7 +169,9 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             conn.sudo('useradd -r nginx')
             conn.sudo('rm -f /etc/nginx/nginx.conf')
             conn.sudo('mkdir -p /opt/datalab/templates')
-            conn.put('/root/templates', '/opt/datalab', use_sudo=True)
+            conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')
+            conn.put('/tmp/templates.tar.gz', '/tmp/templates.tar.gz')
+            conn.sudo('tar -zxvf /tmp/templates.tar.gz -C /opt/datalab/templates/')
             conn.sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(edge_ip))
             conn.sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
                 keycloak_auth_server_url))

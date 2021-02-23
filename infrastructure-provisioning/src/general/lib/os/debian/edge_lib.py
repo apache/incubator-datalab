@@ -108,8 +108,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                      '/usr/local/bin/manage_step_certs.sh'.format(user))
                 datalab.fab.conn.sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
                      '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
-                datalab.fab.conn.put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
-                    use_sudo=True)
+                datalab.fab.conn.put('/root/templates/step-cert-manager.service', '/tmp/step-cert-manager.service')
+                datalab.fab.conn.sudo('cp -f /tmp/step-cert-manager.service /etc/systemd/system/step-cert-manager.service')
                 datalab.fab.conn.sudo('systemctl daemon-reload')
                 datalab.fab.conn.sudo('systemctl enable step-cert-manager.service')
             else:
@@ -138,7 +138,9 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             datalab.fab.conn.sudo('useradd -r nginx')
 
             datalab.fab.conn.sudo('mkdir -p /opt/datalab/templates')
-            datalab.fab.conn.put('/root/templates', '/opt/datalab', use_sudo=True)
+            datalab.fab.conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')
+            datalab.fab.conn.put('/tmp/templates.tar.gz', '/tmp/templates.tar.gz')
+            datalab.fab.conn.sudo('tar -zxvf /tmp/templates.tar.gz -C /opt/datalab/templates/')
             datalab.fab.conn.sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(edge_ip))
             datalab.fab.conn.sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/datalab/templates/conf.d/proxy.conf'.format(
                 keycloak_auth_server_url))

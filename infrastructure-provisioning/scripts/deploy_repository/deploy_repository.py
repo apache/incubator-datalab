@@ -1291,7 +1291,8 @@ def install_squid():
     try:
         if not exists(conn,'/home/{}/.ensure_dir/squid_installed'.format(configuration['conf_os_user'])):
             conn.sudo('apt-get -y install squid')
-            conn.put('templates/squid.conf', '/etc/squid/', use_sudo=True)
+            conn.put('templates/squid.conf', '/tmp/')
+            conn.sudo('cp -f /tmp/squid.conf /etc/squid/')
             replace_string = ''
             for cidr in get_vpc_cidr_by_id(args.vpc_id):
                 replace_string += 'acl AWS_VPC_CIDR src {}\\n'.format(cidr)

@@ -52,12 +52,14 @@ def configure_notebook(keyfile, hoststring):
     conn.run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory,
                                                                                                   args.cluster_name))
     if not exists(conn,'/usr/local/bin/rstudio_dataengine_create_configs.py'):
-        conn.put(scripts_dir + 'rstudio_dataengine_create_configs.py', '/usr/local/bin/rstudio_dataengine_create_configs.py',
-            use_sudo=True)
+        conn.put(scripts_dir + 'rstudio_dataengine_create_configs.py', '/tmp/rstudio_dataengine_create_configs.py')
+        conn.sudo('cp -f /tmp/rstudio_dataengine_create_configs.py /usr/local/bin/rstudio_dataengine_create_configs.py')
         conn.sudo('chmod 755 /usr/local/bin/rstudio_dataengine_create_configs.py')
     if not exists(conn,'/usr/lib/python3.8/datalab/'):
         conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
-        conn.put('/usr/lib/python3.8/datalab/*', '/usr/lib/python3.8/datalab/', use_sudo=True)
+        conn.local('cd  /usr/lib/python3.8/datalab/; tar -zcvf /tmp/datalab.tar.gz *')
+        conn.put('/tmp/datalab.tar.gz', '/tmp/datalab.tar.gz')
+        conn.sudo('tar -zxvf /tmp/datalab.tar.gz -C /usr/lib/python3.8/datalab/')
         conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')
         if exists('/usr/lib64'):
             conn.sudo('mkdir -p /usr/lib64/python3.8')
