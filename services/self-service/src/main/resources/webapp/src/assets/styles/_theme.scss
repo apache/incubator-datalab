@@ -1056,8 +1056,12 @@ mat-progress-bar {
     height: calc(100%);
   }
 
-  .ace_scrollbar{
+  .ace_print-margin {
+    width: unset !important;
+  }
 
+  .ace_scrollbar{
+    scrollbar-width: thin;
   }
 }
 
