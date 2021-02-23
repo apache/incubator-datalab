@@ -135,7 +135,7 @@ def configure_nginx(config, datalab_path, hostname):
                 '/tmp/proxy_location_jenkins.conf')
             datalab.fab.conn.sudo('mv /tmp/proxy_location_jenkins.conf ' + os.environ['ssn_datalab_path'] + 'tmp/')
             datalab.fab.conn.sudo('\cp ' + os.environ['ssn_datalab_path'] + 'tmp/proxy_location_jenkins.conf /etc/nginx/locations/')
-            datalab.fab.conn.sudo("echo 'engineer:" + crypt.crypt(nginx_password, id_generator()) + "' > /etc/nginx/htpasswd")
+            datalab.fab.conn.sudo('''bash -c "echo 'engineer:{}' > /etc/nginx/htpasswd"'''.format(crypt.crypt(nginx_password, id_generator())))
             with open('jenkins_creds.txt', 'w+') as f:
                 f.write("Jenkins credentials: engineer  / " + nginx_password)
     except:
