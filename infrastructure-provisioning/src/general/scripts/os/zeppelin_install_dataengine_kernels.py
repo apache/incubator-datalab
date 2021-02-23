@@ -59,7 +59,8 @@ def configure_notebook(keyfile, hoststring):
                                                                                                   args.cluster_name))
     if not exists(conn,'/usr/local/bin/zeppelin_dataengine_create_configs.py'):
         conn.put(scripts_dir + 'zeppelin_dataengine_create_configs.py',
-            '/usr/local/bin/zeppelin_dataengine_create_configs.py', use_sudo=True)
+            '/tmp/zeppelin_dataengine_create_configs.py')
+        conn.sudo('cp /tmp/zeppelin_dataengine_create_configs.py /usr/local/bin/zeppelin_dataengine_create_configs.py')
         conn.sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
     if not exists(conn,'/usr/lib/python3.8/datalab/'):
         conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')

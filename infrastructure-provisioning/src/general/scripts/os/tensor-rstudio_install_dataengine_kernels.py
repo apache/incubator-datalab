@@ -53,7 +53,9 @@ def configure_notebook(keyfile, hoststring):
                                                                                                   args.cluster_name))
     if not exists(conn,'/usr/local/bin/tensor-rstudio_dataengine_create_configs.py'):
         conn.put(scripts_dir + 'tensor-rstudio_dataengine_create_configs.py',
-            '/usr/local/bin/tensor-rstudio_dataengine_create_configs.py', use_sudo=True)
+            '/tmp/tensor-rstudio_dataengine_create_configs.py')
+        conn.sudo('cp /tmp/tensor-rstudio_dataengine_create_configs.py '
+                  '/usr/local/bin/tensor-rstudio_dataengine_create_configs.py')
         conn.sudo('chmod 755 /usr/local/bin/tensor-rstudio_dataengine_create_configs.py')
     if not exists(conn,'/usr/lib/python3.8/datalab/'):
         conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')

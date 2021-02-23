@@ -90,7 +90,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
                 datalab.fab.conn.sudo('touch /var/log/renew_certificates.log')
-                datalab.fab.conn.put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
+                datalab.fab.conn.put('/root/templates/manage_step_certs.sh', '/tmp/manage_step_certs.sh')
+                datalab.fab.conn.sudo('cp /tmp/manage_step_certs.sh /usr/local/bin/manage_step_certs.sh')
                 datalab.fab.conn.sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
                 datalab.fab.conn.sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
                      '/usr/local/bin/manage_step_certs.sh')

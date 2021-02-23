@@ -165,7 +165,8 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 conn.sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(find_java_path_remote()))
                 conn.sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/renew_certificates.sh')
                 conn.sudo('sed -i "s|CONF_FILE|ssn|g" /usr/local/bin/renew_certificates.sh')
-                conn.put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
+                conn.put('/root/templates/manage_step_certs.sh', '/tmp/manage_step_certs.sh')
+                conn.sudo('cp /tmp/manage_step_certs.sh /usr/local/bin/manage_step_certs.sh')
                 conn.sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
                 conn.sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
                      '/usr/local/bin/manage_step_certs.sh')
@@ -182,8 +183,8 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                      '/usr/local/bin/manage_step_certs.sh'.format(args.os_user))
                 conn.sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
                      '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
-                conn.put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
-                    use_sudo=True)
+                conn.put('/root/templates/step-cert-manager.service', '/tmp/step-cert-manager.service')
+                conn.sudo('cp /tmp/step-cert-manager.service /etc/systemd/system/step-cert-manager.service')
                 conn.sudo('systemctl daemon-reload')
                 conn.sudo('systemctl enable step-cert-manager.service')
             else:

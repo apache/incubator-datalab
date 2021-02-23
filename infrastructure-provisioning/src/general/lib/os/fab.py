@@ -652,12 +652,16 @@ def install_inactivity_checker(os_user, ip_address, rstudio=False):
         try:
             if not exists(conn,'/opt/inactivity'):
                 conn.sudo('mkdir /opt/inactivity')
-            conn.put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
-            conn.put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
+            conn.put('/root/templates/inactive.service', '/tmp/inactive.service')
+            conn.sudo('cp /tmp/inactive.service /etc/systemd/system/inactive.service')
+            conn.put('/root/templates/inactive.timer', '/tmp/inactive.timer')
+            conn.sudo('cp /tmp/inactive.timer /etc/systemd/system/inactive.timer')
             if rstudio:
-                conn.put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+                conn.put('/root/templates/inactive_rs.sh', '/tmp/inactive.sh')
+                conn.sudo('cp /tmp/inactive.sh /opt/inactivity/inactive.sh')
             else:
-                conn.put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+                conn.put('/root/templates/inactive.sh', '/tmp/inactive.sh')
+                conn.sudo('cp /tmp/inactive.sh /opt/inactivity/inactive.sh')
             conn.sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_address))
             conn.sudo("chmod 755 /opt/inactivity/inactive.sh")
             conn.sudo("chown root:root /etc/systemd/system/inactive.service")

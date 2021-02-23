@@ -1017,8 +1017,10 @@ def install_nexus():
             conn.sudo('echo "admin:{}" > /opt/nexus/credentials'.format(args.nexus_admin_password))
             conn.sudo('echo "{0}:{1}" >> /opt/nexus/credentials'.format(args.nexus_service_user_name,
                                                                    args.nexus_service_user_password))
-            conn.put('templates/updateRepositories.groovy', '/opt/nexus/updateRepositories.groovy', use_sudo=True)
-            conn.put('scripts/update_amazon_repositories.py', '/opt/nexus/update_amazon_repositories.py', use_sudo=True)
+            conn.put('templates/updateRepositories.groovy', '/tmp/updateRepositories.groovy')
+            conn.sudo('cp /tmp/updateRepositories.groovy /opt/nexus/updateRepositories.groovy')
+            conn.put('scripts/update_amazon_repositories.py', '/tmp/update_amazon_repositories.py')
+            conn.sudo('cp /tmp/update_amazon_repositories.py /opt/nexus/update_amazon_repositories.py')
             conn.sudo('sed -i "s|NEXUS_PASSWORD|{}|g" /opt/nexus/update_amazon_repositories.py'.format(
                  args.nexus_admin_password))
             conn.sudo('touch /var/log/amazon_repo_update.log')
