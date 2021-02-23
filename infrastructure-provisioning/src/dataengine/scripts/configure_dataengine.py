@@ -89,9 +89,8 @@ def start_spark(os_user, master_ip, node):
         if os.environ['application'] == 'deeplearning':
             conn.sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
-            with conn.cd('/opt/spark/sbin/'):
-                conn.sudo("sed -i '/start-slaves.sh/d' start-all.sh")
-                conn.sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> start-all.sh'''.format('{SPARK_HOME}', master_ip))
+            conn.sudo("sed -i '/start-slaves.sh/d' /opt/spark/sbin/start-all.sh")
+            conn.sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> /opt/spark/sbin/start-all.sh'''.format('{SPARK_HOME}', master_ip))
             conn.put('~/templates/spark-master.service', '/tmp/spark-master.service')
             conn.sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
             conn.sudo('systemctl daemon-reload')

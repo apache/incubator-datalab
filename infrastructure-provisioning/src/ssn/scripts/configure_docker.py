@@ -74,11 +74,10 @@ def download_toree():
 
 
 def add_china_repository(datalab_path):
-    with conn.cd('{}sources/infrastructure-provisioning/src/base/'.format(datalab_path)):
-        conn.sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" '
-             'Dockerfile'.format(os.environ['conf_pypi_mirror']))
-        conn.sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
-        conn.sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
+    conn.sudo('cd {1}sources/infrastructure-provisioning/src/base/ && sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" '
+             'Dockerfile'.format(os.environ['conf_pypi_mirror'], datalab_path))
+    conn.sudo('cd {}sources/infrastructure-provisioning/src/base/ && sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile'.format(datalab_path))
+    conn.sudo('cd {}sources/infrastructure-provisioning/src/base/ && sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile'.format(datalab_path))
 
 def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
     if gcr_creds != '':

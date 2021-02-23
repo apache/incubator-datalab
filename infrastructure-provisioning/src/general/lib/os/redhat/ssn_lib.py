@@ -41,13 +41,12 @@ def ensure_docker_daemon(datalab_path, os_user, region):
                 mirror = 'mirror.lzu.edu.cn'
             else:
                 mirror = 'mirror.centos.org'
-            with conn.cd('/etc/yum.repos.d/'):
-                conn.sudo('echo "[centosrepo]" > centos.repo')
-                conn.sudo('echo "name=Centos 7 Repository" >> centos.repo')
-                conn.sudo('echo "baseurl=http://{}/centos/7/extras/x86_64/" >> centos.repo'.format(mirror))
-                conn.sudo('echo "enabled=1" >> centos.repo')
-                conn.sudo('echo "gpgcheck=1" >> centos.repo')
-                conn.sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
+            conn.sudo('cd /etc/yum.repos.d/ && echo "[centosrepo]" > centos.repo')
+            conn.sudo('cd /etc/yum.repos.d/ && echo "name=Centos 7 Repository" >> centos.repo')
+            conn.sudo('cd /etc/yum.repos.d/ && echo "baseurl=http://{}/centos/7/extras/x86_64/" >> centos.repo'.format(mirror))
+            conn.sudo('cd /etc/yum.repos.d/ && echo "enabled=1" >> centos.repo')
+            conn.sudo('cd /etc/yum.repos.d/ && echo "gpgcheck=1" >> centos.repo')
+            conn.sudo('cd /etc/yum.repos.d/ && echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
             conn.sudo('yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo')
             manage_pkg('update-minimal --security -y', 'remote', '')
             manage_pkg('-y install', 'remote', 'container-selinux')
@@ -391,12 +390,11 @@ def install_build_dep():
         if not exists(conn,'{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
             maven_version = '3.5.4'
             manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk java-1.8.0-openjdk-devel git wget unzip')
-            with conn.cd('/opt/'):
-                conn.sudo(
-                    'wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
+            conn.sudo(
+                    'cd /opt/ && wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                         maven_version.split('.')[0], maven_version))
-                conn.sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
-                conn.sudo('mv apache-maven-{} maven'.format(maven_version))
+            conn.sudo('cd /opt/ &&unzip apache-maven-{}-bin.zip'.format(maven_version))
+            conn.sudo('cd /opt/ &&mv apache-maven-{} maven'.format(maven_version))
             conn.sudo('bash -c "curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -"')
             manage_pkg('-y install', 'remote', 'nodejs')
             conn.sudo('npm config set unsafe-perm=true')

@@ -196,9 +196,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             conn.sudo('pip3 install jupyter --no-cache-dir')
             conn.sudo('rm -rf {}'.format(jupyter_conf_file))
             conn.run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
-            with conn.cd('/home/{}'.format(os_user)):
-                conn.run('mkdir -p ~/.jupyter/custom/')
-                conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
+            conn.run('mkdir -p ~/.jupyter/custom/')
+            conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             conn.sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
             conn.sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
             conn.sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
@@ -945,11 +944,10 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
     print('Superset configuring')
     try:
         if not exists(conn,'/home/{}/incubator-superset'.format(os_user)):
-            with conn.cd('/home/{}'.format(os_user)):
-                conn.sudo('wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(
-                    os.environ['notebook_superset_version']))
-                conn.sudo('tar -xzf {}.tar.gz'.format(os.environ['notebook_superset_version']))
-                conn.sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
+            conn.sudo('cd /home/{} && wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(
+                    os_user, os.environ['notebook_superset_version']))
+            conn.sudo('cd /home/{} && tar -xzf {}.tar.gz'.format(os_user, os.environ['notebook_superset_version']))
+            conn.sudo('cd /home/{} && ln -sf incubator-superset-{} incubator-superset'.format(os_user, os.environ['notebook_superset_version']))
         if not exists(conn,'/tmp/superset-notebook_installed'):
             conn.sudo('mkdir -p /opt/datalab/templates')
             conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')

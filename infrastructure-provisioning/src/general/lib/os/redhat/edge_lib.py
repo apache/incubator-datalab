@@ -119,52 +119,50 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                      -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}"'.format(hostname))
             conn.sudo('mkdir -p /tmp/lua')
             conn.sudo('mkdir -p /tmp/src')
-            with conn.cd('/tmp/src/'):
-                conn.sudo('wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
-                conn.sudo('tar -xzf nginx-{}.tar.gz'.format(nginx_version))
 
-                conn.sudo('wget https://github.com/openresty/lua-nginx-module/archive/v0.10.15.tar.gz')
-                conn.sudo('tar -xzf v0.10.15.tar.gz')
+            conn.sudo('cd /tmp/src/ && wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
+            conn.sudo('cd /tmp/src/ && tar -xzf nginx-{}.tar.gz'.format(nginx_version))
 
-                conn.sudo('wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1.tar.gz')
-                conn.sudo('tar -xzf v0.3.1.tar.gz')
+            conn.sudo('cd /tmp/src/ && wget https://github.com/openresty/lua-nginx-module/archive/v0.10.15.tar.gz')
+            conn.sudo('cd /tmp/src/ && tar -xzf v0.10.15.tar.gz')
 
-                conn.sudo('wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz')
-                conn.sudo('tar -xzf LuaJIT-2.0.5.tar.gz')
+            conn.sudo('cd /tmp/src/ && wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1.tar.gz')
+            conn.sudo('cd /tmp/src/ && tar -xzf v0.3.1.tar.gz')
 
-                conn.sudo('wget http://keplerproject.github.io/luarocks/releases/luarocks-2.2.2.tar.gz')
-                conn.sudo('tar -xzf luarocks-2.2.2.tar.gz')
+            conn.sudo('cd /tmp/src/ && wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz')
+            conn.sudo('cd /tmp/src/ && tar -xzf LuaJIT-2.0.5.tar.gz')
 
-                conn.sudo('ln -sf nginx-{} nginx'.format(nginx_version))
+            conn.sudo('cd /tmp/src/ && wget http://keplerproject.github.io/luarocks/releases/luarocks-2.2.2.tar.gz')
+            conn.sudo('cd /tmp/src/ && tar -xzf luarocks-2.2.2.tar.gz')
 
-            with conn.cd('/tmp/src/LuaJIT-2.0.5/'):
-                conn.sudo('make')
-                conn.sudo('make install')
+            conn.sudo('cd /tmp/src/ && ln -sf nginx-{} nginx'.format(nginx_version))
 
-            with conn.cd('/tmp/src/nginx/'), shell_env(LUAJIT_LIB='/usr/local/lib/', LUAJIT_INC='/usr/local/include/luajit-2.0'):
-                conn.sudo('./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
+            conn.sudo('cd /tmp/src/LuaJIT-2.0.5/ && make')
+            conn.sudo('cd /tmp/src/LuaJIT-2.0.5/ && make install')
+
+            conn.sudo('export LUAJIT_LIB=/usr/local/lib/ LUAJIT_INC=/usr/local/include/luajit-2.0')
+            conn.sudo('cd /tmp/src/nginx/ && ./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
                                               --conf-path=/etc/nginx/nginx.conf --pid-path=/run/nginx.pid --lock-path=/run/lock/subsys/nginx \
                                               --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
                                               --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre \
                                               --with-http_realip_module --with-file-aio --with-ipv6 --with-http_v2_module --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB"  \
                                               --without-http_scgi_module --without-http_uwsgi_module --without-http_fastcgi_module --with-http_sub_module \
                                               --add-dynamic-module=/tmp/src/ngx_devel_kit-0.3.1 --add-dynamic-module=/tmp/src/lua-nginx-module-0.10.15')
-                conn.sudo('make')
-                conn.sudo('make install')
+            conn.sudo('cd /tmp/src/nginx/ && make')
+            conn.sudo('cd /tmp/src/nginx/ && make install')
 
-            with conn.cd('/tmp/src/luarocks-2.2.2/'):
-                conn.sudo('./configure --with-lua-include=/usr/local/include/luajit-2.0')
-                conn.sudo('make build')
-                conn.sudo('make install')
-                conn.sudo('luarocks install lua-resty-jwt')
-                conn.sudo('luarocks install lua-resty-session')
-                conn.sudo('luarocks install lua-resty-http')
-                conn.sudo('luarocks install lua-resty-openidc')
-                conn.sudo('luarocks install luacrypto')
-                conn.sudo('luarocks install lua-cjson')
-                conn.sudo('luarocks install lua-resty-core')
-                conn.sudo('luarocks install random')
-                conn.sudo('luarocks install lua-resty-string')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && ./configure --with-lua-include=/usr/local/include/luajit-2.0')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && make build')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && make install')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install lua-resty-jwt')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install lua-resty-session')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install lua-resty-http')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install lua-resty-openidc')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install luacrypto')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install lua-cjson')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install lua-resty-core')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install random')
+            conn.sudo('cd /tmp/src/luarocks-2.2.2/ && luarocks install lua-resty-string')
 
             conn.sudo('useradd -r nginx')
             conn.sudo('rm -f /etc/nginx/nginx.conf')

@@ -478,16 +478,14 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         datalab.fab.conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        with datalab.fab.conn.cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
-            datalab.fab.conn.sudo('./bootstrap --prefix=/usr/local && make && make install')
+        datalab.fab.conn.sudo('cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install'.format(os_user, cmake_version))
         datalab.fab.conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         datalab.fab.conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        with datalab.fab.conn.cd('/home/{}/pytorch/'.format(os_user)):
-            datalab.fab.conn.sudo('git submodule update --init')
-            with settings(warn_only=True):
-                datalab.fab.conn.sudo('git checkout {}'.format(os.environ['notebook_pytorch_branch']))
-                datalab.fab.conn.sudo('git submodule update --init --recursive')
-            datalab.fab.conn.sudo('python3 setup.py install')
+        datalab.fab.conn.sudo('cd /home/{}/pytorch/ && git submodule update --init'.format(os_user))
+        with settings(warn_only=True):
+            datalab.fab.conn.sudo('cd /home/{}/pytorch/ && git checkout {}'.format(os_user, os.environ['notebook_pytorch_branch']))
+            datalab.fab.conn.sudo('cd /home/{}/pytorch/ && git submodule update --init --recursive'.format(os_user))
+        datalab.fab.conn.sudo('cd /home/{}/pytorch/ && python3 setup.py install'.format(os_user))
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

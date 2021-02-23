@@ -373,12 +373,11 @@ def install_build_dep():
         if not exists(datalab.fab.conn,'{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
             maven_version = '3.5.4'
             manage_pkg('-y install', 'remote', 'openjdk-8-jdk git wget unzip')
-            with datalab.fab.conn.cd('/opt/'):
-                datalab.fab.conn.sudo(
-                    'wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
+            datalab.fab.conn.sudo(
+                    'cd /opt/ && wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                         maven_version.split('.')[0], maven_version))
-                datalab.fab.conn.sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
-                datalab.fab.conn.sudo('mv apache-maven-{} maven'.format(maven_version))
+            datalab.fab.conn.sudo('cd /opt/ && unzip apache-maven-{}-bin.zip'.format(maven_version))
+            datalab.fab.conn.sudo('cd /opt/ && mv apache-maven-{} maven'.format(maven_version))
             datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_15.x | bash -"')
             manage_pkg('-y install', 'remote', 'nodejs')
             datalab.fab.conn.sudo('npm config set unsafe-perm=true')

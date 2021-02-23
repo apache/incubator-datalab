@@ -917,8 +917,7 @@ def install_nexus():
                    http://localhost:8081/service/rest/v1/script/configureNexus/run')
             conn.sudo('systemctl stop nexus')
             conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
-            with conn.cd('nexus-repository-apt'):
-                conn.sudo('mvn')
+            conn.sudo('cd nexus-repository-apt && mvn')
             apt_plugin_version = conn.sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
                                       '-printf "%f\\n" | grep -v "sources"').stdout.replace('nexus-repository-apt-',
                                                                                      '').replace('.jar', '')
@@ -961,8 +960,7 @@ def install_nexus():
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'''
                  '''{0}-features.xml'''.format(nexus_version))
             conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-r.git')
-            with conn.cd('nexus-repository-r'):
-                conn.sudo('mvn clean install')
+            conn.sudo('cd nexus-repository-r && mvn clean install')
             r_plugin_version = conn.sudo('find nexus-repository-r/ -name "nexus-repository-r-*.jar" '
                                     '-printf "%f\\n" | grep -v "sources"').stdout.replace('nexus-repository-r-', '').replace(
                 '.jar', '')
@@ -1081,11 +1079,9 @@ def mount_efs():
         if not exists(conn,'/home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user'])):
             conn.sudo('mkdir -p /opt/sonatype-work')
             conn.sudo('apt-get -y install binutils')
-            with conn.cd('/tmp/'):
-                conn.sudo('git clone https://github.com/aws/efs-utils')
-            with conn.cd('/tmp/efs-utils'):
-                conn.sudo('./build-deb.sh')
-                conn.sudo('apt-get -y install ./build/amazon-efs-utils*deb')
+            conn.sudo('cd /tmp/ && git clone https://github.com/aws/efs-utils')
+            conn.sudo('cd /tmp/efs-utils && ./build-deb.sh')
+            conn.sudo('cd /tmp/efs-utils && apt-get -y install ./build/amazon-efs-utils*deb')
             conn.sudo('sed -i "s/stunnel_check_cert_hostname.*/stunnel_check_cert_hostname = false/g" '
                  '/etc/amazon/efs/efs-utils.conf')
             conn.sudo('sed -i "s/stunnel_check_cert_validity.*/stunnel_check_cert_validity = false/g" '
@@ -1236,10 +1232,9 @@ def download_packages():
                 package_name = package.split('/')[-1]
                 packages_list.append({'url': package, 'name': package_name})
             conn.run('mkdir packages')
-            with conn.cd('packages'):
-                for package in packages_list:
-                    conn.run('wget {0}'.format(package['url']))
-                    conn.run('curl -v -u admin:{2} -F "raw.directory=/" -F '
+            for package in packages_list:
+                conn.run('cd packages && wget {0}'.format(package['url']))
+                conn.run('curl -v -u admin:{2} -F "raw.directory=/" -F '
                         '"raw.asset1=@/home/{0}/packages/{1}" '
                         '-F "raw.asset1.filename={1}"  '
                         '"http://localhost:8081/service/rest/v1/components?repository=packages"'.format(
@@ -1274,8 +1269,7 @@ def prepare_images():
     try:
         if not exists(conn,'/home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user'])):
             conn.put('files/Dockerfile', '/tmp/Dockerfile')
-            with conn.cd('/tmp/'):
-                conn.sudo('docker build --file Dockerfile -t pre-base .')
+            conn.sudo('cd /tmp/ && docker build --file Dockerfile -t pre-base .')
             conn.sudo('docker login -u {0} -p {1} localhost:8083'.format(args.nexus_service_user_name,
                                                                     args.nexus_service_user_password))
             conn.sudo('docker tag pre-base localhost:8083/datalab-pre-base')

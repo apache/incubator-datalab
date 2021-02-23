@@ -81,11 +81,10 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 def install_itorch(os_user):
     if not exists(conn,'/home/{}/.ensure_dir/itorch_ensured'.format(os_user)):
         conn.run('git clone https://github.com/facebook/iTorch.git')
-        with conn.cd('/home/{}/iTorch/'.format(os_user)):
-            conn.run('luarocks install luacrypto')
-            conn.run('luarocks install uuid')
-            conn.run('luarocks install lzmq')
-            conn.run('luarocks make')
+        conn.run('cd /home/{}/iTorch/ && luarocks install luacrypto'.format(os_user))
+        conn.run('cd /home/{}/iTorch/ && luarocks install uuid'.format(os_user))
+        conn.run('cd /home/{}/iTorch/ && luarocks install lzmq'.format(os_user))
+        conn.run('cd /home/{}/iTorch/ && luarocks make'.format(os_user))
         conn.sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
         conn.sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
         conn.sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(os_user))

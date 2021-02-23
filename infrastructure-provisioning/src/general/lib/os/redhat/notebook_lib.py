@@ -404,13 +404,11 @@ def install_opencv(os_user):
         conn.sudo('pip3.4 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         conn.sudo('pip3.5 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         conn.run('git clone https://github.com/opencv/opencv.git')
-        with conn.cd('/home/{}/opencv/'.format(os_user)):
-            conn.run('git checkout 3.2.0')
-            conn.run('mkdir release')
-        with conn.cd('/home/{}/opencv/release/'.format(os_user)):
-            conn.run('cmake -DINSTALL_TESTS=OFF -D CUDA_GENERATION=Auto -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
-            conn.run('make -j$(nproc)')
-            conn.sudo('make install')
+        conn.run('cd /home/{}/opencv/ && git checkout 3.2.0'.format(os_user))
+        conn.run('cd /home/{}/opencv/ && mkdir release'.format(os_user))
+        conn.run('cd /home/{}/opencv/release/ && cmake -DINSTALL_TESTS=OFF -D CUDA_GENERATION=Auto -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
+        conn.run('cd /home/{}/opencv/release/ && make -j$(nproc)')
+        conn.sudo('cd /home/{}/opencv/release/ &&  make install')
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
 
 
@@ -426,16 +424,14 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        with conn.cd('/home/{}/cmake-{}/'.format(os_user, cmake_version)):
-            conn.sudo('./bootstrap --prefix=/usr/local && make && make install')
+        conn.sudo('cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install'.format(os_user, cmake_version))
         conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        with conn.cd('/home/{}/pytorch/'.format(os_user)):
-            conn.sudo('git submodule update --init')
-            with settings(warn_only=True):
-                conn.sudo('git checkout v{}'.format(caffe2_version))
-                conn.sudo('git submodule update --recursive')
-            conn.sudo('mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(cmake_version))
+        conn.sudo('cd /home/{}/pytorch/ && git submodule update --init'.format(os_user))
+        with settings(warn_only=True):
+            conn.sudo('cd /home/{}/pytorch/ && git checkout v{}'.format(os_user, caffe2_version))
+            conn.sudo('cd /home/{}/pytorch/ && git submodule update --recursive'.format(os_user))
+        conn.sudo('cd /home/{}/pytorch/ && mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(os_user, cmake_version))
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

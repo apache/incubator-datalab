@@ -73,10 +73,9 @@ def cp_key(keyfile, host_string, os_user):
 
 def cp_backup_scripts(datalab_path):
     try:
-        with conn.cd(datalab_path + "tmp/"):
-            conn.put('/root/scripts/backup.py', "backup.py")
-            conn.put('/root/scripts/restore.py', "restore.py")
-            conn.run('chmod +x backup.py restore.py')
+        conn.put('/root/scripts/backup.py', datalab_path + "tmp/backup.py")
+        conn.put('/root/scripts/restore.py', datalab_path + "tmp/restore.py")
+        conn.run('chmod +x {0}tmp/backup.py {0}tmp/restore.py'.format(datalab_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to copy backup scripts: ', str(err))
@@ -87,17 +86,16 @@ def cp_gitlab_scripts(datalab_path):
     try:
         if not exists(conn,'{}tmp/gitlab'.format(datalab_path)):
             conn.run('mkdir -p {}tmp/gitlab'.format(datalab_path))
-        with conn.cd('{}tmp/gitlab'.format(datalab_path)):
-            conn.put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
-            conn.put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
-            conn.run('chmod +x gitlab_deploy.py configure_gitlab.py')
-            conn.put('/root/templates/gitlab.rb', 'gitlab.rb')
-            conn.put('/root/templates/gitlab.ini', 'gitlab.ini')
-            conn.run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
-            conn.run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
-            conn.run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
-            conn.run('sed -i "s,CONF_DATALAB_PATH,{},g" gitlab.ini'.format(datalab_path))
-            conn.run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
+        conn.put('/root/scripts/gitlab_deploy.py', '{}tmp/gitlab/gitlab_deploy.py'.format(datalab_path))
+        conn.put('/root/scripts/configure_gitlab.py', '{}tmp/gitlab/configure_gitlab.py'.format(datalab_path))
+        conn.run('cd {}tmp/gitlab && chmod +x gitlab_deploy.py configure_gitlab.py'.format(datalab_path))
+        conn.put('/root/templates/gitlab.rb', '{}tmp/gitlab/gitlab.rb'.format(datalab_path))
+        conn.put('/root/templates/gitlab.ini', '{}tmp/gitlab/gitlab.ini'.format(datalab_path))
+        conn.run('cd {}tmp/gitlab && sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(datalab_path, os.environ['conf_os_user']))
+        conn.run('cd {}tmp/gitlab && sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(datalab_path, os.environ['conf_os_family']))
+        conn.run('cd {}tmp/gitlab && sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(datalab_path, os.environ['conf_key_name']))
+        conn.run('cd {}tmp/gitlab && sed -i "s,CONF_DATALAB_PATH,{},g" gitlab.ini'.format(datalab_path, datalab_path))
+        conn.run('cd {}tmp/gitlab && sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(datalab_path, os.environ['conf_service_base_name']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to copy gitlab scripts: ', str(err))

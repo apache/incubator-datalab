@@ -147,20 +147,18 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
 def build_ui():
     try:
         # Building Front-end
-        with conn.cd(args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/'):
-            conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
+        conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
 
-            if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
-                conn.sudo('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format(
+        if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
+            conn.sudo('sed -i "s|\'use_ldap\': true|{}|g" ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/src/dictionary/azure.dictionary.ts'.format(
                     '\'use_ldap\': false'))
 
-            conn.sudo('echo "N" | npm install')
-            manage_npm_pkg('run build.prod')
-            conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
+        conn.sudo('cd ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install')
+        manage_npm_pkg('cd ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/ && run build.prod')
+        conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        with conn.cd(args.datalab_path + '/sources/'):
-            conn.sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
+        conn.sudo('cd {}/sources/ && /opt/maven/bin/mvn -P{} -DskipTests package'.format(args.datalab_path, args.cloud_provider))
 
         conn.sudo('mkdir -p {}/webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:

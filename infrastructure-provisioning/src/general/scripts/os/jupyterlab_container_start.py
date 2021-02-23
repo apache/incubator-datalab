@@ -37,12 +37,11 @@ jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
 
 def start_jupyterlab_container(jupyterlab_dir):
     try:
-        with conn.cd('{}'.format(jupyterlab_dir)):
-            conn.run('docker build --network=host --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
-            container_id = conn.run('docker ps | awk \'NR==2{print $1}\'').stdout.replace('\n','')
-            if container_id != '':
-                conn.run('docker stop ' + container_id)
-            conn.run('docker run -d --restart unless-stopped -p 8888:8888 \
+        conn.run('cd {0} && docker build --network=host --file Dockerfile_jupyterlab -t jupyter-lab .'.format(jupyterlab_dir, args.os_user))
+        container_id = conn.run('docker ps | awk \'NR==2{print $1}\'').stdout.replace('\n','')
+        if container_id != '':
+            conn.run('docker stop ' + container_id)
+        conn.run('docker run -d --restart unless-stopped -p 8888:8888 \
                      -v /home/{0}:/opt/legion/repository \
                      -v /home/{0}/.ssh/:/home/{0}/.ssh/ \
                      jupyter-lab:latest'.format(args.os_user))
