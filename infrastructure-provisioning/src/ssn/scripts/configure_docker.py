@@ -88,7 +88,7 @@ def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
                     conn.sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
                           'cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
                     conn.sudo('apt-get -y install apt-transport-https ca-certificates gnupg')
-                    conn.sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
+                    conn.sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
                     conn.sudo('apt-get update')
                     conn.sudo('apt-get -y install google-cloud-sdk')
                 except Exception as err:

@@ -36,7 +36,7 @@ def ensure_docker_daemon(datalab_path, os_user, region):
     try:
         if not exists(datalab.fab.conn, datalab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
-            datalab.fab.conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            datalab.fab.conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -')
             datalab.fab.conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
             manage_pkg('update', 'remote', '')
@@ -68,7 +68,7 @@ def ensure_nginx(datalab_path):
 def ensure_jenkins(datalab_path):
     try:
         if not exists(datalab.fab.conn,datalab_path + 'tmp/jenkins_ensured'):
-            datalab.fab.conn.sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
+            datalab.fab.conn.sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -')
             datalab.fab.conn.sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
             manage_pkg('-y update', 'remote', '')
             manage_pkg('-y install', 'remote', 'jenkins')
@@ -164,7 +164,7 @@ def ensure_supervisor():
 def ensure_mongo():
     try:
         if not exists(datalab.fab.conn,os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured'):
-            datalab.fab.conn.sudo('wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -')
+            datalab.fab.conn.sudo('wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -')
             datalab.fab.conn.sudo('ver=`lsb_release -cs`; echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu '
                  '$ver/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list; '
                  'apt update')

@@ -1249,7 +1249,7 @@ def download_packages():
 def install_docker():
     try:
         if not exists(conn,'/home/{}/.ensure_dir/docker_installed'.format(configuration['conf_os_user'])):
-            conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -')
             conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) '
                  'stable"')
             conn.sudo('apt-get update')
