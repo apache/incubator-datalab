@@ -221,8 +221,8 @@ if __name__ == "__main__":
     print("Configuring MongoDB")
     configure_mongo(mongo_passwd, args.default_endpoint_name)
 
-    conn.sudo('echo DATALAB_CONF_DIR={} >> /etc/profile'.format(datalab_conf_dir))
-    conn.sudo('echo export DATALAB_CONF_DIR >> /etc/profile')
+    conn.sudo('bash -c "echo DATALAB_CONF_DIR={} >> /etc/profile"'.format(datalab_conf_dir))
+    conn.sudo('bash -c "echo export DATALAB_CONF_DIR >> /etc/profile"')
 
     print("Installing build dependencies for UI")
     install_build_dep()
