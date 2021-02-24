@@ -541,8 +541,8 @@ input[type='number'] {
 }
 
 .group-updated-tooltip {
-  word-break: break-all;
-  max-width: 400px !important;
+  white-space: pre-line;
+  max-width: fit-content !important;
 }
 
 .mat-tooltip-for-users, .mat-tooltip-description {
