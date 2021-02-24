@@ -1,16 +1,13 @@
-package com.epam.datalab.backendapi.service.impl;
+package com.epam.datalab.properties;
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.dao.EndpointDAO;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
-import com.epam.datalab.backendapi.modules.ChangePropertiesConst;
-import com.epam.datalab.backendapi.modules.RestartForm;
-import com.epam.datalab.backendapi.resources.dto.YmlDTO;
+import com.epam.datalab.constants.ServiceConsts;
 import com.epam.datalab.exceptions.DynamicChangePropertiesException;
-import com.epam.datalab.exceptions.ResourceNotFoundException;
 import com.epam.datalab.rest.client.RESTService;
+import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import java.io.BufferedWriter;
@@ -28,12 +25,10 @@ import java.util.regex.Pattern;
 @Slf4j
 public class DynamicChangeProperties implements ChangePropertiesConst {
     private final RESTService externalSelfService;
-    private final EndpointDAO endpointDAO;
 
     @Inject
-    public DynamicChangeProperties(RESTService externalSelfService, EndpointDAO endpointDAO) {
+    public DynamicChangeProperties(@Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService externalSelfService) {
         this.externalSelfService = externalSelfService;
-        this.endpointDAO = endpointDAO;
     }
 
     public String getProperties(String path, String name) {
@@ -44,43 +39,36 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
         writeFileFromString(ymlString, name, path);
     }
 
-    public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo) {
-        EndpointDTO endpointDTO = findEndpointDTO(endpoint);
+    public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo, String url) {
         Map<String, String> properties = new HashMap<>();
-        if (endpoint.equals("local")) {
-            properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
-            properties.put(PROVISIONING_SERVICE, getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE));
-            properties.put(BILLING_SERVICE, getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE));
+        if (endpoint.equals(ChangePropertiesConst.LOCAL_ENDPOINT_NAME)) {
+            properties.put(ChangePropertiesConst.SELF_SERVICE, getProperties(ChangePropertiesConst.SELF_SERVICE_PROP_PATH, ChangePropertiesConst.SELF_SERVICE));
+            properties.put(ChangePropertiesConst.PROVISIONING_SERVICE, getProperties(ChangePropertiesConst.PROVISIONING_SERVICE_PROP_PATH, ChangePropertiesConst.PROVISIONING_SERVICE));
+            properties.put(ChangePropertiesConst.BILLING_SERVICE, getProperties(ChangePropertiesConst.BILLING_SERVICE_PROP_PATH, ChangePropertiesConst.BILLING_SERVICE));
         } else {
             log.info("Trying to read properties, for external endpoint : {} , for user: {}",
                     endpoint, userInfo.getSimpleName());
-            String url = endpointDTO.getUrl() + "/api/config";
-            properties.put(SELF_SERVICE,
-                    externalSelfService.get(url + "/self-service", userInfo.getAccessToken(), String.class));
-            properties.put(PROVISIONING_SERVICE,
+            properties.put(ChangePropertiesConst.SELF_SERVICE, getProperties(ChangePropertiesConst.SELF_SERVICE_PROP_PATH, ChangePropertiesConst.SELF_SERVICE));
+            properties.put(ChangePropertiesConst.PROVISIONING_SERVICE,
                     externalSelfService.get(url + "/provisioning-service", userInfo.getAccessToken(), String.class));
-            properties.put(BILLING_SERVICE,
+            properties.put(ChangePropertiesConst.BILLING_SERVICE,
                     externalSelfService.get(url + "/billing", userInfo.getAccessToken(), String.class));
         }
         return properties;
     }
 
-    public void overwritePropertiesWithExternal(String path, String name, YmlDTO ymlDTO, UserInfo userInfo) {
+    public void overwritePropertiesWithExternal(String path, String name, YmlDTO ymlDTO, UserInfo userInfo,
+                                                String url) {
         log.info("Trying to write {}, for external endpoint : {} , for user: {}",
                 name, ymlDTO.getEndpointName(), userInfo.getSimpleName());
-        EndpointDTO endpoint = findEndpointDTO(ymlDTO.getEndpointName());
-        if (ymlDTO.getEndpointName().equals("local")) {
+        if (ymlDTO.getEndpointName().equals(ChangePropertiesConst.LOCAL_ENDPOINT_NAME)
+                || name.equals(SELF_SERVICE)
+                || name.equals(GKE_SELF_SERVICE)) {
             writeFileFromString(ymlDTO.getYmlString(), name, path);
         } else {
-            String url = endpoint.getUrl() + "/api/config/multiple/" + findMethodName(name);
+            url += findMethodName(name);
             externalSelfService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
         }
-    }
-
-    private EndpointDTO findEndpointDTO(String endpointName) {
-        return endpointDAO.get(endpointName)
-                .orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + endpointName
-                        + " not found"));
     }
 
     public void restart(RestartForm restartForm) {
@@ -97,12 +85,14 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
         }
     }
 
+    public void restartForExternal(RestartForm restartForm, UserInfo userInfo, String url) {
+        if (restartForm.getEndpoint().equals(LOCAL_ENDPOINT_NAME)) {
+            restart(restartForm);
+        } else {
+            log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
 
-    public void restartForExternal(RestartForm restartForm, UserInfo userInfo) {
-        EndpointDTO endpointDTO = findEndpointDTO(restartForm.getEndpoint());
-        String url = endpointDTO.getUrl() + "/api/config/multiple/restart";
-        log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
-        externalSelfService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
+            externalSelfService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
+        }
     }
 
     private String findMethodName(String name) {
@@ -123,10 +113,10 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
 
 
     private String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
-        StringBuilder stringBuilder = new StringBuilder(SUPERVISORCTL_RESTART_SH_COMMAND);
-        if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
-        if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
-        if (ui) stringBuilder.append(SELF_SERVICE_SUPERVISORCTL_RUN_NAME);
+        StringBuilder stringBuilder = new StringBuilder(ChangePropertiesConst.SUPERVISORCTL_RESTART_SH_COMMAND);
+        if (billing) stringBuilder.append(ChangePropertiesConst.BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
+        if (provserv) stringBuilder.append(ChangePropertiesConst.PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
+        if (ui) stringBuilder.append(ChangePropertiesConst.SELF_SERVICE_SUPERVISORCTL_RUN_NAME);
         return stringBuilder.toString();
     }
 
@@ -142,35 +132,35 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
     }
 
     private String hideSecretsAndRemoveLicence(String currentConf) {
-        Matcher m = Pattern.compile(SECRET_REGEX).matcher(currentConf);
+        Matcher m = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(currentConf);
         List<String> secrets = new ArrayList<>();
         String confWithReplacedSecretConf = removeLicence(currentConf);
         while (m.find()) {
-            String secret = m.group().split(":")[DEFAULT_VALUE_PLACE];
+            String secret = m.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
             if (!(secret.isEmpty() || secret.trim().isEmpty()))
                 secrets.add(secret);
         }
         for (String secret : secrets) {
-            confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secret, SECRET_REPLACEMENT_FORMAT);
+            confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secret, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
         }
         return confWithReplacedSecretConf;
     }
 
     private String removeLicence(String conf) {
-        return conf.split(LICENCE_REGEX)[conf.split(LICENCE_REGEX).length - 1];
+        return conf.split(ChangePropertiesConst.LICENCE_REGEX)[conf.split(ChangePropertiesConst.LICENCE_REGEX).length - 1];
     }
 
     private void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
             String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
-            changeCHMODE(serviceName, servicePath, DEFAULT_CHMOD, WRITE_CHMOD);
+            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
             BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
             log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
             writer.write(addLicence());
             writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
             log.info("{} overwritten successfully", serviceName);
             writer.close();
-            changeCHMODE(serviceName, servicePath, WRITE_CHMOD, DEFAULT_CHMOD);
+            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
         } catch (IOException e) {
             log.error("Failed during overwriting {}", serviceName);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
@@ -179,7 +169,7 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
 
     private void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
         try {
-            String command = String.format(CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
+            String command = String.format(ChangePropertiesConst.CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
             log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
             log.info("Execute command: {}", command);
             Runtime.getRuntime().exec(command).waitFor();
@@ -189,7 +179,7 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
     }
 
     private String addLicence() {
-        return LICENCE;
+        return ChangePropertiesConst.LICENCE;
     }
 
     private String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
@@ -199,25 +189,29 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
 
     private String replaceEmptySecret(String newPropFile, String oldProf, Map<String, String> emptySecrets) {
         String fileWithReplacedEmptySecrets = newPropFile;
-        Matcher oldProfMatcher = Pattern.compile(SECRET_REGEX).matcher(oldProf);
+        Matcher oldProfMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(oldProf);
         while (oldProfMatcher.find()) {
             String[] s = oldProfMatcher.group().split(":");
-            if (emptySecrets.containsKey(s[DEFAULT_NAME_PLACE])) {
-                fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replace(emptySecrets.get(s[DEFAULT_NAME_PLACE]), oldProfMatcher.group());
+            if (emptySecrets.containsKey(s[ChangePropertiesConst.DEFAULT_NAME_PLACE])) {
+                fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replace(emptySecrets.get(s[ChangePropertiesConst.DEFAULT_NAME_PLACE]), oldProfMatcher.group());
             }
         }
         return fileWithReplacedEmptySecrets;
     }
 
     private Map<String, String> findEmptySecret(String newPropFile) {
-        Matcher newPropFileMatcher = Pattern.compile(SECRET_REGEX).matcher(newPropFile);
+        Matcher newPropFileMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(newPropFile);
         Map<String, String> emptySecrets = new HashMap<>();
         while (newPropFileMatcher.find()) {
             String[] s = newPropFileMatcher.group().split(":");
-            if (s[DEFAULT_VALUE_PLACE].equals(SECRET_REPLACEMENT_FORMAT)) {
-                emptySecrets.put(s[DEFAULT_NAME_PLACE], newPropFileMatcher.group());
+            if (s[ChangePropertiesConst.DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
+                emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], newPropFileMatcher.group());
             }
         }
         return emptySecrets;
+    }
+
+    public void restartForExternalForGKE(UserInfo userInfo, RestartForm restartForm) {
+        throw new NotImplementedException();
     }
 }
