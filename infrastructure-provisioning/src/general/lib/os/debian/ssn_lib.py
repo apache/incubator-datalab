@@ -166,10 +166,11 @@ def ensure_mongo():
         if not exists(datalab.fab.conn,os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured'):
             datalab.fab.conn.sudo('wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -')
             os_version = datalab.fab.conn.sudo('lsb_release -cs').stdout.replace('\n', '')
-            datalab.fab.conn.sudo('echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu '
-                                  '{}/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list; '
-                                  'apt update'.format(os_version))
+            datalab.fab.conn.sudo('echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {}/mongodb-org/4.4 '
+                                  'multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list'.format(os_version))
             datalab.fab.conn.sudo('ls -lah /etc/apt/sources.list.d/mongodb-org-4.4.list')
+            datalab.fab.conn.sudo('cat /etc/apt/sources.list.d/mongodb-org-4.4.list')
+            manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'mongodb-org')
             datalab.fab.conn.sudo('systemctl enable mongod.service')
             datalab.fab.conn.sudo('touch ' + os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured')
