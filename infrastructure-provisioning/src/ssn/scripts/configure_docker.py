@@ -126,6 +126,11 @@ def build_docker_images(image_list, region, datalab_path):
         for image in image_list:
             name = image['name']
             tag = image['tag']
+            print('=======')
+            print('== ' + args.datalab_path)
+            print('== ' + args.cloud_provider)
+            print('== ' + name)
+            conn.sudo('ls -lah {0}; ls -lah {0}sources/infrastructure-provisioning/src/general/files/gcp/'.format(args.datalab_path))
             conn.sudo('cd {0}sources/infrastructure-provisioning/src/; cp general/files/{1}/{2}_description.json '
                  '{2}/description.json'.format(args.datalab_path, args.cloud_provider, name))
             if name == 'base':
