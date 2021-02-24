@@ -1,4 +1,4 @@
-package com.epam.datalab.backendapi.modules;
+package com.epam.datalab.properties;
 
 import lombok.Data;
 
