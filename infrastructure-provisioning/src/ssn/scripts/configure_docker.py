@@ -162,8 +162,8 @@ def configure_guacamole():
              ' -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         time.sleep(180)
         conn.sudo('touch /opt/mysql/dock-query.sql')
-        conn.sudo('''bash -c """echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}';""" \
-             """ GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql"""''' \
+        conn.sudo('''bash -c """echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}';''' \
+             ''' GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql"""''' \
              .format(mysql_pass))
         conn.sudo('docker exec -i guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/dock-query.sql"' \
              .format(mysql_pass))
