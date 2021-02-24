@@ -68,7 +68,7 @@ def configure_notebook(keyfile, hoststring):
         conn.put('/tmp/datalab.tar.gz', '/tmp/datalab.tar.gz')
         conn.sudo('tar -zxvf /tmp/datalab.tar.gz -C /usr/lib/python3.8/datalab/')
         conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')
-        if exists('/usr/lib64'):
+        if exists(conn, '/usr/lib64'):
             conn.sudo('mkdir -p /usr/lib64/python3.8')
             conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 

@@ -59,9 +59,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires|FileNotFoundError:|RuntimeError:|error:"
     try:
-        if pip_version == 'pip3' and not exists('/bin/pip3'):
+        if pip_version == 'pip3' and not exists(conn, '/bin/pip3'):
             for v in range(4, 8):
-                if exists('/bin/pip3.{}'.format(v)):
+                if exists(conn, '/bin/pip3.{}'.format(v)):
                     conn.sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
         conn.sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
         conn.sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
@@ -848,7 +848,7 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
 def update_pyopenssl_lib(os_user):
     if not exists(conn,'/home/{}/.ensure_dir/pyopenssl_updated'.format(os_user)):
         try:
-            if exists('/usr/bin/pip3'):
+            if exists(conn, '/usr/bin/pip3'):
                 conn.sudo('pip3 install -U pyopenssl')
             conn.sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
         except:

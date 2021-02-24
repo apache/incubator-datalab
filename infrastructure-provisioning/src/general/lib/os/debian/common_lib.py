@@ -133,7 +133,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python3-pip python3-dev p
 
 def renew_gpg_key():
     try:
-#        if exists('/etc/apt/trusted.gpg'):
+#        if exists(conn, '/etc/apt/trusted.gpg'):
 #            datalab.fab.conn.sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
         datalab.fab.conn.sudo('apt-key update')
     except:

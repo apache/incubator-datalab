@@ -41,14 +41,14 @@ if __name__ == "__main__":
     conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     gitlab_certfile = os.environ['conf_gitlab_certfile']
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
     git_creds = dict()
     try:
-        if exists('/home/{}/.netrc'.format(args.os_user)):
+        if exists(conn, '/home/{}/.netrc'.format(args.os_user)):
             conn.run('rm .netrc')
-        if exists('/home/{}/.gitcreds'.format(args.os_user)):
+        if exists(conn, '/home/{}/.gitcreds'.format(args.os_user)):
             conn.run('rm .gitcreds')
         git_creds = os.environ['git_creds']
     except KeyError as err:

@@ -61,7 +61,7 @@ def configure_notebook(args):
     conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
     conn.run('chmod a+x /tmp/datalab_libs/*')
     conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
-    if exists('/usr/lib64'):
+    if exists(conn, '/usr/lib64'):
         conn.sudo('mkdir -p /usr/lib64/python3.8')
         conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 

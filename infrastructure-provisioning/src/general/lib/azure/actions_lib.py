@@ -975,7 +975,7 @@ class AzureActions:
             env.key_filename = "{}".format(key_path)
             env.host_string = env.user + "@" + env.hosts
             conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
-            if exists('/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+            if exists(conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
                         livy_port = conn.sudo("cat /opt/" + cluster_name +
@@ -1016,7 +1016,7 @@ class AzureActions:
                         zeppelin_restarted = True
                 conn.sudo('sleep 5')
                 conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
-            if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+            if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
                 datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
             conn.sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(env.hosts))
@@ -1098,7 +1098,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
         # Checking if spark.jars parameter was generated previously
         spark_jars_paths = None
-        if exists('/opt/spark/conf/spark-defaults.conf'):
+        if exists(conn, '/opt/spark/conf/spark-defaults.conf'):
             try:
                 spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
             except:

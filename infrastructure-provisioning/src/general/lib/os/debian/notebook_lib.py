@@ -41,7 +41,7 @@ def enable_proxy(proxy_host, proxy_port):
         datalab.fab.conn.sudo('sed -i "/^export https_proxy/d" /etc/profile')
         datalab.fab.conn.sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
         datalab.fab.conn.sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
-        if exists('/etc/apt/apt.conf'):
+        if exists(datalab.fab.conn, '/etc/apt/apt.conf'):
             datalab.fab.conn.sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
         datalab.fab.conn.sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
         datalab.fab.conn.sudo("echo 'Acquire::http::Proxy \"" + proxy_https_string + "\";' >> /etc/apt/apt.conf")

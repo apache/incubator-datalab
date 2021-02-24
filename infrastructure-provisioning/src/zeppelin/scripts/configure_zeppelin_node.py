@@ -149,7 +149,7 @@ def configure_local_livy_kernels(args):
         conn.sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         conn.sudo('echo "livy.server.port = ' + str(livy_port) + '" >> /opt/livy/conf/livy.conf')
         conn.sudo('''echo "SPARK_HOME='/opt/spark/'" >> /opt/livy/conf/livy-env.sh''')
-        if exists('/opt/livy/conf/spark-blacklist.conf'):
+        if exists(conn, '/opt/livy/conf/spark-blacklist.conf'):
             conn.sudo('sed -i "s/^/#/g" /opt/livy/conf/spark-blacklist.conf')
         conn.sudo("systemctl start livy-server")
         conn.sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
@@ -253,7 +253,7 @@ if __name__ == "__main__":
     install_nodejs(args.os_user)
     print("Install Ungit")
     install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
     # COPY PRE-COMMIT SCRIPT TO ZEPPELIN
     conn.sudo('cp /home/{}/.git/templates/hooks/pre-commit /opt/zeppelin/notebook/.git/hooks/'.format(args.os_user))

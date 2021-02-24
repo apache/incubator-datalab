@@ -48,7 +48,7 @@ if __name__ == "__main__":
     else:
         inactivity_file = 'local_inactivity'
 
-    if exists('{}{}'.format(inactivity_dir, inactivity_file)):
+    if exists(conn, '{}{}'.format(inactivity_dir, inactivity_file)):
         timestamp = conn.sudo('cat {}{}'.format(inactivity_dir, inactivity_file)).stdout.replace('\n','')
     else:
         timestamp = '0000000000'

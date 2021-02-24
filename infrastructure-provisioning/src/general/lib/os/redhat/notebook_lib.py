@@ -38,7 +38,7 @@ def enable_proxy(proxy_host, proxy_port):
         conn.sudo('sed -i "/^export https_proxy/d" /etc/profile')
         conn.sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
         conn.sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
-        if exists('/etc/yum.conf'):
+        if exists(conn, '/etc/yum.conf'):
             conn.sudo('sed -i "/^proxy=/d" /etc/yum.conf')
         conn.sudo("echo 'proxy={}' >> /etc/yum.conf".format(proxy_string))
         manage_pkg('clean all', 'remote', '')
