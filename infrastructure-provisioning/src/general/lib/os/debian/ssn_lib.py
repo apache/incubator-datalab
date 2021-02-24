@@ -168,8 +168,6 @@ def ensure_mongo():
             os_version = datalab.fab.conn.sudo('lsb_release -cs').stdout.replace('\n', '')
             datalab.fab.conn.sudo('echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {}/mongodb-org/4.4 '
                                   'multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list'.format(os_version))
-            datalab.fab.conn.sudo('ls -lah /etc/apt/sources.list.d/mongodb-org-4.4.list')
-            datalab.fab.conn.sudo('cat /etc/apt/sources.list.d/mongodb-org-4.4.list')
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'mongodb-org')
             datalab.fab.conn.sudo('systemctl enable mongod.service')
