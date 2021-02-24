@@ -165,14 +165,15 @@ def configure_guacamole():
              " -d -p 8080:8080 guacamole/guacamole".format(mysql_pass))
         # create cronjob for run containers on reboot
         conn.sudo('mkdir /opt/datalab/cron')
-        conn.sudo('touch /opt/datalab/cron/mysql.sh')
-        conn.sudo('chmod 755 /opt/datalab/cron/mysql.sh')
-        conn.sudo('echo "docker start guacd" >> /opt/datalab/cron/mysql.sh')
-        conn.sudo('echo "docker start guac-mysql" >> /opt/datalab/cron/mysql.sh')
-        conn.sudo('echo "docker rm guacamole" >> /opt/datalab/cron/mysql.sh')
+        conn.sudo('touch /tmp/mysql.sh')
+        conn.sudo('chmod 755 /tmp/mysql.sh')
+        conn.sudo('echo "docker start guacd" >> /tmp/mysql.sh')
+        conn.sudo('echo "docker start guac-mysql" >> /tmp/mysql.sh')
+        conn.sudo('echo "docker rm guacamole" >> /tmp/mysql.sh')
         conn.sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql""" \
              """ -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}' -d""" \
-             """ -p 8080:8080 guacamole/guacamole" >> /opt/datalab/cron/mysql.sh""".format(mysql_pass))
+             """ -p 8080:8080 guacamole/guacamole" >> /tmp/mysql.sh""".format(mysql_pass))
+        conn.sudo('cp -p /tmp/mysql.sh /opt/datalab/cron/mysql.sh')
         conn.sudo('(crontab -l 2>/dev/null; echo "@reboot sh /opt/datalab/cron/mysql.sh") | crontab -')
         return True
     except Exception as err:
