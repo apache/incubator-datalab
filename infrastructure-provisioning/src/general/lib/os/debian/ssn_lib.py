@@ -34,7 +34,7 @@ import subprocess
 
 def ensure_docker_daemon(datalab_path, os_user, region):
     try:
-        if not exists(datalab.fab.datalab.fab.conn,datalab_path + 'tmp/docker_daemon_ensured'):
+        if not exists(datalab.fab.conn, datalab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
             datalab.fab.conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             datalab.fab.conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
@@ -53,7 +53,7 @@ def ensure_docker_daemon(datalab_path, os_user, region):
 
 def ensure_nginx(datalab_path):
     try:
-        if not exists(datalab.fab.datalab.fab.conn,datalab_path + 'tmp/nginx_ensured'):
+        if not exists(datalab.fab.conn,datalab_path + 'tmp/nginx_ensured'):
             manage_pkg('-y install', 'remote', 'nginx')
             datalab.fab.conn.sudo('service nginx restart')
             datalab.fab.conn.sudo('update-rc.d nginx defaults')
