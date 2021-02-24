@@ -421,10 +421,10 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
 
 def ensure_ciphers():
     try:
-        conn.sudo('echo -e "\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/sshd_config')
-        conn.sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
-        conn.sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
-        conn.sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
+        conn.sudo('''bash -c "echo -e '\nKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256' >> /etc/ssh/sshd_config"''')
+        conn.sudo('''bash -c "echo -e 'Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr' >> /etc/ssh/sshd_config"''')
+        conn.sudo('''bash -c "echo -e '\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256' >> /etc/ssh/ssh_config"''')
+        conn.sudo('''bash -c "echo -e '\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr' >> /etc/ssh/ssh_config"''')
         try:
             conn.sudo('service ssh reload')
         except:
