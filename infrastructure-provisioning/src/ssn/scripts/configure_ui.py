@@ -153,12 +153,12 @@ def build_ui():
             conn.sudo('sed -i "s|\'use_ldap\': true|{}|g" ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/src/dictionary/azure.dictionary.ts'.format(
                     '\'use_ldap\': false'))
 
-        conn.sudo('cd ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install')
-        manage_npm_pkg('cd ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/ && run build.prod')
+        conn.sudo('bash -c "cd {}/sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install"'.format(args.datalab_path))
+        manage_npm_pkg('run build.prod')
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        conn.sudo('cd {}/sources/ && /opt/maven/bin/mvn -P{} -DskipTests package'.format(args.datalab_path, args.cloud_provider))
+        conn.sudo('bash -c "cd {}/sources/ && /opt/maven/bin/mvn -P{} -DskipTests package"'.format(args.datalab_path, args.cloud_provider))
 
         conn.sudo('mkdir -p {}/webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:
