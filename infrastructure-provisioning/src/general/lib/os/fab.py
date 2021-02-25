@@ -598,7 +598,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
 def install_ungit(os_user, notebook_name, edge_ip):
     if not exists(conn,'/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
-            manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
+            manage_npm_pkg('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
@@ -1001,7 +1001,7 @@ def manage_npm_pkg(command):
                         conn.sudo('npm config set registry {}'.format(npm_registry[0]))
                     else:
                         conn.sudo('npm config set registry {}'.format(npm_registry[1]))
-                    conn.sudo('npm {}'.format(command))
+                    conn.sudo('{}'.format(command))
                     installed = True
                 except:
                     npm_count += 1

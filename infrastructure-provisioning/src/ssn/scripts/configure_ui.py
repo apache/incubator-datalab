@@ -154,7 +154,7 @@ def build_ui():
                     '\'use_ldap\': false'))
 
         conn.sudo('bash -c "cd {}/sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install"'.format(args.datalab_path))
-        manage_npm_pkg('run build.prod')
+        manage_npm_pkg('bash -c "cd {}/sources/services/self-service/src/main/resources/webapp/ && npm run build.prod"'.format(args.datalab_path))
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
