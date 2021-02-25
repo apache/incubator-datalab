@@ -158,7 +158,7 @@ def build_ui():
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        conn.sudo('bash -c "cd {}/sources/ && /opt/maven/bin/mvn -P{} -DskipTests package"'.format(args.datalab_path, args.cloud_provider))
+        conn.sudo('bash -c "cd {}/sources/ && /opt/maven/bin/mvn -e -X -P{} -DskipTests package"'.format(args.datalab_path, args.cloud_provider))
 
         conn.sudo('mkdir -p {}/webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:
