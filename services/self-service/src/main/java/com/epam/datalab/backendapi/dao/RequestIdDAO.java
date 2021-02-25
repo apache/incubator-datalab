@@ -46,7 +46,7 @@ public class RequestIdDAO extends BaseDAO {
         return opt.get();
     }
 
-    public void conn.put(RequestIdDTO requestId) {
+    public void put(RequestIdDTO requestId) {
         getCollection(REQUEST_ID)
                 .insertOne(convertToBson(requestId));
     }

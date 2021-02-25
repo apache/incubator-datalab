@@ -50,7 +50,7 @@ public class RequestId {
      * @param username the name of user.
      * @param uuid     UUID.
      */
-    public String conn.put(String username, String uuid) {
+    public String put(String username, String uuid) {
         LOGGER.trace("Register request id {} for user {}", uuid, username);
         dao.put(new RequestIdDTO()
                 .withId(uuid)
@@ -67,7 +67,7 @@ public class RequestId {
      * @return new UUID
      */
     public String get(String username) {
-        return conn.put(UUID.randomUUID().toString(), username);
+        return put(UUID.randomUUID().toString(), username);
     }
 
     /**
