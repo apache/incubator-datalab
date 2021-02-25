@@ -116,7 +116,7 @@ public class KeycloakResource {
     public Response refreshAccessToken(@PathParam("refresh_token") String refreshToken) throws URISyntaxException {
         AccessTokenResponse tokenResponse;
         try {
-            tokenResponse = keycloakService.generateAccessToken(refreshToken);
+                tokenResponse = keycloakService.generateAccessToken(refreshToken);
         } catch (DatalabException e) {
             log.error("Cannot refresh token due to: {}", e.getMessage(), e);
             return Response.status(Response.Status.BAD_REQUEST)

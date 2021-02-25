@@ -35,12 +35,15 @@ table {
   width: 100%;
 
   td {
-    vertical-align: top;
+    vertical-align: middle;
   }
 
   .name {
     width: 25%;
     padding: 20px 0 10px 24px;
+    &.project-name{
+      padding-top: 10px;
+    }
   }
 
   th.name{
@@ -123,6 +126,7 @@ td.settings {
   vertical-align: middle !important;
   text-align: right;
   .actions {
+    margin-top: 3px;
     background-image: url(../../../../assets/svg/settings_icon.svg);
     width: 16px;
     height: 16px;
@@ -166,7 +170,7 @@ td.settings {
   padding: 10px 15px;
 }
 
-.mat-chip{
+.mat-chip {
   max-width: 200px !important;
   white-space: nowrap;
   display: inline-block;

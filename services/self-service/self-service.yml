@@ -186,3 +186,6 @@ jerseyClient:
   gzipEnabled: true
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: true
+  
+#onPremise/GKE
+deployed: onPremise

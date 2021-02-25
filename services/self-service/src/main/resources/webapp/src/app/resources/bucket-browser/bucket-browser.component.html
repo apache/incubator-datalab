@@ -17,13 +17,12 @@
   ~ under the License.
   -->
 
-<div class="bucket-browser" id="dialog-box"  (click)="closeActions()">
+<div class="bucket-browser" id="dialog-box" (click)="closeActions()">
   <header class="dialog-header">
     <h4 class="modal-title">Bucket browser</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
 
-<!--  <div class="dialog-content tabs">-->
   <div class="dialog-content tabs">
     <div class="submit m-bott-10 m-top-10">
       <div class="left-side-butts">
@@ -55,7 +54,7 @@
         Delete
       </button>
       </span>
-      <div class="action-wrapper" >
+      <div class="action-select-wrapper" >
         <span class="action-button-wrapper">
           <button
             type="button" class="butt actions-btn"
@@ -109,7 +108,7 @@
       </span>
     </p>
     <div class="bucket-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
-      <div class="backet-selection" [ngClass]="{'opened': isSelectionOpened}">
+      <div class="bucket-selection" [ngClass]="{'opened': isSelectionOpened}">
         <div class="button-wrapper" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
           <i (click)="toggleBucketSelection()" class="material-icons close" *ngIf="!isSelectionOpened" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">chevron_right</i>
         </div>
@@ -121,7 +120,7 @@
         >
         </datalab-bucket-tree>
       </div>
-      <div class="navigation" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
+      <div class="navigation scrolling" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
           <datalab-folder-tree
                   (showFolderContent)=onFolderClick($event)
                   (disableAll)=dissableAll($event)
@@ -150,14 +149,16 @@
             <div class="date"><span class="th_date">Last modified</span></div>
           </div>
         </div>
-        <ul class="folder-tree" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
+        <ul class="folder-tree scrolling" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
           <li *ngFor="let file of folderItems" class="folder-item" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
               <div class="name name-folder">
-<!--                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >-->
-                <span class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >
-                    <span class="checked-checkbox" *ngIf="file.isFolderSelected"></span>
-                </span>
+                <datalab-checkbox
+                  [checked]="file.isFolderSelected"
+                  (toggleSelection)="toggleSelectedFile(file, 'folder')"
+                >
+                </datalab-checkbox>
+
                   <i class="material-icons folder-icon folder-name">folder</i>
                   <span class="item-name name-wrap ellipsis"
                         matTooltip="{{file.item}}"
@@ -173,12 +174,13 @@
             </div>
             <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children && file.item !== 'ا'">
               <div class="name name-file">
-
-                 <span class="empty-checkbox" [ngClass]="{'checked': file.isSelected, 'not-allowed': file.isDownloading}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
-                    <span class="checked-checkbox" *ngIf="file.isSelected"></span>
-                  </span>
+                <datalab-checkbox
+                  [checked]="file.isSelected"
+                  [disabled]="file.isDownloading"
+                  (toggleSelection)="toggleSelectedFile(file, 'file')"
+                >
+                </datalab-checkbox>
                 <i class="material-icons folder-icon" >description</i>
-
                 <span
                   class="item-name name-wrap ellipsis"
                   matTooltip="{{file.item}}"
@@ -216,7 +218,7 @@
            <button type="button" class="close" (click)="closeUploadWindow()" [disabled]="isFileUploading" [ngClass]="{'not-allow': isFileUploading}" >&times;</button>
         </span>
       </header>
-      <ul class="upload-files">
+      <ul class="upload-files scrolling">
         <li class="file upload-table-header" *ngIf="addedFiles.length">
           <div class="name ellipsis" >File</div>
           <div class="second-block">

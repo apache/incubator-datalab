@@ -36,7 +36,7 @@ import {takeUntil} from 'rxjs/operators';
 @Component({
   selector: 'datalab-bucket-browser',
   templateUrl: './bucket-browser.component.html',
-  styleUrls: ['./bucket-browser.component.scss']
+  styleUrls: ['./bucket-browser.component.scss', './upload-window.component.scss']
 })
 export class BucketBrowserComponent implements OnInit, OnDestroy {
   public readonly uploadingQueueLength: number = 4;
@@ -101,12 +101,12 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  public getTokenValidTime() {
+  public getTokenValidTime(): number {
     const token = JSON.parse(atob(this.storage.getToken().split('.')[1]));
     return token.exp * 1000 - new Date().getTime();
   }
 
-  private refreshToken() {
+  private refreshToken(): void {
     this.isTokenRefreshing = true;
     this.auth.refreshToken()
       .pipe(
@@ -117,19 +117,19 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
       this.isTokenRefreshing = false;
       this.sendFile();
     });
-
   }
 
-  public showItem(item) {
+  public showItem(item): void {
     const flatItem = this.folderTreeComponent.nestedNodeMap.get(item);
     this.folderTreeComponent.showItem(flatItem);
   }
 
-  public closeUploadWindow() {
+  public closeUploadWindow(): void {
     this.addedFiles = [];
   }
 
-  public toggleSelectedFile(file, type) {
+  public toggleSelectedFile(file, type): void {
+    console.log(file, type);
     type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
     this.selected = this.folderItems.filter(item => item.isSelected);
     this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
@@ -137,28 +137,28 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.isActionsOpen = false;
   }
 
-  filesPicked(files) {
+  filesPicked(files): void {
     Array.prototype.forEach.call(files, file => {
       this.addedFiles.push(file.webkitRelativePath);
     });
   }
 
-  public dissableAll(event) {
+  public dissableAll(event): void {
     this.allDisable = event;
   }
 
-  public handleFileInput(event) {
+  public handleFileInput(event): void {
     const fullFilesList = Object['values'](event.target.files);
     if (fullFilesList.length > 0) {
       const files = fullFilesList.filter(v => v.size < this.maxFileSize);
       const toBigFile = fullFilesList.length !== files.length;
       const toMany = files.length > 50;
-      if (files.length > 50) {
+      if (toMany) {
         files.length = 50;
       }
       if (toBigFile || toMany) {
         this.dialog.open(BucketConfirmationDialogComponent, {data: {
-          items: {toBig: toBigFile, toMany: toMany}, type: 'uploading-error'
+          items: {toBig: toBigFile, toMany: toMany}, type: 'upload_limitation'
           } , width: '550px'})
           .afterClosed().subscribe((res) => {
          if (res) {
@@ -193,15 +193,22 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
       let askForAll = true;
       let skipAll = false;
 
-      const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
+      const folderFiles = this.folderItems.reduce((existFiles, item) => {
+        if (!item.children) {
+          existFiles.push(item.item);
+        }
+        return existFiles;
+      }, []);
+
       for (const file of files) {
-        const existFile = folderFiles.filter(v => v === file['name'])[0];
+        const existFile = folderFiles.find(v => v === file['name']);
         const uploadItem = {
           name: file['name'],
           file: file,
           size: file.size,
           path: this.path,
         };
+
         if (existFile && askForAll) {
           const result = await this.openResolveDialog(existFile);
           if (result) {
@@ -223,19 +230,19 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       const element = document.querySelector('#upload-list');
       element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
-    }, 0);
+    }, 10);
   }
 
   async openResolveDialog(existFile) {
     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {
-      data: {items: existFile, type: 'upload-dublicat'} , width: '550px'
+      data: {items: existFile, type: 'resolve_conflicts'} , width: '550px'
     });
     return dialog.afterClosed().toPromise().then(result => {
       return Promise.resolve(result);
     });
   }
 
-  public onFolderClick(event) {
+  public onFolderClick(event): void {
     this.searchValue = '';
     this.clearSelection();
     this.selectedFolder = event.flatNode;
@@ -255,11 +262,11 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     }
   }
 
-  public filterObjects() {
+  public filterObjects(): void {
     this.folderItems = this.originFolderItems.filter(v => v.item.toLowerCase().indexOf(this.searchValue.toLowerCase()) !== -1);
   }
 
-  private clearSelection() {
+  private clearSelection(): void {
     this.folderItems.forEach(item => item.isSelected = false);
     this.folderItems.forEach(item => item.isFolderSelected = false);
     this.selected = this.folderItems.filter(item => item.isSelected);
@@ -267,27 +274,26 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.selectedItems = [];
   }
 
-  public deleteAddedFile(file) {
+  public deleteAddedFile(file): void {
     if ( file.subscr && file.request) {
-      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: file, type: 'cancel-uploading'} , width: '550px'})
+      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: file, type: 'cancel'} , width: '550px'})
         .afterClosed().subscribe((res) => {
           res && file.subscr.unsubscribe();
           res && this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
-          this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+          this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
           this.sendFile();
       }, () => {
-        this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+        this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
         this.sendFile();
       });
     } else {
       this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
-      this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+      this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
       this.sendFile();
     }
-
   }
 
-  private uploadNewFile(file) {
+  private uploadNewFile(file): void {
     const path = file.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) : '';
     const fullPath = path ? `${path}/${file.name}` : file.name;
     const formData = new FormData();
@@ -297,15 +303,16 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     formData.append('endpoint', this.endpoint);
     formData.append('file', file.file);
     file.status = 'waiting';
+
     file.request = this.bucketBrowserService.uploadFile(formData);
     this.sendFile(file);
   }
 
-  public sendFile(file?) {
+  public sendFile(file?): void {
     const waitUploading = this.addedFiles.filter(v => v.status === 'waiting');
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
     this.isQueueFull = !!waitUploading.length;
-    this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+    this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
     // console.log((this.getTokenValidTime() / 1000 / 60 ).toFixed(0) + ' minutes');
     if ((this.refreshTokenLimit > this.getTokenValidTime()) && !this.isTokenRefreshing) {
       this.refreshToken();
@@ -315,8 +322,8 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
         file = waitUploading[0];
       }
       file.status = 'uploading';
-      this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
-      this.isQueueFull = !!this.addedFiles.filter(v => v.status === 'waiting').length;
+      this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
+      this.isQueueFull = this.addedFiles.some(v => v.status === 'waiting');
       file.subscr =  file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
              file.progress = Math.round(95 * event.loaded / event.total);
@@ -331,27 +338,27 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
             window.clearInterval(file.interval);
             file.status = 'uploaded';
             delete file.request;
-            this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
+            this.sendFile(this.addedFiles.find(v => v.status === 'waiting'));
             this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
           }
         }, error => {
         window.clearInterval(file.interval);
           file.status = 'failed';
           delete file.request;
-          this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
+          this.sendFile(this.addedFiles.find(v => v.status === 'waiting'));
         }
       );
     }
 
   }
 
-  public refreshBucket() {
+  public refreshBucket(): void {
     this.path = '';
     this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
     this.isSelectionOpened = false;
   }
 
-  public openBucket($event) {
+  public openBucket($event): void {
     this.bucketName = $event.name;
     this.endpoint = $event.endpoint;
     this.path = '';
@@ -360,18 +367,18 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.cloud = this.getCloud();
   }
 
-  private getCloud() {
+  private getCloud(): string {
     return this.buckets.filter(v => v.children.some(bucket => {
       return bucket.name === this.bucketName;
     }))[0].cloud.toLowerCase();
   }
 
-  public createFolder(folder) {
+  public createFolder(folder): void {
     this.allDisable = true;
     this.folderTreeComponent.addNewItem(folder, '', false);
   }
 
-  public fileAction(action) {
+  public fileAction(action): void {
     const selected = this.folderItems.filter(item => item.isSelected);
     const folderSelected = this.folderItems.filter(item => item.isFolderSelected);
     if (action === 'download') {
@@ -432,15 +439,15 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     }
   }
 
-  public toogleActions() {
+  public toogleActions(): void {
     this.isActionsOpen = !this.isActionsOpen;
   }
 
-  public closeActions() {
+  public closeActions(): void {
     this.isActionsOpen = false;
   }
 
-  public copyPath() {
+  public copyPath(): void {
     const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
     const cloud = this.getCloud();
     const protocol = HelpUtils.getBucketProtocol(cloud);
@@ -457,11 +464,11 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     this.toastr.success('Object path successfully copied!', 'Success!');
   }
 
-  public toggleBucketSelection() {
+  public toggleBucketSelection(): void {
     this.isSelectionOpened = !this.isSelectionOpened;
   }
 
-  public closeFilterInput() {
+  public closeFilterInput(): void {
     this.isFilterVisible = false;
     this.searchValue = '';
     this.filterObjects();

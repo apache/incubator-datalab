@@ -71,8 +71,7 @@
               cursor: pointer;
             }
 
-            .empty-checkbox{
-              display: block;
+            .checkbox-wrap{
               margin-right: 5px;
               margin-top: 0;
             }
@@ -83,7 +82,18 @@
   }
 }
 .sub-nav{
-  justify-content: flex-end;
+  justify-content: space-between;
+
+  .label{
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    color: #718ba6;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    font-family: "Open Sans", sans-serif;
+  }
 
   .butt{
     margin-left: 10px;

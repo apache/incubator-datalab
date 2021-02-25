@@ -23,6 +23,7 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import {AuditService} from '../../../core/services/audit.service';
 import {SortUtils} from '../../../core/util';
 import {LocalizationService} from '../../../core/services/localization.service';
+import {CompareUtils} from '../../../core/util/compareUtils';
 
 
 export interface AuditItem {
@@ -65,7 +66,6 @@ export class AuditGridComponent implements OnInit {
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
     public dialog: MatDialog,
     private auditService: AuditService,
-    private localizationService: LocalizationService,
   ) {
   }
 
@@ -123,9 +123,9 @@ export class AuditGridComponent implements OnInit {
     this.checkFilters();
   }
 
-  private checkFilters() {
-    this.isNavigationDisabled = JSON.stringify(this.copiedFilterAuditData) !== JSON.stringify(this.filterAuditData);
-    this.isFilterSelected = Object.keys(this.filterAuditData).filter(v => this.filterAuditData[v].length > 0).length > 0;
+  private checkFilters(): void {
+    this.isNavigationDisabled = CompareUtils.compareFilters(this.filterAuditData, this.copiedFilterAuditData);
+    this.isFilterSelected = Object.keys(this.filterAuditData).some(v => this.filterAuditData[v].length > 0);
   }
 
   public openActionInfo(element: AuditItem): void {
@@ -174,10 +174,6 @@ export class AuditGridComponent implements OnInit {
     this.resetDateFilter.emit();
     this.buildAuditGrid(true);
   }
-
-  public didFilterChanged(): boolean {
-    return this.isNavigationDisabled;
-  }
 }
 
 
@@ -213,7 +209,15 @@ export class AuditGridComponent implements OnInit {
                       </div>
                     </div>
                     <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}" *ngIf="action[0] !== 'File(s)'">
-                       <div *ngFor="let description of action[1]?.split(',')">{{description}}</div>
+                       <div 
+                          *ngFor="let description of action[1]?.split(',')"
+                          [matTooltip]="description"
+                          class="ellipsis"
+                          [ngStyle]="description.length < 20 ? {'width' :'fit-content'} : {'width':'100%'}"
+                          matTooltipPosition="above"
+                          matTooltipClass="mat-tooltip-description">
+                        {{description}}
+                        </div>
                     </div>
                   </mat-list-item>
                 </div>
@@ -280,7 +284,7 @@ export class AuditGridComponent implements OnInit {
     .info-item-title{width: 40%; padding: 10px 0;font-size: 14px;}
     .info-item-quota{width: 30%; padding: 10px 0;font-size: 14px;}
     .list-header {padding-top: 5px;}
-    .info-item-data{width: 60%; text-align: left; padding: 10px 0; font-size: 14px;}
+    .info-item-data{width: 60%; text-align: left; padding: 10px 0; font-size: 14px; cursor: default;}
     .file-description{ overflow: hidden; display: block; direction: rtl; font-size: 14px;}
     .same-column-width{width: 50%; padding: 10px 0; font-size: 14px;}
   `]

@@ -70,7 +70,7 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
-r_libs = ['R6', 'pbdZMQ', 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2']
+r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2']
 if os.environ['application'] == 'deeplearning':
     tensorflow_version = '1.4.0'
     cuda_version = '8.0'

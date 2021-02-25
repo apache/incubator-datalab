@@ -1,28 +1,41 @@
 package com.epam.datalab.backendapi.resources.admin;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.datalab.backendapi.modules.ChangePropertiesConst;
+import com.epam.datalab.backendapi.modules.RestartForm;
 import com.epam.datalab.backendapi.resources.dto.YmlDTO;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.impl.DynamicChangeProperties;
 import io.dropwizard.auth.Auth;
-import lombok.NoArgsConstructor;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("admin")
+@Path("config")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@NoArgsConstructor
-public class ChangePropertiesResource {
+public class ChangePropertiesResource implements ChangePropertiesConst {
+
+    private final DynamicChangeProperties dynamicChangeProperties;
+    private final String deployedOn;
+
+    @Inject
+    public ChangePropertiesResource(DynamicChangeProperties dynamicChangeProperties, SelfServiceApplicationConfiguration selfServiceApplicationConfiguration) {
+        this.dynamicChangeProperties = dynamicChangeProperties;
+        deployedOn = selfServiceApplicationConfiguration.getDeployed();
+    }
 
     @GET
     @Path("/self-service")
     public Response getSelfServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getSelfServiceProperties())
+                    .ok(deployedOn.equals("onPremise") ?
+                            dynamicChangeProperties.getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE) :
+                            dynamicChangeProperties.getProperties(GKE_SELF_SERVICE_PATH, GKE_SELF_SERVICE))
                     .build();
         } else {
             return Response
@@ -36,7 +49,7 @@ public class ChangePropertiesResource {
     public Response getProvisioningServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getProvisioningServiceProperties())
+                    .ok(dynamicChangeProperties.getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE))
                     .build();
         } else {
             return Response
@@ -50,7 +63,9 @@ public class ChangePropertiesResource {
     public Response getBillingServiceProperties(@Auth UserInfo userInfo) {
         if (UserRoles.isAdmin(userInfo)) {
             return Response
-                    .ok(DynamicChangeProperties.getBillingServiceProperties())
+                    .ok(deployedOn.equals("onPremise") ?
+                            dynamicChangeProperties.getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE) :
+                            dynamicChangeProperties.getProperties(GKE_BILLING_PATH, GKE_BILLING_SERVICE))
                     .build();
         } else {
             return Response
@@ -63,7 +78,7 @@ public class ChangePropertiesResource {
     @Path("/self-service")
     public Response overwriteSelfServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwriteSelfServiceProperties(ymlDTO.getYmlString());
+            dynamicChangeProperties.overwriteProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE, ymlDTO.getYmlString());
             return Response.ok().build();
         } else {
             return Response
@@ -76,7 +91,8 @@ public class ChangePropertiesResource {
     @Path("/provisioning-service")
     public Response overwriteProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwriteProvisioningServiceProperties(ymlDTO.getYmlString());
+            dynamicChangeProperties.overwriteProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
+                    ymlDTO.getYmlString());
             return Response.ok().build();
         } else {
             return Response
@@ -89,7 +105,7 @@ public class ChangePropertiesResource {
     @Path("/billing")
     public Response overwriteBillingServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            DynamicChangeProperties.overwriteBillingServiceProperties(ymlDTO.getYmlString());
+            dynamicChangeProperties.overwriteProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, ymlDTO.getYmlString());
             return Response.ok().build();
         } else {
             return Response
@@ -99,14 +115,81 @@ public class ChangePropertiesResource {
     }
 
     @POST
-    @Path("/restart")
-    public Response restart(@Auth UserInfo userInfo,
-                            @QueryParam("billing") boolean billing,
-                            @QueryParam("provserv") boolean provserv,
-                            @QueryParam("ui") boolean ui) {
+    @Path("restart")
+    public Response restart(@Auth UserInfo userInfo, RestartForm restartForm) {
         if (UserRoles.isAdmin(userInfo)) {
-        DynamicChangeProperties.restart(billing, provserv, ui);
-        return Response.ok().build();
+            dynamicChangeProperties.restart(restartForm);
+            return Response.ok().build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/multiple")
+    public Response getAllPropertiesForEndpoint(@Auth UserInfo userInfo, @QueryParam("endpoint") String endpoint) {
+        if (UserRoles.isAdmin(userInfo)) {
+            return Response
+                    .ok(dynamicChangeProperties.getPropertiesWithExternal(endpoint, userInfo))
+                    .build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/multiple/self-service")
+    public Response overwriteExternalSelfServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.overwritePropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE,
+                    ymlDTO, userInfo);
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/multiple/provisioning-service")
+    public Response overwriteExternalProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
+                    ymlDTO, userInfo);
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/multiple/billing")
+    public Response overwriteExternalBillingProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE,
+                    ymlDTO, userInfo);
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response
+                    .status(Response.Status.FORBIDDEN)
+                    .build();
+        }
+    }
+
+
+    @POST
+    @Path("/multiple/restart")
+    public Response restartWithExternal(@Auth UserInfo userInfo, RestartForm restartForm) {
+        if (UserRoles.isAdmin(userInfo)) {
+            dynamicChangeProperties.restartForExternal(restartForm, userInfo);
+            return Response.ok().build();
         } else {
             return Response
                     .status(Response.Status.FORBIDDEN)

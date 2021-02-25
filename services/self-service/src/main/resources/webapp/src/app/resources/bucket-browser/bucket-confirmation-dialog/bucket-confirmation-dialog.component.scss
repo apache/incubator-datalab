@@ -76,7 +76,7 @@
   }
 
   .bottom-message{
-    padding-top: 15px;
+    padding-top: 20px;
     text-align: center;
     .confirm-message{
       color: #ef5c4b;
@@ -87,8 +87,7 @@
   }
 .upload-item-name{
   max-width: 300px;
-  display: inline-block;
-  margin-bottom: -4px;
+  display: inline-flex;
 }
 
 .mat-radio-button{
@@ -160,6 +159,7 @@
 }
 .upload-message{
   display: flex;
+  justify-content: center;
   .upload-item-name{
     max-width: 340px;
     display: block;

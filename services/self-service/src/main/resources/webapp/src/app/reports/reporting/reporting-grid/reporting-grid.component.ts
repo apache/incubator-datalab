@@ -33,6 +33,19 @@ import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
 import {BehaviorSubject, fromEvent, Observable, of, Subject, timer} from 'rxjs';
 import {logger} from 'codelyzer/util/logger';
 import {take} from 'rxjs/operators';
+import {CompareUtils} from '../../../core/util/compareUtils';
+
+export interface IFullReport {
+  currency: string;
+  from: Array<number>;
+  is_full: boolean;
+  name: string;
+  reportHeaderCompletable: true;
+  report_lines:  Array<any>;
+  sbn: string;
+  to: Array<number>;
+  total_cost: number;
+}
 
 @Component({
   selector: 'datalab-reporting-grid',
@@ -48,7 +61,7 @@ export class ReportingGridComponent implements OnInit {
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
   collapseFilterRow: boolean = false;
   reportData: Array<any> = [];
-  fullReport: Array<any>;
+  fullReport: IFullReport;
   isFiltered: boolean = false;
   active: object = {};
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'empty', 'charge'];
@@ -93,7 +106,6 @@ export class ReportingGridComponent implements OnInit {
       this.tableEl = this.table._elementRef.nativeElement;
     }, 1000);
     this.checkFilters();
-    // this.compareFilters();
   }
 
   onUpdate($event): void {
@@ -102,53 +114,14 @@ export class ReportingGridComponent implements OnInit {
   }
 
   private checkFilters() {
-    this.isFilterChanged = JSON.stringify(this.filteredReportData) === JSON.stringify(this.previousFilterData);
+    this.isFilterChanged = CompareUtils.compareFilters(this.filteredReportData, this.previousFilterData);
     this.isFilterSelected = Object.keys(this.filteredReportData)
-      .filter(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0).length > 0;
+      .some(v => this.filteredReportData[v] && this.filteredReportData[v].length > 0);
   }
-
-  // compareFilters() {
-  //   const previousData = {
-  //     datalabId: '',
-  //     date_end: '',
-  //     date_start: '',
-  //     locale: undefined,
-  //     products: [],
-  //     projects: [],
-  //     resource_type: [1],
-  //     shapes: [],
-  //     statuses: [],
-  //     users: [],
-  //   };
-  //
-  //   const currentData = {
-  //     datalabId: '',
-  //     date_end: '',
-  //     date_start: '',
-  //     locale: undefined,
-  //     products: [],
-  //     projects: [],
-  //     resource_type: [],
-  //     shapes: [],
-  //     statuses: [],
-  //     users: [],
-  //   };
-  //
-  //   console.log(Object.keys(currentData).every(el => {
-  //     if (Array.isArray(el)) {
-  //       if (previousData[el].length !== currentData[el].length) {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     } else {
-  //       return previousData[el] !== currentData[el];
-  //     }
-  //   }));
-  // }
 
   refreshData(fullReport, report) {
     this.reportData = [...report];
+    console.log(fullReport);
     this.fullReport = fullReport;
     this.checkFilters();
   }
