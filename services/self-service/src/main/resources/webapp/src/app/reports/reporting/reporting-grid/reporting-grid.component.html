@@ -19,7 +19,6 @@
 <div class="billing-page-wrapper scrolling" #pageWrapper [ngClass]="{'scroll': reportData?.length < 5}" (scroll)="scrollTable($event)">
   <div class="wrapper" #wrapper>
       <div class="totaL-item strong"
-           *ngIf="fullReport?.total_cost"
            [ngClass]="{'scrollbar-right': tableWrapper.offsetHeight - tableEl['offsetHeight'] < 0, 'scrollbar-bottom': tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0}">
         Total <span *ngIf="reportData?.length">{{fullReport.total_cost | localcurrency}}</span>
       </div>

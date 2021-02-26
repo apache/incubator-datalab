@@ -396,6 +396,10 @@
   &.scrollbar-bottom{
     bottom: 3px;
   }
+
+  span {
+    padding-left: 2px;
+  }
 }
 
 @-moz-document url-prefix() {
