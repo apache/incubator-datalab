@@ -29,8 +29,8 @@ import subprocess
 from datalab.fab import *
 from fabric import *
 
-
-def status():
+@task
+def status(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
@@ -47,7 +47,8 @@ def status():
 
 
 # Main function for stopping EDGE node
-def stop():
+@task
+def stop(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -62,7 +63,8 @@ def stop():
 
 
 # Main function for starting stoped EDGE node
-def start():
+@task
+def start(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',

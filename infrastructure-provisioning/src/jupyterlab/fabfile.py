@@ -32,7 +32,8 @@ from datalab.meta_lib import *
 
 
 # Main function for provisioning notebook server
-def run():
+@task
+def run(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -61,7 +62,8 @@ def run():
 
 
 # Main function for terminating exploratory environment
-def terminate():
+@task
+def terminate(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -76,7 +78,8 @@ def terminate():
 
 
 # Main function for stopping notebook server
-def stop():
+@task
+def stop(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -91,7 +94,8 @@ def stop():
 
 
 # Main function for starting notebook server
-def start():
+@task
+def start(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -107,7 +111,8 @@ def start():
 
 
 # Main function for configuring notebook server after deploying DataEngine service
-def configure():
+@task
+def configure(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -126,7 +131,8 @@ def configure():
 
 
 # Main function for installing additional libraries for notebook
-def install_libs():
+@task
+def install_libs(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -143,7 +149,8 @@ def install_libs():
 
 
 # Main function for get available libraries for notebook
-def list_libs():
+@task
+def list_libs(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -160,7 +167,8 @@ def list_libs():
 
 
 # Main function for manage git credentials on notebook
-def git_creds():
+@task
+def git_creds(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -177,7 +185,8 @@ def git_creds():
 
 
 # Main function for creating image from notebook
-def create_image():
+@task
+def create_image(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -194,7 +203,8 @@ def create_image():
 
 
 # Main function for deleting existing notebook image
-def terminate_image():
+@task
+def terminate_image(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -211,7 +221,8 @@ def terminate_image():
 
 
 # Main function for reconfiguring Spark for notebook
-def reconfigure_spark():
+@task
+def reconfigure_spark(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
