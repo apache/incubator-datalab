@@ -433,8 +433,16 @@ mat-dialog-container {
 }
 
 .audit-info-content{
-  .mat-list-item-content{
-    align-items: start !important;
+  .mat-list {
+    height: unset;
+
+    .list-header {
+      line-height: unset;
+      
+      .mat-list-item-content{
+        align-items: start !important;
+      }
+    }
   }
 }
 
