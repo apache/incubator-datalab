@@ -53,8 +53,8 @@ if __name__ == "__main__":
         GCPActions.remove_firewall(edge_conf['fw_ps_egress_private'])
         GCPActions.remove_firewall(edge_conf['fw_ps_egress_public'])
         GCPActions.remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
-        GCPActions.remove_role(edge_conf['ps_role_name'])
         GCPActions.remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
+        GCPActions.remove_role(edge_conf['ps_role_name'])
         GCPActions.remove_role(edge_conf['edge_role_name'])
         GCPActions.remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
 
@@ -89,15 +89,14 @@ if __name__ == "__main__":
                                                                            edge_conf['endpoint_name'])
         edge_conf['edge_unique_index'] = GCPMeta.get_index_by_service_account_name(
             edge_conf['edge_service_account_name'])
-        edge_conf['edge_role_name'] = '{}-{}-{}-edge-role'.format(edge_conf['service_base_name'],
-                                                                  edge_conf['project_name'],
-                                                                  edge_conf['edge_unique_index'])
+        edge_conf['edge_role_name'] = '{}-{}-{}-{}-edge-role'.format(edge_conf['service_base_name'], edge_conf['project_name'],
+                                                                  edge_conf['endpoint_name'], edge_conf['edge_unique_index'])
         edge_conf['ps_service_account_name'] = '{}-{}-{}-ps-sa'.format(edge_conf['service_base_name'],
                                                                        edge_conf['project_name'],
                                                                        edge_conf['endpoint_name'])
         edge_conf['ps_unique_index'] = GCPMeta.get_index_by_service_account_name(edge_conf['ps_service_account_name'])
-        edge_conf['ps_role_name'] = '{}-{}-{}-ps-role'.format(edge_conf['service_base_name'],
-                                                              edge_conf['project_name'], edge_conf['ps_unique_index'])
+        edge_conf['ps_role_name'] = '{}-{}-{}-{}-ps-role'.format(edge_conf['service_base_name'], edge_conf['project_name'],
+                                                                 edge_conf['endpoint_name'], edge_conf['ps_unique_index'])
         edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                                edge_conf['project_name'], edge_conf['endpoint_name'])
         edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-sg'.format(edge_conf['instance_name'])
