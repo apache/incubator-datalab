@@ -24,6 +24,7 @@
         <th mat-header-cell *matHeaderCellDef class="checkbox label-header">
           <datalab-checkbox
             class="header-checkbox"
+            *ngIf="allActiveNotebooks?.length"
             [checked]="selected?.length === allActiveNotebooks?.length"
             (toggleSelection)="toggleSelectionAll()"
           >
