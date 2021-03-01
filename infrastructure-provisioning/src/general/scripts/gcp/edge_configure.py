@@ -122,7 +122,7 @@ if __name__ == "__main__":
             GCPMeta.get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         edge_conf['private_ip'] = GCPMeta.get_private_ip_address(edge_conf['instance_name'])
         edge_conf['vpc_cidrs'] = [edge_conf['vpc_cidr']]
-        edge_conf['fw_common_name'] = '{}-{}-{}-ps-sg'.format(edge_conf['service_base_name'], edge_conf['project_name'],
+        edge_conf['fw_common_name'] = '{}-{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['project_name'],
                                                               edge_conf['endpoint_name'])
         edge_conf['fw_ps_ingress'] = '{}-sg-ingress'.format(edge_conf['fw_common_name'])
         edge_conf['fw_ps_egress_private'] = '{}-sg-egress-private'.format(edge_conf['fw_common_name'])
