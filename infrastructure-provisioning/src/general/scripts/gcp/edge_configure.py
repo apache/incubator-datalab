@@ -124,13 +124,13 @@ if __name__ == "__main__":
         edge_conf['vpc_cidrs'] = [edge_conf['vpc_cidr']]
         edge_conf['fw_common_name'] = '{}-{}-{}-ps-sg'.format(edge_conf['service_base_name'], edge_conf['project_name'],
                                                               edge_conf['endpoint_name'])
-        edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
-        edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
-        edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])
-        edge_conf['fw_edge_ingress_public'] = '{}-ingress-public'.format(edge_conf['instance_name'])
-        edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
-        edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
-        edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
+        edge_conf['fw_ps_ingress'] = '{}-sg-ingress'.format(edge_conf['fw_common_name'])
+        edge_conf['fw_ps_egress_private'] = '{}-sg-egress-private'.format(edge_conf['fw_common_name'])
+        edge_conf['fw_ps_egress_public'] = '{}-sg-egress-public'.format(edge_conf['fw_common_name'])
+        edge_conf['fw_edge_ingress_public'] = '{}-sg-ingress-public'.format(edge_conf['instance_name'])
+        edge_conf['fw_edge_ingress_internal'] = '{}-sg-ingress-internal'.format(edge_conf['instance_name'])
+        edge_conf['fw_edge_egress_public'] = '{}-sg-egress-public'.format(edge_conf['instance_name'])
+        edge_conf['fw_edge_egress_internal'] = '{}-sg-egress-internal'.format(edge_conf['instance_name'])
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
             edge_conf['step_cert_sans'] = ' --san {0} --san {1} --san {2}'.format(edge_conf['static_ip'],
