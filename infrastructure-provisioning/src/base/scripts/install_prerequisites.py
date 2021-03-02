@@ -28,6 +28,7 @@ from datalab.common_lib import *
 from datalab.fab import *
 from fabric import *
 from patchwork.files import exists
+import traceback
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -64,7 +65,11 @@ if __name__ == "__main__":
     update_hosts_file(args.user)
 
     print("Updating repositories and installing requested tools.")
-    ensure_pkg(args.user)
+    try:
+        ensure_pkg(args.user)
+    except:
+        traceback.print_exc()
+        sys.exit(1)
 
     print("Installing python packages: {}".format(args.pip_packages))
     ensure_pip(args.pip_packages)
