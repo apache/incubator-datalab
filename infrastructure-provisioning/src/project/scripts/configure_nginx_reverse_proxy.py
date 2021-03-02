@@ -28,6 +28,7 @@ import sys
 from datalab.common_lib import ensure_step
 from datalab.edge_lib import install_nginx_lua
 from fabric import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
