@@ -29,7 +29,7 @@ from datalab.common_lib import manage_pkg
 from datalab.common_lib import run_certbot
 from fabric import *
 from patchwork.files import exists
-
+import datalab.fab
 
 def configure_http_proxy_server(config):
     try:
