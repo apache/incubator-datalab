@@ -26,6 +26,7 @@ import json
 import sys
 from datalab.edge_lib import configure_http_proxy_server
 from fabric import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
