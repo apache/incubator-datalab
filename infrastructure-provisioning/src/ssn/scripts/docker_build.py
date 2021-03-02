@@ -49,13 +49,13 @@ else:
 
 def image_build(src_path, node):
     try:
-        if subprocess.run("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture_output=True, shell=True, check=True).stdout == 'Ubuntu':
+        if subprocess.run("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'Ubuntu':
             os_family = 'debian'
         else:
             os_family = 'redhat'
-        if subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout == 'aws':
+        if subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'aws':
             cloud_provider = 'aws'
-        elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout == 'azure':
+        elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'azure':
             cloud_provider = 'azure'
             if not exists(conn,'{}base/azure_auth.json'.format(src_path)):
                 subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True, check=True)
