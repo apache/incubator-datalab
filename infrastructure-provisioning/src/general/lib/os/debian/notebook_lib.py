@@ -39,12 +39,12 @@ def enable_proxy(proxy_host, proxy_port):
         proxy_https_string = "http://%s:%s" % (proxy_host, proxy_port)
         datalab.fab.conn.sudo('sed -i "/^export http_proxy/d" /etc/profile')
         datalab.fab.conn.sudo('sed -i "/^export https_proxy/d" /etc/profile')
-        datalab.fab.conn.sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
-        datalab.fab.conn.sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
+        datalab.fab.conn.sudo('''bash -c 'echo export http_proxy={} >> /etc/profile' '''.format(proxy_string))
+        datalab.fab.conn.sudo('''bash -c 'echo export https_proxy={} >> /etc/profile' '''.format(proxy_string))
         if exists(datalab.fab.conn, '/etc/apt/apt.conf'):
             datalab.fab.conn.sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
-        datalab.fab.conn.sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
-        datalab.fab.conn.sudo("echo 'Acquire::http::Proxy \"" + proxy_https_string + "\";' >> /etc/apt/apt.conf")
+        datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_string))
+        datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_https_string))
 
         print("Renewing gpg key")
         renew_gpg_key()
