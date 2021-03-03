@@ -168,7 +168,7 @@ def run_spark():
 
 if __name__ == "__main__":
     try:
-        notebook_ip = subprocess.run('hostname -I', capture_output=True, shell=True, check=True)
+        notebook_ip = subprocess.run('hostname -I', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         prepare_templates()
         run_pyspark()
         run_sparkr()

@@ -53,10 +53,10 @@ if __name__ == "__main__":
     datalab_region = '-'.join(datalab_zone.split('-', 2)[:2])
     deployment_vpcId = subprocess.run(
         "sudo gcloud compute instances describe {0} --zone {1} --format 'value(networkInterfaces.network)' | sed 's|.*/||'".format(
-            datalab_sbn, datalab_zone), capture_output=True, shell=True, check=True)
+            datalab_sbn, datalab_zone), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     deployment_subnetId = subprocess.run(
         "sudo gcloud compute instances describe {0} --zone {1} --format 'value(networkInterfaces.subnetwork)' | sed 's|.*/||'".format(
-            datalab_sbn, datalab_zone), capture_output=True, shell=True, check=True)
+            datalab_sbn, datalab_zone), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     gcp_projectId = requests.get('http://metadata/computeMetadata/v1/project/project-id', headers=headers).text
     keycloak_redirectUri = 'http://{}'.format(server_external_ip)
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     print('Reserving external IP')
     static_address_exist = subprocess.run(
-        "sudo gcloud compute addresses list --filter='address={}'".format(server_external_ip), capture_output=True, shell=True, check=True)
+        "sudo gcloud compute addresses list --filter='address={}'".format(server_external_ip), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     if static_address_exist:
         print('Address is already static')
     else:

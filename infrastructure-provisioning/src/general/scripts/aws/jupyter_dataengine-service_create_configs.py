@@ -81,7 +81,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
-    scala_version = subprocess.run("Spark-submit --version 2>&1 | awk '/Scala version / {gsub(/,/, \"\"); print $4}'", shell=True, check=True)
+    scala_version = subprocess.run("Spark-submit --version 2>&1 | awk '/Scala version / {gsub(/,/, \"\"); print $4}'", shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     if args.emr_version == 'emr-4.3.0' or args.emr_version == 'emr-4.6.0' or args.emr_version == 'emr-4.8.0':
         subprocess.run('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/', shell=True, check=True)
         kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
@@ -161,7 +161,7 @@ def add_breeze_library_emr(args):
 def install_sparkamagic_kernels(args):
     try:
         subprocess.run('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension', shell=True, check=True)
-        sparkmagic_dir = subprocess.run("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True, shell=True, check=True)
+        sparkmagic_dir = subprocess.run("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir), shell=True, check=True)

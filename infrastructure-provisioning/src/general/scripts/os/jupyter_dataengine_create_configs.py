@@ -59,7 +59,7 @@ def r_kernel(args):
     subprocess.run('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name), shell=True, check=True)
     kernel_path = "{}/r_{}/kernel.json".format(kernels_dir, args.cluster_name)
     template_file = "/tmp/{}/r_dataengine_template.json".format(args.cluster_name)
-    r_version = subprocess.run("R --version | awk '/version / {print $3}'", capture_output = True, shell=True, check=True)
+    r_version = subprocess.run("R --version | awk '/version / {print $3}'", capture_output = True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
 
     with open(template_file, 'r') as f:
         text = f.read()
@@ -75,7 +75,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
-    scala_version = subprocess.run('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True, shell=True, check=True)
+    scala_version = subprocess.run('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     subprocess.run('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/', shell=True, check=True)
     subprocess.run('tar zxvf /tmp/{}/toree_kernel.tar.gz -C '.format(args.cluster_name) + kernels_dir + 'toree_' + args.cluster_name + '/', shell=True, check=True)
     subprocess.run('sudo mv {0}toree_{1}/toree-0.3.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name), shell=True, check=True)
@@ -153,7 +153,7 @@ def pyspark_kernel(args):
 def install_sparkamagic_kernels(args):
     try:
         subprocess.run('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension', shell=True, check=True)
-        sparkmagic_dir = subprocess.run("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True, shell=True, check=True)
+        sparkmagic_dir = subprocess.run("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir), shell=True, check=True)
@@ -161,12 +161,12 @@ def install_sparkamagic_kernels(args):
                                                                          args.cluster_name)
         subprocess.run('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user), shell=True, check=True)
-        scala_version = subprocess.run('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True, shell=True, check=True)
+        scala_version = subprocess.run('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(scala_version, args.spark_version,
                                                                          args.cluster_name)
         subprocess.run('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
             spark_kernel_name, args.os_user), shell=True, check=True)
-        r_version = subprocess.run("R --version | awk '/version / {print $3}'", capture_output=True, shell=True, check=True)
+        r_version = subprocess.run("R --version | awk '/version / {print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(str(r_version), args.spark_version,
                                                                             args.cluster_name)
         subprocess.run('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(

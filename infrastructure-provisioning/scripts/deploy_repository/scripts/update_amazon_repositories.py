@@ -36,9 +36,9 @@ if __name__ == "__main__":
     subprocess.run('wget http://repo.{}.amazonaws.com/2017.09/updates/mirror.list -O /tmp/updates_mirror.list'.format(
         args.region), shell=True, check=True)
     amazon_main_repo = subprocess.run("cat /tmp/main_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region),
-                             capture_output=True, shell=True, check=True)
+                             capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     amazon_updates_repo = subprocess.run("cat /tmp/updates_mirror.list  | grep {} | sed 's/$basearch//g'".format(args.region),
-                                capture_output=True, shell=True, check=True)
+                                capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     subprocess.run('cp -f /opt/nexus/updateRepositories.groovy /tmp/updateRepositories.groovy', shell=True, check=True)
     subprocess.run('sed -i "s|AMAZON_MAIN_URL|{}|g" /tmp/updateRepositories.groovy'.format(amazon_main_repo), shell=True, check=True)
     subprocess.run('sed -i "s|AMAZON_UPDATES_URL|{}|g" /tmp/updateRepositories.groovy'.format(amazon_updates_repo), shell=True, check=True)

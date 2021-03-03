@@ -38,7 +38,7 @@ args = parser.parse_args()
 
 def copy_key(config):
     admin_key_pub = subprocess.run('ssh-keygen -y -f {}'.format(args.keyfile),
-                          capture_output=True, shell=True, check=True)
+                          capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     conn.sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
     conn.sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
     try:

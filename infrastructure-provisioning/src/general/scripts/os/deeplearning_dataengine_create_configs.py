@@ -98,7 +98,7 @@ def pyspark_kernel(args):
 def install_sparkamagic_kernels(args):
     try:
         subprocess.run('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension', shell=True, check=True)
-        sparkmagic_dir = subprocess.run("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True, shell=True, check=True)
+        sparkmagic_dir = subprocess.run("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
 
@@ -106,7 +106,7 @@ def install_sparkamagic_kernels(args):
                                                                          args.cluster_name)
         subprocess.run('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user), shell=True, check=True)
-        scala_version = subprocess.run('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True, shell=True, check=True)
+        scala_version = subprocess.run('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(scala_version, args.spark_version,
                                                                          args.cluster_name)
         subprocess.run('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(

@@ -1737,7 +1737,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         subprocess.run('sudo service zeppelin-notebook start', shell=True, check=True)
         while not zeppelin_restarted:
             subprocess.run('sleep 5', shell=True, check=True)
-            result = subprocess.run('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True)
+            result = subprocess.run('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
             result = result[:1]
             if result == '1':
                 zeppelin_restarted = True
@@ -1746,7 +1746,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         if multiple_emrs == 'true':
             while not port_number_found:
                 port_free = subprocess.run('sudo bash -c "nmap -p ' + str(default_port) +
-                                  ' localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True)
+                                  ' localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
                 port_free = port_free[:1]
                 if port_free == '0':
                     livy_port = default_port
@@ -1820,7 +1820,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
     subprocess.run("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name), shell=True, check=True)
-    region = subprocess.run('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture_output=True, shell=True, check=True)[:-1]
+    region = subprocess.run('curl http://169.254.169.254/latest/meta-data/placement/availability-zone', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")[:-1]
     if region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
     elif region == 'cn-north-1':
@@ -1835,7 +1835,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
         additional_spark_properties = subprocess.run('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-            cluster_name, cluster_dir), capture_output=True, shell=True, check=True)
+            cluster_name, cluster_dir), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         for property in additional_spark_properties.split('\n'):
             subprocess.run('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name), shell=True, check=True)
     if os.path.exists('{0}'.format(cluster_dir)):
@@ -1843,10 +1843,10 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                                                                                         cluster_dir), shell=True, check=True)
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
         datalab_header = subprocess.run('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
-                               capture_output=True, shell=True, check=True)
+                               capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
-        spark_defaults = subprocess.run('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True, shell=True, check=True)
+        spark_defaults = subprocess.run('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             if param.split(' ')[0] != '#':

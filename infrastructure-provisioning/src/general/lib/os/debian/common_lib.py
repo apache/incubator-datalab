@@ -154,7 +154,7 @@ def find_java_path_remote():
 
 
 def find_java_path_local():
-    java_path = subprocess.run("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"", capture_output=True, shell=True, check=True)
+    java_path = subprocess.run("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     return java_path
 
 

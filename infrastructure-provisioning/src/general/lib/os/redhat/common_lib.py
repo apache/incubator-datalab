@@ -101,7 +101,7 @@ def find_java_path_remote():
 
 
 def find_java_path_local():
-    java_path = subprocess.run("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'", capture_output=True, shell=True, check=True)
+    java_path = subprocess.run("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
     return java_path
 
 

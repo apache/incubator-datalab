@@ -71,7 +71,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
         subprocess.run('sudo service zeppelin-notebook start', shell=True, check=True)
         while not zeppelin_restarted:
             subprocess.run('sleep 5', shell=True, check=True)
-            result = subprocess.run('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True)
+            result = subprocess.run('sudo bash -c "nmap -p 8080 localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
             result = result[:1]
             if result == '1':
                 zeppelin_restarted = True
@@ -80,7 +80,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
         if multiple_clusters == 'true':
             while not port_number_found:
                 port_free = subprocess.run('sudo bash -c "nmap -p ' + str(default_port) +
-                                  ' localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True)
+                                  ' localhost | grep closed > /dev/null" ; echo $?', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
                 port_free = port_free[:1]
                 if port_free == '0':
                     livy_port = default_port
