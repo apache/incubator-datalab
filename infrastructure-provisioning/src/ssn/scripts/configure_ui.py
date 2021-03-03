@@ -147,48 +147,48 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
 def build_ui():
     try:
         # Building Front-end
-        conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
+        conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" ' + args.datalab_path + 'sources/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
 
         if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
-            conn.sudo('sed -i "s|\'use_ldap\': true|{}|g" ' + args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/src/dictionary/azure.dictionary.ts'.format(
+            conn.sudo('sed -i "s|\'use_ldap\': true|{}|g" ' + args.datalab_path + 'sources/services/self-service/src/main/resources/webapp/src/dictionary/azure.dictionary.ts'.format(
                     '\'use_ldap\': false'))
 
-        conn.sudo('bash -c "cd {}/sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install"'.format(args.datalab_path))
-        manage_npm_pkg('bash -c "cd {}/sources/services/self-service/src/main/resources/webapp/ && npm run build.prod"'.format(args.datalab_path))
+        conn.sudo('bash -c "cd {}sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install"'.format(args.datalab_path))
+        manage_npm_pkg('bash -c "cd {}sources/services/self-service/src/main/resources/webapp/ && npm run build.prod"'.format(args.datalab_path))
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        conn.sudo('bash -c "cd {}/sources/ && /opt/maven/bin/mvn -P{} -DskipTests package > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
+        conn.sudo('bash -c "cd {}sources/ && /opt/maven/bin/mvn -P{} -DskipTests package > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
 
-        conn.sudo('mkdir -p {}/webapp/'.format(args.datalab_path))
+        conn.sudo('mkdir -p {}webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:
-            conn.sudo('mkdir -p {}/webapp/{}/lib/'.format(args.datalab_path, service))
-            conn.sudo('mkdir -p {}/webapp/{}/conf/'.format(args.datalab_path, service))
-        conn.sudo('cp {0}/sources/services/self-service/self-service.yml {0}/webapp/self-service/conf/'.format(
+            conn.sudo('mkdir -p {}webapp/{}/lib/'.format(args.datalab_path, service))
+            conn.sudo('mkdir -p {}webapp/{}/conf/'.format(args.datalab_path, service))
+        conn.sudo('cp {0}sources/services/self-service/self-service.yml {0}webapp/self-service/conf/'.format(
             args.datalab_path))
-        conn.sudo('cp {0}/sources/services/self-service/target/self-service-*.jar {0}/webapp/self-service/lib/'.format(
+        conn.sudo('cp {0}sources/services/self-service/target/self-service-*.jar {0}webapp/self-service/lib/'.format(
             args.datalab_path))
         conn.sudo(
-            'cp {0}/sources/services/provisioning-service/provisioning.yml {0}/webapp/provisioning-service/conf/'.format(
+            'cp {0}sources/services/provisioning-service/provisioning.yml {0}webapp/provisioning-service/conf/'.format(
                 args.datalab_path))
-        conn.sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
-             '{0}/webapp/provisioning-service/lib/'.format(args.datalab_path))
+        conn.sudo('cp {0}sources/services/provisioning-service/target/provisioning-service-*.jar '
+             '{0}webapp/provisioning-service/lib/'.format(args.datalab_path))
 
         if args.cloud_provider == 'azure':
-            conn.sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
-            conn.sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/webapp/billing/lib/'.format(
+            conn.sudo('cp {0}sources/services/billing-azure/billing.yml {0}webapp/billing/conf/'.format(args.datalab_path))
+            conn.sudo('cp {0}sources/services/billing-azure/target/billing-azure*.jar {0}webapp/billing/lib/'.format(
                 args.datalab_path))
         elif args.cloud_provider == 'aws':
-            conn.sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
-            conn.sudo('cp {0}/sources/services/billing-aws/src/main/resources/application.yml '
-                 '{0}/webapp/billing/conf/billing_app.yml'.format(args.datalab_path))
+            conn.sudo('cp {0}sources/services/billing-aws/billing.yml {0}webapp/billing/conf/'.format(args.datalab_path))
+            conn.sudo('cp {0}sources/services/billing-aws/src/main/resources/application.yml '
+                 '{0}webapp/billing/conf/billing_app.yml'.format(args.datalab_path))
             conn.sudo(
-                'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
+                'cp {0}sources/services/billing-aws/target/billing-aws*.jar {0}webapp/billing/lib/'.format(
                     args.datalab_path))
         elif args.cloud_provider == 'gcp':
-            conn.sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
+            conn.sudo('cp {0}sources/services/billing-gcp/billing.yml {0}webapp/billing/conf/'.format(args.datalab_path))
             conn.sudo(
-                'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/webapp/billing/lib/'.format(
+                'cp {0}sources/services/billing-gcp/target/billing-gcp*.jar {0}webapp/billing/lib/'.format(
                     args.datalab_path))
     except Exception as err:
         traceback.print_exc()
