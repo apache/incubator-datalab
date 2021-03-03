@@ -78,7 +78,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 fingerprint = datalab.fab.conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout.replace('\n','')
                 datalab.fab.conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                  os.environ['conf_stepcerts_ca_url']))
-                datalab.fab.conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
+                datalab.fab.conn.sudo('''bash -c 'echo "{0}" > /home/{1}/keys/provisioner_password' '''.format(
                      os.environ['conf_stepcerts_kid_password'], user))
                 sans = "--san localhost --san 127.0.0.1 {0}".format(step_cert_sans)
                 cn = edge_ip
