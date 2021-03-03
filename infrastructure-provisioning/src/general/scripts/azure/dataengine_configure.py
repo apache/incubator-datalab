@@ -30,6 +30,7 @@ import multiprocessing
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
 from fabric import *
 
