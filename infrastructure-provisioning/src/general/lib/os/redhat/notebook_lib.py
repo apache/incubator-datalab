@@ -63,10 +63,10 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             conn.run('R -e "IRkernel::installspec()"')
             conn.sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                conn.sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"')
+                conn.sudo('''bash -c 'cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"' ''')
             except:
                 pass
-            conn.sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
+            conn.sudo('''bash -c 'cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"' ''')
             r_version = conn.sudo("R --version | awk '/version / {print $3}'").stdout.replace('\n','')
             conn.put(templates_dir + 'r_template.json', '/tmp/r_template.json')
             conn.sudo('sed -i "s|R_VER|' + r_version + '|g" /tmp/r_template.json')
@@ -91,7 +91,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             conn.sudo('echo -e "[base]\nname=CentOS-7-Base\nbaseurl=http://buildlogs.centos.org/centos/7/os/x86_64-20140704-1/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7\npriority=1\nexclude=php mysql" >> /etc/yum.repos.d/CentOS-base.repo')
             manage_pkg('-y install', 'remote', 'R R-core R-core-devel R-devel --nogpgcheck')
             conn.sudo('R CMD javareconf')
-            conn.sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
+            conn.sudo('''bash -c 'cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig' ''')
             for i in r_libs:
                 conn.sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
             conn.sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
@@ -408,7 +408,7 @@ def install_opencv(os_user):
         conn.run('cd /home/{}/opencv/ && mkdir release'.format(os_user))
         conn.run('cd /home/{}/opencv/release/ && cmake -DINSTALL_TESTS=OFF -D CUDA_GENERATION=Auto -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
         conn.run('cd /home/{}/opencv/release/ && make -j$(nproc)')
-        conn.sudo('cd /home/{}/opencv/release/ &&  make install')
+        conn.sudo('''bash -c 'cd /home/{}/opencv/release/ &&  make install' ''')
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
 
 
@@ -424,14 +424,14 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        conn.sudo('cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install'.format(os_user, cmake_version))
+        conn.sudo('''bash -c 'cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install' '''.format(os_user, cmake_version))
         conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        conn.sudo('cd /home/{}/pytorch/ && git submodule update --init'.format(os_user))
+        conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
         with settings(warn_only=True):
-            conn.sudo('cd /home/{}/pytorch/ && git checkout v{}'.format(os_user, caffe2_version))
-            conn.sudo('cd /home/{}/pytorch/ && git submodule update --recursive'.format(os_user))
-        conn.sudo('cd /home/{}/pytorch/ && mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(os_user, cmake_version))
+            conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout v{}' '''.format(os_user, caffe2_version))
+            conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --recursive' '''.format(os_user))
+        conn.sudo('''bash -c 'cd /home/{}/pytorch/ && mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install' '''.format(os_user, cmake_version))
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

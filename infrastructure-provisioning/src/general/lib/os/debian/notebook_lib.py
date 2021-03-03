@@ -63,10 +63,10 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             datalab.fab.conn.sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
             datalab.fab.conn.sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                datalab.fab.conn.sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"')
+                datalab.fab.conn.sudo('''bash -c 'cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"' ''')
             except:
                 pass
-            datalab.fab.conn.sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
+            datalab.fab.conn.sudo('''bash -c 'cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"' ''')
             datalab.fab.conn.sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/.local')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/r_local_kernel_ensured')
         except:
@@ -95,7 +95,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
             datalab.fab.conn.sudo('R CMD javareconf')
-            datalab.fab.conn.sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
+            datalab.fab.conn.sudo('''bash -c 'cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig' ''')
             datalab.fab.conn.sudo('R -e "install.packages(\'devtools\',repos=\'{}\')"'.format(r_repository))
             for i in r_libs:
                 if '=' in i:
@@ -478,14 +478,14 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         datalab.fab.conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        datalab.fab.conn.sudo('cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install'.format(os_user, cmake_version))
+        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install' '''.format(os_user, cmake_version))
         datalab.fab.conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         datalab.fab.conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        datalab.fab.conn.sudo('cd /home/{}/pytorch/ && git submodule update --init'.format(os_user))
+        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
         with settings(warn_only=True):
-            datalab.fab.conn.sudo('cd /home/{}/pytorch/ && git checkout {}'.format(os_user, os.environ['notebook_pytorch_branch']))
-            datalab.fab.conn.sudo('cd /home/{}/pytorch/ && git submodule update --init --recursive'.format(os_user))
-        datalab.fab.conn.sudo('cd /home/{}/pytorch/ && python3 setup.py install'.format(os_user))
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout {}' '''.format(os_user, os.environ['notebook_pytorch_branch']))
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init --recursive' '''.format(os_user))
+        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && python3 setup.py install' '''.format(os_user))
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

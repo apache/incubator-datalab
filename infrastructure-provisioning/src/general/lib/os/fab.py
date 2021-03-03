@@ -944,10 +944,10 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
     print('Superset configuring')
     try:
         if not exists(conn,'/home/{}/incubator-superset'.format(os_user)):
-            conn.sudo('cd /home/{} && wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(
+            conn.sudo('''bash -c 'cd /home/{} && wget https://github.com/apache/incubator-superset/archive/{}.tar.gz' '''.format(
                     os_user, os.environ['notebook_superset_version']))
-            conn.sudo('cd /home/{} && tar -xzf {}.tar.gz'.format(os_user, os.environ['notebook_superset_version']))
-            conn.sudo('cd /home/{} && ln -sf incubator-superset-{} incubator-superset'.format(os_user, os.environ['notebook_superset_version']))
+            conn.sudo('''bash -c 'cd /home/{} && tar -xzf {}.tar.gz' '''.format(os_user, os.environ['notebook_superset_version']))
+            conn.sudo('''bash -c 'cd /home/{} && ln -sf incubator-superset-{} incubator-superset' '''.format(os_user, os.environ['notebook_superset_version']))
         if not exists(conn,'/tmp/superset-notebook_installed'):
             conn.sudo('mkdir -p /opt/datalab/templates')
             conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')

@@ -917,7 +917,7 @@ def install_nexus():
                    http://localhost:8081/service/rest/v1/script/configureNexus/run')
             conn.sudo('systemctl stop nexus')
             conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-apt')
-            conn.sudo('cd nexus-repository-apt && mvn')
+            conn.sudo('''bash -c 'cd nexus-repository-apt && mvn' ''')
             apt_plugin_version = conn.sudo('find nexus-repository-apt/ -name "nexus-repository-apt-*.jar" '
                                       '-printf "%f\\n" | grep -v "sources"').stdout.replace('nexus-repository-apt-',
                                                                                      '').replace('.jar', '')
@@ -960,7 +960,7 @@ def install_nexus():
                  '''/opt/nexus/system/org/sonatype/nexus/assemblies/nexus-core-feature/{0}/nexus-core-feature-'''
                  '''{0}-features.xml'''.format(nexus_version))
             conn.sudo('git clone https://github.com/sonatype-nexus-community/nexus-repository-r.git')
-            conn.sudo('cd nexus-repository-r && mvn clean install')
+            conn.sudo('''bash -c 'cd nexus-repository-r && mvn clean install' ''')
             r_plugin_version = conn.sudo('find nexus-repository-r/ -name "nexus-repository-r-*.jar" '
                                     '-printf "%f\\n" | grep -v "sources"').stdout.replace('nexus-repository-r-', '').replace(
                 '.jar', '')
@@ -1079,9 +1079,9 @@ def mount_efs():
         if not exists(conn,'/home/{}/.ensure_dir/efs_mounted'.format(configuration['conf_os_user'])):
             conn.sudo('mkdir -p /opt/sonatype-work')
             conn.sudo('apt-get -y install binutils')
-            conn.sudo('cd /tmp/ && git clone https://github.com/aws/efs-utils')
-            conn.sudo('cd /tmp/efs-utils && ./build-deb.sh')
-            conn.sudo('cd /tmp/efs-utils && apt-get -y install ./build/amazon-efs-utils*deb')
+            conn.sudo('''bash -c 'cd /tmp/ && git clone https://github.com/aws/efs-utils' ''')
+            conn.sudo('''bash -c 'cd /tmp/efs-utils && ./build-deb.sh' ''')
+            conn.sudo('''bash -c 'cd /tmp/efs-utils && apt-get -y install ./build/amazon-efs-utils*deb' ''')
             conn.sudo('sed -i "s/stunnel_check_cert_hostname.*/stunnel_check_cert_hostname = false/g" '
                  '/etc/amazon/efs/efs-utils.conf')
             conn.sudo('sed -i "s/stunnel_check_cert_validity.*/stunnel_check_cert_validity = false/g" '
@@ -1269,7 +1269,7 @@ def prepare_images():
     try:
         if not exists(conn,'/home/{}/.ensure_dir/images_prepared'.format(configuration['conf_os_user'])):
             conn.put('files/Dockerfile', '/tmp/Dockerfile')
-            conn.sudo('cd /tmp/ && docker build --file Dockerfile -t pre-base .')
+            conn.sudo('''bash -c 'cd /tmp/ && docker build --file Dockerfile -t pre-base .' ''')
             conn.sudo('docker login -u {0} -p {1} localhost:8083'.format(args.nexus_service_user_name,
                                                                     args.nexus_service_user_password))
             conn.sudo('docker tag pre-base localhost:8083/datalab-pre-base')

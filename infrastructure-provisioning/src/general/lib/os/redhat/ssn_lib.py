@@ -41,12 +41,12 @@ def ensure_docker_daemon(datalab_path, os_user, region):
                 mirror = 'mirror.lzu.edu.cn'
             else:
                 mirror = 'mirror.centos.org'
-            conn.sudo('cd /etc/yum.repos.d/ && echo "[centosrepo]" > centos.repo')
-            conn.sudo('cd /etc/yum.repos.d/ && echo "name=Centos 7 Repository" >> centos.repo')
-            conn.sudo('cd /etc/yum.repos.d/ && echo "baseurl=http://{}/centos/7/extras/x86_64/" >> centos.repo'.format(mirror))
-            conn.sudo('cd /etc/yum.repos.d/ && echo "enabled=1" >> centos.repo')
-            conn.sudo('cd /etc/yum.repos.d/ && echo "gpgcheck=1" >> centos.repo')
-            conn.sudo('cd /etc/yum.repos.d/ && echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
+            conn.sudo('''bash -c 'cd /etc/yum.repos.d/ && echo "[centosrepo]" > centos.repo' ''')
+            conn.sudo('''bash -c 'cd /etc/yum.repos.d/ && echo "name=Centos 7 Repository" >> centos.repo' ''')
+            conn.sudo('''bash -c 'cd /etc/yum.repos.d/ && echo "baseurl=http://{}/centos/7/extras/x86_64/" >> centos.repo' '''.format(mirror))
+            conn.sudo('''bash -c 'cd /etc/yum.repos.d/ && echo "enabled=1" >> centos.repo' ''')
+            conn.sudo('''bash -c 'cd /etc/yum.repos.d/ && echo "gpgcheck=1" >> centos.repo' ''')
+            conn.sudo('''bash -c 'cd /etc/yum.repos.d/ && echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo' '''.format(mirror))
             conn.sudo('yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo')
             manage_pkg('update-minimal --security -y', 'remote', '')
             manage_pkg('-y install', 'remote', 'container-selinux')
@@ -248,7 +248,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                 conn.sudo('mkdir -p /var/log/application')
                 conn.run('mkdir -p /tmp/yml_tmp/')
                 for service in ['self-service', 'provisioning-service', 'billing']:
-                    jar = conn.sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service)).stdout
+                    jar = conn.sudo('''bash -c 'cd {0}{1}/lib/; find {1}*.jar -type f' '''.format(web_path, service)).stdout
                     conn.sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     conn.sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(datalab_path, service))
                 # Replacing Keycloak and cloud parameters
@@ -393,8 +393,8 @@ def install_build_dep():
             conn.sudo(
                     'cd /opt/ && wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                         maven_version.split('.')[0], maven_version))
-            conn.sudo('cd /opt/ &&unzip apache-maven-{}-bin.zip'.format(maven_version))
-            conn.sudo('cd /opt/ &&mv apache-maven-{} maven'.format(maven_version))
+            conn.sudo('''bash -c 'cd /opt/ &&unzip apache-maven-{}-bin.zip' '''.format(maven_version))
+            conn.sudo('''bash -c 'cd /opt/ &&mv apache-maven-{} maven' '''.format(maven_version))
             conn.sudo('bash -c "curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -"')
             manage_pkg('-y install', 'remote', 'nodejs')
             conn.sudo('npm config set unsafe-perm=true')

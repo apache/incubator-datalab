@@ -117,18 +117,18 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                      -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={}"'.format(hostname))
 
             datalab.fab.conn.sudo('mkdir -p /tmp/src')
-            datalab.fab.conn.sudo('cd /tmp/src/ && wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz')
-            datalab.fab.conn.sudo('cd /tmp/src/ && tar -xzf luarocks-3.3.1.tar.gz')
+            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/ && wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz' ''')
+            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/ && tar -xzf luarocks-3.3.1.tar.gz' ''')
 
             datalab.fab.conn.sudo('wget -O - https://openresty.org/package/pubkey.gpg | sudo apt-key add -')
             datalab.fab.conn.sudo('add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"')
             datalab.fab.conn.sudo('apt-get update')
             datalab.fab.conn.sudo('apt-get -y install openresty=1.19.3.1-1~focal1')
 
-            datalab.fab.conn.sudo('cd /tmp/src/luarocks-3.3.1/ && ./configure')
-            datalab.fab.conn.sudo('cd /tmp/src/luarocks-3.3.1/ && make install')
-            datalab.fab.conn.sudo('cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/')
-            datalab.fab.conn.sudo('cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/')
+            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && ./configure' ''')
+            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && make install' ''')
+            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/' ''')
+            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/' ''')
 
             datalab.fab.conn.sudo('luarocks install lua-resty-jwt 0.2.2')
             datalab.fab.conn.sudo('luarocks install lua-resty-openidc')
@@ -136,7 +136,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             datalab.fab.conn.sudo('useradd -r nginx')
 
             datalab.fab.conn.sudo('mkdir -p /opt/datalab/templates')
-            datalab.fab.conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')
+            datalab.fab.conn.local('''bash -c 'cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *' ''')
             datalab.fab.conn.put('/tmp/templates.tar.gz', '/tmp/templates.tar.gz')
             datalab.fab.conn.sudo('tar -zxvf /tmp/templates.tar.gz -C /opt/datalab/templates/')
             datalab.fab.conn.sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/conf.d/proxy.conf'.format(edge_ip))
