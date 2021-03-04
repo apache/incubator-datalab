@@ -50,7 +50,7 @@ import static com.epam.datalab.dto.UserInstanceStatus.*;
 public class CheckInfrastructureStatusScheduler implements Job {
 
     private static final List<UserInstanceStatus> statusesToCheck =
-            Arrays.asList(RUNNING, STOPPED, STOPPING, TERMINATING);
+            Arrays.asList(RUNNING, STARTING, CREATING, CONFIGURING, STOPPING, RECONFIGURING, STOPPED, TERMINATING);
 
     private final InfrastructureInfoService infrastructureInfoService;
     private final SecurityService securityService;
