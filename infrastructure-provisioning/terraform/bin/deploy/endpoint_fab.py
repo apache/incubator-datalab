@@ -993,7 +993,7 @@ def init_args():
     parser.add_argument('--keycloak_user_password', type=str, default='')
     parser.add_argument('--keycloak_client_id', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
-    parser.add_argument('--branch_name', type=str, default='master')  # change default
+    parser.add_argument('--branch_name', type=str, default='develop')  # change default
     parser.add_argument('--env_os', type=str, default='debian')
     parser.add_argument('--service_base_name', type=str, default='')
     parser.add_argument('--edge_instence_size', type=str, default='t2.medium')
