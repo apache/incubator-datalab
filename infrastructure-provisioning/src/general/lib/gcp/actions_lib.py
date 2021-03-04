@@ -1146,20 +1146,20 @@ class GCPActions:
             env.user = "{}".format(ssh_user)
             env.key_filename = "{}".format(key_path)
             env.host_string = env.user + "@" + env.hosts
-            conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
-            if exists(conn, '/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
+            datalab.fab.conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
+            if exists(datalab.fab.conn, '/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
-                        livy_port = conn.sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
+                        livy_port = datalab.fab.conn.sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
                                          + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
-                        process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                        process_number = datalab.fab.conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                               "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
-                        conn.sudo('kill -9 ' + process_number)
-                        conn.sudo('systemctl disable livy-server-' + livy_port)
+                        datalab.fab.conn.sudo('kill -9 ' + process_number)
+                        datalab.fab.conn.sudo('systemctl disable livy-server-' + livy_port)
                     except:
                         print("Wasn't able to find Livy server for this EMR!")
-                conn.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-                conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
+                datalab.fab.conn.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                 zeppelin_url = 'http://' + notebook_ip + ':8080/api/interpreter/setting/'
                 opener = urllib2.build_opener(urllib2.ProxyHandler({}))
                 req = opener.open(urllib2.Request(zeppelin_url))
@@ -1174,20 +1174,20 @@ class GCPActions:
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
                         print(url.read())
-                conn.sudo('chown {0}:{0} -R /opt/zeppelin/'.format(ssh_user))
-                conn.sudo('systemctl restart zeppelin-notebook.service')
+                datalab.fab.conn.sudo('chown {0}:{0} -R /opt/zeppelin/'.format(ssh_user))
+                datalab.fab.conn.sudo('systemctl restart zeppelin-notebook.service')
                 zeppelin_restarted = False
                 while not zeppelin_restarted:
-                    conn.sudo('sleep 5')
-                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout.replace('\n','')
+                    datalab.fab.conn.sudo('sleep 5')
+                    result = datalab.fab.conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout.replace('\n','')
                     result = result[:1]
                     if result == '1':
                         zeppelin_restarted = True
-                conn.sudo('sleep 5')
-                conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
-            if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
+                datalab.fab.conn.sudo('sleep 5')
+                datalab.fab.conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
+            if exists(datalab.fab.conn, '/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                 datalab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
-            conn.sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
+            datalab.fab.conn.sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
             logging.info(
@@ -1333,22 +1333,22 @@ class GCPActions:
 
 
 def ensure_local_jars(os_user, jars_dir):
-    if not exists(conn,'/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
+    if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
         try:
             templates_dir = '/root/templates/'
-            conn.sudo('mkdir -p {}'.format(jars_dir))
-            conn.sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-{0}.jar -O {1}'
+            datalab.fab.conn.sudo('mkdir -p {}'.format(jars_dir))
+            datalab.fab.conn.sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-{0}.jar -O {1}'
                  'gcs-connector-hadoop2-{0}.jar'.format(os.environ['notebook_gcs_connector_version'], jars_dir))
-            conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
+            datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
                  .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
-            conn.put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
-            conn.sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
-            conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
-            conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+            datalab.fab.conn.put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            datalab.fab.conn.sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
+            datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
-                conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-            conn.sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            conn.sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
+                datalab.fab.conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+            datalab.fab.conn.sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
@@ -1369,26 +1369,26 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
 
 
 def prepare_disk(os_user):
-    if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
-            conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
-            conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
-            conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+            disk_name = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
+            datalab.fab.conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
+            datalab.fab.conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            datalab.fab.conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            datalab.fab.conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
+            datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except:
             sys.exit(1)
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists(conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
-            conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-            conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-            conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-            conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-            conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+            datalab.fab.conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            datalab.fab.conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            datalab.fab.conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            datalab.fab.conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
@@ -1398,29 +1398,29 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
         # Checking if spark.jars parameter was generated previously
         spark_jars_paths = None
-        if exists(conn, '/opt/spark/conf/spark-defaults.conf'):
+        if exists(datalab.fab.conn, '/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout.replace('\n','')
+                spark_jars_paths = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout.replace('\n','')
             except:
                 spark_jars_paths = None
-        conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         if os.environ['application'] == 'zeppelin':
-            conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
-        conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            datalab.fab.conn.run('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+        datalab.fab.conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
-            conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+            datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            datalab.fab.conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
-        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
-            conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.replace('\n','').splitlines()[0]
-        conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
+        if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
+            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.replace('\n','').splitlines()[0]
+        datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
-            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
+            datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
+            spark_defaults = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':
@@ -1433,13 +1433,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
+            datalab.fab.conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
-                conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
-            conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+                datalab.fab.conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+            datalab.fab.conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
-                conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+                datalab.fab.conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1453,21 +1453,21 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
         env.user = "{}".format(os_user)
         env.key_filename = "{}".format(key_path)
         env.host_string = env.user + "@" + env.hosts
-        conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
-        if exists(conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+        datalab.fab.conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+        if exists(datalab.fab.conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
             if os.environ['notebook_multiple_clusters'] == 'true':
                 try:
-                    livy_port = conn.sudo("cat /opt/" + cluster_name +
+                    livy_port = datalab.fab.conn.sudo("cat /opt/" + cluster_name +
                                      "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
-                    process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                    process_number = datalab.fab.conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                           "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
-                    conn.sudo('kill -9 ' + process_number)
-                    conn.sudo('systemctl disable livy-server-' + livy_port)
+                    datalab.fab.conn.sudo('kill -9 ' + process_number)
+                    datalab.fab.conn.sudo('systemctl disable livy-server-' + livy_port)
                 except:
                     print("Wasn't able to find Livy server for this EMR!")
-            conn.sudo(
+            datalab.fab.conn.sudo(
                 'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-            conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+            datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
             zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
             opener = urllib2.build_opener(urllib2.ProxyHandler({}))
             req = opener.open(urllib2.Request(zeppelin_url))
@@ -1482,22 +1482,22 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
                     request.get_method = lambda: 'DELETE'
                     url = opener.open(request)
                     print(url.read())
-            conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-            conn.sudo('systemctl daemon-reload')
-            conn.sudo("service zeppelin-notebook stop")
-            conn.sudo("service zeppelin-notebook start")
+            datalab.fab.conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+            datalab.fab.conn.sudo('systemctl daemon-reload')
+            datalab.fab.conn.sudo("service zeppelin-notebook stop")
+            datalab.fab.conn.sudo("service zeppelin-notebook start")
             zeppelin_restarted = False
             while not zeppelin_restarted:
-                conn.sudo('sleep 5')
-                result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
+                datalab.fab.conn.sudo('sleep 5')
+                result = datalab.fab.conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
                 result = result[:1]
                 if result == '1':
                     zeppelin_restarted = True
-            conn.sudo('sleep 5')
-            conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
-        if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+            datalab.fab.conn.sudo('sleep 5')
+            datalab.fab.conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+        if exists(datalab.fab.conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
             datalab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
-        conn.sudo('rm -rf  /opt/' + cluster_name + '/')
+        datalab.fab.conn.sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
         logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
