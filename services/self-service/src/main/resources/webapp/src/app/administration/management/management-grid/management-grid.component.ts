@@ -307,20 +307,19 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
   public sctollTo(direction: string) {
     if (direction === 'left') {
-      this.tableWrapper.nativeElement.scrollLeft = 0;
-      this.pageWrapper.nativeElement.scrollLeft = 0;
+      this.wrapper.nativeElement.scrollLeft = 0;
     } else {
-      this.tableWrapper.nativeElement.scrollLeft = this.tableWrapper.nativeElement.offsetWidth;
-      this.pageWrapper.nativeElement.scrollLeft = this.pageWrapper.nativeElement.offsetWidth;
+      this.wrapper.nativeElement.scrollLeft = this.wrapper.nativeElement.offsetWidth;
     }
   }
 
   public checkMaxRight() {
     let arg;
-      if (this.pageWrapper && this.table) {
-        arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
-          this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+      if (this.wrapper && this.table) {
+        arg = this.wrapper.nativeElement.offsetWidth +
+          this.wrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
       }
+      
       return this.isMaxRight.next(arg);
   }
 }
