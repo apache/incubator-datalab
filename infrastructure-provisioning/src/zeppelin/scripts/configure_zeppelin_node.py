@@ -66,7 +66,7 @@ else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 zeppelin_interpreters = "md,python,shell"
-python3_version = "3.4"
+python3_version = "3.8"
 local_spark_path = '/opt/spark/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
