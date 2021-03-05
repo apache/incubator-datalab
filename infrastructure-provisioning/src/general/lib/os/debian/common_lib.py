@@ -54,10 +54,10 @@ def manage_pkg(command, environment, requisites):
                                 if pid != '':
                                     sudo('kill -9 {}'.format(pid))
                                     sudo('rm -f /var/lib/dpkg/lock-frontend')
-                                    pid = sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
-                                    if pid != '':
-                                        sudo('kill -9 {}'.format(pid))
-                                        sudo('rm -f /var/lib/dpkg/lock')
+                                pid = sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'')
+                                if pid != '':
+                                    sudo('kill -9 {}'.format(pid))
+                                    sudo('rm -f /var/lib/dpkg/lock')
                                 sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
                                 err = sudo('cat /tmp/dpkg.log')
