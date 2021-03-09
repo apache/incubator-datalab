@@ -31,7 +31,10 @@ COPY general/scripts/os/common_* /root/scripts/
 COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
 COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_available_pkgs.py
 COPY general/templates/gcp/dataengine-service_cluster.json /root/templates/dataengine-service_cluster.json
+COPY general/templates/gcp/dataengine-service_cluster_with_gpu.json /root/templates/dataengine-service_cluster_with_gpu.json
 COPY general/templates/gcp/dataengine-service_job.json /root/templates/dataengine-service_job.json
+COPY general/templates/gcp/dataengine-service_livy-env.sh /root/templates/dataengine-service_livy-env.sh
+COPY general/templates/gcp/dataengine-service_livy.service /root/templates/dataengine-service_livy.service
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/
 COPY general/templates/os/inactive.timer /root/templates/

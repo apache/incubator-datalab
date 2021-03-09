@@ -252,8 +252,12 @@ if __name__ == "__main__":
         ingress_rule = dict()
         ingress_rule['name'] = project_conf['fw_edge_ingress_internal']
         ingress_rule['targetTags'] = [project_conf['network_tag']]
+        if os.environ['gcp_subnet_name']:
+            project_conf['ssn_subnet'] = os.environ['gcp_subnet_name']
+        else:
+            project_conf['ssn_subnet'] = '{}-subnet'.format(project_conf['service_base_name'])
         ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr'],
-                                        GCPMeta.get_subnet('{}-subnet'.format(project_conf['service_base_name']),
+                                        GCPMeta.get_subnet(project_conf['ssn_subnet'],
                                                            project_conf['region'])['ipCidrRange']
                                         ]
         rules = [
