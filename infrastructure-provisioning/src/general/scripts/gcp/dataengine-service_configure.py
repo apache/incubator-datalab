@@ -61,6 +61,9 @@ def configure_dataengine_service(instance, dataproc_conf):
         try:
             global conn
             conn = datalab.fab.init_datalab_connection(dataproc_conf['instance_ip'], dataproc_conf['datalab_ssh_user'], dataproc_conf['key_path'])
+            datalab.fab.configure_data_engine_service_livy(dataproc_conf['instance_ip'],
+                                                           dataproc_conf['datalab_ssh_user'],
+                                                           dataproc_conf['key_path'])
             datalab.notebook_lib.install_os_pkg([['python3-pip', 'N/A']])
             datalab.fab.configure_data_engine_service_pip(dataproc_conf['instance_ip'],
                                                           dataproc_conf['datalab_ssh_user'],

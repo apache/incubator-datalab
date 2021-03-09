@@ -55,7 +55,7 @@ def enable_proxy(proxy_host, proxy_port):
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/r_local_kernel_ensured'):
         try:
-            datalab.fab.conn.sudo('R -e "IRkernel::installspec()"')
+            datalab.fab.conn.sudo('R -e "IRkernel::installspec(prefix = \'/home/{}/.local/\')"'.format(os_user))
             r_version = datalab.fab.conn.sudo("R --version | awk '/version / {print $3}'").stdout.replace('\n','')
             datalab.fab.conn.put(templates_dir + 'r_template.json', '/tmp/r_template.json')
             datalab.fab.conn.sudo('sed -i "s|R_VER|' + r_version + '|g" /tmp/r_template.json')
