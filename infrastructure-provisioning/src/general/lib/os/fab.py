@@ -752,6 +752,27 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     sudo('source /etc/profile')
     run('source /etc/profile')
 
+def configure_data_engine_service_livy(hostname, os_user, keyfile):
+    env['connection_attempts'] = 100
+    env.key_filename = [keyfile]
+    env.host_string = os_user + '@' + hostname
+    if exists('/usr/local/lib/livy'):
+        sudo('rm -r /usr/local/lib/livy')
+    sudo('wget -P /tmp/  --user={} --password={} '
+                         'https://{}/repository/packages/livy.tar.gz --no-check-certificate'
+                         .format(os.environ['conf_repository_user'],
+                                 os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+    sudo('tar -xzvf /tmp/livy.tar.gz -C /usr/local/lib/')
+    sudo('ln -s /usr/local/lib/incubator-livy /usr/local/lib/livy')
+    put('/root/templates/dataengine-service_livy-env.sh', '/usr/local/lib/livy/conf/livy-env.sh', use_sudo=True)
+    put('/root/templates/dataengine-service_livy.service', '/tmp/livy.service')
+    sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(os_user))
+    sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
+    sudo('systemctl daemon-reload')
+    sudo('systemctl enable livy.service')
+    sudo('systemctl start livy.service')
+
+
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):
     try:

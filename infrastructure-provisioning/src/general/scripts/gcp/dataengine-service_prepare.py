@@ -139,7 +139,18 @@ if __name__ == "__main__":
 
     local("echo Waiting for changes to propagate; sleep 10")
 
-    dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read().decode('utf-8-sig'))
+    if 'masterGPUCount' in os.environ:
+        dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster_with_gpu.json').read())
+        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['masterGPUCount'])
+        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['masterGPUType']
+        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['slaveGPUCount'])
+        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['slaveGPUType']
+        gpu_driver = 'gs://goog-dataproc-initialization-actions-{}/gpu/install_gpu_driver.sh'.format(dataproc_conf['region'])
+        dataproc_cluster['config']['initializationActions'][0]['executableFile'] = gpu_driver
+
+    else:
+        dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read())
+
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
     dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
     dataproc_cluster['labels'] = dataproc_conf['cluster_labels']
@@ -151,10 +162,6 @@ if __name__ == "__main__":
     dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
     dataproc_cluster['config']['masterConfig']['numInstances'] = int(os.environ['dataproc_master_count'])
     dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_slave_count'])
-    livy_init = 'gs://goog-dataproc-initialization-actions-{}/livy/livy.sh'.format(dataproc_conf['region'])
-    gpu_driver = 'gs://goog-dataproc-initialization-actions-{}/gpu/install_gpu_driver.sh'.format(dataproc_conf['region'])
-    dataproc_cluster['config']['initializationActions'][0]['executableFile'] = livy_init
-    dataproc_cluster['config']['initializationActions'][1]['executableFile'] = gpu_driver
     if int(os.environ['dataproc_preemptible_count']) != 0:
         dataproc_cluster['config']['secondaryWorkerConfig']['numInstances'] = int(
             os.environ['dataproc_preemptible_count'])
@@ -163,8 +170,8 @@ if __name__ == "__main__":
     dataproc_cluster['config']['softwareConfig']['imageVersion'] = dataproc_conf['release_label']
     ssh_user_pubkey = open('{}{}.pub'.format(os.environ['conf_key_dir'], dataproc_conf['project_name'])).read()
     key = RSA.importKey(open(dataproc_conf['key_path'], 'rb').read())
-    ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
-    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(
+    ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode()
+    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}{0}:{2}'.format(
         dataproc_conf['datalab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
     dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']
     with open('/root/result.json', 'w') as f:

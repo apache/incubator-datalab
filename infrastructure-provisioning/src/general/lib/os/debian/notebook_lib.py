@@ -54,7 +54,7 @@ def enable_proxy(proxy_host, proxy_port):
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
     if not exists('/home/' + os_user + '/.ensure_dir/r_local_kernel_ensured'):
         try:
-            sudo('R -e "IRkernel::installspec()"')
+            sudo('R -e "IRkernel::installspec(prefix = \'/home/{}/.local/\')"'.format(os_user))
             r_version = sudo("R --version | awk '/version / {print $3}'")
             put(templates_dir + 'r_template.json', '/tmp/r_template.json')
             sudo('sed -i "s|R_VER|' + r_version + '|g" /tmp/r_template.json')

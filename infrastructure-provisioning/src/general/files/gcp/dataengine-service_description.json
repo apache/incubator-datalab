@@ -25,6 +25,10 @@
   },
   "templates":
   [
-    {"version":"1.5-ubuntu18", "applications": [{"Name":"Hadoop", "Version": "2.10.0"}, {"Name":"Spark", "Version": "2.4.5"}, {"Name":"Hive", "Version": "2.3.6"}]}
-  ]
+    {"version":"2.0.0-RC22-ubuntu18", "applications": [{"Name":"Hadoop", "Version": "2.10.0"}, {"Name":"Spark", "Version": "2.4.5"}, {"Name":"Hive", "Version": "2.3.6"}]}
+  ],
+  "gpu_types": [
+          {"Size": "S",  "Gpu_type": "nvidia-tesla-t4"},
+          {"Size": "M",  "Gpu_type": "nvidia-tesla-v100"}
+      ]
 }
