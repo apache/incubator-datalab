@@ -114,6 +114,17 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
         datalab.fab.append_result("Failed to remove security groups", str(err))
         sys.exit(1)
 
+    if 'azure_vpc_name' in os.environ:
+        print("Removing subnets in predefined VPC")
+        try:
+            for i in  AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name'])['properties']['subnets']:
+                if service_base_name in i['name']:
+                    AzureActions.remove_subnet(resource_group_name, os.environ['azure_vpc_name'], i['name'])
+                    print("Subnet {} has been removed from VPC {}".format(i['name'], os.environ['azure_vpc_name']))
+        except Exception as err:
+            datalab.fab.append_result("Failed to remove subnets in predefined VPC", str(err))
+            sys.exit(1)
+
     print("Removing VPC")
     try:
         if AzureMeta.get_vpc(resource_group_name, service_base_name + '-vpc'):
