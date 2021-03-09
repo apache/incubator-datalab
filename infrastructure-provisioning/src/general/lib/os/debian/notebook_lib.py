@@ -241,7 +241,7 @@ def ensure_python3_specific_version(python3_version, os_user):
             if len(python3_version) < 4:
                 python3_version = python3_version + ".0"
             datalab.fab.conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version))
-            datalab.fab.conn.sudo('tar xzf Python-{0}.tgz; cd Python-{0}; ./configure --prefix=/usr/local; make altinstall'.format(python3_version))
+            datalab.fab.conn.sudo(''' bash -c 'tar xzf Python-{0}.tgz; cd Python-{0}; ./configure --prefix=/usr/local; make altinstall' '''.format(python3_version))
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/python3_specific_version_ensured')
         except:
             sys.exit(1)
@@ -472,7 +472,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
                    'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         datalab.fab.conn.sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy setuptools tornado --no-cache-dir')
+             'scipy tornado --no-cache-dir')
         datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
         datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
         datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(

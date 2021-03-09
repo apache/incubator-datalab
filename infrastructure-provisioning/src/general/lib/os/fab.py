@@ -44,7 +44,7 @@ def ensure_pip(requisites):
             conn.sudo('bash -c "echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile"')
             conn.sudo('bash -c "echo export PATH >> /etc/profile"')
             conn.sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            conn.sudo('pip3 install --upgrade setuptools')
+            conn.sudo('pip3 install -U setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             conn.sudo('pip3 install -UI {} --no-cache-dir'.format(requisites))
             conn.sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
     except:
@@ -63,7 +63,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             for v in range(4, 8):
                 if exists(conn, '/bin/pip3.{}'.format(v)):
                     conn.sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
-        conn.sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
+        conn.sudo('{} install -U pip=={} setuptools=={}'.format(pip_version, os.environ['conf_pip_version'], os.environ['notebook_setuptools_version']))
         conn.sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         conn.sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
