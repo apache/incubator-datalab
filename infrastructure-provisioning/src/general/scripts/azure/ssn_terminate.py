@@ -118,15 +118,9 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
         print("Removing subnets in predefined VPC")
         try:
             print('========')
-            print(resource_group_name)
+            print(json.loads(AzureMeta.list_subnets(resource_group_name, os.environ['azure_vpc_name'])))
             print('========')
-            print(os.environ['azure_vpc_name'])
-            print('========')
-            print(json.loads(AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name'])))
-            print('========')
-            print(json.loads(AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name']))['subnets'])
-            print('========')
-            for i in json.loads(AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name']))['subnets']:
+            for i in json.loads(AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name']))['value']:
                 if service_base_name in i['name']:
                     AzureActions.remove_subnet(resource_group_name, os.environ['azure_vpc_name'], i['name'])
                     print("Subnet {} has been removed from VPC {}".format(i['name'], os.environ['azure_vpc_name']))
