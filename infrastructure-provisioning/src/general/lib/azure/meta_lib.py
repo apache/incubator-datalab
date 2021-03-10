@@ -121,9 +121,6 @@ class AzureMeta:
         try:
             result = self.network_client.security_rules.get(resource_group_name, network_security_group_name,
                                                             rule_name)
-            print('------------')
-            print(result)
-            print('------------')
             return result
         except AzureExceptions.CloudError as err:
             if err.status_code == 404:
@@ -139,6 +136,9 @@ class AzureMeta:
     def list_subnets(self, resource_group_name, vpc_name):
         try:
             result = self.network_client.subnets.list(resource_group_name, vpc_name)
+            print('------------')
+            print(result)
+            print('------------')
             return result
         except AzureExceptions.CloudError as err:
             if err.status_code == 404:
