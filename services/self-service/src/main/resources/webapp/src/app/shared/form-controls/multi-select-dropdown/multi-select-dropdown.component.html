@@ -48,8 +48,12 @@
               role="menuitem" 
               (click)="toggleSelectedOptions($event, model, item)">
               <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
-              <ng-container *ngIf="type !== 'resource_type' && type !== 'resource_types' && item !== 'invalid_name' && item !== 'invalid_version' && item !== 'installation_error'">{{item}}</ng-container>
-              <ng-container *ngIf="type === 'resource_type' || type === 'resource_types' || item === 'invalid_name' || item === 'invalid_version' || item === 'installation_error'">{{item | convertaction}}</ng-container>
+              <ng-container *ngIf="type !== 'resource_type' && type !== 'resource_types' && item !== 'invalid_name' && item !== 'invalid_version' && item !== 'installation_error'">
+                <div [ngClass]="{'uppercase': type === 'status'}">{{item}}</div>
+              </ng-container>
+              <ng-container *ngIf="type === 'resource_type' || type === 'resource_types' || item === 'invalid_name' || item === 'invalid_version' || item === 'installation_error'">
+                <div [ngClass]="{'uppercase': type === 'status' || type === 'resource_type'}">{{item | convertaction}}</div>
+              </ng-container>
             </a>
           </li>
         </ng-template>
