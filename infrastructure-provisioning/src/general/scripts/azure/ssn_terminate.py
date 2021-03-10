@@ -117,6 +117,13 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     if 'azure_vpc_name' in os.environ:
         print("Removing subnets in predefined VPC")
         try:
+            print('========')
+            print(resource_group_name)
+            print('========')
+            print(os.environ['azure_vpc_name'])
+            print('========')
+            print(AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name']))
+            print('========')
             for i in  AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name'])['properties']['subnets']:
                 if service_base_name in i['name']:
                     AzureActions.remove_subnet(resource_group_name, os.environ['azure_vpc_name'], i['name'])
