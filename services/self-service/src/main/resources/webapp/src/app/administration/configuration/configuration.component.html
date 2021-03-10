@@ -29,7 +29,7 @@
                 <mat-select [(value)]="activeEndpoint" panelClass="top-select scrolling" [disabled]="services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged">
                   <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint"
                               (click)="setActiveEndpoint(endpoint)">
-                    {{ endpoint }}</mat-option>
+                    {{ endpoint === 'local' ? endpoint : endpoint + ' (external endpoint)' }}</mat-option>
                 </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
