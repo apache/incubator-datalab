@@ -26,7 +26,7 @@
           <div class="control selector-wrapper">
             <mat-form-field [ngClass]="{ 'not-active' : services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged }">
               <mat-label>Select endpoint</mat-label>
-                <mat-select [(value)]="activeEndpoint" panelClass="top-select" [disabled]="services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged">
+                <mat-select [(value)]="activeEndpoint" panelClass="top-select scrolling" [disabled]="services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged">
                   <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint"
                               (click)="setActiveEndpoint(endpoint)">
                     {{ endpoint }}</mat-option>
