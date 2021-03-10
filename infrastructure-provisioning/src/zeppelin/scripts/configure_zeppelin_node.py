@@ -83,7 +83,7 @@ def configure_zeppelin(os_user):
             conn.sudo('tar -zxvf /tmp/zeppelin-' + zeppelin_version + '-bin-netinst.tgz -C /opt/')
             conn.sudo('ln -s /opt/zeppelin-' + zeppelin_version + '-bin-netinst /opt/zeppelin')
             conn.sudo('cp /opt/zeppelin/conf/zeppelin-env.sh.template /opt/zeppelin/conf/zeppelin-env.sh')
-            java_home = conn.run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
+            java_home = conn.run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
             conn.sudo('''bash -c "echo 'export JAVA_HOME=\'{}\'' >> /opt/zeppelin/conf/zeppelin-env.sh" '''.format(java_home))
             conn.sudo('cp /opt/zeppelin/conf/zeppelin-site.xml.template /opt/zeppelin/conf/zeppelin-site.xml')
             conn.sudo('sed -i \"/# export ZEPPELIN_PID_DIR/c\export ZEPPELIN_PID_DIR=/var/run/zeppelin\" /opt/zeppelin/conf/zeppelin-env.sh')
@@ -102,7 +102,8 @@ def configure_zeppelin(os_user):
             conn.sudo('mkdir -p /opt/zeppelin/lib/interpreter/')
             conn.sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/md/zeppelin-markdown-*.jar /opt/zeppelin/lib/interpreter/') # necessary when executing paragraph launches java process with "-cp :/opt/zeppelin/lib/interpreter/*:"
             conn.sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/shell/zeppelin-shell-*.jar /opt/zeppelin/lib/interpreter/')
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
         try:
             conn.put(templates_dir + 'zeppelin-notebook.service', '/tmp/zeppelin-notebook.service')
@@ -122,7 +123,8 @@ def configure_zeppelin(os_user):
             conn.sudo("systemctl enable zeppelin-notebook")
             conn.sudo('echo \"d /var/run/zeppelin 0755 ' + os_user + '\" > /usr/lib/tmpfiles.d/zeppelin.conf')
             conn.sudo('touch /home/' + os_user + '/.ensure_dir/zeppelin_ensured')
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
 
 
