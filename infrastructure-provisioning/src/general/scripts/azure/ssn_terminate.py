@@ -118,10 +118,9 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
         print("Removing subnets in predefined VPC")
         try:
             print('========')
-            print(repr(AzureMeta.list_subnets(resource_group_name, os.environ['azure_vpc_name'])))
+            print(AzureMeta.list_subnets(resource_group_name, os.environ['azure_vpc_name']))
             print('========')
-            var = AzureMeta.list_subnets(resource_group_name, os.environ['azure_vpc_name'])
-            print('========')
+            var = AzureMeta.list_subnets(resource_group_name, os.environ['azure_vpc_name'])['value']
             print(var)
             print('========')
             for i in json.dumps(AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name']))['value']:
