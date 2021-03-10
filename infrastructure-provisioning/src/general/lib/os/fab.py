@@ -1016,6 +1016,7 @@ def init_datalab_connection(hostname, username, keyfile):
         while attempt < 10:
             print('connection attempt {}'.format(attempt))
             conn = Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile})
+            conn.config.run.echo = True
             try:
                 conn.run('ls')
                 return conn
