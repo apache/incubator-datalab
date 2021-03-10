@@ -82,7 +82,11 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.getEndpoints()
       .subscribe(endpoints => {
       this.endpoints = endpoints;
-      this.endpoints = this.endpoints.map(endpoint => endpoint.name);
+      
+      this.endpoints = this.endpoints
+        .filter(endpoint => endpoint.status === 'ACTIVE')
+        .map(endpoint => endpoint.name);
+
       this.activeEndpoint = this.endpoints[0];
       this.getServicesConfig(this.activeEndpoint);
     });
