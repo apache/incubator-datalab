@@ -218,7 +218,8 @@ public class ExploratoryDAO extends BaseDAO {
                 false);
     }
 
-    public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusIn(List<String> endpoints, List<UserInstanceStatus> statuses,
+    public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusIn(List<String> endpoints,
+                                                                           List<UserInstanceStatus> statuses,
                                                                            boolean computationalFieldsRequired) {
         final List<String> exploratoryStatusList = statusList(statuses);
 
