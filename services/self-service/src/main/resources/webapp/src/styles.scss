@@ -556,3 +556,7 @@ input[type='number'] {
 .uppercase::first-letter {
   text-transform: capitalize;
 }
+
+.timezone-mat-select {
+  max-width: 350px !important;
+}
