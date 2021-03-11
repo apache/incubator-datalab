@@ -94,9 +94,7 @@ def toree_kernel(args):
         f.write(text)
     subprocess.run('touch /tmp/{}/kernel_var.json'.format(args.cluster_name), shell=True, check=True)
     subprocess.run(
-        "PYJ=`find /opt/" + args.cluster_name +
-        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/{}/kernel_var.json".format(args.cluster_name), shell=True, check=True)
+        '''bash -l -c "PYJ=`find /opt/{}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {} | sed 's|PY4J|'$PYJ'|g' > /tmp/{}/kernel_var.json" '''.format(args.cluster_name, kernel_path, args.cluster_name), shell=True, check=True)
     subprocess.run('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path, shell=True, check=True)
     run_sh_path = kernels_dir + "toree_" + args.cluster_name + "/bin/run.sh"
     template_sh_file = '/tmp/{}/run_template.sh'.format(args.cluster_name)
@@ -126,7 +124,7 @@ def pyspark_kernel(args):
         f.write(text)
     subprocess.run('touch /tmp/{}/kernel_var.json'.format(args.cluster_name), shell=True, check=True)
     subprocess.run(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json".
+        '''bash -l -c "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json" '''.
         format(args.cluster_name, kernel_path, args.os_user), shell=True, check=True)
     subprocess.run('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path, shell=True, check=True)
 
@@ -146,7 +144,7 @@ def pyspark_kernel(args):
         f.write(text)
     subprocess.run('touch /tmp/{}/kernel_var.json'.format(args.cluster_name), shell=True, check=True)
     subprocess.run(
-        "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json".
+        '''bash -l -c "PYJ=`find /opt/{0}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {1} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{2}/caffe/python:/home/{2}/pytorch/build:\"|\' > /tmp/{0}/kernel_var.json" '''.
         format(args.cluster_name, kernel_path, args.os_user), shell=True, check=True)
     subprocess.run('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path, shell=True, check=True)
 

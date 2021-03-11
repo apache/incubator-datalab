@@ -41,8 +41,8 @@ from patchwork.files import exists
 def ensure_pip(requisites):
     try:
         if not exists(conn,'/home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user'])):
-            conn.sudo('bash -c "echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile"')
-            conn.sudo('bash -c "echo export PATH >> /etc/profile"')
+            conn.sudo('bash -l -c "echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile"')
+            conn.sudo('bash -l -c "echo export PATH >> /etc/profile"')
             conn.sudo('pip3 install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             conn.sudo('pip3 install -U setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             conn.sudo('pip3 install -UI {} --no-cache-dir'.format(requisites))
@@ -207,15 +207,14 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             conn.put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
             conn.sudo("chmod 644 /tmp/jupyter-notebook.service")
             if os.environ['application'] == 'tensor':
-                conn.sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+                conn.sudo('''bash -l -c "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service" ''')
             elif os.environ['application'] == 'deeplearning':
-                conn.sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
-                     "/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
+                conn.sudo('''bash -l -c "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" ''' + os_user +
                      "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
-            https_proxy = conn.run('echo $https_proxy').stdout.replace('\n','')
+            http_proxy = conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
+            https_proxy = conn.run('''bash -l -c 'echo $https_proxy' ''').stdout.replace('\n','')
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    http_proxy))
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
@@ -346,8 +345,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             conn.sudo('mkdir -p ' + pyspark_local_path_dir)
             conn.sudo('touch ' + pyspark_local_path_dir + 'kernel.json')
             conn.put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
-            conn.sudo(
-                "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
+            conn.sudo('''bash -l -c "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json" ''')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
             conn.sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
             conn.sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
@@ -363,7 +361,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             conn.sudo('touch ' + py3spark_local_path_dir + 'kernel.json')
             conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
             conn.sudo(
-                "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
+                '''bash -l -c "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json" ''')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             conn.sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
@@ -390,7 +388,7 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     with open(kernel_path, 'w') as f:
         f.write(text)
     subprocess.run('touch /tmp/kernel_var.json', shell=True, check=True)
-    subprocess.run("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json".
+    subprocess.run('''bash -l -c "PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json" '''.
           format(dataengine_service_version, cluster_name, kernel_path, os_user), shell=True, check=True)
     subprocess.run('sudo mv /tmp/kernel_var.json ' + kernel_path, shell=True, check=True)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
@@ -414,7 +412,7 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
         with open(kernel_path, 'w') as f:
             f.write(text)
         subprocess.run('touch /tmp/kernel_var.json', shell=True, check=True)
-        subprocess.run("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json"
+        subprocess.run('''bash -l -c "PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/pytorch/build:\"|\' > /tmp/kernel_var.json" '''
               .format(dataengine_service_version, cluster_name, kernel_path, os_user), shell=True, check=True)
         subprocess.run('sudo mv /tmp/kernel_var.json {}'.format(kernel_path), shell=True, check=True)
 
@@ -601,7 +599,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
             manage_npm_pkg('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
+            http_proxy = conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
             conn.sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
             conn.sudo("sed -i 's|NOTEBOOK_NAME|{}|' /tmp/ungit.service".format(
                 notebook_name))
@@ -636,15 +634,15 @@ def install_ungit(os_user, notebook_name, edge_ip):
         try:
             conn.sudo("sed -i 's|--rootPath=/.*-ungit|--rootPath=/{}-ungit|' /etc/systemd/system/ungit.service".format(
                 notebook_name))
-            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
+            http_proxy = conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
             conn.sudo("sed -i 's|HTTPS_PROXY=.*3128|HTTPS_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             conn.sudo("sed -i 's|HTTP_PROXY=.*3128|HTTP_PROXY={}|g' /etc/systemd/system/ungit.service".format(http_proxy))
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl restart ungit.service')
         except:
             sys.exit(1)
-    conn.run('git config --global http.proxy $http_proxy')
-    conn.run('git config --global https.proxy $https_proxy')
+    conn.run('''bash -l -c 'git config --global http.proxy $http_proxy' ''')
+    conn.run('''bash -l -c 'git config --global https.proxy $https_proxy' ''')
 
 
 def install_inactivity_checker(os_user, ip_address, rstudio=False):
@@ -743,7 +741,7 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     if emr:
         conn.sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
         conn.sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
-    conn.sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
+    conn.sudo('''bash -l -c 'echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile' ''')
     conn.sudo('source /etc/profile')
     conn.run('source /etc/profile')
     conn.close()

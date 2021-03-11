@@ -141,7 +141,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             conn.sudo('''bash -c 'cd /tmp/src/LuaJIT-2.0.5/ && make install' ''')
 
             conn.sudo('export LUAJIT_LIB=/usr/local/lib/ LUAJIT_INC=/usr/local/include/luajit-2.0')
-            conn.sudo('''bash -c 'cd /tmp/src/nginx/ && ./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
+            conn.sudo('''bash -l -c 'cd /tmp/src/nginx/ && ./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
                                               --conf-path=/etc/nginx/nginx.conf --pid-path=/run/nginx.pid --lock-path=/run/lock/subsys/nginx \
                                               --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
                                               --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre \

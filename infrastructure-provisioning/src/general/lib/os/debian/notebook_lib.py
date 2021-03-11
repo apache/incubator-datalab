@@ -128,11 +128,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             datalab.fab.conn.sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             datalab.fab.conn.sudo('mkdir -p /mnt/var')
             datalab.fab.conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            http_proxy = datalab.fab.conn.run('echo $http_proxy')
-            https_proxy = datalab.fab.conn.run('echo $https_proxy')
+            http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''')
+            https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''')
             datalab.fab.conn.sudo("sed -i '/Type=forking/a \Environment=USER=datalab-user' /lib/systemd/system/rstudio-server.service")
-            datalab.fab.conn.sudo(
-                "sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /lib/systemd/system/rstudio-server.service")
+            datalab.fab.conn.sudo('''bash -l -c "sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /lib/systemd/system/rstudio-server.service" ''')
             datalab.fab.conn.sudo("sed -i '/ExecStart/s|$|\"|g' /lib/systemd/system/rstudio-server.service")
             datalab.fab.conn.sudo(
                 'sed -i \'/\[Service\]/a Environment=\"HTTP_PROXY={}\"\'  /lib/systemd/system/rstudio-server.service'.format(
@@ -309,16 +308,15 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             datalab.fab.conn.sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             datalab.fab.conn.sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            datalab.fab.conn.run(
-                'echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
+            datalab.fab.conn.run('''bash -l -c 'echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc' ''')
             # install TensorFlow and run TensorBoard
             # datalab.fab.conn.sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
             datalab.fab.conn.sudo('python3 -m pip install --upgrade tensorflow-gpu=={} --no-cache-dir'.format(tensorflow_version))
             datalab.fab.conn.sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             datalab.fab.conn.put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             datalab.fab.conn.sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
-            http_proxy = datalab.fab.conn.run('echo $http_proxy')
-            https_proxy = datalab.fab.conn.run('echo $https_proxy')
+            http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''')
+            https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''')
             datalab.fab.conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/tensorboard.service'.format(
                 http_proxy))
             datalab.fab.conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/tensorboard.service'.format(

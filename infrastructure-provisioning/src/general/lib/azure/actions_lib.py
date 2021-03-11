@@ -1169,7 +1169,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
-                conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''''''.format(prop))
+                conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
             conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
                 conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))

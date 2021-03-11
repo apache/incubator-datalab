@@ -94,9 +94,7 @@ def toree_kernel(args):
         f.write(text)
     subprocess.run('touch /tmp/kernel_var.json', shell=True, check=True)
     subprocess.run(
-        "PYJ=`find /opt/" + args.dataproc_version + "/" + args.cluster_name +
-        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json", shell=True, check=True)
+        '''bash -l -c "PYJ=`find /opt/{}/{}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {} | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json" '''.format(args.dataproc_version, args.cluster_name, kernel_path), shell=True, check=True)
     subprocess.run('sudo mv /tmp/kernel_var.json ' + kernel_path, shell=True, check=True)
     run_sh_path = kernels_dir + "toree_" + args.cluster_name + "/bin/run.sh"
     template_sh_file = '/tmp/run_template.sh'

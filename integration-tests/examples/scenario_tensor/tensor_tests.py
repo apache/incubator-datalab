@@ -68,8 +68,8 @@ def prepare_ipynb(kernel_name, template_path, ipynb_name):
         f.write(text)
 
 def run_ipynb(ipynb_name):
-    subprocess.run('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; ' \
-            'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name), shell=True, check=True)
+    subprocess.run('''bash -l -c 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; ''' \
+            '''jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb' '''.format(args.os_user, ipynb_name), shell=True, check=True)
 
 def run_tensor():
     interpreters = ['pyspark_local']

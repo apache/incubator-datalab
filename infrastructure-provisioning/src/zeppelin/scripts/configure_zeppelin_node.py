@@ -97,7 +97,7 @@ def configure_zeppelin(os_user):
             conn.sudo('chown ' + os_user + ':' + os_user + ' -R /var/log/zeppelin')
             conn.sudo('ln -s /var/run/zeppelin /opt/zeppelin-' + zeppelin_version + '-bin-netinst/run')
             conn.sudo('chown ' + os_user + ':' + os_user + ' -R /var/run/zeppelin')
-            conn.sudo('/opt/zeppelin/bin/install-interpreter.sh --name ' + zeppelin_interpreters + ' --proxy-url $http_proxy')
+            conn.sudo('''bash -l -c '/opt/zeppelin/bin/install-interpreter.sh --name {} --proxy-url $http_proxy' '''.format(zeppelin_interpreters))
             conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin-' + zeppelin_version + '-bin-netinst')
             conn.sudo('mkdir -p /opt/zeppelin/lib/interpreter/')
             conn.sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/md/zeppelin-markdown-*.jar /opt/zeppelin/lib/interpreter/') # necessary when executing paragraph launches java process with "-cp :/opt/zeppelin/lib/interpreter/*:"
@@ -108,8 +108,8 @@ def configure_zeppelin(os_user):
         try:
             conn.put(templates_dir + 'zeppelin-notebook.service', '/tmp/zeppelin-notebook.service')
             conn.sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/zeppelin-notebook.service")
-            http_proxy = conn.run('echo $http_proxy').stdout.replace('\n','')
-            https_proxy = conn.run('echo $https_proxy').stdout.replace('\n','')
+            http_proxy = conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
+            https_proxy = conn.run('''bash -l -c 'echo $https_proxy' ''').stdout.replace('\n','')
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
                 http_proxy))
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(

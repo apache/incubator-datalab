@@ -92,7 +92,7 @@ if __name__ == "__main__":
     master_host = '{}-m'.format(args.cluster_name)
     master_ip = get_instance_private_ip_address(os.environ['gcp_zone'], master_host)
     conn.sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
-    conn.sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
+    conn.sudo('''bash -l -c 'echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc' ''')
     conn.sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; '
          '/usr/bin/python3 /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4}'
          ' --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} '
