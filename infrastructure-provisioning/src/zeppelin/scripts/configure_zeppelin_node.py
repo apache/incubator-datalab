@@ -121,7 +121,7 @@ def configure_zeppelin(os_user):
             conn.sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable zeppelin-notebook")
-            conn.sudo('echo \"d /var/run/zeppelin 0755 ' + os_user + '\" > /usr/lib/tmpfiles.d/zeppelin.conf')
+            conn.sudo('''bash -l -c 'echo \"d /var/run/zeppelin 0755 {}\" > /usr/lib/tmpfiles.d/zeppelin.conf' '''.format(os_user))
             conn.sudo('touch /home/' + os_user + '/.ensure_dir/zeppelin_ensured')
         except Exception as err:
             print('Error:', str(err))
