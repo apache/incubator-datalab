@@ -27,6 +27,7 @@ import sys
 from datalab.meta_lib import get_instance_private_ip_address
 from fabric import *
 from jinja2 import Environment, FileSystemLoader
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--edge_hostname', type=str, default='')
