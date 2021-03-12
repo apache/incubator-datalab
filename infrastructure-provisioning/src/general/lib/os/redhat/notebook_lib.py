@@ -142,7 +142,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists(conn,'/home/{}/.ensure_dir/matplot_ensured'.format(os_user)):
         try:
-            conn.sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
+            conn.sudo('python3.5 -m pip install matplotlib=={} --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 conn.sudo('python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             conn.sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
@@ -417,8 +417,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         env.shell = "/bin/bash -l -c -i"
         manage_pkg('update-minimal --security -y', 'remote', '')
         manage_pkg('-y install --nogpgcheck', 'remote', 'automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
-        conn.sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
-             'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        conn.sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib=={} numpy=={} protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_matplotlib_version'], os.environ['notebook_numpy_version']))
         conn.sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         conn.sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
