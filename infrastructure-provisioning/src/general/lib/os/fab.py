@@ -565,7 +565,7 @@ def get_available_r_pkgs():
     try:
         r_pkgs = dict()
         conn.sudo('R -e \'write.table(available.packages(contriburl="https://cloud.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
-        get("/tmp/r.csv", "r.csv")
+        conn.get("/tmp/r.csv", "r.csv")
         with open('r.csv', 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
@@ -752,7 +752,7 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         cluster_re = ['-{}"'.format(cluster_name),
                       '-{}-'.format(cluster_name),
                       '-{}/'.format(cluster_name)]
-        get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
+        conn.get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
         data = open('Rprofile').read()
         conf = filter(None, data.split('\n'))
         # Filter config from any math of cluster_name in line,
@@ -770,7 +770,7 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
             for line in conf:
                 f.write('{}\n'.format(line))
         conn.put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
-        get('/home/{}/.Renviron'.format(os_user), 'Renviron')
+        conn.get('/home/{}/.Renviron'.format(os_user), 'Renviron')
         data = open('Renviron').read()
         conf = filter(None, data.split('\n'))
         comment_all = lambda x: x if x.startswith('#') else '#{}'.format(x)
@@ -870,7 +870,7 @@ def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode=
         interpreters_config = '/opt/zeppelin/conf/interpreter.json'
         local_interpreters_config = '/tmp/interpreter.json'
         if interpreter_mode != 'remote':
-            get(local_interpreters_config, local_interpreters_config)
+            conn.get(local_interpreters_config, local_interpreters_config)
         if multiple_clusters == 'true':
             groups = [{"class": "org.apache.zeppelin.livy.LivySparkInterpreter", "name": "spark"},
                       {"class": "org.apache.zeppelin.livy.LivyPySparkInterpreter", "name": "pyspark"},
