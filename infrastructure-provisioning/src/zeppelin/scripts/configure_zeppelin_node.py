@@ -225,8 +225,8 @@ if __name__ == "__main__":
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
-    print("Install Python 3 specific version")
-    ensure_python3_specific_version(python3_version, args.os_user)
+    #print("Install Python 3 specific version")
+    #ensure_python3_specific_version(python3_version, args.os_user)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
