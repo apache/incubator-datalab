@@ -665,7 +665,7 @@ def install_inactivity_checker(os_user, ip_address, rstudio=False):
             conn.sudo("chmod 755 /opt/inactivity/inactive.sh")
             conn.sudo("chown root:root /etc/systemd/system/inactive.service")
             conn.sudo("chown root:root /etc/systemd/system/inactive.timer")
-            conn.sudo("date +%s > /opt/inactivity/local_inactivity")
+            conn.sudo('''bash -l -c "date +%s > /opt/inactivity/local_inactivity" ''')
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable inactive.timer')
             conn.sudo('systemctl start inactive.timer')
