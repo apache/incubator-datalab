@@ -42,7 +42,7 @@
       <p 
         *ngIf="data.type === 4 && data.notebook.length" 
         class="text-center delete-user scrolling" 
-        matTooltip="{{data.notebook.join(', ')}}"
+        matTooltip="{{data.notebook.join(',\n')}}"
         matTooltipPosition="above"
         matTooltipClass="group-updated-tooltip"
       >

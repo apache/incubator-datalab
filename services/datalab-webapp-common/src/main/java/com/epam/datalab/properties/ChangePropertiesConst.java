@@ -1,4 +1,4 @@
-package com.epam.datalab.backendapi.modules;
+package com.epam.datalab.properties;
 
 public interface ChangePropertiesConst {
     String GKE_SELF_SERVICE_PATH = "/root/self-service.yaml";
@@ -17,7 +17,10 @@ public interface ChangePropertiesConst {
     String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
     String GKE_BILLING_PATH = "/root/billing.yaml";
     String GKE_BILLING_SERVICE = "billing.yml";
-
+    String RESTART_URL = "api/config/restart";
+    String LOCAL_ENDPOINT_NAME = "local";
+    String BASE_CONFIG_URL = "api/config";
+    String BASE_MULTIPLE_CONFIG_URL = "api/config/multiple/";
 
     String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
     String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";

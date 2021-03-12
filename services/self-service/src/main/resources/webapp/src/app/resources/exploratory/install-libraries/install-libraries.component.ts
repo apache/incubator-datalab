@@ -44,7 +44,7 @@ interface GetLibrary {
 @Component({
   selector: 'install-libraries',
   templateUrl: './install-libraries.component.html',
-  styleUrls: ['./install-libraries.component.scss'],
+  styleUrls: ['./libraries-info.component.scss', './install-libraries.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class InstallLibrariesComponent implements OnInit, OnDestroy {
@@ -577,7 +577,7 @@ export class ErrorLibMessageDialogComponent {
     <h4 class="modal-title" *ngIf="data.type === 'available'">Version is not available</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
-  <div class="lib-list" *ngIf="data.type === 'added'">
+  <div class="lib-list scrolling" *ngIf="data.type === 'added'">
     <span class="strong dependency-title">Dependency: </span><span class="packeges" *ngFor="let pack of data.lib.add_pkgs; index as i">{{pack + (i !== data.lib.add_pkgs.length - 1 ? ', ' : '')}}</span>
   </div>
   <div class="lib-list" *ngIf="data.type === 'available'">

@@ -17,13 +17,14 @@
   ~ under the License.
   -->
 <div class="managment-wrapper scrolling" #pageWrapper (scroll)="scrollTable($event)" (resize)="onResize($event)">
-  <div class="ani scrolling" #wrapper>
-    <div class="wrapper" #tableWrapper (scroll)="scrollTable($event)">
+  <div class="ani scrolling scroll-wrapper" #wrapper (scroll)="scrollTable($event)">
+    <div class="wrapper" #tableWrapper >
       <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6" #table >
       <ng-container matColumnDef="checkbox">
         <th mat-header-cell *matHeaderCellDef class="checkbox label-header">
           <datalab-checkbox
             class="header-checkbox"
+            *ngIf="allActiveNotebooks?.length"
             [checked]="selected?.length === allActiveNotebooks?.length"
             (toggleSelection)="toggleSelectionAll()"
           >
@@ -312,9 +313,9 @@
               <div class="button-container">
                 <button mat-mini-fab aria-label="Scroll left"
                         (click)="sctollTo('left')"
-                        [ngClass]="{'not-allowed': pageWrapper.scrollLeft === 0 }"
+                        [ngClass]="{'not-allowed': wrapper.scrollLeft === 0 }"
                 >
-                  <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0 || pageWrapper.scrollLeft !== 0}">keyboard_arrow_left</mat-icon>
+                  <mat-icon [ngClass]="{'highlight': wrapper.scrollLeft !== 0 }">keyboard_arrow_left</mat-icon>
                 </button>
               </div>
               <div class="button-container" [ngClass]="{'not-allowed': checkMaxRight()}">

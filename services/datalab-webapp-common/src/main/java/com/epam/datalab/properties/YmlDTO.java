@@ -1,4 +1,4 @@
-package com.epam.datalab.backendapi.resources.dto;
+package com.epam.datalab.properties;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

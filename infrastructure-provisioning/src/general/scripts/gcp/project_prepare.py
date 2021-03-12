@@ -253,9 +253,8 @@ if __name__ == "__main__":
         ingress_rule['name'] = project_conf['fw_edge_ingress_internal']
         ingress_rule['targetTags'] = [project_conf['network_tag']]
         ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr'],
-                                        GCPMeta.get_subnet('{}-subnet'.format(project_conf['service_base_name']),
-                                                           project_conf['region'])['ipCidrRange']
-                                        ]
+                                        GCPMeta.get_subnet(project_conf['subnet_name'],
+                                                           project_conf['region'])['ipCidrRange']]
         rules = [
             {
                 'IPProtocol': 'all'

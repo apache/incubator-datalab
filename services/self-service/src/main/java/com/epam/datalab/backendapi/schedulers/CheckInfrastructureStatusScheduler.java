@@ -43,12 +43,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.epam.datalab.dto.UserInstanceStatus.*;
+
 @Scheduled("checkInfrastructureStatusScheduler")
 @Slf4j
 public class CheckInfrastructureStatusScheduler implements Job {
 
-    private static final List<UserInstanceStatus> statusesToCheck = Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STOPPED);
-
+    private static final List<UserInstanceStatus> statusesToCheck =
+            Arrays.asList(STARTING, CREATING, STOPPING, CONFIGURING, CREATING_IMAGE, RECONFIGURING, STOPPED, TERMINATING);
     private final InfrastructureInfoService infrastructureInfoService;
     private final SecurityService securityService;
     private final EndpointService endpointService;

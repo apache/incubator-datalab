@@ -194,4 +194,5 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
     public CloudConfiguration getCloudConfiguration() {
         return cloudConfiguration;
     }
+
 }
