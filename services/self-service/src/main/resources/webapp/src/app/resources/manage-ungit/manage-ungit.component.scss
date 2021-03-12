@@ -21,6 +21,10 @@
   .content-box {
     height: 500px;
     padding: 25px 35px;
+
+    .list-header div {
+      font-size: 13px;
+    }
   }
 
   .add-creds {
@@ -127,5 +131,6 @@
 
   .mat-list-item{
     color: #607d8b;
+    font-size: 13px;
   }
 }

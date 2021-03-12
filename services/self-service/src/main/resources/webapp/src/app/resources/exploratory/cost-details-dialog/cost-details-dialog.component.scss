@@ -31,6 +31,11 @@
 }
 
 .billing-detail {
+
+  div {
+    font-size: 13px;
+  }
+
   .service {
     width: 35%;
   }
@@ -67,9 +72,10 @@
   }
 
   .total {
-    padding: 18px 20px 0;
+    padding-top: 18px;
+    margin-right: 70px;
     text-align: right;
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 600;
   }
 }
