@@ -44,7 +44,8 @@ def manage_pkg(command, environment, requisites):
                         time.sleep(10)
                     else:
                         try:
-                            error_parser = "frontend is locked|locked"
+                            error_parser = "frontend is locked|locked|not get lock|unavailable"
+
                             sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
                             err = sudo('cat /tmp/dpkg.log')
@@ -62,11 +63,24 @@ def manage_pkg(command, environment, requisites):
                                      '/tmp/dpkg.log; then echo "" > /tmp/dpkg.log;fi'.format(error_parser))
                                 err = sudo('cat /tmp/dpkg.log')
                                 count = count + 1
-                            sudo('apt update')
+
+                            sudo('apt update 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                                 '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(error_parser))
+                            err = sudo('cat /tmp/apt.log')
+                            count = 0
+                            while err != '' and count < 10:
+                                pid = sudo('lsof /var/lib/apt/lists/lock | grep apt | awk \'{print $2}\'')
+                                if pid != '':
+                                    sudo('kill -9 {}'.format(pid))
+                                    sudo('rm -f /var/lib/apt/lists/lock')
+                                sudo('apt update 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({0})" /tmp/tee.tmp > '
+                                 '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(error_parser))
+                                err = sudo('cat /tmp/apt.log')
+                                count = count + 1
 
                             sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
-                                 '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(command, requisites, error_parser))
-                            err = sudo('cat /tmp/apt.log')
+                                 '/tmp/apt.log; then echo "" > /tmp/apt-get.log;fi'.format(command, requisites, error_parser))
+                            err = sudo('cat /tmp/apt-get.log')
                             count = 0
                             while err != '' and count < 10:
                                 sudo('lsof /var/lib/dpkg/lock')
