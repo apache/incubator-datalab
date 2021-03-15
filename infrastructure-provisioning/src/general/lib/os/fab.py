@@ -666,7 +666,7 @@ def install_inactivity_checker(os_user, ip_address, rstudio=False):
             conn.sudo("chmod 755 /opt/inactivity/inactive.sh")
             conn.sudo("chown root:root /etc/systemd/system/inactive.service")
             conn.sudo("chown root:root /etc/systemd/system/inactive.timer")
-            conn.sudo("date +%s > /opt/inactivity/local_inactivity")
+            conn.sudo("bash -c 'date +%s > /opt/inactivity/local_inactivity'")
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable inactive.timer')
             conn.sudo('systemctl start inactive.timer')
@@ -729,46 +729,43 @@ def add_breeze_library_local(os_user):
 
 def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     init_datalab_connection(hostname, os_user, keyfile)
-    manage_pkg('-y install', 'remote', 'python3-pip')
-    if not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
-        conn.sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
-    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
-        conn.sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
-    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
-        conn.sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
-    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
-        conn.sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
-    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.8 -V 2>/dev/null | awk '{print $2}'"):
+    #datalab.common_lib.manage_pkg('-y install', 'remote', 'python3-pip')
+    if not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.9 -V 2>/dev/null | awk '{print $2}'").stdout:
+        conn.sudo('ln -s /usr/bin/pip-3.9 /usr/bin/pip3')
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.8 -V 2>/dev/null | awk '{print $2}'").stdout:
         conn.sudo('ln -s /usr/bin/pip-3.8 /usr/bin/pip3')
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.7 -V 2>/dev/null | awk '{print $2}'").stdout:
+        conn.sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.6 -V 2>/dev/null | awk '{print $2}'").stdout:
+        conn.sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
+    elif not exists(conn,'/usr/bin/pip3') and conn.sudo("python3.5 -V 2>/dev/null | awk '{print $2}'").stdout:
+        conn.sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
     if emr:
         conn.sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
         conn.sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
-    conn.sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
-    conn.sudo('source /etc/profile')
-    conn.run('source /etc/profile')
+    conn.sudo('''bash -c -l 'echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile' ''')
+    conn.sudo('bash -c -l "source /etc/profile"')
+    conn.run('bash -c -l "source /etc/profile"')
     conn.close()
 
 def configure_data_engine_service_livy(hostname, os_user, keyfile):
-    env['connection_attempts'] = 100
-    env.key_filename = [keyfile]
-    env.host_string = os_user + '@' + hostname
-    if exists('/usr/local/lib/livy'):
-        sudo('rm -r /usr/local/lib/livy')
-    sudo('wget -P /tmp/  --user={} --password={} '
+    init_datalab_connection(hostname, os_user, keyfile)
+    if exists(conn,'/usr/local/lib/livy'):
+        conn.sudo('rm -r /usr/local/lib/livy')
+    conn.sudo('wget -P /tmp/  --user={} --password={} '
                          'https://{}/repository/packages/livy.tar.gz --no-check-certificate'
                          .format(os.environ['conf_repository_user'],
                                  os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
-    sudo('tar -xzvf /tmp/livy.tar.gz -C /usr/local/lib/')
-    sudo('ln -s /usr/local/lib/incubator-livy /usr/local/lib/livy')
-    put('/root/templates/dataengine-service_livy-env.sh', '/usr/local/lib/livy/conf/livy-env.sh', use_sudo=True)
-    put('/root/templates/dataengine-service_livy.service', '/tmp/livy.service')
-    sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(os_user))
-    sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
-    sudo('systemctl daemon-reload')
-    sudo('systemctl enable livy.service')
-    sudo('systemctl start livy.service')
-
-
+    conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /usr/local/lib/')
+    conn.sudo('ln -s /usr/local/lib/incubator-livy /usr/local/lib/livy')
+    conn.put('/root/templates/dataengine-service_livy-env.sh', '/usr/local/lib/livy/conf/livy-env.sh')
+    conn.put('/root/templates/dataengine-service_livy.service', '/tmp/livy.service')
+    conn.sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(os_user))
+    conn.sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
+    conn.sudo('systemctl daemon-reload')
+    conn.sudo('systemctl enable livy.service')
+    conn.sudo('systemctl start livy.service')
+    conn.close()
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):
     try:
@@ -1039,6 +1036,7 @@ def init_datalab_connection(hostname, username, keyfile):
             conn = Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile})
             try:
                 conn.run('ls')
+                conn.config.run.echo = True
                 return conn
             except:
                 attempt += 1

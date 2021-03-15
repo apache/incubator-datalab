@@ -1410,12 +1410,12 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
             datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            datalab.fab.conn.sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
+            datalab.fab.conn.sudo('bash -c "echo \"spark.{0}.memory {1}m\" >> /opt/spark/conf/spark-defaults.conf"'.format(memory_type,
                                                                                               spark_memory))
         if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
             datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.replace('\n','').splitlines()[0]
-        datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
+        datalab.fab.conn.sudo('bash -c "echo \"export JAVA_HOME=\'{}\'\" >> /opt/spark/conf/spark-env.sh"'.format(java_home))
         if 'spark_configurations' in os.environ:
             datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
@@ -1433,13 +1433,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            datalab.fab.conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
+            datalab.fab.conn.sudo('bash -c "echo \'{}\' > /opt/spark/conf/spark-defaults.conf"'.format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
-                datalab.fab.conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
+                datalab.fab.conn.sudo('bash -c "echo \"{}\" >> /opt/spark/conf/spark-defaults.conf"'.format(prop))
             datalab.fab.conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
-                datalab.fab.conn.sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(spark_jars_paths))
+                datalab.fab.conn.sudo('bash -c "echo \"{}\" >> /opt/spark/conf/spark-defaults.conf"'.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)

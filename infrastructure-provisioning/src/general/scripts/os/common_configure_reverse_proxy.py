@@ -24,6 +24,7 @@
 import argparse
 import json
 import sys
+from datalab.fab import *
 from datalab.meta_lib import get_instance_private_ip_address
 from fabric import *
 from jinja2 import Environment, FileSystemLoader
