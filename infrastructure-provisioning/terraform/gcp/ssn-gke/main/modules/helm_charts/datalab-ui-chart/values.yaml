@@ -32,7 +32,7 @@ ui:
   os: ${os}
   image:
     repository: apache/datalab
-    tag: 'ui-2.4-gcp'
+    tag: 'ui-dev-gcp'
     pullPolicy: Always
   service:
     type: ClusterIP

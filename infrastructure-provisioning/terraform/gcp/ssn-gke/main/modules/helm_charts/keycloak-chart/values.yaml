@@ -288,7 +288,7 @@ keycloak:
       ${configure_keycloak_file}
   extraInitContainers: |
     - name: theme-provider
-      image: apache/datalab:ui-theme-2.4
+      image: apache/datalab:ui-theme-dev
       imagePullPolicy: Always
       command:
         - sh
