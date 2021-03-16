@@ -154,7 +154,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             datalab.fab.conn.sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
             datalab.fab.conn.sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             datalab.fab.conn.sudo('rstudio-server start')
-            datalab.fab.conn.sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
+            datalab.fab.conn.sudo('''bash -c 'echo "{0}:{1}" | chpasswd' '''.format(os_user, rstudio_pass))
             #sudo("sed -i '/exit 0/d' /etc/rc.local")
             #sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
             #sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
@@ -163,7 +163,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sys.exit(1)
     else:
         try:
-            datalab.fab.conn.sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
+            datalab.fab.conn.sudo('''bash -c 'echo "{0}:{1}" | chpasswd' '''.format(os_user, rstudio_pass))
         except:
             sys.exit(1)
 

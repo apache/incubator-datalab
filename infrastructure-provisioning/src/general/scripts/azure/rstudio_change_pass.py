@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     print("Setting password for Rstudio user.")
     try:
-        conn.sudo('echo "{0}:{1}" | chpasswd'.format(args.os_user, args.rstudio_pass))
+        conn.sudo('''bash -c 'echo "{0}:{1}" | chpasswd' '''.format(args.os_user, args.rstudio_pass))
         conn.close()
     except Exception as err:
         print('Error: {0}'.format(err))

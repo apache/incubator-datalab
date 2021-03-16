@@ -125,7 +125,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             conn.sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
             conn.sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             conn.sudo('rstudio-server start')
-            conn.sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
+            conn.sudo('''bash -c 'echo "{0}:{1}" | chpasswd' '''.format(os_user, rstudio_pass))
             conn.sudo("sed -i '/exit 0/d' /etc/rc.local")
             conn.sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
             conn.sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
@@ -134,7 +134,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sys.exit(1)
     else:
         try:
-            conn.sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
+            conn.sudo('''bash -c 'echo "{0}:{1}" | chpasswd' '''.format(os_user, rstudio_pass))
         except:
             sys.exit(1)
 
