@@ -1414,7 +1414,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                   .format(memory_type, spark_memory))
         if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
             datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.replace('\n','').splitlines()[0]
+        java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
         datalab.fab.conn.sudo('bash -c "echo \"export JAVA_HOME=\'{}\'\" >> /opt/spark/conf/spark-env.sh"'.format(java_home))
         if 'spark_configurations' in os.environ:
             datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout

@@ -140,7 +140,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             datalab.fab.conn.sudo(
                 'sed -i \'/\[Service\]/a Environment=\"HTTPS_PROXY={}\"\'  /lib/systemd/system/rstudio-server.service'.format(
                     https_proxy))
-            java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
             datalab.fab.conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /lib/systemd/system/rstudio-server.service'.format(
                 java_home))
             datalab.fab.conn.sudo("systemctl daemon-reload")
