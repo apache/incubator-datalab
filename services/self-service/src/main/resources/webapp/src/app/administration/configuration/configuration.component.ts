@@ -83,11 +83,9 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       .subscribe(endpoints => {
       this.endpoints = endpoints;
       
-      this.endpoints = this.endpoints
-        .filter(endpoint => endpoint.status === 'ACTIVE')
-        .map(endpoint => endpoint.name);
+      this.endpoints = this.endpoints.map(endpoint => ({name: endpoint.name, status: endpoint.status }));
 
-      this.activeEndpoint = this.endpoints[0];
+      this.activeEndpoint = this.endpoints[0].name;
       this.getServicesConfig(this.activeEndpoint);
     });
   }
