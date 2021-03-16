@@ -129,10 +129,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             datalab.fab.conn.sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             datalab.fab.conn.sudo('mkdir -p /mnt/var')
             datalab.fab.conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''')
-            https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''')
+            http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
+            https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''').stdout.replace('\n','')
             datalab.fab.conn.sudo("sed -i '/Type=forking/a \Environment=USER=datalab-user' /lib/systemd/system/rstudio-server.service")
-            datalab.fab.conn.sudo('''bash -l -c "sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /lib/systemd/system/rstudio-server.service" ''')
+            datalab.fab.conn.sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /lib/systemd/system/rstudio-server.service")
             datalab.fab.conn.sudo("sed -i '/ExecStart/s|$|\"|g' /lib/systemd/system/rstudio-server.service")
             datalab.fab.conn.sudo(
                 'sed -i \'/\[Service\]/a Environment=\"HTTP_PROXY={}\"\'  /lib/systemd/system/rstudio-server.service'.format(
@@ -316,8 +316,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             datalab.fab.conn.put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             datalab.fab.conn.sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
-            http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''')
-            https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''')
+            http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
+            https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''').stdout.replace('\n','')
             datalab.fab.conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/tensorboard.service'.format(
                 http_proxy))
             datalab.fab.conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/tensorboard.service'.format(
