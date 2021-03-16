@@ -124,6 +124,12 @@ mat-dialog-container {
         }
       }
 
+      .dialog-content {
+        .mat-select {
+          font-family: 'Opens Sans', sans-serif;
+        }
+      }
+
       .dialog-body {
         padding-top: 0;
       }
