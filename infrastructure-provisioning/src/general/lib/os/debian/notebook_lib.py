@@ -174,7 +174,7 @@ def ensure_matplot(os_user):
             datalab.fab.conn.sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
             manage_pkg('update', 'remote', '')
             manage_pkg('-y build-dep', 'remote', 'python3-matplotlib')
-            datalab.fab.conn.sudo('pip3 install matplotlib=={} --no-cache-dir'.os.environ['notebook_matplotlib_version'])
+            datalab.fab.conn.sudo('pip3 install matplotlib=={} --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 datalab.fab.conn.sudo('python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
