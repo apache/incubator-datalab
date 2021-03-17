@@ -483,9 +483,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         datalab.fab.conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         datalab.fab.conn.sudo('git clone https://github.com/pytorch/pytorch.git')
         datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
-        with settings(warn_only=True):
-            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout {}' '''.format(os_user, os.environ['notebook_pytorch_branch']))
-            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init --recursive' '''.format(os_user))
+        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout {}' '''.format(os_user, os.environ['notebook_pytorch_branch']), warn=True)
+        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init --recursive' '''.format(os_user), warn=True)
         datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && python3 setup.py install' '''.format(os_user))
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 

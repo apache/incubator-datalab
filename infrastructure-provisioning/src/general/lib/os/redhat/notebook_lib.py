@@ -24,6 +24,7 @@
 import json
 import os
 import sys
+import time
 from datalab.common_lib import manage_pkg
 from datalab.fab import *
 from datalab.notebook_lib import *
@@ -235,8 +236,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             conn.sudo('''bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
             conn.sudo('''bash -c 'echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
             conn.sudo('dracut --force')
-            with settings(warn_only=True):
-                reboot(wait=150)
+            conn.sudo('reboot', warn=True)
+            time.sleep(150)
             manage_pkg('-y install', 'remote', 'libglvnd-opengl libglvnd-devel dkms gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             conn.sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             conn.sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
@@ -428,9 +429,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
         conn.sudo('git clone https://github.com/pytorch/pytorch.git')
         conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
-        with settings(warn_only=True):
-            conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout v{}' '''.format(os_user, caffe2_version))
-            conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --recursive' '''.format(os_user))
+        conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout v{}' '''.format(os_user, caffe2_version), warn=True)
+        conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --recursive' '''.format(os_user), warn=True)
         conn.sudo('''bash -c 'cd /home/{}/pytorch/ && mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install' '''.format(os_user, cmake_version))
         conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 

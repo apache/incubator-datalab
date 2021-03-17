@@ -1247,8 +1247,7 @@ def prepare_disk(os_user):
             counter = 0
             remount_azure_disk()
             disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
-            with settings(warn_only=True):
-                conn.sudo('umount -l /dev/{}1'.format(disk_name))
+            conn.sudo('umount -l /dev/{}1'.format(disk_name), warn=True)
             while not allow:
                 if counter > 4:
                     print("Unable to prepare disk")
@@ -1261,8 +1260,7 @@ def prepare_disk(os_user):
                         allow = True
                     elif 'The kernel still uses the old table.' in out:
                         if conn.sudo('partprobe'):
-                            with settings(warn_only=True):
-                                reboot(wait=180)
+                            conn.sudo('reboot', warn=True)
                         allow = True
                     else:
                         counter += 1
