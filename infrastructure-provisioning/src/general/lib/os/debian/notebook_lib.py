@@ -26,6 +26,7 @@ import os
 import re
 import sys
 import subprocess
+import time
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
@@ -277,16 +278,16 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.sudo('''bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
             datalab.fab.conn.sudo('''bash -c 'echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
             datalab.fab.conn.sudo('update-initramfs -u')
-            with settings(warn_only=True):
-                reboot(wait=180)
+            datalab.fab.conn.sudo('reboot', warn=True)
+            time.sleep(60)
             manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
             kernel_version = datalab.fab.conn.run('uname -r | tr -d "[..0-9-]"').stdout.replace('\n','')
             if kernel_version == 'azure':
                 manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
             else:
                 # legacy support for old kernels
-                datalab.fab.conn.sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '
-                     'install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
+                datalab.fab.conn.sudo(''' bash -c 'if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '''
+                '''install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;' ''')
             datalab.fab.conn.sudo('wget http://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
                  '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             datalab.fab.conn.sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
@@ -294,7 +295,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             # install cuda
             datalab.fab.conn.sudo('python3 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'.format(
                 os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            datalab.fab.conn.sudo('wget -P /opt http://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
+            datalab.fab.conn.sudo('wget -P /opt https://developer.download.nvidia.com/compute/cuda/{0}/local_installers/{1}'.format(
                 cuda_version, cuda_file_name))
             datalab.fab.conn.sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             datalab.fab.conn.sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
@@ -329,7 +330,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.sudo("systemctl start tensorboard")
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/tensor_ensured'.format(os_user))
 
-        except:
+        except Exception as err:
+            print('Failed to install_tensor: ', str(err))
             sys.exit(1)
 
 
