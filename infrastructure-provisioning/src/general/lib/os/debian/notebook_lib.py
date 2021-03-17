@@ -274,13 +274,13 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
         try:
             # install nvidia drivers
-            datalab.fab.conn.sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
-            datalab.fab.conn.sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
+            datalab.fab.conn.sudo('''bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
+            datalab.fab.conn.sudo('''bash -c 'echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
             datalab.fab.conn.sudo('update-initramfs -u')
             with settings(warn_only=True):
                 reboot(wait=180)
             manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
-            kernel_version = datalab.fab.conn.run('uname -r | tr -d "[..0-9-]"')
+            kernel_version = datalab.fab.conn.run('uname -r | tr -d "[..0-9-]"').stdout.replace('\n','')
             if kernel_version == 'azure':
                 manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
             else:

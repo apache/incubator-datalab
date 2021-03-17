@@ -232,8 +232,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
     if not exists(conn,'/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
         try:
             # install nvidia drivers
-            conn.sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
-            conn.sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
+            conn.sudo('''bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
+            conn.sudo('''bash -c 'echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
             conn.sudo('dracut --force')
             with settings(warn_only=True):
                 reboot(wait=150)
