@@ -73,3 +73,9 @@
   opacity: 0.38;
   pointer-events: none;
 }
+
+.mat-form-field {
+  .mat-select {
+    font-family: 'Open Sans', sans-serif;
+  }
+}

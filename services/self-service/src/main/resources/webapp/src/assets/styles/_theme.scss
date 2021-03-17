@@ -493,6 +493,16 @@ span.mat-slide-toggle-content {
   }
 }
 
+.audit {
+  .mat-select {
+    font-family: 'Open Sans', sans-serif;
+
+    .mat-select-value-text span {
+      color: unset !important;
+    }
+  }
+}
+
 .empty-checkbox {
   min-width: 16px;
   width: 16px;

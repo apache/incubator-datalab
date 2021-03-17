@@ -30,6 +30,7 @@
   h4{
     padding: 10px 30px;
     color: rgba(0,0,0,.87);
+    font-family: 'Open Sans', sans-serif;
   }
 
   .editor-wrap{
@@ -40,11 +41,12 @@
 
   .main-wrapper{
     padding: 10px 30px;
+    font-family: 'Open Sans', sans-serif;
 
     .section{
 
       &-title{
-        font-size: 17px;
+        font-size: 15px;
       }
 
       &-content {
@@ -57,6 +59,7 @@
           margin: 0;
           overflow-y: auto;
           overflow-x: hidden;
+          font-size: 14px;
 
           li {
             padding: 0;
@@ -72,6 +75,8 @@
             }
 
             .checkbox-wrap{
+              display: flex;
+              align-items: center;
               margin-right: 5px;
               margin-top: 0;
             }
