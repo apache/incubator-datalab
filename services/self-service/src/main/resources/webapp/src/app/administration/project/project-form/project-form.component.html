@@ -104,8 +104,8 @@
                       </a>
                     </mat-option>
                     <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name"
-                      [disabled]="isDisabled(endpoint.name)">
-                      {{ endpoint.name }}
+                      [disabled]="isDisabled(endpoint.name) || endpoint.status !== 'ACTIVE'">
+                      {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + (endpoint.status !== 'ACTIVE' ? ' (inactive)' : '')}}
                     </mat-option>
                     <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>
                       Endpoints list is empty</mat-option>

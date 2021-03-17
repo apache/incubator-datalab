@@ -544,7 +544,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     <h4 class="modal-title">Library installation error</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
-  <div class="content lib-error" >
+  <div class="content lib-error scrolling" >
     {{ data }}
   </div>
   <div class="text-center">

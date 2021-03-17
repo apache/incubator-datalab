@@ -34,7 +34,7 @@
   .scrollingList {
     overflow-x: hidden;
     padding: 5px 0;
-    height: 185px;
+    height: 250px;
 
     &.info {
       display: flex;
@@ -129,8 +129,11 @@
     margin-top: 60px;
   }
 
-  .mat-list-item{
-    color: #607d8b;
-    font-size: 13px;
+  .mat-list {
+    height: 300px;
+    .mat-list-item {
+      color: #607d8b;
+      font-size: 13px;
+    }
   }
 }

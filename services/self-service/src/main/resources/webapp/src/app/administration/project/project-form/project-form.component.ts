@@ -165,7 +165,7 @@ export class ProjectFormComponent implements OnInit {
 
 
   public selectOptions(list, key, select?) {
-    const filter = key === 'endpoints' ? list.map(el => el.name) : list;
+    const filter = key === 'endpoints' ? list.filter(el => el.status === 'ACTIVE').map(el => el.name) : list
     this.projectForm.controls[key].setValue(select ? filter : []);
   }
 
