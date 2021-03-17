@@ -314,7 +314,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             # install TensorFlow and run TensorBoard
             # datalab.fab.conn.sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
             datalab.fab.conn.sudo('python3 -m pip install --upgrade tensorflow-gpu=={} --no-cache-dir'.format(tensorflow_version))
-            datalab.fab.conn.sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
+            datalab.fab.conn.sudo('mkdir /var/log/tensorboard')
+            datalab.fab.conn.sudo('chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             datalab.fab.conn.put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             datalab.fab.conn.sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
             http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
