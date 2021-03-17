@@ -498,16 +498,16 @@ def install_r_pkg(requisites):
 
 def update_spark_jars(jars_dir='/opt/jars'):
     try:
-        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').stdout.split('\r\n')
-        if exists(jars_dir):
+        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').stdout.split('\n')
+        if exists(conn, jars_dir):
             for conf in filter(None, configs):
                 des_path = ''
-                all_jars = conn.sudo('find {0} -name "*.jar"'.format(jars_dir)).stdout.split('\r\n')
+                all_jars = conn.sudo('find {0} -name "*.jar"'.format(jars_dir)).stdout.split('\n')
                 if ('-des-' in conf):
                     des_path = '/'.join(conf.split('/')[:3])
                     all_jars = find_des_jars(all_jars, des_path)
                 conn.sudo('''sed -i '/^# Generated\|^spark.jars/d' {0}'''.format(conf))
-                conn.sudo('echo "# Generated spark.jars by DataLab from {0}\nspark.jars {1}" >> {2}'
+                conn.sudo(''' bash -l -c 'echo "# Generated spark.jars by DataLab from {0}\nspark.jars {1}" >> {2}' '''
                      .format(','.join(filter(None, [jars_dir, des_path])), ','.join(all_jars), conf))
                 # conn.sudo("sed -i 's/^[[:space:]]*//' {0}".format(conf))
         else:
