@@ -465,7 +465,6 @@ def get_available_os_pkgs():
 
 def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
-        env.shell = "/bin/bash -l -c -i"
         manage_pkg('update', 'remote', '')
         manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
                    'libprotobuf-dev protobuf-compiler python3-dev python3-pip')
@@ -475,8 +474,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
                    'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         datalab.fab.conn.sudo('pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
              'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
+        datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version'][:-2])) # for cuda 11.2.2 installation directory is 11.2
+        datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version'][:-2])) # for cuda 11.2.2 installation directory is 11.2
         datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         datalab.fab.conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))

@@ -35,6 +35,7 @@ from patchwork.files import exists
 def enable_proxy(proxy_host, proxy_port):
     try:
         proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
+        proxy_https_string = "https://%s:%s" % (proxy_host, proxy_port)
         conn.sudo('sed -i "/^export http_proxy/d" /etc/profile')
         conn.sudo('sed -i "/^export https_proxy/d" /etc/profile')
         conn.sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
@@ -246,8 +247,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             conn.sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
             conn.sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
             conn.sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
-            conn.sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
-            conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
+            conn.sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version[:-2]))
+            conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version[:-2]))
             conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
             conn.run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
@@ -420,8 +421,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         manage_pkg('-y install --nogpgcheck', 'remote', 'automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
         conn.sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib=={} numpy=={} protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_matplotlib_version'], os.environ['notebook_numpy_version']))
-        conn.sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
-        conn.sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
+        conn.sudo('cp /opt/cudnn/include/* /opt/cuda-11.2/include/')
+        conn.sudo('cp /opt/cudnn/lib64/* /opt/cuda-11.2/lib64/')
         conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
