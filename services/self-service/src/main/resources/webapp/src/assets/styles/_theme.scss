@@ -376,6 +376,12 @@ span.mat-slide-toggle-content {
   }
 }
 
+.selection, .project-form {
+  .mat-reset .mat-form-field .mat-form-field-wrapper .mat-form-field-label {
+    transform: none;
+  }
+}
+
 .manage-roles,
 .project-form,
 .selection,
