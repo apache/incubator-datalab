@@ -28,6 +28,8 @@
       margin-right: 0;
     }
     &.env {
+      display: flex;
+      justify-content: center;
       width: 210px;
     }
     &.ssn {
