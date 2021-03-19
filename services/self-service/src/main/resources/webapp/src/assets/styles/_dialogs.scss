@@ -69,7 +69,7 @@ mat-dialog-container {
     #dialog-box {
       color: $modal-text-color;
       min-height: 150px;
-      font-family: Roboto, "Helvetica Neue", sans-serif;
+      font-family: "Open Sans", sans-serif;
 
       .dialog-header {
         padding-left: 30px;
@@ -121,6 +121,12 @@ mat-dialog-container {
 
         &.header-white {
           background: #fff;
+        }
+      }
+
+      .dialog-content {
+        .mat-select {
+          font-family: 'Opens Sans', sans-serif;
         }
       }
 

@@ -29,7 +29,7 @@
           <i class="material-icons">people_outline</i>Add account
         </button>
         <mat-divider></mat-divider>
-        <mat-list *ngIf="gitCredentials?.length">
+        <mat-list *ngIf="gitCredentials?.length" [ngStyle]="editableForm && gitCredentials?.length && {'height': '250px'}">
           <mat-list-item class="list-header">
             <div class="hostname-field">Host name</div>
             <div class="user-field">User</div>
@@ -38,7 +38,7 @@
             <div class="actions"></div>
           </mat-list-item>
 
-          <div class="scrollingList" id="scrolling">
+          <div class="scrollingList" id="scrolling" [ngStyle]="editableForm && gitCredentials?.length && {'height': '200px'}">
             <mat-list-item *ngFor="let item of gitCredentials">
               <div class="hostname-field ellipsis">
                 <strong>{{ item.hostname }}</strong>

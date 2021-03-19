@@ -376,6 +376,12 @@ span.mat-slide-toggle-content {
   }
 }
 
+.selection, .project-form {
+  .mat-reset .mat-form-field .mat-form-field-wrapper .mat-form-field-label {
+    transform: none;
+  }
+}
+
 .manage-roles,
 .project-form,
 .selection,
@@ -489,6 +495,16 @@ span.mat-slide-toggle-content {
         display: flex;
         max-width: 500px;
       }
+    }
+  }
+}
+
+.audit {
+  .mat-select {
+    font-family: 'Open Sans', sans-serif;
+
+    .mat-select-value-text span {
+      color: unset !important;
     }
   }
 }

@@ -21,15 +21,23 @@
   <div class="sub-nav">
     <div class="selection">
       <ng-template [ngIf]="endpoints?.length > 1">
-        <label class="label">Selected endpoint: </label>
+        <label class="label">Selected endpoint </label>
         <div class="mat-reset">
           <div class="control selector-wrapper">
             <mat-form-field [ngClass]="{ 'not-active' : services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged }">
               <mat-label>Select endpoint</mat-label>
-                <mat-select [(value)]="activeEndpoint" panelClass="top-select scrolling" [disabled]="services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged">
-                  <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint"
-                              (click)="setActiveEndpoint(endpoint)">
-                    {{ endpoint === 'local' ? endpoint : endpoint + ' (external endpoint)' }}</mat-option>
+                <mat-select 
+                  disableOptionCentering 
+                  [(value)]="activeEndpoint" 
+                  panelClass="top-select scrolling" 
+                  [disabled]="services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged">
+                  <mat-option 
+                    *ngFor="let endpoint of endpoints" 
+                    [value]="endpoint.name" 
+                    [disabled]="endpoint.status !== 'ACTIVE'"
+                    (click)="setActiveEndpoint(endpoint.name)">
+                    {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + ' (external endpoint)'}}{{endpoint.status !== 'ACTIVE' ? ', inactive' : ''}}
+                  </mat-option>
                 </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
