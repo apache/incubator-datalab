@@ -25,7 +25,7 @@
   <div class="dialog-content tabs">
     <mat-tab-group mat-stretch-tabs #tabGroupGit class="content-box">
       <mat-tab label="LIST">
-        <button mat-raised-button class="butt add-creds" (click)="tabGroupGit.selectedIndex = 1">
+        <button mat-raised-button class="butt add-creds" (click)="tabGroupGit.selectedIndex = 1; resetForm()">
           <i class="material-icons">people_outline</i>Add account
         </button>
         <mat-divider></mat-divider>
