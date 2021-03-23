@@ -35,22 +35,23 @@ import com.epam.datalab.dto.base.DataEngineType;
 import com.epam.datalab.dto.status.EnvResource;
 import com.epam.datalab.model.ResourceType;
 import com.google.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
-import java.util.Collections;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.epam.datalab.dto.UserInstanceStatus.*;
+
 @Scheduled("checkInfrastructureStatusScheduler")
+@Slf4j
 public class CheckInfrastructureStatusScheduler implements Job {
 
-    private static final List<UserInstanceStatus> statusesToCheck = Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STOPPED);
+    private static final List<UserInstanceStatus> statusesToCheck =
+            Arrays.asList(RUNNING, STARTING, CREATING, CREATING_IMAGE, CREATED,
+                    CONFIGURING, STOPPING, RECONFIGURING, STOPPED, TERMINATING);
 
     private final InfrastructureInfoService infrastructureInfoService;
     private final SecurityService securityService;
@@ -90,9 +91,9 @@ public class CheckInfrastructureStatusScheduler implements Job {
                 .map(this::getClusterInstances)
                 .flatMap(Collection::stream)
                 .collect(Collectors.groupingBy(EnvResource::getEndpoint));
-
         activeEndpoints.forEach(e -> {
-                    List<EnvResource> hostInstances = Stream.of(getEdgeInstances(e), exploratoryAndSparkInstances.get(e))
+                    List<EnvResource> hostInstances = Stream.of(getEdgeInstances(e),
+                            exploratoryAndSparkInstances.getOrDefault(e, Collections.emptyList()))
                             .flatMap(Collection::stream)
                             .collect(Collectors.toList());
 

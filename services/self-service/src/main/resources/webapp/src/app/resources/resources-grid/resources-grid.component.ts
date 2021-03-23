@@ -18,12 +18,18 @@
  */
 
 import {Project} from '../../administration/project/project.component';
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output
+} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import {ProjectService, UserResourceService, OdahuDeploymentService} from '../../core/services';
-import { ExploratoryModel, Exploratory } from './resources-grid.model';
+import { ExploratoryModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
@@ -37,12 +43,12 @@ import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmat
 import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 import {AuditService} from '../../core/services/audit.service';
-import {JAN} from '@angular/material/core';
-import {ReconfirmationDialogComponent} from '../../administration/management/management-grid/management-grid.component';
+import {CompareUtils} from '../../core/util/compareUtils';
+import {timer} from 'rxjs';
+import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -96,17 +102,16 @@ export class ResourcesGridComponent implements OnInit {
   @Input() projects: Array<any>;
   @Output() getEnvironments: EventEmitter<any> = new EventEmitter();
 
-  environments: Exploratory[];
+  public environments;
+  public collapseFilterRow: boolean = false;
+  public filtering: boolean = false;
+  public activeFiltering: boolean = false;
+  public activeProject: any;
+  public healthStatus: GeneralEnvironmentStatus;
+  public filteredEnvironments = [];
+  public filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
+  public filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
 
-  collapseFilterRow: boolean = false;
-  filtering: boolean = false;
-  activeFiltering: boolean = false;
-  activeProject: any;
-  healthStatus: GeneralEnvironmentStatus;
-
-  filteredEnvironments: Exploratory[] = [];
-  filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
-  filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
@@ -148,7 +153,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public buildGrid(): void {
-    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.progressBarService.startProgressBar();
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
@@ -158,7 +163,6 @@ export class ResourcesGridComponent implements OnInit {
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
         this.progressBarService.stopProgressBar();
-
         }, () => this.progressBarService.stopProgressBar());
   }
 
@@ -172,8 +176,8 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private checkFilters() {
-    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterForm);
-    this.isFilterSelected = Object.keys(this.filterForm).filter(v => this.filterForm[v].length > 0).length > 0;
+    this.isFilterChanged = !CompareUtils.compareFilters(this.filterForm, this.cashedFilterForm);
+    this.isFilterSelected = Object.keys(this.filterForm).some(v => this.filterForm[v].length > 0);
   }
 
   public selectActiveProject(project = ''): void {
@@ -322,7 +326,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private getDefaultFilterConfiguration(): void {
-    const data: Exploratory[] = this.environments;
+    const data = this.environments;
     const shapes = [], statuses = [], resources = [];
 
     data.filter(elem => elem.exploratory.map((item: any) => {

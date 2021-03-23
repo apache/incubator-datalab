@@ -84,7 +84,7 @@ export class CreateOdahuClusterComponent implements OnInit {
     });
   }
 
-  private createOdahuCluster(value): void {
+  public createOdahuCluster(value): void {
     this.dialogRef.close();
     this.odahuDeploymentService.createOdahuNewCluster(value).subscribe(() => {
       this.toastr.success('Odahu cluster creation is processing!', 'Success!');

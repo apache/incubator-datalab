@@ -69,7 +69,7 @@ mat-dialog-container {
     #dialog-box {
       color: $modal-text-color;
       min-height: 150px;
-      font-family: Roboto, "Helvetica Neue", sans-serif;
+      font-family: "Open Sans", sans-serif;
 
       .dialog-header {
         padding-left: 30px;
@@ -88,6 +88,11 @@ mat-dialog-container {
           color: #455c74;
           font-size: 18px;
           background: $modal-header-color;
+
+          &::after{
+            content: '';
+            display: block;
+          }
 
           i {
             vertical-align: middle;
@@ -116,6 +121,12 @@ mat-dialog-container {
 
         &.header-white {
           background: #fff;
+        }
+      }
+
+      .dialog-content {
+        .mat-select {
+          font-family: 'Opens Sans', sans-serif;
         }
       }
 
@@ -212,16 +223,8 @@ mat-dialog-container {
   }
 
   input[type=file] {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
     font-size: 100px;
     text-align: right;
-    opacity: 0;
     outline: none;
     background: #fff;
     cursor: inherit;
@@ -254,6 +257,10 @@ mat-dialog-container {
       text-overflow: ellipsis;
       overflow: hidden;
       cursor: default;
+      &::after{
+        content: '';
+        display: block;
+      }
     }
 
     &.tooltip-wrap {
@@ -262,7 +269,6 @@ mat-dialog-container {
         font-weight: 600;
         color: #455c74;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
     }
   }
@@ -287,6 +293,10 @@ mat-dialog-container {
     display: block;
     max-width: 450px;
     white-space: nowrap;
+    &::after{
+      content: '';
+      display: block;
+    }
     &.link-icon{
       //margin-left: 10px;
       cursor: pointer;
@@ -316,7 +326,7 @@ mat-dialog-container {
     }
   }
 
-  .create-resources-dialog {
+  .create-resources-dialog, .top-select {
     margin-left: 6px;
     min-width: calc(100% + 10px) !important;
   }
@@ -357,7 +367,9 @@ mat-dialog-container {
 .confirmation-dialog p.delete-user{
   font-weight: 500;
   max-height: 200px;
-  overflow: auto;
+  padding: 5px;
+  overflow: hidden auto;
+  text-overflow: ellipsis;
 }
 
 .bucket-browser{
@@ -423,8 +435,16 @@ mat-dialog-container {
 }
 
 .audit-info-content{
-  .mat-list-item-content{
-    align-items: start !important;
+  .mat-list {
+    height: unset;
+
+    .list-header {
+      line-height: unset;
+      
+      .mat-list-item-content{
+        align-items: start !important;
+      }
+    }
   }
 }
 

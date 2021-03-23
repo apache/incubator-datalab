@@ -27,10 +27,15 @@
   padding-right: 15px;
   overflow: auto;
 
+  .scroll-wrapper {
+    overflow: auto;
+    scroll-behavior: smooth;
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  }
+
   .ani{
     max-height: calc(100vh - 130px);
     position: relative;
-
     .wrapper{
       width: 100%;
       display: block;
@@ -207,7 +212,6 @@
     .user-name{
       padding-right: 22px;
       overflow: hidden;
-      text-overflow: ellipsis;
       word-break: break-all;
       white-space: nowrap;
       max-width: 250px;
@@ -305,6 +309,12 @@ table.management {
 .table-footer{
   height: 48px;
 }
+
+.header-checkbox{
+  margin-top: 7px;
+  float: left;
+}
+
 
 
 @media screen and (max-width: 1550px) {

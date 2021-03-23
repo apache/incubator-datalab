@@ -3,7 +3,7 @@ import {OdahuDataService} from './odahu-data.service';
 import {Subscription} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {ToastrService} from 'ngx-toastr';
-import {CreateOdahuClusterComponent} from './create-odahu-claster/create-odahu-cluster.component';
+import {CreateOdahuClusterComponent} from './create-odahu-claster';
 import {HealthStatusService, OdahuDeploymentService} from '../../core/services';
 
 export interface OdahuCluster {

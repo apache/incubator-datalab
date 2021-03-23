@@ -21,6 +21,10 @@
   .content-box {
     height: 500px;
     padding: 25px 35px;
+
+    .list-header div {
+      font-size: 13px;
+    }
   }
 
   .add-creds {
@@ -30,7 +34,7 @@
   .scrollingList {
     overflow-x: hidden;
     padding: 5px 0;
-    height: 185px;
+    height: 250px;
 
     &.info {
       display: flex;
@@ -48,13 +52,11 @@
   .login-field {
     width: 25%;
     overflow: hidden;
-    text-overflow: ellipsis;
     padding: 5px;
   }
 
   .hostname-field {
     overflow: hidden;
-    text-overflow: ellipsis;
     padding: 5px;
     width: 30%;
   }
@@ -127,7 +129,11 @@
     margin-top: 60px;
   }
 
-  .mat-list-item{
-    color: #607d8b;
+  .mat-list {
+    height: 300px;
+    .mat-list-item {
+      color: #607d8b;
+      font-size: 13px;
+    }
   }
 }

@@ -22,58 +22,58 @@ import { BehaviorSubject} from 'rxjs';
 import { BucketBrowserService, TodoItemNode } from '../../core/services/bucket-browser.service';
 
 
-const array = [{'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder11/', 'size': '18', 'lastModifiedDate': '1600846214842'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '51.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'Untitlsed', 'size': '5', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'adassdas', 'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'downloadTest.txt', 'size': '16', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/', 'size': '11', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/2.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder31/3.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/folder1/folder1/folder1/folder1/test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder12/', 'size': '11', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder3/1.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'objectName', 'size': '5', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'sss.txt', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test', 'size': '12', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test1', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test2', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'zzz', 'size': '12', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '4.txt/dsafaraorueajkegrgavhsfnvgahsfgsdjfhagsdjfg497frgfhsdajfsgdafj', 'size': '18', 'lastModifiedDate': '1600846214842'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '5.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'Untitled', 'size': '5', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'adasdas', 'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'downloadTest.txt', 'size': '16', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/', 'size': '11', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/2.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder31/3.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-{'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder31/folder1/3.txt', 'size': '5', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '2.jpg', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '1test', 'size': '112', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test11', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test2', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'zzsz', 'size': '12', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '4.txt/dsafaraorueajkegrgavhsfnvgahsfgsdjfhagsdjfg497frgfhsdajfsgdafj', 'size': '18', 'lastModifiedDate': '1600846214842'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '5.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'Untitled', 'size': '5', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'adasdas', 'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'downloadTest.txt', 'size': '16', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1212/', 'size': '11', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/2.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/3.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'fol2der1/folder1/folder1/folder1/2folder1/test.pem',
-    'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder2/', 'size': '11', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder3/1.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'objectName', 'size': '5', 'lastModifiedDate': '1600846212142'},
-{'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '5.jpg', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test', 'size': '12', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test1', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test2', 'size': '52', 'lastModifiedDate': '1600846212142'},
-  {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'zzz', 'size': '12', 'lastModifiedDate': '1600846212142'}];
+// const array = [{'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder11/', 'size': '18', 'lastModifiedDate': '1600846214842'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '51.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'Untitlsed', 'size': '5', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'adassdas', 'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'downloadTest.txt', 'size': '16', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/', 'size': '11', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/2.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder31/3.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/folder1/folder1/folder1/folder1/test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder12/', 'size': '11', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder3/1.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'objectName', 'size': '5', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'sss.txt', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test', 'size': '12', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test1', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test2', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'zzz', 'size': '12', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '4.txt/dsafaraorueajkegrgavhsfnvgahsfgsdjfhagsdjfg497frgfhsdajfsgdafj', 'size': '18', 'lastModifiedDate': '1600846214842'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '5.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'Untitled', 'size': '5', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'adasdas', 'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'downloadTest.txt', 'size': '16', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/', 'size': '11', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/2.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder31/3.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+// {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder31/folder1/3.txt', 'size': '5', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '2.jpg', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '1test', 'size': '112', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test11', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test2', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'zzsz', 'size': '12', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '4.txt/dsafaraorueajkegrgavhsfnvgahsfgsdjfhagsdjfg497frgfhsdajfsgdafj', 'size': '18', 'lastModifiedDate': '1600846214842'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '5.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'Untitled', 'size': '5', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'adasdas', 'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'downloadTest.txt', 'size': '16', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1212/', 'size': '11', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/2.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder1/3.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'fol2der1/folder1/folder1/folder1/2folder1/test.pem',
+//     'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder2/', 'size': '11', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder3/1.txt', 'size': '18', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'objectName', 'size': '5', 'lastModifiedDate': '1600846212142'},
+// {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': '5.jpg', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test', 'size': '12', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test.pem', 'size': '1', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test1', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'test2', 'size': '52', 'lastModifiedDate': '1600846212142'},
+//   {'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'zzz', 'size': '12', 'lastModifiedDate': '1600846212142'}];
 
 @Injectable()
 export class BucketDataService {
@@ -146,8 +146,9 @@ export class BucketDataService {
           parent.children.unshift(name as TodoItemNode);
         } else {
           if (name) {
+            console.log('parentObject', parent.object);
             const child = {item: name, children: [], object: JSON.parse(JSON.stringify(parent.object))};
-            child.object.object = child.object.object.slice(0, -1) + child.item + '/';
+            child.object.object = child.object.object.replace(/ا/g, '') + child.item + '/';
             parent.children.unshift(child as TodoItemNode);
           } else {
             parent.children.unshift({item: '', children: [], object: {}} as TodoItemNode);
@@ -166,35 +167,35 @@ export class BucketDataService {
   public removeItem(parent, child) {
      parent.children.splice( parent.children.indexOf(child), 1);
      this._bucketData.next(this.data);
-    }
+  }
 
-    public processFiles = (files, target, object) => {
-      let pointer = target;
-      files.forEach((file) => {
-        if (!pointer[file]) {
-          pointer[file] = {};
-        }
-        pointer = pointer[file];
-        if (!pointer.obj) {
-          pointer.obj = object;
-        }
-
-      });
-    }
-
-    public processFolderArray = (acc, curr) => {
-      const files = curr.object.split('/');
-      this.processFiles(files, acc, curr);
-
-      return acc;
-    }
-
-    public convertToFolderTree = (data) => {
-      const finalData = data.reduce(this.processFolderArray, {});
-      if (Object.keys(finalData).length === 0) {
-        return '';
+  public processFiles = (files, target, object) => {
+    let pointer = target;
+    files.forEach((file) => {
+      if (!pointer[file]) {
+        pointer[file] = {};
       }
-      return finalData;
+      pointer = pointer[file];
+      if (!pointer.obj) {
+        pointer.obj = object;
+      }
+
+    });
+  }
+
+  public processFolderArray = (acc, curr) => {
+    const files = curr.object.split('/');
+    this.processFiles(files, acc, curr);
+
+    return acc;
+  }
+
+  public convertToFolderTree = (data) => {
+    const finalData = data.reduce(this.processFolderArray, {});
+    if (Object.keys(finalData).length === 0) {
+      return '';
     }
+    return finalData;
+  }
 
 }

@@ -17,18 +17,18 @@
   ~ under the License.
   -->
 <div class="managment-wrapper scrolling" #pageWrapper (scroll)="scrollTable($event)" (resize)="onResize($event)">
-  <div class="ani scrolling" #wrapper>
-    <div class="wrapper" #tableWrapper (scroll)="scrollTable($event)">
+  <div class="ani scrolling scroll-wrapper" #wrapper (scroll)="scrollTable($event)">
+    <div class="wrapper" #tableWrapper >
       <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6" #table >
       <ng-container matColumnDef="checkbox">
         <th mat-header-cell *matHeaderCellDef class="checkbox label-header">
-          <div  class="empty-checkbox header-checkbox"
-                *ngIf="allActiveNotebooks?.length>0"
-                [ngClass]="{'checked': selected?.length === allActiveNotebooks?.length}"
-                (click)="toggleSelectionAll();$event.stopPropagation()"
+          <datalab-checkbox
+            class="header-checkbox"
+            *ngIf="allActiveNotebooks?.length"
+            [checked]="selected?.length === allActiveNotebooks?.length"
+            (toggleSelection)="toggleSelectionAll()"
           >
-            <span class="checked-checkbox" *ngIf="selected?.length === allActiveNotebooks?.length"></span>
-          </div>
+          </datalab-checkbox>
           <button mat-icon-button aria-label="More" class="ar checkbox-border" (click)="toggleFilterRow()">
             <i class="material-icons">
   <!--            <span *ngIf="filtering && filterForm.users.length > 0 && !collapsedFilterRow">filter_list</span>-->
@@ -37,14 +37,13 @@
           </button>
         </th>
         <td mat-cell *matCellDef="let element">
-          <div
-            *ngIf="element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)"
-             class="empty-checkbox"
-             [ngClass]="{'checked': element.isSelected}"
-             (click)="toggleActionForAll(element);$event.stopPropagation()"
-          >
-            <span class="checked-checkbox" *ngIf="element.isSelected"></span>
-          </div>
+          <ng-template [ngIf]="element.type !== 'odahu' && element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)">
+            <datalab-checkbox
+              [checked]="element.isSelected"
+              (toggleSelection)="toggleActionForAll(element)"
+            >
+            </datalab-checkbox>
+          </ng-template>
         </td>
       </ng-container>
 
@@ -59,7 +58,7 @@
           </button> </th>
         <td
           mat-cell *matCellDef="let element"
-          class="user-name"
+          class="user-name ellipsis"
           matTooltip="{{element.user}}"
           matTooltipPosition="above"
           [matTooltipDisabled]="element.user?.length<30"
@@ -286,7 +285,7 @@
             </button>
 
             <button mat-icon-button class="btn apply" (click)="applyFilter(filterForm)"
-              [disabled]="!isFilterChanged">
+              [disabled]="isFilterChanged">
               <i class="material-icons"
                 [ngClass]="{'not-allowed': allFilteredEnvironmentData?.length == 0 && !filtering}">done</i>
             </button>
@@ -310,9 +309,9 @@
               <div class="button-container">
                 <button mat-mini-fab aria-label="Scroll left"
                         (click)="sctollTo('left')"
-                        [ngClass]="{'not-allowed': pageWrapper.scrollLeft === 0 }"
+                        [ngClass]="{'not-allowed': wrapper.scrollLeft === 0 }"
                 >
-                  <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0 || pageWrapper.scrollLeft !== 0}">keyboard_arrow_left</mat-icon>
+                  <mat-icon [ngClass]="{'highlight': wrapper.scrollLeft !== 0 }">keyboard_arrow_left</mat-icon>
                 </button>
               </div>
               <div class="button-container" [ngClass]="{'not-allowed': checkMaxRight()}">

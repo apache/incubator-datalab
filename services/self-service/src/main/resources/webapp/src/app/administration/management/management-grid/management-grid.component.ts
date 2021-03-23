@@ -41,6 +41,7 @@ import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {DetailDialogComponent} from '../../../resources/exploratory/detail-dialog';
 import {BehaviorSubject, Subject, timer} from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
+import {CompareUtils} from '../../../core/util/compareUtils';
 
 export interface ManageAction {
   action: string;
@@ -66,6 +67,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   filtering: boolean = false;
   collapsedFilterRow: boolean = false;
   isMaxRight: Subject<boolean> = new BehaviorSubject(false);
+  private tableWrapperWidth: number;
   tableEl = {};
 
   @Input() environmentsHealthStatuses: Array<any>;
@@ -80,7 +82,6 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   @ViewChild('wrapper') wrapper;
   @ViewChild('pageWrapper') pageWrapper;
   @ViewChild('table') table;
-  private tableWrapperWidth: number;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -116,6 +117,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
 
   ngAfterViewInit() {
+    this.progressBarService.startProgressBar();
     this.tableEl = this.table._elementRef.nativeElement;
     this.checkMaxRight();
   }
@@ -131,7 +133,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   }
 
   getEnvironmentData() {
-    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.progressBarService.startProgressBar();
     this.environmentsDataService._data.subscribe(data => {
       if (data) {
         this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
@@ -155,8 +157,8 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   }
 
   private checkFilters() {
-    this.isFilterChanged = JSON.stringify(this.cashedFilterForm) !== JSON.stringify(this.filterForm);
-    this.isFilterSelected = Object.keys(this.filterForm).filter(v => this.filterForm[v].length > 0).length > 0;
+    this.isFilterChanged = CompareUtils.compareFilters(this.filterForm, this.cashedFilterForm);
+    this.isFilterSelected = Object.keys(this.filterForm).some(v => this.filterForm[v].length > 0);
   }
 
   public toggleFilterRow(): void {
@@ -213,7 +215,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
     this.allActiveNotebooks = this.allFilteredEnvironmentData
       .filter(v => v.name &&
       (v.status === 'running' || v.status === 'stopped') &&
-      !this.clustersInProgress(v.resources));
+      !this.clustersInProgress(v.resources || []));
     this.checkFilters();
   }
 
@@ -305,20 +307,19 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
   public sctollTo(direction: string) {
     if (direction === 'left') {
-      this.tableWrapper.nativeElement.scrollLeft = 0;
-      this.pageWrapper.nativeElement.scrollLeft = 0;
+      this.wrapper.nativeElement.scrollLeft = 0;
     } else {
-      this.tableWrapper.nativeElement.scrollLeft = this.tableWrapper.nativeElement.offsetWidth;
-      this.pageWrapper.nativeElement.scrollLeft = this.pageWrapper.nativeElement.offsetWidth;
+      this.wrapper.nativeElement.scrollLeft = this.wrapper.nativeElement.offsetWidth;
     }
   }
 
   public checkMaxRight() {
     let arg;
-      if (this.pageWrapper && this.table) {
-        arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
-          this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+      if (this.wrapper && this.table) {
+        arg = this.wrapper.nativeElement.offsetWidth +
+          this.wrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
       }
+      
       return this.isMaxRight.next(arg);
   }
 }

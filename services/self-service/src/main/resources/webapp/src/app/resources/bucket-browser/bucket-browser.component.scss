@@ -42,54 +42,6 @@
     }
   }
 
-  .action-wrapper{
-    position: relative;
-
-    .action-button-wrapper{
-      position: relative;
-      width: 160px;
-    }
-
-    .mat-raised-button.butt{
-      margin-bottom: 0;
-
-      &.actions-btn{
-        padding-right: 38px;
-
-        .material-icons{
-          transition: ease-in-out 1s;
-          font-size: 25px;
-          position: absolute;
-          top: 7px;
-          right: 30px;
-        }
-      }
-    }
-
-    .action-menu{
-      position: absolute;
-      margin: 0 10px;
-      text-align: center;
-
-      &-item.mat-raised-button.butt{
-        z-index: 1;
-        margin: 0;
-        box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 0px 0px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-        width: 160px;
-        padding: 0 20px;
-        border-radius: 0;
-        font-style: normal;
-        font-weight: 600;
-        font-size: 15px;
-        font-family: 'Open Sans', sans-serif;
-        color: #577289;
-        position: relative;
-        overflow: hidden;
-        line-height: 36px;
-      }
-    }
-  }
-
   .path{
     margin: 0 4px 30px 0;
     padding: 4px 4px 4px 0;
@@ -124,6 +76,7 @@
       }
     }
   }
+
   bottom: 0;
 
   .dialog-content{
@@ -137,14 +90,28 @@
   .submit{
     display: flex;
     justify-content: space-between;
+
     .left-side-butts{
       display: flex;
     }
 
-    .butt{
+    .butt:not(.action-menu-item){
       position: relative;
       overflow: hidden;
       margin: 10px;
+
+      &.actions-btn{
+        margin: 10px 10px 0 10px;
+        padding-right: 38px;
+
+          .material-icons{
+            transition: ease-in-out 1s;
+            font-size: 25px;
+            position: absolute;
+            top: 7px;
+            right: 30px;
+          }
+      }
 
       &.first-btn{
         margin-left: 0;
@@ -159,33 +126,14 @@
           color:  #00bcd4;
           background-color: #fafafa;
         }
+
         &.disabled{
           &:hover{
             color: #577289;
           }
         }
       }
-
-      input[type="file"] {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        opacity: 0;
-      }
     }
-  }
-}
-
-.navigation-line{
-  display: flex;
-  margin-bottom: 25px;
-
-  .endpoint-select{
-    flex: 1;
-    position: relative;
-    opacity: 0;
   }
 }
 
@@ -199,19 +147,19 @@
   &.added-upload{
     height: 40vh;
   }
-   .backet-selection{
+   .bucket-selection{
      position: relative;
      width: 2%;
      border-right: 2px solid rgba(0,0,0,.12);
      padding-top: 6px;
      transition: .2s;
+
      &.opened{
        width: 33.3%;
 
        .button-wrapper {
          text-align: right;
          left: auto;
-
 
          i{
            padding-right: 3px;
@@ -235,32 +183,8 @@
          }
        }
      }
-
-     .buckets-list{
-       color: rgba(0, 0, 0, 0.87);
-       padding-left: 20px;
-       line-height: 24px;
-
-       &-item{
-         &:hover{
-           color:  #00bcd4;
-           cursor: pointer;
-         }
-       }
-     }
    }
 
-     .buckets-list{
-       color: rgba(0, 0, 0, 0.87);
-       padding-left: 20px;
-       line-height: 24px;
-       &-item{
-         &:hover{
-           color:  #00bcd4;
-           cursor: pointer;
-         }
-       }
-     }
    }
 
   .navigation{
@@ -301,6 +225,7 @@
       overflow-x: auto;
       overflow-y: overlay;
       max-height: 100%;
+      padding: 6px 15px 15px 15px;
 
       .name{
         width: 60%;
@@ -310,7 +235,6 @@
 
         .name-wrap {
           overflow: hidden;
-          text-overflow: ellipsis;
           white-space: nowrap;
           padding-right: 10px;
         }
@@ -327,6 +251,7 @@
           }
           span.item-name{
             padding-left: 4px;
+
             &.removed-checkbox{
               padding-left: 4px;
             }
@@ -359,34 +284,7 @@
         margin: 0 10px;
         cursor: pointer;
       }
-
-      .action {
-        display: flex;
-        justify-content: space-around;
-        width: 100%;
-
-        .add-file {
-          overflow: hidden;
-          min-width: 100px ;
-          height: 30px;
-          position: relative;
-
-          input{
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            opacity: 0;
-          }
-        }
-      }
     }
-  }
-
-  .folder-tree {
-    padding: 0px 15px;
-    padding-top: 6px;
   }
 
   .folder-item{
@@ -395,7 +293,6 @@
 
     &.t_header{
       top: -41px;
-
       position: absolute;
       left: 0;
       right: 0;
@@ -492,10 +389,6 @@
      }
    }
 
-input[type='file'] {
-  opacity:1
-}
-
 .empty-checkbox {
   min-width: 16px;
   width: 16px;
@@ -532,20 +425,21 @@ input[type='file'] {
   }
 }
 
-.upload-window{
+.upload-window {
   margin-top: 2vh;
-  border: 2px solid rgba(0,0,0,.12);
+  border: 2px solid rgba(0, 0, 0, .12);
   border-radius: 5px;
   background-color: white;
   height: 15vh;
   color: black;
 
-  .upload-header{
+  .upload-header {
     padding-left: 8px;
     background: #f6fafe;
     height: 30px;
     line-height: 30px;
     position: relative;
+
     .modal-title {
       width: 90%;
       margin: 0;
@@ -556,9 +450,14 @@ input[type='file'] {
       color: #455c74;
       font-size: 13px;
       background: #f6fafe;
-  }
 
-    .close{
+      &::after {
+        content: '';
+        display: block;
+      }
+    }
+
+    .close {
       position: absolute;
       top: 0;
       right: 0;
@@ -573,94 +472,9 @@ input[type='file'] {
       cursor: pointer;
       transition: all 0.45s ease-in-out;
 
-      &:hover{
+      &:hover {
         color: #36afd5;
       }
-    }
-
-  }
-  .upload-files{
-    padding: 5px 0;
-    height: calc(100% - 30px);
-    overflow: auto;
-    overflow-y: overlay;
-    width: 100%;
-    .file{
-      padding: 2px;
-      display: flex;
-      font-size: 12px;
-      position: relative;
-
-      &.upload-table-header{
-        font-size: 11px;
-      }
-
-      .name{
-        width: 33.3%;
-        padding-left: 5px;
-        position: relative;
-        display: flex;
-        span{
-          position: absolute;
-          max-width: calc(100% + 30px);
-        }
-      }
-
-      .second-block{
-        width: 66.7%;
-        display: flex;
-        padding: 0 14px 0 17px;
-        .upload-path{
-          width: 60%;
-          padding-left: 24px;
-          padding-right: 1%;
-          display: flex;
-        }
-
-        .size{
-          width: 15%;
-        }
-        .state{
-          width: 22%;
-          display: flex;
-          align-items: center;
-          .mat-raised-button{
-            width: 60px;
-            padding: 5px;
-            border-radius: 0;
-            font-style: normal;
-            font-weight: 600;
-            font-size: 11px;
-            font-family: "Open Sans", sans-serif;
-            color: #577289;
-            line-height: 8px;
-          }
-        }
-        .remove{
-          display: flex;
-          align-items: center;
-          width: 5%;
-          position: absolute;
-          right: 20px;
-          .close{
-            color: #577289;
-            font-size: 12px;
-            cursor: pointer;
-            position: absolute;
-            top: 3px;
-            right: 0;
-            height: 18px;
-            width: 14px;
-            transition: all 0.45s ease-in-out;
-
-            &:hover{
-              color: #f1696e;
-            }
-          }
-        }
-      }
-
-
     }
   }
 }
@@ -669,50 +483,8 @@ input[type='file'] {
   pointer-events: none;
 }
 
-@media only screen and (max-height: 920px) {
-  .bucket-wrapper {
-    height: 55vh;
-    &.added-upload{
-      height: 38vh;
-    }
-  }
-}
 
-@media only screen and (max-height: 840px) {
-  .bucket-wrapper {
-    height: 53vh;
-    &.added-upload{
-      height: 36vh;
-    }
-  }
-}
 
-@media only screen and (max-height: 760px) {
-  .bucket-wrapper {
-    height: 51vh;
-    &.added-upload{
-      height: 34vh;
-    }
-  }
-}
-
-@media only screen and (max-height: 700px) {
-  .bucket-wrapper {
-    height: 49vh;
-    &.added-upload{
-      height: 32vh;
-    }
-  }
-}
-
-@media only screen and (max-height: 650px) {
-  .bucket-wrapper {
-    height: 47vh;
-    &.added-upload{
-      height: 30vh;
-    }
-  }
-}
 
 
 

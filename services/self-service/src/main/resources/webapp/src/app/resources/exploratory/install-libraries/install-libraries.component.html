@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<div class="install-libraries" id="dialog-box">
+<div class="install-libraries" id="dialog-box" [ngStyle]="notebook?.status !== 'running' && {'padding-bottom': '20px'}">
   <header class="dialog-header">
     <h4 class="modal-title">Manage <span>{{ notebook?.name }}</span> Libraries</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
@@ -69,7 +69,7 @@
                   class="library-input"
                 >
               </div>
-              <mat-autocomplete #auto="matAutocomplete" class="suggestions" >
+              <mat-autocomplete #auto="matAutocomplete" class="suggestions scrolling">
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
                   <mat-option>
                     <div class="option" (click)="selectLibrary(item);$event.stopPropagation()" [ngClass]="{'not-allow': item.isInSelectedList}">
@@ -86,7 +86,7 @@
                     </div>
                   </mat-option>
                 </ng-template>
-                <mat-option *ngIf="model.isEmpty(filteredList) && !validity_format && autoComplete === 'ENABLED'">
+                <mat-option *ngIf="!filteredList?.length && !validity_format && autoComplete === 'ENABLED'">
                   <span class="configuring">No matches found</span>
                 </mat-option>
                 <mat-option *ngIf="validity_format?.length > 0 && autoComplete === 'ENABLED'">
@@ -108,7 +108,7 @@
                   class="library-input"
                   [placeholder]="'Enter library version (optional)'"
                   [(ngModel)]="lib.version"
-                  [disabled]="!lib.name"
+                  [disabled]="!lib.name.trim()"
                   (keyup)="validateVersion(lib.version)"
                   (keydown.enter)="addLibrary(lib)"
                 >
@@ -118,15 +118,15 @@
                     Library version can only contain Latin letters, numbers and special characters -, _, :, /, ~, ., +.
                 </span>
                 <span class="plus-icon"
-                      [ngClass]="{'not-allow': lib.name?.length < 2
-                      || (autoComplete === 'ENABLED' && !isLibSelected )
+                      [ngClass]="{'not-allow': lib.name?.trim().length < 2
+                      || (autoComplete === 'ENABLED' && !isLibSelected && filteredList?.length)
                       || this.selectedLib?.isInSelectedList || isVersionInvalid || autoComplete === 'UPDATING'}"
                       [matTooltip]="this.selectedLib?.isInSelectedList ? 'Library is in selected list' : 'Please select library from autocomplete'"
                       matTooltipPosition="above" [matTooltipDisabled]="(!this.selectedLib?.isInSelectedList && isLibSelected) || lib.name?.length < 2 || !this.selectedLib?.isInSelectedList && autoComplete === 'NONE'"
                 >
                   <mat-icon
                     (click)="addLibrary(lib)"
-                    [ngClass]="{'not-allowed': lib.name?.length < 2 || (autoComplete === 'ENABLED' && !isLibSelected)
+                    [ngClass]="{'not-allowed': lib.name?.trim().length < 2 || (autoComplete === 'ENABLED' && !isLibSelected && filteredList?.length)
                     || this.selectedLib?.isInSelectedList || isVersionInvalid || autoComplete === 'UPDATING'}">add</mat-icon>
                 </span>
               </div>
@@ -206,7 +206,7 @@
     </div>
 
     <div class="libs-info">
-      <mat-list class="scrolling">
+      <mat-list class="scrolling" [ngStyle]="notebook?.status !== 'running' && {'max-height': '60vh', 'height': 'unset'}">
         <mat-list-item class="list-header">
           <div class="lib-name">Name
             <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
@@ -298,7 +298,7 @@
                    <i class="material-icons">close</i>
                  </button>
 
-                 <button mat-icon-button class="btn apply" (click)="filterLibs(true)" [disabled]="!isFilterChanged">
+                 <button mat-icon-button class="btn apply" (click)="filterLibs(true)" [disabled]="isFilterChanged">
                    <i class="material-icons"  [ngClass]="{'not-allowed': filterModel['length'] === 0}">done</i>
                  </button>
                </div>
@@ -314,7 +314,7 @@
           <ng-container *ngFor="let lib of filtredNotebookLibs">
             <mat-list-item class="table-item">
             <div class="lib-name lib-name-col ellipsis" >
-              <span [matTooltip]="lib.name + ' ' + lib.version" matTooltipPosition="above" class="lib-name-wrapper">
+              <span [matTooltip]="lib.name + ' ' + lib.version" matTooltipPosition="above" class="lib-name-wrapper ellipsis">
                 <span class="stong" >{{ lib.name }}</span>&nbsp;
                 <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
               </span>
@@ -324,8 +324,8 @@
               <ng-template let-item ngFor [ngForOf]="lib.filteredStatus">
                 <div class="wrap-col">
                   <div class="lib-destination-col">{{ item.resource }}</div>
-                  <div class="lib-resource-type-col">{{ item.resourceType }}</div>
-                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || 'installation_error' }}">{{ item.status.replace('_', ' ') }}
+                  <div class="lib-resource-type-col uppercase">{{ item.resourceType }}</div>
+                  <div class="lib-status-col uppercase" ngClass="{{ item.status.toLowerCase() || 'installation_error' }}">{{ item.status.replace('_', ' ') }}
                     <div class="warn-action" *ngIf="(item.status === 'installation_error' || item.status.toLowerCase() === 'invalid_version' || item.add_pkgs?.length) && notebook?.status === 'running'">
                       <div *ngIf="!item.available_versions">
                         <span *ngIf="!installingInProgress && item.status === 'installation_error'" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">

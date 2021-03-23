@@ -24,7 +24,7 @@
   </div>
   <div *ngIf="resources?.length">
     <div *ngFor="let resource of resources" class="resource-wrap">
-      <div class="resource-name">
+      <div class="resource-name ellipsis">
         <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">
           {{resource.computational_name}}
         </a>

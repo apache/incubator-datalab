@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, Inject, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Inject, ViewEncapsulation } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 

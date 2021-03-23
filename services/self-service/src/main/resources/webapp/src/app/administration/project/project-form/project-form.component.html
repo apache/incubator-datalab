@@ -92,8 +92,12 @@
               <label class="label">Endpoints</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-select multiple formControlName="endpoints" placeholder="Select endpoints"
-                    panelClass="crete-project-dialog">
+                  <mat-select 
+                    multiple
+                    disableOptionCentering 
+                    formControlName="endpoints" 
+                    placeholder="Select endpoints"
+                    panelClass="crete-project-dialog scrolling">
                     <mat-option class="multiple-select" disabled>
                       <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
                         <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -104,8 +108,8 @@
                       </a>
                     </mat-option>
                     <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name"
-                      [disabled]="isDisabled(endpoint.name)">
-                      {{ endpoint.name }}
+                      [disabled]="isDisabled(endpoint.name) || endpoint.status !== 'ACTIVE'">
+                      {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + (endpoint.status !== 'ACTIVE' ? ' (inactive)' : '')}}
                     </mat-option>
                     <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>
                       Endpoints list is empty</mat-option>
@@ -137,8 +141,12 @@
             <label class="label">Groups</label>
             <div class="control selector-wrapper">
               <mat-form-field>
-                <mat-select multiple formControlName="groups" placeholder="Select user groups"
-                  panelClass="crete-project-dialog">
+                <mat-select 
+                  multiple
+                  disableOptionCentering 
+                  formControlName="groups" 
+                  placeholder="Select user groups"
+                  panelClass="crete-project-dialog scrolling">
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All

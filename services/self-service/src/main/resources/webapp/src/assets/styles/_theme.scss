@@ -254,10 +254,13 @@
   .mat-select-placeholder {
     cursor: not-allowed;
   }
-
+  .mat-select-value{
+    cursor: not-allowed;
+  }
 }
 
-.mat-select-disabled + .caret {
+.mat-select-disabled + .caret,
+.mat-tab-disabled{
   cursor: not-allowed !important;
 }
 
@@ -274,6 +277,15 @@
 .filter-row input[type='text'] {
   font-size: 14px;
   height: 34px;
+}
+
+input[type="file"] {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0;
 }
 
 span.mat-slide-toggle-content {
@@ -361,6 +373,12 @@ span.mat-slide-toggle-content {
     &.mat-standard-chip.mat-chip-disabled{
       opacity: 1;
     }
+  }
+}
+
+.selection, .project-form {
+  .mat-reset .mat-form-field .mat-form-field-wrapper .mat-form-field-label {
+    transform: none;
   }
 }
 
@@ -481,6 +499,16 @@ span.mat-slide-toggle-content {
   }
 }
 
+.audit {
+  .mat-select {
+    font-family: 'Open Sans', sans-serif;
+
+    .mat-select-value-text span {
+      color: unset !important;
+    }
+  }
+}
+
 .empty-checkbox {
   min-width: 16px;
   width: 16px;
@@ -490,10 +518,7 @@ span.mat-slide-toggle-content {
   margin-top: 2px;
   position: relative;
   cursor: pointer;
-  &.header-checkbox{
-    margin-top: 7px;
-    float: left;
-  }
+
   &.checked {
     border-color: #35afd5;
     background-color: #35afd5;
@@ -539,7 +564,7 @@ span.mat-slide-toggle-content {
 
     &.actions-btn{
       padding-right: 38px;
-
+      margin: 0;
 
       .material-icons{
         transition: ease-in-out 1s;
@@ -572,8 +597,6 @@ span.mat-slide-toggle-content {
       position: relative;
       overflow: hidden;
       line-height: 36px;
-      padding-left: 45px;
-      text-align: left;
       &.action-menu-item{
         &:hover{
           color:  #00bcd4;
@@ -1049,10 +1072,15 @@ mat-progress-bar {
     height: calc(100%);
   }
 
-  .ace_scrollbar{
+  .ace_print-margin {
+    width: unset !important;
+  }
 
+  .ace_scrollbar{
+    scrollbar-width: thin;
   }
 }
+
 
 
 

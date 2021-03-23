@@ -29,7 +29,7 @@ import {Endpoint} from '../../../administration/project/project.component';
               <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
-          <div mat-dialog-content class="content message">
+          <div mat-dialog-content class="content message scrolling">
             <div *ngIf="data.type === 'terminateNode'" class="table-header">
               <div *ngIf="data.item.action.endpoint.length > 0">
                 Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>&nbsp;<span class="strong">{{ data.item.action.endpoint.join(', ') }}</span> in project
@@ -120,18 +120,21 @@ import {Endpoint} from '../../../administration/project/project.component';
                   </div>
               </div>
                <div class="confirm-dialog" *ngIf="data.type === 'terminateNode'">
-                   <mat-list *ngIf="data.item.resources.length > 0">
-                     <mat-list-item class="list-header sans">
-                       <div class="endpoint">Resources</div>
-                       <div class="status">Further status</div>
+                 <mat-list *ngIf="data.item.resources.length > 0; else noResources">
+                   <mat-list-item class="list-header sans">
+                     <div class="endpoint">Resources</div>
+                     <div class="status">Further status</div>
+                   </mat-list-item>
+                   <div class="scrolling-content scrolling">
+                     <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
+                       <div class="endpoint ellipsis">{{resource}}</div>
+                       <div class="status terminated">Terminated</div>
                      </mat-list-item>
-                     <div class="scrolling-content scrolling">
-                       <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
-                         <div class="endpoint ellipsis">{{resource}}</div>
-                         <div class="status terminated">Terminated</div>
-                       </mat-list-item>
-                     </div>
-                   </mat-list>
+                   </div>
+                 </mat-list>
+                 <ng-template #noResources>
+                   There are not related resources to this edge node.
+                 </ng-template>
                    <div mat-dialog-content class="bottom-message" *ngIf="data.item.resources.length > 0">
                      <span class="confirm-message">All connected computes will be terminated as well.</span>
                    </div>
