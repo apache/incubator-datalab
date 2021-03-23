@@ -41,46 +41,80 @@ parser.add_argument('--spark_master_ip', type=str, default='')
 args = parser.parse_args()
 
 
-def configure_notebook(keyfile, hoststring):
+def configure_notebook(keyfile):
     templates_dir = '/root/templates/'
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
-    conn.run('mkdir -p /tmp/{}/'.format(args.cluster_name))
-    conn.put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
+    datalab.fab.conn.run('mkdir -p /tmp/{}/'.format(args.cluster_name))
+    datalab.fab.conn.put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
     #put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
     #put(templates_dir + 'r_dataengine_template.json', '/tmp/{}/r_dataengine_template.json'.format(args.cluster_name))
     #put(templates_dir + 'toree_dataengine_template.json','/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
     # conn.put(files_dir + 'toree_kernel.tar.gz', '/tmp/{}/toree_kernel.tar.gz'.format(args.cluster_name))
     # conn.put(templates_dir + 'toree_dataengine_template.json', '/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
     # conn.put(templates_dir + 'run_template.sh', '/tmp/{}/run_template.sh'.format(args.cluster_name))
-    conn.put(templates_dir + 'notebook_spark-defaults_local.conf',
+    datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf',
         '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     # spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
     # conn.run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
-    if not exists(conn,'/usr/local/bin/jupyter_dataengine_create_configs.py'):
-        conn.put(scripts_dir + 'jupyter_dataengine_create_configs.py', '/tmp/jupyter_dataengine_create_configs.py')
-        conn.sudo('cp -f /tmp/jupyter_dataengine_create_configs.py /usr/local/bin/jupyter_dataengine_create_configs.py')
-        conn.sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
-    if not exists(conn,'/usr/lib/python3.8/datalab/'):
-        conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
-        conn.local('cd  /usr/lib/python3.8/datalab/; tar -zcvf /tmp/datalab.tar.gz *')
-        conn.put('/tmp/datalab.tar.gz', '/tmp/datalab.tar.gz')
-        conn.sudo('tar -zxvf /tmp/datalab.tar.gz -C /usr/lib/python3.8/datalab/')
-        conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')
-        if exists(conn, '/usr/lib64'):
-            conn.sudo('mkdir -p /usr/lib64/python3.8')
-            conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
+    if not exists(datalab.fab.conn,'/usr/local/bin/jupyter_dataengine_create_configs.py'):
+        datalab.fab.conn.put(scripts_dir + 'jupyter_dataengine_create_configs.py', '/tmp/jupyter_dataengine_create_configs.py')
+        datalab.fab.conn.sudo('cp -f /tmp/jupyter_dataengine_create_configs.py /usr/local/bin/jupyter_dataengine_create_configs.py')
+        datalab.fab.conn.sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
+    if not exists(datalab.fab.conn,'/usr/lib/python3.8/datalab/'):
+        datalab.fab.conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+        datalab.fab.conn.local('cd  /usr/lib/python3.8/datalab/; tar -zcvf /tmp/datalab.tar.gz *')
+        datalab.fab.conn.put('/tmp/datalab.tar.gz', '/tmp/datalab.tar.gz')
+        datalab.fab.conn.sudo('tar -zxvf /tmp/datalab.tar.gz -C /usr/lib/python3.8/datalab/')
+        datalab.fab.conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')
+        if exists(datalab.fab.conn, '/usr/lib64'):
+            datalab.fab.conn.sudo('mkdir -p /usr/lib64/python3.8')
+            datalab.fab.conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
-def create_inactivity_log(master_ip, hoststring):
+def install_sparkamagic_kernels(args):
+    try:
+        datalab.fab.conn.sudo('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
+        sparkmagic_dir = datalab.fab.conn.sudo(''' bash -l -c 'pip3 show sparkmagic | grep "Location: "' ''').stdout.rstrip("\n\r").split(' ')[1]
+        datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
+        datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
+        datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
+        pyspark_kernel_name = 'PySpark (Python-3.8 / Spark-{0} ) [{1}]'.format(args.spark_version,
+                                                                         args.cluster_name)
+        datalab.fab.conn.sudo('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
+            pyspark_kernel_name, args.os_user))
+        scala_version = datalab.fab.conn.sudo('''bash -l -c 'spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"' ''').stdout.rstrip("\n\r")
+        spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(scala_version, args.spark_version,
+                                                                         args.cluster_name)
+        datalab.fab.conn.sudo('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
+            spark_kernel_name, args.os_user))
+        r_version = datalab.fab.conn.sudo(''' bash -l -c 'R --version | grep -o -P "R version \K.{0,5}"' ''').stdout.rstrip("\n\r")
+        sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(r_version, args.spark_version,
+                                                                            args.cluster_name)
+        datalab.fab.conn.sudo('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(
+            sparkr_kernel_name, args.os_user))
+        datalab.fab.conn.sudo('sudo mv -f /home/{0}/.local/share/jupyter/kernels/pysparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/pysparkkernel_{1}'.format(args.os_user, args.cluster_name))
+        datalab.fab.conn.sudo('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/sparkkernel_{1}'.format(args.os_user, args.cluster_name))
+        datalab.fab.conn.run('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkrkernel '
+              '/home/{0}/.local/share/jupyter/kernels/sparkrkernel_{1}'.format(args.os_user, args.cluster_name))
+        datalab.fab.conn.sudo('mkdir -p /home/' + args.os_user + '/.sparkmagic')
+        datalab.fab.conn.sudo('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json')
+        spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
+        datalab.fab.conn.sudo('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
+                spark_master_ip, args.os_user))
+        datalab.fab.conn.sudo('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user))
+    except Exception as err:
+        print(err)
+        sys.exit(1)
+
+def create_inactivity_log(master_ip):
     reworked_ip = master_ip.replace('.', '-')
-    conn.sudo("date +%s > /opt/inactivity/{}_inactivity".format(reworked_ip))
+    datalab.fab.conn.sudo('''bash -l -c "date +%s > /opt/inactivity/{}_inactivity" '''.format(reworked_ip))
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     try:
         region = os.environ['aws_region']
     except:
@@ -88,11 +122,13 @@ if __name__ == "__main__":
     r_enabled = os.environ['notebook_r_enabled']
     if 'spark_configurations' not in os.environ:
         os.environ['spark_configurations'] = '[]'
-    configure_notebook(args.keyfile, env.host_string)
-    create_inactivity_log(args.spark_master_ip, env.host_string)
-    conn.sudo('/usr/bin/python3 /usr/local/bin/jupyter_dataengine_create_configs.py '
-         '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} \
-         --spark_master {} --datalake_enabled {} --r_enabled {} --spark_configurations "{}"'.
-         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
-                args.datalake_enabled, r_enabled, os.environ['spark_configurations']))
+    configure_notebook(args.keyfile)
+    install_sparkamagic_kernels(args)
+    create_inactivity_log(args.spark_master_ip)
+
+    #datalab.fab.conn.sudo('/usr/bin/python3 /usr/local/bin/jupyter_dataengine_create_configs.py '
+    #     '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} \
+    #     --spark_master {} --datalake_enabled {} --r_enabled {} --spark_configurations "{}"'.
+    #     format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
+    #            args.datalake_enabled, r_enabled, os.environ['spark_configurations']))
 

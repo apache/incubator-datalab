@@ -91,7 +91,7 @@ def start_spark(os_user, master_ip, node):
         if node == 'master':
             conn.sudo("sed -i '/start-slaves.sh/d' /opt/spark/sbin/start-all.sh")
             conn.sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> /opt/spark/sbin/start-all.sh'''.format('{SPARK_HOME}', master_ip))
-            conn.put('~/templates/spark-master.service', '/tmp/spark-master.service')
+            conn.put('/root/templates/spark-master.service', '/tmp/spark-master.service')
             conn.sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable spark-master.service')
@@ -102,7 +102,7 @@ def start_spark(os_user, master_ip, node):
             text = text.replace('MASTER', 'spark://{}:7077'.format(master_ip))
             with open('/root/templates/spark-slave.service', 'w') as f:
                 f.write(text)
-            conn.put('~/templates/spark-slave.service', '/tmp/spark-slave.service')
+            conn.put('/root/templates/spark-slave.service', '/tmp/spark-slave.service')
             conn.sudo('mv /tmp/spark-slave.service /etc/systemd/system/spark-slave.service')
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable spark-slave.service')
@@ -198,19 +198,19 @@ if __name__ == "__main__":
         install_r_packages(args.os_user)
 
     # INSTALL LIVY
-    if not exists(conn,'/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
-        livy_version = '0.7.0'
-        conn.sudo(
-            'wget -nv --timeout=30 --tries=5 --retry-connrefused https://archive.apache.org/dist/incubator/livy/{0}-incubating/apache-livy-{0}-incubating-bin.zip -P /tmp/'.format(
-                livy_version))
-        conn.sudo('unzip -q /tmp/apache-livy-{}-incubating-bin.zip -d /tmp/'.format(livy_version))
-        conn.sudo('mv /tmp/apache-livy-{}-incubating-bin /opt/livy'.format(livy_version))
+    if not exists(conn, '/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
+        conn.sudo('wget -P /tmp/  --user={} --password={} '
+                  'https://{}/repository/packages/livy.tar.gz --no-check-certificate'
+                  .format(os.environ['conf_repository_user'],
+                          os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+        conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /tmp/')
+        conn.sudo('mv /tmp/incubator-livy /opt/livy')
         conn.sudo('mkdir /var/log/livy')
-        conn.put('~/templates/livy-env.sh', '/tmp/livy-env.sh')
+        conn.put('/root/templates/livy-env.sh', '/tmp/livy-env.sh')
         conn.sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
         conn.sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
         conn.sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))
-        conn.put('~/templates/livy.service', '/tmp/livy.service')
+        conn.put('/root/templates/livy.service', '/tmp/livy.service')
         conn.sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(args.os_user))
         conn.sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
         conn.sudo('systemctl daemon-reload')
