@@ -25,5 +25,9 @@
       "version": "jupyter_notebook-6.0.2",
       "vendor": "AWS"
     }
+  ],
+  "gpu_types": [
+    {"Size": "S",  "Gpu_type": "nvidia-tesla-t4"},
+    {"Size": "M",  "Gpu_type": "nvidia-tesla-v100"}
   ]
 }

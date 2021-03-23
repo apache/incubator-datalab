@@ -41,7 +41,7 @@ import javax.ws.rs.core.Response;
 @RolesAllowed("environment/*")
 public class EnvironmentResource {
 
-    private EnvironmentService environmentService;
+    private final EnvironmentService environmentService;
 
     @Inject
     public EnvironmentResource(EnvironmentService environmentService) {
