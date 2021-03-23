@@ -48,7 +48,6 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
         } else {
             log.info("Trying to read properties, for external endpoint : {} , for user: {}",
                     endpoint, userInfo.getSimpleName());
-            properties.put(ChangePropertiesConst.SELF_SERVICE, getProperties(ChangePropertiesConst.SELF_SERVICE_PROP_PATH, ChangePropertiesConst.SELF_SERVICE));
             properties.put(ChangePropertiesConst.PROVISIONING_SERVICE,
                     externalSelfService.get(url + "/provisioning-service", userInfo.getAccessToken(), String.class));
             properties.put(ChangePropertiesConst.BILLING_SERVICE,
@@ -90,21 +89,17 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
             restart(restartForm);
         } else {
             log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
-
             externalSelfService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
         }
     }
 
     private String findMethodName(String name) {
         switch (name) {
-            case "self-service.yml": {
-                return "self-service";
-            }
             case "provisioning.yml": {
-                return "provisioning-service";
+                return "/provisioning-service";
             }
             case "billing.yml": {
-                return "billing";
+                return "/billing";
             }
             default:
                 return "";
