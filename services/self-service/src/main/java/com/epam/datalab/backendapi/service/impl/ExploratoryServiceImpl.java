@@ -20,15 +20,29 @@
 package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.annotation.*;
+import com.epam.datalab.backendapi.annotation.Audit;
+import com.epam.datalab.backendapi.annotation.BudgetLimited;
+import com.epam.datalab.backendapi.annotation.Info;
+import com.epam.datalab.backendapi.annotation.Project;
+import com.epam.datalab.backendapi.annotation.ResourceName;
+import com.epam.datalab.backendapi.annotation.User;
 import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.dao.ComputationalDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.GitCredsDAO;
 import com.epam.datalab.backendapi.dao.ImageExploratoryDAO;
-import com.epam.datalab.backendapi.domain.*;
+import com.epam.datalab.backendapi.domain.AuditActionEnum;
+import com.epam.datalab.backendapi.domain.AuditDTO;
+import com.epam.datalab.backendapi.domain.AuditResourceTypeEnum;
+import com.epam.datalab.backendapi.domain.EndpointDTO;
+import com.epam.datalab.backendapi.domain.ProjectDTO;
+import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryCreatePopUp;
-import com.epam.datalab.backendapi.service.*;
+import com.epam.datalab.backendapi.service.AuditService;
+import com.epam.datalab.backendapi.service.EndpointService;
+import com.epam.datalab.backendapi.service.ExploratoryService;
+import com.epam.datalab.backendapi.service.ProjectService;
+import com.epam.datalab.backendapi.service.TagService;
 import com.epam.datalab.backendapi.util.RequestBuilder;
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.constants.ServiceConsts;
@@ -37,7 +51,12 @@ import com.epam.datalab.dto.UserInstanceDTO;
 import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.base.DataEngineType;
-import com.epam.datalab.dto.exploratory.*;
+import com.epam.datalab.dto.exploratory.ExploratoryActionDTO;
+import com.epam.datalab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.datalab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
+import com.epam.datalab.dto.exploratory.ExploratoryStatusDTO;
+import com.epam.datalab.dto.exploratory.LibInstallDTO;
+import com.epam.datalab.dto.exploratory.LibStatus;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.model.exploratory.Exploratory;
 import com.epam.datalab.model.library.Library;
@@ -48,13 +67,33 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.*;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.STOP;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.UPDATE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
-import static com.epam.datalab.dto.UserInstanceStatus.*;
-import static com.epam.datalab.rest.contracts.ExploratoryAPI.*;
+import static com.epam.datalab.dto.UserInstanceStatus.CREATING;
+import static com.epam.datalab.dto.UserInstanceStatus.FAILED;
+import static com.epam.datalab.dto.UserInstanceStatus.RUNNING;
+import static com.epam.datalab.dto.UserInstanceStatus.STARTING;
+import static com.epam.datalab.dto.UserInstanceStatus.STOPPED;
+import static com.epam.datalab.dto.UserInstanceStatus.STOPPING;
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATED;
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATING;
+import static com.epam.datalab.rest.contracts.ExploratoryAPI.EXPLORATORY_CREATE;
+import static com.epam.datalab.rest.contracts.ExploratoryAPI.EXPLORATORY_RECONFIGURE_SPARK;
+import static com.epam.datalab.rest.contracts.ExploratoryAPI.EXPLORATORY_START;
+import static com.epam.datalab.rest.contracts.ExploratoryAPI.EXPLORATORY_STOP;
+import static com.epam.datalab.rest.contracts.ExploratoryAPI.EXPLORATORY_TERMINATE;
 
 @Slf4j
 @Singleton
@@ -404,11 +443,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
                 .withEndpoint(exploratory.getEndpoint())
                 .withCloudProvider(cloudProvider.toString())
                 .withTags(tagService.getResourceTags(userInfo, exploratory.getEndpoint(), project,
-                        exploratory.getExploratoryTag(), exploratory.getEnabledGPU()))
-                .withGPUCount(exploratory.getGpuCount())
-                .withGPUEnabled(exploratory.getEnabledGPU())
-                .withGPUType(exploratory.getGpuType());
-
+                        exploratory.getExploratoryTag()));
         if (StringUtils.isNotBlank(exploratory.getImageName())) {
             final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory.getImageName(),
                     project, exploratory.getEndpoint());

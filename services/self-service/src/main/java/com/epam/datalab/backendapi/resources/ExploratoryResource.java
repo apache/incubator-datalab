@@ -56,7 +56,7 @@ import java.util.List;
 @Slf4j
 public class ExploratoryResource implements ExploratoryAPI {
 
-    private final ExploratoryService exploratoryService;
+    private ExploratoryService exploratoryService;
 
     @Inject
     public ExploratoryResource(ExploratoryService exploratoryService) {
@@ -87,6 +87,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
         String uuid = exploratoryService.create(userInfo, getExploratory(formDTO), formDTO.getProject(), formDTO.getName());
         return Response.ok(uuid).build();
+
     }
 
 
@@ -169,9 +170,6 @@ public class ExploratoryResource implements ExploratoryAPI {
                 .endpoint(formDTO.getEndpoint())
                 .project(formDTO.getProject())
                 .exploratoryTag(formDTO.getExploratoryTag())
-                .enabledGPU(formDTO.getEnabledGPU())
-                .gpuCount(formDTO.getGpuCount())
-                .gpuType(formDTO.getGpuType())
                 .build();
     }
 }

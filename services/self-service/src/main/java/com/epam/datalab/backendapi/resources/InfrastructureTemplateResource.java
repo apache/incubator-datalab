@@ -42,7 +42,7 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class InfrastructureTemplateResource implements DockerAPI {
 
-    private final InfrastructureTemplateService infrastructureTemplateService;
+    private InfrastructureTemplateService infrastructureTemplateService;
 
     @Inject
     public InfrastructureTemplateResource(InfrastructureTemplateService infrastructureTemplateService) {
