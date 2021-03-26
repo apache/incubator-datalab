@@ -44,6 +44,6 @@ if __name__ == "__main__":
     else:
         kernel = args.cluster_ip.replace('.', '-')
 
-    conn.sudo("date +%s > /opt/inactivity/{}_inactivity".format(kernel))
+    conn.sudo('''bash -c -l "date +%s > /opt/inactivity/{}_inactivity" '''.format(kernel))
 
     conn.close()

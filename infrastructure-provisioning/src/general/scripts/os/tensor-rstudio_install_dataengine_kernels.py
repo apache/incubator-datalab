@@ -69,7 +69,7 @@ def configure_notebook(keyfile, hoststring):
 
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')
-    conn.sudo("date +%s > /opt/inactivity/{}_inactivity".format(reworked_ip))
+    conn.sudo('''bash -l -c "date +%s > /opt/inactivity/{}_inactivity" '''.format(reworked_ip))
 
 if __name__ == "__main__":
     env.hosts = "{}".format(args.notebook_ip)
