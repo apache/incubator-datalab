@@ -295,12 +295,17 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             # install cuda
             datalab.fab.conn.sudo('python3 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'.format(
                 os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            datalab.fab.conn.sudo('wget -P /opt https://developer.download.nvidia.com/compute/cuda/{0}/local_installers/{1}'.format(
+            datalab.fab.conn.sudo('wget -P /opt http://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
                 cuda_version, cuda_file_name))
+            datalab.fab.conn.sudo('apt -y install gcc-8 g++-8')
+            datalab.fab.conn.sudo('update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 8')
+            datalab.fab.conn.sudo('update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 8')
             datalab.fab.conn.sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
-            datalab.fab.conn.sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version[:-2])) # for cuda 11.2.2 installation directory is 11.2
-            datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version[:-2])) # for cuda 11.2.2 installation directory is 11.2
-            datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name[:-2])) # for cuda 11.2.2 installation directory is 11.2
+            #datalab.fab.conn.sudo('update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9')
+            #datalab.fab.conn.sudo('update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9')
+            datalab.fab.conn.sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
+            datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
+            datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
             datalab.fab.conn.run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
                 cudnn_version, cudnn_file_name))
@@ -474,8 +479,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
                    'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         datalab.fab.conn.sudo('pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
              'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version'][:-2])) # for cuda 11.2.2 installation directory is 11.2
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version'][:-2])) # for cuda 11.2.2 installation directory is 11.2
+        datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+        datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
         datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         datalab.fab.conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))

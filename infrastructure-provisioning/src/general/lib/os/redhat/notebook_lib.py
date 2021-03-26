@@ -421,8 +421,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         manage_pkg('-y install --nogpgcheck', 'remote', 'automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
         conn.sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib=={} numpy=={} protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_matplotlib_version'], os.environ['notebook_numpy_version']))
-        conn.sudo('cp /opt/cudnn/include/* /opt/cuda-11.2/include/')
-        conn.sudo('cp /opt/cudnn/lib64/* /opt/cuda-11.2/lib64/')
+        conn.sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
+        conn.sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
