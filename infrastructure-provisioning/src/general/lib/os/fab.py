@@ -251,9 +251,11 @@ def configure_docker(os_user):
             conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -')
             conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
-            manage_pkg('update', 'remote', '')
+            #datalab.common_lib.manage_pkg('update', 'remote', '')
+            conn.sudo('apt-get update')
             conn.sudo('apt-cache policy docker-ce')
-            manage_pkg('-y install', 'remote', 'docker-ce=5:{}~3-0~ubuntu-focal'.format(docker_version))
+            #datalab.common_lib.manage_pkg('-y install', 'remote', 'docker-ce=5:{}~3-0~ubuntu-focal'.format(docker_version))
+            conn.sudo('apt-get install -y docker-ce=5:{}~3-0~ubuntu-focal'.format(docker_version))
             conn.sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
@@ -327,8 +329,8 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
 #            conn.sudo('cp -r {}sdk {}sdk'.format(legion_dir, jupyterlab_dir))
 #            conn.sudo('cp -r {}toolchains/python {}toolchains_python'.format(legion_dir, jupyterlab_dir))
 #            conn.sudo('cp -r {}cli {}cli'.format(legion_dir, jupyterlab_dir))
-        except:
-           sys.exit(1)
+        except Exception as err:
+            print('Error:', str(err))
     else:
         try:
             conn.sudo(
