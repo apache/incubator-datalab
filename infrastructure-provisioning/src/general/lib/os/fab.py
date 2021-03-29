@@ -220,7 +220,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             #    http_proxy))
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    https_proxy))
-            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.replace('\n','').splitlines()[0]
+            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
                 java_home))
             conn.sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
