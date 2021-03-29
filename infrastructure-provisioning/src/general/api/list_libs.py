@@ -29,7 +29,7 @@ import subprocess
 if __name__ == "__main__":
     success = True
     try:
-        subprocess.run('cd /root; fab list_libs', shell=True, check=True)
+        subprocess.run('cd /root; fab list-libs', shell=True, check=True)
     except:
         success = False
 

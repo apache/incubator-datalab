@@ -29,7 +29,7 @@ import subprocess
 if __name__ == "__main__":
     success = True
     try:
-        subprocess.run('cd /root; fab reconfigure_spark', shell=True, check=True)
+        subprocess.run('cd /root; fab reconfigure-spark', shell=True, check=True)
     except:
         success = False
 
