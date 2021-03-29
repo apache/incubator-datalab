@@ -48,8 +48,9 @@ if __name__ == "__main__":
         conn.sudo('''bash -l -c 'echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}' '''.format(https_file))
         conn.sudo('mkdir /home/{}/.docker'.format(args.os_user))
         conn.sudo('touch /home/{}/.docker/config.json'.format(args.os_user))
-        conn.sudo('''bash -l -c 
-            'echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/datalab-user/.docker/config.json' ''')
+        http_proxy = conn.sudo('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
+        conn.sudo('''echo -e '{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"'''+http_proxy+'''",\n     "httpsProxy":"'''+http_proxy+'''"\n   }\n }\n}'  > /tmp/docker_config.json''')
+        conn.sudo('cp /tmp/docker_config.json /home/{}/.docker/config.json'.format(args.os_user))
         conn.sudo('usermod -a -G docker ' + args.os_user)
         conn.sudo('update-rc.d docker defaults')
         conn.sudo('update-rc.d docker enable')

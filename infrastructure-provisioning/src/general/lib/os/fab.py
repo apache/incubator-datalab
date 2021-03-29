@@ -268,7 +268,9 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
 #            conn.put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
 #            conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
             conn.put('/root/Dockerfile_jupyterlab', '/tmp/Dockerfile_jupyterlab')
-            conn.put('/root/scripts/*', '/tmp/')
+            conn.put('/root/scripts/jupyterlab_run.sh', '/tmp/jupyterlab_run.sh')
+            conn.put('/root/scripts/build.sh', '/tmp/build.sh')
+            conn.put('/root/scripts/start.sh', '/tmp/start.sh')
 #            conn.sudo('\cp /tmp/pyspark_local_template.json ' + jupyterlab_dir + 'pyspark_local_template.json')
 #            conn.sudo('\cp /tmp/py3spark_local_template.json ' + jupyterlab_dir + 'py3spark_local_template.json')
 #            conn.sudo('sed -i \'s/3.5/3.6/g\' {}py3spark_local_template.json'.format(jupyterlab_dir))
@@ -276,7 +278,7 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
             conn.sudo('mv /tmp/Dockerfile_jupyterlab {}Dockerfile_jupyterlab'.format(jupyterlab_dir))
             conn.sudo('mv /tmp/build.sh {}build.sh'.format(jupyterlab_dir))
             conn.sudo('mv /tmp/start.sh {}start.sh'.format(jupyterlab_dir))
-            conn.sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyterlab'.format(os_user, jupyterlab_dir))
+#            conn.sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyterlab'.format(os_user, jupyterlab_dir))
             conn.sudo('sed -i \'s/jupyterlab_image/{}/g\' {}Dockerfile_jupyterlab'.format(jupyterlab_image, jupyterlab_dir))
             conn.sudo('sed -i \'s/nb_user/{}/g\' {}start.sh'.format(os_user, jupyterlab_dir))
 #            conn.sudo('sed -i \'s/jup_version/{}/g\' {}Dockerfile_jupyterlab'.format(jupyter_version, jupyterlab_dir))
@@ -288,17 +290,16 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
 #            conn.sudo('sed -i \'s/scala_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_scala_version'], jupyterlab_dir))
             conn.sudo('sed -i \'s/CONF_PATH/{}/g\' {}jupyterlab_run.sh'.format(jupyterlab_conf_file, jupyterlab_dir))
             conn.sudo('touch {}'.format(jupyter_conf_file))
-            conn.sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
-            conn.sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
-            conn.sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
-            conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
-            conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
-            conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+            conn.sudo('''bash -l -c "echo 'c.NotebookApp.ip = \\"0.0.0.0\\" ' >> {}" '''.format(jupyter_conf_file))
+            conn.sudo('''bash -l -c "echo 'c.NotebookApp.base_url = \\"/{0}/\\"' >> {1}" '''.format(exploratory_name, jupyter_conf_file))
+            conn.sudo('''bash -l -c 'echo "c.NotebookApp.open_browser = False" >> {}' '''.format(jupyter_conf_file))
+            conn.sudo('''bash -l -c "echo 'c.NotebookApp.cookie_secret = b\\"{0}\\"' >> {1}" '''.format(id_generator(), jupyter_conf_file))
+            conn.sudo('''bash -l -c "echo \\"c.NotebookApp.token = u''\\" >> {}" '''.format(jupyter_conf_file))
+            conn.sudo('''bash -l -c 'echo "c.KernelSpecManager.ensure_native_kernel = False" >> {}' '''.format(jupyter_conf_file))
             conn.sudo('chown datalab-user:datalab-user /opt')
-            conn.sudo(
-                'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(
+            conn.sudo('''bash -l -c 'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config' '''.format(
                     edge_ip, os_user))
-            conn.sudo('echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(edge_ip, os_user))
+            conn.sudo('''bash -l -c 'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config' '''.format(edge_ip, os_user))
 #            conn.sudo('touch {}'.format(spark_script))
 #            conn.sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
 #            conn.sudo(
@@ -331,6 +332,7 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_c
 #            conn.sudo('cp -r {}cli {}cli'.format(legion_dir, jupyterlab_dir))
         except Exception as err:
             print('Error:', str(err))
+            sys.exit(1)
     else:
         try:
             conn.sudo(
@@ -618,14 +620,11 @@ def install_ungit(os_user, notebook_name, edge_ip):
             conn.run('echo "spark-warehouse/" >> ~/.gitignore')
             conn.run('echo "metastore_db/" >> ~/.gitignore')
             conn.run('echo "derby.log" >> ~/.gitignore')
-            conn.sudo(
-                'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(
+            conn.sudo('''bash -l -c 'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config' '''.format(
                     edge_ip, os_user))
-            conn.sudo(
-                'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
+            conn.sudo('''bash -l -c 'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config' '''.format(
                     edge_ip, os_user))
-            conn.sudo(
-                'echo -e "Host gitlab.com\n   HostName gitlab.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
+            conn.sudo('''bash -l -c 'echo -e "Host gitlab.com\n   HostName gitlab.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config' '''.format(
                     edge_ip, os_user))
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable ungit.service')
