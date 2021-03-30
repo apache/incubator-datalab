@@ -22,18 +22,16 @@ package com.epam.datalab.dto.gcp.exploratory;
 import com.epam.datalab.dto.exploratory.ExploratoryCreateDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.ws.rs.GET;
+
+@Getter
+@Setter
 public class ExploratoryCreateGcp extends ExploratoryCreateDTO<ExploratoryCreateGcp> {
     @JsonProperty("gcp_notebook_instance_size")
     private String notebookInstanceSize;
-
-    public String getNotebookInstanceSize() {
-        return notebookInstanceSize;
-    }
-
-    public void setNotebookInstanceSize(String notebookInstanceSize) {
-        this.notebookInstanceSize = notebookInstanceSize;
-    }
 
     public ExploratoryCreateGcp withNotebookInstanceType(String notebookInstanceType) {
         setNotebookInstanceSize(notebookInstanceType);

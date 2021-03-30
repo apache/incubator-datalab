@@ -22,10 +22,12 @@ package com.epam.datalab.dto.exploratory;
 import com.epam.datalab.dto.ResourceEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends ResourceEnvBaseDTO<T> {
-    @SuppressWarnings("unchecked")
-    private final T self = (T) this;
     @JsonProperty("notebook_image")
     private String notebookImage;
     @JsonProperty("project_name")
@@ -41,33 +43,28 @@ public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends Resourc
         this.notebookImage = notebookImage;
     }
 
+    @SuppressWarnings("unchecked")
     public T withNotebookImage(String notebookImage) {
         setNotebookImage(notebookImage);
-        return self;
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public T withProject(String project) {
         setProject(project);
-        return self;
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public T withEndpoint(String endpoint) {
         setEndpoint(endpoint);
-        return self;
+        return (T) this;
     }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
                 .add("notebookImage", notebookImage);
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
     }
 
     public String getEndpoint() {
