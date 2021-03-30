@@ -42,7 +42,7 @@ args = parser.parse_args()
 def update_spark_defaults_conf(spark_conf):
     try:
         timestamp = time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.gmtime())
-        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').stdout.split('\r\n')
+        configs = conn.sudo('find /opt/ /etc/ /usr/lib/ -name spark-defaults.conf -type f').stdout.split('\n')
         for conf in filter(None, configs):
             conn.sudo('''sed -i '/^# Updated/d' {0}'''.format(conf))
             conn.sudo('''echo "# Updated by DATALAB at {0} >> {1}'''.format(timestamp, conf))
