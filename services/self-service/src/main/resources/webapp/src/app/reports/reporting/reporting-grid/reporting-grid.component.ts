@@ -73,6 +73,7 @@ export class ReportingGridComponent implements OnInit {
   public isScrollButtonsVisible: boolean;
   public previousItem: string;
   public previousDirection: string;
+  userAgentIndex: number;
 
   @ViewChild('nameFilter') filter;
   @ViewChild('tableWrapper') tableWrapper;
@@ -100,6 +101,8 @@ export class ReportingGridComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.userAgentIndex = window.navigator.userAgent.indexOf('Firefox');
+    
     window.setTimeout(() => {
       this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
       this.checkMaxRight();
@@ -194,7 +197,7 @@ export class ReportingGridComponent implements OnInit {
     return shape.split(/(?=Slave)/g);
   }
 
-  public sctollTo(direction: string) {
+  public scrollTo(direction: string) {
     if (direction === 'left') {
       this.tableWrapper.nativeElement.scrollLeft = 0;
       this.pageWrapper.nativeElement.scrollLeft = 0;
@@ -205,15 +208,10 @@ export class ReportingGridComponent implements OnInit {
   }
 
   public checkMaxRight() {
-    if (this.reportData && this.reportData.length < 5) {
-      const arg = this.pageWrapper.nativeElement.offsetWidth - 15 +
-      this.pageWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
-      return this.isMaxRight.next(arg);
-    } else {
-      const arg = this.tableWrapper.nativeElement.offsetWidth +
-        this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
-      return this.isMaxRight.next(arg);
-    }
+    const arg = this.tableWrapper.nativeElement.offsetWidth +
+      this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+    return this.isMaxRight.next(arg);
+    
   }
 
   public onFilterNameUpdate(targetElement: any) {

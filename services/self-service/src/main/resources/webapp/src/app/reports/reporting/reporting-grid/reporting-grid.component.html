@@ -16,14 +16,51 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<div class="billing-page-wrapper scrolling" #pageWrapper [ngClass]="{'scroll': reportData?.length < 5}" (scroll)="scrollTable($event)">
+<div 
+    class="billing-page-wrapper scrolling" 
+    #pageWrapper 
+    [ngClass]="{'scroll': reportData?.length < 5}" 
+    (scroll)="scrollTable($event)">
   <div class="wrapper" #wrapper>
-      <div class="totaL-item strong" *ngIf="reportData?.length">
+    <div 
+        class="nav-buttons" 
+        [ngStyle]="tableWrapper.scrollHeight === tableWrapper.clientHeight ? {'width': '100%'} : 
+          {'width': userAgentIndex === -1 ? 'calc(100% - 3px)' : 'calc(100% - 8px)'}"
+        *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0 && reportData?.length">
+      <div class="button-container" >
+        <button 
+            mat-mini-fab aria-label="Scroll left" 
+            (click)="scrollTo('left')" 
+            [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 && reportData?.length}">
+          <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0 || pageWrapper.scrollLeft !== 0 && reportData?.length < 5}">
+            keyboard_arrow_left
+          </mat-icon>
+        </button>
+      </div>
+      <div class="button-container" [ngClass]="{'not-allowed': this.checkMaxRight()}">
+        <button mat-mini-fab aria-label="Scroll right"
+                (click)="scrollTo('right')"
+                [ngClass]="{'not-allowed': !(isMaxRight | async)}">
+          <mat-icon [ngClass]="{'highlight': isMaxRight | async }">keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+      <div class="totaL-item strong" >
         Total <span>{{fullReport.total_cost | localcurrency}}</span>
       </div>
-    <section class="table-wrapper" id="scrolling" #tableWrapper (scroll)="scrollTable($event)" [ngClass]="{'scroll': reportData?.length > 4, 'shadow-none': reportData?.length < 5}">
+    </div>
 
-      <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6" #table>
+    <div class="nav-buttons"
+        [ngStyle]="tableWrapper.scrollHeight === tableWrapper.clientHeight ? {'width': '100%'} : 
+          {'width': userAgentIndex === -1 ? 'calc(100% - 3px)' : 'calc(100% - 8px)'}" 
+        *ngIf="!(tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0) && reportData?.length">
+      <div class="totaL-item strong" >
+        Total <span>{{fullReport.total_cost | localcurrency}}</span>
+      </div>
+    </div>
+    
+    <section class="table-wrapper" id="scrolling" #tableWrapper (scroll)="scrollTable($event)" [ngStyle]="!reportData?.length && {'overflow': 'auto'}" [ngClass]="{'scroll': reportData?.length}">
+
+      <table mat-table [dataSource]="reportData" class="data-grid reporting" #table>
 
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef class="env_name label-header">
@@ -176,7 +213,7 @@
 
 
         <ng-container matColumnDef="charge" stickyEnd>
-          <th mat-header-cell *matHeaderCellDef class="th_charges label-header index-105" [ngClass]="{'right-sticky': reportData?.length < 5}">
+          <th mat-header-cell *matHeaderCellDef class="th_charges label-header index-105 charges-th" [ngClass]="{'right-sticky': reportData?.length < 5}">
             <div class="label">
               <div class="sort">
                 <div class="sort-arrow up" (click)="sortBy('cost', 'down')" [ngClass]="{'active': !!this.active['costdown']}"></div>
@@ -186,7 +223,7 @@
             </div>
           </th>
 
-          <td mat-cell *matCellDef="let element" [ngClass]="{'right-sticky': reportData?.length < 5}" >
+          <td mat-cell *matCellDef="let element" [ngClass]="{'right-sticky': reportData?.length < 5, 'charges-th': reportData?.length}" >
             {{element.cost | localcurrency }}
           </td >
           <td mat-footer-cell *matFooterCellDef class="table-footer total-cost d-none">
@@ -283,20 +320,5 @@
         <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
       </table>
     </section>
-    <div class="buttons" *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0 && reportData?.length">
-      <div class="button-container" >
-        <button mat-mini-fab aria-label="Scroll left" (click)="sctollTo('left')" [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 && reportData?.length > 4 || pageWrapper.scrollLeft === 0 && reportData?.length < 5}">
-          <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0 || pageWrapper.scrollLeft !== 0 && reportData?.length < 5}">keyboard_arrow_left</mat-icon>
-        </button>
-      </div>
-      <div class="button-container" [ngClass]="{'not-allowed': this.checkMaxRight()}">
-        <button mat-mini-fab aria-label="Scroll right"
-                (click)="sctollTo('right')"
-                [ngClass]="{'not-allowed': !(isMaxRight | async)}"
-        >
-          <mat-icon [ngClass]="{'highlight': isMaxRight | async }">keyboard_arrow_right</mat-icon>
-        </button>
-      </div>
-    </div>
   </div>
 </div>
