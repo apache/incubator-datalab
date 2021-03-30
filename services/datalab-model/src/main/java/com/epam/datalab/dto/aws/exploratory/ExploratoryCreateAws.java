@@ -22,18 +22,14 @@ package com.epam.datalab.dto.aws.exploratory;
 import com.epam.datalab.dto.exploratory.ExploratoryCreateDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class ExploratoryCreateAws extends ExploratoryCreateDTO<ExploratoryCreateAws> {
     @JsonProperty("aws_notebook_instance_type")
     private String notebookInstanceType;
-
-    public String getNotebookInstanceType() {
-        return notebookInstanceType;
-    }
-
-    public void setNotebookInstanceType(String notebookInstanceType) {
-        this.notebookInstanceType = notebookInstanceType;
-    }
 
     public ExploratoryCreateAws withNotebookInstanceType(String notebookInstanceType) {
         setNotebookInstanceType(notebookInstanceType);
