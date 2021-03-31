@@ -3,13 +3,15 @@ package com.epam.datalab.backendapi.resources;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.core.FileHandlerCallback;
+import com.epam.datalab.backendapi.core.response.folderlistener.FolderListener;
 import com.epam.datalab.backendapi.core.response.folderlistener.FolderListenerExecutor;
+import com.epam.datalab.backendapi.core.response.folderlistener.WatchItem;
+import com.epam.datalab.backendapi.core.response.folderlistener.WatchItemList;
 import com.epam.datalab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.datalab.properties.ChangePropertiesConst;
 import com.epam.datalab.properties.DynamicChangeProperties;
 import com.epam.datalab.properties.RestartForm;
 import com.epam.datalab.properties.YmlDTO;
-import com.google.common.base.Strings;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +19,13 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+
+import static com.epam.datalab.backendapi.core.response.folderlistener.WatchItem.ItemStatus.INPROGRESS;
+import static com.epam.datalab.backendapi.core.response.folderlistener.WatchItem.ItemStatus.WAIT_FOR_FILE;
 
 @Path("config")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,18 +34,13 @@ import javax.ws.rs.core.Response;
 public class ChangePropertiesResource implements ChangePropertiesConst {
 
     private final DynamicChangeProperties dynamicChangeProperties;
-    private final FolderListenerExecutor folderListenerExecutor;
-    private final FileHandlerCallback fileHandlerCallback;
-    private final CallbackHandlerDao handlerDao;
+    private final List<WatchItem.ItemStatus> inProgressStatuses = Arrays.asList(INPROGRESS, WAIT_FOR_FILE);
 
 
     @Inject
     public ChangePropertiesResource(DynamicChangeProperties dynamicChangeProperties,
-                                    ProvisioningServiceApplicationConfiguration conf, FolderListenerExecutor folderListenerExecutor, FileHandlerCallback fileHandlerCallback, CallbackHandlerDao handlerDao) {
+                                    ProvisioningServiceApplicationConfiguration conf, FolderListenerExecutor folderListenerExecutor, FileHandlerCallback fileHandlerCallback, CallbackHandlerDao handlerDao, FolderListener listener) {
         this.dynamicChangeProperties = dynamicChangeProperties;
-        this.folderListenerExecutor = folderListenerExecutor;
-        this.fileHandlerCallback = fileHandlerCallback;
-        this.handlerDao = handlerDao;
     }
 
     @GET
@@ -80,11 +84,29 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     }
 
     private void checkResponseFiles(RestartForm restartForm) {
-        boolean isNoneFinishedRequests = handlerDao.findAll().stream()
-                .anyMatch(x -> Strings.isNullOrEmpty(x.getHandler().getUUID()));
+        List<WatchItem> watchItems = new ArrayList<>();
+        //or check getFileHandlerCallback().getId()/uuid
+        boolean isNoneFinishedRequests = FolderListener.getListeners().stream()
+                .filter(FolderListener::isAlive)
+                .filter(FolderListener::isListen)
+                .map(FolderListener::getItemList)
+                .anyMatch(findAnyInStatus(watchItems, inProgressStatuses));
         if (isNoneFinishedRequests) {
-            log.info("Found unchecked response file from docker. Provisioning restart is denied");
+            log.info("Found unchecked response file from docker : {}." +
+                    " Provisioning restart is denied", watchItems);
             restartForm.setProvserv(false);
         }
+    }
+
+    private Predicate<WatchItemList> findAnyInStatus(List<WatchItem> watchItems,
+                                                     List<WatchItem.ItemStatus> statuses) {
+        return watchItemList -> {
+            for (int i = 0; i < watchItemList.size(); i++) {
+                if (statuses.contains(watchItemList.get(i).getStatus())) {
+                    watchItems.add(watchItemList.get(i));
+                }
+            }
+            return !watchItems.isEmpty();
+        };
     }
 }
