@@ -76,18 +76,18 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
             conn.sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
                  ' /tmp/{0}install_{3}.log; then  echo "" > /tmp/{0}install_{3}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
-            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace('"', "'")
-            conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout
-            conn.sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            installed_out = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout
+            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace('"', "'").replace('\n', '')
+            conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "not_found" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
+            res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout.replace('\n', '')
+            conn.sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "not_installed" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
+            installed_out = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout.replace('\n', '')
             changed_pip_pkg = False
-            if res == '':
+            if 'not_found' in res:
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
                 changed_pip_pkg = changed_pip_pkg[0]
                 conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
-                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout
+                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace('\n', '')
             if err and name not in installed_out:
                 status_msg = 'installation_error'
                 if 'ERROR: No matching distribution found for {}'.format(name) in err:
@@ -111,9 +111,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 else:
                     versions = []
 
-            conn.sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
-                 'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, name))
-            dep = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, name)).replace('\r\n', '').strip()[31:]
+            conn.sudo('cat /tmp/tee.tmp | if ! grep -w -i -E  "Installing collected packages:" > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, name))
+            dep = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, name)).stdout.replace('\n', '').strip()[31:]
             if dep == '':
                 dep = []
             else:
@@ -454,8 +453,8 @@ def install_r_pkg(requisites):
             else:
                 conn.sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dependencies = NA)\' 2>&1 | '
                          'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
-            dep = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').stdout.replace('\r\n', ' ')
-            dep_ver = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').stdout.replace('\r\n', ' ').replace(')', '').split(' ')
+            dep = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').stdout.replace('\n', ' ')
+            dep_ver = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').stdout.replace('\n', ' ').replace(')', '').split(' ')
             if dep == '':
                 dep = []
             else:
@@ -466,9 +465,9 @@ def install_r_pkg(requisites):
                     else:
                         dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
                 dep = [i for i in dep if i]
-            err = conn.sudo('cat /tmp/install_{0}.log'.format(name)).stdout.replace('"', "'")
+            err = conn.sudo('cat /tmp/install_{0}.log'.format(name)).stdout.replace('"', "'").replace('\n', '')
             conn.sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
-            res = conn.sudo('cat /tmp/install_{0}.list'.format(name)).stdout
+            res = conn.sudo('cat /tmp/install_{0}.list'.format(name)).stdout.replace('\n', '')
             if err:
                 status_msg = 'installation_error'
                 if 'couldn\'t find package \'{}\''.format(name) in err:
@@ -549,7 +548,7 @@ def install_java_pkg(requisites):
             err = conn.sudo('cat /tmp/install_{0}.log'.format(artifact)).stdout.replace('"', "'").strip()
             conn.sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
                 if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(ivy_cache_dir, artifact))
-            res = conn.sudo('cat /tmp/install_{0}.list'.format(artifact)).stdout
+            res = conn.sudo('cat /tmp/install_{0}.list'.format(artifact)).stdout.replace('\n','')
             if res:
                 conn.sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
