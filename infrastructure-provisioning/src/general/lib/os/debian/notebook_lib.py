@@ -396,12 +396,12 @@ def install_os_pkg(requisites):
                 version = 'N/A'
                 os_pkg = os_pkg[0]
             datalab.fab.conn.sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{2}.log; then echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
+                 '/tmp/os_install_{2}.log; then echo "no_error" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
             err = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout.replace('"', "'")
             datalab.fab.conn.sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
+                 '/tmp/os_install_{0}.log; then echo "no_new_pkgs" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
             dep = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout
-            if dep == '':
+            if 'no_new_pkgs' in dep:
                 dep = []
             else:
                 dep = dep[len(new_pkgs_parser): dep.find(" upgraded, ") - 1].replace('\r', '') \
@@ -411,17 +411,17 @@ def install_os_pkg(requisites):
                         dep[n] = ''
                     else:
                         datalab.fab.conn.sudo('apt show {0} 2>&1 | if ! grep Version: > '
-                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(i))
-                        dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version: ', '{} v.'.format(i))
+                 '/tmp/os_install_{0}.log; then echo "no_version" > /tmp/os_install_{0}.log;fi'.format(i))
+                        dep[n] = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(i)).stdout.replace('Version: ', '{} v.'.format(i)).replace('\n', '')
                 dep = [i for i in dep if i]
             versions = []
-            datalab.fab.conn.sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "" > /tmp/os_install_{0}.list;fi'.format(name))
-            res = datalab.fab.conn.sudo('cat /tmp/os_install_{}.list'.format(name))
-            if err:
+            datalab.fab.conn.sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "not_installed" > /tmp/os_install_{0}.list;fi'.format(name))
+            res = datalab.fab.conn.sudo('cat /tmp/os_install_{}.list'.format(name)).stdout.replace('\n', '')
+            if "no_error" not in err:
                 status_msg = 'installation_error'
                 if 'E: Unable to locate package {}'.format(name) in err:
                     status_msg = 'invalid_name'
-            elif res:
+            elif "not_installed" not in res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
@@ -434,7 +434,7 @@ def install_os_pkg(requisites):
             status.append({"group": "os_pkg", "name": name, "version": version, "status": status_msg,
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})
         datalab.fab.conn.sudo('unattended-upgrades -v')
-        datalab.fab.conn.sudo('export LC_ALL=C')
+        #datalab.fab.conn.sudo('export LC_ALL=C')
         return status
     except Exception as err:
         for os_pkg in requisites:
