@@ -20,3 +20,4 @@
 export SPARK_HOME=/opt/spark
 export SPARK_CONF_DIR=/opt/spark/conf
 export LIVY_LOG_DIR=/var/log/livy
+export PYSPARK_PYTHON=python3

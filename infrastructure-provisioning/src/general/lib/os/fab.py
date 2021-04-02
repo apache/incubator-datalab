@@ -226,7 +226,6 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             conn.sudo('mkdir -p /mnt/var')
             conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
-                conn.sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
                 conn.sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyter-notebook")
@@ -242,6 +241,14 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
+
+
+def remove_unexisting_kernel():
+    try:
+        conn.sudo('jupyter-kernelspec remove -f python3')
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
 
 def configure_docker(os_user):
     try:
@@ -831,15 +838,8 @@ def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     else:
         mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout.replace('\n','')
         instance_memory = int(mem)
-    try:
-        if instance_memory > int(os.environ['dataengine_expl_instance_memory']):
-            spark_memory = instance_memory - int(os.environ['dataengine_os_expl_memory'])
-        else:
-            spark_memory = instance_memory * int(os.environ['dataengine_os_memory']) / 100
-        return spark_memory
-    except Exception as err:
-        print('Error:', str(err))
-        return err
+    spark_memory = round(instance_memory*90/100)
+    return spark_memory
 
 
 def replace_multi_symbols(string, symbol, symbol_cut=False):
