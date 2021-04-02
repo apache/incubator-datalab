@@ -33,9 +33,9 @@ import traceback
 import urllib3
 import uuid
 import subprocess
+import datalab.fab
+import datalab.meta_lib
 from botocore.client import Config
-from datalab.fab import *
-from datalab.meta_lib import *
 from fabric import *
 from patchwork.files import exists
 
@@ -504,7 +504,7 @@ def modify_instance_sourcedescheck(instance_id):
 def tag_intance_volume(instance_id, node_name, instance_tag):
     try:
         print('volume tagging')
-        volume_list = meta_lib.get_instance_attr(instance_id, 'block_device_mappings')
+        volume_list = datalab.meta_lib.get_instance_attr(instance_id, 'block_device_mappings')
         counter = 0
         instance_tag_value = instance_tag.get('Value')
         for volume in volume_list:
@@ -1868,7 +1868,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
     try:
-        private = meta_lib.get_instance_private_ip_address(tag_name, notebook_name)
+        private = datalab.meta_lib.get_instance_private_ip_address(tag_name, notebook_name)
         env.hosts = "{}".format(private)
         env.user = "{}".format(os_user)
         env.key_filename = "{}".format(key_path)
