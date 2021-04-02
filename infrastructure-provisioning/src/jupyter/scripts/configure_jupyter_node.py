@@ -147,5 +147,7 @@ if __name__ == "__main__":
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+    print("Removing unexisting kernels")
+    removing_unexisting_kernel()
 
     conn.close()
