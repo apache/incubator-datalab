@@ -1161,8 +1161,8 @@ class GCPActions:
                 datalab.fab.conn.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
                 datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                 zeppelin_url = 'http://' + notebook_ip + ':8080/api/interpreter/setting/'
-                opener = urllib2.build_opener(urllib2.ProxyHandler({}))
-                req = opener.open(urllib2.Request(zeppelin_url))
+                opener = urllib3.build_opener(urllib3.ProxyHandler({}))
+                req = opener.open(urllib3.Request(zeppelin_url))
                 r_text = req.read()
                 interpreter_json = json.loads(r_text)
                 interpreter_prefix = dataproc_name
@@ -1170,7 +1170,7 @@ class GCPActions:
                     if interpreter_prefix in interpreter['name']:
                         print("Interpreter with ID: {} and name: {} will be removed from zeppelin!".format(
                             interpreter['id'], interpreter['name']))
-                        request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                        request = urllib3.Request(zeppelin_url + interpreter['id'], data='')
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
                         print(url.read())
@@ -1468,8 +1468,8 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
                 'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
             datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
             zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
-            opener = urllib2.build_opener(urllib2.ProxyHandler({}))
-            req = opener.open(urllib2.Request(zeppelin_url))
+            opener = urllib3.build_opener(urllib3.ProxyHandler({}))
+            req = opener.open(urllib3.Request(zeppelin_url))
             r_text = req.read()
             interpreter_json = json.loads(r_text)
             interpreter_prefix = cluster_name
@@ -1477,7 +1477,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
                 if interpreter_prefix in interpreter['name']:
                     print("Interpreter with ID: {} and name: {} will be removed from zeppelin!".format(
                         interpreter['id'], interpreter['name']))
-                    request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                    request = urllib3.Request(zeppelin_url + interpreter['id'], data='')
                     request.get_method = lambda: 'DELETE'
                     url = opener.open(request)
                     print(url.read())
