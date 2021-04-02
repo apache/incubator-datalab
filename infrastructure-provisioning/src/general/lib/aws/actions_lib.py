@@ -34,7 +34,7 @@ import urllib3
 import uuid
 import subprocess
 import datalab.fab
-import datalab.meta_lib
+from datalab.meta_lib import *
 from botocore.client import Config
 from fabric import *
 from patchwork.files import exists
