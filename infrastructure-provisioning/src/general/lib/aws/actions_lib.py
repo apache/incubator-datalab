@@ -1514,7 +1514,7 @@ def create_aws_config_files(generate_full_config=False):
 
         logging.info(subprocess.run("chmod 600 " + aws_user_dir + "/*" + " 2>&1", capture_output=True, shell=True, check=True))
         logging.info(subprocess.run("chmod 550 " + aws_user_dir + " 2>&1", capture_output=True, shell=True, check=True))
-
+        subprocess.run("cat " + aws_user_dir, capture_output=True, shell=True, check=True)
         return True
     except Exception as err:
         print('Error: {0}'.format(err))
