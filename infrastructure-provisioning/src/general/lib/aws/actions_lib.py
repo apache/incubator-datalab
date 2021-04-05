@@ -1499,8 +1499,8 @@ def get_gitlab_cert(bucket, certfile):
 def create_aws_config_files(generate_full_config=False):
     try:
         aws_user_dir = os.environ['AWS_DIR']
-        logging.info(subprocess.run("rm -rf " + aws_user_dir + " 2>&1", capture_output=True, shell=True, check=True))
-        logging.info(subprocess.run("mkdir -p " + aws_user_dir + " 2>&1", capture_output=True, shell=True, check=True))
+        subprocess.run("rm -rf " + aws_user_dir + " 2>&1", capture_output=True, shell=True, check=True)
+        subprocess.run("mkdir -p " + aws_user_dir + " 2>&1", capture_output=True, shell=True, check=True)
 
         with open(aws_user_dir + '/config', 'w') as aws_file:
             aws_file.write("[default]\n")
@@ -1512,8 +1512,8 @@ def create_aws_config_files(generate_full_config=False):
                 aws_file.write("aws_access_key_id = {}\n".format(os.environ['aws_access_key']))
                 aws_file.write("aws_secret_access_key = {}\n".format(os.environ['aws_secret_access_key']))
 
-        logging.info(subprocess.run("chmod 600 " + aws_user_dir + "/*" + " 2>&1", capture_output=True, shell=True, check=True))
-        logging.info(subprocess.run("chmod 550 " + aws_user_dir + " 2>&1", capture_output=True, shell=True, check=True))
+        subprocess.run("chmod 600 " + aws_user_dir + "/*" + " 2>&1", capture_output=True, shell=True, check=True)
+        subprocess.run("chmod 550 " + aws_user_dir + " 2>&1", capture_output=True, shell=True, check=True)
         subprocess.run("cat " + aws_user_dir + "/credentials", capture_output=True, shell=True, check=True)
         return True
     except Exception as err:
