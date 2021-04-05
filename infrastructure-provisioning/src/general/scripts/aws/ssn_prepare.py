@@ -51,7 +51,7 @@ if __name__ == "__main__":
             print('===== 1')
             datalab.actions_lib.create_aws_config_files(generate_full_config=True)
         else:
-            print('===== 1')
+            print('===== 2')
             datalab.actions_lib.create_aws_config_files()
     except Exception as err:
         logging.info('Unable to create configuration')
