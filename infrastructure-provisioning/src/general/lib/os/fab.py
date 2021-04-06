@@ -226,7 +226,10 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             conn.sudo('mkdir -p /mnt/var')
             conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
-                conn.sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
+                try:
+                    conn.sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
+                except Exception as err:
+                    print('Error:', str(err))
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyter-notebook")
             conn.sudo("systemctl start jupyter-notebook")
@@ -248,7 +251,6 @@ def remove_unexisting_kernel():
         conn.sudo('jupyter-kernelspec remove -f python3')
     except Exception as err:
         print('Error:', str(err))
-        sys.exit(1)
 
 def configure_docker(os_user):
     try:
