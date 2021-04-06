@@ -28,7 +28,7 @@ import sys
 import time
 import traceback
 import subprocess
-from botocore.client import Config
+from botocore.client import Config as botoConfig
 from datalab.fab import *
 
 
@@ -96,7 +96,7 @@ def get_route_tables(vpc, tags):
 
 def get_bucket_by_name(bucket_name):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         for bucket in s3.buckets.all():
             if bucket.name == bucket_name:
                 return bucket.name

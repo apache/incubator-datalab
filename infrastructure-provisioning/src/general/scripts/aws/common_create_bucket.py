@@ -23,8 +23,8 @@
 
 import argparse
 import sys
-from datalab.actions_lib import *
-from datalab.meta_lib import *
+from datalab.actions_lib import create_s3_bucket
+from datalab.meta_lib import get_bucket_by_name
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')

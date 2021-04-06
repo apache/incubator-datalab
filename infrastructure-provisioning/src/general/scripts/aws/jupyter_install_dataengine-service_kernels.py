@@ -83,7 +83,7 @@ if __name__ == "__main__":
     hadoop_version = get_hadoop_version(args.cluster_name)
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3_client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/scala_version',
                             '/tmp/scala_version')
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/python_version',

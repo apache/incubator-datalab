@@ -29,7 +29,7 @@ import re
 import sys
 import time
 import traceback
-from botocore.client import Config
+from botocore.client import Config as botoConfig
 from datalab.actions_lib import *
 from datalab.meta_lib import *
 from fabric import *
@@ -141,7 +141,7 @@ out.close()
 
 def get_object_count(bucket, prefix):
     try:
-        s3_cli = boto3.client('s3', config=Config(signature_version='s3v4'),
+        s3_cli = boto3.client('s3', config=botoConfig(signature_version='s3v4'),
                               region_name=args.region)
         content = s3_cli.get_paginator('list_objects')
         file_list = []
@@ -163,7 +163,7 @@ def get_object_count(bucket, prefix):
 
 def upload_jars_parser(args):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         s3.meta.client.upload_file('/root/scripts/dataengine-service_jars_parser.py',
                                    args.s3_bucket, 'jars_parser.py',
                                    ExtraArgs={'ServerSideEncryption': 'AES256'})
@@ -176,7 +176,7 @@ def upload_jars_parser(args):
 
 def upload_user_key(args):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         s3.meta.client.upload_file(args.key_dir + '/' +
                                    args.project_name + '.pub',
                                    args.s3_bucket, args.project_name +
@@ -197,7 +197,7 @@ def upload_user_key(args):
 def remove_user_key(args):
     try:
         client = boto3.client('s3',
-                              config=Config(signature_version='s3v4'),
+                              config=botoConfig(signature_version='s3v4'),
                               region_name=args.region)
         client.delete_object(Bucket=args.s3_bucket,
                              Key=args.project_name + '.pub')

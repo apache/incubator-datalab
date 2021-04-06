@@ -25,7 +25,7 @@ from ConfigParser import ConfigParser
 from fabric import *
 import argparse
 import boto3
-from botocore.client import Config
+from botocore.client import Config as botoConfig`
 import sys
 import os
 
@@ -143,7 +143,7 @@ def get_ec2_ip(instance_id):
 
 def put_to_bucket(bucket_name, local_file, destination_file):
     try:
-        s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        s3 = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=os.environ['aws_region'])
         with open(local_file, 'rb') as data:
             s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'ServerSideEncryption': 'AES256'})
     except Exception as err:
