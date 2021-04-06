@@ -108,7 +108,7 @@
                   class="library-input"
                   [placeholder]="'Enter library version (optional)'"
                   [(ngModel)]="lib.version"
-                  [disabled]="!lib.name.trim()"
+                  [disabled]="!lib.name.trim() || lib.name.trim().length < 2"
                   (keyup)="validateVersion(lib.version)"
                   (keydown.enter)="addLibrary(lib)"
                 >
