@@ -23,7 +23,6 @@ import ast
 import backoff
 import boto3
 import botocore
-import datalab.fab
 import json
 import logging
 import os
@@ -35,8 +34,7 @@ import uuid
 import subprocess
 import datalab.fab
 from datalab.meta_lib import *
-from botocore.client import Config
-from fabric import *
+from botocore.client import Config as botoConfig
 from patchwork.files import exists
 
 
@@ -52,7 +50,7 @@ def backoff_log(err):
 
 def put_to_bucket(bucket_name, local_file, destination_file):
     try:
-        s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        s3 = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=os.environ['aws_region'])
         with open(local_file, 'rb') as data:
             s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'ServerSideEncryption': 'AES256'})
         return True
@@ -67,12 +65,12 @@ def put_to_bucket(bucket_name, local_file, destination_file):
 
 def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         if region == "us-east-1":
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
-        boto3.client('s3', config=Config(signature_version='s3v4')).put_bucket_encryption(
+        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_encryption(
             Bucket=bucket_name, ServerSideEncryptionConfiguration={
                 'Rules': [
                     {
@@ -1044,8 +1042,8 @@ def remove_all_iam_resources(instance_type, project_name='', endpoint_name=''):
 
 
 def s3_cleanup(bucket, cluster_name, user_name):
-    s3_res = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+    s3_res = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
+    client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=os.environ['aws_region'])
     try:
         client.head_bucket(Bucket=bucket)
     except:
@@ -1065,7 +1063,7 @@ def s3_cleanup(bucket, cluster_name, user_name):
 
 def remove_s3(bucket_type='all', scientist=''):
     try:
-        client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=os.environ['aws_region'])
         s3 = boto3.resource('s3')
         bucket_list = []
         if bucket_type == 'ssn':
@@ -1260,22 +1258,22 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                 env.user = "{}".format(ssh_user)
                 env.key_filename = "{}".format(key_path)
                 env.host_string = env.user + "@" + env.hosts
-                conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, emr_name))
-                if exists(conn, '/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name)):
+                datalab.fab.conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, emr_name))
+                if exists(datalab.fab.conn, '/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name)):
                     if os.environ['notebook_multiple_clusters'] == 'true':
                         try:
-                            livy_port = conn.sudo("cat /opt/" + emr_version + "/" + emr_name +
+                            livy_port = datalab.fab.conn.sudo("cat /opt/" + emr_version + "/" + emr_name +
                                              "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | "
                                              "awk '{printf $3}'").stdout.replace('\n','')
-                            process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                            process_number = datalab.fab.conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                                   "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
-                            conn.sudo('kill -9 ' + process_number)
-                            conn.sudo('systemctl disable livy-server-' + livy_port)
+                            datalab.fab.conn.sudo('kill -9 ' + process_number)
+                            datalab.fab.conn.sudo('systemctl disable livy-server-' + livy_port)
                         except:
                             print("Wasn't able to find Livy server for this EMR!")
-                    conn.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" '
+                    datalab.fab.conn.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" '
                          '/opt/zeppelin/conf/zeppelin-env.sh')
-                    conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
+                    datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                     zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
                     opener = urllib3.build_opener(urllib3.ProxyHandler({}))
                     req = opener.open(urllib3.Request(zeppelin_url))
@@ -1290,23 +1288,23 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                             request.get_method = lambda: 'DELETE'
                             url = opener.open(request)
                             print(url.read())
-                    conn.sudo('chown ' + ssh_user + ':' + ssh_user + ' -R /opt/zeppelin/')
-                    conn.sudo('systemctl daemon-reload')
-                    conn.sudo("service zeppelin-notebook stop")
-                    conn.sudo("service zeppelin-notebook start")
+                    datalab.fab.conn.sudo('chown ' + ssh_user + ':' + ssh_user + ' -R /opt/zeppelin/')
+                    datalab.fab.conn.sudo('systemctl daemon-reload')
+                    datalab.fab.conn.sudo("service zeppelin-notebook stop")
+                    datalab.fab.conn.sudo("service zeppelin-notebook start")
                     zeppelin_restarted = False
                     while not zeppelin_restarted:
-                        conn.sudo('sleep 5')
-                        result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
+                        datalab.fab.conn.sudo('sleep 5')
+                        result = datalab.fab.conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
                         result = result[:1]
                         if result == '1':
                             zeppelin_restarted = True
-                    conn.sudo('sleep 5')
-                    conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user,
+                    datalab.fab.conn.sudo('sleep 5')
+                    datalab.fab.conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user,
                                                                                                         emr_name))
-                if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
+                if exists(datalab.fab.conn, '/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                     datalab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
-                conn.sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
+                datalab.fab.conn.sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print("Notebook's {} kernels were removed".format(env.hosts))
         else:
             print("There are no notebooks to clean kernels.")
@@ -1423,7 +1421,7 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
 
 
 def install_emr_spark(args):
-    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3_client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark.tar.gz',
                             '/tmp/spark.tar.gz')
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark-checksum.chk',
@@ -1440,7 +1438,7 @@ def install_emr_spark(args):
 
 def jars(args, emr_dir):
     print("Downloading jars...")
-    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3_client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars-checksum.chk', '/tmp/jars-checksum.chk')
     if 'WARNING' in subprocess.run('md5sum -c /tmp/jars-checksum.chk', capture_output=True, shell=True, check=True):
@@ -1455,13 +1453,13 @@ def jars(args, emr_dir):
 def yarn(args, yarn_dir):
     print("Downloading yarn configuration...")
     if args.region == 'cn-north-1':
-        s3client = boto3.client('s3', config=Config(signature_version='s3v4'),
+        s3client = boto3.client('s3', config=botoConfig(signature_version='s3v4'),
                                 endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=args.region)
-        s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'),
+        s3resource = boto3.resource('s3', config=botoConfig(signature_version='s3v4'),
                                     endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=args.region)
     else:
-        s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
-        s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=args.region)
+        s3resource = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
     get_files(s3client, s3resource, args.project_name + '/' + args.cluster_name + '/config/', args.bucket, yarn_dir)
     subprocess.run('sudo mv ' + yarn_dir + args.project_name + '/' + args.cluster_name + '/config/* ' + yarn_dir, shell=True, check=True)
     subprocess.run('sudo rm -rf ' + yarn_dir + args.project_name + '/', shell=True, check=True)
@@ -1481,7 +1479,7 @@ def get_files(s3client, s3resource, dist, bucket, local):
 
 
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
-    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
+    s3_client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=region)
     s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
 
 
@@ -1622,16 +1620,16 @@ def spark_defaults(args):
 
 
 def ensure_local_jars(os_user, jars_dir):
-    if not exists(conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
+    if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            conn.sudo('mkdir -p {0}'.format(jars_dir))
-            conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
+            datalab.fab.conn.sudo('mkdir -p {0}'.format(jars_dir))
+            datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
                     {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
-            conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
+            datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
                     {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
-            # conn.sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
+            # datalab.fab.conn.sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
             #         {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
-            conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)
 
@@ -1640,41 +1638,41 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
         # Checking if spark.jars parameter was generated previously
         spark_jars_paths = None
-        if exists(conn, '/opt/spark/conf/spark-defaults.conf'):
+        if exists(datalab.fab.conn, '/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
+                spark_jars_paths = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
             except:
                 spark_jars_paths = None
-        region = conn.sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone').stdout[:-1]
+        region = datalab.fab.conn.sudo('curl http://169.254.169.254/latest/meta-data/placement/availability-zone').stdout[:-1]
         if region == 'us-east-1':
             endpoint_url = 'https://s3.amazonaws.com'
         elif region == 'cn-north-1':
             endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
         else:
             endpoint_url = 'https://s3-' + region + '.amazonaws.com'
-        conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-        conn.sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(
+        datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        datalab.fab.conn.sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(
             endpoint_url))
-        conn.sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
+        datalab.fab.conn.sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
              '/tmp/notebook_spark-defaults_local.conf')
-        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
-            conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
-        conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
+        if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
+            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
+        datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if os.environ['application'] == 'zeppelin':
-            conn.sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> '
+            datalab.fab.conn.sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> '
                                                            '/tmp/notebook_spark-defaults_local.conf')
-        conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        datalab.fab.conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
-            conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            conn.sudo('''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
+            datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            datalab.fab.conn.sudo('''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
                                                                                               spark_memory))
         if 'spark_configurations' in os.environ:
-            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
+            datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
+            spark_defaults = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':
@@ -1687,13 +1685,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
+            datalab.fab.conn.sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
-                conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
-            conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+                datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
+            datalab.fab.conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
-                conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))
+                datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1872,21 +1870,21 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
         env.user = "{}".format(os_user)
         env.key_filename = "{}".format(key_path)
         env.host_string = env.user + "@" + env.hosts
-        conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
-        if exists(conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+        datalab.fab.conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+        if exists(datalab.fab.conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
             if os.environ['notebook_multiple_clusters'] == 'true':
                 try:
-                    livy_port = conn.sudo("cat /opt/" + cluster_name +
+                    livy_port = datalab.fab.conn.sudo("cat /opt/" + cluster_name +
                                      "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
-                    process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                    process_number = datalab.fab.conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                           "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
-                    conn.sudo('kill -9 ' + process_number)
-                    conn.sudo('systemctl disable livy-server-' + livy_port)
+                    datalab.fab.conn.sudo('kill -9 ' + process_number)
+                    datalab.fab.conn.sudo('systemctl disable livy-server-' + livy_port)
                 except:
                     print("Wasn't able to find Livy server for this EMR!")
-            conn.sudo(
+            datalab.fab.conn.sudo(
                 'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-            conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+            datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
             zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
             opener = urllib3.build_opener(urllib3.ProxyHandler({}))
             req = opener.open(urllib3.Request(zeppelin_url))
@@ -1901,22 +1899,22 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
                     request.get_method = lambda: 'DELETE'
                     url = opener.open(request)
                     print(url.read())
-            conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-            conn.sudo('systemctl daemon-reload')
-            conn.sudo("service zeppelin-notebook stop")
-            conn.sudo("service zeppelin-notebook start")
+            datalab.fab.conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+            datalab.fab.conn.sudo('systemctl daemon-reload')
+            datalab.fab.conn.sudo("service zeppelin-notebook stop")
+            datalab.fab.conn.sudo("service zeppelin-notebook start")
             zeppelin_restarted = False
             while not zeppelin_restarted:
-                conn.sudo('sleep 5')
-                result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
+                datalab.fab.conn.sudo('sleep 5')
+                result = datalab.fab.conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
                 result = result[:1]
                 if result == '1':
                     zeppelin_restarted = True
-            conn.sudo('sleep 5')
-            conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
-        if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+            datalab.fab.conn.sudo('sleep 5')
+            datalab.fab.conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+        if exists(datalab.fab.conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
             datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
-        conn.sudo('rm -rf  /opt/' + cluster_name + '/')
+        datalab.fab.conn.sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
         logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -1927,26 +1925,26 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
 
 
 def prepare_disk(os_user):
-    if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
-            conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
-            conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
-            conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+            disk_name = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
+            datalab.fab.conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
+            datalab.fab.conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            datalab.fab.conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            datalab.fab.conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
+            datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except:
             sys.exit(1)
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists(conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
-            conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-            conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-            conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-            conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-            conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+            datalab.fab.conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            datalab.fab.conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            datalab.fab.conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            datalab.fab.conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
@@ -1973,7 +1971,7 @@ def find_des_jars(all_jars, des_path):
                     all_jars.remove(j)
         additional_jars = ['hadoop-aws', 'aws-java-sdk-s3', 'hadoop-lzo', 'aws-java-sdk-core']
         aws_filter = '\|'.join(additional_jars)
-        aws_jars = conn.sudo('find {0} -name *.jar | grep "{1}"'.format(des_path, aws_filter)).stdout.split('\r\n')
+        aws_jars = datalab.fab.conn.sudo('find {0} -name *.jar | grep "{1}"'.format(des_path, aws_filter)).stdout.split('\r\n')
         all_jars.extend(aws_jars)
         return all_jars
     except Exception as err:
