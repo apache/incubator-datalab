@@ -268,6 +268,22 @@ def ensure_python3_libraries(os_user):
         except:
             sys.exit(1)
 
+def install_nvidia_drivers(os_user)
+    if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nvidia_ensured'.format(os_user)):
+        try:
+            # install nvidia drivers
+            datalab.fab.conn.sudo('wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin')
+            datalab.fab.conn.sudo('mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600')
+            datalab.fab.conn.sudo('apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub')
+            datalab.fab.conn.sudo('add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"')
+            manage_pkg('update', 'remote', '')
+            manage_pkg('-y install', 'remote', 'cuda')
+            #clean space on disk
+            manage_pkg('clean', 'remote', 'all')
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nvidia_ensured'.format(os_user))
+        except Exception as err:
+            print('Failed to install_nvidia_drivers: ', str(err))
+            sys.exit(1)
 
 def install_tensor(os_user, cuda_version, cuda_file_name,
                    cudnn_version, cudnn_file_name, tensorflow_version,
