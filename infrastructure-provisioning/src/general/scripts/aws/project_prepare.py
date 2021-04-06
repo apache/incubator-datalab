@@ -425,9 +425,8 @@ if __name__ == "__main__":
                 datalab.fab.append_result("Failed creating security group for edge node.", str(err))
                 raise Exception
 
-            with hide('stderr', 'running', 'warnings'):
-                print('Waiting for changes to propagate')
-                time.sleep(10)
+            print('Waiting for changes to propagate')
+            time.sleep(10)
         except:
             datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
             datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
@@ -506,9 +505,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
 
-        with hide('stderr', 'running', 'warnings'):
-            print('Waiting for changes to propagate')
-            time.sleep(10)
+        print('Waiting for changes to propagate')
+        time.sleep(10)
     except Exception as err:
         datalab.fab.append_result("Failed creating security group for private subnet.", str(err))
         datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
