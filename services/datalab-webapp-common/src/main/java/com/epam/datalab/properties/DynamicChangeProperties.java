@@ -117,7 +117,7 @@ public class DynamicChangeProperties implements ChangePropertiesConst {
 
     private String readFileAsString(String selfServicePropPath, String serviceName) {
         try {
-            log.info("Trying to read self-service.yml, file from path {} :", selfServicePropPath);
+            log.info("Trying to read {}, file from path {} :", serviceName, selfServicePropPath);
             String currentConf = FileUtils.readFileToString(new File(selfServicePropPath), Charset.defaultCharset());
             return hideSecretsAndRemoveLicence(currentConf);
         } catch (IOException e) {

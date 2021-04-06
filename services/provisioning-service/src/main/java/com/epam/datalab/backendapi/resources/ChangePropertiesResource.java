@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 import static com.epam.datalab.backendapi.core.response.folderlistener.WatchItem.ItemStatus.INPROGRESS;
 import static com.epam.datalab.backendapi.core.response.folderlistener.WatchItem.ItemStatus.WAIT_FOR_FILE;
 
-@Path("config")
+@Path("/config")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Slf4j
@@ -36,10 +36,9 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     private final DynamicChangeProperties dynamicChangeProperties;
     private final List<WatchItem.ItemStatus> inProgressStatuses = Arrays.asList(INPROGRESS, WAIT_FOR_FILE);
 
-
     @Inject
     public ChangePropertiesResource(DynamicChangeProperties dynamicChangeProperties,
-                                    ProvisioningServiceApplicationConfiguration conf, FolderListenerExecutor folderListenerExecutor, FileHandlerCallback fileHandlerCallback, CallbackHandlerDao handlerDao, FolderListener listener) {
+                                    ProvisioningServiceApplicationConfiguration conf) {
         this.dynamicChangeProperties = dynamicChangeProperties;
     }
 
