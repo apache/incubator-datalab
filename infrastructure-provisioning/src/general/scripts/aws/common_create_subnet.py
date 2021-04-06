@@ -52,7 +52,7 @@ if __name__ == "__main__":
             private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
             vpc = ec2.Vpc(args.vpc_id)
             vpc_cidr = vpc.cidr_block
-            first_vpc_ip = int(ipaddress.IPv4Address(vpc_cidr.split('/')[0].decode("utf-8")))
+            first_vpc_ip = int(ipaddress.IPv4Address(vpc_cidr.split('/')[0]))
             subnets = list(vpc.subnets.all())
             subnets_cidr = []
             for subnet in subnets:
@@ -68,7 +68,7 @@ if __name__ == "__main__":
             last_ip = first_vpc_ip
             previous_subnet_size = private_subnet_size
             for cidr in sorted_subnets_cidr:
-                first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
+                first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0]))
                 if first_ip - last_ip < private_subnet_size or previous_subnet_size < private_subnet_size:
                     subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
                     last_ip = first_ip + subnet_size - 1
