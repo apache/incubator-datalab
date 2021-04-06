@@ -113,7 +113,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
       )
       .subscribe(value => {
-        this.lib.name = value;
+        if(!!value.match(/\s+/g)) {
+          this.libSearch.setValue(value.replace(/\s+/g, ''))
+          this.lib.name = value.replace(/\s+/g, '');
+        } else {
+          this.lib.name = value;
+        }
         this.isDuplicated(this.lib);
         this.filterList();
       });
