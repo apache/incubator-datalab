@@ -48,10 +48,8 @@ if __name__ == "__main__":
         logging.info('[CREATE AWS CONFIG FILE]')
         print('[CREATE AWS CONFIG FILE]')
         if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
-            print('===== 1')
             datalab.actions_lib.create_aws_config_files(generate_full_config=True)
         else:
-            print('===== 2')
             datalab.actions_lib.create_aws_config_files()
     except Exception as err:
         logging.info('Unable to create configuration')

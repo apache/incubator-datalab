@@ -591,7 +591,7 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None, us
     if service == 'ec2':
         try:
             conn.create_instance_profile(InstanceProfileName=role_profile)
-            waiter = conn.get_waiter('instance_profile_exists').stdout
+            waiter = conn.get_waiter('instance_profile_exists')
             waiter.wait(InstanceProfileName=role_profile)
         except botocore.exceptions.ClientError as e_profile:
             if e_profile.response['Error']['Code'] == 'EntityAlreadyExists':
@@ -1499,8 +1499,8 @@ def get_gitlab_cert(bucket, certfile):
 def create_aws_config_files(generate_full_config=False):
     try:
         aws_user_dir = os.environ['AWS_DIR']
-        subprocess.run("rm -rf " + aws_user_dir + " 2>&1", shell=True, check=True)
-        subprocess.run("mkdir -p " + aws_user_dir + " 2>&1", shell=True, check=True)
+        subprocess.run("rm -rf " + aws_user_dir, shell=True, check=True)
+        subprocess.run("mkdir -p " + aws_user_dir, shell=True, check=True)
 
         with open(aws_user_dir + '/config', 'w') as aws_file:
             aws_file.write("[default]\n")
@@ -1514,7 +1514,6 @@ def create_aws_config_files(generate_full_config=False):
 
         subprocess.run("chmod 600 " + aws_user_dir + "/*" + " 2>&1", shell=True, check=True)
         subprocess.run("chmod 550 " + aws_user_dir + " 2>&1", shell=True, check=True)
-        subprocess.run("cat " + aws_user_dir + "/credentials", shell=True, check=True)
         return True
     except Exception as err:
         print('Error: {0}'.format(err))
