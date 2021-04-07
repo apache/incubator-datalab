@@ -91,7 +91,11 @@ export class BubbleComponent implements OnDestroy {
         if (this.alternative) {
           this.changeDirection = !this.isInViewport(bubbleElem);
 
-          const isBubbleOutOfWrapper = bubbleElem.getBoundingClientRect().bottom > document.querySelector('.wrapper').getBoundingClientRect().bottom;
+          let isBubbleOutOfWrapper;
+          
+          if(document.querySelector('.wrapper')) {
+            isBubbleOutOfWrapper = bubbleElem.getBoundingClientRect().bottom > document.querySelector('.wrapper').getBoundingClientRect().bottom;
+          }
           
           (this.changeDirection || isBubbleOutOfWrapper) && this.bubbleService.updatePosition(element, bubbleElem, this.alternative);
         }
