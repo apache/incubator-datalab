@@ -25,6 +25,7 @@ import argparse
 import os
 from datalab.actions_lib import *
 from fabric import *
+from datalab.fab import replace_multi_symbols
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
