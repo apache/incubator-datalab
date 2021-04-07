@@ -38,7 +38,7 @@ import javax.ws.rs.core.Response;
 @RolesAllowed("sysinfo")
 public class SystemInfoResource {
 
-    private SystemInfoService systemInfoService;
+    private final SystemInfoService systemInfoService;
 
     @Inject
     public SystemInfoResource(SystemInfoService systemInfoService) {

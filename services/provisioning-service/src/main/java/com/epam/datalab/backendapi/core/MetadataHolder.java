@@ -19,7 +19,6 @@
 
 package com.epam.datalab.backendapi.core;
 
-
 import com.epam.datalab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.datalab.dto.imagemetadata.ImageType;
 

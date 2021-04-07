@@ -48,7 +48,7 @@ import java.util.List;
 public class UserSettingsResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsResource.class);
 
-    private UserSettingService userSettingService;
+    private final UserSettingService userSettingService;
 
     @Inject
     public UserSettingsResource(UserSettingService userSettingService) {
