@@ -235,7 +235,7 @@ if __name__ == "__main__":
     try:
         logging.info('[POST CONFIGURING PROCESS]')
         print('[POST CONFIGURING PROCESS')
-        if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None']:
+        if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None', '']:
             params = "--hostname {} --keyfile {} --os_user {} --nb_tag_name {} --nb_tag_value {}" \
                 .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
                         notebook_config['tag_name'], notebook_config['instance_name'])
