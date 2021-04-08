@@ -62,7 +62,8 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
             sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"')
+                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install_version(\'roxygen2\', version = \'6.1.1\', '
+                     'repos = \'https://cloud.r-project.org\', dependencies = NA)" R -e "devtools::check(\'.\')"')
             except:
                 pass
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
