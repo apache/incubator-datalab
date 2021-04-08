@@ -42,28 +42,19 @@ import java.util.Map;
 public class GcpComputationalResource extends UserComputationalResource {
 
     @JsonProperty("instance_id")
-    private final String instanceId;
+    private String instanceId;
     @JsonProperty("master_node_shape")
-    private final String masterShape;
+    private String masterShape;
     @JsonProperty("slave_node_shape")
-    private final String slaveShape;
+    private String slaveShape;
     @JsonProperty("total_slave_instance_number")
-    private final String slaveNumber;
+    private String slaveNumber;
     @JsonProperty("total_master_instance_number")
-    private final String masterNumber;
+    private String masterNumber;
     @JsonProperty("total_preemptible_number")
-    private final String preemptibleNumber;
+    private String preemptibleNumber;
     @JsonProperty("dataproc_version")
-    private final String version;
-    @JsonProperty("masterGPUType")
-    private final String masterGPUType;
-    @JsonProperty("slaveGPUType")
-    private final String slaveGPUType;
-    @JsonProperty("masterGPUCount")
-    private final String masterGPUCount;
-    @JsonProperty("slaveGPUCount")
-    private final String slaveGPUCount;
-    private final Boolean enabledGPU;
+    private String version;
 
     @Builder
     public GcpComputationalResource(String computationalName, String computationalId, String imageName,
@@ -72,9 +63,7 @@ public class GcpComputationalResource extends UserComputationalResource {
                                     String instanceId, String masterShape, String slaveShape, String slaveNumber,
                                     String masterNumber, String preemptibleNumber, String version,
                                     List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-                                    Map<String, String> tags, int totalInstanceCount,
-                                    String masterGPUCount, String masterGPUType, String slaveGPUCount,
-                                    String slaveGPUType, Boolean enabledGPU) {
+                                    Map<String, String> tags, int totalInstanceCount) {
         super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
                 reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
         this.instanceId = instanceId;

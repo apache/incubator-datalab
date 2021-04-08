@@ -23,9 +23,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.datalab.backendapi.service.InfrastructureInfoService;
 import com.epam.datalab.dto.InfrastructureMetaInfoDTO;
-import com.epam.datalab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.datalab.exceptions.DatalabException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;
@@ -36,11 +34,17 @@ import org.junit.Test;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.refEq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class InfrastructureInfoResourceTest extends TestBase {
 

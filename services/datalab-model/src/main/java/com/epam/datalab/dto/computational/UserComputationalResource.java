@@ -72,19 +72,8 @@ public class UserComputationalResource {
     @JsonProperty("emr_version")
     private String awsClusterVersion;
     private int totalInstanceCount;
-    @JsonProperty("masterGPUType")
-    private  String masterGPUType;
-    @JsonProperty("slaveGPUType")
-    private  String slaveGPUType;
-    @JsonProperty("masterGPUCount")
-    private  String masterGPUCount;
-    @JsonProperty("slaveGPUCount")
-    private  String slaveGPUCount;
-    private  boolean enabledGPU;
-
     protected List<ClusterConfig> config;
     private Map<String, String> tags;
-
 
     public UserComputationalResource(String computationalName, String computationalId, String imageName,
                                      String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,

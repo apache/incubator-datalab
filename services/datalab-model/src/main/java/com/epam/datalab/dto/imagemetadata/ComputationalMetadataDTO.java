@@ -20,7 +20,6 @@
 package com.epam.datalab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -45,11 +44,7 @@ public class ComputationalMetadataDTO extends ImageMetadataDTO {
     @JsonProperty("request_id")
     private String requestId;
     @JsonProperty(value = "computation_resources_shapes")
-    @JsonUnwrapped
     private Map<String, List<ComputationalResourceShapeDto>> computationResourceShapes;
-    //GPU
-    @JsonProperty("gpu_types")
-    private List<ComputationalGPU> computationGPU;
 
     public ComputationalMetadataDTO(String imageName) {
         this.image = imageName;

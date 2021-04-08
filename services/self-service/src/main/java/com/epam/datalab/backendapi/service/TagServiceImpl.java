@@ -30,16 +30,12 @@ import java.util.Optional;
 public class TagServiceImpl implements TagService {
 
     @Override
-    public Map<String, String> getResourceTags(UserInfo userInfo, String endpoint, String project,
-                                               String customTag, boolean gpuEnabled) {
+    public Map<String, String> getResourceTags(UserInfo userInfo, String endpoint, String project, String customTag) {
         Map<String, String> tags = new HashMap<>();
         tags.put("user_tag", userInfo.getName());
         tags.put("endpoint_tag", endpoint);
         tags.put("project_tag", project);
         Optional.ofNullable(customTag).ifPresent(t -> tags.put("custom_tag", t));
-        if (gpuEnabled) {
-            tags.put("gpu_tag", "gpu");
-        }
         return tags;
     }
 }

@@ -358,10 +358,6 @@ public class RequestBuilder {
                         .withMasterInstanceType(gcpForm.getMasterInstanceType())
                         .withSlaveInstanceType(gcpForm.getSlaveInstanceType())
                         .withVersion(gcpForm.getVersion())
-                        .withMasterGPUCount(gcpForm.getMasterGPUCount())
-                        .withMasterGPUType(gcpForm.getMasterGPUType())
-                        .withSlaveGPUCount(gcpForm.getSlaveGPUCount())
-                        .withSlaveGPUType(gcpForm.getSlaveGPUType())
                         .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
                 break;
 

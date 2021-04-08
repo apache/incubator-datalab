@@ -1,7 +1,7 @@
 package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.properties.ChangePropertiesConst;
-import com.epam.datalab.properties.DynamicChangeProperties;
+import com.epam.datalab.properties.ExternalChangeProperties;
 import com.epam.datalab.properties.RestartForm;
 import com.epam.datalab.properties.YmlDTO;
 import com.epam.datalab.auth.UserInfo;
@@ -17,20 +17,20 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("config")
+@Path("/config")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ChangePropertiesResource implements ChangePropertiesConst {
 
     private final EndpointDAO endpointDAO;
-    private final DynamicChangeProperties dynamicChangeProperties;
+    private final ExternalChangeProperties externalChangeProperties;
     private final String deployedOn;
 
     @Inject
-    public ChangePropertiesResource(EndpointDAO endpointDAO, DynamicChangeProperties dynamicChangeProperties,
+    public ChangePropertiesResource(EndpointDAO endpointDAO, ExternalChangeProperties externalChangeProperties,
                                     SelfServiceApplicationConfiguration selfServiceApplicationConfiguration) {
         this.endpointDAO = endpointDAO;
-        this.dynamicChangeProperties = dynamicChangeProperties;
+        this.externalChangeProperties = externalChangeProperties;
         deployedOn = selfServiceApplicationConfiguration.getDeployed();
     }
 
@@ -40,7 +40,7 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
         if (UserRoles.isAdmin(userInfo)) {
             String url = findEndpointDTO(endpoint).getUrl() + ChangePropertiesConst.BASE_CONFIG_URL;
             return Response
-                    .ok(dynamicChangeProperties.getPropertiesWithExternal(endpoint, userInfo, url))
+                    .ok(externalChangeProperties.getPropertiesWithExternal(endpoint, userInfo, url))
                     .build();
         } else {
             return Response
@@ -54,10 +54,10 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response overwriteExternalSelfServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
             if (deployedOn.equals("GKE")) {
-                dynamicChangeProperties.overwritePropertiesWithExternal(GKE_SELF_SERVICE_PATH, GKE_SELF_SERVICE,
+                externalChangeProperties.overwritePropertiesWithExternal(GKE_SELF_SERVICE_PATH, GKE_SELF_SERVICE,
                         ymlDTO, userInfo, null);
             } else {
-                dynamicChangeProperties.overwritePropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE,
+                externalChangeProperties.overwritePropertiesWithExternal(SELF_SERVICE_PROP_PATH, SELF_SERVICE,
                         ymlDTO, userInfo, null);
             }
             return Response.status(Response.Status.OK).build();
@@ -73,7 +73,7 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response overwriteExternalProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
             String url = findEndpointDTO(ymlDTO.getEndpointName()).getUrl() + ChangePropertiesConst.BASE_MULTIPLE_CONFIG_URL;
-            dynamicChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
+            externalChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
                     ymlDTO, userInfo, url);
             return Response.status(Response.Status.OK).build();
         } else {
@@ -88,7 +88,7 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response overwriteExternalBillingProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
             String url = findEndpointDTO(ymlDTO.getEndpointName()).getUrl() + ChangePropertiesConst.BASE_MULTIPLE_CONFIG_URL;
-            dynamicChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE,
+            externalChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE,
                     ymlDTO, userInfo, url);
             return Response.status(Response.Status.OK).build();
         } else {
@@ -104,10 +104,10 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response restartWithExternal(@Auth UserInfo userInfo, RestartForm restartForm) {
         if (UserRoles.isAdmin(userInfo)) {
             if (deployedOn.equals("GKE")) {
-                dynamicChangeProperties.restartForExternalForGKE(userInfo, restartForm);
+                externalChangeProperties.restartForExternalForGKE(userInfo, restartForm);
             } else {
                 String url = findEndpointDTO(restartForm.getEndpoint()).getUrl() + ChangePropertiesConst.RESTART_URL;
-                dynamicChangeProperties.restartForExternal(restartForm, userInfo, url);
+                externalChangeProperties.restartForExternal(restartForm, userInfo, url);
             }
             return Response.ok().build();
         } else {

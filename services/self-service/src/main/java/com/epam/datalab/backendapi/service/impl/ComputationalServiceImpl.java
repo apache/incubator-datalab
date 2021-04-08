@@ -21,7 +21,12 @@ package com.epam.datalab.backendapi.service.impl;
 
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.annotation.*;
+import com.epam.datalab.backendapi.annotation.Audit;
+import com.epam.datalab.backendapi.annotation.BudgetLimited;
+import com.epam.datalab.backendapi.annotation.Info;
+import com.epam.datalab.backendapi.annotation.Project;
+import com.epam.datalab.backendapi.annotation.ResourceName;
+import com.epam.datalab.backendapi.annotation.User;
 import com.epam.datalab.backendapi.dao.ComputationalDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
@@ -30,7 +35,11 @@ import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ComputationalTemplatesDTO;
 import com.epam.datalab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
-import com.epam.datalab.backendapi.service.*;
+import com.epam.datalab.backendapi.service.ComputationalService;
+import com.epam.datalab.backendapi.service.EndpointService;
+import com.epam.datalab.backendapi.service.InfrastructureTemplateService;
+import com.epam.datalab.backendapi.service.ProjectService;
+import com.epam.datalab.backendapi.service.TagService;
 import com.epam.datalab.backendapi.util.RequestBuilder;
 import com.epam.datalab.constants.ServiceConsts;
 import com.epam.datalab.dto.UserInstanceDTO;
@@ -39,7 +48,11 @@ import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.base.DataEngineType;
 import com.epam.datalab.dto.base.computational.ComputationalBase;
 import com.epam.datalab.dto.base.computational.FullComputationalTemplate;
-import com.epam.datalab.dto.computational.*;
+import com.epam.datalab.dto.computational.ComputationalClusterConfigDTO;
+import com.epam.datalab.dto.computational.ComputationalStatusDTO;
+import com.epam.datalab.dto.computational.ComputationalTerminateDTO;
+import com.epam.datalab.dto.computational.SparkStandaloneClusterResource;
+import com.epam.datalab.dto.computational.UserComputationalResource;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
 import com.epam.datalab.rest.client.RESTService;
@@ -49,12 +62,26 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.*;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECONFIGURE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.STOP;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.UPDATE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
-import static com.epam.datalab.dto.UserInstanceStatus.*;
+import static com.epam.datalab.dto.UserInstanceStatus.CREATING;
+import static com.epam.datalab.dto.UserInstanceStatus.FAILED;
+import static com.epam.datalab.dto.UserInstanceStatus.RECONFIGURING;
+import static com.epam.datalab.dto.UserInstanceStatus.STARTING;
+import static com.epam.datalab.dto.UserInstanceStatus.STOPPING;
+import static com.epam.datalab.dto.UserInstanceStatus.TERMINATING;
 import static com.epam.datalab.dto.base.DataEngineType.CLOUD_SERVICE;
 import static com.epam.datalab.dto.base.DataEngineType.SPARK_STANDALONE;
 import static com.epam.datalab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
@@ -135,7 +162,7 @@ public class ComputationalServiceImpl implements ComputationalService {
                 exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, form.getNotebookName());
         final SparkStandaloneClusterResource compResource = createInitialComputationalResource(form);
         compResource.setTags(tagService.getResourceTags(userInfo, instance.getEndpoint(), project,
-                form.getCustomTag(), false));
+                form.getCustomTag()));
         if (computationalDAO.addComputational(userInfo.getName(), form.getNotebookName(), project, compResource)) {
             try {
                 EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
@@ -198,7 +225,7 @@ public class ComputationalServiceImpl implements ComputationalService {
         final UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, formDTO
                 .getNotebookName());
         final Map<String, String> tags = tagService.getResourceTags(userInfo, instance.getEndpoint(), project,
-                formDTO.getCustomTag(), formDTO.isGpuTag());
+                formDTO.getCustomTag());
         computationalResource.setTags(tags);
         boolean isAdded = computationalDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(), project,
                 computationalResource);

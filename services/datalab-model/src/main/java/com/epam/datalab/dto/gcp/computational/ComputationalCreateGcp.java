@@ -38,14 +38,6 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     private String version;
     @JsonProperty("conf_shared_image_enabled")
     private String sharedImageEnabled;
-    @JsonProperty("masterGPUType")
-    private String masterGPUType;
-    @JsonProperty("slaveGPUType")
-    private String slaveGPUType;
-    @JsonProperty("masterGPUCount")
-    private String masterGPUCount;
-    @JsonProperty("slaveGPUCount")
-    private String slaveGPUCount;
 
     public ComputationalCreateGcp withMasterInstanceCount(String masterInstanceCount) {
         this.masterInstanceCount = masterInstanceCount;
@@ -77,28 +69,6 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
         return this;
     }
 
-    public ComputationalCreateGcp withMasterGPUType(String masterGPUType) {
-        this.masterGPUType = masterGPUType;
-        return this;
-    }
-
-    public ComputationalCreateGcp withSlaveGPUType(String slaveGPUType) {
-        this.slaveGPUType = slaveGPUType;
-        return this;
-    }
-
-    public ComputationalCreateGcp withMasterGPUCount(String masterGPUCount) {
-        this.masterGPUCount = masterGPUCount;
-        return this;
-    }
-
-    public ComputationalCreateGcp withSlaveGPUCount(String slaveGPUCount) {
-        this.slaveGPUCount = slaveGPUCount;
-        return this;
-    }
-
-
-
     public String getSharedImageEnabled() {
         return sharedImageEnabled;
     }
@@ -126,21 +96,5 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     @Override
     public String toString() {
         return toStringHelper(this).toString();
-    }
-
-    public String getSlaveGPUCount() {
-        return slaveGPUCount;
-    }
-
-    public String getMasterGPUCount() {
-        return masterGPUCount;
-    }
-
-    public String getSlaveGPUType() {
-        return slaveGPUType;
-    }
-
-    public String getMasterGPUType() {
-        return masterGPUType;
     }
 }
