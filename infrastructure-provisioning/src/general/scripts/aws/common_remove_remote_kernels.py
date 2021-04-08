@@ -23,8 +23,8 @@
 
 import argparse
 import sys
-from datalab.actions_lib import *
-from datalab.fab import *
+from datalab.actions_lib import remove_dataengine_kernels, remove_kernels
+from datalab.fab import init_datalab_connection, find_cluster_kernels
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -39,7 +39,7 @@ args = parser.parse_args()
 if __name__ == "__main__":
     print('Configure connections')
     global conn
-    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+    conn = init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     try:
         de_clusters, des_clusters = find_cluster_kernels()
