@@ -246,7 +246,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sys.exit(1)
 
 
-def remove_unexisting_kernel():
+def remove_unexisting_kernel(os_user):
     if not exists(conn,'/home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user)):
         try:
             conn.sudo('jupyter-kernelspec remove -f python3')
