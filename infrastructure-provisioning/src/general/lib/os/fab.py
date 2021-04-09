@@ -879,13 +879,11 @@ def update_pyopenssl_lib(os_user):
 
 def find_cluster_kernels():
     try:
-        with settings(sudo_user='root'):
-            de = [i for i in conn.sudo('find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | '
-                                  'cut -f 1 -d "/" | rev | xargs -r').split(' ') if i != '']
-            des =  [i for i in conn.sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
-                                    'cut -f 1,2 -d "/" | rev | xargs -r').split(' ') if i != '']
+        de = [i for i in conn.sudo('''bash -l -c 'find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | cut -f 1 -d "/" | rev | xargs -r' ''').stdout.replace('\n', '').split(' ') if i != '']
+        des =  [i for i in conn.sudo('''bash -l -c 'find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | cut -f 1,2 -d "/" | rev | xargs -r' ''').stdout.replace('\n', '').split(' ') if i != '']
         return (de, des)
-    except:
+    except Exception as err:
+        print('Failed to find cluster kernels.', str(err))
         sys.exit(1)
 
 

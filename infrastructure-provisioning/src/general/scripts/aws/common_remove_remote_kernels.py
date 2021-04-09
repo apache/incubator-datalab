@@ -48,8 +48,8 @@ if __name__ == "__main__":
         for cluster in des_clusters:
             remove_kernels(cluster.split('/')[1], args.nb_tag_name, args.nb_tag_value,
                            args.os_user, args.keyfile, cluster.split('/')[0])
+        conn.close()
+        sys.exit(0)
     except Exception as err:
         print('Failed to remove cluster kernels.', str(err))
         sys.exit(1)
-    conn.close()
-    sys.exit(0)
