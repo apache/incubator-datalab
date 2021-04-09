@@ -247,10 +247,13 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
 
 
 def remove_unexisting_kernel():
-    try:
-        conn.sudo('jupyter-kernelspec remove -f python3')
-    except Exception as err:
-        print('Error:', str(err))
+    if not exists(conn,'/home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user)):
+        try:
+            conn.sudo('jupyter-kernelspec remove -f python3')
+            conn.sudo('touch /home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user))
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 def configure_docker(os_user):
     try:
