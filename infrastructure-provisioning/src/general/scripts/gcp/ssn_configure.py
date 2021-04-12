@@ -526,6 +526,14 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        logging.info('[GET AVAILABLE GPU TYPES]')
+        ssn_conf['gpu_types'] = GCPMeta.get_list_gpu_types(ssn_conf['zone'])
+    except Exception as err:
+        datalab.fab.datalab.fab.append_result("Unable to get available GPU types.", str(err))
+        clear_resources()
+        sys.exit(1)
+
+    try:
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(ssn_conf['service_base_name']))
@@ -539,6 +547,7 @@ if __name__ == "__main__":
         print("SSN instance size: {}".format(ssn_conf['instance_size']))
         print("SSN AMI name: {}".format(ssn_conf['image_name']))
         print("Region: {}".format(ssn_conf['region']))
+        print("Available GPU types: {}".format(ssn_conf['gpu_types'])
         jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_hostname'])
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_hostname'])
         print("Jenkins URL: {}".format(jenkins_url))
@@ -562,6 +571,7 @@ if __name__ == "__main__":
                    "security_id": ssn_conf['firewall_name'],
                    "instance_shape": ssn_conf['instance_size'],
                    "region": ssn_conf['region'],
+                   "gpu_types": ssn_conf['gpu_types'],
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
