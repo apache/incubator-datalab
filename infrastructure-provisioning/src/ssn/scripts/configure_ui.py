@@ -158,7 +158,7 @@ def build_ui():
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        conn.sudo('bash -c "cd {}sources/ && /opt/maven/bin/mvn -P{} -DskipTests package > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
+        conn.sudo('bash -c "cd {}sources/ && /opt/maven/bin/mvn -P{} -DskipTests package 2>&1 > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
         conn.run('if ! grep -w -E "(ERROR)" /tmp/maven.log > /tmp/maven_error.log; then echo "no_error" > /tmp/maven_error.log;fi')
         conn.run('cat /tmp/maven_error.log')
         conn.sudo('mkdir -p {}webapp/'.format(args.datalab_path))
