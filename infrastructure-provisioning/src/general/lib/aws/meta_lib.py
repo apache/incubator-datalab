@@ -149,7 +149,7 @@ def get_instance_ip_address_by_id(instance_id):
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
-        actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
         return get_instance_ip_address(tag_name, instance_name).get('Private')
     except Exception as err:
         logging.error("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
