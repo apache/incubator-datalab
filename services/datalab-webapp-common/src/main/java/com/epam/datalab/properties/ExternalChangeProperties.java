@@ -3,23 +3,26 @@ package com.epam.datalab.properties;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.constants.ServiceConsts;
 import com.epam.datalab.rest.client.RESTService;
-import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 public class ExternalChangeProperties implements ChangePropertiesConst {
-    private final RESTService externalSelfService;
+    private final RESTService externalService;
+    private final RESTService provService;
     private final ChangePropertiesService changePropertiesService;
 
     @Inject
-    public ExternalChangeProperties(@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-                                           RESTService externalSelfService, ChangePropertiesService changePropertiesService) {
-        this.externalSelfService = externalSelfService;
+    public ExternalChangeProperties(RESTService externalService,
+                                    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provService,
+                                    ChangePropertiesService changePropertiesService) {
+        this.externalService = externalService;
+        this.provService = provService;
         this.changePropertiesService = changePropertiesService;
     }
 
@@ -33,23 +36,32 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
 
     public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo, String url) {
         Map<String, String> properties = new HashMap<>();
-        if (endpoint.equals(ChangePropertiesConst.LOCAL_ENDPOINT_NAME)) {
-            properties.put(ChangePropertiesConst.SELF_SERVICE, getProperties(ChangePropertiesConst.SELF_SERVICE_PROP_PATH, ChangePropertiesConst.SELF_SERVICE));
-            properties.put(ChangePropertiesConst.PROVISIONING_SERVICE, getProperties(ChangePropertiesConst.PROVISIONING_SERVICE_PROP_PATH, ChangePropertiesConst.PROVISIONING_SERVICE));
-            properties.put(ChangePropertiesConst.BILLING_SERVICE, getProperties(ChangePropertiesConst.BILLING_SERVICE_PROP_PATH, ChangePropertiesConst.BILLING_SERVICE));
+        log.info("TEST LOG!!!: endpoint: {}, local const: {}",
+                endpoint, LOCAL_ENDPOINT_NAME);
+        if (endpoint.equals(LOCAL_ENDPOINT_NAME)) {
+            log.info("TEST LOG!!!: LOCAL");
+            properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
+            properties.put(PROVISIONING_SERVICE, getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE));
+            properties.put(BILLING_SERVICE, getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE));
+
         } else {
+            log.info("TEST LOG!!!: EXTERNAL");
             log.info("Trying to read properties, for external endpoint : {} , for user: {}",
                     endpoint, userInfo.getSimpleName());
-            properties.put(ChangePropertiesConst.PROVISIONING_SERVICE,
-                    externalSelfService.get(url + "/provisioning-service", userInfo.getAccessToken(), String.class));
-            properties.put(ChangePropertiesConst.BILLING_SERVICE,
-                    externalSelfService.get(url + "/billing", userInfo.getAccessToken(), String.class));
+            String provPath = url + "/provisioning-service";
+            log.info("TEST LOG!!!: provPath: {}", provPath);
+            properties.put(PROVISIONING_SERVICE,
+                    externalService.get(provPath, userInfo.getAccessToken(), String.class));
+            String billPath = url + "/billing";
+            log.info("TEST LOG!!!: provPath: {}", provPath);
+            properties.put(BILLING_SERVICE,
+                    externalService.get(billPath, userInfo.getAccessToken(), String.class));
         }
         return properties;
     }
 
-    public void overwritePropertiesWithExternal(String path, String name, YmlDTO ymlDTO, UserInfo userInfo,
-                                                String url) {
+    public void overwritePropertiesWithExternal(String path, String name, YmlDTO ymlDTO,
+                                                UserInfo userInfo, String url) {
         log.info("Trying to write {}, for external endpoint : {} , for user: {}",
                 name, ymlDTO.getEndpointName(), userInfo.getSimpleName());
         if (ymlDTO.getEndpointName().equals(ChangePropertiesConst.LOCAL_ENDPOINT_NAME)
@@ -57,18 +69,23 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
                 || name.equals(GKE_SELF_SERVICE)) {
             changePropertiesService.writeFileFromString(ymlDTO.getYmlString(), name, path);
         } else {
+
             url += findMethodName(name);
-            externalSelfService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
+            log.info("TEST LOG: on external call method , url for the next step: {}", url);
+            externalService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
         }
     }
 
 
     public void restartForExternal(RestartForm restartForm, UserInfo userInfo, String url) {
         if (restartForm.getEndpoint().equals(LOCAL_ENDPOINT_NAME)) {
+            provService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
+            restartForm.setProvserv(false);
+            restartForm.setBilling(false);
             changePropertiesService.restart(restartForm);
         } else {
             log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
-            externalSelfService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
+            externalService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
         }
     }
 
