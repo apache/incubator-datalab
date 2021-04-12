@@ -547,7 +547,7 @@ if __name__ == "__main__":
         print("SSN instance size: {}".format(ssn_conf['instance_size']))
         print("SSN AMI name: {}".format(ssn_conf['image_name']))
         print("Region: {}".format(ssn_conf['region']))
-        print("Available GPU types: {}".format(ssn_conf['gpu_types'])
+        print("Available GPU types: {}".format(ssn_conf['gpu_types']))
         jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_hostname'])
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_hostname'])
         print("Jenkins URL: {}".format(jenkins_url))
