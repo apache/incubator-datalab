@@ -76,7 +76,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
             conn.sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
                  ' /tmp/{0}install_{3}.log; then  echo "" > /tmp/{0}install_{3}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
-            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace('"', "'").replace('\n', '')
+            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace('"', "'").replace('\n', ' ')
             conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "not_found" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
             res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout.replace('\n', '')
             conn.sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "not_installed" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
@@ -103,7 +103,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
                 status_msg = "installed"
             versions = []
-            if 'Could not find a version that satisfies the requirement' in err:
+            if 'Could not find a version that satisfies the requirement' in err and 'ERROR: No matching distribution found for {}=='.format(name) in err:
                 versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
                 if versions != '' and versions != 'none':
                     versions = versions.split(', ')
