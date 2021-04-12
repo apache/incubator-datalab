@@ -121,9 +121,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     if i == name:
                         dep[n] = ''
                     else:
-                        conn.sudo('{0} show {1} 2>&1 | if ! grep Version: /tmp/tee.tmp > '
+                        conn.sudo('{0} show {1} 2>&1 | if ! grep Version: > '
                              '/tmp/{0}_install_{1}.log; then echo "" > /tmp/{0}_install_{1}.log;fi'.format(pip_version, i))
-                        dep[n] = conn.sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).stdout.replace('Version: ', '{} v.'.format(i))
+                        dep[n] = conn.sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).stdout.replace('\n', '').replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             status.append({"group": lib_group, "name": name, "version": version, "status": status_msg,
                            "error_message": err, "available_versions": versions, "add_pkgs": dep})
