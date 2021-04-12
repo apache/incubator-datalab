@@ -40,7 +40,7 @@ public class CommandExecutorMock implements ICommandExecutor {
     private CommandExecutorMockAsync execAsync = null;
     private CompletableFuture<Boolean> future;
 
-    private CloudProvider cloudProvider;
+    private final CloudProvider cloudProvider;
 
     public CommandExecutorMock(CloudProvider cloudProvider) {
         this.cloudProvider = cloudProvider;
@@ -53,7 +53,7 @@ public class CommandExecutorMock implements ICommandExecutor {
      * @throws InterruptedException
      */
     public boolean getResultSync() throws InterruptedException, ExecutionException {
-        return (future == null ? true : future.get());
+        return (future == null || future.get());
     }
 
     /**
