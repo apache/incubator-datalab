@@ -290,6 +290,14 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        logging.info('[GET AVAILABLE GPU TYPES]')
+        edge_conf['gpu_types'] = GCPMeta.get_list_gpu_types(edge_conf['zone'])
+    except Exception as err:
+        datalab.fab.datalab.fab.append_result("Unable to get available GPU types.", str(err))
+        clear_resources()
+        sys.exit(1)
+
+    try:
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))
@@ -300,6 +308,7 @@ if __name__ == "__main__":
         print("Bucket name: {}".format(edge_conf['bucket_name']))
         print("Shared bucket name: {}".format(edge_conf['shared_bucket_name']))
         print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
+        print("Available GPU types: {}".format(edge_conf['gpu_types']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": edge_conf['instance_hostname'],
                    "public_ip": edge_conf['static_ip'],
@@ -313,6 +322,7 @@ if __name__ == "__main__":
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
                    "project_name": edge_conf['project_name'],
+                   "gpu_types": edge_conf['gpu_types'],
                    "@class": "com.epam.datalab.dto.gcp.edge.EdgeInfoGcp",
                    "Action": "Create new EDGE server"}
             print(json.dumps(res))
