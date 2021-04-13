@@ -74,7 +74,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             else:
                 version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            conn.sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
+            conn.sudo('{0} install -U {1} --use-deprecated=legacy-resolver --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
                  ' /tmp/{0}install_{3}.log; then  echo "" > /tmp/{0}install_{3}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
             err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace('"', "'").replace('\n', ' ')
             conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "not_found" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
@@ -88,7 +88,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
                 res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace('\n', '')
-            if err and name not in installed_out:
+            if err in installed_out and name not in installed_out:
                 status_msg = 'installation_error'
                 if 'ERROR: No matching distribution found for {}'.format(name) in err:
                     status_msg = 'invalid_name'
@@ -104,7 +104,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 status_msg = "installed"
             versions = []
             if 'Could not find a version that satisfies the requirement' in err and 'ERROR: No matching distribution found for {}=='.format(name) in err:
-                versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
+                versions = err[err.find("(from versions: ") + 16: err.find(") ")]
                 if versions != '' and versions != 'none':
                     versions = versions.split(', ')
                     status_msg = 'invalid_version'
