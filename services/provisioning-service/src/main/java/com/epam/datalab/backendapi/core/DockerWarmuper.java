@@ -156,17 +156,18 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
         //do nothing
     }
 
+    @Override
+    public String getResourceType() {
+        return Directories.NOTEBOOK_LOG_DIRECTORY;
+    }
+
     public Map<String, String> getUuids() {
         return Collections.unmodifiableMap(imageList);
     }
 
     public Set<ImageMetadataDTO> getMetadata(ImageType type) {
-        return metadataDTOs.stream().filter(m -> m.getImageType().equals(type))
+        return metadataDTOs.stream()
+                .filter(m -> m.getImageType().equals(type))
                 .collect(Collectors.toSet());
-    }
-
-    @Override
-    public String getResourceType() {
-        return Directories.NOTEBOOK_LOG_DIRECTORY;
     }
 }

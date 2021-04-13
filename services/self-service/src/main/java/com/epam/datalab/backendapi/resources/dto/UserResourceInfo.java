@@ -27,6 +27,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -54,4 +55,13 @@ public class UserResourceInfo {
     private String cloudProvider;
     @JsonProperty("exploratory_urls")
     private List<ResourceURL> exploratoryUrls;
+
+    @JsonProperty("gpu_enabled")
+    private Boolean gpuEnabled;
+    @JsonProperty("gpu_type")
+    private String gpuType;
+    @JsonProperty("gpu_count")
+    private String gpuCount;
+    @JsonProperty
+    private Map<String, String> tags;
 }

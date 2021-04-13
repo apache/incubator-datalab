@@ -17,28 +17,22 @@
  * under the License.
  */
 
-package com.epam.datalab.model.exploratory;
+package com.epam.datalab.dto.imagemetadata;
 
-import com.epam.datalab.dto.aws.computational.ClusterConfig;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-public class Exploratory {
-    private final String name;
-    private final String dockerImage;
-    private final String version;
-    private final String templateName;
-    private final String shape;
-    private final String imageName;
-    private final String endpoint;
-    private final String project;
-    private final String exploratoryTag;
-    private final List<ClusterConfig> clusterConfig;
-    private Boolean enabledGPU;
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+public class ComputationalGPU {
+
+    @JsonProperty("Size")
+    private String size;
+    @JsonProperty("Gpu_type")
     private String gpuType;
-    private String gpuCount;
 }
