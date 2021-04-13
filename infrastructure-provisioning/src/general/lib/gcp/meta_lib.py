@@ -593,7 +593,6 @@ class GCPMeta:
                 if not re.search("vws", gpu_accelerator_type):
                     data.append(gpu_accelerator_type)
             return data
-            return data
         except Exception as err:
             logging.info("Error with getting list of GPU types: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
