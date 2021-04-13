@@ -486,12 +486,12 @@ def install_r_pkg(requisites):
                     status_msg = 'invalid_name'
             elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
-                version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
+                version = ansi_escape.sub('', res).split("\n")[0].split('"')[1]
                 status_msg = 'installed'
             if 'Error in download_version_url(package, version, repos, type) :' in err or 'Error in parse_deps(paste(spec,' in err:
                 conn.sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
                 versions = conn.sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
-                                    '\'date available\' | awk \'{print $2}\'').stdout.replace('\r\n', ' ')[5:].split(' ')
+                                    '\'date available\' | awk \'{print $2}\'').stdout.replace('\n', ' ')[5:].split(' ')
                 if versions != ['']:
                     status_msg = 'invalid_version'
                 else:
