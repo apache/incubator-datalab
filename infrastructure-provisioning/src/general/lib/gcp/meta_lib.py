@@ -585,9 +585,15 @@ class GCPMeta:
     def get_list_gpu_types(self, zone):
         try:
             print('Getting available GPU types')
+            data = []
             request = self.service.acceleratorTypes().list(project=self.project, zone=zone)
             result = request.execute().get('items')
-            return result
+            for id in result:
+                gpu_accelerator_type = id.get('name')
+                if not re.search("vws", gpu_accelerator_type):
+                    data.append(gpu_accelerator_type)
+            return data
+            return data
         except Exception as err:
             logging.info("Error with getting list of GPU types: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
