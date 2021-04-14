@@ -478,7 +478,10 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                                              UserData=user_data)
         for instance in instances:
             print("Waiting for instance {} become running.".format(instance.id))
-            instance.wait_until_running()
+            try:
+                instance.wait_until_running()
+            except:
+                pass
             tag = {'Key': 'Name', 'Value': definitions.node_name}
             create_tag(instance.id, tag)
             create_tag(instance.id, instance_tag)
