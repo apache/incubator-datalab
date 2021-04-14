@@ -533,7 +533,7 @@ def update_spark_jars(jars_dir='/opt/jars'):
 
 def install_java_pkg(requisites):
     status = list()
-    error_parser = "ERROR|error|No such|no such|Please run|requires|module not found"
+    error_parser = "ERROR|error|No such|no such|Please run|requires|module not found|Exception"
     templates_dir = '/root/templates/'
     ivy_dir = '/opt/ivy'
     ivy_cache_dir = '{0}/cache/'.format(ivy_dir)
@@ -554,9 +554,7 @@ def install_java_pkg(requisites):
             conn.sudo('mkdir -p {0}'.format(ivy_cache_dir))
             group, artifact, version, override = java_pkg
             print("Installing package (override: {3}): {0}:{1}:{2}".format(group, artifact, version, override))
-            conn.sudo('{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; \
-                if ! grep -w -E  "({7})" /tmp/tee.tmp > /tmp/install_{5}.log; then echo "" > /tmp/install_{5}.log;fi'
-                 .format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser, java_proxy))
+            conn.sudo('''bash -c "{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  \\"({7})\\" /tmp/tee.tmp > /tmp/install_{5}.log; then echo \\"\\" > /tmp/install_{5}.log;fi" '''.format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser, java_proxy))
             err = conn.sudo('cat /tmp/install_{0}.log'.format(artifact)).stdout.replace('"', "'").strip()
             conn.sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
                 if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(ivy_cache_dir, artifact))
