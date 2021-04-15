@@ -797,7 +797,7 @@ def get_ec2_price(instance_shape, region):
         # Price API require full name of region, for example: eu-west-1 -> 'EU (Ireland)'
         # endpoints will be loaded from: botocore/botocore/data/endpoints.json
         data = client._loader._cache.get(('load_data', 'endpoints'))
-        standard_partition = filter(lambda x: 'AWS Standard' == x['partitionName'], data['partitions'])[0]
+        standard_partition = next(filter(lambda x: 'AWS Standard' == x['partitionName'], data['partitions']))
         region_description = standard_partition['regions'][region]['description']
 
         response = client.get_products(
