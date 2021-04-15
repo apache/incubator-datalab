@@ -308,7 +308,7 @@ if __name__ == "__main__":
                     emr_conf['additional_emr_sg_name'],
                     emr_conf['configurations'])
         try:
-            subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params))
+            subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
