@@ -1142,24 +1142,22 @@ class GCPActions:
     def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path, computational_name):
         try:
             notebook_ip = datalab.meta_lib.GCPMeta().get_private_ip_address(notebook_name)
-            env.hosts = "{}".format(notebook_ip)
-            env.user = "{}".format(ssh_user)
-            env.key_filename = "{}".format(key_path)
-            env.host_string = env.user + "@" + env.hosts
-            datalab.fab.conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
-            if exists(datalab.fab.conn, '/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
+            global con
+            con = datalab.fab.init_datalab_connection(notebook_ip, ssh_user, key_path)
+            con.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
+            if exists(con, '/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
-                        livy_port = datalab.fab.conn.sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
+                        livy_port = con.sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
                                          + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
-                        process_number = datalab.fab.conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                        process_number = con.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                               "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
-                        datalab.fab.conn.sudo('kill -9 ' + process_number)
-                        datalab.fab.conn.sudo('systemctl disable livy-server-' + livy_port)
+                        con.sudo('kill -9 ' + process_number)
+                        con.sudo('systemctl disable livy-server-' + livy_port)
                     except:
                         print("Wasn't able to find Livy server for this EMR!")
-                datalab.fab.conn.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-                datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
+                con.sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                con.sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                 zeppelin_url = 'http://' + notebook_ip + ':8080/api/interpreter/setting/'
                 opener = urllib3.build_opener(urllib3.ProxyHandler({}))
                 req = opener.open(urllib3.Request(zeppelin_url))
@@ -1174,21 +1172,21 @@ class GCPActions:
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
                         print(url.read())
-                datalab.fab.conn.sudo('chown {0}:{0} -R /opt/zeppelin/'.format(ssh_user))
-                datalab.fab.conn.sudo('systemctl restart zeppelin-notebook.service')
+                con.sudo('chown {0}:{0} -R /opt/zeppelin/'.format(ssh_user))
+                con.sudo('systemctl restart zeppelin-notebook.service')
                 zeppelin_restarted = False
                 while not zeppelin_restarted:
-                    datalab.fab.conn.sudo('sleep 5')
-                    result = datalab.fab.conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout.replace('\n','')
+                    con.sudo('sleep 5')
+                    result = con.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout.replace('\n','')
                     result = result[:1]
                     if result == '1':
                         zeppelin_restarted = True
-                datalab.fab.conn.sudo('sleep 5')
-                datalab.fab.conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
-            if exists(datalab.fab.conn, '/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
+                con.sudo('sleep 5')
+                con.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
+            if exists(con, '/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                 datalab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
-            datalab.fab.conn.sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
-            print("Notebook's {} kernels were removed".format(env.hosts))
+            con.sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
+            print("Notebook's {} kernels were removed".format(notebook_ip))
         except Exception as err:
             logging.info(
                 "Unable to delete dataproc kernels from notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
@@ -1448,25 +1446,23 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
     try:
         computational_name = os.environ['computational_name'].replace('_', '-').lower()
         private = datalab.meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
-        env.hosts = "{}".format(private)
-        env.user = "{}".format(os_user)
-        env.key_filename = "{}".format(key_path)
-        env.host_string = env.user + "@" + env.hosts
-        datalab.fab.conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
-        if exists(datalab.fab.conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+        global con
+        con = datalab.fab.init_datalab_connection(private, ssh_user, key_path)
+        con.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+        if exists(con, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
             if os.environ['notebook_multiple_clusters'] == 'true':
                 try:
-                    livy_port = datalab.fab.conn.sudo("cat /opt/" + cluster_name +
+                    livy_port = con.sudo("cat /opt/" + cluster_name +
                                      "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
-                    process_number = datalab.fab.conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                    process_number = con.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
                                           "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
-                    datalab.fab.conn.sudo('kill -9 ' + process_number)
-                    datalab.fab.conn.sudo('systemctl disable livy-server-' + livy_port)
+                    con.sudo('kill -9 ' + process_number)
+                    con.sudo('systemctl disable livy-server-' + livy_port)
                 except:
                     print("Wasn't able to find Livy server for this EMR!")
-            datalab.fab.conn.sudo(
+            con.sudo(
                 'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-            datalab.fab.conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+            con.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
             zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
             opener = urllib3.build_opener(urllib3.ProxyHandler({}))
             req = opener.open(urllib3.Request(zeppelin_url))
@@ -1481,23 +1477,23 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
                     request.get_method = lambda: 'DELETE'
                     url = opener.open(request)
                     print(url.read())
-            datalab.fab.conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-            datalab.fab.conn.sudo('systemctl daemon-reload')
-            datalab.fab.conn.sudo("service zeppelin-notebook stop")
-            datalab.fab.conn.sudo("service zeppelin-notebook start")
+            con.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+            con.sudo('systemctl daemon-reload')
+            con.sudo("service zeppelin-notebook stop")
+            con.sudo("service zeppelin-notebook start")
             zeppelin_restarted = False
             while not zeppelin_restarted:
-                datalab.fab.conn.sudo('sleep 5')
-                result = datalab.fab.conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
+                con.sudo('sleep 5')
+                result = con.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
                 result = result[:1]
                 if result == '1':
                     zeppelin_restarted = True
-            datalab.fab.conn.sudo('sleep 5')
-            datalab.fab.conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
-        if exists(datalab.fab.conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+            con.sudo('sleep 5')
+            con.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+        if exists(con, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
             datalab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
-        datalab.fab.conn.sudo('rm -rf  /opt/' + cluster_name + '/')
-        print("Notebook's {} kernels were removed".format(env.hosts))
+        con.sudo('rm -rf  /opt/' + cluster_name + '/')
+        print("Notebook's {} kernels were removed".format(private))
     except Exception as err:
         logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))

@@ -1303,7 +1303,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                 if exists(con, '/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                     datalab.fab.remove_rstudio_dataengines_kernel(computational_name, ssh_user)
                 con.sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
-                print("Notebook's {} kernels were removed".format(env.hosts))
+                print("Notebook's {} kernels were removed".format(private))
                 con.close()
         else:
             print("There are no notebooks to clean kernels.")
@@ -1912,7 +1912,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
         if exists(con, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
             datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
         con.sudo('rm -rf  /opt/' + cluster_name + '/')
-        print("Notebook's {} kernels were removed".format(env.hosts))
+        print("Notebook's {} kernels were removed".format(private))
         con.close()
     except Exception as err:
         logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
