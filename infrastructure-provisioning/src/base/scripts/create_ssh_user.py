@@ -45,7 +45,7 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
         conn.sudo('bash -c "echo \'{} ALL = NOPASSWD:ALL\' >> /etc/sudoers"'.format(os_user))
         conn.sudo('mkdir /home/{}/.ssh'.format(os_user))
         conn.sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
-        conn.sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
+        conn.sudo('''bash -c 'cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys' '''.format(initial_user, os_user))
         conn.sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
         conn.sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
         conn.sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
