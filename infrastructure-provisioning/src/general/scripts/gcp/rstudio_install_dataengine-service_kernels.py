@@ -54,7 +54,7 @@ def configure_notebook(args):
     conn.sudo('chmod 755 /usr/local/bin/create_configs.py')
     conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
     conn.run('mkdir -p /tmp/datalab_libs/')
-    subprocess.run('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string), shell=True, check=True)
+    subprocess.run('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, args.notebook_ip), shell=True, check=True)
     conn.run('chmod a+x /tmp/datalab_libs/*')
     conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists(conn, '/usr/lib64'):
@@ -63,10 +63,8 @@ def configure_notebook(args):
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     configure_notebook(args)
     spark_version = datalab.actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'spark')
     hadoop_version = datalab.actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'hadoop')

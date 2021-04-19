@@ -970,10 +970,8 @@ class AzureActions:
     def remove_dataengine_kernels(self, resource_group_name, notebook_name, os_user, key_path, cluster_name):
         try:
             private = meta_lib.AzureMeta().get_private_ip_address(resource_group_name, notebook_name)
-            env.hosts = "{}".format(private)
-            env.user = "{}".format(os_user)
-            env.key_filename = "{}".format(key_path)
-            env.host_string = env.user + "@" + env.hosts
+            global conn
+            conn = datalab.fab.init_datalab_connection(private, os_user, key_path)
             conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
             if exists(conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
                 if os.environ['notebook_multiple_clusters'] == 'true':
@@ -1019,7 +1017,7 @@ class AzureActions:
             if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
                 datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
             conn.sudo('rm -rf  /opt/' + cluster_name + '/')
-            print("Notebook's {} kernels were removed".format(env.hosts))
+            print("Notebook's {} kernels were removed".format(private))
         except Exception as err:
             logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))

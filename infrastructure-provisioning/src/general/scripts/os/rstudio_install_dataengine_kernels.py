@@ -70,18 +70,16 @@ def create_inactivity_log(master_ip, hoststring):
     conn.sudo('''bash -l -c "date +%s > /opt/inactivity/{}_inactivity" '''.format(reworked_ip))
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     try:
         region = os.environ['aws_region']
     except:
         region = ''
     if 'spark_configurations' not in os.environ:
         os.environ['spark_configurations'] = '[]'
-    configure_notebook(args.keyfile, env.host_string)
-    create_inactivity_log(args.spark_master_ip, env.host_string)
+    configure_notebook(args.keyfile, args.notebook_ip)
+    create_inactivity_log(args.spark_master_ip, args.notebook_ip)
     conn.sudo('/usr/bin/python3 /usr/local/bin/rstudio_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
          '--datalake_enabled {} --spark_configurations "{}"'.

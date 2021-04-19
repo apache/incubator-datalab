@@ -53,7 +53,7 @@ def configure_notebook(args):
     conn.sudo('chmod 755 /usr/local/bin/rstudio_dataengine-service_create_configs.py')
     conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
     conn.run('mkdir -p /tmp/datalab_libs/')
-    conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
+    conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, args.notebook_ip))
     conn.run('chmod a+x /tmp/datalab_libs/*')
     conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists(conn, '/usr/lib64'):
@@ -62,10 +62,8 @@ def configure_notebook(args):
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     configure_notebook(args)
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
