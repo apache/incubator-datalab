@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package com.epam.datalab.backendapi.core.commands;
 
 import com.fasterxml.jackson.core.JsonParser;

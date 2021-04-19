@@ -19,7 +19,6 @@
 
 package com.epam.datalab.backendapi.resources.base;
 
-
 import com.epam.datalab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.core.Directories;
 import com.epam.datalab.backendapi.core.FileHandlerCallback;

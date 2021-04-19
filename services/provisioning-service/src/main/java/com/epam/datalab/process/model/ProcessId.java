@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.epam.datalab.process.model;
 
 public class ProcessId {

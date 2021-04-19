@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package com.epam.datalab.backendapi;
 
 import com.epam.datalab.auth.UserInfo;
