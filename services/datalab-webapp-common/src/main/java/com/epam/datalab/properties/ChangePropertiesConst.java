@@ -20,7 +20,7 @@ public interface ChangePropertiesConst {
     String RESTART_URL = "/api/config/restart";
     String LOCAL_ENDPOINT_NAME = "local";
     String BASE_CONFIG_URL = "/api/config";
-    String BASE_MULTIPLE_CONFIG_URL = "/api/config/multiple/";
+    String EXTERNAL_OVERWRITE_URL = "/api/config/";
 
     String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
     String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
