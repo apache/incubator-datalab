@@ -48,7 +48,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-
 @Singleton
 public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerWarmuper.class);

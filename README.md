@@ -416,7 +416,7 @@ DataLab can be deployed using the following two methods:
                 "s3:DeleteObject",
                 "s3:GetObject",
                 "s3:ListBucket",
-                "s3:PutEncryptionConfiguration"
+                "s3:PutEncryptionConfiguration",
                 "s3:ListAllMyBuckets",
                 "s3:CreateBucket",
                 "s3:PutBucketTagging",

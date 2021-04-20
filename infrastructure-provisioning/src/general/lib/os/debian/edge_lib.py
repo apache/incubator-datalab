@@ -127,11 +127,37 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
 
             datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && ./configure' ''')
             datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && make install' ''')
-            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/' ''')
-            datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/' ''')
+            try:
+                allow = False
+                counter = 0
+                while not allow:
+                    if counter > 5:
+                        sys.exit(1)
+                    else:
+                        if 'Could not fetch' in datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/' ''').stdout \
+                                or 'Could not fetch' in datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/' ''').stdout:
+                            counter += 1
+                            time.sleep(10)
+                        else:
+                            allow = True
+            except:
+                sys.exit(1)
 
-            datalab.fab.conn.sudo('luarocks install lua-resty-jwt 0.2.2')
-            datalab.fab.conn.sudo('luarocks install lua-resty-openidc')
+            try:
+                allow = False
+                counter = 0
+                while not allow:
+                    if counter > 5:
+                        sys.exit(1)
+                    else:
+                        if 'Could not fetch' in datalab.fab.conn.sudo('luarocks install lua-resty-jwt 0.2.2').stdout \
+                                or 'Could not fetch' in datalab.fab.conn.sudo('luarocks install lua-resty-openidc').stdout:
+                            counter += 1
+                            time.sleep(10)
+                        else:
+                            allow = True
+            except:
+                sys.exit(1)
 
             datalab.fab.conn.sudo('useradd -r nginx')
 

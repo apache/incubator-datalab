@@ -19,7 +19,6 @@
 
 package com.epam.datalab.backendapi.dao;
 
-
 import com.epam.datalab.backendapi.util.DateRemoverUtil;
 import com.epam.datalab.dto.ResourceURL;
 import com.epam.datalab.dto.SchedulerJobDTO;
