@@ -30,8 +30,9 @@ parser.add_argument('--vpc_id', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
 parser.add_argument('--edge_instance_id', type=str, default='')
 parser.add_argument('--private_subnet_id', type=str, default='')
+parser.add_argument('--sbn', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    rt_id = create_nat_rt(args.vpc_id, args.infra_tag_value, args.edge_instance_id, args.private_subnet_id)
+    rt_id = create_nat_rt(args.vpc_id, args.infra_tag_value, args.edge_instance_id, args.private_subnet_id, args.sbn)
 
