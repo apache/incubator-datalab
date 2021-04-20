@@ -699,8 +699,8 @@ if __name__ == "__main__":
             project_conf['nat_rt_name'] = '{0}-{1}-{2}-nat-rt'.format(project_conf['service_base_name'],
                                                                               project_conf['project_name'],
                                                                               project_conf['endpoint_name'])
-            params = "--vpc_id {} --infra_tag_value {} --edge_instance_id {} --private_subnet_id {}".format(
-                project_conf['vpc2_id'], project_conf['nat_rt_name'], edge_instance, subnet_id)
+            params = "--vpc_id {} --infra_tag_value {} --edge_instance_id {} --private_subnet_id {} --sbn {}".format(
+                project_conf['vpc2_id'], project_conf['nat_rt_name'], edge_instance, subnet_id, project_conf['service_base_name'])
             try:
                 subprocess.run("~/scripts/{}.py {}".format('edge_configure_route_table', params), shell=True, check=True)
             except:
