@@ -174,11 +174,14 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.activeTab = tabChangeEvent;
-    if (this.activeTab.index === 1) {
+    
+    if (this.activeTab.index === 1 && this.activeEndpoint === 'local') {
       this.activeService = 'self-service';
-    } else if (this.activeTab.index === 2) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 1) || 
+            (this.activeTab.index === 2 && this.activeEndpoint === 'local')) {
       this.activeService = 'provisioning';
-    } else if (this.activeTab.index === 3) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 2) || 
+            (this.activeTab.index === 3 && this.activeEndpoint === 'local')) {
       this.activeService = 'billing';
     } else {
       this.activeService = '';
@@ -291,14 +294,12 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
     <div mat-dialog-content class="content">
       <ng-template [ngIf]="data.action === 'restart' && !data.statuses.length" ]>
-         
         <span class="strong">{{data.services.join(', ') | titlecase}}</span> 
         <span class="strong" *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')"> service</span>
         <span class="strong" [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
 
       <ng-template [ngIf]="data.action === 'restart' && data.statuses.length && filterProvisioning.length" ]>
-         
         <span class="strong" >{{filterProvisioning.join(', ') | titlecase}}</span> 
         <span class="strong" *ngIf="filterProvisioning.length > 1 || (filterProvisioning.length === 1 && filterProvisioning[0] !== 'self-service')"> service</span>
         <span [hidden]="(filterProvisioning.length < 2) || filterProvisioning.length === 2 && filterProvisioning[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
