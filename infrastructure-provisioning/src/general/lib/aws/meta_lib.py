@@ -635,6 +635,28 @@ def get_ami_id(ami_name):
         append_result(str({"error": "Unable to find AMI", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def get_ami_id_by_product_code(product_code):
+    try:
+        client = boto3.client('ec2')
+        image_id = ''
+        response = client.describe_images(
+            Filters=[
+                {
+                    'Name': 'product-code',
+                    'Values': [product_code]
+                }
+            ])
+        response = response.get('Images')
+        for i in response:
+            image_id = i.get('ImageId')
+        if image_id == '':
+            raise Exception("Unable to find image id with name: " + ami_name)
+        return image_id
+    except Exception as err:
+        logging.error("Failed to find AMI: " + ami_name + " : " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to find AMI", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
 
 def get_iam_profile(profile_name, count=0):
     client = boto3.client('iam')
