@@ -174,11 +174,14 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.activeTab = tabChangeEvent;
-    if (this.activeTab.index === 1) {
+    
+    if (this.activeTab.index === 1 && this.activeEndpoint === 'local') {
       this.activeService = 'self-service';
-    } else if (this.activeTab.index === 2) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 1) || 
+            (this.activeTab.index === 2 && this.activeEndpoint === 'local')) {
       this.activeService = 'provisioning';
-    } else if (this.activeTab.index === 3) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 2) || 
+            (this.activeTab.index === 3 && this.activeEndpoint === 'local')) {
       this.activeService = 'billing';
     } else {
       this.activeService = '';
@@ -291,22 +294,20 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
     <div mat-dialog-content class="content">
       <ng-template [ngIf]="data.action === 'restart' && !data.statuses.length" ]>
-        Restarting 
-        <span class="strong">{{data.services.join(', ')}}</span> 
-        <span *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')"> service</span>
-        <span [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span> will make DataLab unavailable for some time.
+        <span class="strong">{{data.services.join(', ') | titlecase}}</span> 
+        <span class="strong" *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')"> service</span>
+        <span class="strong" [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
 
       <ng-template [ngIf]="data.action === 'restart' && data.statuses.length && filterProvisioning.length" ]>
-        Restarting 
-        <span class="strong" >{{filterProvisioning.join(', ')}}</span> 
-        <span *ngIf="filterProvisioning.length > 1 || (filterProvisioning.length === 1 && filterProvisioning[0] !== 'self-service')"> service</span>
-        <span [hidden]="(filterProvisioning.length < 2) || filterProvisioning.length === 2 && filterProvisioning[0] === 'self-service'">s</span> will make DataLab unavailable for some time.
+        <span class="strong" >{{filterProvisioning.join(', ') | titlecase}}</span> 
+        <span class="strong" *ngIf="filterProvisioning.length > 1 || (filterProvisioning.length === 1 && filterProvisioning[0] !== 'self-service')"> service</span>
+        <span [hidden]="(filterProvisioning.length < 2) || filterProvisioning.length === 2 && filterProvisioning[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
 
       <ng-template [ngIf]="data.action === 'restart' && data.statuses.length && (data.services.includes('provisioning') || !filterProvisioning.length)">
         <div class="warning" [ngStyle]="data.services.includes('provisioning') && data.services?.length > 1 && {'margin-top': '10px'}">
-          Can not restart <span>provisioning</span> because one of resources is in processing stage.
+        <span>Provisioning service: </span>can not be restarted because one of resources is in processing stage. Please try again later.
         </div>
       </ng-template>
 
