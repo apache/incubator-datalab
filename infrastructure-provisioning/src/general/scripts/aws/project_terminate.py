@@ -99,6 +99,12 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
         datalab.fab.append_result("Failed to remove subnets.", str(err))
         sys.exit(1)
 
+    print("Removing project route tables")
+    try:
+        datalab.actions_lib.remove_route_tables("Name", False, '{}-{}-{}-nat-rt'.format(service_base_name, project_name, endpoint_name))
+    except Exception as err:
+        datalab.fab.append_result("Failed to remove project route table.", str(err))
+        sys.exit(1)
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],

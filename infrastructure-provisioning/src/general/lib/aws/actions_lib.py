@@ -1323,10 +1323,14 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
         traceback.print_exc(file=sys.stdout)
 
 
-def remove_route_tables(tag_name, ssn=False):
+def remove_route_tables(tag_name, ssn=False, tag_value=''):
     try:
         client = boto3.client('ec2')
-        rtables = client.describe_route_tables(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}]).get('RouteTables')
+        if tag_value == '':
+            rtables = client.describe_route_tables(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}]).get('RouteTables')
+        else:
+            rtables = client.describe_route_tables(Filters=[{'Name': 'tag-key', 'Values': [tag_name]},
+                {'Name': 'tag-value', 'Values': [tag_value]}]).get('RouteTables')
         for rtable in rtables:
             if rtable:
                 rtable_associations = rtable.get('Associations')

@@ -723,4 +723,7 @@ if __name__ == "__main__":
             datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
             datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
             datalab.actions_lib.remove_s3('edge', project_conf['project_name'])
+            datalab.actions_lib.remove_route_tables("Name", False,
+                                                    '{}-{}-{}-nat-rt'.format(service_base_name, project_name,
+                                                                             endpoint_name))
             sys.exit(1)
