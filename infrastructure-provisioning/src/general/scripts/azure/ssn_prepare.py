@@ -40,11 +40,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        print('Step 1')
         AzureMeta = datalab.meta_lib.AzureMeta()
-        print('Step 2')
         AzureActions = datalab.actions_lib.AzureActions()
-        print('Step 3')
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
 
