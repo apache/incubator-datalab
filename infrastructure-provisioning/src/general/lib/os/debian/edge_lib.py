@@ -135,7 +135,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                         if counter > 5:
                             sys.exit(1)
                         else:
-                            if 'Could not fetch' in sudo('luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/ 2>&1') or 'Could not fetch' in sudo('luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/ 2>&1'):
+                            if 'Could not fetch' in sudo('luarocks install lua-resty-jwt 0.2.2 --tree /usr/local/openresty/lualib/resty/ 2>&1', warn_only=True) \
+                                    or 'Could not fetch' in sudo('luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/ 2>&1', warn_only=True):
                                 counter += 1
                                 time.sleep(10)
                             else:
@@ -150,7 +151,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                     if counter > 5:
                         sys.exit(1)
                     else:
-                        if 'Could not fetch' in sudo('luarocks install lua-resty-jwt 0.2.2 2>&1') or 'Could not fetch' in sudo('luarocks install lua-resty-openidc 2>&1'):
+                        if 'Could not fetch' in sudo('luarocks install lua-resty-jwt 0.2.2 2>&1', warn_only=True) \
+                                or 'Could not fetch' in sudo('luarocks install lua-resty-openidc 2>&1', warn_only=True):
                             counter += 1
                             time.sleep(10)
                         else:
