@@ -268,7 +268,7 @@ def ensure_python3_libraries(os_user):
         except:
             sys.exit(1)
 
-def install_nvidia_drivers(os_user)
+def install_nvidia_drivers(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nvidia_ensured'.format(os_user)):
         try:
             # install nvidia drivers
