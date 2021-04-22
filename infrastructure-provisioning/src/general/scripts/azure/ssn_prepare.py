@@ -86,7 +86,7 @@ if __name__ == "__main__":
         ssn_conf['key'] = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'],
                                                                os.environ['conf_key_name']), 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
-        ssn_conf['public_ssh_key'] = ssn_conf['key'].publickey().exportKey("OpenSSH")
+        ssn_conf['public_ssh_key'] = ssn_conf['key'].publickey().exportKey("OpenSSH").decode('UTF-8')
         ssn_conf['instance_tags'] = {"Name": ssn_conf['instance_name'],
                                      "SBN": ssn_conf['service_base_name'],
                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
