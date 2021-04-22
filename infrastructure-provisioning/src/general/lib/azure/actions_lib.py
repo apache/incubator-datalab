@@ -519,7 +519,7 @@ class AzureActions:
         if image_type == 'pre-configured':
             image_id = datalab.meta_lib.AzureMeta().get_image(resource_group_name, image_full_name).id
         else:
-            image_name = image_full_name.split('_')
+            image_name = image_full_name.split(':')
             publisher = image_name[0]
             offer = image_name[1]
             sku = image_name[2]
