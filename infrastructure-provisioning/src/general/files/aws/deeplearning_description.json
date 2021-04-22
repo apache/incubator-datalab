@@ -8,10 +8,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Deep Learning  2.4",
-      "description": "Base image with Deep Learning and Jupyter",
+      "template_name": "AWS Deep Learning  42.1",
+      "description": "MXNet-1.8.0 & 1.7.0, TensorFlow-2.4.1, 2.1.3 & 1.15.5, PyTorch-1.4.0 & 1.8.0, Neuron, & others. NVIDIA CUDA, cuDNN, NCCL, Intel MKL-DNN, Docker, NVIDIA-Docker & EFA support. Uses Anaconda virtual environments, configured to keep the different framework installations separate and easy to switch between frameworks as Jupyter kernels.",
       "environment_type": "exploratory",
-      "version": "deeplearning-2.4",
+      "version": "deeplearning-42.1",
       "vendor": "AWS"
     }
   ]
