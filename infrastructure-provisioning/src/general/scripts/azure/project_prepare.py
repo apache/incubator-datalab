@@ -99,7 +99,7 @@ if __name__ == "__main__":
                                                                                    project_conf['endpoint_name'])
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
-        project_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        project_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         project_conf['instance_storage_account_type'] = 'Premium_LRS'
         project_conf['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         project_conf['instance_tags'] = {"Name": project_conf['instance_name'],
@@ -144,6 +144,7 @@ if __name__ == "__main__":
         logging.info(json.dumps(project_conf))
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        traceback.print_exc()
         sys.exit(1)
 
     try:

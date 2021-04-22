@@ -41,7 +41,7 @@ if __name__ == "__main__":
     try:
         empty_vpc = False
         private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
-        first_vpc_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
+        first_vpc_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0]))
         subnets_cidr = []
         subnets = AzureMeta().list_subnets(args.resource_group_name, args.vpc_name)
         for subnet in subnets:
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
         last_ip = first_vpc_ip
         for cidr in sorted_subnets_cidr:
-            first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
+            first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0]))
             if first_ip - last_ip < private_subnet_size:
                 subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
                 last_ip = first_ip + subnet_size - 1
