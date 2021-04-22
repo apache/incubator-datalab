@@ -428,7 +428,7 @@ class AzureActions:
 
     def create_blob_container(self, resource_group_name, account_name, container_name):
         try:
-            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             result = block_blob_service.create_container(container_name)
             return result
@@ -442,7 +442,7 @@ class AzureActions:
 
     def upload_to_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             for filename in files:
                 block_blob_service.create_blob_from_path(container_name, filename, filename)
@@ -457,7 +457,7 @@ class AzureActions:
 
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
@@ -487,7 +487,7 @@ class AzureActions:
                     }
                 }
             ).wait()
-            return meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
+            return datalab.meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
         except Exception as err:
             logging.info(
                 "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -517,7 +517,7 @@ class AzureActions:
                         image_full_name, tags, project_name='', create_option='fromImage', disk_id='',
                         instance_storage_account_type='Premium_LRS', image_type='default'):
         if image_type == 'pre-configured':
-            image_id = meta_lib.AzureMeta().get_image(resource_group_name, image_full_name).id
+            image_id = datalab.meta_lib.AzureMeta().get_image(resource_group_name, image_full_name).id
         else:
             image_name = image_full_name.split('_')
             publisher = image_name[0]
@@ -806,7 +806,7 @@ class AzureActions:
 
     def tag_disks(self, resource_group_name, instance_name):
         postfix_list = ['-volume-primary', '-volume-secondary', '-volume-tertiary']
-        disk_list = meta_lib.AzureMeta().get_vm_disks(resource_group_name, instance_name)
+        disk_list = datalab.meta_lib.AzureMeta().get_vm_disks(resource_group_name, instance_name)
         for inx, disk in enumerate(disk_list):
             tags_copy = disk.tags.copy()
             tags_copy['Name'] = tags_copy['Name'] + postfix_list[inx]
@@ -867,7 +867,7 @@ class AzureActions:
                 print("Disk {} has been removed".format(i))
             # Removing public static IP address and network interfaces
             network_interface_name = instance_name + '-nif'
-            for j in meta_lib.AzureMeta().get_network_interface(resource_group_name,
+            for j in datalab.meta_lib.AzureMeta().get_network_interface(resource_group_name,
                                                                 network_interface_name).ip_configurations:
                 self.delete_network_if(resource_group_name, network_interface_name)
                 print("Network interface {} has been removed".format(network_interface_name))
@@ -902,10 +902,10 @@ class AzureActions:
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
                           tags, public_ip_name="None"):
         try:
-            subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
-            private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr)
-            subnet_id = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
-            security_group_id = meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
+            subnet_cidr = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
+            private_ip = datalab.meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr)
+            subnet_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
+            security_group_id = datalab.meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
             if public_ip_name == "None":
                 ip_params = [{
                     "name": interface_name,
@@ -917,7 +917,7 @@ class AzureActions:
                     }
                 }]
             else:
-                public_ip_id = meta_lib.AzureMeta().get_static_ip(resource_group_name, public_ip_name).id
+                public_ip_id = datalab.meta_lib.AzureMeta().get_static_ip(resource_group_name, public_ip_name).id
                 ip_params = [{
                     "name": interface_name,
                     "private_ip_allocation_method": "Static",
@@ -942,7 +942,7 @@ class AzureActions:
                     "ip_configurations": ip_params
                 }
             ).wait()
-            network_interface_id = meta_lib.AzureMeta().get_network_interface(
+            network_interface_id = datalab.meta_lib.AzureMeta().get_network_interface(
                 resource_group_name,
                 interface_name
             ).id
@@ -969,7 +969,7 @@ class AzureActions:
 
     def remove_dataengine_kernels(self, resource_group_name, notebook_name, os_user, key_path, cluster_name):
         try:
-            private = meta_lib.AzureMeta().get_private_ip_address(resource_group_name, notebook_name)
+            private = datalab.meta_lib.AzureMeta().get_private_ip_address(resource_group_name, notebook_name)
             global conn
             conn = datalab.fab.init_datalab_connection(private, os_user, key_path)
             conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
@@ -1027,10 +1027,10 @@ class AzureActions:
 
     def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
         try:
-            instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
+            instance_id = datalab.meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
             self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
             self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
-            if not meta_lib.AzureMeta().get_image(resource_group_name, image_name):
+            if not datalab.meta_lib.AzureMeta().get_image(resource_group_name, image_name):
                 self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
                     "location": region,
                     "tags": json.loads(tags),
@@ -1106,14 +1106,14 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                                             os.environ['endpoint_name'].lower())
         shared_storage_account_tag = '{0}-{1}-shared-bucket'.format(os.environ['conf_service_base_name'],
                                                                     os.environ['endpoint_name'].lower())
-        for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+        for storage_account in datalab.meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if user_storage_account_tag == storage_account.tags["Name"]:
                 user_storage_account_name = storage_account.name
-                user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(
+                user_storage_account_key = datalab.meta_lib.AzureMeta().list_storage_keys(
                     os.environ['azure_resource_group_name'], user_storage_account_name)[0]
             if shared_storage_account_tag == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
-                shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(
+                shared_storage_account_key = datalab.meta_lib.AzureMeta().list_storage_keys(
                     os.environ['azure_resource_group_name'], shared_storage_account_name)[0]
         if os.environ['azure_datalake_enable'] == 'false':
             conn.put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
