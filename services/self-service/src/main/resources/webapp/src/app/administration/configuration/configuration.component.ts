@@ -85,14 +85,23 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.userResourceService.getUserProvisionedResources().subscribe(data => {
       let environments = ExploratoryModel.loadEnvironments(data);
+      
       environments.map(environment => {
         environment.exploratory.map(item => {
-          if(this.ingStatuses.includes(item.status)) {
-            this.processingStatuses.push(item.status);
+          this.checkResource(item.status);
+          if(item.resources?.length > 0) {
+            item.resources.map(resource => {
+              this.checkResource(resource.status);
+            });
           }
-        })
+        });
+
+        for(const key in environment.projectEndpoints) {
+          this.checkResource(environment.projectEndpoints[key].status);
+        }
       });
-    })
+    });
+
     this.getEnvironmentHealthStatus();
     this.getEndpoints()
       .subscribe(endpoints => {
@@ -108,6 +117,12 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  public checkResource(resourceStatus: string) {
+    if(this.ingStatuses.includes(resourceStatus)) {
+      this.processingStatuses.push(resourceStatus);
+    }
   }
 
   private getEnvironmentHealthStatus(): void {
