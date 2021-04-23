@@ -55,7 +55,7 @@ args = parser.parse_args()
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-scala_link = "http://www.scala-lang.org/files/archive/"
+scala_link = "https://www.scala-lang.org/files/archive/"
 zeppelin_version = args.zeppelin_version
 zeppelin_link = "http://archive.apache.org/dist/zeppelin/zeppelin-" + zeppelin_version + "/zeppelin-" + \
                 zeppelin_version + "-bin-netinst.tgz"

@@ -47,7 +47,7 @@ local_jars_dir = '/opt/jars/'
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-scala_link = "http://www.scala-lang.org/files/archive/"
+scala_link = "https://www.scala-lang.org/files/archive/"
 spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
              "-bin-hadoop" + hadoop_version + ".tgz"
 

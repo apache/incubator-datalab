@@ -53,7 +53,7 @@ cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 python3_version = "3.4"
-scala_link = "http://www.scala-lang.org/files/archive/"
+scala_link = "https://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"

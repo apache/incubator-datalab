@@ -204,7 +204,8 @@ def ensure_sbt(os_user):
 def ensure_scala(scala_link, scala_version, os_user):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/scala_ensured'):
         try:
-            datalab.fab.conn.sudo('wget {}scala-{}.deb -O /tmp/scala.deb'.format(scala_link, scala_version))
+            datalab.fab.conn.sudo('hostname; pwd')
+            datalab.fab.conn.sudo('wget {}scala-{}.deb --tries=3 -O /tmp/scala.deb'.format(scala_link, scala_version))
             datalab.fab.conn.sudo('dpkg -i /tmp/scala.deb')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/scala_ensured')
         except:

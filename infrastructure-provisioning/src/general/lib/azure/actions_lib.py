@@ -1060,29 +1060,29 @@ class AzureActions:
 
 
 def ensure_local_jars(os_user, jars_dir):
-    if not exists(conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
+    if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            hadoop_version = conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'").stdout.replace('\n','')
+            hadoop_version = datalab.fab.conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'").stdout.replace('\n','')
             print("Downloading local jars for Azure")
-            conn.sudo('mkdir -p {}'.format(jars_dir))
+            datalab.fab.conn.sudo('mkdir -p {}'.format(jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
-                conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
-                conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
                     -O {1}azure-storage-{0}.jar'.format('2.2.0', jars_dir))
             else:
-                conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format('3.0.0', jars_dir))
-                conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
                                     -O {1}azure-storage-{0}.jar'.format('6.1.0', jars_dir))
-                conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/{0}/azure-data-lake-store-sdk-{0}.jar \
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/{0}/azure-data-lake-store-sdk-{0}.jar \
                     -O {1}azure-data-lake-store-sdk-{0}.jar'.format('2.2.3', jars_dir))
-                conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/{0}/hadoop-azure-datalake-{0}.jar \
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/{0}/hadoop-azure-datalake-{0}.jar \
                     -O {1}hadoop-azure-datalake-{0}.jar'.format('3.0.0', jars_dir))
             if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
-                conn.sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
+                datalab.fab.conn.sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
                      -O {1}spark-tensorflow-connector-{0}.jar'.format('1.0.0-s_2.11', jars_dir))
-            conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except Exception as err:
             logging.info(
                 "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -1096,9 +1096,9 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
         # Checking if spark.jars parameter was generated previously
         spark_jars_paths = None
-        if exists(conn, '/opt/spark/conf/spark-defaults.conf'):
+        if exists(datalab.fab.conn, '/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
+                spark_jars_paths = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
             except:
                 spark_jars_paths = None
         user_storage_account_tag = "{}-{}-{}-bucket".format(os.environ['conf_service_base_name'],
@@ -1116,42 +1116,42 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 shared_storage_account_key = datalab.meta_lib.AzureMeta().list_storage_keys(
                     os.environ['azure_resource_group_name'], shared_storage_account_name)[0]
         if os.environ['azure_datalake_enable'] == 'false':
-            conn.put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
+            datalab.fab.conn.put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
         else:
-            conn.put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
-        conn.sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-        conn.sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
-        conn.sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
-        conn.sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+            datalab.fab.conn.put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
+        datalab.fab.conn.sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+        datalab.fab.conn.sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+        datalab.fab.conn.sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+        datalab.fab.conn.sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
         if os.environ['azure_datalake_enable'] == 'true':
             client_id = os.environ['azure_application_id']
             refresh_token = os.environ['azure_user_refresh_token']
-            conn.sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
-            conn.sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
+            datalab.fab.conn.sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
+            datalab.fab.conn.sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
         if os.environ['azure_datalake_enable'] == 'false':
-            conn.sudo('rm -f /opt/spark/conf/core-site.xml')
-            conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            datalab.fab.conn.sudo('rm -f /opt/spark/conf/core-site.xml')
+            datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
         else:
-            conn.sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
-            conn.sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
-        conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-        conn.sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+            datalab.fab.conn.sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
+            datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
+        datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        datalab.fab.conn.sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
               /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-        conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        datalab.fab.conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
-            conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            conn.sudo('''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
+            datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+            datalab.fab.conn.sudo('''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
                                                                                               spark_memory))
-        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
-            conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
-        conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
+        if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
+            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
+        datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
-            datalab_header = conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
+            datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
-            spark_defaults = conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
+            spark_defaults = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
                 if param.split(' ')[0] != '#':
@@ -1164,13 +1164,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            conn.sudo('''bash -c 'echo "{}" > /opt/spark/conf/spark-defaults.conf' '''.format(datalab_header))
+            datalab.fab.conn.sudo('''bash -c 'echo "{}" > /opt/spark/conf/spark-defaults.conf' '''.format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
-                conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
-            conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+                datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
+            datalab.fab.conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
-                conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))
+                datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1222,8 +1222,10 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         global conn
         conn = datalab.fab.init_datalab_connection(hostname, os_user, keyfile)
+    else:
+        conn = datalab.fab.conn
     conn.sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
-    conn.sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
+    conn.sudo('''bash -c 'grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true' ''')
     conn.sudo('mount -a')
     if creds:
         conn.close()
@@ -1239,36 +1241,35 @@ def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
 
 
 def prepare_disk(os_user):
-    if not exists(conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
             allow = False
             counter = 0
             remount_azure_disk()
-            disk_name = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
-            conn.sudo('umount -l /dev/{}1'.format(disk_name), warn=True)
+            disk_name = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
+            datalab.fab.conn.sudo('umount -l /dev/{}1'.format(disk_name), warn=True)
             while not allow:
                 if counter > 4:
                     print("Unable to prepare disk")
                     sys.exit(1)
                 else:
-                    conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' 2>&1 | tee /tmp/tee.tmp '''.format(
-                        disk_name), warn_only=True)
-                    out = conn.sudo('cat /tmp/tee.tmp').stdout
+                    out = datalab.fab.conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{} 2>&1' '''.format(
+                        disk_name), warn=True).stdout
                     if 'Syncing disks' in out:
                         allow = True
                     elif 'The kernel still uses the old table.' in out:
-                        if conn.sudo('partprobe'):
-                            conn.sudo('reboot', warn=True)
+                        if datalab.fab.conn.sudo('partprobe').stdout:
+                            datalab.fab.conn.sudo('reboot', warn=True)
                         allow = True
                     else:
                         counter += 1
                         time.sleep(5)
-            conn.sudo('umount -l /dev/{}1'.format(disk_name), warn_only=True)
-            conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
+            datalab.fab.conn.sudo('umount -l /dev/{}1'.format(disk_name), warn=True)
+            datalab.fab.conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            datalab.fab.conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            datalab.fab.conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
                 disk_name))
-            conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+            datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except Exception as err:
             traceback.print_exc()
             print('Error:', str(err))
@@ -1276,38 +1277,38 @@ def prepare_disk(os_user):
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists(conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
             if os.environ['azure_datalake_enable'] == 'false':
-                conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-                conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-                conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-                conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-                conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+                datalab.fab.conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+                datalab.fab.conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+                datalab.fab.conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+                datalab.fab.conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+                datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
             else:
                 # Downloading Spark without Hadoop
-                conn.sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
+                datalab.fab.conn.sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
                     .format(spark_version))
-                conn.sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
-                conn.sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
-                conn.sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
+                datalab.fab.conn.sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+                datalab.fab.conn.sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
+                datalab.fab.conn.sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
                 # Downloading Hadoop
                 hadoop_version = '3.0.0'
-                conn.sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
+                datalab.fab.conn.sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
                     .format(hadoop_version))
-                conn.sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
-                conn.sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
-                conn.sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
+                datalab.fab.conn.sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+                datalab.fab.conn.sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
+                datalab.fab.conn.sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
                 # Configuring Hadoop and Spark
                 java_path = datalab.common_lib.find_java_path_remote()
-                conn.sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
-                conn.sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
-                conn.sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
-                conn.sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
-                spark_dist_classpath = conn.sudo('/opt/hadoop/bin/hadoop classpath').stdout
-                conn.sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
+                datalab.fab.conn.sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
+                datalab.fab.conn.sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
+                datalab.fab.conn.sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
+                datalab.fab.conn.sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
+                spark_dist_classpath = datalab.fab.conn.sudo('/opt/hadoop/bin/hadoop classpath').stdout
+                datalab.fab.conn.sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
                     spark_dist_classpath))
-                conn.sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
+                datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
