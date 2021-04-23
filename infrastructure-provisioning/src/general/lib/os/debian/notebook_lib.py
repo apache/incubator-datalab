@@ -92,7 +92,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             datalab.fab.conn.sudo('apt update')
             manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
             manage_pkg('-y install', 'remote', 'cmake')
-            datalab.fab.conn.sudo('apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9')
+            datalab.fab.conn.sudo('''bash -c -l 'apt-key adv --keyserver-options http-proxy="$http_proxy" --keyserver hkp://keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9' ''')
             datalab.fab.conn.sudo("add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'")
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
