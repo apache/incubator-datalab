@@ -171,7 +171,7 @@ if __name__ == "__main__":
     dataproc_cluster['config']['softwareConfig']['imageVersion'] = dataproc_conf['release_label']
     ssh_user_pubkey = open('{}{}.pub'.format(os.environ['conf_key_dir'], dataproc_conf['project_name'])).read()
     key = RSA.importKey(open(dataproc_conf['key_path'], 'rb').read())
-    ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode()
+    ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
     dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}{0}:{2}'.format(
         dataproc_conf['datalab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
     dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']

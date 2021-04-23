@@ -217,7 +217,7 @@ if __name__ == "__main__":
             edge_instance_hostname = data_engine['edge_instance_dns_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(keyfile_name, 'rb').read())
-        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
