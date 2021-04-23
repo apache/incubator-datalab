@@ -305,7 +305,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
                 # legacy support for old kernels
                 datalab.fab.conn.sudo(''' bash -c 'if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '''
                 '''install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;' ''')
-            datalab.fab.conn.sudo('wget http://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
+            datalab.fab.conn.sudo('wget https://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
                  '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             datalab.fab.conn.sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             datalab.fab.conn.sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
