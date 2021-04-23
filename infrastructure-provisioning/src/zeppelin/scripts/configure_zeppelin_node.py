@@ -57,7 +57,7 @@ spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 scala_link = "https://www.scala-lang.org/files/archive/"
 zeppelin_version = args.zeppelin_version
-zeppelin_link = "http://archive.apache.org/dist/zeppelin/zeppelin-" + zeppelin_version + "/zeppelin-" + \
+zeppelin_link = "https://archive.apache.org/dist/zeppelin/zeppelin-" + zeppelin_version + "/zeppelin-" + \
                 zeppelin_version + "-bin-netinst.tgz"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
