@@ -48,6 +48,8 @@ def ensure_docker_daemon(datalab_path, os_user, region):
             datalab.fab.conn.sudo('touch ' + datalab_path + 'tmp/docker_daemon_ensured')
         return True
     except:
+        traceback.print_exc()
+        print('Failed to ensure_docker_daemon')
         return False
 
 
