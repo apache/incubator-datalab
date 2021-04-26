@@ -85,7 +85,7 @@ if __name__ == "__main__":
                                                                           notebook_config['endpoint_name'])
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
-        notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         notebook_config['primary_disk_size'] = '32'
         notebook_config['instance_storage_account_type'] = (lambda x: 'Standard_LRS' if x in ('deeplearning', 'tensor')
                                                             else 'Premium_LRS')(os.environ['application'])

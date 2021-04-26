@@ -27,6 +27,7 @@ import traceback
 import subprocess
 from fabric import *
 from os.path import exists
+from os import path
 
 src_path = '/opt/datalab/sources/infrastructure-provisioning/src/'
 if sys.argv[1] == 'all':
@@ -57,7 +58,7 @@ def image_build(src_path, node):
             cloud_provider = 'aws'
         elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'azure':
             cloud_provider = 'azure'
-            if not exists(conn,'{}base/azure_auth.json'.format(src_path)):
+            if not path.exists('{}base/azure_auth.json'.format(src_path)):
                 subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True, check=True)
         else:
             cloud_provider = 'gcp'

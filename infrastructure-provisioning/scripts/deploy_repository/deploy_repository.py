@@ -1166,7 +1166,7 @@ def download_packages():
                 'https://nodejs.org/dist/v8.15.0/node-v8.15.0.tar.gz',
                 'https://github.com/sass/node-sass/releases/download/v4.11.0/linux-x64-57_binding.node',
                 'http://nginx.org/download/nginx-{}.tar.gz'.format(configuration['reverse_proxy_nginx_version']),
-                'http://www.scala-lang.org/files/archive/scala-{}.deb'.format(configuration['notebook_scala_version']),
+                'https://www.scala-lang.org/files/archive/scala-{}.deb'.format(configuration['notebook_scala_version']),
                 'https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-hadoop{1}.tgz'.format(
                     configuration['notebook_spark_version'], configuration['notebook_hadoop_version']),
                 'https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar'.format('2.7.4'),

@@ -92,7 +92,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             datalab.fab.conn.sudo('apt update')
             manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
             manage_pkg('-y install', 'remote', 'cmake')
-            datalab.fab.conn.sudo('apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9')
+            datalab.fab.conn.sudo('''bash -c -l 'apt-key adv --keyserver-options http-proxy="$http_proxy" --keyserver hkp://keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9' ''')
             datalab.fab.conn.sudo("add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'")
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
@@ -204,7 +204,8 @@ def ensure_sbt(os_user):
 def ensure_scala(scala_link, scala_version, os_user):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/scala_ensured'):
         try:
-            datalab.fab.conn.sudo('wget {}scala-{}.deb -O /tmp/scala.deb'.format(scala_link, scala_version))
+            datalab.fab.conn.sudo('hostname; pwd')
+            datalab.fab.conn.sudo('wget {}scala-{}.deb --tries=3 -O /tmp/scala.deb'.format(scala_link, scala_version))
             datalab.fab.conn.sudo('dpkg -i /tmp/scala.deb')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/scala_ensured')
         except:
@@ -268,7 +269,7 @@ def ensure_python3_libraries(os_user):
         except:
             sys.exit(1)
 
-def install_nvidia_drivers(os_user)
+def install_nvidia_drivers(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nvidia_ensured'.format(os_user)):
         try:
             # install nvidia drivers
@@ -304,7 +305,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
                 # legacy support for old kernels
                 datalab.fab.conn.sudo(''' bash -c 'if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '''
                 '''install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;' ''')
-            datalab.fab.conn.sudo('wget http://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
+            datalab.fab.conn.sudo('wget https://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
                  '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             datalab.fab.conn.sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             datalab.fab.conn.sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))

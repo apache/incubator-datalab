@@ -45,7 +45,7 @@ args = parser.parse_args()
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 jupyter_version = os.environ['notebook_jupyter_version']
-scala_link = "http://www.scala-lang.org/files/archive/"
+scala_link = "https://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"

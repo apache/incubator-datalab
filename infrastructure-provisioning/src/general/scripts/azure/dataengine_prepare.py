@@ -83,7 +83,7 @@ if __name__ == "__main__":
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
         key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'],
                                                    os.environ['conf_key_name']), 'rb').read())
-        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
