@@ -57,12 +57,8 @@ public class GcpComputationalResource extends UserComputationalResource {
     private final String version;
     @JsonProperty("masterGPUType")
     private final String masterGPUType;
-    @JsonProperty("slaveGPUType")
-    private final String slaveGPUType;
     @JsonProperty("masterGPUCount")
     private final String masterGPUCount;
-    @JsonProperty("slaveGPUCount")
-    private final String slaveGPUCount;
     private final Boolean enabledGPU;
 
     @Builder
@@ -73,8 +69,7 @@ public class GcpComputationalResource extends UserComputationalResource {
                                     String masterNumber, String preemptibleNumber, String version,
                                     List<ResourceURL> resourceURL, LocalDateTime lastActivity,
                                     Map<String, String> tags, int totalInstanceCount,
-                                    String masterGPUCount, String masterGPUType, String slaveGPUCount,
-                                    String slaveGPUType, Boolean enabledGPU) {
+                                    String gpuCount, String gpuType, Boolean enabledGPU) {
         super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
                 reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
         this.instanceId = instanceId;
@@ -84,15 +79,11 @@ public class GcpComputationalResource extends UserComputationalResource {
         this.masterNumber = masterNumber;
         this.version = version;
         this.preemptibleNumber = preemptibleNumber;
-        this.masterGPUCount = masterGPUCount;
-        this.masterGPUType = masterGPUType;
-        this.slaveGPUCount = slaveGPUCount;
-        this.slaveGPUType = slaveGPUType;
+        this.masterGPUCount = gpuCount;
+        this.masterGPUType = gpuType;
         this.enabledGPU = enabledGPU;
-        super.setMasterGPUCount(masterGPUCount);
-        super.setSlaveGPUCount(slaveGPUCount);
-        super.setMasterGPUType(masterGPUType);
-        super.setSlaveGPUType(slaveGPUType);
+        super.setGpuCount(masterGPUCount);
+        super.setGpuType(masterGPUType);
         super.setEnabledGPU(enabledGPU);
     }
 }

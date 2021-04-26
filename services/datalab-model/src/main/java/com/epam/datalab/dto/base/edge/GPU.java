@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.datalab.dto.imagemetadata;
+package com.epam.datalab.dto.base.edge;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -29,10 +29,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ComputationalGPU {
+public class GPU {
 
-    @JsonProperty("Size")
+    @JsonProperty("size")
     private String size;
-    @JsonProperty("Gpu_type")
+    @JsonProperty("gpu_type")
     private String gpuType;
 }

@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
@@ -68,4 +70,7 @@ public class EdgeInfo {
 
     @JsonProperty("reupload_key_required")
     private boolean reuploadKeyRequired = false;
+
+    @JsonProperty("gpu_types")
+    private List<GPU> gpuList;
 }

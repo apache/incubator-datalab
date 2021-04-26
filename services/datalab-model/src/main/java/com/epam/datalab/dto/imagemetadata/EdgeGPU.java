@@ -17,37 +17,22 @@
  * under the License.
  */
 
-
 package com.epam.datalab.dto.imagemetadata;
 
 import com.epam.datalab.dto.base.edge.GPU;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ExploratoryMetadataDTO extends ImageMetadataDTO {
-    @JsonProperty
-    protected String image;
-    @JsonProperty("exploratory_environment_versions")
-    private List<ExploratoryEnvironmentVersion> exploratoryEnvironmentVersions;
-    @JsonProperty("exploratory_environment_shapes")
-    private HashMap<String, List<ComputationalResourceShapeDto>> exploratoryEnvironmentShapes;
-    @JsonProperty("request_id")
-    private String requestId;
+public class EdgeGPU {
 
-    //GPU
-//    @JsonProperty("gpu_types")
-    private List<GPU> computationGPU;
-
-    public ExploratoryMetadataDTO(String imageName) {
-        this.image = imageName;
-        setImageType(ImageType.EXPLORATORY);
-    }
+    private String providerName;
+    private List<GPU> gpus;
 }
