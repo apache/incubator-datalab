@@ -32,15 +32,12 @@ import java.util.Map;
 
 @Slf4j
 public class ExternalChangeProperties implements ChangePropertiesConst {
-    private final RESTService externalService;
     private final RESTService provService;
     private final ChangePropertiesService changePropertiesService;
 
     @Inject
-    public ExternalChangeProperties(RESTService externalService,
-                                    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provService,
+    public ExternalChangeProperties(@Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provService,
                                     ChangePropertiesService changePropertiesService) {
-        this.externalService = externalService;
         this.provService = provService;
         this.changePropertiesService = changePropertiesService;
     }
@@ -70,11 +67,11 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
             String provPath = url + "/provisioning-service";
             log.info("TEST LOG!!!: provPath: {}", provPath);
             properties.put(PROVISIONING_SERVICE,
-                    externalService.get(provPath, userInfo.getAccessToken(), String.class));
+                    provService.get(provPath, userInfo.getAccessToken(), String.class));
             String billPath = url + "/billing";
             log.info("TEST LOG!!!: provPath: {}", provPath);
             properties.put(BILLING_SERVICE,
-                    externalService.get(billPath, userInfo.getAccessToken(), String.class));
+                    provService.get(billPath, userInfo.getAccessToken(), String.class));
         }
         return properties;
     }
@@ -91,7 +88,7 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
 
             url += findMethodName(name);
             log.info("TEST LOG: on external call method , url for the next step: {}", url);
-            externalService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
+            provService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
         }
     }
 
@@ -104,7 +101,7 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
             changePropertiesService.restart(restartForm);
         } else {
             log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
-            externalService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
+            provService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
         }
     }
 
