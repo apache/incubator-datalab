@@ -191,9 +191,10 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
-            conn.sudo('pip3 install jupyter --no-cache-dir')
-            conn.sudo('rm -rf {}'.format(jupyter_conf_file))
+            if not os.environ['aws_deeplearning_image_name']:
+                conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
+                conn.sudo('pip3 install jupyter --no-cache-dir')
+                conn.sudo('rm -rf {}'.format(jupyter_conf_file))
             conn.run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             conn.run('mkdir -p ~/.jupyter/custom/')
             conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
@@ -203,11 +204,18 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
             conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
             conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+            if os.environ['aws_deeplearning_image_name']:
+                conn.sudo(
+                    '''echo "c.NotebookApp.kernel_spec_manager_class = 'environment_kernels.EnvironmentKernelSpecManager'" >> {}'''.format(
+                        jupyter_conf_file))
+                conn.sudo(
+                    '''echo "c.EnvironmentKernelSpecManager.conda_env_dirs=['/home/ubuntu/anaconda3/envs']" >> {}'''.format(
+                        jupyter_conf_file))
             conn.put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
             conn.sudo("chmod 644 /tmp/jupyter-notebook.service")
             if os.environ['application'] == 'tensor':
                 conn.sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-            elif os.environ['application'] == 'deeplearning':
+            elif os.environ['application'] == 'deeplearning' and not os.environ['aws_plearning_image_name']:
                 conn.sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
                      "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
@@ -225,9 +233,10 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.sudo('mkdir -p /mnt/var')
             conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            if os.environ['application'] == 'jupyter':
+            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'deeplearning':
                 try:
                     conn.sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
+                    conn.sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
                 except Exception as err:
                     print('Error:', str(err))
             conn.sudo("systemctl daemon-reload")
@@ -244,7 +253,6 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
-
 
 def remove_unexisting_kernel(os_user):
     if not exists(conn,'/home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user)):
