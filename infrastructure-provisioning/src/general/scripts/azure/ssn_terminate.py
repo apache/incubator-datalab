@@ -47,13 +47,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print("Removing network interfaces")
     try:
         for network_interface in AzureMeta.list_network_interfaces(resource_group_name):
-            print("======1")
-            print(network_interface)
-            print("======2")
-            print(network_interface.tags)
-            if "SBN" not in network_interface.tags:
-                print('======3')
-            if service_base_name == network_interface.tags["SBN"]:
+            if "SBN" in network_interface.tags and service_base_name == network_interface.tags["SBN"]:
                 AzureActions.delete_network_if(resource_group_name, network_interface.name)
                 print("Network interface {} has been removed".format(network_interface.name))
     except Exception as err:
