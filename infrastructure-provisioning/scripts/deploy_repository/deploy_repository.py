@@ -1193,9 +1193,9 @@ def download_packages():
                     cuda_version_deeplearning, cuda_deeplearingn_file_name),
                 'https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(
                     configuration['notebook_cuda_version'], configuration['notebook_cuda_file_name']),
-                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(
+                'https://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(
                     cudnn_version_deeplearning, cudnn_file_name_deeplearning),
-                'http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(
+                'https://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1}'.format(
                     configuration['notebook_cudnn_version'], configuration['notebook_cudnn_file_name']),
                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-'
                 'linux_x86_64.whl'.format(tensorflow_version_deeplearning),

@@ -312,7 +312,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             # install cuda
             datalab.fab.conn.sudo('python3 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'.format(
                 os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            datalab.fab.conn.sudo('wget -P /opt http://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
+            datalab.fab.conn.sudo('wget -P /opt https://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
                 cuda_version, cuda_file_name))
             datalab.fab.conn.sudo('apt -y install gcc-8 g++-8')
             datalab.fab.conn.sudo('update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 8')
@@ -324,7 +324,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            datalab.fab.conn.run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
+            datalab.fab.conn.run('wget https://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
                 cudnn_version, cudnn_file_name))
             datalab.fab.conn.run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             datalab.fab.conn.sudo('mkdir -p /opt/cudnn/include')

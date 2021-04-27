@@ -251,7 +251,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version[:-2]))
             datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            datalab.fab.conn.run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
+            datalab.fab.conn.run('wget https://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
             datalab.fab.conn.run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             datalab.fab.conn.sudo('mkdir -p /opt/cudnn/include')
             datalab.fab.conn.sudo('mkdir -p /opt/cudnn/lib64')
