@@ -29,10 +29,10 @@ import static com.mongodb.client.model.Filters.eq;
 public class GpuDAOImpl extends BaseDAO implements GpuDAO {
 
     private static final String GPU_COLLECTION = "gpuTypes";
-    private static final String ENDPOINT_EDGE_ID_FIELD = "providerName";
+    private static final String PROJECT_NAME_FIELD = "projectName";
 
     @Override
-    public Optional<EdgeGPU> getGPUByProvider(String edgeId) {
+    public Optional<EdgeGPU> getGPUByProjectName(String edgeId) {
         return findOne(GPU_COLLECTION, getByIdCondition(edgeId), EdgeGPU.class);
     }
 
@@ -47,6 +47,6 @@ public class GpuDAOImpl extends BaseDAO implements GpuDAO {
     }
 
     private Bson getByIdCondition(String edgeId) {
-        return eq(ENDPOINT_EDGE_ID_FIELD, edgeId);
+        return eq(PROJECT_NAME_FIELD, edgeId);
     }
 }

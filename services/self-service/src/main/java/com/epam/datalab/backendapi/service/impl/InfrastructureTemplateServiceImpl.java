@@ -100,17 +100,13 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                     .filter(e -> exploratoryGpuIssuesAzureFilter(e, endpointDTO.getCloudProvider()) &&
                             UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage(), roles))
                     .peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES, roles))
-                    .peek(e -> addGpu(e, endpointDTO.getCloudProvider().getName()))
+                    .peek(e -> addGpu(e, project))
                     .collect(Collectors.toList());
 
         } catch (DatalabException e) {
             log.error("Could not load list of exploratory templates for user: {}", user.getName(), e);
             throw e;
         }
-    }
-
-    private void addGpu(ExploratoryMetadataDTO e, String provider) {
-        gpuDAO.getGPUByProvider(provider).ifPresent(x -> x.setGpus(x.getGpus()));
     }
 
     @Override
@@ -130,7 +126,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                     .peek(e -> e.setImage(getSimpleImageName(e.getImage())))
                     .peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES, roles))
                     .filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage(), roles))
-                    .map(comp -> fullComputationalTemplate(comp, endpointDTO.getCloudProvider()))
+                    .map(comp -> fullComputationalTemplate(comp, endpointDTO.getCloudProvider(), project))
                     .collect(Collectors.toList());
 
         } catch (DatalabException e) {
@@ -181,10 +177,10 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
      */
 
     private FullComputationalTemplate fullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
-                                                                CloudProvider cloudProvider) {
+                                                                CloudProvider cloudProvider, String projectName) {
 
         DataEngineType dataEngineType = DataEngineType.fromDockerImageName(metadataDTO.getImage());
-        gpuDAO.getGPUByProvider(cloudProvider.getName()).ifPresent(x -> metadataDTO.setComputationGPU(x.getGpus()));
+        gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU -> metadataDTO.setComputationGPU(edgeGPU.getGpus()));
 
         if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
             return getCloudFullComputationalTemplate(metadataDTO, cloudProvider);
@@ -257,5 +253,9 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
             super(metadataDTO);
             this.sparkStandaloneConfiguration = sparkStandaloneConfiguration;
         }
+    }
+
+    private void addGpu(ExploratoryMetadataDTO e, String projectName) {
+        gpuDAO.getGPUByProjectName(projectName).ifPresent(x -> x.setGpus(x.getGpus()));
     }
 }

@@ -25,7 +25,7 @@ import java.util.Optional;
 
 public interface GpuDAO {
 
-    Optional<EdgeGPU> getGPUByProvider(String provider);
+    Optional<EdgeGPU> getGPUByProjectName(String projectName);
 
     void create(EdgeGPU gpu);
 

@@ -19,7 +19,6 @@
 
 package com.epam.datalab.dto.base.edge;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,8 +30,5 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class GPU {
 
-    @JsonProperty("size")
-    private String size;
-    @JsonProperty("gpu_type")
     private String gpuType;
 }

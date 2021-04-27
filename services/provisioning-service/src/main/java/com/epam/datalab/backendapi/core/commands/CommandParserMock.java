@@ -214,10 +214,8 @@ public class CommandParserMock {
      */
     private Pair<String, String> getPair(String argName, String value, String separator) {
         String[] array = value.split(separator);
-        if (array.length == 2) {
+        if (array.length != 2) {
             return new ImmutablePair<>(array[0], array[1]);
-        } else if (array.length == 3) {
-            return new ImmutablePair<>(array[1], array[2]);
         }
         throw new DatalabException("Invalid value for \"" + argName + "\": " + value);
     }
