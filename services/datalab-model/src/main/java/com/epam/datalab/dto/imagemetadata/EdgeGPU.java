@@ -33,6 +33,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class EdgeGPU {
 
-    private String providerName;
+    private String projectName;
     private List<GPU> gpus;
 }

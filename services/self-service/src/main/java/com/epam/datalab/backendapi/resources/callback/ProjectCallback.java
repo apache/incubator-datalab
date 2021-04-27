@@ -22,14 +22,12 @@ package com.epam.datalab.backendapi.resources.callback;
 import com.epam.datalab.backendapi.dao.EndpointDAO;
 import com.epam.datalab.backendapi.dao.GpuDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.service.ExploratoryService;
 import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.base.edge.GPU;
 import com.epam.datalab.dto.base.project.ProjectResult;
 import com.epam.datalab.dto.imagemetadata.EdgeGPU;
-import com.epam.datalab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +45,6 @@ import java.util.Objects;
 public class ProjectCallback {
 
     private final ProjectDAO projectDAO;
-    private final EndpointDAO endpointDAO;
     private final ExploratoryService exploratoryService;
     private final RequestId requestId;
     private final GpuDAO gpuDAO;
@@ -56,7 +53,6 @@ public class ProjectCallback {
     public ProjectCallback(ProjectDAO projectDAO, EndpointDAO endpointDAO, ExploratoryService exploratoryService, RequestId requestId,
                            GpuDAO gpuDAO) {
         this.projectDAO = projectDAO;
-        this.endpointDAO = endpointDAO;
         this.exploratoryService = exploratoryService;
         this.requestId = requestId;
         this.gpuDAO = gpuDAO;
@@ -67,10 +63,9 @@ public class ProjectCallback {
     public Response updateProjectStatus(ProjectResult projectResult) {
         requestId.checkAndRemove(projectResult.getRequestId());
         final String projectName = projectResult.getProjectName();
-        final String endpointName = projectResult.getEndpointName();
         final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
         List<GPU> gpuList = projectResult.getEdgeInfo().getGpuList();
-        addGpuForProvider(endpointName, gpuList);
+        gpuDAO.create(new EdgeGPU(projectName, gpuList));
         if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
             projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
         } else {
@@ -78,16 +73,6 @@ public class ProjectCallback {
             projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
         }
         return Response.ok().build();
-    }
-
-    private void addGpuForProvider(String endpointName, List<GPU> gpuList) {
-        try {
-            EndpointDTO endpointDTO = endpointDAO.get(endpointName)
-                    .orElseThrow(() -> new ResourceNotFoundException(String.format("Endpoint %s does not exist", endpointName)));
-            gpuDAO.create(new EdgeGPU(endpointDTO.getCloudProvider().getName(), gpuList));
-        } catch (ResourceNotFoundException ignored) {
-
-        }
     }
 
     private void updateExploratoriesStatusIfNeeded(UserInstanceStatus status, String projectName, String endpoint) {
