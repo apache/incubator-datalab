@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.datalab.backendapi.dao.GpuDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.dao.SettingsDAO;
 import com.epam.datalab.backendapi.dao.UserGroupDAO;
@@ -59,21 +60,28 @@ import static com.epam.datalab.rest.contracts.DockerAPI.DOCKER_EXPLORATORY;
 @Slf4j
 public class InfrastructureTemplateServiceImpl implements InfrastructureTemplateService {
 
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
-    @Inject
-    private SettingsDAO settingsDAO;
-    @Inject
-    private ProjectDAO projectDAO;
-    @Inject
-    private EndpointService endpointService;
-    @Inject
-    private UserGroupDAO userGroupDao;
+    private final SelfServiceApplicationConfiguration configuration;
+    private final SettingsDAO settingsDAO;
+    private final UserGroupDAO userGroupDao;
+    private final GpuDAO gpuDAO;
+    private final EndpointService endpointService;
 
 
     @Inject
-    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-    private RESTService provisioningService;
+    private final RESTService provisioningService;
+
+    @Inject
+    public InfrastructureTemplateServiceImpl(SelfServiceApplicationConfiguration configuration, SettingsDAO settingsDAO,
+                                             ProjectDAO projectDAO, EndpointService endpointService,
+                                             UserGroupDAO userGroupDao, GpuDAO gpuDAO,
+                                             @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
+        this.configuration = configuration;
+        this.settingsDAO = settingsDAO;
+        this.endpointService = endpointService;
+        this.userGroupDao = userGroupDao;
+        this.gpuDAO = gpuDAO;
+        this.provisioningService = provisioningService;
+    }
 
     @Override
     public List<ExploratoryMetadataDTO> getExploratoryTemplates(UserInfo user, String project, String endpoint) {
@@ -92,12 +100,17 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                     .filter(e -> exploratoryGpuIssuesAzureFilter(e, endpointDTO.getCloudProvider()) &&
                             UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage(), roles))
                     .peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES, roles))
+                    .peek(e -> addGpu(e, endpointDTO.getCloudProvider().getName()))
                     .collect(Collectors.toList());
 
         } catch (DatalabException e) {
             log.error("Could not load list of exploratory templates for user: {}", user.getName(), e);
             throw e;
         }
+    }
+
+    private void addGpu(ExploratoryMetadataDTO e, String provider) {
+        gpuDAO.getGPUByProvider(provider).ifPresent(x -> x.setGpus(x.getGpus()));
     }
 
     @Override
@@ -171,6 +184,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                                                                 CloudProvider cloudProvider) {
 
         DataEngineType dataEngineType = DataEngineType.fromDockerImageName(metadataDTO.getImage());
+        gpuDAO.getGPUByProvider(cloudProvider.getName()).ifPresent(x -> metadataDTO.setComputationGPU(x.getGpus()));
 
         if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
             return getCloudFullComputationalTemplate(metadataDTO, cloudProvider);
@@ -187,6 +201,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 
     protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
                                                                           CloudProvider cloudProvider) {
+
         switch (cloudProvider) {
             case AWS:
                 return new AwsFullComputationalTemplate(metadataDTO,

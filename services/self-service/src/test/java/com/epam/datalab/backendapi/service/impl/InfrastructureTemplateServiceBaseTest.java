@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.datalab.backendapi.dao.GpuDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.dao.SettingsDAO;
 import com.epam.datalab.backendapi.dao.UserGroupDAO;
@@ -41,23 +42,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InfrastructureTemplateServiceBaseTest {
@@ -74,9 +63,11 @@ public class InfrastructureTemplateServiceBaseTest {
     private UserGroupDAO userGroupDao;
     @Mock
     private SelfServiceApplicationConfiguration configuration;
+    @Mock
+    private GpuDAO gpuDAO;
 
     @InjectMocks
-    private InfrastructureTemplateServiceBaseChild infrastructureTemplateServiceBaseChild =
+    private final InfrastructureTemplateServiceBaseChild infrastructureTemplateServiceBaseChild =
             new InfrastructureTemplateServiceBaseChild();
 
     @Test
@@ -218,6 +209,10 @@ public class InfrastructureTemplateServiceBaseTest {
     }
 
     private class InfrastructureTemplateServiceBaseChild extends InfrastructureTemplateServiceImpl {
+
+        private InfrastructureTemplateServiceBaseChild() {
+            super(configuration, settingsDAO, projectDAO, endpointService, userGroupDao, gpuDAO, provisioningService);
+        }
 
         protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO) {
             return new FullComputationalTemplate(metadataDTO);

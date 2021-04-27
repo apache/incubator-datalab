@@ -17,22 +17,17 @@
  * under the License.
  */
 
-package com.epam.datalab.dto.base.project;
+package com.epam.datalab.backendapi.dao;
 
-import com.epam.datalab.dto.StatusBaseDTO;
-import com.epam.datalab.dto.base.edge.EdgeInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.epam.datalab.dto.imagemetadata.EdgeGPU;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ProjectResult extends StatusBaseDTO<ProjectResult> {
-    private EdgeInfo edgeInfo;
-    @JsonProperty("project_name")
-    private String projectName;
-    @JsonProperty("endpoint_name")
-    private String endpointName;
+import java.util.Optional;
+
+public interface GpuDAO {
+
+    Optional<EdgeGPU> getGPUByProvider(String provider);
+
+    void create(EdgeGPU gpu);
+
+    void remove(String nodeId);
 }

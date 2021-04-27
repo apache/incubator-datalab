@@ -56,15 +56,9 @@ public class GcpComputationalCreateForm extends ComputationalCreateFormDTO {
     @JsonProperty("gpu_enabled")
     private Boolean enabledGPU;
 
-    @JsonProperty("masterGPUType")
-    private String masterGPUType;
+    @JsonProperty("gpuType")
+    private String gpuType;
 
-    @JsonProperty("slaveGPUType")
-    private String slaveGPUType;
-
-    @JsonProperty("masterGPUCount")
-    private String masterGPUCount;
-
-    @JsonProperty("slaveGPUCount")
-    private String slaveGPUCount;
+    @JsonProperty("gpuCount")
+    private String gpuCount;
 }
