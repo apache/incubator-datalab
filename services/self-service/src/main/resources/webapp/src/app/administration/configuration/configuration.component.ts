@@ -46,6 +46,11 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     'provisioning': {label: 'Provisioning', selected: false, config: '', serverConfig: '', isConfigChanged: false},
     'billing': {label: 'Billing', selected: false, config: '', serverConfig: '', isConfigChanged: false},
   };
+
+  public messagesStatus = {
+    success: [],
+    error: []
+  };
   
   public processingStatuses = [];
   public ingStatuses = ['creating', 'configuring', 'reconfiguring', 'creating image', 'stopping', 'starting', 'terminating'];
@@ -227,6 +232,20 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.services[service].selected = !this.services[service].selected;
   }
 
+  public restartSingleService(ui: boolean, prov: boolean, billing: boolean, serviceName) {
+    this.configurationService.restartServices(ui, prov, billing, this.activeEndpoint)
+      .pipe(
+        takeUntil(this.unsubscribe$),
+      )
+      .subscribe(res => {
+          this.messagesStatus.success.push(serviceName);
+        },
+        error => {
+          this.messagesStatus.error.push(serviceName);
+        }
+      );
+  }
+
   public restartServices(): void  {
     const selectedServices = [];
     for (const service in this.services) {
@@ -251,29 +270,30 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
           if(this.processingStatuses.length && this.services['provisioning'].selected) {
             this.services['provisioning'].selected = false;
           }
-          
-          this.configurationService.restartServices(
-            this.services['self-service'].selected,
-            this.services['provisioning'].selected,
-            this.services['billing'].selected,
-            this.activeEndpoint
-          )
-          .pipe(
-            takeUntil(this.unsubscribe$),
-          )
-          .subscribe(res => {
-              this.clearSelectedServices();
-              this.toastr.success('Service restarting started!', 'Success!');
-            },
-            error => {
-            if (this.services['self-service'].selected) {
-              this.clearSelectedServices();
-              return this.toastr.success('Service restarting started!', 'Success!');
-            } else {
-              this.toastr.error('Service restarting failed', 'Oops!');
+
+          if(this.services['self-service'].selected) {
+            this.restartSingleService(true, false, false, 'Self-service')
+          } 
+          if(this.services['provisioning'].selected) {
+            this.restartSingleService(false, true, false, 'Provisioning service')
+          } 
+          if(this.services['billing'].selected) {
+            this.restartSingleService(false, false, true, 'Billing service')
+            
+          }
+
+          setTimeout(() => {
+            for(let key in this.messagesStatus) {
+              if(key === 'error' && this.messagesStatus[key].length > 0) {
+                this.toastr.error(`${this.messagesStatus[key].join(', ')} restarting failed`, 'Oops!');
+              } else if(key === 'success' && this.messagesStatus[key].length > 0) {
+                this.toastr.success(`${this.messagesStatus[key].join(', ')} restarting started!`, 'Success!');
+              }
             }
-            }
-          );
+            this.clearSelectedServices();
+            this.messagesStatus.success = [];
+            this.messagesStatus.error = [];
+          }, 500);
         } else {
           this.clearSelectedServices();
         }
