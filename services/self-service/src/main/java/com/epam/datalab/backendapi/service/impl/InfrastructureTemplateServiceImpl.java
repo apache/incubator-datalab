@@ -256,6 +256,11 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
     }
 
     private void addGpu(ExploratoryMetadataDTO e, String projectName) {
-        gpuDAO.getGPUByProjectName(projectName).ifPresent(x -> x.setGpus(x.getGpus()));
+        try {
+            gpuDAO.getGPUByProjectName(projectName).ifPresent(x -> e.setComputationGPU(x.getGpus()));
+        } catch (Exception ex) {
+            log.info(ex.getMessage());
+        }
+
     }
 }
