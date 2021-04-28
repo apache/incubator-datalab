@@ -28,6 +28,7 @@ import sys
 import os
 import subprocess
 from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--os_user', type=str, default='')

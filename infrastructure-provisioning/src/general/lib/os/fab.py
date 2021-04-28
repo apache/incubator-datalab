@@ -36,6 +36,7 @@ from datalab.common_lib import *
 from datalab.meta_lib import *
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 
 
 def ensure_pip(requisites):

@@ -30,6 +30,7 @@ from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 
 
 def enable_proxy(proxy_host, proxy_port):
@@ -216,7 +217,7 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'python35u python35u-pip python35u-devel')
             datalab.fab.conn.sudo('python3.5 -m pip install -U pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
             datalab.fab.conn.sudo('python3.5 -m pip install boto3 --no-cache-dir')
-            datalab.fab.conn.sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
+            datalab.fab.conn.sudo('python3.5 -m pip install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
             try:
                 datalab.fab.conn.sudo('python3.5 -m pip install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))

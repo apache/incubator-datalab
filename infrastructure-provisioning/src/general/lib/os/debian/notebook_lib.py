@@ -32,6 +32,7 @@ from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 
 
 def enable_proxy(proxy_host, proxy_port):
@@ -264,7 +265,7 @@ def ensure_python3_libraries(os_user):
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             datalab.fab.conn.sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             datalab.fab.conn.sudo('pip3 install boto3 --no-cache-dir')
-            datalab.fab.conn.sudo('pip3 install fabvenv fabric-virtualenv future --no-cache-dir')
+            datalab.fab.conn.sudo('pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
             sys.exit(1)

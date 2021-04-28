@@ -24,11 +24,11 @@
 import argparse
 import sys
 import subprocess
-from datalab.actions_lib import *
-from datalab.common_lib import *
-from datalab.fab import *
-from datalab.notebook_lib import *
-from fabric import *
+#from datalab.actions_lib import *
+#from datalab.common_lib import *
+#from datalab.fab import *
+#from datalab.notebook_lib import *
+#from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -186,6 +186,7 @@ def install_sparkamagic_kernels(args):
                 args.master_ip, args.os_user), shell=True, check=True)
         subprocess.run('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user), shell=True, check=True)
     except:
+        traceback.print_exc()
         sys.exit(1)
 
 

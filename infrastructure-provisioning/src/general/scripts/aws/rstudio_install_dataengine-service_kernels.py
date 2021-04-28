@@ -53,7 +53,7 @@ def configure_notebook(args):
     conn.sudo('chmod 755 /usr/local/bin/rstudio_dataengine-service_create_configs.py')
     conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
     conn.run('mkdir -p /tmp/datalab_libs/')
-    conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, args.notebook_ip))
+    conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}@{}:/tmp/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
     conn.run('chmod a+x /tmp/datalab_libs/*')
     conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists(conn, '/usr/lib64'):

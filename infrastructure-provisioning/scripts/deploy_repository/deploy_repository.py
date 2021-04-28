@@ -31,6 +31,7 @@ import traceback
 from ConfigParser import ConfigParser
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_base_name', required=True, type=str, default='',
