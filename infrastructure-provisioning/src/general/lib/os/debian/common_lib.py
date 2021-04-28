@@ -23,6 +23,7 @@
 
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 import sys
 import os
 import time

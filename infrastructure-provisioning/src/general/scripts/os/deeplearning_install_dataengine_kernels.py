@@ -27,6 +27,7 @@ from datalab.fab import *
 from datalab.meta_lib import *
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')

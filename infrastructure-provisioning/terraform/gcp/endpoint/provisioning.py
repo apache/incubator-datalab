@@ -22,6 +22,7 @@ import time
 import traceback
 from fabric import Connection
 from patchwork.files import exists
+from patchwork import files
 
 conn = None
 args = None

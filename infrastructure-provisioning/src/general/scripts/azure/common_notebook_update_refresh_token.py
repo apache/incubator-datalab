@@ -28,6 +28,7 @@ import os
 import sys
 import time
 from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--refresh_token', type=str, default='')

@@ -28,6 +28,7 @@ from datalab.common_lib import *
 from datalab.fab import *
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 import traceback
 
 parser = argparse.ArgumentParser()

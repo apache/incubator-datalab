@@ -23,9 +23,9 @@
 
 import argparse
 import subprocess
-from datalab.actions_lib import *
+from datalab.actions_lib import jars, yarn, install_emr_spark, spark_defaults, installing_python, configure_zeppelin_emr_interpreter
 from datalab.common_lib import *
-from datalab.fab import *
+from datalab.fab import configuring_notebook, update_zeppelin_interpreters
 from datalab.notebook_lib import *
 from fabric import *
 

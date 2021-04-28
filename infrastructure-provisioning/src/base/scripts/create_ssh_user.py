@@ -23,12 +23,14 @@
 
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 from datalab.fab import *
 import argparse
 import sys
 import time
 import traceback
 from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

@@ -30,6 +30,7 @@ from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')

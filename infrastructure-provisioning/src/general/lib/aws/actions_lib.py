@@ -36,6 +36,7 @@ import datalab.fab
 from datalab.meta_lib import *
 from botocore.client import Config as botoConfig
 from patchwork.files import exists
+from patchwork import files
 
 
 def backoff_log(err):
@@ -1434,11 +1435,11 @@ def install_emr_spark(args):
                             '/tmp/spark.tar.gz')
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark-checksum.chk',
                             '/tmp/spark-checksum.chk')
-    if 'WARNING' in subprocess.run('md5sum -c /tmp/spark-checksum.chk', capture_output=True, shell=True, check=True):
+    if 'WARNING' in subprocess.run('md5sum -c /tmp/spark-checksum.chk', capture_output=True, shell=True, check=True).stdout.decode('UTF-8'):
         subprocess.run('rm -f /tmp/spark.tar.gz', shell=True, check=True)
         s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/spark.tar.gz',
                                 '/tmp/spark.tar.gz')
-        if 'WARNING' in subprocess.run('md5sum -c /tmp/spark-checksum.chk', capture_output=True, shell=True, check=True):
+        if 'WARNING' in subprocess.run('md5sum -c /tmp/spark-checksum.chk', capture_output=True, shell=True, check=True).stdout.decode('UTF-8'):
             print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     subprocess.run('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/' + args.emr_version + '/' + args.cluster_name + '/', shell=True, check=True)
@@ -1449,10 +1450,10 @@ def jars(args, emr_dir):
     s3_client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars-checksum.chk', '/tmp/jars-checksum.chk')
-    if 'WARNING' in subprocess.run('md5sum -c /tmp/jars-checksum.chk', capture_output=True, shell=True, check=True):
+    if 'WARNING' in subprocess.run('md5sum -c /tmp/jars-checksum.chk', capture_output=True, shell=True, check=True).stdout.decode('UTF-8'):
         subprocess.run('rm -f /tmp/jars.tar.gz', shell=True, check=True)
         s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
-        if 'WARNING' in subprocess.run('md5sum -c /tmp/jars-checksum.chk', capture_output=True, shell=True, check=True):
+        if 'WARNING' in subprocess.run('md5sum -c /tmp/jars-checksum.chk', capture_output=True, shell=True, check=True).stdout.decode('UTF-8'):
             print("The checksum of jars.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     subprocess.run('tar -zhxvf /tmp/jars.tar.gz -C ' + emr_dir, shell=True, check=True)

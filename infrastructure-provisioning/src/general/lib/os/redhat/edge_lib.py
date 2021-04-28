@@ -26,6 +26,7 @@ import sys
 from datalab.common_lib import manage_pkg
 from fabric import *
 from patchwork.files import exists
+from patchwork import files
 
 
 def configure_http_proxy_server(config):
