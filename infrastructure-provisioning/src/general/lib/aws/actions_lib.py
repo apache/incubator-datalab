@@ -1579,7 +1579,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 subprocess.run('sudo rm -rf /opt/python/python{}/'.format(python_version), shell=True, check=True)
                 sys.exit(1)
         else:
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3', shell=True, check=True)
+            print(subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3', shell=True, check=True))
             subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0', shell=True, check=True)
             subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir', shell=True, check=True)
             subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={}'.format(numpy_version), shell=True, check=True)
@@ -1718,10 +1718,10 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         python_version = python_version[0:5]
         livy_port = ''
         livy_path = '/opt/{0}/{1}/livy/'.format(emr_version, cluster_name)
-        spark_libs = "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/{0}/jars/usr/lib/hadoop" \
-                     "/hadoop-aws*.jar /opt/" + \
-                     "{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/{0}" + \
-                     "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar".format(emr_version)
+        spark_libs = "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar " \
+                     "/opt/{0}/jars/usr/lib/hadoop/hadoop-aws*.jar " \
+                     "/opt/{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar " \
+                     "/opt/{0}/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar".format(emr_version)
         # fix due to: Multiple py4j files found under ..../spark/python/lib
         # py4j-0.10.7-src.zip still in folder. Versions may varies.
         subprocess.run('rm /opt/{0}/{1}/spark/python/lib/py4j-src.zip'.format(emr_version, cluster_name), shell=True, check=True)
