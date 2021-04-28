@@ -65,9 +65,6 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
     private final UserGroupDAO userGroupDao;
     private final GpuDAO gpuDAO;
     private final EndpointService endpointService;
-
-
-    @Inject
     private final RESTService provisioningService;
 
     @Inject
@@ -88,13 +85,20 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 
         log.debug("Loading list of exploratory templates for user {} for project {}", user.getName(), project);
         try {
+
+
             EndpointDTO endpointDTO = endpointService.get(endpoint);
+            log.info("TEST LOG!!! endpoint: {}", endpointDTO);
+            log.info("TEST LOG!!! prov: {}", provisioningService);
+
             ExploratoryMetadataDTO[] array =
                     provisioningService.get(endpointDTO.getUrl() + DOCKER_EXPLORATORY,
                             user.getAccessToken(),
                             ExploratoryMetadataDTO[].class);
 
             final Set<String> roles = userGroupDao.getUserGroups(user.getName());
+            log.info("TEST LOG!!! roles: {}", roles);
+
             return Arrays.stream(array)
                     .peek(e -> e.setImage(getSimpleImageName(e.getImage())))
                     .filter(e -> exploratoryGpuIssuesAzureFilter(e, endpointDTO.getCloudProvider()) &&
@@ -222,7 +226,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
         }
     }
 
-    private class AwsFullComputationalTemplate extends FullComputationalTemplate {
+    private static class AwsFullComputationalTemplate extends FullComputationalTemplate {
         @JsonProperty("limits")
         private AwsEmrConfiguration awsEmrConfiguration;
 
@@ -233,7 +237,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
         }
     }
 
-    private class GcpFullComputationalTemplate extends FullComputationalTemplate {
+    private static class GcpFullComputationalTemplate extends FullComputationalTemplate {
         @JsonProperty("limits")
         private GcpDataprocConfiguration gcpDataprocConfiguration;
 
@@ -244,7 +248,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
         }
     }
 
-    private class SparkFullComputationalTemplate extends FullComputationalTemplate {
+    private static class SparkFullComputationalTemplate extends FullComputationalTemplate {
         @JsonProperty("limits")
         private SparkStandaloneConfiguration sparkStandaloneConfiguration;
 
@@ -256,8 +260,9 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
     }
 
     private void addGpu(ExploratoryMetadataDTO e, String projectName) {
+        log.info("Trying to read GPU from DB for {}", projectName);
         try {
-            gpuDAO.getGPUByProjectName(projectName).ifPresent(x -> e.setComputationGPU(x.getGpus()));
+            gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU -> e.setComputationGPU(edgeGPU.getGpus()));
         } catch (Exception ex) {
             log.info(ex.getMessage());
         }

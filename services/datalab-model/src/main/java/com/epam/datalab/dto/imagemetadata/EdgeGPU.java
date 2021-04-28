@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -34,5 +35,5 @@ import java.util.List;
 public class EdgeGPU {
 
     private String projectName;
-    private List<GPU> gpus;
+    private List<GPU> gpus = new ArrayList<>();
 }
