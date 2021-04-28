@@ -25,7 +25,6 @@ import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.service.ExploratoryService;
 import com.epam.datalab.dto.UserInstanceStatus;
-import com.epam.datalab.dto.base.edge.GPU;
 import com.epam.datalab.dto.base.project.ProjectResult;
 import com.epam.datalab.dto.imagemetadata.EdgeGPU;
 import com.google.inject.Inject;
@@ -64,7 +63,7 @@ public class ProjectCallback {
         requestId.checkAndRemove(projectResult.getRequestId());
         final String projectName = projectResult.getProjectName();
         final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
-        List<GPU> gpuList = projectResult.getEdgeInfo().getGpuList();
+        List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
         gpuDAO.create(new EdgeGPU(projectName, gpuList));
         if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
             projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());

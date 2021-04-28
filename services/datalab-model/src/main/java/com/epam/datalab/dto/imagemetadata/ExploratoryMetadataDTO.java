@@ -20,7 +20,6 @@
 
 package com.epam.datalab.dto.imagemetadata;
 
-import com.epam.datalab.dto.base.edge.GPU;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -46,7 +45,7 @@ public class ExploratoryMetadataDTO extends ImageMetadataDTO {
 
     //GPU
 //    @JsonProperty("gpu_types")
-    private List<GPU> computationGPU;
+    private List<String> computationGPU;
 
     public ExploratoryMetadataDTO(String imageName) {
         this.image = imageName;

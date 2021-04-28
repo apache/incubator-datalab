@@ -72,5 +72,5 @@ public class EdgeInfo {
     private boolean reuploadKeyRequired = false;
 
     @JsonProperty("gpu_types")
-    private List<GPU> gpuList;
+    private List<String> gpuList;
 }

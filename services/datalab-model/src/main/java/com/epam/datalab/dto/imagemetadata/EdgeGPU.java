@@ -19,7 +19,6 @@
 
 package com.epam.datalab.dto.imagemetadata;
 
-import com.epam.datalab.dto.base.edge.GPU;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,5 +34,5 @@ import java.util.List;
 public class EdgeGPU {
 
     private String projectName;
-    private List<GPU> gpus = new ArrayList<>();
+    private List<String> gpus = new ArrayList<>();
 }

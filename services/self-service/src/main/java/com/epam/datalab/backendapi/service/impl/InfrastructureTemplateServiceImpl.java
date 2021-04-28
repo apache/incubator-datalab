@@ -266,6 +266,5 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
         } catch (Exception ex) {
             log.info(ex.getMessage());
         }
-
     }
 }
