@@ -106,7 +106,7 @@ if __name__ == "__main__":
     print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    if not os.environ['aws_deeplearning_image_name']:
+    if os.environ['conf_deeplearning_cloud_ami'] == 'false':
         # INSTALL LANGUAGES
         print("Install Java")
         ensure_jre_jdk(args.os_user)
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         ensure_additional_python_libs(args.os_user)
         print("Install Matplotlib")
         ensure_matplot(args.os_user)
-    else:
+    elif os.environ['conf_deeplearning_cloud_ami'] == 'true':
         # CONFIGURE JUPYTER NOTEBOOK
         print("Configure Jupyter")
         configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version, args.exploratory_name)
