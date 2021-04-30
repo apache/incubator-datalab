@@ -1255,7 +1255,7 @@ def prepare_disk(os_user):
                     sys.exit(1)
                 else:
                     out = datalab.fab.conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{} 2>&1' '''.format(
-                        disk_name), warn=True).stdout
+                        disk_name)).stdout
                     if 'Syncing disks' in out:
                         allow = True
                     elif 'The kernel still uses the old table.' in out:
