@@ -635,7 +635,6 @@ def get_ami_id(ami_name):
         append_result(str({"error": "Unable to find AMI", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-
 def get_iam_profile(profile_name, count=0):
     client = boto3.client('iam')
     iam_profile = ''
