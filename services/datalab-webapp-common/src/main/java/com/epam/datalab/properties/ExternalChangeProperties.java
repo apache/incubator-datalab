@@ -80,12 +80,11 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
                                                 UserInfo userInfo, String url) {
         log.info("Trying to write {}, for external endpoint : {} , for user: {}",
                 name, ymlDTO.getEndpointName(), userInfo.getSimpleName());
-        if (ymlDTO.getEndpointName().equals(ChangePropertiesConst.LOCAL_ENDPOINT_NAME)
+        if (ymlDTO.getEndpointName().equals(LOCAL_ENDPOINT_NAME)
                 || name.equals(SELF_SERVICE)
                 || name.equals(GKE_SELF_SERVICE)) {
             changePropertiesService.writeFileFromString(ymlDTO.getYmlString(), name, path);
         } else {
-
             url += findMethodName(name);
             log.info("TEST LOG: on external call method , url for the next step: {}", url);
             provService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
@@ -95,9 +94,6 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
 
     public void restartForExternal(RestartForm restartForm, UserInfo userInfo, String url) {
         if (restartForm.getEndpoint().equals(LOCAL_ENDPOINT_NAME)) {
-            provService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
-            restartForm.setProvserv(false);
-            restartForm.setBilling(false);
             changePropertiesService.restart(restartForm);
         } else {
             log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
@@ -107,10 +103,12 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
 
     private String findMethodName(String name) {
         switch (name) {
-            case "provisioning.yml": {
+            case "provisioning.yml":
+            case "provisioning": {
                 return "/provisioning-service";
             }
-            case "billing.yml": {
+            case "billing.yml":
+            case "billing": {
                 return "/billing";
             }
             default:
