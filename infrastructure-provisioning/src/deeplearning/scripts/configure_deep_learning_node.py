@@ -107,49 +107,60 @@ if __name__ == "__main__":
     print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    # INSTALL LANGUAGES
-    print("Install Java")
-    ensure_jre_jdk(args.os_user)
-    print("Install Python 3 modules")
-    ensure_python3_libraries(args.os_user)
+    if os.environ['conf_deeplearning_cloud_ami'] == 'false':
+        # INSTALL LANGUAGES
+        print("Install Java")
+        ensure_jre_jdk(args.os_user)
+        print("Install Python 3 modules")
+        ensure_python3_libraries(args.os_user)
 
-    # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES AND FRAMEWORKS
-    print("Install TensorFlow")
-    install_tensor(args.os_user, cuda_version, cuda_file_name,
-                   cudnn_version, cudnn_file_name, tensorflow_version,
-                   templates_dir, nvidia_version)
-    print("Install Theano")
-    install_theano(args.os_user, theano_version)
-    print("Installing Keras")
-    install_keras(args.os_user, keras_version)
-    print("Installing Caffe2")
-    install_caffe2(args.os_user, caffe2_version, cmake_version)
-    #print("Installing Torch")
-    #install_torch(args.os_user)
-    print("Install CNTK Python library")
-    install_cntk(args.os_user, cntk_version)
-    print("Installing MXNET")
-    install_mxnet(args.os_user, mxnet_version)
+        # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES AND FRAMEWORKS
+        print("Install TensorFlow")
+        install_tensor(args.os_user, cuda_version, cuda_file_name,
+                       cudnn_version, cudnn_file_name, tensorflow_version,
+                       templates_dir, nvidia_version)
+        print("Install Theano")
+        install_theano(args.os_user, theano_version)
+        print("Installing Keras")
+        install_keras(args.os_user, keras_version)
+        print("Installing Caffe2")
+        install_caffe2(args.os_user, caffe2_version, cmake_version)
+        #print("Installing Torch")
+        #install_torch(args.os_user)
+        print("Install CNTK Python library")
+        install_cntk(args.os_user, cntk_version)
+        print("Installing MXNET")
+        install_mxnet(args.os_user, mxnet_version)
 
-    # INSTALL JUPYTER NOTEBOOK
-    print("Install Jupyter")
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version, args.exploratory_name)
+        # INSTALL JUPYTER NOTEBOOK
+        print("Install Jupyter")
+        configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version, args.exploratory_name)
 
-    # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
-    print("Install local Spark")
-    ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-    print("Install storage jars")
-    ensure_local_jars(args.os_user, jars_dir)
-    print("Configure local Spark")
-    configure_local_spark(jars_dir, templates_dir)
+        # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
+        print("Install local Spark")
+        ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
+        print("Install storage jars")
+        ensure_local_jars(args.os_user, jars_dir)
+        print("Configure local Spark")
+        configure_local_spark(jars_dir, templates_dir)
 
-    # INSTALL JUPYTER KERNELS
-    print("Install pyspark local kernel for Jupyter")
-    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
-    print("Install py3spark local kernel for Jupyter")
-    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
-    #print("Installing ITorch kernel for Jupyter")
-    #install_itorch(args.os_user)
+        # INSTALL JUPYTER KERNELS
+        print("Install pyspark local kernel for Jupyter")
+        ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
+        print("Install py3spark local kernel for Jupyter")
+        ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
+        #print("Installing ITorch kernel for Jupyter")
+        #install_itorch(args.os_user)
+
+        # INSTALL OPTIONAL PACKAGES
+        print("Installing additional Python packages")
+        ensure_additional_python_libs(args.os_user)
+        print("Install Matplotlib")
+        ensure_matplot(args.os_user)
+    elif os.environ['conf_deeplearning_cloud_ami'] == 'true':
+        # CONFIGURE JUPYTER NOTEBOOK
+        print("Configure Jupyter")
+        configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version, args.exploratory_name)
 
     # INSTALL UNGIT
     print("Install nodejs")
@@ -162,12 +173,6 @@ if __name__ == "__main__":
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
     install_inactivity_checker(args.os_user, args.ip_address)
-
-    # INSTALL OPTIONAL PACKAGES
-    print("Installing additional Python packages")
-    ensure_additional_python_libs(args.os_user)
-    print("Install Matplotlib")
-    ensure_matplot(args.os_user)
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")

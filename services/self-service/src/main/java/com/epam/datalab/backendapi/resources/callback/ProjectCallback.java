@@ -63,8 +63,11 @@ public class ProjectCallback {
         requestId.checkAndRemove(projectResult.getRequestId());
         final String projectName = projectResult.getProjectName();
         final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
-        List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
-        gpuDAO.create(new EdgeGPU(projectName, gpuList));
+        if (projectResult.getEdgeInfo().getGpuList() != null) {
+            List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
+            log.info("Adding edgeGpu with gpu_types: {}, for project: {}", gpuList, projectName);
+            gpuDAO.create(new EdgeGPU(projectName, gpuList));
+        }
         if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
             projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
         } else {
