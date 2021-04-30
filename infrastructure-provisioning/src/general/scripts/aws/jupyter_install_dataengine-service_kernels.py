@@ -106,31 +106,31 @@ if __name__ == "__main__":
     global conn
     conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     configure_notebook(args)
-    spark_version = get_spark_version(args.cluster_name)
-    hadoop_version = get_hadoop_version(args.cluster_name)
+    args.spark_version = get_spark_version(args.cluster_name)
+    args.hadoop_version = get_hadoop_version(args.cluster_name)
     r_enabled = os.environ['notebook_r_enabled']
-    numpy_version = os.environ['notebook_numpy_version']
+    #numpy_version = os.environ['notebook_numpy_version']
     s3_client = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/scala_version',
                             '/tmp/scala_version')
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/python_version',
                             '/tmp/python_version')
     with open('/tmp/scala_version') as f:
-        scala_version = str(f.read()).rstrip()
-        print(scala_version)
+        args.scala_version = str(f.read()).rstrip()
+        print(args.scala_version)
     with open('/tmp/python_version') as f:
-        python_version = str(f.read()).rstrip()
-        print(python_version)
+        args.python_version = str(f.read()).rstrip()
+        print(args.python_version)
     if r_enabled == 'true':
         s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/r_version', '/tmp/r_version')
         with open('/tmp/r_version') as g:
-            r_version = str(g.read()).rstrip()
-            print(r_version)
+            args.r_version = str(g.read()).rstrip()
+            print(args.r_version)
     else:
         r_version = 'false'
     cluster_id = get_emr_id_by_name(args.cluster_name)
     master_instances = get_emr_instances_list(cluster_id, 'MASTER')
-    master_ip = master_instances[0].get('PrivateIpAddress')
+    args.master_ip = master_instances[0].get('PrivateIpAddress')
     #conn.sudo("/usr/bin/python3 /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket
     #     + " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version "
     #     + spark_version + " --scala_version " + scala_version + " --r_version " + r_version + " --hadoop_version "
