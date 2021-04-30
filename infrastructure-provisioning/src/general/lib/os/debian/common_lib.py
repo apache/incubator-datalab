@@ -81,7 +81,7 @@ def manage_pkg(command, environment, requisites):
                                 count = count + 1
 
                             datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({2})" /tmp/tee.tmp > '
-                                 '/tmp/apt.log; then echo "no_error" > /tmp/apt-get.log;fi'.format(command, requisites, error_parser))
+                                 '/tmp/apt-get.log; then echo "no_error" > /tmp/apt-get.log;fi'.format(command, requisites, error_parser))
                             err = datalab.fab.conn.sudo('cat /tmp/apt-get.log').stdout
                             count = 0
                             while 'no_error' not in err and count < 10:
