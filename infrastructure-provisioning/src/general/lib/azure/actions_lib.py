@@ -1266,7 +1266,14 @@ def prepare_disk(os_user):
                         counter += 1
                         time.sleep(5)
             datalab.fab.conn.sudo('umount -l /dev/{}1'.format(disk_name), warn=True)
-            datalab.fab.conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            try:
+                datalab.fab.conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            except:
+                out = datalab.fab.conn.sudo('mount -l | grep /dev/{}1'.format(disk_name)).stdout
+                if 'type ext4' in out:
+                    pass
+                else:
+                    sys.exit(1)
             datalab.fab.conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
             datalab.fab.conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
                 disk_name))
