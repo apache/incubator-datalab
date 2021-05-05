@@ -108,6 +108,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 versions = err[err.find("(from versions: ") + 16: err.find(") ")]
                 if versions != '' and versions != 'none':
                     versions = versions.split(', ')
+                    version = vers
                     status_msg = 'invalid_version'
                 else:
                     versions = []
