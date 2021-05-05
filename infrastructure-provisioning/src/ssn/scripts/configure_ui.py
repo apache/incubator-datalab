@@ -159,18 +159,18 @@ def build_ui():
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        if 'repository_user' in os.environ and 'repository_pass' in os.environ and 'repository_address' in os.environ:
+        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ:
             conn.sudo(
-                'wget -P {}sources/services/provisioning-service/target/  --user={} --password={} https://{}/repository/packages/provisioning-service-2.4.jar --no-check-certificate'
-                     .format(args.datalab_path, os.environ['repository_user'], os.environ['repository_pass'], os.environ['repository_address']))
+                'wget -P {}sources/services/provisioning-service/target/  --user={} --password={} {}/repository/packages/provisioning-service-2.4.jar --no-check-certificate'
+                     .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
             conn.sudo(
-                'wget -P {}sources/services/self-service/target/  --user={} --password={} https://{}/repository/packages/self-service-2.4.jar --no-check-certificate'
-                .format(args.datalab_path, os.environ['repository_user'], os.environ['repository_pass'],
-                        os.environ['repository_address']))
+                'wget -P {}sources/services/self-service/target/  --user={} --password={} {}/repository/packages/self-service-2.4.jar --no-check-certificate'
+                .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
+                        os.environ['conf_repository_address']))
             conn.sudo(
-                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} https://{3}/repository/packages/billing-{4}-2.4.jar --no-check-certificate'
-                .format(args.datalab_path, os.environ['repository_user'], os.environ['repository_pass'],
-                        os.environ['repository_address'], args.cloud_provider))
+                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} {3}/repository/packages/billing-{4}-2.4.jar --no-check-certificate'
+                .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
+                        os.environ['conf_repository_address'], args.cloud_provider))
         else:
             try:
                 conn.sudo('bash -c "cd {}sources/ && /opt/maven/bin/mvn -P{} -DskipTests package 2>&1 > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
