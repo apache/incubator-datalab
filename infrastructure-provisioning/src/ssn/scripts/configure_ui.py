@@ -158,7 +158,7 @@ def build_ui():
 
         # Building Back-end
         with cd(args.datalab_path + '/sources/'):
-            sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
+            sudo('/opt/maven/bin/mvn -P{} -DskipTests package -X -e'.format(args.cloud_provider))
 
         sudo('mkdir -p {}/webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:
