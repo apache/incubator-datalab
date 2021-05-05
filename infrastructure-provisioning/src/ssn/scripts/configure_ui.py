@@ -159,13 +159,26 @@ def build_ui():
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        try:
-            conn.sudo('bash -c "cd {}sources/ && /opt/maven/bin/mvn -P{} -DskipTests package 2>&1 > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
-        except:
-            conn.run('if ! grep -w -E "(ERROR)" /tmp/maven.log > /tmp/maven_error.log; then echo "no_error" > /tmp/maven_error.log;fi')
-            conn.run('cat /tmp/maven_error.log')
-            print('Failed to build Back-end: ', str(err))
-            sys.exit(1)
+        if 'repository_user' in os.environ and 'repository_pass' in os.environ and 'repository_address' in os.environ:
+            conn.sudo(
+                'wget -P {}sources/services/provisioning-service/target/  --user={} --password={} https://{}/repository/packages/provisioning-service-2.4.jar --no-check-certificate'
+                     .format(args.datalab_path, os.environ['repository_user'], os.environ['repository_pass'], os.environ['repository_address']))
+            conn.sudo(
+                'wget -P {}sources/services/self-service/target/  --user={} --password={} https://{}/repository/packages/self-service-2.4.jar --no-check-certificate'
+                .format(args.datalab_path, os.environ['repository_user'], os.environ['repository_pass'],
+                        os.environ['repository_address']))
+            conn.sudo(
+                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} https://{3}/repository/packages/billing-{4}-2.4.jar --no-check-certificate'
+                .format(args.datalab_path, os.environ['repository_user'], os.environ['repository_pass'],
+                        os.environ['repository_address'], args.cloud_provider))
+        else:
+            try:
+                conn.sudo('bash -c "cd {}sources/ && /opt/maven/bin/mvn -P{} -DskipTests package 2>&1 > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
+            except:
+                conn.run('if ! grep -w -E "(ERROR)" /tmp/maven.log > /tmp/maven_error.log; then echo "no_error" > /tmp/maven_error.log;fi')
+                conn.run('cat /tmp/maven_error.log')
+                print('Failed to build Back-end: ', str(err))
+                sys.exit(1)
         conn.sudo('mkdir -p {}webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:
             conn.sudo('mkdir -p {}webapp/{}/lib/'.format(args.datalab_path, service))
