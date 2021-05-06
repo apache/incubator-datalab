@@ -745,7 +745,6 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
     if emr:
-<<<<<<< HEAD
         sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
         sudo('pip2 install -U pip=={}'.format(os.environ['conf_pip_version']))
         sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
