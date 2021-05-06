@@ -112,8 +112,8 @@ if __name__ == "__main__":
     configure_local_spark(jars_dir, templates_dir)
 
     # INSTALL JUPYTER KERNELS
-    print("Install pyspark local kernel for Jupyter")
-    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
+    #print("Install pyspark local kernel for Jupyter")
+    #ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
     print("Install Toree-Scala kernel for Jupyter")
