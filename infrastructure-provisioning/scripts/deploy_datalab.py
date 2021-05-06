@@ -157,6 +157,12 @@ parser.add_argument('--conf_stepcerts_kid_password', type=str, default='', help=
 parser.add_argument('--conf_stepcerts_ca_url', type=str, default='', help='Step CA URL')
 parser.add_argument('--conf_letsencrypt_enabled', type=str, default='false',
                     help='Enable or disable Let`s Encrypt certificates')
+parser.add_argument('--conf_repository_user', type=str, default='',
+                    help='user to access repository (used for jars download)')
+parser.add_argument('--conf_repository_pass', type=str, default='',
+                    help='password to access repository (used for jars download)')
+parser.add_argument('--conf_repository_address', type=str, default='',
+                    help='address to access repository (used for jars download)')
 parser.add_argument('--conf_letsencrypt_domain_name', type=str, default='', help='Domain names to apply. '
                                                                                  'For multiple domains enter a comma separated list of domains as a parameter'
                                                                                  'ssn.domain_name will be used for ssn_node, DNS A record have to exist during deployment')
