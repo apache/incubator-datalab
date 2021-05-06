@@ -89,7 +89,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
                 res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace('\n', '')
-            if err in installed_out and name not in installed_out:
+            if err and name not in installed_out:
                 status_msg = 'installation_error'
                 if 'ERROR: No matching distribution found for {}'.format(name) in err:
                     status_msg = 'invalid_name'
@@ -134,7 +134,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         for pip_pkg in requisites:
             name, vers = pip_pkg
             status.append({"group": lib_group, "name": name, "version": vers, "status": 'installation_error', "error_message": err})
-        print("Failed to install {} packages".format(pip_version))
+        print("Failed to install {} packages: {}".format(pip_version, err))
         return status
 
 
