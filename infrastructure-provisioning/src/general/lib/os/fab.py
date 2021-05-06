@@ -206,7 +206,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
             conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
             conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
-            if os.environ['conf_deeplearning_cloud_ami'] == 'true':
+            if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
                 conn.sudo(
                     '''echo "c.NotebookApp.kernel_spec_manager_class = 'environment_kernels.EnvironmentKernelSpecManager'" >> {}'''.format(
                         jupyter_conf_file))
@@ -606,8 +606,8 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             conn.sudo('ln -s /opt/spark/ /usr/local/spark')
             conn.sudo('jupyter toree install')
             conn.sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
-            conn.put(files_dir + 'toree-assembly-0.3.0.jar', '/tmp/toree-assembly-0.3.0.jar')
-            conn.sudo('mv /tmp/toree-assembly-0.3.0.jar ' + scala_kernel_path + 'lib/')
+            #conn.put(files_dir + 'toree-assembly-0.3.0.jar', '/tmp/toree-assembly-0.3.0.jar')
+            #conn.sudo('mv /tmp/toree-assembly-0.3.0.jar ' + scala_kernel_path + 'lib/')
             conn.sudo(
                 'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
                 ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
