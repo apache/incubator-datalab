@@ -246,8 +246,8 @@ def configure_nginx_LE(domain_name, node):
         server_name_line ='    server_name {}.{};'.format(node, domain_name)
         cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}.{}/fullchain.pem;'.format(node, domain_name)
         cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}.{}/privkey.pem;'.format(node, domain_name)
-        certbot_service = "ExecStart = /usr/bin/certbot -q renew --pre-hook 'service nginx stop' --post-hook 'service nginx start'"
-        certbot_service_path = '/lib/systemd/system/certbot.service'
+        #certbot_service = "ExecStart = /usr/bin/certbot -q renew --pre-hook 'service nginx stop' --post-hook 'service nginx start'"
+        #certbot_service_path = '/lib/systemd/system/certbot.service'
         if node == 'ssn':
             nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
         else:
@@ -255,7 +255,7 @@ def configure_nginx_LE(domain_name, node):
         datalab.fab.conn.sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
         datalab.fab.conn.sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
         datalab.fab.conn.sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
-        datalab.fab.conn.sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
+        #datalab.fab.conn.sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
         if node == 'ssn':
             datalab.fab.conn.sudo('systemctl restart nginx')
         else:
