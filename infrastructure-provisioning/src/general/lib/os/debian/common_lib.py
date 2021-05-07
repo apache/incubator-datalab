@@ -214,11 +214,10 @@ def install_certbot(os_family):
         print('Installing Certbot')
         if os_family == 'debian':
             datalab.fab.conn.sudo('apt-get -y update')
-            datalab.fab.conn.sudo('apt-get -y install software-properties-common')
-            datalab.fab.conn.sudo('add-apt-repository -y universe')
-            datalab.fab.conn.sudo('add-apt-repository -y ppa:certbot/certbot')
-            datalab.fab.conn.sudo('apt-get -y update')
-            datalab.fab.conn.sudo('apt-get -y install certbot')
+            datalab.fab.conn.sudo('snap install core')
+            datalab.fab.conn.sudo('snap refresh core')
+            datalab.fab.conn.sudo('snap install --classic certbot')
+            datalab.fab.conn.sudo('ln -s /snap/bin/certbot /usr/bin/certbot')
         elif os_family == 'redhat':
             print('This OS family is not supported yet')
     except Exception as err:
