@@ -552,12 +552,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   <div class="content lib-error scrolling" >
     {{ data }}
   </div>
-  <div class="text-center">
-    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
-  </div>
   `,
   styles: [    `
-      .lib-error { max-height: 200px; overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0;}
+      .lib-error { max-height: 200px;  overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0 !important;}
   `
   ]
 })
