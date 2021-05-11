@@ -161,6 +161,8 @@ parser.add_argument('--conf_letsencrypt_enabled', type=str, default='false',
                     help='Enable or disable Let`s Encrypt certificates')
 parser.add_argument('--conf_repository_user', type=str, default='',
                     help='user to access repository (used for jars download)')
+parser.add_argument('--conf_release_tag', type=str, default='2.5-preview1',
+                    help='tag used for jars download')
 parser.add_argument('--conf_repository_pass', type=str, default='',
                     help='password to access repository (used for jars download)')
 parser.add_argument('--conf_repository_address', type=str, default='',
