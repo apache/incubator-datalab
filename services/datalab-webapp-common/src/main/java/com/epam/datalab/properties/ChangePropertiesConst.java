@@ -36,10 +36,9 @@ public interface ChangePropertiesConst {
     String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
     String GKE_BILLING_PATH = "/root/billing.yaml";
     String GKE_BILLING_SERVICE = "billing.yml";
-    String RESTART_URL = "/api/config/restart";
+    String RESTART_URL = "/config/restart";
     String LOCAL_ENDPOINT_NAME = "local";
-    String BASE_CONFIG_URL = "/api/config";
-    String EXTERNAL_OVERWRITE_URL = "/api/config/";
+    String BASE_CONFIG_URL = "/config";
 
     String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
     String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";

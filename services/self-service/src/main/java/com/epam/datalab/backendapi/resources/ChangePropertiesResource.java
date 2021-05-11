@@ -93,7 +93,7 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     @Path("/multiple/provisioning-service")
     public Response overwriteExternalProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            String url = findEndpointDTOUrl(ymlDTO.getEndpointName()) + EXTERNAL_OVERWRITE_URL;
+            String url = findEndpointDTOUrl(ymlDTO.getEndpointName()) + BASE_CONFIG_URL;
             log.info("TEST LOG: on /multiple method, url for the next step: {}", url);
             externalChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
                     ymlDTO, userInfo, url);
@@ -109,7 +109,7 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     @Path("/multiple/billing")
     public Response overwriteExternalBillingProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
-            String url = findEndpointDTOUrl(ymlDTO.getEndpointName()) + EXTERNAL_OVERWRITE_URL;
+            String url = findEndpointDTOUrl(ymlDTO.getEndpointName()) + BASE_CONFIG_URL;
             log.info("TEST LOG: on /multiple method, url for the next step: {}", url);
             externalChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE,
                     ymlDTO, userInfo, url);
