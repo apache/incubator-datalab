@@ -61,13 +61,12 @@ def modify_conf_file(args):
 
 def download_toree():
     toree_path = '/opt/datalab/sources/infrastructure-provisioning/src/general/files/os/'
-    tarball_link = 'https://archive.apache.org/dist/incubator/toree/0.3.0-incubating/toree/toree-0.3.0-incubating-bin.tar.gz'
-    jar_link = 'https://repo1.maven.org/maven2/org/apache/toree/toree-assembly/0.3.0-incubating/toree-assembly-0.3.0-incubating.jar'
+    tarball_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.5.0-incubating-rc1/toree/toree-0.5.0-incubating-bin.tar.gz'
     try:
         conn.run('wget {}'.format(tarball_link))
-        conn.run('wget {}'.format(jar_link))
-        conn.run('mv toree-0.3.0-incubating-bin.tar.gz {}toree_kernel.tar.gz'.format(toree_path))
-        conn.run('mv toree-assembly-0.3.0-incubating.jar {}toree-assembly-0.3.0.jar'.format(toree_path))
+        conn.run('tar -xzf toree-0.5.0-incubating-bin.tar.gz)
+        conn.run('mv toree-0.5.0-incubating-bin.tar.gz {}toree_kernel.tar.gz'.format(toree_path))
+        conn.run('mv ./toree-assembly-0.5.0-incubating/toree-assembly-0.5.0-incubating.jar {}toree-assembly-0.5.0.jar'.format(toree_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download toree: ', str(err))

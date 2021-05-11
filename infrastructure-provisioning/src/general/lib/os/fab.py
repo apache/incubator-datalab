@@ -606,8 +606,8 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             conn.sudo('ln -s /opt/spark/ /usr/local/spark')
             conn.sudo('jupyter toree install')
             conn.sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
-            #conn.put(files_dir + 'toree-assembly-0.3.0.jar', '/tmp/toree-assembly-0.3.0.jar')
-            #conn.sudo('mv /tmp/toree-assembly-0.3.0.jar ' + scala_kernel_path + 'lib/')
+            conn.put(files_dir + 'toree-assembly-0.5.0.jar', '/tmp/toree-assembly-0.5.0.jar')
+            conn.sudo('mv /tmp/toree-assembly-0.5.0.jar ' + scala_kernel_path + 'lib/')
             conn.sudo(
                 'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
                 ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
