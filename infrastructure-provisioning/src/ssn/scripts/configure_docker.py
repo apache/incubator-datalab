@@ -66,7 +66,7 @@ def download_toree():
         conn.run('wget {}'.format(tarball_link))
         conn.run('tar -xzf toree-0.5.0-incubating-bin.tar.gz)
         conn.run('mv toree-0.5.0-incubating-bin.tar.gz {}toree_kernel.tar.gz'.format(toree_path))
-        conn.run('mv ./toree-assembly-0.5.0-incubating/toree-assembly-0.5.0-incubating.jar {}toree-assembly-0.5.0.jar'.format(toree_path))
+        conn.run('mv ./toree-0.5.0-incubating/lib/toree-assembly-0.5.0-incubating.jar {}toree-assembly-0.5.0.jar'.format(toree_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to download toree: ', str(err))
