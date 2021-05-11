@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,7 @@ import json
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--dry_run', action='store_true', help='Print all variables')

@@ -57,7 +57,10 @@
             <div class="control-group constol-select">
               <label class="label">Library name</label>
               <div class="control control-relative">
-                <span class="other-message" *ngIf="group === 'others'">Other group can include libs from Python 2 and Python 3 groups</span>
+                <span class="other-message" *ngIf="group === 'others'">
+                  Other group can include libs from Python 2 and Python 3 groups.
+                  Some libs cannot be installed due to Python 2 is no longer supported
+                </span>
                 <input
                   type="text" [placeholder]="'Enter library name'"
                   [disabled]="!group"

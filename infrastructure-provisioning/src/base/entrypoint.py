@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,12 +22,13 @@
 # ******************************************************************************
 
 import os
-from ConfigParser import SafeConfigParser
+from configparser import ConfigParser
 import argparse
-from fabric.api import *
+import fabric
 import json
 import sys
 import select
+import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--action', type=str, default='')
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     # Get config (defaults) from files. Will not overwrite any env
     for filename in os.listdir('/root/conf'):
         if filename.endswith('.ini'):
-            config = SafeConfigParser()
+            config = ConfigParser()
             config.read(os.path.join('/root/conf', filename))
             for section in config.sections():
                 for option in config.options(section):
@@ -85,7 +86,7 @@ if __name__ == "__main__":
     # Overwrite config if overwrite.ini is provided
     for filename in os.listdir('/root/conf'):
         if filename.endswith('overwrite.ini'):
-            config = SafeConfigParser()
+            config = ConfigParser()
             config.read(os.path.join('/root/conf', filename))
             for section in config.sections():
                 for option in config.options(section):
@@ -106,9 +107,8 @@ if __name__ == "__main__":
     except:
         pass
 
-    with hide('running'):
-        if args.action != 'terminate':
-            local('chmod 600 /root/keys/*.pem')
+    if args.action != 'terminate':
+        subprocess.run('chmod 600 /root/keys/*.pem', shell=True, check=True)
 
     if dry_run:
         with open("/response/{}.json".format(request_id), 'w') as response_file:
@@ -117,12 +117,10 @@ if __name__ == "__main__":
 
     # Run execution routines
     elif args.action == 'create':
-        with hide('running'):
-            local("/bin/create.py")
+        subprocess.run("/bin/create.py", shell=True, check=True)
 
     elif args.action == 'status':
-        with hide('running'):
-            local("/bin/status.py")
+        subprocess.run("/bin/status.py", shell=True, check=True)
 
     elif args.action == 'describe':
         with open('/root/description.json') as json_file:
@@ -132,53 +130,40 @@ if __name__ == "__main__":
                 response_file.write(json.dumps(description))
 
     elif args.action == 'stop':
-        with hide('running'):
-            local("/bin/stop.py")
+        subprocess.run("/bin/stop.py", shell=True, check=True)
 
     elif args.action == 'start':
-        with hide('running'):
-            local("/bin/start.py")
+        subprocess.run("/bin/start.py", shell=True, check=True)
 
     elif args.action == 'terminate':
-        with hide('running'):
-            local("/bin/terminate.py")
+        subprocess.run("/bin/terminate.py", shell=True, check=True)
 
     elif args.action == 'configure':
-        with hide('running'):
-            local("/bin/configure.py")
+        subprocess.run("/bin/configure.py", shell=True, check=True)
 
     elif args.action == 'recreate':
-        with hide('running'):
-            local("/bin/recreate.py")
+        subprocess.run("/bin/recreate.py", shell=True, check=True)
 
     elif args.action == 'reupload_key':
-        with hide('running'):
-            local("/bin/reupload_key.py")
+        subprocess.run("/bin/reupload_key.py", shell=True, check=True)
 
     elif args.action == 'lib_install':
-        with hide('running'):
-            local("/bin/install_libs.py")
+        subprocess.run("/bin/install_libs.py", shell=True, check=True)
 
     elif args.action == 'lib_list':
-        with hide('running'):
-            local("/bin/list_libs.py")
+        subprocess.run("/bin/list_libs.py", shell=True, check=True)
 
     elif args.action == 'git_creds':
-        with hide('running'):
-            local("/bin/git_creds.py")
+        subprocess.run("/bin/git_creds.py", shell=True, check=True)
 
     elif args.action == 'create_image':
-        with hide('running'):
-            local("/bin/create_image.py")
+        subprocess.run("/bin/create_image.py", shell=True, check=True)
 
     elif args.action == 'terminate_image':
-        with hide('running'):
-            local("/bin/terminate_image.py")
+        subprocess.run("/bin/terminate_image.py", shell=True, check=True)
 
     elif args.action == 'reconfigure_spark':
-        with hide('running'):
-            local("/bin/reconfigure_spark.py")
+        subprocess.run("/bin/reconfigure_spark.py", shell=True, check=True)
 
     elif args.action == 'check_inactivity':
-        with hide('running'):
-            local("/bin/check_inactivity.py")
+        subprocess.run("/bin/check_inactivity.py", shell=True, check=True)

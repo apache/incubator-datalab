@@ -22,7 +22,11 @@ package com.epam.datalab.dto.azure.exploratory;
 import com.epam.datalab.dto.exploratory.ExploratoryCreateDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCreateAzure> {
     @JsonProperty("azure_notebook_instance_size")
     private String notebookInstanceType;
@@ -31,29 +35,6 @@ public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCrea
     @JsonProperty("azure_user_refresh_token")
     private String azureUserRefreshToken;
 
-    public String getNotebookInstanceType() {
-        return notebookInstanceType;
-    }
-
-    public void setNotebookInstanceType(String notebookInstanceType) {
-        this.notebookInstanceType = notebookInstanceType;
-    }
-
-    public String getAzureDataLakeEnabled() {
-        return azureDataLakeEnabled;
-    }
-
-    public void setAzureDataLakeEnabled(String azureDataLakeEnabled) {
-        this.azureDataLakeEnabled = azureDataLakeEnabled;
-    }
-
-    public String getAzureUserRefreshToken() {
-        return azureUserRefreshToken;
-    }
-
-    public void setAzureUserRefreshToken(String azureUserRefreshToken) {
-        this.azureUserRefreshToken = azureUserRefreshToken;
-    }
 
     public ExploratoryCreateAzure withNotebookInstanceSize(String notebookInstanceType) {
         setNotebookInstanceType(notebookInstanceType);

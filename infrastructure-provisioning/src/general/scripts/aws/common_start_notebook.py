@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -69,7 +70,7 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True, check=True)
         except Exception as err:
             traceback.print_exc()
             datalab.fab.append_result("Failed to setup git credentials.", str(err))
@@ -83,7 +84,7 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+            subprocess.run("~/scripts/{}.py {}".format('update_inactivity_on_start', params), shell=True, check=True)
         except Exception as err:
             traceback.print_exc()
             datalab.fab.append_result("Failed to update last activity time.", str(err))

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,8 +29,9 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -82,7 +83,7 @@ if __name__ == "__main__":
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
         key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'],
                                                    os.environ['conf_key_name']), 'rb').read())
-        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
@@ -177,7 +178,7 @@ if __name__ == "__main__":
                    data_engine['project_name'], data_engine['instance_storage_account_type'],
                    data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['master_tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -211,7 +212,7 @@ if __name__ == "__main__":
                        data_engine['project_name'], data_engine['instance_storage_account_type'],
                        data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['slave_tags']))
             try:
-                local("~/scripts/{}.py {}".format('common_create_instance', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception

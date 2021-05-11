@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,8 @@ import datalab.meta_lib
 import json
 import os
 import sys
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     try:
@@ -85,7 +86,7 @@ if __name__ == "__main__":
                                                     json.dumps(image_conf['tags']))
             print("Image was successfully created.")
             try:
-                local("~/scripts/{}.py".format('common_prepare_notebook'))
+                subprocess.run("~/scripts/{}.py".format('common_prepare_notebook'), shell=True, check=True)
                 instance_running = False
                 while not instance_running:
                     if AzureMeta.get_instance_status(image_conf['resource_group_name'],
@@ -101,7 +102,7 @@ if __name__ == "__main__":
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, image_conf['instance_name'], keyfile_name,
                             json.dumps(additional_config), image_conf['datalab_ssh_user'])
-                local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True, check=True)
                 print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
             except Exception as err:
                 AzureActions.remove_instance(image_conf['resource_group_name'], image_conf['instance_name'])

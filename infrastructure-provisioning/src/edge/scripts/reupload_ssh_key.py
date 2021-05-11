@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,10 +25,11 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
@@ -57,7 +58,7 @@ if __name__ == "__main__":
                 os.environ['conf_resource'], reupload_config['resource_id'],
                 reupload_config['os_user'],  reupload_config['keyfile'],
                 json.dumps(reupload_config['additional_config']))
-            local("~/scripts/{}.py {}".format('common_reupload_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_reupload_key', params), shell=True, check=True)
         except Exception as err:
             traceback.print_exc()
             raise Exception

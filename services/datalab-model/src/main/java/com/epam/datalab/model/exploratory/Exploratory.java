@@ -38,4 +38,7 @@ public class Exploratory {
     private final String project;
     private final String exploratoryTag;
     private final List<ClusterConfig> clusterConfig;
+    private Boolean enabledGPU;
+    private String gpuType;
+    private String gpuCount;
 }

@@ -24,6 +24,7 @@ import time
 import traceback
 from fabric import Connection
 from patchwork.files import exists
+from patchwork import files
 
 conn = None
 args = None
@@ -276,7 +277,7 @@ def ensure_mongo_endpoint():
             conn.sudo('apt-get update')
             conn.sudo('apt-get -y --allow-unauthenticated install mongodb-org')
             conn.sudo('systemctl enable mongod.service')
-            conn.sudo('sudo apt-get -y install python-pip')
+            conn.sudo('sudo apt-get -y install python3-pip')
             conn.sudo('pip install -U pymongo pyyaml --no-cache-dir ')
             conn.sudo('touch /home/{}/.ensure_dir/mongo_ensured'
                       .format(args.os_user))
@@ -292,7 +293,7 @@ def ensure_mongo_endpoint():
             conn.sudo('sed -i "s|PASSWORD|{}|g" /tmp/configure_mongo.py'.format(args.mongo_password))
         if not exists(conn, '/tmp/mongo_roles.json'):
             conn.put('./mongo_files/gcp/mongo_roles.json', '/tmp/mongo_roles.json')
-        conn.sudo('python /tmp/configure_mongo.py')
+        conn.sudo('python3 /tmp/configure_mongo.py')
     except Exception as err:
         logging.error('Failed to install Mongo: ', str(err))
         traceback.print_exc()
@@ -985,7 +986,7 @@ def init_args():
     parser.add_argument('--repository_user', type=str, default='')
     parser.add_argument('--repository_pass', type=str, default='')
     parser.add_argument('--docker_version', type=str,
-                        default='18.06.3~ce~3-0~ubuntu')
+                        default='5:20.10.2~3-0~ubuntu-focal')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--keycloak_auth_server_url', type=str, default='')
     parser.add_argument('--keycloak_realm_name', type=str, default='')

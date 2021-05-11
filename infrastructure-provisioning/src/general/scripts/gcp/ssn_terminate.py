@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,7 +27,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -58,7 +59,7 @@ if __name__ == "__main__":
         params = "--service_base_name {} --region {} --zone {} --pre_defined_vpc {} --vpc_name {}".format(
             ssn_conf['service_base_name'], ssn_conf['region'], ssn_conf['zone'], pre_defined_vpc, ssn_conf['vpc_name'])
         try:
-            local("~/scripts/{}.py {}".format('ssn_terminate_gcp_resources', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_terminate_gcp_resources', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

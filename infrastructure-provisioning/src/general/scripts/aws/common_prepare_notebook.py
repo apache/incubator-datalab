@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
@@ -103,6 +104,8 @@ if __name__ == "__main__":
         notebook_config['ami_id'] = datalab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(
             os.environ['conf_os_family'])])
         image_id = datalab.meta_lib.get_ami_id_by_name(notebook_config['notebook_image_name'], 'available')
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning' and image_id == '':
+            image_id = datalab.meta_lib.get_ami_id(notebook_config['notebook_image_name'])
         if image_id != '':
             notebook_config['ami_id'] = image_id
             print('Pre-configured image found. Using: {}'.format(notebook_config['ami_id']))
@@ -147,7 +150,7 @@ if __name__ == "__main__":
             notebook_config['tag_name'], notebook_config['instance_name'], instance_class,
             os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
 
         except:
             traceback.print_exc()

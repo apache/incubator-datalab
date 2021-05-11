@@ -51,7 +51,9 @@ export class ExploratoryModel {
     public endpoint: string,
     public tags: any,
     public edgeNodeStatus: string,
-    public activeCompute: boolean
+    public activeCompute: boolean,
+    public gpu_type?: string,
+    public gpu_count?: string
   ) { }
 
   public static loadEnvironments(data: Array<any>) {

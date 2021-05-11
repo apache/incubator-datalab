@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -156,7 +157,7 @@ if __name__ == "__main__":
                     data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
                     data_engine['master_node_name'], data_engine['primary_disk_size'], data_engine['instance_class'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
             data_engine['master_id'] = datalab.meta_lib.get_instance_by_name(data_engine['tag_name'],
                                                                              data_engine['master_node_name'])
             datalab.actions_lib.create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
@@ -188,7 +189,7 @@ if __name__ == "__main__":
                         data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
                         slave_name, data_engine['primary_disk_size'], data_engine['instance_class'])
             try:
-                local("~/scripts/{}.py {}".format('common_create_instance', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
                 data_engine['slave_id'] = datalab.meta_lib.get_instance_by_name(data_engine['tag_name'], slave_name)
                 datalab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
                 datalab.actions_lib.create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'],

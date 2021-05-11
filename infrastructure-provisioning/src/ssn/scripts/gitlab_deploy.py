@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -21,11 +21,11 @@
 # ******************************************************************************
 
 
-from ConfigParser import SafeConfigParser
-from fabric.api import *
+from ConfigParser import ConfigParser
+from fabric import *
 import argparse
 import boto3
-from botocore.client import Config
+from botocore.client import Config as botoConfig`
 import sys
 import os
 
@@ -41,7 +41,7 @@ def read_ini():
         head, tail = os.path.split(os.path.realpath(__file__))
         for filename in os.listdir(head):
             if filename.endswith('.ini'):
-                config = SafeConfigParser()
+                config = ConfigParser()
                 config.read(os.path.join(head, filename))
                 for section in config.sections():
                     for option in config.options(section):
@@ -55,10 +55,10 @@ def read_ini():
 
 def create_instance():
     try:
-        local('mkdir -p ~/.aws')
-        local('touch ~/.aws/config')
-        local('echo "[default]" > ~/.aws/config')
-        local('echo "region = {}" >> ~/.aws/config'.format(os.environ['aws_region']))
+        subprocess.run('mkdir -p ~/.aws', shell=True, check=True)
+        subprocess.run('touch ~/.aws/config', shell=True, check=True)
+        subprocess.run('echo "[default]" > ~/.aws/config', shell=True, check=True)
+        subprocess.run('echo "region = {}" >> ~/.aws/config'.format(os.environ['aws_region']), shell=True, check=True)
         ec2 = boto3.resource('ec2')
         security_groups_ids = []
         ami_id = get_ami_id(os.environ['aws_{}_ami_name'.format(os.environ['conf_os_family'])])
@@ -143,7 +143,7 @@ def get_ec2_ip(instance_id):
 
 def put_to_bucket(bucket_name, local_file, destination_file):
     try:
-        s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        s3 = boto3.client('s3', config=botoConfig(signature_version='s3v4'), region_name=os.environ['aws_region'])
         with open(local_file, 'rb') as data:
             s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'ServerSideEncryption': 'AES256'})
     except Exception as err:
@@ -208,7 +208,7 @@ if __name__ == "__main__":
 
         # Main script for configure gitlab
         try:
-            local('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params))
+            subprocess.run('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params), shell=True, check=True)
         except Exception as err:
             print('Failed to configure gitlab. {}'.format(str(err)))
             terminate_gitlab()

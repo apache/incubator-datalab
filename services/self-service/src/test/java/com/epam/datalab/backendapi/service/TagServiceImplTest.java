@@ -37,15 +37,15 @@ public class TagServiceImplTest extends TestBase {
 
     @Test
     public void getResourceTags() {
-        Map<String, String> actualResourceTags = tagService.getResourceTags(getUserInfo(), ENDPOINT, PROJECT, CUSTOM_TAG);
-
+        Map<String, String> actualResourceTags = tagService.getResourceTags(getUserInfo(), ENDPOINT, PROJECT, CUSTOM_TAG,
+                false);
         assertEquals("maps of tags are not equals", getExpectedResourceTags(), actualResourceTags);
     }
 
     @Test
     public void getResourceTagsWithNullCustomTag() {
-        Map<String, String> actualResourceTags = tagService.getResourceTags(getUserInfo(), ENDPOINT, PROJECT, null);
-
+        Map<String, String> actualResourceTags = tagService.getResourceTags(getUserInfo(), ENDPOINT, PROJECT, null
+                , false);
         assertEquals("maps of tags are not equals", getExpectedResourceTagsWithNullCustomTag(), actualResourceTags);
     }
 

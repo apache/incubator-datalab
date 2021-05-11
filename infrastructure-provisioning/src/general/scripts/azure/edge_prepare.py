@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,6 +25,7 @@ import json
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
 from datalab.actions_lib import *
 from datalab.fab import *
@@ -111,7 +112,7 @@ if __name__ == "__main__":
             format(edge_conf['resource_group_name'], edge_conf['vpc_name'], edge_conf['region'], edge_conf['vpc_cidr'],
                    edge_conf['private_subnet_name'], edge_conf['private_subnet_prefix'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -391,7 +392,7 @@ if __name__ == "__main__":
             format(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'], edge_conf['region'],
                    json.dumps(edge_conf['instance_tags']), json.dumps(edge_list_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except Exception as err:
             AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                          edge_conf['private_subnet_name'])
@@ -494,7 +495,7 @@ if __name__ == "__main__":
             format(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'], edge_conf['region'],
                    json.dumps(edge_conf['instance_tags']), json.dumps(notebook_list_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -600,7 +601,7 @@ if __name__ == "__main__":
             edge_conf['resource_group_name'], edge_conf['master_security_group_name'], edge_conf['region'],
             json.dumps(edge_conf['instance_tags']), json.dumps(cluster_list_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -626,7 +627,7 @@ if __name__ == "__main__":
             edge_conf['resource_group_name'], edge_conf['slave_security_group_name'], edge_conf['region'],
             json.dumps(edge_conf['instance_tags']), json.dumps(cluster_list_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -655,7 +656,7 @@ if __name__ == "__main__":
             format(edge_conf['edge_container_name'], json.dumps(edge_conf['storage_account_tags']),
                    edge_conf['resource_group_name'], edge_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_storage_account', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -684,7 +685,7 @@ if __name__ == "__main__":
                        edge_conf['datalake_user_directory_name'], edge_conf['azure_ad_user_name'],
                        edge_conf['service_base_name'])
             try:
-                local("~/scripts/{}.py {}".format('common_create_datalake_directory', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_datalake_directory', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -732,7 +733,7 @@ if __name__ == "__main__":
                    edge_conf['primary_disk_size'], 'edge', edge_conf['user_name'], edge_conf['instance_storage_account_type'],
                    edge_conf['image_name'], json.dumps(edge_conf['instance_tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

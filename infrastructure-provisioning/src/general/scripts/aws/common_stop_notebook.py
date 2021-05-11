@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,7 @@ import json
 import logging
 import os
 import sys
-from fabric.api import *
+from fabric import *
 
 
 def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):

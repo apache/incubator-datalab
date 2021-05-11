@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.regex;
 
-
 public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 
     private static final String ENDPOINTS_COLLECTION = "endpoints";

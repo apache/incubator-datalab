@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -26,8 +26,9 @@ import json
 import os
 import sys
 import yaml
-from fabric.api import *
+from fabric import *
 from time import gmtime, strftime
+import subprocess
 
 parser = argparse.ArgumentParser(description="Backup script for DataLab configs, keys, certs, jars, database & logs")
 parser.add_argument('--user', type=str, default='datalab-user', help='System username')
@@ -52,18 +53,18 @@ args = parser.parse_args()
 
 def backup_prepare():
     try:
-        local('mkdir {}'.format(temp_folder))
+        subprocess.run('mkdir {}'.format(temp_folder), shell=True, check=True)
         if args.configs != 'skip':
-            local('mkdir -p {0}conf'.format(temp_folder))
+            subprocess.run('mkdir -p {0}conf'.format(temp_folder), shell=True, check=True)
         if args.keys != 'skip':
-            local('mkdir -p {}keys'.format(temp_folder))
+            subprocess.run('mkdir -p {}keys'.format(temp_folder), shell=True, check=True)
         if args.certs != 'skip':
-            local('mkdir -p {}certs'.format(temp_folder))
+            subprocess.run('mkdir -p {}certs'.format(temp_folder), shell=True, check=True)
         if args.jars != 'skip':
-            local('mkdir -p {}jars'.format(temp_folder))
+            subprocess.run('mkdir -p {}jars'.format(temp_folder), shell=True, check=True)
         if args.logs:
-            local('mkdir -p {}logs'.format(temp_folder))
-            local('mkdir -p {}logs/docker'.format(temp_folder))
+            subprocess.run('mkdir -p {}logs'.format(temp_folder), shell=True, check=True)
+            subprocess.run('mkdir -p {}logs/docker'.format(temp_folder), shell=True, check=True)
     except Exception as err:
         append_result(error='Failed to create temp folder. {}'.format(str(err)))
         sys.exit(1)
@@ -75,11 +76,11 @@ def backup_configs():
         if args.configs == 'skip':
             print('Skipped config backup.')
         elif args.configs == 'all':
-            local("find {0}{2} -name '*yml' -exec cp {3} {1}{2} \;".format(args.datalab_path, temp_folder, conf_folder,
-                                                                           "{}"))
+            subprocess.run("find {0}{2} -name '*yml' -exec cp {3} {1}{2} \;".format(args.datalab_path, temp_folder, conf_folder,
+                                                                           "{}"), shell=True, check=True)
         else:
             for conf_file in args.configs.split(','):
-                local('cp {0}{2}{3} {1}{2}'.format(args.datalab_path, temp_folder, conf_folder, conf_file))
+                subprocess.run('cp {0}{2}{3} {1}{2}'.format(args.datalab_path, temp_folder, conf_folder, conf_file), shell=True, check=True)
     except:
         append_result(error='Backup configs failed.')
         sys.exit(1)
@@ -91,10 +92,10 @@ def backup_keys():
         if args.keys == 'skip':
             print('Skipped keys backup.')
         elif args.keys == 'all':
-            local('cp {0}* {1}keys'.format(keys_folder, temp_folder))
+            subprocess.run('cp {0}* {1}keys'.format(keys_folder, temp_folder), shell=True, check=True)
         else:
             for key_file in args.keys.split(','):
-                local('cp {0}{1} {2}keys'.format(keys_folder, key_file, temp_folder))
+                subprocess.run('cp {0}{1} {2}keys'.format(keys_folder, key_file, temp_folder), shell=True, check=True)
     except:
         append_result(error='Backup keys failed.')
         sys.exit(1)
@@ -107,12 +108,12 @@ def backup_certs():
             print('Skipped certs backup.')
         elif args.certs == 'all':
             for cert in all_certs:
-                local('sudo cp {0}{1} {2}certs'.format(certs_folder, cert, temp_folder))
-                local('sudo chown {0}:{0} {1}certs/{2} '.format(os_user, temp_folder, cert))
+                subprocess.run('sudo cp {0}{1} {2}certs'.format(certs_folder, cert, temp_folder), shell=True, check=True)
+                subprocess.run('sudo chown {0}:{0} {1}certs/{2} '.format(os_user, temp_folder, cert), shell=True, check=True)
         else:
             for cert in args.certs.split(','):
-                local('cp {0}{1} {2}certs'.format(certs_folder, cert, temp_folder))
-                local('sudo chown {0}:{0} {1}certs/{2} '.format(os_user, temp_folder, cert))
+                subprocess.run('cp {0}{1} {2}certs'.format(certs_folder, cert, temp_folder), shell=True, check=True)
+                subprocess.run('sudo chown {0}:{0} {1}certs/{2} '.format(os_user, temp_folder, cert), shell=True, check=True)
     except:
         append_result(error='Backup certs failed.')
         sys.exit(1)
@@ -126,10 +127,10 @@ def backup_jars():
         elif args.jars == 'all':
             for root, dirs, files in os.walk('{0}{1}'.format(args.datalab_path, jars_folder)):
                 for service in dirs:
-                    local('cp -RP {0}{1}{2}* {3}jars'.format(args.datalab_path, jars_folder, service, temp_folder))
+                    subprocess.run('cp -RP {0}{1}{2}* {3}jars'.format(args.datalab_path, jars_folder, service, temp_folder), shell=True, check=True)
         else:
             for service in args.jars.split(','):
-                local('cp -RP {0}{1}{2}* {3}jars'.format(args.datalab_path, jars_folder, service, temp_folder))
+                subprocess.run('cp -RP {0}{1}{2}* {3}jars'.format(args.datalab_path, jars_folder, service, temp_folder), shell=True, check=True)
     except:
         append_result(error='Backup jars failed.')
         sys.exit(1)
@@ -142,9 +143,9 @@ def backup_database():
             ssn_conf = open('{0}{1}ssn.yml'.format(args.datalab_path, conf_folder)).read()
             data = yaml.load('mongo{}'.format(ssn_conf.split('mongo')[-1]))
             with settings(hide('running')):
-                local("mongodump --host {0} --port {1} --username {2} --password '{3}' --db={4} --archive={5}mongo.db" \
+                subprocess.run("mongodump --host {0} --port {1} --username {2} --password '{3}' --db={4} --archive={5}mongo.db" \
                     .format(data['mongo']['host'], data['mongo']['port'], data['mongo']['username'],
-                            data['mongo']['password'], data['mongo']['database'], temp_folder))
+                            data['mongo']['password'], data['mongo']['database'], temp_folder), shell=True, check=True)
     except:
         append_result(error='Backup db failed.')
         sys.exit(1)
@@ -155,11 +156,11 @@ def backup_logs():
         print('Backup logs: {}'.format(args.logs))
         if args.logs:
             print('Backup DataLab logs')
-            local('cp -R {0}* {1}logs'.format(datalab_logs_folder, temp_folder))
+            subprocess.run('cp -R {0}* {1}logs'.format(datalab_logs_folder, temp_folder), shell=True, check=True)
             print('Backup docker logs')
-            local("sudo find {0} -name '*log' -exec cp {2} {1}logs/docker \;".format(docker_logs_folder, temp_folder,
-                                                                                     "{}"))
-            local('sudo chown -R {0}:{0} {1}logs/docker'.format(os_user, temp_folder))
+            subprocess.run("sudo find {0} -name '*log' -exec cp {2} {1}logs/docker \;".format(docker_logs_folder, temp_folder,
+                                                                                     "{}"), shell=True, check=True)
+            subprocess.run('sudo chown -R {0}:{0} {1}logs/docker'.format(os_user, temp_folder), shell=True, check=True)
     except:
         append_result(error='Backup logs failed.')
         print('Backup logs failed.')
@@ -169,7 +170,7 @@ def backup_logs():
 def backup_finalize():
     try:
         print('Compressing all files to archive...')
-        local('cd {0} && tar -zcf {1} .'.format(temp_folder, dest_file))
+        subprocess.run('cd {0} && tar -zcf {1} .'.format(temp_folder, dest_file), shell=True, check=True)
     except Exception as err:
         append_result(error='Compressing backup failed. {}'.format(str(err)))
         sys.exit(1)
@@ -177,7 +178,7 @@ def backup_finalize():
     try:
         print('Clear temp folder...')
         if temp_folder != '/':
-            local('rm -rf {}'.format(temp_folder))
+            subprocess.run('rm -rf {}'.format(temp_folder), shell=True, check=True)
     except Exception as err:
         append_result(error='Clear temp folder failed. {}'.format(str(err)))
         sys.exit(1)

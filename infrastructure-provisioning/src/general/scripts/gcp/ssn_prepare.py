@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssn_unique_index', type=str, default='')
@@ -77,11 +78,11 @@ if __name__ == "__main__":
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     except Exception as err:
-        datalab.fab.datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if GCPMeta.get_instance(ssn_conf['instance_name']):
-        datalab.fab.datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
+        datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
                                               "Please try again.")
         sys.exit(1)
 
@@ -97,7 +98,7 @@ if __name__ == "__main__":
             print('[CREATE VPC]')
             params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
-                local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
                 os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
             except:
                 traceback.print_exc()
@@ -113,7 +114,7 @@ if __name__ == "__main__":
 
     try:
         ssn_conf['vpc_selflink'] = GCPMeta.get_vpc(ssn_conf['vpc_name'])['selfLink']
-        if os.environ['gcp_subnet_name'] == '':
+        if 'gcp_subnet_name' not in os.environ:
             raise KeyError
         else:
             ssn_conf['pre_defined_subnet'] = True
@@ -126,7 +127,7 @@ if __name__ == "__main__":
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
                        ssn_conf['vpc_cidr'], True)
             try:
-                local("~/scripts/{}.py {}".format('common_create_subnet', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
                 os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
             except:
                 traceback.print_exc()
@@ -192,7 +193,7 @@ if __name__ == "__main__":
 
             params = "--firewall '{}'".format(json.dumps(firewall_rules))
             try:
-                local("~/scripts/{}.py {}".format('common_create_firewall', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True, check=True)
                 os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
             except:
                 traceback.print_exc()
@@ -213,7 +214,7 @@ if __name__ == "__main__":
                                                   ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'],
                                                   ssn_conf['ssn_unique_index'], ssn_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_service_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -238,7 +239,7 @@ if __name__ == "__main__":
         print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(ssn_conf['static_address_name'], ssn_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('ssn_create_static_ip', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_static_ip', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -283,7 +284,7 @@ if __name__ == "__main__":
                    ssn_conf['static_ip'], ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20',
                    ssn_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

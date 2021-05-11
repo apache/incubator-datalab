@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,10 +29,10 @@ import re
 import sys
 import time
 import traceback
-from botocore.client import Config
+from botocore.client import Config as botoConfig
 from datalab.actions_lib import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')
@@ -119,7 +119,7 @@ cp_jars = "Name=CUSTOM_JAR, Args=aws " \
           "--sse AES256 --endpoint-url {6} --region {2}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
           "Name=CUSTOM_JAR, Args=sudo " \
-          "/usr/bin/python /tmp/key_importer.py --user_name {4}, " \
+          "/usr/bin/python3 /tmp/key_importer.py --user_name {4}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
           "Name=CUSTOM_JAR, Args=/usr/bin/python /tmp/jars_parser.py " \
           "--bucket {0} --emr_version {3} --region {2} --user_name {4} " \
@@ -141,7 +141,7 @@ out.close()
 
 def get_object_count(bucket, prefix):
     try:
-        s3_cli = boto3.client('s3', config=Config(signature_version='s3v4'),
+        s3_cli = boto3.client('s3', config=botoConfig(signature_version='s3v4'),
                               region_name=args.region)
         content = s3_cli.get_paginator('list_objects')
         file_list = []
@@ -163,7 +163,7 @@ def get_object_count(bucket, prefix):
 
 def upload_jars_parser(args):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         s3.meta.client.upload_file('/root/scripts/dataengine-service_jars_parser.py',
                                    args.s3_bucket, 'jars_parser.py',
                                    ExtraArgs={'ServerSideEncryption': 'AES256'})
@@ -176,7 +176,7 @@ def upload_jars_parser(args):
 
 def upload_user_key(args):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         s3.meta.client.upload_file(args.key_dir + '/' +
                                    args.project_name + '.pub',
                                    args.s3_bucket, args.project_name +
@@ -197,7 +197,7 @@ def upload_user_key(args):
 def remove_user_key(args):
     try:
         client = boto3.client('s3',
-                              config=Config(signature_version='s3v4'),
+                              config=botoConfig(signature_version='s3v4'),
                               region_name=args.region)
         client.delete_object(Bucket=args.s3_bucket,
                              Key=args.project_name + '.pub')

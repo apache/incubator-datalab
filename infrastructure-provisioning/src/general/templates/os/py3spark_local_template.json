@@ -7,9 +7,9 @@
   "{connection_file}"
  ],
  "language": "python",
- "display_name": "Local PySpark (Python-3.6 / Spark-SP_VER )",
+ "display_name": "Local PySpark (Python-3.8 / Spark-SP_VER )",
  "env": {
-  "PYSPARK_PYTHON": "python3.6",
+  "PYSPARK_PYTHON": "python3.8",
   "SPARK_HOME": "/opt/spark/",
   "PYTHONPATH": "PY4J:/opt/spark/python/:",
   "PYTHONSTARTUP": "/opt/spark/python/pyspark/shell.py",

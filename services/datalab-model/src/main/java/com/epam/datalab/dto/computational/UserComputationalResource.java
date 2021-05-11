@@ -74,6 +74,11 @@ public class UserComputationalResource {
     private int totalInstanceCount;
     protected List<ClusterConfig> config;
     private Map<String, String> tags;
+    @JsonProperty("masterGPUType")
+    private String gpuType;
+    @JsonProperty("masterGPUCount")
+    private String gpuCount;
+    private boolean enabledGPU;
 
     public UserComputationalResource(String computationalName, String computationalId, String imageName,
                                      String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,

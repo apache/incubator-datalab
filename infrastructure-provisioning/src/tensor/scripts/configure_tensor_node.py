@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -28,8 +28,9 @@ from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
-from fabric.contrib.files import exists
+from fabric import *
+from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -73,15 +74,14 @@ cudnn_file_name = os.environ['notebook_cudnn_file_name']
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -90,8 +90,6 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
@@ -128,7 +126,7 @@ if __name__ == "__main__":
     install_nodejs(args.os_user)
     print("Install Ungit")
     install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
     # INSTALL INACTIVITY CHECKER
@@ -144,3 +142,5 @@ if __name__ == "__main__":
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    conn.close()

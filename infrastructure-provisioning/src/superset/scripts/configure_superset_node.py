@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -51,15 +51,14 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     #print("Mount additional volume")
@@ -75,7 +74,7 @@ if __name__ == "__main__":
     install_nodejs(args.os_user)
     print("Install ungit")
     install_ungit(args.os_user, args.superset_name, args.edge_instance_private_ip)
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
         # INSTALL INACTIVITY CHECKER
@@ -88,6 +87,6 @@ if __name__ == "__main__":
                            args.keycloak_client_id, args.keycloak_client_secret, args.edge_instance_private_ip, args.edge_instance_public_ip, args.superset_name)
     except:
         sys.exit(1)
-
+    conn.close()
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -39,7 +39,7 @@ parser.add_argument('--initial_user', type=str, default='')
 parser.add_argument('--service_account_name', type=str, default='')
 parser.add_argument('--image_name', type=str, default='')
 parser.add_argument('--secondary_image_name', type=str, default='')
-parser.add_argument('--primary_disk_size', type=str, default='12')
+parser.add_argument('--primary_disk_size', type=str, default='20')
 parser.add_argument('--secondary_disk_size', type=str, default='30')
 parser.add_argument('--instance_class', type=str, default='')
 parser.add_argument('--static_ip', type=str, default='')

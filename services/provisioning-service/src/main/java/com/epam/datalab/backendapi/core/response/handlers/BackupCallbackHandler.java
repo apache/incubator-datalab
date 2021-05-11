@@ -122,5 +122,4 @@ public class BackupCallbackHandler implements FileHandlerCallback {
                 .withStatus(status)
                 .withUser(user);
     }
-
 }

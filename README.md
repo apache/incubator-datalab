@@ -2432,7 +2432,7 @@ ARG OS
 
 COPY ssn/ /root/
 COPY general/scripts/aws/ssn_* /root/scripts/
-COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python2.7/datalab/ssn_lib.py
+COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python3.8/datalab/ssn_lib.py
 COPY general/files/aws/ssn_policy.json /root/files/
 COPY general/templates/aws/jenkins_jobs /root/templates/jenkins_jobs
 
@@ -2584,8 +2584,8 @@ if __name__ == "__main__":
 
     print("Configuring notebook server.")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -45,7 +45,7 @@ args = parser.parse_args()
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 jupyter_version = os.environ['notebook_jupyter_version']
-scala_link = "http://www.scala-lang.org/files/archive/"
+scala_link = "https://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -80,15 +80,14 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -107,9 +106,11 @@ if __name__ == "__main__":
     install_nodejs(args.os_user)
     print("Install ungit")
     install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
     install_inactivity_checker(args.os_user, args.ip_address)
+
+    conn.close()

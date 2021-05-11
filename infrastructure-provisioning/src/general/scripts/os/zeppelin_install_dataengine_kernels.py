@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,8 +25,9 @@ import argparse
 import os
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
-from fabric.contrib.files import exists
+from fabric import *
+from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
@@ -44,50 +45,52 @@ args = parser.parse_args()
 def configure_notebook(keyfile, hoststring):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
-    run('mkdir -p /tmp/{}/'.format(args.cluster_name))
+    conn.run('mkdir -p /tmp/{}/'.format(args.cluster_name))
     if os.environ['notebook_multiple_clusters'] == 'true':
-        put(templates_dir + 'dataengine_interpreter_livy.json', '/tmp/{}/dataengine_interpreter.json'.format(args.cluster_name))
+        conn.put(templates_dir + 'dataengine_interpreter_livy.json', '/tmp/{}/dataengine_interpreter.json'.format(args.cluster_name))
     else:
-        put(templates_dir + 'dataengine_interpreter_spark.json',
+        conn.put(templates_dir + 'dataengine_interpreter_spark.json',
             '/tmp/{}/dataengine_interpreter.json'.format(args.cluster_name))
-    put(templates_dir + 'notebook_spark-defaults_local.conf',
+    conn.put(templates_dir + 'notebook_spark-defaults_local.conf',
         '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
-    run('sed -i "s|EXECUTOR_MEMORY|{}m|g " /tmp/{}/dataengine_interpreter.json'.format(spark_memory, args.cluster_name))
-    run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory,
+    conn.run('sed -i "s|EXECUTOR_MEMORY|{}m|g " /tmp/{}/dataengine_interpreter.json'.format(spark_memory, args.cluster_name))
+    conn.run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory,
                                                                                                   args.cluster_name))
-    if not exists('/usr/local/bin/zeppelin_dataengine_create_configs.py'):
-        put(scripts_dir + 'zeppelin_dataengine_create_configs.py',
-            '/usr/local/bin/zeppelin_dataengine_create_configs.py', use_sudo=True)
-        sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
-    if not exists('/usr/lib/python2.7/datalab/'):
-        sudo('mkdir -p /usr/lib/python2.7/datalab/')
-        put('/usr/lib/python2.7/datalab/*', '/usr/lib/python2.7/datalab/', use_sudo=True)
-        sudo('chmod a+x /usr/lib/python2.7/datalab/*')
-        if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+    if not exists(conn,'/usr/local/bin/zeppelin_dataengine_create_configs.py'):
+        conn.put(scripts_dir + 'zeppelin_dataengine_create_configs.py',
+            '/tmp/zeppelin_dataengine_create_configs.py')
+        conn.sudo('cp /tmp/zeppelin_dataengine_create_configs.py /usr/local/bin/zeppelin_dataengine_create_configs.py')
+        conn.sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
+    if not exists(conn,'/usr/lib/python3.8/datalab/'):
+        conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+        conn.local('cd  /usr/lib/python3.8/datalab/; tar -zcvf /tmp/datalab.tar.gz *')
+        conn.put('/tmp/datalab.tar.gz', '/tmp/datalab.tar.gz')
+        conn.sudo('tar -zxvf /tmp/datalab.tar.gz -C /usr/lib/python3.8/datalab/')
+        conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')
+        if exists(conn, '/usr/lib64'):
+            conn.sudo('mkdir -p /usr/lib64/python3.8')
+            conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')
-    sudo("date +%s > /opt/inactivity/{}_inactivity".format(reworked_ip))
+    conn.sudo('''bash -l -c "date +%s > /opt/inactivity/{}_inactivity" '''.format(reworked_ip))
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     try:
         region = os.environ['aws_region']
     except:
         region = ''
     if 'spark_configurations' not in os.environ:
         os.environ['spark_configurations'] = '[]'
-    configure_notebook(args.keyfile, env.host_string)
-    create_inactivity_log(args.spark_master_ip, env.host_string)
+    configure_notebook(args.keyfile, args.notebook_ip)
+    create_inactivity_log(args.spark_master_ip, args.notebook_ip)
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
-    sudo('/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py '
+    conn.sudo('/usr/bin/python3 /usr/local/bin/zeppelin_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} \
          --notebook_ip {} --livy_version {} --multiple_clusters {} --region {} --datalake_enabled {} '
          '--r_enabled {} --spark_configurations "{}"'.

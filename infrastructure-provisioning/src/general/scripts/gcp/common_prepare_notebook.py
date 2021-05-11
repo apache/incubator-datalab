@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -143,7 +144,7 @@ if __name__ == "__main__":
 
         notebook_config['gpu_accelerator_type'] = 'None'
 
-        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
+        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning') or os.environ['gpu_enabled'] == 'True':
             notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
 
         notebook_config['network_tag'] = '{0}-{1}-{2}-ps'.format(notebook_config['service_base_name'],
@@ -154,7 +155,8 @@ if __name__ == "__main__":
             data = {"notebook_name": notebook_config['instance_name'], "error": ""}
             json.dump(data, f)
 
-        additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+        print('Additional tags will be added: {}'.format(os.environ['tags']))
+        additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "" ).replace(
             "'}", "").lower()
 
         print('Additional tags will be added: {}'.format(additional_tags))
@@ -191,7 +193,7 @@ if __name__ == "__main__":
                    notebook_config['network_tag'], json.dumps(notebook_config['labels']),
                    notebook_config['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

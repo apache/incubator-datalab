@@ -26,7 +26,7 @@ ARG OS
 
 COPY edge/ /root/
 COPY general/scripts/aws/edge_* /root/scripts/
-COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python2.7/datalab/edge_lib.py
+COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python3.8/datalab/edge_lib.py
 COPY general/templates/aws/edge_s3_policy.json /root/templates/edge_s3_policy.json
 
 RUN chmod a+x /root/fabfile.py; \

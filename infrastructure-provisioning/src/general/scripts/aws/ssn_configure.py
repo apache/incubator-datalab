@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -186,7 +187,7 @@ if __name__ == "__main__":
             ssn_conf['initial_user'], ssn_conf['datalab_ssh_user'], ssn_conf['sudo_group'])
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -204,7 +205,7 @@ if __name__ == "__main__":
                    ssn_conf['datalab_ssh_user'], os.environ['aws_region'])
 
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -229,7 +230,7 @@ if __name__ == "__main__":
             os.environ['conf_tag_resource_id'], ssn_conf['step_cert_sans'])
 
         try:
-            local("~/scripts/{}.py {}".format('configure_ssn_node', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_ssn_node', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -262,7 +263,7 @@ if __name__ == "__main__":
                                                           os.environ['conf_cloud_provider'], os.environ['aws_region'])
 
         try:
-            local("~/scripts/{}.py {}".format('configure_docker', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_docker', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -615,7 +616,7 @@ if __name__ == "__main__":
                    os.environ['keycloak_client_secret'],
                    os.environ['keycloak_auth_server_url'])
         try:
-            local("~/scripts/{}.py {}".format('configure_ui', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -677,14 +678,14 @@ if __name__ == "__main__":
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}". \
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'],
                    ssn_conf['instance_hostname'])
-        local("~/scripts/{}.py {}".format('upload_response_file', params))
+        subprocess.run("~/scripts/{}.py {}".format('upload_response_file', params), shell=True, check=True)
 
         logging.info('[FINALIZE]')
         print('[FINALIZE]')
         params = ""
         if os.environ['conf_lifecycle_stage'] == 'prod':
             params += "--key_id {}".format(os.environ['aws_access_key'])
-            local("~/scripts/{}.py {}".format('ssn_finalize', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_finalize', params), shell=True, check=True)
     except Exception as err:
         datalab.fab.append_result("Error with writing results.", str(err))
         clear_resources()
