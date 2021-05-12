@@ -3,6 +3,7 @@
 .idea
 target
 .DS_Store
+docs
 
 #eclipse stuff
 .classpath
