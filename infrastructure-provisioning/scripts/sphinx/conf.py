@@ -14,7 +14,7 @@ import os
 import sys
 import time
 
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -36,7 +36,6 @@ extensions = [
     'sphinx_argparse_cli',
     'sphinx.ext.autodoc',
 ]
-# extensions += ['sphinxarg.ext']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -52,7 +51,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
 html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -7,5 +7,4 @@ install-deps:
 .PHONY: doc
 doc:
 	set -e; make install-deps
-	sphinx-build -a -b singlehtml . ./docs
-
+	sphinx-build -c ./sphinx -T -a -b singlehtml . ./docs
