@@ -49,7 +49,8 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   public messagesStatus = {
     success: [],
-    error: []
+    error: [],
+    counter: 0
   };
   
   public environmentStatuses = {};
@@ -238,9 +239,11 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       )
       .subscribe(res => {
           this.messagesStatus.success.push(serviceName);
+          this.messagesStatus.counter -= 1;
         },
         error => {
           this.messagesStatus.error.push(serviceName);
+          this.messagesStatus.counter -= 1;
         }
       );
   }
@@ -266,34 +269,40 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       })
       .afterClosed().subscribe(result => {
         if (result) {
+          this.messagesStatus.error = [];
+          this.messagesStatus.success = [];
           
           if(this.environmentStatuses[this.activeEndpoint] && this.services['provisioning'].selected) {
             this.services['provisioning'].selected = false;
           }
 
           if(this.services['self-service'].selected) {
+            this.messagesStatus.counter += 1;
             this.restartSingleService(true, false, false, 'Self-service')
           } 
           if(this.services['provisioning'].selected) {
+            this.messagesStatus.counter += 1;
             this.restartSingleService(false, true, false, 'Provisioning service')
           } 
           if(this.services['billing'].selected) {
+            this.messagesStatus.counter += 1;
             this.restartSingleService(false, false, true, 'Billing service')
-            
           }
 
-          setTimeout(() => {
-            for(let key in this.messagesStatus) {
-              if(key === 'error' && this.messagesStatus[key].length > 0) {
-                this.toastr.error(`${this.messagesStatus[key].join(', ')} restarting failed`, 'Oops!');
-              } else if(key === 'success' && this.messagesStatus[key].length > 0) {
-                this.toastr.success(`${this.messagesStatus[key].join(', ')} restarting started!`, 'Success!');
+          let timer = setInterval(() => {
+            
+            if(this.messagesStatus.counter === 0) {
+              for(let key in this.messagesStatus) {
+                if(key === 'error' && this.messagesStatus[key].length > 0) {
+                  this.toastr.error(`${this.messagesStatus[key].join(', ')} restarting failed`, 'Oops!');
+                } else if(key === 'success' && this.messagesStatus[key].length > 0) {
+                  this.toastr.success(`${this.messagesStatus[key].join(', ')} restarting started!`, 'Success!');
+                }
               }
-            }
-            this.clearSelectedServices();
-            this.messagesStatus.success = [];
-            this.messagesStatus.error = [];
-          }, 500);
+              clearInterval(timer);
+            } 
+          }, 200);
+          this.clearSelectedServices();
         } else {
           this.clearSelectedServices();
         }
