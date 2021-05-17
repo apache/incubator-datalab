@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,10 +27,10 @@ import sys
 import traceback
 import uuid
 from datalab.fab import *
-from fabric.api import *
+from fabric import *
 
-
-def run():
+@task
+def run(ctx):
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -39,21 +39,21 @@ def run():
     ssn_config = dict()
     ssn_config['ssn_unique_index'] = str(uuid.uuid4())[:5]
     try:
-        local("~/scripts/{}.py --ssn_unique_index {}".format('ssn_prepare', ssn_config['ssn_unique_index']))
+        subprocess.run("~/scripts/{}.py --ssn_unique_index {}".format('ssn_prepare', ssn_config['ssn_unique_index']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing SSN node.", str(err))
         sys.exit(1)
 
     try:
-        local("~/scripts/{}.py --ssn_unique_index {}".format('ssn_configure', ssn_config['ssn_unique_index']))
+        subprocess.run("~/scripts/{}.py --ssn_unique_index {}".format('ssn_configure', ssn_config['ssn_unique_index']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring SSN node.", str(err))
         sys.exit(1)
 
-
-def terminate():
+@task
+def terminate(ctx):
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -61,7 +61,7 @@ def terminate():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('ssn_terminate'))
+        subprocess.run("~/scripts/{}.py".format('ssn_terminate'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating SSN node.", str(err))

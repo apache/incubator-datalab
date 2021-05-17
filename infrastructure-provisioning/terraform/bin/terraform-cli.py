@@ -528,15 +528,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         terraform_args = args.get('helm_charts')
         args_str = get_args_string(terraform_args)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
-            with conn.cd('terraform/ssn-helm-charts/main'):
-                conn.run('terraform init')
-                conn.run('terraform validate')
-                conn.run('terraform apply -auto-approve {} '
+            conn.run('cd terraform/ssn-helm-charts/main && terraform init')
+            conn.run('cd terraform/ssn-helm-charts/main && terraform validate')
+            conn.run('cd terraform/ssn-helm-charts/main && terraform apply -auto-approve {} '
                          '-var \'ssn_k8s_alb_dns_name={}\''
                          .format(args_str, dns_name))
-                output = ' '.join(conn.run('terraform output -json')
+            output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
-                self.fill_args_from_dict(json.loads(output))
+            self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
         dns_name = json.loads(

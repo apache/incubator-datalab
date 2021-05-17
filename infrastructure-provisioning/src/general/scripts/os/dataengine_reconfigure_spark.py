@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,8 +30,8 @@ import traceback
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
-
+from fabric import *
+import subprocess
 
 def install_libs_on_slaves(slave, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave + 1)
@@ -41,7 +41,7 @@ def install_libs_on_slaves(slave, data_engine):
         .format(data_engine['os_user'], data_engine['slave_ip'], data_engine['keyfile'])
     try:
         # Run script to install additional libs
-        local("~/scripts/{}.py {}".format('reconfigure_spark', params))
+        subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -81,7 +81,7 @@ if __name__ == "__main__":
             .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
         try:
             # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('reconfigure_spark', params))
+            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -105,7 +105,7 @@ if __name__ == "__main__":
                                             data_engine['cluster_name'])
         try:
             # Run script to get available libs
-            local("~/scripts/{}.py {}".format('reconfigure_spark', params))
+            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

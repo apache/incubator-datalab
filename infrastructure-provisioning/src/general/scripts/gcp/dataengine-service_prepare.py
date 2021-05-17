@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,8 +30,9 @@ import os
 import sys
 import time
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -79,7 +80,7 @@ if __name__ == "__main__":
                                                                    dataproc_conf['project_name'],
                                                                    dataproc_conf['endpoint_name'])
         dataproc_conf['release_label'] = os.environ['dataproc_version']
-        additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "").replace(
+        additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "").replace(
             "'}", "").lower()
 
         dataproc_conf['cluster_labels'] = {
@@ -131,15 +132,26 @@ if __name__ == "__main__":
 
     try:
         GCPMeta.dataproc_waiter(dataproc_conf['cluster_labels'])
-        local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
+        subprocess.run('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Dataproc waiter fail.", str(err))
         sys.exit(1)
 
-    local("echo Waiting for changes to propagate; sleep 10")
+    subprocess.run("echo Waiting for changes to propagate; sleep 10", shell=True, check=True)
 
-    dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read().decode('utf-8-sig'))
+    if 'masterGPUCount' in os.environ:
+        dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster_with_gpu.json').read())
+        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['masterGPUCount'])
+        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['masterGPUType']
+        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['slaveGPUCount'])
+        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['slaveGPUType']
+        gpu_driver = 'gs://goog-dataproc-initialization-actions-{}/gpu/install_gpu_driver.sh'.format(dataproc_conf['region'])
+        dataproc_cluster['config']['initializationActions'][0]['executableFile'] = gpu_driver
+
+    else:
+        dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read())
+
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
     dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
     dataproc_cluster['labels'] = dataproc_conf['cluster_labels']
@@ -151,8 +163,6 @@ if __name__ == "__main__":
     dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
     dataproc_cluster['config']['masterConfig']['numInstances'] = int(os.environ['dataproc_master_count'])
     dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_slave_count'])
-    livy_init = 'gs://goog-dataproc-initialization-actions-{}/livy/livy.sh'.format(dataproc_conf['region'])
-    dataproc_cluster['config']['initializationActions'][0]['executableFile'] = livy_init
     if int(os.environ['dataproc_preemptible_count']) != 0:
         dataproc_cluster['config']['secondaryWorkerConfig']['numInstances'] = int(
             os.environ['dataproc_preemptible_count'])
@@ -161,8 +171,8 @@ if __name__ == "__main__":
     dataproc_cluster['config']['softwareConfig']['imageVersion'] = dataproc_conf['release_label']
     ssh_user_pubkey = open('{}{}.pub'.format(os.environ['conf_key_dir'], dataproc_conf['project_name'])).read()
     key = RSA.importKey(open(dataproc_conf['key_path'], 'rb').read())
-    ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
-    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(
+    ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
+    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}{0}:{2}'.format(
         dataproc_conf['datalab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
     dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']
     with open('/root/result.json', 'w') as f:
@@ -177,14 +187,14 @@ if __name__ == "__main__":
                                                                    json.dumps(dataproc_cluster))
 
         try:
-            local("~/scripts/{}.py {}".format('dataengine-service_create', params))
+            subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
 
         keyfile_name = "/root/keys/{}.pem".format(dataproc_conf['key_name'])
-        local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
+        subprocess.run('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
     except Exception as err:
         datalab.fab.append_result("Failed to create Dataproc Cluster.", str(err))
-        local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
+        subprocess.run('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
         sys.exit(1)

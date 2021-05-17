@@ -42,6 +42,8 @@ body.modal-open {
 .pb-25 {padding-bottom: 25px;}
 .pb-10 {padding-bottom: 10px;}
 
+.full-width{width: 100%;}
+
 .txt-r {text-align: right }
 .txt-l {text-align: left }
 
@@ -213,6 +215,10 @@ input[type=file]::-webkit-file-upload-button {
 
 .right-sticky{
   right: -15px !important;
+}
+
+.cursor-pointer{
+  cursor: pointer;
 }
 
 

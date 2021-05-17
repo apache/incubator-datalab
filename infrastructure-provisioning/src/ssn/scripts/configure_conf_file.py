@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -21,11 +21,11 @@
 # ******************************************************************************
 
 
-import ConfigParser
+import configparser
 import argparse
 import json
 import sys
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--datalab_dir', type=str, default='')
@@ -49,7 +49,7 @@ def modify_conf_file():
         with open('/tmp/datalab.ini.modified', 'w') as conf_file_modified:
             conf_file_modified.writelines(conf_list)
 
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.read('/tmp/datalab.ini.modified')
         for section in config.sections():
             options = config.options(section)

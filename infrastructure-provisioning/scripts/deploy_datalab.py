@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -23,7 +23,9 @@
 
 import argparse
 import os
-from fabric.api import *
+import subprocess
+from fabric import *
+from invoke import task
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf_service_base_name', type=str, help='unique name for DataLab environment')
@@ -157,6 +159,14 @@ parser.add_argument('--conf_stepcerts_kid_password', type=str, default='', help=
 parser.add_argument('--conf_stepcerts_ca_url', type=str, default='', help='Step CA URL')
 parser.add_argument('--conf_letsencrypt_enabled', type=str, default='false',
                     help='Enable or disable Let`s Encrypt certificates')
+parser.add_argument('--conf_repository_user', type=str, default='',
+                    help='user to access repository (used for jars download)')
+parser.add_argument('--conf_release_tag', type=str, default='2.5-preview1',
+                    help='tag used for jars download')
+parser.add_argument('--conf_repository_pass', type=str, default='',
+                    help='password to access repository (used for jars download)')
+parser.add_argument('--conf_repository_address', type=str, default='',
+                    help='address to access repository (used for jars download)')
 parser.add_argument('--conf_letsencrypt_domain_name', type=str, default='', help='Domain names to apply. '
                                                                                  'For multiple domains enter a comma separated list of domains as a parameter'
                                                                                  'ssn.domain_name will be used for ssn_node, DNS A record have to exist during deployment')
@@ -197,24 +207,23 @@ def generate_docker_command():
 
 def build_docker_images(args):
     # Building base and ssn docker images
-    with lcd(args.workspace_path):
-        local('sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
+    subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
               'infrastructure-provisioning/src/general/files/{1}/'
-              'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider))
-        local('sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
-              'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider))
+              'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
+    subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+              'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
 
 
 def deploy_datalab(args):
     # Creating SSN node
     docker_command = generate_docker_command()
-    local(docker_command)
+    subprocess.run(docker_command, shell=True, check=True)
 
 
 def terminate_datalab(args):
     # Dropping datalab environment with selected infrastructure tag
     docker_command = generate_docker_command()
-    local(docker_command)
+    subprocess.run(docker_command, shell=True, check=True)
 
 
 if __name__ == "__main__":

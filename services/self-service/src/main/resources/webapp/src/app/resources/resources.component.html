@@ -36,12 +36,20 @@
           <mat-form-field>
             <mat-label>Select project</mat-label>
 
-            <mat-select [(value)]="resourcesGrid.activeProject" panelClass="top-select scrolling">
-
-              <mat-option *ngIf="projects?.length > 1" (click)="setActiveProject('')">Show all</mat-option>
-              <mat-option *ngFor="let project of projects" [value]="project"
+            <mat-select 
+              disableOptionCentering
+              [(value)]="resourcesGrid.activeProject" 
+              panelClass="top-select scrolling">
+              <mat-option 
+                *ngIf="projects?.length > 1" 
+                (click)="setActiveProject('')">Show all
+              </mat-option>
+              <mat-option 
+                *ngFor="let project of projects" 
+                [value]="project"
                 (click)="setActiveProject(project)">
-                {{ project }}</mat-option>
+                {{ project }}
+              </mat-option>
               <mat-option *ngIf="!projects?.length" class="multiple-select ml-10" disabled>Projects list is empty
               </mat-option>
             </mat-select>

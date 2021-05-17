@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,36 +29,38 @@ import traceback
 from datalab.common_lib import manage_pkg
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
-
+from fabric import *
+import subprocess
 
 def ensure_docker_daemon(datalab_path, os_user, region):
     try:
-        if not exists(datalab_path + 'tmp/docker_daemon_ensured'):
+        if not exists(datalab.fab.conn, datalab_path + 'tmp/docker_daemon_ensured'):
             docker_version = os.environ['ssn_docker_version']
-            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
-            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+            datalab.fab.conn.sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -')
+            datalab.fab.conn.sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
             manage_pkg('update', 'remote', '')
-            sudo('apt-cache policy docker-ce')
-            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
-            sudo('usermod -a -G docker ' + os_user)
-            sudo('update-rc.d docker defaults')
-            sudo('update-rc.d docker enable')
-            sudo('touch ' + datalab_path + 'tmp/docker_daemon_ensured')
+            datalab.fab.conn.sudo('apt-cache policy docker-ce')
+            manage_pkg('-y install', 'remote', 'docker-ce=5:{}~3-0~ubuntu-focal'.format(docker_version))
+            datalab.fab.conn.sudo('usermod -a -G docker ' + os_user)
+            datalab.fab.conn.sudo('update-rc.d docker defaults')
+            datalab.fab.conn.sudo('update-rc.d docker enable')
+            datalab.fab.conn.sudo('touch ' + datalab_path + 'tmp/docker_daemon_ensured')
         return True
     except:
+        traceback.print_exc()
+        print('Failed to ensure_docker_daemon')
         return False
 
 
 def ensure_nginx(datalab_path):
     try:
-        if not exists(datalab_path + 'tmp/nginx_ensured'):
+        if not exists(datalab.fab.conn,datalab_path + 'tmp/nginx_ensured'):
             manage_pkg('-y install', 'remote', 'nginx')
-            sudo('service nginx restart')
-            sudo('update-rc.d nginx defaults')
-            sudo('update-rc.d nginx enable')
-            sudo('touch ' + datalab_path + 'tmp/nginx_ensured')
+            datalab.fab.conn.sudo('service nginx restart')
+            datalab.fab.conn.sudo('update-rc.d nginx defaults')
+            datalab.fab.conn.sudo('update-rc.d nginx enable')
+            datalab.fab.conn.sudo('touch ' + datalab_path + 'tmp/nginx_ensured')
     except Exception as err:
         traceback.print_exc()
         print('Failed to ensure Nginx: ', str(err))
@@ -67,12 +69,12 @@ def ensure_nginx(datalab_path):
 
 def ensure_jenkins(datalab_path):
     try:
-        if not exists(datalab_path + 'tmp/jenkins_ensured'):
-            sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
-            sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
+        if not exists(datalab.fab.conn,datalab_path + 'tmp/jenkins_ensured'):
+            datalab.fab.conn.sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -')
+            datalab.fab.conn.sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
             manage_pkg('-y update', 'remote', '')
             manage_pkg('-y install', 'remote', 'jenkins')
-            sudo('touch ' + datalab_path + 'tmp/jenkins_ensured')
+            datalab.fab.conn.sudo('touch ' + datalab_path + 'tmp/jenkins_ensured')
     except Exception as err:
         traceback.print_exc()
         print('Failed to ensure Jenkins: ', str(err))
@@ -81,22 +83,22 @@ def ensure_jenkins(datalab_path):
 
 def configure_jenkins(datalab_path, os_user, config, tag_resource_id):
     try:
-        if not exists(datalab_path + 'tmp/jenkins_configured'):
-            sudo('echo \'JENKINS_ARGS="--prefix=/jenkins --httpPort=8070"\' >> /etc/default/jenkins')
-            sudo('rm -rf /var/lib/jenkins/*')
-            sudo('mkdir -p /var/lib/jenkins/jobs/')
-            sudo('chown -R ' + os_user + ':' + os_user + ' /var/lib/jenkins/')
-            put('/root/templates/jenkins_jobs/*', '/var/lib/jenkins/jobs/')
-            sudo(
+        if not exists(datalab.fab.conn,datalab_path + 'tmp/jenkins_configured'):
+            datalab.fab.conn.sudo('echo \'JENKINS_ARGS="--prefix=/jenkins --httpPort=8070"\' >> /etc/default/jenkins')
+            datalab.fab.conn.sudo('rm -rf /var/lib/jenkins/*')
+            datalab.fab.conn.sudo('mkdir -p /var/lib/jenkins/jobs/')
+            datalab.fab.conn.sudo('chown -R ' + os_user + ':' + os_user + ' /var/lib/jenkins/')
+            datalab.fab.conn.put('/root/templates/jenkins_jobs/*', '/var/lib/jenkins/jobs/')
+            datalab.fab.conn.sudo(
                 "find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/CTUN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(
                     os_user, config['service_base_name'], tag_resource_id, config['security_group_id'],
                     config['vpc_id'], config['subnet_id'], config['admin_key']))
-            sudo('chown -R jenkins:jenkins /var/lib/jenkins')
-            sudo('/etc/init.d/jenkins stop; sleep 5')
-            sudo('systemctl enable jenkins')
-            sudo('systemctl start jenkins')
-            sudo('touch ' + datalab_path + '/tmp/jenkins_configured')
-            sudo('echo "jenkins ALL = NOPASSWD:ALL" >> /etc/sudoers')
+            datalab.fab.conn.sudo('chown -R jenkins:jenkins /var/lib/jenkins')
+            datalab.fab.conn.sudo('/etc/init.d/jenkins stop; sleep 5')
+            datalab.fab.conn.sudo('systemctl enable jenkins')
+            datalab.fab.conn.sudo('systemctl start jenkins')
+            datalab.fab.conn.sudo('touch ' + datalab_path + '/tmp/jenkins_configured')
+            datalab.fab.conn.sudo('echo "jenkins ALL = NOPASSWD:ALL" >> /etc/sudoers')
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure Jenkins: ', str(err))
@@ -106,43 +108,43 @@ def configure_jenkins(datalab_path, os_user, config, tag_resource_id):
 def configure_nginx(config, datalab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
-        if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
-            sudo('useradd -r nginx')
-            sudo('rm -f /etc/nginx/conf.d/*')
-            put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
-            put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
-            sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
-            sudo('mv /tmp/nginx.conf ' + datalab_path + 'tmp/')
-            sudo('mv /tmp/nginx_proxy.conf ' + datalab_path + 'tmp/')
-            sudo('\cp ' + datalab_path + 'tmp/nginx.conf /etc/nginx/')
-            sudo('\cp ' + datalab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
-            sudo('mkdir -p /etc/nginx/locations')
-            sudo('rm -f /etc/nginx/sites-enabled/default')
+        if not exists(datalab.fab.conn,"/etc/nginx/conf.d/nginx_proxy.conf"):
+            datalab.fab.conn.sudo('useradd -r nginx')
+            datalab.fab.conn.sudo('rm -f /etc/nginx/conf.d/*')
+            datalab.fab.conn.put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
+            datalab.fab.conn.put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
+            datalab.fab.conn.sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
+            datalab.fab.conn.sudo('mv /tmp/nginx.conf ' + datalab_path + 'tmp/')
+            datalab.fab.conn.sudo('mv /tmp/nginx_proxy.conf ' + datalab_path + 'tmp/')
+            datalab.fab.conn.sudo('\cp ' + datalab_path + 'tmp/nginx.conf /etc/nginx/')
+            datalab.fab.conn.sudo('\cp ' + datalab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
+            datalab.fab.conn.sudo('mkdir -p /etc/nginx/locations')
+            datalab.fab.conn.sudo('rm -f /etc/nginx/sites-enabled/default')
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure Nginx: ', str(err))
         sys.exit(1)
 
     try:
-        if not exists("/etc/nginx/locations/proxy_location_jenkins.conf"):
+        if not exists(datalab.fab.conn,"/etc/nginx/locations/proxy_location_jenkins.conf"):
             nginx_password = id_generator()
             template_file = config['nginx_template_dir'] + 'proxy_location_jenkins_template.conf'
             with open("/tmp/%s-tmpproxy_location_jenkins_template.conf" % random_file_part, 'w') as out:
                 with open(template_file) as tpl:
                     for line in tpl:
                         out.write(line)
-            put("/tmp/%s-tmpproxy_location_jenkins_template.conf" % random_file_part,
+            datalab.fab.conn.put("/tmp/%s-tmpproxy_location_jenkins_template.conf" % random_file_part,
                 '/tmp/proxy_location_jenkins.conf')
-            sudo('mv /tmp/proxy_location_jenkins.conf ' + os.environ['ssn_datalab_path'] + 'tmp/')
-            sudo('\cp ' + os.environ['ssn_datalab_path'] + 'tmp/proxy_location_jenkins.conf /etc/nginx/locations/')
-            sudo("echo 'engineer:" + crypt.crypt(nginx_password, id_generator()) + "' > /etc/nginx/htpasswd")
+            datalab.fab.conn.sudo('mv /tmp/proxy_location_jenkins.conf ' + os.environ['ssn_datalab_path'] + 'tmp/')
+            datalab.fab.conn.sudo('\cp ' + os.environ['ssn_datalab_path'] + 'tmp/proxy_location_jenkins.conf /etc/nginx/locations/')
+            datalab.fab.conn.sudo('''bash -c "echo 'engineer:{}' > /etc/nginx/htpasswd"'''.format(crypt.crypt(nginx_password, id_generator())))
             with open('jenkins_creds.txt', 'w+') as f:
                 f.write("Jenkins credentials: engineer  / " + nginx_password)
     except:
         return False
 
     try:
-        sudo('service nginx reload')
+        datalab.fab.conn.sudo('service nginx reload')
         return True
     except:
         return False
@@ -150,11 +152,11 @@ def configure_nginx(config, datalab_path, hostname):
 
 def ensure_supervisor():
     try:
-        if not exists(os.environ['ssn_datalab_path'] + 'tmp/superv_ensured'):
+        if not exists(datalab.fab.conn,os.environ['ssn_datalab_path'] + 'tmp/superv_ensured'):
             manage_pkg('-y install', 'remote', 'supervisor')
-            sudo('update-rc.d supervisor defaults')
-            sudo('update-rc.d supervisor enable')
-            sudo('touch ' + os.environ['ssn_datalab_path'] + 'tmp/superv_ensured')
+            datalab.fab.conn.sudo('update-rc.d supervisor defaults')
+            datalab.fab.conn.sudo('update-rc.d supervisor enable')
+            datalab.fab.conn.sudo('touch ' + os.environ['ssn_datalab_path'] + 'tmp/superv_ensured')
     except Exception as err:
         traceback.print_exc()
         print('Failed to install Supervisor: ', str(err))
@@ -163,14 +165,15 @@ def ensure_supervisor():
 
 def ensure_mongo():
     try:
-        if not exists(os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured'):
-            sudo('wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -')
-            sudo('ver=`lsb_release -cs`; echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu '
-                 '$ver/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list; '
-                 'apt-get update')
+        if not exists(datalab.fab.conn,os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured'):
+            datalab.fab.conn.sudo('wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -')
+            os_version = datalab.fab.conn.sudo('lsb_release -cs').stdout.replace('\n', '')
+            datalab.fab.conn.sudo('echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {}/mongodb-org/4.4 '
+                                  'multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list'.format(os_version))
+            manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'mongodb-org')
-            sudo('systemctl enable mongod.service')
-            sudo('touch ' + os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured')
+            datalab.fab.conn.sudo('systemctl enable mongod.service')
+            datalab.fab.conn.sudo('touch ' + os.environ['ssn_datalab_path'] + 'tmp/mongo_ensured')
     except Exception as err:
         traceback.print_exc()
         print('Failed to install MongoDB: ', str(err))
@@ -188,19 +191,19 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
              usage_type, usage, cost, resource_id, tags, billing_dataset_name, keycloak_client_id,
              keycloak_client_secret, keycloak_auth_server_url, report_path=''):
     try:
-        if not exists(os.environ['ssn_datalab_path'] + 'tmp/ss_started'):
-            java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
+        if not exists(datalab.fab.conn,os.environ['ssn_datalab_path'] + 'tmp/ss_started'):
+            java_path = datalab.fab.conn.sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'").stdout.replace('\n','')
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
-            local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
-            local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
-            local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
-            local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
-            sudo('sed -i "s|KEYNAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
+            datalab.fab.conn.local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            datalab.fab.conn.local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            datalab.fab.conn.local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
+            datalab.fab.conn.local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
+            datalab.fab.conn.sudo('sed -i "s|KEYNAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
                  format(os.environ['conf_key_name'], datalab_path))
-            put('/root/templates/ssn.yml', '/tmp/ssn.yml')
-            sudo('mv /tmp/ssn.yml ' + os.environ['ssn_datalab_path'] + 'conf/')
-            put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
-            sudo('mv /tmp/proxy_location_webapp_template.conf ' + os.environ['ssn_datalab_path'] + 'tmp/')
+            datalab.fab.conn.put('/root/templates/ssn.yml', '/tmp/ssn.yml')
+            datalab.fab.conn.sudo('mv /tmp/ssn.yml ' + os.environ['ssn_datalab_path'] + 'conf/')
+            datalab.fab.conn.put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
+            datalab.fab.conn.sudo('mv /tmp/proxy_location_webapp_template.conf ' + os.environ['ssn_datalab_path'] + 'tmp/')
             if cloud_provider == 'aws':
                 conf_parameter_name = '--spring.config.location={0}billing_app.yml --conf '.format(datalab_conf_dir)
                 with open('/root/templates/supervisor_svc.conf', 'r') as f:
@@ -217,43 +220,43 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                     .replace('CONF_PARAMETER_NAME', conf_parameter_name)
                 with open('/root/templates/supervisor_svc.conf', 'w') as f:
                     f.write(text)
-            put('/root/templates/supervisor_svc.conf', '/tmp/supervisor_svc.conf')
-            sudo('mv /tmp/supervisor_svc.conf ' + os.environ['ssn_datalab_path'] + 'tmp/')
-            sudo('cp ' + os.environ['ssn_datalab_path'] +
+            datalab.fab.conn.put('/root/templates/supervisor_svc.conf', '/tmp/supervisor_svc.conf')
+            datalab.fab.conn.sudo('mv /tmp/supervisor_svc.conf ' + os.environ['ssn_datalab_path'] + 'tmp/')
+            datalab.fab.conn.sudo('cp ' + os.environ['ssn_datalab_path'] +
                  'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
-            sudo('cp ' + os.environ['ssn_datalab_path'] + 'tmp/supervisor_svc.conf {}'.format(supervisor_conf))
-            sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
+            datalab.fab.conn.sudo('cp ' + os.environ['ssn_datalab_path'] + 'tmp/supervisor_svc.conf {}'.format(supervisor_conf))
+            datalab.fab.conn.sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
             try:
-                sudo('mkdir -p /var/log/application')
-                run('mkdir -p /tmp/yml_tmp/')
+                datalab.fab.conn.sudo('mkdir -p /var/log/application')
+                datalab.fab.conn.run('mkdir -p /tmp/yml_tmp/')
                 for service in ['self-service', 'provisioning-service', 'billing']:
-                    jar = sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service))
-                    sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
-                    sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(datalab_path, service))
+                    jar = datalab.fab.conn.sudo('bash -c "cd {0}{1}/lib/; find {1}*.jar -type f"'.format(web_path, service)).stdout.replace('\n','')
+                    datalab.fab.conn.sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
+                    datalab.fab.conn.sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(datalab_path, service))
                 # Replacing Keycloak and cloud parameters
                 for item in json.loads(cloud_params):
                     if "KEYCLOAK_" in item['key']:
-                        sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/self-service.yml'.format(
+                        datalab.fab.conn.sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/self-service.yml'.format(
                             item['key'], item['value']))
-                    sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/provisioning.yml'.format(
+                    datalab.fab.conn.sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/provisioning.yml'.format(
                         item['key'], item['value']))
-                sudo('sed -i "s|SERVICE_BASE_NAME|{0}|g" /tmp/yml_tmp/self-service.yml'.format(service_base_name))
-                sudo('sed -i "s|OPERATION_SYSTEM|debian|g" /tmp/yml_tmp/self-service.yml')
-                sudo('sed -i "s|<SSN_INSTANCE_SIZE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                datalab.fab.conn.sudo('sed -i "s|SERVICE_BASE_NAME|{0}|g" /tmp/yml_tmp/self-service.yml'.format(service_base_name))
+                datalab.fab.conn.sudo('sed -i "s|OPERATION_SYSTEM|debian|g" /tmp/yml_tmp/self-service.yml')
+                datalab.fab.conn.sudo('sed -i "s|<SSN_INSTANCE_SIZE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
                     os.environ['{0}_ssn_instance_size'.format(os.environ['conf_cloud_provider'])]))
                 if cloud_provider == 'azure':
-                    sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))
-                    sudo('sed -i "s|<LOGIN_TENANT_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(tenant_id))
-                    sudo('sed -i "s|<LOGIN_APPLICATION_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(application_id))
-                    sudo('sed -i "s|<DATALAB_SUBSCRIPTION_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    datalab.fab.conn.sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))
+                    datalab.fab.conn.sudo('sed -i "s|<LOGIN_TENANT_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(tenant_id))
+                    datalab.fab.conn.sudo('sed -i "s|<LOGIN_APPLICATION_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(application_id))
+                    datalab.fab.conn.sudo('sed -i "s|<DATALAB_SUBSCRIPTION_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
                         subscription_id))
-                    sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    datalab.fab.conn.sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
                         authentication_file))
-                    sudo('sed -i "s|<VALIDATE_PERMISSION_SCOPE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    datalab.fab.conn.sudo('sed -i "s|<VALIDATE_PERMISSION_SCOPE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
                         validate_permission_scope))
-                    sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    datalab.fab.conn.sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
                         hostname))
-                    sudo('sed -i "s|<LOGIN_PAGE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(hostname))
+                    datalab.fab.conn.sudo('sed -i "s|<LOGIN_PAGE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(hostname))
                     # if os.environ['azure_datalake_enable'] == 'true':
                     #     permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/accounts/{}/providers/Microsoft.Authorization/'.format(
                     #         subscription_id, service_base_name, data_lake_name)
@@ -261,13 +264,13 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                     #     permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Authorization/'.format(
                     #         subscription_id, service_base_name
                     #     )
-                sudo('mv /tmp/yml_tmp/* ' + datalab_conf_dir)
-                sudo('rmdir /tmp/yml_tmp/')
+                datalab.fab.conn.sudo('mv /tmp/yml_tmp/* ' + datalab_conf_dir)
+                datalab.fab.conn.sudo('rmdir /tmp/yml_tmp/')
             except:
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                datalab.fab.conn.local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
                                                                                                          host_string))
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \
@@ -331,37 +334,37 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                                    keycloak_client_id,
                                    keycloak_client_secret,
                                    keycloak_auth_server_url)
-                sudo('python /tmp/configure_billing.py {}'.format(params))
+                datalab.fab.conn.sudo('python3 /tmp/configure_billing.py {}'.format(params))
             try:
                 if os.environ['conf_stepcerts_enabled'] == 'true':
-                    sudo(
+                    datalab.fab.conn.sudo(
                         'openssl pkcs12 -export -in /etc/ssl/certs/datalab.crt -inkey /etc/ssl/certs/datalab.key -name ssn '
                         '-out ssn.p12 -password pass:{0}'.format(keystore_passwd))
-                    sudo('keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore '
+                    datalab.fab.conn.sudo('keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore '
                          '/home/{0}/keys/ssn.keystore.jks -deststorepass "{1}" -srcstorepass "{1}"'.format(
                         os_user, keystore_passwd))
-                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias step-ca -import -file '
+                    datalab.fab.conn.sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias step-ca -import -file '
                          '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
                           os_user, keystore_passwd))
-                    sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
+                    datalab.fab.conn.sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
                          '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
-                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/datalab.crt -noprompt '
+                    datalab.fab.conn.sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/datalab.crt -noprompt '
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
                 else:
-                    sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
+                    datalab.fab.conn.sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
                          -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
                         os_user, keystore_passwd))
-                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/datalab.crt \
+                    datalab.fab.conn.sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/datalab.crt \
                          -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
-                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/datalab.crt -noprompt \
+                    datalab.fab.conn.sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/datalab.crt -noprompt \
                          -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
-            sudo('service supervisor start')
-            sudo('service nginx restart')
-            sudo('service supervisor restart')
-            sudo('touch ' + os.environ['ssn_datalab_path'] + 'tmp/ss_started')
+            datalab.fab.conn.sudo('service supervisor start')
+            datalab.fab.conn.sudo('service nginx restart')
+            datalab.fab.conn.sudo('service supervisor restart')
+            datalab.fab.conn.sudo('touch ' + os.environ['ssn_datalab_path'] + 'tmp/ss_started')
     except Exception as err:
         traceback.print_exc()
         print('Failed to start Self-service: ', str(err))
@@ -370,19 +373,17 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
 
 def install_build_dep():
     try:
-        if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
+        if not exists(datalab.fab.conn,'{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
             maven_version = '3.5.4'
             manage_pkg('-y install', 'remote', 'openjdk-8-jdk git wget unzip')
-            with cd('/opt/'):
-                sudo(
-                    'wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
+            datalab.fab.conn.run(
+                    'cd /opt/ && sudo wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip '
+                    '&& sudo unzip apache-maven-{1}-bin.zip && sudo mv apache-maven-{1} maven'.format(
                         maven_version.split('.')[0], maven_version))
-                sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
-                sudo('mv apache-maven-{} maven'.format(maven_version))
-            sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_12.x | bash -"')
+            datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_15.x | bash -"')
             manage_pkg('-y install', 'remote', 'nodejs')
-            sudo('npm config set unsafe-perm=true')
-            sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path']))
+            datalab.fab.conn.sudo('npm config set unsafe-perm=true')
+            datalab.fab.conn.sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path']))
     except Exception as err:
         traceback.print_exc()
         print('Failed to install build dependencies for UI: ', str(err))

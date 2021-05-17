@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -28,7 +28,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+from fabric import *
+import subprocess
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
@@ -46,7 +47,7 @@ if __name__ == "__main__":
         print('[COLLECTING DATA]')
         params = '--list_resources "{}"'.format(os.environ['edge_list_resources'])
         try:
-            local("~/scripts/{}.py {}".format('common_collect_data', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_collect_data', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

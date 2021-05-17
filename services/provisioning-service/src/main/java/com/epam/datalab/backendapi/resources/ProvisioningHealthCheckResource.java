@@ -19,7 +19,6 @@
 
 package com.epam.datalab.backendapi.resources;
 
-
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.google.inject.Inject;

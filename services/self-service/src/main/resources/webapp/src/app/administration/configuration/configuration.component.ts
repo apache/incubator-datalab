@@ -28,7 +28,8 @@ import 'brace/mode/yaml';
 import {ToastrService} from 'ngx-toastr';
 import {Observable, Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {Endpoint} from '../management/endpoints/endpoints.component';
+import { EnvironmentsDataService } from '../management/management-data.service';
+import { EnvironmentModel } from '../management/management.model';
 
 @Component({
   selector: 'datalab-configuration',
@@ -45,6 +46,15 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     'provisioning': {label: 'Provisioning', selected: false, config: '', serverConfig: '', isConfigChanged: false},
     'billing': {label: 'Billing', selected: false, config: '', serverConfig: '', isConfigChanged: false},
   };
+
+  public messagesStatus = {
+    success: [],
+    error: []
+  };
+  
+  public environmentStatuses = {};
+  public environments = [];
+  public ingStatuses = ['creating', 'configuring', 'reconfiguring', 'creating image', 'stopping', 'starting', 'terminating'];
 
   private confirmMessages = {
     restartService: 'Restarting services will make DataLab unavailable for some time.',
@@ -72,6 +82,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     private appRoutingService: AppRoutingService,
     private endpointService: EndpointService,
     private configurationService: ConfigurationService,
+    private environmentsDataService: EnvironmentsDataService,
     private router: Router,
     public dialog: MatDialog,
     public toastr: ToastrService,
@@ -82,15 +93,40 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.getEndpoints()
       .subscribe(endpoints => {
       this.endpoints = endpoints;
-      this.endpoints = this.endpoints.map(endpoint => endpoint.name);
-      this.activeEndpoint = this.endpoints[0];
+      
+      this.endpoints = this.endpoints.map(endpoint => ({name: endpoint.name, status: endpoint.status }));
+
+      this.activeEndpoint = this.endpoints[0].name;
       this.getServicesConfig(this.activeEndpoint);
+    });
+
+    this.environmentsDataService.getEnvironmentDataDirect().subscribe((data: any) => {
+      this.environments = EnvironmentModel.loadEnvironments(data);
+      this.environments.map((env,index) => {
+        this.checkResource(env.status, env.endpoint);
+        if(env.resources?.length > 0) {
+          env.resources.map(resource => {
+            this.checkResource(resource.status, env.endpoint);
+          })
+        }
+      });
     });
   }
 
   ngOnDestroy() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  public checkResource(resourceStatus: string, endpoint: string) {
+    if( this.ingStatuses.includes(resourceStatus) ) {
+      if(!this.environmentStatuses[endpoint]) {
+        this.environmentStatuses[endpoint] = [];
+        this.environmentStatuses[endpoint].push(resourceStatus);
+      } else {
+        this.environmentStatuses[endpoint].push(resourceStatus);
+      }
+    }
   }
 
   private getEnvironmentHealthStatus(): void {
@@ -157,11 +193,14 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.activeTab = tabChangeEvent;
-    if (this.activeTab.index === 1) {
+    
+    if (this.activeTab.index === 1 && this.activeEndpoint === 'local') {
       this.activeService = 'self-service';
-    } else if (this.activeTab.index === 2) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 1) || 
+            (this.activeTab.index === 2 && this.activeEndpoint === 'local')) {
       this.activeService = 'provisioning';
-    } else if (this.activeTab.index === 3) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 2) || 
+            (this.activeTab.index === 3 && this.activeEndpoint === 'local')) {
       this.activeService = 'billing';
     } else {
       this.activeService = '';
@@ -192,6 +231,20 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.services[service].selected = !this.services[service].selected;
   }
 
+  public restartSingleService(ui: boolean, prov: boolean, billing: boolean, serviceName) {
+    this.configurationService.restartServices(ui, prov, billing, this.activeEndpoint)
+      .pipe(
+        takeUntil(this.unsubscribe$),
+      )
+      .subscribe(res => {
+          this.messagesStatus.success.push(serviceName);
+        },
+        error => {
+          this.messagesStatus.error.push(serviceName);
+        }
+      );
+  }
+
   public restartServices(): void  {
     const selectedServices = [];
     for (const service in this.services) {
@@ -200,32 +253,47 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.dialog.open(SettingsConfirmationDialogComponent, { data: {
-        action: 'restart', services: selectedServices
-      }, panelClass: 'modal-sm' })
+    this.dialog.open(
+      SettingsConfirmationDialogComponent, 
+      { 
+        data: {
+          action: 'restart', 
+          services: selectedServices,
+          environmentStatuses: this.environmentStatuses,
+          activeEndpoint: this.activeEndpoint 
+        }, 
+        panelClass: 'modal-sm' 
+      })
       .afterClosed().subscribe(result => {
         if (result) {
-          this.configurationService.restartServices(this.services['self-service'].selected,
-            this.services['provisioning'].selected,
-            this.services['billing'].selected,
-            this.activeEndpoint
-          )
-            .pipe(
-              takeUntil(this.unsubscribe$),
-            )
-            .subscribe(res => {
-                this.clearSelectedServices();
-                this.toastr.success('Service restarting started!', 'Success!');
-              },
-              error => {
-              if (this.services['self-service'].selected) {
-                this.clearSelectedServices();
-                return this.toastr.success('Service restarting started!', 'Success!');
-              } else {
-                this.toastr.error('Service restarting failed', 'Oops!');
+          
+          if(this.environmentStatuses[this.activeEndpoint] && this.services['provisioning'].selected) {
+            this.services['provisioning'].selected = false;
+          }
+
+          if(this.services['self-service'].selected) {
+            this.restartSingleService(true, false, false, 'Self-service')
+          } 
+          if(this.services['provisioning'].selected) {
+            this.restartSingleService(false, true, false, 'Provisioning service')
+          } 
+          if(this.services['billing'].selected) {
+            this.restartSingleService(false, false, true, 'Billing service')
+            
+          }
+
+          setTimeout(() => {
+            for(let key in this.messagesStatus) {
+              if(key === 'error' && this.messagesStatus[key].length > 0) {
+                this.toastr.error(`${this.messagesStatus[key].join(', ')} restarting failed`, 'Oops!');
+              } else if(key === 'success' && this.messagesStatus[key].length > 0) {
+                this.toastr.success(`${this.messagesStatus[key].join(', ')} restarting started!`, 'Success!');
               }
-              }
-            );
+            }
+            this.clearSelectedServices();
+            this.messagesStatus.success = [];
+            this.messagesStatus.error = [];
+          }, 500);
         } else {
           this.clearSelectedServices();
         }
@@ -260,19 +328,36 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     </div>
 
     <div mat-dialog-content class="content">
-      <ng-template [ngIf]="data.action === 'restart'" ]>
-        Restarting <span class="strong">{{data.services.join(', ')}}</span> <span *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')">
-        service</span><span [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span> will make DataLab unavailable for some time.
+      <ng-template [ngIf]="data.action === 'restart' && !data.environmentStatuses[data.activeEndpoint]?.length" ]>
+        <span class="strong">{{data.services.join(', ') | titlecase}}</span> 
+        <span class="strong" *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')"> service</span>
+        <span class="strong" [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
+
+      <ng-template [ngIf]="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && filterProvisioning.length" ]>
+        <span class="strong" >{{filterProvisioning.join(', ') | titlecase}}</span> 
+        <span class="strong" *ngIf="filterProvisioning.length > 1 || (filterProvisioning.length === 1 && filterProvisioning[0] !== 'self-service')"> service</span>
+        <span [hidden]="(filterProvisioning.length < 2) || filterProvisioning.length === 2 && filterProvisioning[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
+      </ng-template>
+
+      <ng-template [ngIf]="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && (data.services.includes('provisioning') || !filterProvisioning.length)">
+        <div class="warning" [ngStyle]="data.services.includes('provisioning') && data.services?.length > 1 && {'margin-top': '10px'}">
+        <span>Provisioning service: </span>can not be restarted because one of resources is in processing stage. Please try again later.
+        </div>
+      </ng-template>
+
       <ng-template [ngIf]="data.action === 'discard'" ]>Discard all unsaved changes.</ng-template>
       <ng-template [ngIf]="data.action === 'save'" ]>After you save changes you need to restart service.</ng-template>
     </div>
-    <div class="text-center ">
+    <div class="text-center " *ngIf="!data.environmentStatuses[data.activeEndpoint]?.length || (data.environmentStatuses[data.activeEndpoint]?.length && (!data.services.includes('provisioning') || filterProvisioning?.length))">
       <p class="strong">Do you want to proceed?</p>
     </div>
-    <div class="text-center m-top-20 pb-25">
+    <div class="text-center m-top-20 pb-25" *ngIf="!data.environmentStatuses[data.activeEndpoint]?.length || (data.environmentStatuses[data.activeEndpoint]?.length && (!data.services.includes('provisioning') || filterProvisioning.length))">
       <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
       <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
+    </div>
+    <div class="text-center m-top-20 pb-25" *ngIf="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && data.services.includes('provisioning') && data.services.length === 1">
+      <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
     </div>
   </div>
   `,
@@ -284,15 +369,21 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       header a i { font-size: 20px; }
       header a:hover i { color: #35afd5; cursor: pointer; }
       .content{padding: 35px 30px 30px 30px; text-align: center;}
-      label{cursor: pointer}`
+      label{cursor: pointer;}
+      .warning{color: #EF5C4B;}
+      .warning span {font-weight: 600;}`
   ]
 })
 
-export class SettingsConfirmationDialogComponent {
+export class SettingsConfirmationDialogComponent implements OnInit {
+  filterProvisioning = [];
   constructor(
     public dialogRef: MatDialogRef<SettingsConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
+  }
+  ngOnInit() {
+    this.filterProvisioning = this.data.services?.filter(service => service !== 'provisioning');
   }
 }
 

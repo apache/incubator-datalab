@@ -24,7 +24,9 @@ import com.epam.datalab.dto.base.edge.EdgeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectResult extends StatusBaseDTO<ProjectResult> {
@@ -33,5 +35,4 @@ public class ProjectResult extends StatusBaseDTO<ProjectResult> {
     private String projectName;
     @JsonProperty("endpoint_name")
     private String endpointName;
-
 }

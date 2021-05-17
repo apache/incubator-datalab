@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -26,10 +26,11 @@ import multiprocessing
 import os
 import sys
 import traceback
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 
 def install_libs_on_slaves(slave, data_engine):
@@ -41,7 +42,7 @@ def install_libs_on_slaves(slave, data_engine):
                 data_engine['keyfile'], data_engine['libs'])
     try:
         # Run script to install additional libs
-        local("~/scripts/{}.py {}".format('install_additional_libs', params))
+        subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -80,7 +81,7 @@ if __name__ == "__main__":
                     data_engine['keyfile'], data_engine['libs'])
         try:
             # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('install_additional_libs', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

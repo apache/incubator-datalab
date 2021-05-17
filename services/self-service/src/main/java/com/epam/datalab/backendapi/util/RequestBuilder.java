@@ -32,12 +32,7 @@ import com.epam.datalab.backendapi.resources.dto.SparkStandaloneClusterCreateFor
 import com.epam.datalab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.datalab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.datalab.cloud.CloudProvider;
-import com.epam.datalab.dto.LibListComputationalDTO;
-import com.epam.datalab.dto.LibListExploratoryDTO;
-import com.epam.datalab.dto.ResourceBaseDTO;
-import com.epam.datalab.dto.ResourceSysBaseDTO;
-import com.epam.datalab.dto.UserEnvironmentResources;
-import com.epam.datalab.dto.UserInstanceDTO;
+import com.epam.datalab.dto.*;
 import com.epam.datalab.dto.aws.AwsCloudSettings;
 import com.epam.datalab.dto.aws.computational.AwsComputationalTerminateDTO;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
@@ -53,21 +48,8 @@ import com.epam.datalab.dto.backup.EnvBackupDTO;
 import com.epam.datalab.dto.base.CloudSettings;
 import com.epam.datalab.dto.base.DataEngineType;
 import com.epam.datalab.dto.base.computational.ComputationalBase;
-import com.epam.datalab.dto.computational.ComputationalCheckInactivityDTO;
-import com.epam.datalab.dto.computational.ComputationalClusterConfigDTO;
-import com.epam.datalab.dto.computational.ComputationalStartDTO;
-import com.epam.datalab.dto.computational.ComputationalStopDTO;
-import com.epam.datalab.dto.computational.ComputationalTerminateDTO;
-import com.epam.datalab.dto.computational.UserComputationalResource;
-import com.epam.datalab.dto.exploratory.ExploratoryActionDTO;
-import com.epam.datalab.dto.exploratory.ExploratoryCheckInactivityAction;
-import com.epam.datalab.dto.exploratory.ExploratoryCreateDTO;
-import com.epam.datalab.dto.exploratory.ExploratoryGitCredsDTO;
-import com.epam.datalab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
-import com.epam.datalab.dto.exploratory.ExploratoryImageDTO;
-import com.epam.datalab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
-import com.epam.datalab.dto.exploratory.LibInstallDTO;
-import com.epam.datalab.dto.exploratory.LibraryInstallDTO;
+import com.epam.datalab.dto.computational.*;
+import com.epam.datalab.dto.exploratory.*;
 import com.epam.datalab.dto.gcp.GcpCloudSettings;
 import com.epam.datalab.dto.gcp.computational.ComputationalCreateGcp;
 import com.epam.datalab.dto.gcp.computational.GcpComputationalTerminateDTO;
@@ -88,9 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.epam.datalab.cloud.CloudProvider.AWS;
-import static com.epam.datalab.cloud.CloudProvider.AZURE;
-import static com.epam.datalab.cloud.CloudProvider.GCP;
+import static com.epam.datalab.cloud.CloudProvider.*;
 
 @Singleton
 public class RequestBuilder {
@@ -197,7 +177,10 @@ public class RequestBuilder {
                 .withProject(exploratory.getProject())
                 .withEndpoint(exploratory.getEndpoint())
                 .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()))
-                .withTags(tags);
+                .withTags(tags)
+                .withGPUCount(exploratory.getGpuCount())
+                .withGPUType(exploratory.getGpuType())
+                .withEnabledGPU(exploratory.getEnabledGPU());
     }
 
     @SuppressWarnings("unchecked")
@@ -375,6 +358,8 @@ public class RequestBuilder {
                         .withMasterInstanceType(gcpForm.getMasterInstanceType())
                         .withSlaveInstanceType(gcpForm.getSlaveInstanceType())
                         .withVersion(gcpForm.getVersion())
+                        .withMasterGPUCount(gcpForm.getGpuCount())
+                        .withMasterGPUType(gcpForm.getGpuType())
                         .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
                 break;
 
@@ -622,57 +607,57 @@ public class RequestBuilder {
                 .key(projectDTO.getKey().replace("\n", ""))
                 .name(projectDTO.getName())
                 .tag(projectDTO.getTag())
-		        .endpoint(endpointDTO.getName())
-		        .build()
-		        .withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
+                .endpoint(endpointDTO.getName())
+                .build()
+                .withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
     }
 
-	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, EndpointDTO endpointDTO) {
-		return new ProjectActionDTO(project, endpointDTO.getName())
-				.withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
-	}
+    public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, EndpointDTO endpointDTO) {
+        return new ProjectActionDTO(project, endpointDTO.getName())
+                .withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
+    }
 
-	public CreateOdahuDTO newOdahuCreate(String user, OdahuCreateDTO odahuCreateDTO, ProjectDTO projectDTO, EndpointDTO endpointDTO) {
-		return CreateOdahuDTO.builder()
-				.name(odahuCreateDTO.getName())
-				.project(projectDTO.getName())
-				.endpoint(odahuCreateDTO.getEndpoint())
-				.key(projectDTO.getKey().replace("\n", ""))
-				.build()
-				.withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
-				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
-	}
+    public CreateOdahuDTO newOdahuCreate(String user, OdahuCreateDTO odahuCreateDTO, ProjectDTO projectDTO, EndpointDTO endpointDTO) {
+        return CreateOdahuDTO.builder()
+                .name(odahuCreateDTO.getName())
+                .project(projectDTO.getName())
+                .endpoint(odahuCreateDTO.getEndpoint())
+                .key(projectDTO.getKey().replace("\n", ""))
+                .build()
+                .withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
+                .withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
+    }
 
-	public ActionOdahuDTO newOdahuAction(String user, String name, ProjectDTO projectDTO, EndpointDTO endpointDTO,
-	                                     OdahuFieldsDTO odahuFields) {
-		return ActionOdahuDTO.builder()
-				.name(name)
-				.project(projectDTO.getName())
-				.key(projectDTO.getKey().replace("\n", ""))
-				.endpoint(endpointDTO.getName())
-				.grafanaAdmin(odahuFields.getGrafanaAdmin())
-				.grafanaPassword(odahuFields.getGrafanaPassword())
-				.oauthCookieSecret(odahuFields.getOauthCookieSecret())
-				.decryptToken(odahuFields.getDecryptToken())
-				.build()
-				.withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
-				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
-	}
+    public ActionOdahuDTO newOdahuAction(String user, String name, ProjectDTO projectDTO, EndpointDTO endpointDTO,
+                                         OdahuFieldsDTO odahuFields) {
+        return ActionOdahuDTO.builder()
+                .name(name)
+                .project(projectDTO.getName())
+                .key(projectDTO.getKey().replace("\n", ""))
+                .endpoint(endpointDTO.getName())
+                .grafanaAdmin(odahuFields.getGrafanaAdmin())
+                .grafanaPassword(odahuFields.getGrafanaPassword())
+                .oauthCookieSecret(odahuFields.getOauthCookieSecret())
+                .decryptToken(odahuFields.getDecryptToken())
+                .build()
+                .withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
+                .withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
+    }
 
-	public UserEnvironmentResources newInfrastructureStatus(String user, CloudProvider cloudProvider, EnvResourceList resourceList) {
-		return newResourceSysBaseDTO(user, cloudProvider, UserEnvironmentResources.class)
-				.withResourceList(resourceList);
-	}
+    public UserEnvironmentResources newInfrastructureStatus(String user, CloudProvider cloudProvider, EnvResourceList resourceList) {
+        return newResourceSysBaseDTO(user, cloudProvider, UserEnvironmentResources.class)
+                .withResourceList(resourceList);
+    }
 
-	/**
-	 * Returns application name basing on docker image
-	 *
-	 * @param imageName docker image name
-	 * @return application name
-	 */
-	private String getApplicationNameFromImage(String imageName) {
-		if (imageName != null) {
-			int pos = imageName.indexOf('-');
+    /**
+     * Returns application name basing on docker image
+     *
+     * @param imageName docker image name
+     * @return application name
+     */
+    private String getApplicationNameFromImage(String imageName) {
+        if (imageName != null) {
+            int pos = imageName.indexOf('-');
             if (pos > 0) {
                 return imageName.substring(pos + 1);
             }

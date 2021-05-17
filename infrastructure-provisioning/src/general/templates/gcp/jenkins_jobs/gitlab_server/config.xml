@@ -105,7 +105,7 @@ under the License.
             sudo sed -i &quot;s/LDAP_PASS/$ldap_pass/g&quot; $GITLAB_CONFIG_FILE
             sudo sed -i &quot;s/GITLAB_ROOT_PASSWORD/$root_password/g&quot; $GITLAB_CONFIG_FILE
 
-            sudo /usr/bin/python $DATALAB_PATH/tmp/gitlab/gitlab_deploy.py --action $Action
+            sudo /usr/bin/python3 $DATALAB_PATH/tmp/gitlab/gitlab_deploy.py --action $Action
         </command>
     </hudson.tasks.Shell>
   </builders>

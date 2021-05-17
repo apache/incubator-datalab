@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package com.epam.datalab.backendapi;
 
 import com.epam.datalab.auth.UserInfo;
@@ -26,17 +25,7 @@ import com.epam.datalab.backendapi.core.DockerWarmuper;
 import com.epam.datalab.backendapi.core.response.handlers.ComputationalConfigure;
 import com.epam.datalab.backendapi.modules.CloudModuleConfigurator;
 import com.epam.datalab.backendapi.modules.ModuleFactory;
-import com.epam.datalab.backendapi.resources.BackupResource;
-import com.epam.datalab.backendapi.resources.BucketResource;
-import com.epam.datalab.backendapi.resources.CallbackHandlerResource;
-import com.epam.datalab.backendapi.resources.DockerResource;
-import com.epam.datalab.backendapi.resources.GitExploratoryResource;
-import com.epam.datalab.backendapi.resources.ImageResource;
-import com.epam.datalab.backendapi.resources.InfrastructureResource;
-import com.epam.datalab.backendapi.resources.LibraryResource;
-import com.epam.datalab.backendapi.resources.OdahuResource;
-import com.epam.datalab.backendapi.resources.ProjectResource;
-import com.epam.datalab.backendapi.resources.ProvisioningHealthCheckResource;
+import com.epam.datalab.backendapi.resources.*;
 import com.epam.datalab.backendapi.resources.base.KeyResource;
 import com.epam.datalab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.datalab.cloud.CloudModule;
@@ -147,6 +136,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());
 
+        jersey.register(injector.getInstance(ChangePropertiesResource.class));
         jersey.register(injector.getInstance(DockerResource.class));
         jersey.register(injector.getInstance(GitExploratoryResource.class));
         jersey.register(injector.getInstance(LibraryResource.class));

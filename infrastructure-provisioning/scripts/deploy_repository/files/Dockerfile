@@ -24,9 +24,9 @@ FROM ubuntu:16.04
 # Install any .deb dependecies
 RUN	apt-get update && \
     apt-get -y upgrade && \
-    apt-get -y install python-pip python-dev groff vim less git wget nano libssl-dev libffi-dev libffi6 && \
+    apt-get -y install python3-pip python3-dev python3-virtualenv groff vim less git wget nano libssl-dev libffi-dev libffi6 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install any python dependencies
 RUN pip install -UI pip==9.0.3
-RUN pip install boto3 backoff fabric==1.14.0 fabvenv awscli argparse ujson jupyter pycrypto
+RUN pip install boto3 backoff fabric==1.14.0 fabvenv awscli argparse ujson jupyter pycryptodome

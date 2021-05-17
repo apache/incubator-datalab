@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -28,7 +28,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -37,22 +37,19 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     gitlab_certfile = os.environ['conf_gitlab_certfile']
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
     git_creds = dict()
     try:
-        if exists('/home/{}/.netrc'.format(args.os_user)):
-            run('rm .netrc')
-        if exists('/home/{}/.gitcreds'.format(args.os_user)):
-            run('rm .gitcreds')
+        if exists(conn, '/home/{}/.netrc'.format(args.os_user)):
+            conn.run('rm .netrc')
+        if exists(conn, '/home/{}/.gitcreds'.format(args.os_user)):
+            conn.run('rm .gitcreds')
         git_creds = os.environ['git_creds']
     except KeyError as err:
         print('Error: {0}'.format(err))
@@ -76,16 +73,18 @@ if __name__ == "__main__":
         with open("new_netrc", "w+") as f:
             for conf in sorted(new_config, reverse=True):
                 f.writelines(conf + "\n")
-        put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
+        conn.put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
 
         creds = dict()
         with open("new_gitcreds", 'w') as gitcreds:
             for i in range(len(data)):
                 creds.update({data[i]['hostname']: [data[i]['username'], data[i]['email']]})
             gitcreds.write(json.dumps(creds))
-        put('new_gitcreds', '/home/{}/.gitcreds'.format(args.os_user))
+        conn.put('new_gitcreds', '/home/{}/.gitcreds'.format(args.os_user))
 
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
+
+    conn.close()

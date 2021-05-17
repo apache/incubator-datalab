@@ -22,6 +22,7 @@ import time
 import traceback
 from fabric import Connection
 from patchwork.files import exists
+from patchwork import files
 
 conn = None
 args = None
@@ -494,7 +495,7 @@ def init_args():
     parser.add_argument('--repository_user', type=str, default='')
     parser.add_argument('--repository_pass', type=str, default='')
     parser.add_argument('--docker_version', type=str,
-                        default='18.06.3~ce~3-0~ubuntu')
+                        default='5:20.10.2~3-0~ubuntu-focal')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--endpoint_keystore_password', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')

@@ -68,6 +68,9 @@
   margin-right: 5px;
   .mat-chip-list-wrapper{
     margin: 0;
+    .mat-chip {
+      font-size: 13px;
+    }
   }
 }
 
@@ -321,6 +324,10 @@ input[type='number'] {
   padding-left: 5px;
 }
 
+.pl-10{
+  padding-left: 10px !important;
+}
+
 .pl-20{
   padding-left: 20px;
 }
@@ -551,4 +558,12 @@ input[type='number'] {
 
 .billing-user-name {
   word-break: break-all;
+}
+
+.uppercase::first-letter {
+  text-transform: capitalize;
+}
+
+.timezone-mat-select {
+  max-width: 350px !important;
 }

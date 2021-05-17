@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<div class="install-libraries" id="dialog-box">
+<div class="install-libraries" id="dialog-box" [ngStyle]="notebook?.status !== 'running' && {'padding-bottom': '20px'}">
   <header class="dialog-header">
     <h4 class="modal-title">Manage <span>{{ notebook?.name }}</span> Libraries</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
@@ -57,7 +57,10 @@
             <div class="control-group constol-select">
               <label class="label">Library name</label>
               <div class="control control-relative">
-                <span class="other-message" *ngIf="group === 'others'">Other group can include libs from Python 2 and Python 3 groups</span>
+                <span class="other-message" *ngIf="group === 'others'">
+                  Other group can include libs from Python 2 and Python 3 groups.
+                  Some libs cannot be installed due to Python 2 is no longer supported
+                </span>
                 <input
                   type="text" [placeholder]="'Enter library name'"
                   [disabled]="!group"
@@ -108,7 +111,7 @@
                   class="library-input"
                   [placeholder]="'Enter library version (optional)'"
                   [(ngModel)]="lib.version"
-                  [disabled]="!lib.name.trim()"
+                  [disabled]="!lib.name.trim() || lib.name.trim().length < 2"
                   (keyup)="validateVersion(lib.version)"
                   (keydown.enter)="addLibrary(lib)"
                 >
@@ -206,7 +209,7 @@
     </div>
 
     <div class="libs-info">
-      <mat-list class="scrolling">
+      <mat-list class="scrolling" [ngStyle]="notebook?.status !== 'running' && {'max-height': '60vh', 'height': 'unset'}">
         <mat-list-item class="list-header">
           <div class="lib-name">Name
             <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
@@ -324,8 +327,8 @@
               <ng-template let-item ngFor [ngForOf]="lib.filteredStatus">
                 <div class="wrap-col">
                   <div class="lib-destination-col">{{ item.resource }}</div>
-                  <div class="lib-resource-type-col">{{ item.resourceType }}</div>
-                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || 'installation_error' }}">{{ item.status.replace('_', ' ') }}
+                  <div class="lib-resource-type-col uppercase">{{ item.resourceType }}</div>
+                  <div class="lib-status-col uppercase" ngClass="{{ item.status.toLowerCase() || 'installation_error' }}">{{ item.status.replace('_', ' ') }}
                     <div class="warn-action" *ngIf="(item.status === 'installation_error' || item.status.toLowerCase() === 'invalid_version' || item.add_pkgs?.length) && notebook?.status === 'running'">
                       <div *ngIf="!item.available_versions">
                         <span *ngIf="!installingInProgress && item.status === 'installation_error'" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">

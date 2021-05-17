@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,7 +29,8 @@ import logging
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -138,7 +139,7 @@ if __name__ == "__main__":
             (ssn_conf['instance_host'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'],
              ssn_conf['datalab_ssh_user'],
              ssn_conf['sudo_group'])
-        local("~/scripts/{}.py {}".format('create_ssh_user', params))
+        subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         clear_resources()
@@ -149,11 +150,11 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'backoff bcrypt==3.1.7 argparse fabric==1.14.0 pymongo pyyaml " \
-                 "pycrypto azure==2.0.0' --user {} --region {}".format(ssn_conf['instance_host'],
+                 "pycryptodome azure==2.0.0' --user {} --region {}".format(ssn_conf['instance_host'],
                                                                        ssn_conf['ssh_key_path'],
                                                                        ssn_conf['datalab_ssh_user'],
                                                                        ssn_conf['region'])
-        local("~/scripts/{}.py {}".format('install_prerequisites', params))
+        subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         clear_resources()
@@ -172,7 +173,7 @@ if __name__ == "__main__":
             format(ssn_conf['instance_host'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    ssn_conf['datalab_ssh_user'], os.environ['ssn_datalab_path'], ssn_conf['service_base_name'],
                    ssn_conf['step_cert_sans'])
-        local("~/scripts/{}.py {}".format('configure_ssn_node', params))
+        subprocess.run("~/scripts/{}.py {}".format('configure_ssn_node', params), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         clear_resources()
@@ -197,7 +198,7 @@ if __name__ == "__main__":
                                                           json.dumps(additional_config), os.environ['conf_os_family'],
                                                           ssn_conf['datalab_ssh_user'], os.environ['ssn_datalab_path'],
                                                           os.environ['conf_cloud_provider'], ssn_conf['region'])
-        local("~/scripts/{}.py {}".format('configure_docker', params))
+        subprocess.run("~/scripts/{}.py {}".format('configure_docker', params), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         clear_resources()
@@ -508,7 +509,7 @@ if __name__ == "__main__":
                    ssn_conf['default_endpoint_name'],
                    os.environ['keycloak_client_name'], os.environ['keycloak_client_secret'],
                    os.environ['keycloak_auth_server_url'])
-        local("~/scripts/{}.py {}".format('configure_ui', params))
+        subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         clear_resources()
@@ -583,7 +584,7 @@ if __name__ == "__main__":
         print('Upload response file')
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}". \
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'], ssn_conf['instnace_ip'])
-        local("~/scripts/{}.py {}".format('upload_response_file', params))
+        subprocess.run("~/scripts/{}.py {}".format('upload_response_file', params), shell=True, check=True)
     except Exception as err:
         datalab.fab.append_result("Error with writing results.", str(err))
         sys.exit(1)

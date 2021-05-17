@@ -44,13 +44,13 @@ export class SortUtils {
   }
 
   public static libGroupsSort(groups) {
-    const sortOrder = ['os_pkg', 'pip2', 'pip3', 'r_pkg', 'java', 'others'];
+    const sortOrder = ['os_pkg', 'pip3', 'r_pkg', 'java', 'others'];
 
     return groups.sort((arg1, arg2) => sortOrder.indexOf(arg1) - sortOrder.indexOf(arg2));
   }
 
   public static libFilterGroupsSort(groups) {
-    const sortOrder = ['Apt/Yum', 'Python 2', 'Python 3', 'R packages', 'Java', 'Others'];
+    const sortOrder = ['Apt/Yum', 'Python 3', 'R packages', 'Java', 'Others'];
 
     return groups.sort((arg1, arg2) => sortOrder.indexOf(arg1) - sortOrder.indexOf(arg2));
   }

@@ -29,11 +29,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Parse command for emulate commands of Docker.
@@ -218,10 +214,12 @@ public class CommandParserMock {
      */
     private Pair<String, String> getPair(String argName, String value, String separator) {
         String[] array = value.split(separator);
-        if (array.length != 2) {
-            throw new DatalabException("Invalid value for \"" + argName + "\": " + value);
+        if (array.length == 2) {
+            return new ImmutablePair<>(array[0], array[1]);
+        } else if (array.length == 3) {
+            return new ImmutablePair<>(array[1], array[2]);
         }
-        return new ImmutablePair<>(array[0], array[1]);
+        throw new DatalabException("Invalid value for \"" + argName + "\": " + value);
     }
 
     /**

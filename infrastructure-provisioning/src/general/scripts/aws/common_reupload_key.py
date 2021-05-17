@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -23,10 +23,11 @@
 
 
 import argparse
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf_resource', type=str, default='')
@@ -45,7 +46,7 @@ if __name__ == "__main__":
         params = "--user {} --hostname {} --keyfile '{}' --additional_config '{}'".format(
             args.os_user, ip, args.keyfile, args.additional_config)
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except Exception as err:
             print('Error: {0}'.format(err))
             sys.exit(1)

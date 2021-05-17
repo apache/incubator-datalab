@@ -41,11 +41,15 @@ export class SchedulerCalculations {
     return result;
   }
 
-  public static setTimeInMiliseconds(time) {
+  public static setTimeInMiliseconds(timeObj) {
+    let time = {...timeObj};
+
     const minutes = (Number(time.minute) < 10) ? ('0' + time.minute) : time.minute;
     const timeMilisec = new Date().setMinutes(+minutes);
 
-    if (time.meridiem === 'PM' && time.hour < 13) time.hour += 12;
+    if (time.meridiem === 'PM' && time.hour < 12) time.hour += 12;
+    if (time.meridiem === 'AM' && time.hour === 12) time.hour -= 12;
+
     return new Date(timeMilisec).setHours(time.hour);
   }
 }

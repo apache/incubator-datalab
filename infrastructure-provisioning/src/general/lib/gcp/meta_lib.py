@@ -27,6 +27,8 @@ import re
 import sys
 import time
 import traceback
+import subprocess
+from fabric import *
 from datalab.fab import *
 from google.cloud import exceptions
 from google.cloud import storage
@@ -580,6 +582,25 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def get_list_gpu_types(self, zone):
+        try:
+            print('Getting available GPU types')
+            data = []
+            request = self.service.acceleratorTypes().list(project=self.project, zone=zone)
+            result = request.execute().get('items')
+            for id in result:
+                gpu_accelerator_type = id.get('name')
+                if not re.search("vws", gpu_accelerator_type):
+                    data.append(gpu_accelerator_type)
+            return data
+        except Exception as err:
+            logging.info("Error with getting list of GPU types: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list of GPU types",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
     def get_list_static_addresses(self, region, filter_string=''):
         try:
             if not filter_string:
@@ -723,7 +744,7 @@ class GCPMeta:
                 '/response/.emr_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
                 os.environ['notebook_instance_name']):
             with hide('stderr', 'running', 'warnings'):
-                local("echo 'Some Dataproc cluster is still being created/terminated, waiting..'")
+                subprocess.run("echo 'Some Dataproc cluster is still being created/terminated, waiting..'", shell=True, check=True)
             time.sleep(60)
             self.dataproc_waiter(labels)
         else:

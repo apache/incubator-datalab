@@ -22,14 +22,16 @@ package com.epam.datalab.dto.exploratory;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
 
+@Setter
+@Getter
 public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends ExploratoryBaseDTO<T> {
 
-    @SuppressWarnings("unchecked")
-    private final T self = (T) this;
 
     @JsonProperty("git_creds")
     private List<ExploratoryGitCreds> gitCreds;
@@ -43,6 +45,12 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
     private String endpoint;
     @JsonProperty("conf_shared_image_enabled")
     private String sharedImageEnabled;
+    @JsonProperty("gpu_enabled")
+    private Boolean enabledGPU;
+    @JsonProperty("gpuType")
+    private String gpuType;
+    @JsonProperty("gpuCount")
+    private String gpuCount;
 
     /**
      * Return the list of GIT credentials.
@@ -61,33 +69,40 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
     /**
      * Set the list of GIT credentials and return this object.
      */
+    @SuppressWarnings("unchecked")
     public T withGitCreds(List<ExploratoryGitCreds> gitCreds) {
         setGitCreds(gitCreds);
-        return self;
+        return (T) this;
     }
 
     /**
      * Set the image name and return this object.
      */
+    @SuppressWarnings("unchecked")
     public T withImageName(String imageName) {
         setImageName(imageName);
-        return self;
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public T withTags(Map<String, String> tags) {
         this.tags = tags;
-        return self;
+        return (T) this;
     }
+
+    @SuppressWarnings("unchecked")
 
     @Override
     public T withEndpoint(String endpoint) {
         this.endpoint = endpoint;
-        return self;
+        return (T) this;
     }
+
+    @SuppressWarnings("unchecked")
 
     public T withSharedImageEnabled(String sharedImageEnabled) {
         this.sharedImageEnabled = sharedImageEnabled;
-        return self;
+        return (T) this;
     }
 
     public String getImageName() {
@@ -98,31 +113,30 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
         this.imageName = imageName;
     }
 
+    @SuppressWarnings("unchecked")
+
     public T withClusterConfig(List<ClusterConfig> config) {
         this.clusterConfig = config;
-        return self;
+        return (T) this;
     }
 
-    @Override
-    public String getEndpoint() {
-        return endpoint;
+    @SuppressWarnings("unchecked")
+
+    public T withEnabledGPU(Boolean enabledGPU) {
+        setEnabledGPU(enabledGPU);
+        return (T) this;
     }
 
-    @Override
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
+    @SuppressWarnings("unchecked")
+    public T withGPUCount(String gpuCount) {
+        setGpuCount(gpuCount);
+        return (T) this;
     }
 
-    public String getSharedImageEnabled() {
-        return sharedImageEnabled;
-    }
-
-    public void setSharedImageEnabled(String sharedImageEnabled) {
-        this.sharedImageEnabled = sharedImageEnabled;
-    }
-
-    public List<ClusterConfig> getClusterConfig() {
-        return clusterConfig;
+    @SuppressWarnings("unchecked")
+    public T withGPUType(String gpuType) {
+        setGpuType(gpuType);
+        return (T) this;
     }
 
     @Override

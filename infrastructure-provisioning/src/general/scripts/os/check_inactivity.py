@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -26,7 +26,7 @@ import json
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--os_user', type=str, default='')
@@ -38,9 +38,8 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.os_user, args.instance_ip)
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     inactivity_dir = '/opt/inactivity/'
     if args.resource_type == 'dataengine':
@@ -49,11 +48,13 @@ if __name__ == "__main__":
     else:
         inactivity_file = 'local_inactivity'
 
-    if exists('{}{}'.format(inactivity_dir, inactivity_file)):
-        timestamp = sudo('cat {}{}'.format(inactivity_dir, inactivity_file))
+    if exists(conn, '{}{}'.format(inactivity_dir, inactivity_file)):
+        timestamp = conn.sudo('cat {}{}'.format(inactivity_dir, inactivity_file)).stdout.replace('\n','')
     else:
         timestamp = '0000000000'
 
 
     with open('/root/result.json', 'w') as outfile:
         json.dump(timestamp, outfile)
+
+    conn.close()

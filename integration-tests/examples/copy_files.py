@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -23,7 +23,8 @@
 
 import os, sys, json
 import argparse
-from fabric.api import *
+import subprocess
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--storage', type=str, default='S3/GCP buckets, Azure Blob container / Datalake folder')
@@ -38,7 +39,7 @@ dataset_file = ['airports.csv', 'carriers.csv', '2008.csv.bz2']
 def download_dataset():
     try:
         for f in dataset_file:
-            local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(f))
+            subprocess.run('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(f), shell=True, check=True)
     except Exception as err:
         print('Failed to download test dataset', str(err))
         sys.exit(1)
@@ -46,7 +47,7 @@ def download_dataset():
 def upload_aws():
     try:
         for f in dataset_file:
-            local('aws s3 cp /tmp/{0} s3://{1}/{2}_dataset/ --sse AES256'.format(f, args.storage, args.notebook))
+            subprocess.run('aws s3 cp /tmp/{0} s3://{1}/{2}_dataset/ --sse AES256'.format(f, args.storage, args.notebook), shell=True, check=True)
     except Exception as err:
         print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)
@@ -89,7 +90,7 @@ def upload_azure_blob():
 def upload_gcp():
     try:
         for f in dataset_file:
-            local('sudo gsutil -m cp /tmp/{0} gs://{1}/{2}_dataset/'.format(f, args.storage, args.notebook))
+            subprocess.run('sudo gsutil -m cp /tmp/{0} gs://{1}/{2}_dataset/'.format(f, args.storage, args.notebook), shell=True, check=True)
     except Exception as err:
         print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)

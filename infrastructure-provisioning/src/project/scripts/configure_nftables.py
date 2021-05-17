@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,7 +25,8 @@ import argparse
 import json
 import sys
 from datalab.edge_lib import configure_nftables
-from fabric.api import *
+from fabric import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -40,12 +41,12 @@ args = parser.parse_args()
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        global conn
+        conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
 
     print("Configuring nftables on edge node.")
     configure_nftables(deeper_config)
+    conn.close()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,13 +25,15 @@ import logging
 import os
 import sys
 import uuid
+import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from fabric.api import *
+from fabric import *
 
 
-def run():
+@task
+def run(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -41,14 +43,14 @@ def run():
     dataengine_service_config = dict()
     dataengine_service_config['uuid'] = str(uuid.uuid4())[:5]
     try:
-        local("~/scripts/{}.py --uuid {}".format('dataengine-service_prepare', dataengine_service_config['uuid']))
+        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_prepare', dataengine_service_config['uuid']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Data Engine service.", str(err))
         sys.exit(1)
 
     try:
-        local("~/scripts/{}.py --uuid {}".format('dataengine-service_configure', dataengine_service_config['uuid']))
+        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_configure', dataengine_service_config['uuid']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Data Engine service.", str(err))
@@ -56,7 +58,8 @@ def run():
 
 
 # Main function for installing additional libraries for Dataengine
-def install_libs():
+@task
+def install_libs(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -65,7 +68,7 @@ def install_libs():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine-service_install_libs'))
+        subprocess.run("~/scripts/{}.py".format('dataengine-service_install_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed installing additional libs for DataEngine service.", str(err))
@@ -73,7 +76,8 @@ def install_libs():
 
 
 # Main function for get available libraries for Data Engine
-def list_libs():
+@task
+def list_libs(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -82,14 +86,15 @@ def list_libs():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine-service_list_libs'))
+        subprocess.run("~/scripts/{}.py".format('dataengine-service_list_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed get available libraries for Data Engine service.", str(err))
         sys.exit(1)
 
 
-def terminate():
+@task
+def terminate(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -97,7 +102,7 @@ def terminate():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine-service_terminate'))
+        subprocess.run("~/scripts/{}.py".format('dataengine-service_terminate'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))

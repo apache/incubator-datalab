@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,6 +29,7 @@ from datalab.meta_lib import *
 from datalab.actions_lib import *
 import os
 import base64
+import subprocess
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -106,7 +107,7 @@ if __name__ == "__main__":
 
     print('Preparing parameters file')
     try:
-        local("cp /root/templates/profile.json /tmp/")
+        subprocess.run("cp /root/templates/profile.json /tmp/", shell=True, check=True)
         with open("/tmp/profile.json", 'w') as profile:
             prof ={
                     "allowed_ips": odahu_conf['allowed_cidr'],
@@ -256,8 +257,8 @@ if __name__ == "__main__":
                     }
                     }
             profile.write(json.dumps(prof))
-        local('cat /tmp/profile.json')
-        local('cp /tmp/profile.json /')
+        subprocess.run('cat /tmp/profile.json', shell=True, check=True)
+        subprocess.run('cp /tmp/profile.json /', shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to configure parameter file.", str(err))
@@ -266,8 +267,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        local('tf_runner create -o /tmp/result.json')
-        local("sed -i 's|name|description|g' /tmp/result.json")
+        subprocess.run('tf_runner create -o /tmp/result.json', shell=True, check=True)
+        subprocess.run("sed -i 's|name|description|g' /tmp/result.json", shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to deploy Odahu cluster.", str(err))

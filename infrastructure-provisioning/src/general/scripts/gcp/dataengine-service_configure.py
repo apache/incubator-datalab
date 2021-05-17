@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -31,7 +31,8 @@ import multiprocessing
 import os
 import sys
 import traceback
-from fabric.api import *
+import subprocess
+from fabric import *
 
 
 def configure_dataengine_service(instance, dataproc_conf):
@@ -45,7 +46,7 @@ def configure_dataengine_service(instance, dataproc_conf):
             .format(dataproc_conf['instance_ip'], dataproc_conf['cluster_name'], dataproc_conf['key_path'],
                     json.dumps(additional_config), dataproc_conf['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -58,10 +59,12 @@ def configure_dataengine_service(instance, dataproc_conf):
         logging.info('[CONFIGURE DATAENGINE SERVICE]')
         print('[CONFIGURE DATAENGINE SERVICE]')
         try:
-            env['connection_attempts'] = 100
-            env.key_filename = "{}".format(dataproc_conf['key_path'])
-            env.host_string = dataproc_conf['datalab_ssh_user'] + '@' + dataproc_conf['instance_ip']
-            datalab.notebook_lib.install_os_pkg([['python-pip', 'N/A'], ['python3-pip', 'N/A']])
+            global conn
+            conn = datalab.fab.init_datalab_connection(dataproc_conf['instance_ip'], dataproc_conf['datalab_ssh_user'], dataproc_conf['key_path'])
+            datalab.fab.configure_data_engine_service_livy(dataproc_conf['instance_ip'],
+                                                           dataproc_conf['datalab_ssh_user'],
+                                                           dataproc_conf['key_path'])
+            datalab.notebook_lib.install_os_pkg([['python3-pip', 'N/A']])
             datalab.fab.configure_data_engine_service_pip(dataproc_conf['instance_ip'],
                                                           dataproc_conf['datalab_ssh_user'],
                                                           dataproc_conf['key_path'])
@@ -105,7 +108,7 @@ def configure_dataengine_service(instance, dataproc_conf):
                     dataproc_conf['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True, check=True)
         except:
             datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception

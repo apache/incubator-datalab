@@ -22,11 +22,7 @@ package com.epam.datalab.backendapi.service.impl;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
-import com.epam.datalab.backendapi.domain.BillingReport;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
-import com.epam.datalab.backendapi.domain.ProjectDTO;
-import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
-import com.epam.datalab.backendapi.domain.RequestId;
+import com.epam.datalab.backendapi.domain.*;
 import com.epam.datalab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.datalab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.datalab.backendapi.resources.dto.ProjectInfrastructureInfo;
@@ -53,11 +49,7 @@ import com.google.inject.name.Named;
 import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j

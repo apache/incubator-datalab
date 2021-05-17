@@ -19,6 +19,7 @@
 
 package com.epam.datalab.dto.imagemetadata;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,6 +31,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties
 public class ComputationalMetadataDTO extends ImageMetadataDTO {
     @JsonProperty
     protected String image;
@@ -45,6 +47,9 @@ public class ComputationalMetadataDTO extends ImageMetadataDTO {
     private String requestId;
     @JsonProperty(value = "computation_resources_shapes")
     private Map<String, List<ComputationalResourceShapeDto>> computationResourceShapes;
+    //GPU
+//    @JsonProperty("gpu_types")
+    private List<String> computationGPU;
 
     public ComputationalMetadataDTO(String imageName) {
         this.image = imageName;

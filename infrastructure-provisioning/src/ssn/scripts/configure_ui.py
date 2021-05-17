@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -27,10 +27,12 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from datalab.fab import *
 from datalab.ssn_lib import *
-from fabric.api import *
-from fabric.contrib.files import exists
+from fabric import *
+from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -90,13 +92,14 @@ keystore_passwd = id_generator()
 
 def copy_ssn_libraries():
     try:
-        sudo('mkdir -p /usr/lib/python2.7/datalab/')
-        run('mkdir -p /tmp/datalab_libs/')
-        local('scp -i {} /usr/lib/python2.7/datalab/* {}:/tmp/datalab_libs/'.format(args.keyfile, env.host_string))
-        run('chmod a+x /tmp/datalab_libs/*')
-        sudo('mv /tmp/datalab_libs/* /usr/lib/python2.7/datalab/')
-        if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/datalab /usr/lib64/python2.7/datalab')
+        conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+        conn.run('mkdir -p /tmp/datalab_libs/')
+        subprocess.run('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string), shell=True, check=True)
+        conn.run('chmod a+x /tmp/datalab_libs/*')
+        conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
+        if exists(conn, '/usr/lib64'):
+            conn.sudo('mkdir -p /usr/lib64/python3.8')
+            conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
     except Exception as err:
         traceback.print_exc()
         print('Failed to copy ssn libraries: ', str(err))
@@ -105,36 +108,36 @@ def copy_ssn_libraries():
 
 def configure_mongo(mongo_passwd, default_endpoint_name):
     try:
-        if not exists("/lib/systemd/system/mongod.service"):
+        if not exists(conn,"/lib/systemd/system/mongod.service"):
             if os.environ['conf_os_family'] == 'debian':
-                local('sed -i "s/MONGO_USR/mongodb/g" /root/templates/mongod.service_template')
+                subprocess.run('sed -i "s/MONGO_USR/mongodb/g" /root/templates/mongod.service_template', shell=True, check=True)
             elif os.environ['conf_os_family'] == 'redhat':
-                local('sed -i "s/MONGO_USR/mongod/g" /root/templates/mongod.service_template')
-            local('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
-                                                                                                    env.host_string))
-            sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable mongod.service')
-        local('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd))
-        local('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
-                                                                                             env.host_string))
-        sudo('mv /tmp/resource_status.py ' + os.environ['ssn_datalab_path'] + 'tmp/')
-        local('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd))
-        local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
-                                                                                             env.host_string))
-        sudo('mv /tmp/configure_mongo.py ' + args.datalab_path + 'tmp/')
-        local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
+                subprocess.run('sed -i "s/MONGO_USR/mongod/g" /root/templates/mongod.service_template', shell=True, check=True)
+            subprocess.run('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
+                                                                                                    host_string), shell=True, check=True)
+            conn.sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable mongod.service')
+        subprocess.run('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd), shell=True, check=True)
+        subprocess.run('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
+                                                                                             host_string), shell=True, check=True)
+        conn.sudo('mv /tmp/resource_status.py ' + os.environ['ssn_datalab_path'] + 'tmp/')
+        subprocess.run('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd), shell=True, check=True)
+        subprocess.run('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
+                                                                                             host_string), shell=True, check=True)
+        conn.sudo('mv /tmp/configure_mongo.py ' + args.datalab_path + 'tmp/')
+        subprocess.run('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
-                                                                                          env.host_string))
-        local('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
-                                                                                             env.host_string))
-        sudo('mv /tmp/mongo_roles.json ' + args.datalab_path + 'tmp/')
-        sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
-        sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
+                                                                                          host_string), shell=True, check=True)
+        subprocess.run('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
+                                                                                             host_string), shell=True, check=True)
+        conn.sudo('mv /tmp/mongo_roles.json ' + args.datalab_path + 'tmp/')
+        conn.sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
+        conn.sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
             os.environ['conf_cloud_provider'].upper()))
-        sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
-        sudo('pip2 install -U six>=1.13.0')
-        sudo("python " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
+        conn.sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
+        conn.sudo('pip3 install -U six==1.15.0 patchwork')
+        conn.sudo("python3 " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
             args.datalab_path))
     except Exception as err:
         traceback.print_exc()
@@ -145,50 +148,66 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
 def build_ui():
     try:
         # Building Front-end
-        with cd(args.datalab_path + '/sources/services/self-service/src/main/resources/webapp/'):
-            sudo('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
+        conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" ' + args.datalab_path + 'sources/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts'.format(args.cloud_provider))
 
-            if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
-                sudo('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format(
+        if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
+            conn.sudo('sed -i "s|\'use_ldap\': true|{}|g" ' + args.datalab_path + 'sources/services/self-service/src/main/resources/webapp/src/dictionary/azure.dictionary.ts'.format(
                     '\'use_ldap\': false'))
 
-            sudo('echo "N" | npm install')
-            manage_npm_pkg('run build.prod')
-            sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
+        conn.sudo('bash -c "cd {}sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install"'.format(args.datalab_path))
+        manage_npm_pkg('bash -c "cd {}sources/services/self-service/src/main/resources/webapp/ && npm run build.prod"'.format(args.datalab_path))
+        conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        with cd(args.datalab_path + '/sources/'):
-            sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
-
-        sudo('mkdir -p {}/webapp/'.format(args.datalab_path))
+        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ:
+            conn.sudo(
+                'wget -P {0}sources/services/provisioning-service/target/  --user={1} --password={2} {3}/repository/packages/{4}/provisioning-service-{4}.jar --no-check-certificate'
+                     .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address'], os.environ['conf_release_tag']))
+            conn.sudo(
+                'wget -P {0}sources/services/self-service/target/  --user={1} --password={2} {3}/repository/packages/{4}/self-service-{4}.jar --no-check-certificate'
+                .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
+                        os.environ['conf_repository_address'], os.environ['conf_release_tag']))
+            conn.sudo(
+                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} {3}/repository/packages/{5}/billing-{4}-{5}.jar --no-check-certificate'
+                .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
+                        os.environ['conf_repository_address'], args.cloud_provider, os.environ['conf_release_tag']))
+        else:
+            try:
+                conn.sudo('bash -c "cd {}sources/ && /opt/maven/bin/mvn -P{} -DskipTests package 2>&1 > /tmp/maven.log"'.format(args.datalab_path, args.cloud_provider))
+            except:
+                conn.run('if ! grep -w -E "(ERROR)" /tmp/maven.log > /tmp/maven_error.log; then echo "no_error" > /tmp/maven_error.log;fi')
+                conn.run('cat /tmp/maven_error.log')
+                print('Failed to build Back-end: ', str(err))
+                sys.exit(1)
+        conn.sudo('mkdir -p {}webapp/'.format(args.datalab_path))
         for service in ['self-service', 'provisioning-service', 'billing']:
-            sudo('mkdir -p {}/webapp/{}/lib/'.format(args.datalab_path, service))
-            sudo('mkdir -p {}/webapp/{}/conf/'.format(args.datalab_path, service))
-        sudo('cp {0}/sources/services/self-service/self-service.yml {0}/webapp/self-service/conf/'.format(
+            conn.sudo('mkdir -p {}webapp/{}/lib/'.format(args.datalab_path, service))
+            conn.sudo('mkdir -p {}webapp/{}/conf/'.format(args.datalab_path, service))
+        conn.sudo('cp {0}sources/services/self-service/self-service.yml {0}webapp/self-service/conf/'.format(
             args.datalab_path))
-        sudo('cp {0}/sources/services/self-service/target/self-service-*.jar {0}/webapp/self-service/lib/'.format(
+        conn.sudo('cp {0}sources/services/self-service/target/self-service-*.jar {0}webapp/self-service/lib/'.format(
             args.datalab_path))
-        sudo(
-            'cp {0}/sources/services/provisioning-service/provisioning.yml {0}/webapp/provisioning-service/conf/'.format(
+        conn.sudo(
+            'cp {0}sources/services/provisioning-service/provisioning.yml {0}webapp/provisioning-service/conf/'.format(
                 args.datalab_path))
-        sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
-             '{0}/webapp/provisioning-service/lib/'.format(args.datalab_path))
+        conn.sudo('cp {0}sources/services/provisioning-service/target/provisioning-service-*.jar '
+             '{0}webapp/provisioning-service/lib/'.format(args.datalab_path))
 
         if args.cloud_provider == 'azure':
-            sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
-            sudo('cp {0}/sources/services/billing-azure/target/billing-azure*.jar {0}/webapp/billing/lib/'.format(
+            conn.sudo('cp {0}sources/services/billing-azure/billing.yml {0}webapp/billing/conf/'.format(args.datalab_path))
+            conn.sudo('cp {0}sources/services/billing-azure/target/billing-azure*.jar {0}webapp/billing/lib/'.format(
                 args.datalab_path))
         elif args.cloud_provider == 'aws':
-            sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
-            sudo('cp {0}/sources/services/billing-aws/src/main/resources/application.yml '
-                 '{0}/webapp/billing/conf/billing_app.yml'.format(args.datalab_path))
-            sudo(
-                'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
+            conn.sudo('cp {0}sources/services/billing-aws/billing.yml {0}webapp/billing/conf/'.format(args.datalab_path))
+            conn.sudo('cp {0}sources/services/billing-aws/src/main/resources/application.yml '
+                 '{0}webapp/billing/conf/billing_app.yml'.format(args.datalab_path))
+            conn.sudo(
+                'cp {0}sources/services/billing-aws/target/billing-aws*.jar {0}webapp/billing/lib/'.format(
                     args.datalab_path))
         elif args.cloud_provider == 'gcp':
-            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/webapp/billing/conf/'.format(args.datalab_path))
-            sudo(
-                'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/webapp/billing/lib/'.format(
+            conn.sudo('cp {0}sources/services/billing-gcp/billing.yml {0}webapp/billing/conf/'.format(args.datalab_path))
+            conn.sudo(
+                'cp {0}sources/services/billing-gcp/target/billing-gcp*.jar {0}webapp/billing/lib/'.format(
                     args.datalab_path))
     except Exception as err:
         traceback.print_exc()
@@ -202,9 +221,9 @@ def build_ui():
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = args.os_user + '@' + args.hostname
+        global conn
+        conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
+        host_string = args.os_user + '@' + args.hostname
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
@@ -221,8 +240,8 @@ if __name__ == "__main__":
     print("Configuring MongoDB")
     configure_mongo(mongo_passwd, args.default_endpoint_name)
 
-    sudo('echo DATALAB_CONF_DIR={} >> /etc/profile'.format(datalab_conf_dir))
-    sudo('echo export DATALAB_CONF_DIR >> /etc/profile')
+    conn.sudo('bash -c "echo DATALAB_CONF_DIR={} >> /etc/profile"'.format(datalab_conf_dir))
+    conn.sudo('bash -c "echo export DATALAB_CONF_DIR >> /etc/profile"')
 
     print("Installing build dependencies for UI")
     install_build_dep()
@@ -231,7 +250,7 @@ if __name__ == "__main__":
     build_ui()
 
     print("Starting Self-Service(UI)")
-    start_ss(args.keyfile, env.host_string, datalab_conf_dir, web_path,
+    start_ss(args.keyfile, host_string, datalab_conf_dir, web_path,
              args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
              args.service_base_name, args.tag_resource_id, args.billing_tag, args.account_id,
              args.billing_bucket, args.aws_job_enabled, args.datalab_path, args.billing_enabled, args.cloud_params,
@@ -241,3 +260,5 @@ if __name__ == "__main__":
              args.datalab_id, args.usage_date, args.product, args.usage_type,
              args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
              args.keycloak_client_secret, args.keycloak_auth_server_url)
+
+    conn.close()

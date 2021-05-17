@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,11 +22,12 @@
 # ******************************************************************************
 
 import argparse
+import subprocess
 from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
-from fabric.api import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -53,17 +54,17 @@ yarn_dir = '/opt/' + args.dataproc_version + '/' + args.cluster_name + '/conf/'
 
 
 def install_remote_livy(args):
-    local('sudo chown {0}:{0} -R /opt/zeppelin/'.format(args.os_user))
-    local('sudo service zeppelin-notebook stop')
-    local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-{0}.zip -O /opt/{1}/{2}/livy-server-{0}.zip'
-          .format(args.livy_version, args.dataproc_version, args.cluster_name))
-    local('sudo unzip /opt/{0}/{1}/livy-server-{2}.zip -d /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name, args.livy_version))
-    local('sudo mv /opt/{0}/{1}/livy-server-{2}/ /opt/{0}/{1}/livy/'.format(args.dataproc_version, args.cluster_name, args.livy_version))
+    subprocess.run('sudo chown {0}:{0} -R /opt/zeppelin/'.format(args.os_user), shell=True, check=True)
+    subprocess.run('sudo service zeppelin-notebook stop', shell=True, check=True)
+    subprocess.run('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-{0}.zip -O /opt/{1}/{2}/livy-server-{0}.zip'
+          .format(args.livy_version, args.dataproc_version, args.cluster_name), shell=True, check=True)
+    subprocess.run('sudo unzip /opt/{0}/{1}/livy-server-{2}.zip -d /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name, args.livy_version), shell=True, check=True)
+    subprocess.run('sudo mv /opt/{0}/{1}/livy-server-{2}/ /opt/{0}/{1}/livy/'.format(args.dataproc_version, args.cluster_name, args.livy_version), shell=True, check=True)
     livy_path = '/opt/{0}/{1}/livy/'.format(args.dataproc_version, args.cluster_name)
-    local('sudo mkdir -p {0}/logs'.format(livy_path))
-    local('sudo mkdir -p /var/run/livy')
-    local('sudo chown {0}:{0} -R /var/run/livy'.format(args.os_user))
-    local('sudo chown {0}:{0} -R {1}'.format(args.os_user, livy_path))
+    subprocess.run('sudo mkdir -p {0}/logs'.format(livy_path), shell=True, check=True)
+    subprocess.run('sudo mkdir -p /var/run/livy', shell=True, check=True)
+    subprocess.run('sudo chown {0}:{0} -R /var/run/livy'.format(args.os_user), shell=True, check=True)
+    subprocess.run('sudo chown {0}:{0} -R {1}'.format(args.os_user, livy_path), shell=True, check=True)
 
 
 if __name__ == "__main__":

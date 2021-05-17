@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package com.epam.datalab.backendapi.core.response.folderlistener;
 
 import com.epam.datalab.backendapi.core.FileHandlerCallback;

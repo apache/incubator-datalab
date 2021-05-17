@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -61,6 +61,7 @@ if __name__ == "__main__":
                         break
                 print('Created Route-Table with ID: {}'.format(route_table))
                 create_tag(route_table, json.dumps(tag))
+                create_tag(route_table, json.dumps({"Key": "Name", "Value": "{}-rt".format(args.infra_tag_value)}))
             endpoints = get_vpc_endpoints(args.vpc_id)
             if not endpoints:
                 print('Creating EP')

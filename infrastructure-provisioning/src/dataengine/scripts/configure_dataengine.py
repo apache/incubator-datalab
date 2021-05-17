@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -51,10 +51,9 @@ caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
-cntk2_version = os.environ['notebook_cntk2_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 python3_version = "3.4"
-scala_link = "http://www.scala-lang.org/files/archive/"
+scala_link = "https://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -81,35 +80,34 @@ if os.environ['application'] == 'deeplearning':
 
 
 def start_spark(os_user, master_ip, node):
-    if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
-        if not exists('/opt/spark/conf/spark-env.sh'):
-            sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
+    if not exists(conn,'/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
+        if not exists(conn,'/opt/spark/conf/spark-env.sh'):
+            conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        conn.sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
         if os.environ['application'] in ('tensor', 'tensor-rstudio'):
-            sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
+            conn.sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
         if os.environ['application'] == 'deeplearning':
-            sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
+            conn.sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
-            with cd('/opt/spark/sbin/'):
-                sudo("sed -i '/start-slaves.sh/d' start-all.sh")
-                sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> start-all.sh'''.format('{SPARK_HOME}', master_ip))
-            put('~/templates/spark-master.service', '/tmp/spark-master.service')
-            sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable spark-master.service')
-            sudo('systemctl start spark-master.service')
+            conn.sudo("sed -i '/start-slaves.sh/d' /opt/spark/sbin/start-all.sh")
+            conn.sudo('''echo '"${}/sbin"/start-slave.sh spark://{}:7077' >> /opt/spark/sbin/start-all.sh'''.format('{SPARK_HOME}', master_ip))
+            conn.put('/root/templates/spark-master.service', '/tmp/spark-master.service')
+            conn.sudo('mv /tmp/spark-master.service /etc/systemd/system/spark-master.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable spark-master.service')
+            conn.sudo('systemctl start spark-master.service')
         if node == 'slave':
             with open('/root/templates/spark-slave.service', 'r') as f:
                 text = f.read()
             text = text.replace('MASTER', 'spark://{}:7077'.format(master_ip))
             with open('/root/templates/spark-slave.service', 'w') as f:
                 f.write(text)
-            put('~/templates/spark-slave.service', '/tmp/spark-slave.service')
-            sudo('mv /tmp/spark-slave.service /etc/systemd/system/spark-slave.service')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable spark-slave.service')
-            sudo('systemctl start spark-slave.service')
-        sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
+            conn.put('/root/templates/spark-slave.service', '/tmp/spark-slave.service')
+            conn.sudo('mv /tmp/spark-slave.service /etc/systemd/system/spark-slave.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable spark-slave.service')
+            conn.sudo('systemctl start spark-slave.service')
+        conn.sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
 ##############
 # Run script #
@@ -118,15 +116,14 @@ def start_spark(os_user, master_ip, node):
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
 
@@ -141,8 +138,6 @@ if __name__ == "__main__":
             or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
     if os.environ['application'] == 'zeppelin':
@@ -175,7 +170,7 @@ if __name__ == "__main__":
         #print("Installing Torch")
         #install_torch(args.os_user)
         print("Install CNTK Python library")
-        install_cntk(args.os_user, cntk2_version, cntk_version)
+        install_cntk(args.os_user, cntk_version)
         print("Installing MXNET")
         install_mxnet(args.os_user, mxnet_version)
 
@@ -203,23 +198,24 @@ if __name__ == "__main__":
         install_r_packages(args.os_user)
 
     # INSTALL LIVY
-    if not exists('/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
-        livy_version = '0.7.0'
-        sudo(
-            'wget -nv --timeout=30 --tries=5 --retry-connrefused https://archive.apache.org/dist/incubator/livy/{0}-incubating/apache-livy-{0}-incubating-bin.zip -P /tmp/'.format(
-                livy_version))
-        sudo('unzip -q /tmp/apache-livy-{}-incubating-bin.zip -d /tmp/'.format(livy_version))
-        sudo('mv /tmp/apache-livy-{}-incubating-bin /opt/livy'.format(livy_version))
-        sudo('mkdir /var/log/livy')
-        put('~/templates/livy-env.sh', '/tmp/livy-env.sh')
-        sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
-        sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
-        sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))
-        put('~/templates/livy.service', '/tmp/livy.service')
-        sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(args.os_user))
-        sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
-        sudo('systemctl daemon-reload')
-        sudo('systemctl enable livy.service')
-        sudo('systemctl start livy.service')
-        sudo('touch /home/{0}/.ensure_dir/livy_ensured'.format(args.os_user))
+    if not exists(conn, '/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
+        conn.sudo('wget -P /tmp/  --user={} --password={} '
+                  '{}/repository/packages/livy.tar.gz --no-check-certificate'
+                  .format(os.environ['conf_repository_user'],
+                          os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+        conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /tmp/')
+        conn.sudo('mv /tmp/incubator-livy /opt/livy')
+        conn.sudo('mkdir /var/log/livy')
+        conn.put('/root/templates/livy-env.sh', '/tmp/livy-env.sh')
+        conn.sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
+        conn.sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
+        conn.sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))
+        conn.put('/root/templates/livy.service', '/tmp/livy.service')
+        conn.sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(args.os_user))
+        conn.sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
+        conn.sudo('systemctl daemon-reload')
+        conn.sudo('systemctl enable livy.service')
+        conn.sudo('systemctl start livy.service')
+        conn.sudo('touch /home/{0}/.ensure_dir/livy_ensured'.format(args.os_user))
 
+    conn.close()

@@ -70,7 +70,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public groupsListMap = {
     'r_pkg': 'R packages',
-    'pip2': 'Python 2',
     'pip3': 'Python 3',
     'os_pkg': 'Apt/Yum',
     'others': 'Others',
@@ -113,7 +112,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
       )
       .subscribe(value => {
-        this.lib.name = value;
+        if(!!value.match(/\s+/g)) {
+          this.libSearch.setValue(value.replace(/\s+/g, ''))
+          this.lib.name = value.replace(/\s+/g, '');
+        } else {
+          this.lib.name = value;
+        }
         this.isDuplicated(this.lib);
         this.filterList();
       });
@@ -134,13 +138,17 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       )
       .subscribe(
         response => {
-          this.libsUploadingStatus(response);
+          const groups = [].concat(response);
+
+          // Remove when will be removed pip2 from Backend
+          const groupWithoutPip2 = groups.filter(group => group !== 'pip2');
+
+          this.libsUploadingStatus(groupWithoutPip2);
           this.changeDetector.detectChanges();
 
           this.resource_select && this.resource_select.setDefaultOptions(
             this.getResourcesList(),
             this.destination.title, 'destination', 'title', 'array');
-
           this.group_select && this.group_select.setDefaultOptions(
             this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
@@ -368,6 +376,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
+
       this.groupsList = this.filterGroups(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
@@ -544,15 +553,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     <h4 class="modal-title">Library installation error</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
-  <div class="content lib-error" >
+  <div class="content lib-error scrolling" >
     {{ data }}
-  </div>
-  <div class="text-center">
-    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
   </div>
   `,
   styles: [    `
-      .lib-error { max-height: 200px; overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0;}
+      .lib-error { max-height: 200px;  overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0 !important;}
   `
   ]
 })

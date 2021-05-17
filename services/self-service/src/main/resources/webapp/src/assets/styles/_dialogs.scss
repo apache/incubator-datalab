@@ -48,7 +48,7 @@
 }
 
 .modal-xxl {
-  width: 1005px;
+  width: 1100px;
 }
 
 .modal-fullscreen {
@@ -69,7 +69,7 @@ mat-dialog-container {
     #dialog-box {
       color: $modal-text-color;
       min-height: 150px;
-      font-family: Roboto, "Helvetica Neue", sans-serif;
+      font-family: "Open Sans", sans-serif;
 
       .dialog-header {
         padding-left: 30px;
@@ -121,6 +121,12 @@ mat-dialog-container {
 
         &.header-white {
           background: #fff;
+        }
+      }
+
+      .dialog-content {
+        .mat-select {
+          font-family: 'Opens Sans', sans-serif;
         }
       }
 
@@ -333,10 +339,6 @@ mat-dialog-container {
   .crete-project-dialog {
     margin-left: 30px;
     min-width: calc(100% + 10px) !important;
-  }
-
-  .mat-select-value {
-    max-width: 350px !important;
   }
 
   .select-role {

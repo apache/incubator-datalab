@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -29,8 +29,9 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 from Crypto.PublicKey import RSA
-from fabric.api import *
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -84,7 +85,7 @@ if __name__ == "__main__":
                                                                           notebook_config['endpoint_name'])
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
-        notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         notebook_config['primary_disk_size'] = '32'
         notebook_config['instance_storage_account_type'] = (lambda x: 'Standard_LRS' if x in ('deeplearning', 'tensor')
                                                             else 'Premium_LRS')(os.environ['application'])
@@ -168,7 +169,7 @@ if __name__ == "__main__":
                    notebook_config['instance_storage_account_type'], notebook_config['image_name'],
                    notebook_config['image_type'], json.dumps(notebook_config['tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

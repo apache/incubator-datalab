@@ -14,10 +14,7 @@
             },
             "tags": [
                 "CLUSTER_TAG"
-            ],
-            "metadata": {
-                "livy-version": "0.6.0"
-            }
+            ]
         },
         "masterConfig": {
             "numInstances": "NUM_MASTERS",
@@ -41,11 +38,6 @@
         },
         "softwareConfig": {
             "imageVersion": "IMAGE_VERSION"
-        },
-        "initializationActions": [
-            {
-                "executableFile": "LIVY"
-            }
-        ]
+        }
     }
 }

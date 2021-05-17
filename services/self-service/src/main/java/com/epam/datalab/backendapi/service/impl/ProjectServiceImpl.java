@@ -20,24 +20,12 @@
 package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.annotation.Audit;
-import com.epam.datalab.backendapi.annotation.BudgetLimited;
-import com.epam.datalab.backendapi.annotation.Info;
-import com.epam.datalab.backendapi.annotation.Project;
-import com.epam.datalab.backendapi.annotation.ProjectAdmin;
-import com.epam.datalab.backendapi.annotation.ResourceName;
-import com.epam.datalab.backendapi.annotation.User;
+import com.epam.datalab.backendapi.annotation.*;
 import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.dao.UserGroupDAO;
-import com.epam.datalab.backendapi.domain.BudgetDTO;
-import com.epam.datalab.backendapi.domain.EndpointDTO;
-import com.epam.datalab.backendapi.domain.ProjectDTO;
-import com.epam.datalab.backendapi.domain.ProjectEndpointDTO;
-import com.epam.datalab.backendapi.domain.RequestId;
-import com.epam.datalab.backendapi.domain.UpdateProjectBudgetDTO;
-import com.epam.datalab.backendapi.domain.UpdateProjectDTO;
+import com.epam.datalab.backendapi.domain.*;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.ExploratoryService;
@@ -53,20 +41,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.RECREATE;
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.STOP;
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.UPDATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.*;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.EDGE_NODE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.PROJECT;
 import static java.util.stream.Collectors.toSet;
@@ -302,7 +281,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     private void createProjectOnCloud(UserInfo user, ProjectDTO project) {
         try {
-            project.getEndpoints().forEach(e -> createEndpoint(user, project, e.getName(), project.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
+            project.getEndpoints().forEach(e -> createEndpoint(user, project, e.getName(), project.getName(),
+                            String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
         } catch (Exception e) {
             log.error("Can not create project due to: {}", e.getMessage(), e);
             projectDAO.updateStatus(project.getName(), ProjectDTO.Status.FAILED);

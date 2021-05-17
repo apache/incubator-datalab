@@ -36,7 +36,7 @@ export class EnvironmentsDataService {
   }
 
   public getEnvironmentDataDirect() {
-    return this.manageEnvironmentsService.getAllEnvironmentData().subscribe(response => response);
+    return this.manageEnvironmentsService.getAllEnvironmentData();
   }
 
   private getAllEnvironmentData() {

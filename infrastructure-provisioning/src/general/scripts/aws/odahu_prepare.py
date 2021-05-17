@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -25,6 +25,7 @@ import logging
 import json
 import sys
 import requests
+import subprocess
 from datalab.fab import *
 from datalab.meta_lib import *
 from datalab.actions_lib import *
@@ -82,7 +83,7 @@ if __name__ == "__main__":
         params = "--bucket_name {0} --bucket_tags {1} --region {2} --bucket_name_tag {0}". \
             format(odahu_conf['bucket_name'], odahu_conf['bucket_tags'], odahu_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

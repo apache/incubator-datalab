@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,8 @@ import os
 import sys
 import traceback
 import uuid
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -52,8 +53,8 @@ if __name__ == "__main__":
         GCPActions.remove_firewall(edge_conf['fw_ps_egress_private'])
         GCPActions.remove_firewall(edge_conf['fw_ps_egress_public'])
         GCPActions.remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
-        GCPActions.remove_role(edge_conf['ps_role_name'])
         GCPActions.remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
+        GCPActions.remove_role(edge_conf['ps_role_name'])
         GCPActions.remove_role(edge_conf['edge_role_name'])
         GCPActions.remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
 
@@ -88,15 +89,14 @@ if __name__ == "__main__":
                                                                            edge_conf['endpoint_name'])
         edge_conf['edge_unique_index'] = GCPMeta.get_index_by_service_account_name(
             edge_conf['edge_service_account_name'])
-        edge_conf['edge_role_name'] = '{}-{}-{}-edge-role'.format(edge_conf['service_base_name'],
-                                                                  edge_conf['project_name'],
-                                                                  edge_conf['edge_unique_index'])
+        edge_conf['edge_role_name'] = '{}-{}-{}-{}-edge-role'.format(edge_conf['service_base_name'], edge_conf['project_name'],
+                                                                  edge_conf['endpoint_name'], edge_conf['edge_unique_index'])
         edge_conf['ps_service_account_name'] = '{}-{}-{}-ps-sa'.format(edge_conf['service_base_name'],
                                                                        edge_conf['project_name'],
                                                                        edge_conf['endpoint_name'])
         edge_conf['ps_unique_index'] = GCPMeta.get_index_by_service_account_name(edge_conf['ps_service_account_name'])
-        edge_conf['ps_role_name'] = '{}-{}-{}-ps-role'.format(edge_conf['service_base_name'],
-                                                              edge_conf['project_name'], edge_conf['ps_unique_index'])
+        edge_conf['ps_role_name'] = '{}-{}-{}-{}-ps-role'.format(edge_conf['service_base_name'], edge_conf['project_name'],
+                                                                 edge_conf['endpoint_name'], edge_conf['ps_unique_index'])
         edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                                edge_conf['project_name'], edge_conf['endpoint_name'])
         edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-sg'.format(edge_conf['instance_name'])
@@ -121,15 +121,15 @@ if __name__ == "__main__":
             GCPMeta.get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         edge_conf['private_ip'] = GCPMeta.get_private_ip_address(edge_conf['instance_name'])
         edge_conf['vpc_cidrs'] = [edge_conf['vpc_cidr']]
-        edge_conf['fw_common_name'] = '{}-{}-{}-ps-sg'.format(edge_conf['service_base_name'], edge_conf['project_name'],
+        edge_conf['fw_common_name'] = '{}-{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['project_name'],
                                                               edge_conf['endpoint_name'])
-        edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
-        edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
-        edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])
-        edge_conf['fw_edge_ingress_public'] = '{}-ingress-public'.format(edge_conf['instance_name'])
-        edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
-        edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
-        edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
+        edge_conf['fw_ps_ingress'] = '{}-sg-ingress'.format(edge_conf['fw_common_name'])
+        edge_conf['fw_ps_egress_private'] = '{}-sg-egress-private'.format(edge_conf['fw_common_name'])
+        edge_conf['fw_ps_egress_public'] = '{}-sg-egress-public'.format(edge_conf['fw_common_name'])
+        edge_conf['fw_edge_ingress_public'] = '{}-sg-ingress-public'.format(edge_conf['instance_name'])
+        edge_conf['fw_edge_ingress_internal'] = '{}-sg-ingress-internal'.format(edge_conf['instance_name'])
+        edge_conf['fw_edge_egress_public'] = '{}-sg-egress-public'.format(edge_conf['instance_name'])
+        edge_conf['fw_edge_egress_internal'] = '{}-sg-egress-internal'.format(edge_conf['instance_name'])
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
             edge_conf['step_cert_sans'] = ' --san {0} --san {1} --san {2}'.format(edge_conf['static_ip'],
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             edge_conf['initial_user'], edge_conf['datalab_ssh_user'], edge_conf['sudo_group'])
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -177,7 +177,7 @@ if __name__ == "__main__":
             edge_conf['instance_hostname'], edge_conf['ssh_key_path'], edge_conf['datalab_ssh_user'],
             os.environ['gcp_region'])
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -202,7 +202,7 @@ if __name__ == "__main__":
                  .format(edge_conf['instance_hostname'], edge_conf['ssh_key_path'], json.dumps(additional_config),
                          edge_conf['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('configure_http_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_http_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -221,7 +221,7 @@ if __name__ == "__main__":
             edge_conf['instance_hostname'], edge_conf['ssh_key_path'], json.dumps(additional_config),
             edge_conf['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -243,7 +243,7 @@ if __name__ == "__main__":
                                                 edge_conf['keycloak_client_secret'], edge_conf['step_cert_sans'])
 
         try:
-            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -261,7 +261,7 @@ if __name__ == "__main__":
                     edge_conf['keycloak_client_secret'], edge_conf['instance_hostname'], edge_conf['project_name'],
                     edge_conf['endpoint_name'], edge_conf['edge_hostname'])
         try:
-            local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -280,12 +280,20 @@ if __name__ == "__main__":
                 edge_conf['instance_hostname'], edge_conf['ssh_key_path'], json.dumps(additional_config),
                 edge_conf['datalab_ssh_user'])
             try:
-                local("~/scripts/{}.py {}".format('configure_nftables', params))
+                subprocess.run("~/scripts/{}.py {}".format('configure_nftables', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
         datalab.fab.append_result("Failed to configure NAT." + str(err))
+        clear_resources()
+        sys.exit(1)
+
+    try:
+        logging.info('[GET AVAILABLE GPU TYPES]')
+        edge_conf['gpu_types'] = GCPMeta.get_list_gpu_types(edge_conf['zone'])
+    except Exception as err:
+        datalab.fab.datalab.fab.append_result("Unable to get available GPU types.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -300,6 +308,7 @@ if __name__ == "__main__":
         print("Bucket name: {}".format(edge_conf['bucket_name']))
         print("Shared bucket name: {}".format(edge_conf['shared_bucket_name']))
         print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
+        print("Available GPU types: {}".format(edge_conf['gpu_types']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": edge_conf['instance_hostname'],
                    "public_ip": edge_conf['static_ip'],
@@ -313,6 +322,7 @@ if __name__ == "__main__":
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
                    "project_name": edge_conf['project_name'],
+                   "gpu_types": edge_conf['gpu_types'],
                    "@class": "com.epam.datalab.dto.gcp.edge.EdgeInfoGcp",
                    "Action": "Create new EDGE server"}
             print(json.dumps(res))
