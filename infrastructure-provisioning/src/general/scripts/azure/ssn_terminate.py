@@ -117,16 +117,27 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     if 'azure_vpc_name' in os.environ:
         print("Removing subnets in predefined VPC")
         try:
-            print('========')
-            print(AzureMeta.list_subnets(resource_group_name, os.environ['azure_vpc_name']))
-            print('========')
-            for i in AzureMeta.get_vpc(resource_group_name, os.environ['azure_vpc_name']):
-                if service_base_name in i['name']:
-                    AzureActions.remove_subnet(resource_group_name, os.environ['azure_vpc_name'], i['name'])
-                    print("Subnet {} has been removed from VPC {}".format(i['name'], os.environ['azure_vpc_name']))
+            for subnet in AzureMeta.list_subnets(resource_group_name, os.environ['azure_vpc_name']):
+                subnet_name = str(subnet)[str(subnet).find("'name': '") + 9 : str(subnet).find("', 'etag':")]
+                if service_base_name in subnet_name:
+                    AzureActions.remove_subnet(resource_group_name, os.environ['azure_vpc_name'], subnet_name)
+                    print("Subnet {} has been removed from VPC {}".format(subnet_name, os.environ['azure_vpc_name']))
         except Exception as err:
             datalab.fab.append_result("Failed to remove subnets in predefined VPC", str(err))
             sys.exit(1)
+
+    print("Removing rules in predefined edge security group")
+    try:
+        if 'azure_edge_security_group_name' in os.environ:
+            for rule in AzureMeta.list_security_group_rules(resource_group_name, os.environ['azure_edge_security_group_name']):
+                rule_name = str(rule)[str(rule).find("'name': '") + 9 : str(rule).find("', 'etag':")]
+                if service_base_name in rule_name:
+                    AzureActions.remove_security_rules(os.environ['azure_edge_security_group_name'],
+                                               resource_group_name, rule_name)
+                    print("Rule {} is removed".format(rule_name))
+    except Exception as err:
+        datalab.fab.append_result("Failed to remove rules in predefined edge security group", str(err))
+        sys.exit(1)
 
     print("Removing VPC")
     try:
