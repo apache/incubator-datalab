@@ -97,9 +97,16 @@ class GCPActions:
 
     def remove_vpc(self, vpc_name):
         request = self.service.networks().delete(project=self.project, network=vpc_name)
+        allow = False
+        count = 0
         try:
-            result = request.execute()
-            datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
+            while not allow and count < 5:
+                result = request.execute()
+                datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
+                if datalab.meta_lib.GCPMeta().get_vpc(vpc_name) == '':
+                    allow = True
+                else:
+                    count = count + 1
             print("VPC {} has been removed".format(vpc_name))
             return result
         except Exception as err:
