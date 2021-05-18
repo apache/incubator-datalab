@@ -103,6 +103,7 @@ class GCPActions:
             while not allow and count < 5:
                 result = request.execute()
                 datalab.meta_lib.GCPMeta().wait_for_operation(result['name'])
+                time.sleep(5)
                 if datalab.meta_lib.GCPMeta().get_vpc(vpc_name) == '':
                     allow = True
                 else:
