@@ -643,9 +643,9 @@ def pull_docker_images():
                 'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
                           'dataengine']
             }
-            conn.sudo('docker login -u {} -p {} {}:{}'
+            conn.sudo('export $NEXUS_PASSWORD={} 2>&1 '.format(args.repository_pass))
+            conn.sudo('docker login -u {} -p $NEXUS_PASSWORD {}:{} 2>&1'
                       .format(args.repository_user,
-                              args.repository_pass,
                               args.repository_address,
                               args.repository_port))
             for image in list_images[args.cloud_provider]:
