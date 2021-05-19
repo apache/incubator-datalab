@@ -117,7 +117,7 @@
       >
         <h4>Edit self-service.yml</h4>
         <div class="editor-wrap">
-          <div ace-editor mode="yaml" [(text)]="services['self-service'].config" (textChange)="configUpdate('self-service')"></div>
+          <div #selfEditor ace-editor mode="yaml" [(text)]="services['self-service'].config" [autoUpdateContent]="true" (textChange)="configUpdate('self-service')"></div>
         </div>
       </mat-tab>
 
@@ -129,7 +129,7 @@
 
         <h4>Edit provisioning.yml</h4>
         <div class="editor-wrap">
-          <div ace-editor [(text)]="services['provisioning'].config" mode="yaml" (textChange)="configUpdate('provisioning')"></div>
+          <div #provEditor ace-editor [(text)]="services['provisioning'].config" [autoUpdateContent]="true" mode="yaml" (textChange)="configUpdate('provisioning')"></div>
         </div>
       </mat-tab>
 
@@ -138,7 +138,7 @@
       >
         <h4>Edit billing.yml</h4>
         <div class="editor-wrap">
-          <div ace-editor [(text)]="services['billing'].config" mode="yaml" (textChange)="configUpdate('billing')"></div>
+          <div #billingEditor ace-editor mode="yaml" [(text)]="services['billing'].config" [autoUpdateContent]="true" (textChange)="configUpdate('billing')"></div>
 
         </div>
       </mat-tab>
