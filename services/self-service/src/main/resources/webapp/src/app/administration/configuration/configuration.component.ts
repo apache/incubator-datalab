@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Component, OnInit, Inject, HostListener, OnDestroy} from '@angular/core';
+import {Component, OnInit, Inject, HostListener, OnDestroy, ViewChild, ElementRef} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {HealthStatusService, AppRoutingService, EndpointService} from '../../core/services';
 import {MatTabChangeEvent} from '@angular/material/tabs';
@@ -37,6 +37,9 @@ import { EnvironmentModel } from '../management/management.model';
   styleUrls: ['./configuration.component.scss']
 })
 export class ConfigurationComponent implements OnInit, OnDestroy {
+  @ViewChild('selfEditor') selfEditor: ElementRef<HTMLElement>;
+  @ViewChild('provEditor') provEditor: ElementRef<HTMLElement>;
+  @ViewChild('billingEditor') billingEditor: ElementRef<HTMLElement>;
   private unsubscribe$ = new Subject();
   private healthStatus: any;
   public activeTab = {index: 0};
@@ -103,7 +106,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
     this.environmentsDataService.getEnvironmentDataDirect().subscribe((data: any) => {
       this.environments = EnvironmentModel.loadEnvironments(data);
-      this.environments.map((env,index) => {
+      this.environments.map(env => {
         this.checkResource(env.status, env.endpoint);
         if(env.resources?.length > 0) {
           env.resources.map(resource => {
@@ -152,7 +155,10 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   public action(action: string): void {
     this.dialog.open(SettingsConfirmationDialogComponent, { data: {
-        action: action, message: action === 'discard' ? this.confirmMessages.discardChanges : this.confirmMessages.saveChanges
+        action: action, 
+        message: action === 'discard' ? this.confirmMessages.discardChanges : this.confirmMessages.saveChanges,
+        environmentStatuses: this.environmentStatuses,
+        activeEndpoint: this.activeEndpoint
       }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
       if (result && action === 'save') this.setServiceConfig(this.activeService, this.services[this.activeService].config);
@@ -192,17 +198,27 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     );
   }
 
+  refreshServiceEditor(editor: ElementRef<HTMLElement>) {
+    if(editor) {
+      editor.nativeElement.children[3].scrollTop = 100;
+      editor.nativeElement.children[3].scrollTop = 0;
+    }
+  }
+
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.activeTab = tabChangeEvent;
     
     if (this.activeTab.index === 1 && this.activeEndpoint === 'local') {
       this.activeService = 'self-service';
+      this.refreshServiceEditor(this.selfEditor);
     } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 1) || 
             (this.activeTab.index === 2 && this.activeEndpoint === 'local')) {
       this.activeService = 'provisioning';
+      this.refreshServiceEditor(this.provEditor);
     } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 2) || 
             (this.activeTab.index === 3 && this.activeEndpoint === 'local')) {
       this.activeService = 'billing';
+      this.refreshServiceEditor(this.billingEditor);
     } else {
       this.activeService = '';
     }
@@ -210,7 +226,9 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     if (!!this.activeService) {
       if (this.services[this.activeService].config !== this.services[this.activeService].serverConfig) {
         this.dialog.open(SettingsConfirmationDialogComponent, { data: {
-            action: 'Was changed'
+            action: 'Was changed',
+            environmentStatuses: this.environmentStatuses,
+            activeEndpoint: this.activeEndpoint
           }, panelClass: 'modal-sm' })
           .afterClosed().subscribe(result => {
           if (result) {
