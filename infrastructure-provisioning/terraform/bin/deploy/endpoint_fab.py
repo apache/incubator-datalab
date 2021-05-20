@@ -589,18 +589,20 @@ def ensure_jar_endpoint():
             web_path = '{}/webapp'.format(args.datalab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
-            conn.run('wget -P {}  --user={} --password={} '
+            if 'Failed' in conn.run('wget -P {}  --user={} --password={} '
                      'https://{}/repository/packages/provisioning-service-'
-                     '2.4.jar --no-check-certificate'
+                     '2.4.jar --no-check-certificate2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
                      .format(web_path, args.repository_user,
-                             args.repository_pass, args.repository_address))
+                             args.repository_pass, args.repository_address)).stdout:
+                sys.exit(1)
             conn.run('mv {0}/provisioning-service-2.4.jar {0}/provisioning-service.jar'
                      .format(web_path))
-            conn.run('wget -P {}  --user={} --password={} '
+            if 'Failed' in conn.run('wget -P {}  --user={} --password={} '
                      'https://{}/repository/packages/billing-{}-'
-                     '2.4.jar --no-check-certificate'
+                     '2.4.jar --no-check-certificate2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
                      .format(web_path, args.repository_user,
-                             args.repository_pass, args.repository_address, args.cloud_provider))
+                             args.repository_pass, args.repository_address, args.cloud_provider)).stdout:
+                sys.exit(1)
             conn.run('mv {0}/billing-{1}-2.4.jar {0}/billing.jar'
                      .format(web_path, args.cloud_provider))
             conn.sudo('touch {}'.format(ensure_file))
@@ -643,11 +645,12 @@ def pull_docker_images():
                 'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
                           'dataengine']
             }
-            conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="; fi'
+            if 'Failed' in conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="; fi'
                       .format(args.repository_user,
                               args.repository_pass,
                               args.repository_address,
-                              args.repository_port))
+                              args.repository_port)).stdout:
+                sys.exit(1)
             for image in list_images[args.cloud_provider]:
                 conn.sudo('docker pull {0}:{1}/docker.datalab-{3}-{2}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
