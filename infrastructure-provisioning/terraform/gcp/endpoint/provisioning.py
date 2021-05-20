@@ -387,15 +387,11 @@ def pull_docker_images():
         ensure_file = ('/home/{}/.ensure_dir/docker_images_pulled'
                        .format(args.os_user))
         if not exists(conn, ensure_file):
-            conn.run('export NEXUS_PASSWORD={} 2>&1 > /dev/null'.format(args.repository_pass))
-            try:
-                conn.sudo('docker login -u {} -p $NEXUS_PASSWORD {}:{} 2>&1'
+            conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="'
                       .format(args.repository_user,
                               args.repository_pass,
                               args.repository_address,
                               args.repository_port))
-            except:
-                print('Failed docker login. ')
             conn.sudo('docker pull {}:{}/docker.datalab-base-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.datalab-edge-{}'

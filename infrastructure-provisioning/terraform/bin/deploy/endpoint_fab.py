@@ -643,14 +643,11 @@ def pull_docker_images():
                 'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
                           'dataengine']
             }
-            conn.run('export NEXUS_PASSWORD={} 2>&1 > /dev/null'.format(args.repository_pass))
-            try:
-                conn.sudo('docker login -u {} -p $NEXUS_PASSWORD {}:{}'
+            conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="'
                       .format(args.repository_user,
+                              args.repository_pass,
                               args.repository_address,
                               args.repository_port))
-            except:
-                print('==============\nFailed docker login.\n==============')
             for image in list_images[args.cloud_provider]:
                 conn.sudo('docker pull {0}:{1}/docker.datalab-{3}-{2}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
