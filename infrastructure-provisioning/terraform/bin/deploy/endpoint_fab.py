@@ -989,7 +989,7 @@ def init_args():
     parser.add_argument('--repository_user', type=str, default='')
     parser.add_argument('--repository_pass', type=str, default='')
     parser.add_argument('--docker_version', type=str,
-                        default='5:20.10.2~3-0~ubuntu-focal')
+                        default='5:20.10.6~3-0~ubuntu-bionic')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--keycloak_auth_server_url', type=str, default='')
     parser.add_argument('--keycloak_realm_name', type=str, default='')
