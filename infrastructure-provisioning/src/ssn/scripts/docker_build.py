@@ -66,6 +66,8 @@ def image_build(src_path, node):
                     os_family, cloud_provider, src_path), shell=True, check=True)
         try:
             for i in range(len(node)):
+                subprocess.run('cp {0}general/files/{1}/{2}_description.json '
+                          '{0}{2}/description.json'.format(src_path, cloud_provider, node[i]), shell=True, check=True)
                 subprocess.run('cd {3}; docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.datalab-{2} .'.format(
                             os_family, cloud_provider, node[i], src_path), shell=True, check=True)
         except Exception as err:
