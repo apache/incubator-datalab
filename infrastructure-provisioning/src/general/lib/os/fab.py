@@ -38,6 +38,31 @@ from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
+def ensure_python_venv(python_version):
+    try:
+        if not exist(conn, '/opt/python/python{}'.format(python_version)):
+            conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_version))
+            conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_version))
+            conn.sudo('cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(
+                    python_version)
+            conn.sudo('cd /tmp/Python-{0} make altinstall'.format(python_version))
+            conn.sudo('cd /tmp && rm -rf Python-{}'.format(python_version))
+            conn.sudo('virtualenv /opt/python/python{}'.format(python_version))
+            venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
+            pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
+            conn.sudo('{0} && install -U pip=={}'.format(venv_command, pip_command, os.environ['pip_version']))
+            subprocess.run({0} && {1} install pyzmq==17.0.0'.format(venv_command, pip_command))
+            subprocess.run(
+                '{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command),
+                shell=True, check=True)
+            subprocess.run(
+                '{0} && sudo -i {1} install boto boto3 NumPy=={2} SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
+                .format(venv_command, pip_command, numpy_version), shell=True, check=True)
+
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
+
 
 def ensure_pip(requisites):
     try:
