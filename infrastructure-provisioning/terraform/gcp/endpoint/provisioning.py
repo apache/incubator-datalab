@@ -344,14 +344,14 @@ def ensure_jar_endpoint():
             if args.cloud_provider == "aws":
                 if 'Failed' in conn.run('wget -P {}  --user={} --password={} '
                          'https://{}/repository/packages/aws/provisioning-service-'
-                         '2.1.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
+                         '2.1.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR|Failed" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
                          .format(web_path, args.repository_user,
                                  args.repository_pass, args.repository_address)).stdout:
                     sys.exit(1)
             elif args.cloud_provider == "gcp":
                 if 'Failed' in conn.run('wget -P {}  --user={} --password={} '
                          'https://{}/repository/packages/gcp/provisioning-service-'
-                         '2.1.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
+                         '2.1.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR|Failed" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
                          .format(web_path, args.repository_user,
                                  args.repository_pass, args.repository_address)).stdout:
                     sys.exit(1)
