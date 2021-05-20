@@ -387,7 +387,7 @@ def pull_docker_images():
         ensure_file = ('/home/{}/.ensure_dir/docker_images_pulled'
                        .format(args.os_user))
         if not exists(conn, ensure_file):
-            conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="'
+            conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="; fi'
                       .format(args.repository_user,
                               args.repository_pass,
                               args.repository_address,

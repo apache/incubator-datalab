@@ -643,7 +643,7 @@ def pull_docker_images():
                 'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
                           'dataengine']
             }
-            conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="'
+            conn.sudo('docker login -u {} -p {} {}:{} 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR" /tmp/tee.tmp; then echo -e "==============\nFailed docker login.\n=============="; fi'
                       .format(args.repository_user,
                               args.repository_pass,
                               args.repository_address,
