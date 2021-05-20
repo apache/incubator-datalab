@@ -278,7 +278,7 @@ def ensure_mongo_endpoint():
             conn.sudo('apt-get -y --allow-unauthenticated install mongodb-org')
             conn.sudo('systemctl enable mongod.service')
             conn.sudo('sudo apt-get -y install python3-pip')
-            conn.sudo('pip install -U pymongo pyyaml --no-cache-dir ')
+            conn.sudo('pip3 install -U pymongo pyyaml --no-cache-dir ')
             conn.sudo('touch /home/{}/.ensure_dir/mongo_ensured'
                       .format(args.os_user))
         print('[CONFIGURING MONGO DATABASE]')
