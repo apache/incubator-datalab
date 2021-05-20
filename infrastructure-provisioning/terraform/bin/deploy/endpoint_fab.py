@@ -645,7 +645,7 @@ def pull_docker_images():
             }
             conn.run('export NEXUS_PASSWORD={} 2>&1 > /dev/null'.format(args.repository_pass))
             try:
-                conn.sudo('docker login -u {} -p $NEXUS_PASSWORD {}:{} 2>&1 > /dev/null'
+                conn.sudo('docker login -u {} -p $NEXUS_PASSWORD {}:{}'
                       .format(args.repository_user,
                               args.repository_address,
                               args.repository_port))
