@@ -42,7 +42,7 @@ COPY general/templates/os/toree_dataengine-service_* /root/templates/
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/
 COPY general/templates/os/inactive.timer /root/templates/
-COPY general/files/os/toree-assembly-0.3.0.jar /root/files/
+COPY general/files/os/toree-assembly-0.5.0.jar /root/files/
 COPY general/files/os/toree_kernel.tar.gz /root/files/
 COPY general/templates/os/pyspark_dataengine_template.json /root/templates/
 COPY general/templates/os/r_dataengine_template.json /root/templates/
