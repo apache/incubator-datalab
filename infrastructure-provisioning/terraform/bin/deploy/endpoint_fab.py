@@ -643,7 +643,7 @@ def pull_docker_images():
                 'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
                           'dataengine']
             }
-            conn.sudo('export $NEXUS_PASSWORD={} 2>&1 > /dev/null'.format(args.repository_pass))
+            conn.run('export NEXUS_PASSWORD={} 2>&1 > /dev/null'.format(args.repository_pass))
             try:
                 conn.sudo('docker login -u {} -p $NEXUS_PASSWORD {}:{} 2>&1 > /dev/null'
                       .format(args.repository_user,
