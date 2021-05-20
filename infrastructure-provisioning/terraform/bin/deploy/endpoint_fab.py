@@ -650,7 +650,7 @@ def pull_docker_images():
                               args.repository_address,
                               args.repository_port))
             except:
-                print('Failed docker login. ')
+                print('==============\nFailed docker login.\n==============')
             for image in list_images[args.cloud_provider]:
                 conn.sudo('docker pull {0}:{1}/docker.datalab-{3}-{2}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
