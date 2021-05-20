@@ -85,27 +85,27 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 
         log.debug("Loading list of exploratory templates for user {} for project {}", user.getName(), project);
         try {
-
-
             EndpointDTO endpointDTO = endpointService.get(endpoint);
-            log.info("TEST LOG!!! endpoint: {}", endpointDTO);
-            log.info("TEST LOG!!! prov: {}", provisioningService);
+            log.info("TEST LOG!!! endpoint: {}", endpointDTO.toString());
 
             ExploratoryMetadataDTO[] array =
                     provisioningService.get(endpointDTO.getUrl() + DOCKER_EXPLORATORY,
                             user.getAccessToken(),
                             ExploratoryMetadataDTO[].class);
+            log.info("loaded: {}", (Object) array);
 
             final Set<String> roles = userGroupDao.getUserGroups(user.getName());
             log.info("TEST LOG!!! roles: {}", roles);
-
-            return Arrays.stream(array)
+            List<ExploratoryMetadataDTO>  s=  Arrays.stream(array)
                     .peek(e -> e.setImage(getSimpleImageName(e.getImage())))
                     .filter(e -> exploratoryGpuIssuesAzureFilter(e, endpointDTO.getCloudProvider()) &&
                             UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage(), roles))
                     .peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES, roles))
                     .peek(e -> addGpu(e, project))
                     .collect(Collectors.toList());
+            log.info("loaded: {}", s);
+
+            return s;
 
         } catch (DatalabException e) {
             log.error("Could not load list of exploratory templates for user: {}", user.getName(), e);
@@ -123,15 +123,19 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                     provisioningService.get(endpointDTO.getUrl() + DOCKER_COMPUTATIONAL,
                             user.getAccessToken(), ComputationalMetadataDTO[]
                                     .class);
+            log.info("loaded: {}", (Object) array);
 
             final Set<String> roles = userGroupDao.getUserGroups(user.getName());
 
-            return Arrays.stream(array)
+            List<FullComputationalTemplate> s = Arrays.stream(array)
                     .peek(e -> e.setImage(getSimpleImageName(e.getImage())))
                     .peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES, roles))
                     .filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage(), roles))
                     .map(comp -> fullComputationalTemplate(comp, endpointDTO.getCloudProvider(), project))
                     .collect(Collectors.toList());
+            log.info("changed: {}", s);
+
+            return s;
 
         } catch (DatalabException e) {
             log.error("Could not load list of computational templates for user: {}", user.getName(), e);

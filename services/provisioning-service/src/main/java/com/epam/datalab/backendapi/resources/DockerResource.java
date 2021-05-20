@@ -62,6 +62,7 @@ public class DockerResource implements DockerCommands {
     @Path("{type}")
     public Set<ImageMetadataDTO> getDockerImages(@Auth UserInfo ui, @PathParam("type") String type) {
         LOGGER.debug("docker statuses asked for {}", type);
+        LOGGER.info("meta {}", metadataHolder);
         return metadataHolder
                 .getMetadata(ImageType.valueOf(type.toUpperCase()));
     }

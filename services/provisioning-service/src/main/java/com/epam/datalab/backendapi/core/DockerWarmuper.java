@@ -35,20 +35,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.dropwizard.lifecycle.Managed;
+import lombok.ToString;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Singleton
+@Slf4j
 public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerWarmuper.class);
     public static final String EXPLORATORY_RESPONSE_MARKER = "exploratory_environment_shapes";
@@ -59,8 +58,8 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
     private FolderListenerExecutor folderListenerExecutor;
     @Inject
     private ICommandExecutor commandExecutor;
-    private Map<String, String> imageList = new ConcurrentHashMap<>();
-    private Set<ImageMetadataDTO> metadataDTOs = ConcurrentHashMap.newKeySet();
+    private final Map<String, String> imageList = new ConcurrentHashMap<>();
+    private final Set<ImageMetadataDTO> metadataDTOs = ConcurrentHashMap.newKeySet();
 
 
     @Override
@@ -165,8 +164,18 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
     }
 
     public Set<ImageMetadataDTO> getMetadata(ImageType type) {
-        return metadataDTOs.stream()
+        Set<ImageMetadataDTO> collect = metadataDTOs.stream()
                 .filter(m -> m.getImageType().equals(type))
                 .collect(Collectors.toSet());
+        log.info("TEST: type: {}, set: {}", type, collect);
+        return collect;
+    }
+
+    @Override
+    public String toString() {
+        return "DockerWarmuper{" +
+                ", imageList=" + imageList +
+                ", metadataDTOs=" + metadataDTOs +
+                '}';
     }
 }
