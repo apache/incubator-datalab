@@ -1,5 +1,4 @@
 {
   DNS_IP_RESOLVE
-  "insecure-registries": ["REPOSITORY"],
-  "disable-legacy-registry": true
+  "insecure-registries": ["REPOSITORY"]
 }
