@@ -20,65 +20,16 @@
 package com.epam.datalab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import lombok.*;
 
 import java.util.List;
-import java.util.Objects;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TemplateDTO {
     @JsonProperty
     private String version;
     @JsonProperty
     private List<ApplicationDto> applications;
-
-    public TemplateDTO() {
-    }
-
-    public TemplateDTO(String version) {
-        this.version = version;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public List<ApplicationDto> getApplications() {
-        return applications;
-    }
-
-    public void setApplications(List<ApplicationDto> applications) {
-        this.applications = applications;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TemplateDTO that = (TemplateDTO) o;
-
-        if (version != null ? !version.equals(that.version) : that.version != null) {
-            return false;
-        }
-        return applications != null ? applications.equals(that.applications) : that.applications == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(version, applications);
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this);
-    }
 }

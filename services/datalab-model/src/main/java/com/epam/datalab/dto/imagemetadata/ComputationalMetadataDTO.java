@@ -47,8 +47,7 @@ public class ComputationalMetadataDTO extends ImageMetadataDTO {
     private String requestId;
     @JsonProperty(value = "computation_resources_shapes")
     private Map<String, List<ComputationalResourceShapeDto>> computationResourceShapes;
-    //GPU
-//    @JsonProperty("gpu_types")
+
     private List<String> computationGPU;
 
     public ComputationalMetadataDTO(String imageName) {
