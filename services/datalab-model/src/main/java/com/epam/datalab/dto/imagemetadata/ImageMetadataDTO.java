@@ -36,4 +36,6 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 public abstract class ImageMetadataDTO {
     @JsonProperty("image_type")
     private ImageType imageType;
+
+    public abstract void setImage(String image);
 }
