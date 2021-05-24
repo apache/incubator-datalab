@@ -957,8 +957,7 @@ def remove_all_iam_resources(instance_type, project_name='', endpoint_name=''):
                     attached_role_policies = client.list_attached_role_policies(RoleName=iam_role)
                     if attached_role_policies:
                         for policy in attached_role_policies['AttachedPolicies']:
-                            print('========1')
-                            print(policy)
+                            client.detach_role_policy(RoleName=iam_role, PolicyArn=policy['PolicyArn'])
                     role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
                     if role_profiles:
                         for i in role_profiles:
