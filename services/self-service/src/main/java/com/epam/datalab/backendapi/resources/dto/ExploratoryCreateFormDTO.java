@@ -35,39 +35,30 @@ public class ExploratoryCreateFormDTO {
     @NotBlank
     @JsonProperty
     private String image;
-
     @NotBlank
     @JsonProperty("template_name")
     private String templateName;
-
     @NotBlank
     @JsonProperty
     private String name;
-
     @NotBlank
     @JsonProperty
     private String project;
     @JsonProperty("custom_tag")
     private String exploratoryTag;
-
     @NotBlank
     @JsonProperty
     private String endpoint;
-
     @NotBlank
     @JsonProperty
     private String shape;
-
     @NotBlank
     @JsonProperty
     private String version;
-
     @JsonProperty("notebook_image_name")
     private String imageName;
-
     @JsonProperty("cluster_config")
     private List<ClusterConfig> clusterConfig;
-
     @JsonProperty("gpu_enabled")
     private Boolean enabledGPU;
     @JsonProperty("gpuType")

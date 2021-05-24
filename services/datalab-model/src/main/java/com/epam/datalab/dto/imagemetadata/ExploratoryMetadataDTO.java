@@ -34,17 +34,15 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties
 public class ExploratoryMetadataDTO extends ImageMetadataDTO {
-    @JsonProperty
     protected String image;
     @JsonProperty("exploratory_environment_versions")
     private List<ExploratoryEnvironmentVersion> exploratoryEnvironmentVersions;
     @JsonProperty("exploratory_environment_shapes")
     private HashMap<String, List<ComputationalResourceShapeDto>> exploratoryEnvironmentShapes;
+    @JsonProperty("exploratory_environment_images")
+    private List<ExploratoryEnvironmentImages> exploratoryEnvironmentImages;
     @JsonProperty("request_id")
     private String requestId;
-
-    //GPU
-//    @JsonProperty("gpu_types")
     private List<String> computationGPU;
 
     public ExploratoryMetadataDTO(String imageName) {

@@ -20,6 +20,7 @@
 package com.epam.datalab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
@@ -29,23 +30,10 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
  * hierarchy as it will requite type information to be serialized within json
  * which is not we really want.
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class ImageMetadataDTO {
     @JsonProperty("image_type")
     private ImageType imageType;
-
-    public ImageType getImageType() {
-        return imageType;
-    }
-
-    public void setImageType(ImageType imageType) {
-        this.imageType = imageType;
-    }
-
-    public abstract void setImage(String image);
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this);
-    }
-
 }
