@@ -21,13 +21,10 @@ package com.epam.datalab.dto.base.computational;
 
 import com.epam.datalab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class FullComputationalTemplate {
     @JsonUnwrapped
-    private ComputationalMetadataDTO computationalMetadataDTO;
-
-
-    public FullComputationalTemplate(ComputationalMetadataDTO metadataDTO) {
-        this.computationalMetadataDTO = metadataDTO;
-    }
+    private final ComputationalMetadataDTO computationalMetadataDTO;
 }

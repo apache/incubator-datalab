@@ -82,31 +82,11 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 
     @Override
     public List<ExploratoryMetadataDTO> getExploratoryTemplates(UserInfo user, String project, String endpoint) {
-
         log.debug("Loading list of exploratory templates for user {} for project {}", user.getName(), project);
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
-            log.info("TEST LOG!!! endpoint: {}", endpointDTO.toString());
-
-            ExploratoryMetadataDTO[] array =
-                    provisioningService.get(endpointDTO.getUrl() + DOCKER_EXPLORATORY,
-                            user.getAccessToken(),
-                            ExploratoryMetadataDTO[].class);
-            log.info("loaded: {}", (Object) array);
-
-            final Set<String> roles = userGroupDao.getUserGroups(user.getName());
-            log.info("TEST LOG!!! roles: {}", roles);
-            List<ExploratoryMetadataDTO>  s=  Arrays.stream(array)
-                    .peek(e -> e.setImage(getSimpleImageName(e.getImage())))
-                    .filter(e -> exploratoryGpuIssuesAzureFilter(e, endpointDTO.getCloudProvider()) &&
-                            UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage(), roles))
-                    .peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES, roles))
-                    .peek(e -> addGpu(e, project))
-                    .collect(Collectors.toList());
-            log.info("loaded: {}", s);
-
-            return s;
-
+            Set<String> roles = userGroupDao.getUserGroups(user.getName());
+            return changeExploratoryMetadata(user, project, endpointDTO, roles);
         } catch (DatalabException e) {
             log.error("Could not load list of exploratory templates for user: {}", user.getName(), e);
             throw e;
@@ -142,6 +122,50 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
             throw e;
         }
     }
+
+    protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
+                                                                          CloudProvider cloudProvider) {
+
+        switch (cloudProvider) {
+            case AWS:
+                return new AwsFullComputationalTemplate(metadataDTO,
+                        AwsEmrConfiguration.builder()
+                                .minEmrInstanceCount(configuration.getMinEmrInstanceCount())
+                                .maxEmrInstanceCount(configuration.getMaxEmrInstanceCount())
+                                .maxEmrSpotInstanceBidPct(configuration.getMaxEmrSpotInstanceBidPct())
+                                .minEmrSpotInstanceBidPct(configuration.getMinEmrSpotInstanceBidPct())
+                                .build());
+            case GCP:
+                return new GcpFullComputationalTemplate(metadataDTO,
+                        GcpDataprocConfiguration.builder()
+                                .minInstanceCount(configuration.getMinInstanceCount())
+                                .maxInstanceCount(configuration.getMaxInstanceCount())
+                                .minDataprocPreemptibleInstanceCount(configuration.getMinDataprocPreemptibleCount())
+                                .build());
+            case AZURE:
+                log.error("Dataengine service is not supported currently for {}", AZURE);
+                throw new UnsupportedOperationException("Dataengine service is not supported currently for " + AZURE);
+            default:
+                throw new UnsupportedOperationException("Dataengine service is not supported currently for " + cloudProvider);
+        }
+    }
+
+    private List<ExploratoryMetadataDTO> changeExploratoryMetadata(UserInfo user, String project, EndpointDTO endpointDTO, Set<String> roles) {
+        return getExploratoryMetadata(user, endpointDTO).stream()
+                .peek(e -> e.setImage(getSimpleImageName(e.getImage())))
+                .filter(e -> exploratoryGpuIssuesAzureFilter(e, endpointDTO.getCloudProvider()) &&
+                        UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage(), roles))
+                .peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES, roles))
+                .peek(e -> addGpu(e, project))
+                .collect(Collectors.toList());
+    }
+
+    private List<ExploratoryMetadataDTO> getExploratoryMetadata(UserInfo user, EndpointDTO endpointDTO) {
+        return Arrays.asList(provisioningService.get(endpointDTO.getUrl() + DOCKER_EXPLORATORY,
+                user.getAccessToken(),
+                ExploratoryMetadataDTO[].class));
+    }
+
 
     /**
      * Removes shapes for which user does not have an access
@@ -203,32 +227,15 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
         }
     }
 
-    protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
-                                                                          CloudProvider cloudProvider) {
-
-        switch (cloudProvider) {
-            case AWS:
-                return new AwsFullComputationalTemplate(metadataDTO,
-                        AwsEmrConfiguration.builder()
-                                .minEmrInstanceCount(configuration.getMinEmrInstanceCount())
-                                .maxEmrInstanceCount(configuration.getMaxEmrInstanceCount())
-                                .maxEmrSpotInstanceBidPct(configuration.getMaxEmrSpotInstanceBidPct())
-                                .minEmrSpotInstanceBidPct(configuration.getMinEmrSpotInstanceBidPct())
-                                .build());
-            case GCP:
-                return new GcpFullComputationalTemplate(metadataDTO,
-                        GcpDataprocConfiguration.builder()
-                                .minInstanceCount(configuration.getMinInstanceCount())
-                                .maxInstanceCount(configuration.getMaxInstanceCount())
-                                .minDataprocPreemptibleInstanceCount(configuration.getMinDataprocPreemptibleCount())
-                                .build());
-            case AZURE:
-                log.error("Dataengine service is not supported currently for {}", AZURE);
-                throw new UnsupportedOperationException("Dataengine service is not supported currently for " + AZURE);
-            default:
-                throw new UnsupportedOperationException("Dataengine service is not supported currently for " + cloudProvider);
+    private void addGpu(ExploratoryMetadataDTO e, String projectName) {
+        log.info("Trying to read GPU from DB for {}", projectName);
+        try {
+            gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU -> e.setComputationGPU(edgeGPU.getGpus()));
+        } catch (Exception ex) {
+            log.info(ex.getMessage());
         }
     }
+
 
     private static class AwsFullComputationalTemplate extends FullComputationalTemplate {
         @JsonProperty("limits")
@@ -263,12 +270,4 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
         }
     }
 
-    private void addGpu(ExploratoryMetadataDTO e, String projectName) {
-        log.info("Trying to read GPU from DB for {}", projectName);
-        try {
-            gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU -> e.setComputationGPU(edgeGPU.getGpus()));
-        } catch (Exception ex) {
-            log.info(ex.getMessage());
-        }
-    }
 }
