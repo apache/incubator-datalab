@@ -21,8 +21,9 @@
 package com.epam.datalab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import lombok.Data;
 
+@Data
 public class ExploratoryEnvironmentVersion {
     @JsonProperty("template_name")
     private String templateName;
@@ -34,61 +35,4 @@ public class ExploratoryEnvironmentVersion {
     private String version;
     @JsonProperty("vendor")
     private String vendor;
-
-    public ExploratoryEnvironmentVersion() {
-    }
-
-    public ExploratoryEnvironmentVersion(String templateName, String description, String type, String version,
-                                         String vendor) {
-        this.templateName = templateName;
-        this.description = description;
-        this.type = type;
-        this.version = version;
-        this.vendor = vendor;
-    }
-
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getVendor() {
-        return vendor;
-    }
-
-    public void setVendor(String vendor) {
-        this.vendor = vendor;
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this);
-    }
 }

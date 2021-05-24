@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.dao;
 import com.epam.datalab.dto.imagemetadata.EdgeGPU;
 import org.bson.conversions.Bson;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -39,6 +40,11 @@ public class GpuDAOImpl extends BaseDAO implements GpuDAO {
     @Override
     public void create(EdgeGPU gpu) {
         insertOne(GPU_COLLECTION, gpu);
+    }
+
+    @Override
+    public void createAll(List<Object> gpus) {
+        insertMany(GPU_COLLECTION, gpus);
     }
 
     @Override

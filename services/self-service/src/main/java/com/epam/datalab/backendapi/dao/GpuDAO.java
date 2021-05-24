@@ -21,11 +21,14 @@ package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.dto.imagemetadata.EdgeGPU;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface GpuDAO {
 
     Optional<EdgeGPU> getGPUByProjectName(String projectName);
+
+    void createAll(List<Object> gpus);
 
     void create(EdgeGPU gpu);
 
