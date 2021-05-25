@@ -846,7 +846,7 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
 def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         con = init_datalab_connection(hostname, os_user, keyfile)
-        con.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout.replace('\n','')
+        mem = con.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout.replace('\n', '')
         instance_memory = int(mem)
     else:
         mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout.replace('\n','')
