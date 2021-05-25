@@ -40,6 +40,7 @@ import com.epam.datalab.dto.base.computational.FullComputationalTemplate;
 import com.epam.datalab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.datalab.dto.imagemetadata.ComputationalResourceShapeDto;
 import com.epam.datalab.dto.imagemetadata.ExploratoryMetadataDTO;
+import com.epam.datalab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.rest.client.RESTService;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -212,8 +213,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                                                                 CloudProvider cloudProvider, String projectName) {
 
         DataEngineType dataEngineType = DataEngineType.fromDockerImageName(metadataDTO.getImage());
-        gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU -> metadataDTO.setComputationGPU(edgeGPU.getGpus()));
-
+        addGpu(metadataDTO, projectName);
         if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
             return getCloudFullComputationalTemplate(metadataDTO, cloudProvider);
         } else if (dataEngineType == DataEngineType.SPARK_STANDALONE) {
@@ -227,10 +227,15 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
         }
     }
 
-    private void addGpu(ExploratoryMetadataDTO e, String projectName) {
+    private void addGpu(ImageMetadataDTO e, String projectName) {
         log.info("Trying to read GPU from DB for {}", projectName);
         try {
-            gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU -> e.setComputationGPU(edgeGPU.getGpus()));
+            if (e instanceof ExploratoryMetadataDTO) {
+                gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU ->
+                        ((ExploratoryMetadataDTO) e).setComputationGPU(edgeGPU.getGpus()));
+            } else
+                gpuDAO.getGPUByProjectName(projectName).ifPresent(edgeGPU ->
+                        ((ComputationalMetadataDTO) e).setComputationGPU(edgeGPU.getGpus()));
         } catch (Exception ex) {
             log.info(ex.getMessage());
         }
