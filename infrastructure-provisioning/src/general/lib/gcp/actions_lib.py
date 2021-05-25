@@ -1523,7 +1523,8 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
     if os.path.exists('{0}'.format(cluster_dir)):
         subprocess.run('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
                                                                                                         cluster_dir), shell=True, check=True)
-    subprocess.run('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir), shell=True, check=True)
+    if os.path.exists('{0}'.format(cluster_dir)):
+        subprocess.run('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir), shell=True, check=True)
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
         datalab_header = subprocess.run('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
                                capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
