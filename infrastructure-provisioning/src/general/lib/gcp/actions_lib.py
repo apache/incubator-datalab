@@ -1447,7 +1447,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
         computational_name = os.environ['computational_name'].replace('_', '-').lower()
         private = datalab.meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
         global con
-        con = datalab.fab.init_datalab_connection(private, ssh_user, key_path)
+        con = datalab.fab.init_datalab_connection(private, os_user, key_path)
         con.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
         if exists(con, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
             if os.environ['notebook_multiple_clusters'] == 'true':
