@@ -178,6 +178,13 @@ def configure_guacamole():
         print('Failed to configure guacamole: ', str(err))
         return False
 
+def status_container_removal_cron():
+    try:
+        conn.sudo('bash -c \'echo "*/15 * * * * datalab-user docker container prune -f --filter until=50m --filter label=edge_status" >> /etc/crontab\'')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to create admin status container removal cron: ', str(err))
+        return False
 
 ##############
 # Run script #
@@ -216,6 +223,10 @@ if __name__ == "__main__":
 
     print("Configuring guacamole")
     if not configure_guacamole():
+        sys.exit(1)
+
+    print("Adding cron to remove edge status containers")
+    if not status_container_removal_cron():
         sys.exit(1)
 
     conn.close()
