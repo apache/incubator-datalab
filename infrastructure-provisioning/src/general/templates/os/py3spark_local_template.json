@@ -1,18 +1,20 @@
 {
  "argv": [
-  "/usr/bin/python3",
+  "PYTHON_VENV_PATH",
   "-m",
   "ipykernel",
   "-f",
   "{connection_file}"
  ],
  "language": "python",
- "display_name": "Local PySpark (Python-3.8 / Spark-SP_VER )",
+ "display_name": "Local PySpark (Python-PYTHON_VENV_VERSION / Spark-SP_VER )",
  "env": {
-  "PYSPARK_PYTHON": "python3.8",
+  "PYSPARK_PYTHON": "pythonPYTHON_VENV_SHORT_VERSION",
   "SPARK_HOME": "/opt/spark/",
   "PYTHONPATH": "PY4J:/opt/spark/python/:",
   "PYTHONSTARTUP": "/opt/spark/python/pyspark/shell.py",
   "PYSPARK_SUBMIT_ARGS": "--name LocalPySpark pyspark-shell"
  }
 }
+
+

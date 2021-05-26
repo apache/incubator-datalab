@@ -38,26 +38,20 @@ from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
-def ensure_python_venv(python_version):
+def ensure_python_venv(python_venv_version):
     try:
-        if not exist(conn, '/opt/python/python{}'.format(python_version)):
-            conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_version))
-            conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_version))
-            conn.sudo('cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(
-                    python_version)
-            conn.sudo('cd /tmp/Python-{0} make altinstall'.format(python_version))
-            conn.sudo('cd /tmp && rm -rf Python-{}'.format(python_version))
-            conn.sudo('virtualenv /opt/python/python{}'.format(python_version))
-            venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
-            pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
-            conn.sudo('{0} && install -U pip=={}'.format(venv_command, pip_command, os.environ['pip_version']))
-            subprocess.run({0} && {1} install pyzmq==17.0.0'.format(venv_command, pip_command))
-            subprocess.run(
-                '{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command),
-                shell=True, check=True)
-            subprocess.run(
-                '{0} && sudo -i {1} install boto boto3 NumPy=={2} SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
-                .format(venv_command, pip_command, numpy_version), shell=True, check=True)
+        if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
+            conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_venv_version))
+            conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install' '''.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
+            conn.sudo('virtualenv /opt/python/python{}'.format(python_venv_version))
+            venv_command = 'source /opt/python/python{}/bin/activate'.format(python_venv_version)
+            pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
+            conn.sudo('''bash -l -c '{0} && {1} install -U pip=={2}' '''.format(venv_command, pip_command, os.environ['conf_pip_version']))
+            conn.sudo('''bash -l -c '{0} && {1} install ipython ipykernel --no-cache-dir' '''.format(venv_command, pip_command))
+            conn.sudo('''bash -l -c '{0} && {1} install NumPy=={2} SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir' '''.format(venv_command, pip_command, os.environ['notebook_numpy_version']))
 
     except Exception as err:
         print('Error:', str(err))
@@ -404,7 +398,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sys.exit(1)
 
 
-def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version):
+def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path, python_venv_version):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
         try:
             conn.sudo('mkdir -p ' + py3spark_local_path_dir)
@@ -412,6 +406,9 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
             conn.sudo(
                 '''bash -l -c "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json" ''')
+            conn.sudo('sed -i "s|PYTHON_VENV_PATH|' + python_venv_path + '|g" /tmp/py3spark_local_template.json')
+            conn.sudo('sed -i "s|PYTHON_VENV_VERSION|' + python_venv_version + '|g" /tmp/py3spark_local_template.json')
+            conn.sudo('sed -i "s|PYTHON_VENV_SHORT_VERSION|' + python_venv_version[:3] + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             conn.sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
