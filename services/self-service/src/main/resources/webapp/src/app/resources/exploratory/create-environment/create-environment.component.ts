@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -48,6 +48,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   shapes = [] || {};
   resourceGrid: any;
   images: Array<any>;
+  selectedImage: any;
   maxNotebookLength: number = 14;
   public areShapes: boolean;
   public selectedCloud: string = '';
@@ -61,8 +62,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     configurationNode: false,
     gpu: false,
   };
-
-
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -101,17 +100,42 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     });
   }
 
+  public setImage(image) {
+    this.selectedImage = image;
+    timer(500).subscribe(_ => {
+      document.querySelector('#buttons').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  }
+
   public setEndpoints(project) {
-    if (this.images) this.images = [];
-    if (this.selectedCloud) this.selectedCloud = '';
+    const controls = ['endpoint', 'version', 'shape', 'gpuType', 'gpuCount'];
+    this.resetSelections(controls);
+    
     this.endpoints = project.endpoints
       .filter(e => e.status === 'RUNNING')
       .map(e => e.name);
+  }
 
+  public resetSelections(controls: Array<string>) {
+    if (this.images) this.images = [];
+    if (this.selectedCloud) this.selectedCloud = '';
+    if (this.additionalParams.gpu) {
+      this.additionalParams.gpu = !this.additionalParams.gpu;
+      this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+    }
+    this.selectedImage = null;
+    this.areShapes = false;
+    this.templates = [];
+    this.currentTemplate = [];
+    controls.forEach(control => {
+      this.createExploratoryForm.controls[control].setValue(null);
+    });
   }
 
   public getTemplates(project, endpoint) {
-    if (this.selectedCloud) this.selectedCloud = '';
+    const controls = ['version', 'shape'];
+    this.resetSelections(controls);
+
     const endpoints = this.data.environments.find(env => env.project === project).endpoints;
     this.selectedCloud = endpoints.find(endp => endp.name === endpoint).cloudProvider.toLowerCase();
 
@@ -130,13 +154,27 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public getShapes(template) {
+    this.selectedImage = null;
+    const controls = ['notebook_image_name', 'shape', 'gpuType', 'gpuCount']
+    controls.forEach(control => {
+      this.createExploratoryForm.controls[control].setValue(null);
+      if (control === 'gpuType' || control === 'gpuCount') {
+        this.createExploratoryForm.controls[control].clearValidators();
+        this.createExploratoryForm.controls[control].updateValueAndValidity();
+      }
+    });
+    if (this.additionalParams.gpu) {
+      this.additionalParams.gpu = !this.additionalParams.gpu;
+      this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+    }
+    
     // if (this.selectedCloud === 'gcp' && template.image === 'docker.datalab-jupyter') {
     //   this.gpuTypes = template.gpu_types;
     // }
     this.currentTemplate = template;
     const allowed: any = ['GPU optimized'];
     if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
-      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deep learning') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deeplearning notebook') === -1
     ) {
       const filtered = Object.keys(
         SortUtils.shapesSort(template.exploratory_environment_shapes))
@@ -242,7 +280,16 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   private getImagesList() {
     this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value,
       this.createExploratoryForm.controls['endpoint'].value)
-      .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
+      .subscribe((res: any) => {
+        this.images = res.filter(el => el.status === 'CREATED');
+        
+        if(this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
+            this.currentTemplate.exploratory_environment_images = this.currentTemplate.exploratory_environment_images.map(image => {
+              return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description}
+            });
+            this.images.push(...this.currentTemplate.exploratory_environment_images);
+          }
+      },
         error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
 
