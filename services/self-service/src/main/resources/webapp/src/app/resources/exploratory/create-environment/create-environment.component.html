@@ -87,21 +87,49 @@
           </div>
         </div>
 
+        <div 
+          class="image-description control-group" 
+          *ngIf="selectedCloud !== 'gcp' && currentTemplate?.image === 'docker.datalab-deeplearning'"
+        >
+          <label class="label"></label>
+          <div class="control">
+            <i class="material-icons" >info</i>
+            {{currentTemplate?.exploratory_environment_versions[0]?.description}}
+          </div>
+        </div>
+
         <div class="control-group" *ngIf="images && images.length > 0">
           <label class="label">Select image</label>
           <div class="control selector-wrapper">
             <mat-form-field>
               <mat-label>Select image</mat-label>
-              <mat-select formControlName="notebook_image_name" disableOptionCentering>
-                <mat-option [value]="null">None</mat-option>
-                <mat-option *ngFor="let image of images" [value]="image.name">{{ image.name }}</mat-option>
-                <mat-option *ngIf="!images.length" class="multiple-select ml-10" disabled>Images list is empty
+              <mat-select formControlName="notebook_image_name" panelClass="create-resources-dialog scrolling" disableOptionCentering>
+                <mat-option [value]="null" (click)="selectedImage = null">None</mat-option>
+                <mat-option 
+                  *ngFor="let image of images" 
+                  [value]="image?.name" 
+                  (click)="setImage(image)"
+                >
+                  {{ image?.status ? image?.name + ' (custom image)' : image?.name }}
+                </mat-option>
+                <mat-option *ngIf="!images?.length" class="multiple-select ml-10" disabled>Images list is empty
                 </mat-option>
               </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
               </button>
             </mat-form-field>
+          </div>
+        </div>
+
+        <div 
+          class="image-description control-group" 
+          *ngIf="selectedImage?.description"
+        >
+          <label class="label"></label>
+          <div class="control">
+            <i class="material-icons" >info</i>
+            {{selectedImage?.description}}
           </div>
         </div>
 
