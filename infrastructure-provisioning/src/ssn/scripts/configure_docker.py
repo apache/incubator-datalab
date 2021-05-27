@@ -184,7 +184,7 @@ def status_container_removal_cron():
     except Exception as err:
         traceback.print_exc()
         print('Failed to create admin status container removal cron: ', str(err))
-        return False
+        sys.exit(1)
 
 ##############
 # Run script #
@@ -226,8 +226,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Adding cron to remove edge status containers")
-    if not status_container_removal_cron():
-        sys.exit(1)
+    status_container_removal_cron()
 
     conn.close()
     sys.exit(0)
