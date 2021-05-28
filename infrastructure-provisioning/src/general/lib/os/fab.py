@@ -38,6 +38,25 @@ from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
+def ensure_python_venv(python_venv_version):
+    try:
+        if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
+            conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_venv_version))
+            conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install' '''.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
+            conn.sudo('virtualenv /opt/python/python{}'.format(python_venv_version))
+            venv_command = 'source /opt/python/python{}/bin/activate'.format(python_venv_version)
+            pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
+            conn.sudo('''bash -l -c '{0} && {1} install -U pip=={2}' '''.format(venv_command, pip_command, os.environ['conf_pip_version']))
+            conn.sudo('''bash -l -c '{0} && {1} install ipython ipykernel --no-cache-dir' '''.format(venv_command, pip_command))
+            conn.sudo('''bash -l -c '{0} && {1} install NumPy=={2} SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir' '''.format(venv_command, pip_command, os.environ['notebook_numpy_version']))
+
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
+
 
 def ensure_pip(requisites):
     try:
@@ -60,13 +79,14 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires|FileNotFoundError:|RuntimeError:|error:"
     try:
-        if pip_version == 'pip3' and not exists(conn, '/bin/pip3'):
-            for v in range(4, 8):
-                if exists(conn, '/bin/pip3.{}'.format(v)):
-                    conn.sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
-        conn.sudo('{} install -U pip=={} setuptools=={}'.format(pip_version, os.environ['conf_pip_version'], os.environ['notebook_setuptools_version']))
-        conn.sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
-        conn.sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
+        venv_install_command = 'source /opt/python/python{0}/bin/activate && /opt/python/python{0}/bin/pip{1}'.format(os.environ['notebook_python_venv_version'], os.environ['notebook_python_venv_version'][:3])
+        #if pip_version == 'pip3' and not exists(conn, '/bin/pip3'):
+        #    for v in range(4, 8):
+        #        if exists(conn, '/bin/pip3.{}'.format(v)):
+        #            conn.sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
+        #conn.sudo('{} install -U pip=={} setuptools=={}'.format(pip_version, os.environ['conf_pip_version'], os.environ['notebook_setuptools_version']))
+        #conn.sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
+        #conn.sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             name, vers = pip_pkg
             if pip_pkg[1] == '' or pip_pkg[1] == 'N/A':
@@ -75,20 +95,30 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             else:
                 version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            conn.sudo('{0} install -U {1} --use-deprecated=legacy-resolver --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
-                 ' /tmp/{0}install_{3}.log; then  echo "" > /tmp/{0}install_{3}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
-            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace('"', "'").replace('\n', ' ')
-            conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "not_found" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout.replace('\n', '')
-            conn.sudo('cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "not_installed" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
-            installed_out = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name)).stdout.replace('\n', '')
+            conn.sudo(
+                '''bash -l -c '{0} install -U {1} --use-deprecated=legacy-resolver --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > /tmp/{4}install_{3}.log; then  echo "" > /tmp/{4}install_{3}.log;fi' '''.format(
+                    venv_install_command, pip_pkg, error_parser, name, pip_version))
+            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace(
+                '"', "'").replace('\n', ' ')
+            conn.sudo(
+                '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}install_{1}.list; then  echo "not_found" > /tmp/{2}install_{1}.list;fi' '''.format(
+                    venv_install_command, name, pip_version))
+            res = conn.sudo('''bash -l -c 'cat /tmp/{0}install_{1}.list' '''.format(pip_version, name)).stdout.replace(
+                '\n', '')
+            conn.sudo(
+                '''bash -l -c 'cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  echo "not_installed" > /tmp/{0}install_{1}.list;fi' '''.format(
+                    pip_version, name))
+            installed_out = conn.sudo(
+                '''bash -l -c 'cat /tmp/{0}install_{1}.list' '''.format(pip_version, name)).stdout.replace('\n', '')
             changed_pip_pkg = False
             if 'not_found' in res:
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
                 changed_pip_pkg = changed_pip_pkg[0]
-                conn.sudo('{0} freeze --all | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
-                     '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
-                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace('\n', '')
+                conn.sudo(
+                    '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}install_{1}.list; then  echo "" > /tmp/{2}install_{1}.list;fi' '''.format(
+                        venv_install_command, changed_pip_pkg, pip_version))
+                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace(
+                    '\n', '')
             if err and name not in installed_out:
                 status_msg = 'installation_error'
                 if 'ERROR: No matching distribution found for {}'.format(name) in err:
@@ -101,10 +131,11 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = [i for i in ver if changed_pip_pkg.lower() in i][0].split('==')[1]
                 else:
                     version = \
-                    [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
+                        [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
                 status_msg = "installed"
             versions = []
-            if 'Could not find a version that satisfies the requirement' in err and 'ERROR: No matching distribution found for {}=='.format(name) in err:
+            if 'Could not find a version that satisfies the requirement' in err and 'ERROR: No matching distribution found for {}=='.format(
+                    name) in err:
                 versions = err[err.find("(from versions: ") + 16: err.find(") ")]
                 if versions != '' and versions != 'none':
                     versions = versions.split(', ')
@@ -113,7 +144,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 else:
                     versions = []
 
-            conn.sudo('cat /tmp/tee.tmp | if ! grep -w -i -E  "Installing collected packages:" > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, name))
+            conn.sudo(
+                '''bash -l -c 'cat /tmp/tee.tmp | if ! grep -w -i -E  "Installing collected packages:" > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi' '''.format(
+                    pip_version, name))
             dep = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, name)).stdout.replace('\n', '').strip()[31:]
             if dep == '':
                 dep = []
@@ -379,7 +412,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sys.exit(1)
 
 
-def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version):
+def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path, python_venv_version):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
         try:
             conn.sudo('mkdir -p ' + py3spark_local_path_dir)
@@ -387,6 +420,9 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
             conn.sudo(
                 '''bash -l -c "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json" ''')
+            conn.sudo('sed -i "s|PYTHON_VENV_PATH|' + python_venv_path + '|g" /tmp/py3spark_local_template.json')
+            conn.sudo('sed -i "s|PYTHON_VENV_VERSION|' + python_venv_version + '|g" /tmp/py3spark_local_template.json')
+            conn.sudo('sed -i "s|PYTHON_VENV_SHORT_VERSION|' + python_venv_version[:3] + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             conn.sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
