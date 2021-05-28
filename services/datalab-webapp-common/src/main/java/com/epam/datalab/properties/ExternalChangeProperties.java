@@ -52,24 +52,18 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
 
     public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo, String url) {
         Map<String, String> properties = new HashMap<>();
-        log.info("TEST LOG!!!: endpoint: {}, local const: {}",
-                endpoint, LOCAL_ENDPOINT_NAME);
         if (endpoint.equals(LOCAL_ENDPOINT_NAME)) {
-            log.info("TEST LOG!!!: LOCAL");
             properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
             properties.put(PROVISIONING_SERVICE, getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE));
             properties.put(BILLING_SERVICE, getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE));
 
         } else {
-            log.info("TEST LOG!!!: EXTERNAL");
             log.info("Trying to read properties, for external endpoint : {} , for user: {}",
                     endpoint, userInfo.getSimpleName());
             String provPath = url + "/provisioning-service";
-            log.info("TEST LOG!!!: provPath: {}", provPath);
             properties.put(PROVISIONING_SERVICE,
                     provService.get(provPath, userInfo.getAccessToken(), String.class));
             String billPath = url + "/billing";
-            log.info("TEST LOG!!!: provPath: {}", provPath);
             properties.put(BILLING_SERVICE,
                     provService.get(billPath, userInfo.getAccessToken(), String.class));
         }
@@ -86,8 +80,7 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
             changePropertiesService.writeFileFromString(ymlDTO.getYmlString(), name, path);
         } else {
             url += findMethodName(name);
-            log.info("TEST LOG: on external call method , url for the next step: {}", url);
-            provService.post(url, ymlDTO.getYmlString(), userInfo.getAccessToken(), String.class);
+            provService.post(url, userInfo.getAccessToken(), ymlDTO, Void.class);
         }
     }
 
