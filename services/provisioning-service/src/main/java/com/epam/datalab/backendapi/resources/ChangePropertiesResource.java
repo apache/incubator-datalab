@@ -75,23 +75,21 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     @POST
     @Path("/provisioning-service")
     public Response overwriteProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
-        changePropertiesService.writeFileFromString(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
-                ymlDTO.getYmlString());
+        changePropertiesService.writeFileFromString(ymlDTO.getYmlString(), PROVISIONING_SERVICE, PROVISIONING_SERVICE_PROP_PATH);
         return Response.ok().build();
     }
 
     @POST
     @Path("/billing")
     public Response overwriteBillingServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
-        changePropertiesService.writeFileFromString(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE, ymlDTO.getYmlString());
+        changePropertiesService.writeFileFromString(ymlDTO.getYmlString(), BILLING_SERVICE, BILLING_SERVICE_PROP_PATH);
         return Response.ok().build();
-
     }
 
     @POST
     @Path("/restart")
     public Response restart(@Auth UserInfo userInfo, RestartForm restartForm) {
-        checkResponseFiles(restartForm);
+//        checkResponseFiles(restartForm);
         changePropertiesService.restart(restartForm);
         return Response.ok().build();
     }

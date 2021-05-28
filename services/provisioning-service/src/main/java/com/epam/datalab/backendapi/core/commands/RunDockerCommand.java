@@ -25,8 +25,8 @@ import java.util.List;
 
 public class RunDockerCommand implements CmdCommand {
     public static final String EDGE_USER_NAME_FORMAT = "-e \"edge_user_name=%s\"";
-    private String command = "docker run";
-    private List<String> options = new LinkedList<>();
+    private final String command = "docker run";
+    private final List<String> options = new LinkedList<>();
     private String image;
     private DockerAction action;
 
@@ -116,6 +116,7 @@ public class RunDockerCommand implements CmdCommand {
     }
 
     public RunDockerCommand withActionStatus(String toStatus) {
+        this.options.add("--label edge_status");
         this.image = toStatus;
         this.action = DockerAction.STATUS;
         return this;
