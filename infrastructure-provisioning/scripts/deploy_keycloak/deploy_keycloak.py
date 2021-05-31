@@ -85,7 +85,7 @@ def configure_nginx():
     conn.sudo("systemctl enable nginx")
     conn.sudo("systemctl restart nginx")
 
-def init_datalab_connection(hostname, username, keyfile):
+def init_connection(hostname, username, keyfile):
     try:
         global conn
         attempt = 0
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     else:
         hostname = private_ip_address
 
-    conn = datalab.fab.init_datalab_connection(hostname, args.os_user, args.keyfile)
+    conn = init_connection(hostname, args.os_user, args.keyfile)
 
     print("Install Java")
     ensure_jre_jdk(args.os_user)
