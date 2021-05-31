@@ -40,7 +40,7 @@ parser.add_argument('--keycloak_user_password', type=str, default='')
 args = parser.parse_args()
 
 keycloak_version = "8.0.1"
-templates_dir = './infrastructure-provisioning/scripts/deploy_keycloak/templates/'
+templates_dir = './templates/'
 external_port = "80"
 internal_port = "8080"
 private_ip_address = "127.0.0.1"
