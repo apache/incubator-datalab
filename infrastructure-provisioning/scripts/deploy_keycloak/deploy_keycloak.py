@@ -119,8 +119,7 @@ if __name__ == "__main__":
     else:
         hostname = private_ip_address
 
-    conn = datalab.fab.init_datalab_connection(hostname, args.os_user],
-                                               args.keyfile)
+    conn = datalab.fab.init_datalab_connection(hostname, args.os_user, args.keyfile)
 
     print("Install Java")
     ensure_jre_jdk(args.os_user)
