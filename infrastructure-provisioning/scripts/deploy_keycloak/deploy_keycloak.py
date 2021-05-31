@@ -96,21 +96,26 @@ if __name__ == "__main__":
 
     print("Configure connections")
     if args.public_ip_address != '':
-        try:
-            env['connection_attempts'] = 100
-            env.key_filename = [args.keyfile]
-            env.host_string = '{}@{}'.format(args.os_user, args.public_ip_address)
-        except Exception as err:
-            print("Failed establish connection. Excpeption: " + str(err))
-            sys.exit(1)
+        hostname = args.public_ip_address
     else:
-        try:
-            env['connection_attempts'] = 100
-            env.key_filename = [args.keyfile]
-            env.host_string = '{}@{}'.format(args.os_user, private_ip_address)
-        except Exception as err:
-            print("Failed establish connection. Excpeption: " + str(err))
-            sys.exit(1)
+        hostname = private_ip_address
+    try:
+        global conn
+        attempt = 0
+        while attempt < 10:
+            print('connection attempt {}'.format(attempt))
+            conn = Connection(host = hostname, user = args.os_user, connect_kwargs={'key_filename': args.keyfile})
+            conn.config.run.echo = True
+            try:
+                conn.run('ls')
+                conn.config.run.echo = True
+                return conn
+            except:
+                attempt += 1
+                time.sleep(10)
+    except:
+        traceback.print_exc()
+        sys.exit(1)
 
     print("Install Java")
     ensure_jre_jdk(args.os_user)
