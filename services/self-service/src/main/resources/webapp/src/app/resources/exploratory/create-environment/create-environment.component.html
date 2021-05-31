@@ -166,7 +166,7 @@
               <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate || !areShapes && currentTemplate"
                 panelClass="create-resources-shapes scrolling" placeholder="Instance size">
                 <mat-optgroup *ngFor="let item of (shapes | keys)" [label]="item.key | underscoreless">
-                  <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
+                  <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type" (click)="setInstanceSize()">
                     <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Type }}
                   </mat-option>
                 </mat-optgroup>
@@ -190,15 +190,28 @@
         </div>
 
         <div *ngIf="currentTemplate">
-          <ng-template [ngIf]="selectedCloud === 'gcp' && currentTemplate?.image === 'docker.datalab-jupyter'">
+          <ng-template 
+            [ngIf]="selectedCloud === 'gcp' && 
+              (currentTemplate?.image === 'docker.datalab-jupyter' || 
+              currentTemplate?.image === 'docker.datalab-deeplearning' ||
+              currentTemplate?.image === 'docker.datalab-tensor')"
+          >
             <div class="checkbox-group">
-              <div class="d-flex cursor-pointer label m-bott-20" (click)="addGpuFields()">
+              <div 
+                class="d-flex cursor-pointer label m-bott-20" 
+                *ngIf="currentTemplate?.image === 'docker.datalab-jupyter'"
+                (click)="addGpuFields()"
+              >
                 <div class="empty-checkbox" [ngClass]="{'checked': this.additionalParams.gpu}">
                   <span class="checked-checkbox" *ngIf="this.additionalParams.gpu"></span>
                 </div>
                 <span class=" pl-5">GPU</span>
               </div>
-              <ng-template [ngIf]="this.additionalParams.gpu">
+              <ng-template 
+                [ngIf]="this.additionalParams.gpu || 
+                  currentTemplate?.image === 'docker.datalab-deeplearning' ||
+                  currentTemplate?.image === 'docker.datalab-tensor'"
+              >
                 <div class="control-group">
                   <label class="label">GPU type</label>
                   <div class="control selector-wrapper"
@@ -212,10 +225,12 @@
                   <mat-label>Select GPU type</mat-label>
                   <mat-select formControlName="gpuType" disableOptionCentering [disabled]="!createExploratoryForm.controls['shape'].value"
                               panelClass="create-resources-dialog" placeholder="GPU type">
-                      <mat-option *ngFor="let list_item of gpuTypes" [value]="list_item.Gpu_type" (click)="setCount('', list_item.Gpu_type)">
-                        <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Gpu_type }}
+                      <mat-option *ngFor="let list_item of gpuTypes" [value]="list_item" (click)="setCount('', list_item)">
+                        {{ list_item}}
                       </mat-option>
-
+                      <mat-option *ngIf="!gpuTypes.length" class="multiple-select ml-10" disabled>
+                        GPU list is empty
+                      </mat-option>
                   </mat-select>
                   <button class="caret">
                     <i class="material-icons">keyboard_arrow_down</i>
