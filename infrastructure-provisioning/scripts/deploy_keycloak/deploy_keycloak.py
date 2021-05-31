@@ -85,6 +85,25 @@ def configure_nginx():
     conn.sudo("systemctl enable nginx")
     conn.sudo("systemctl restart nginx")
 
+def init_datalab_connection(hostname, username, keyfile):
+    try:
+        global conn
+        attempt = 0
+        while attempt < 10:
+            print('connection attempt {}'.format(attempt))
+            conn = Connection(host = hostname, user = username, connect_kwargs={'key_filename': keyfile})
+            conn.config.run.echo = True
+            try:
+                conn.run('ls')
+                conn.config.run.echo = True
+                return conn
+            except:
+                attempt += 1
+                time.sleep(10)
+    except:
+        traceback.print_exc()
+        sys.exit(1)
+
 if __name__ == "__main__":
     subprocess.run("sudo mkdir /logs/keycloak -p", shell=True, check=True)
     subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /logs/keycloak', shell=True, check=True)
@@ -99,23 +118,9 @@ if __name__ == "__main__":
         hostname = args.public_ip_address
     else:
         hostname = private_ip_address
-    try:
-        global conn
-        attempt = 0
-        while attempt < 10:
-            print('connection attempt {}'.format(attempt))
-            conn = Connection(host = hostname, user = args.os_user, connect_kwargs={'key_filename': args.keyfile})
-            conn.config.run.echo = True
-            try:
-                conn.run('ls')
-                conn.config.run.echo = True
-                return conn
-            except:
-                attempt += 1
-                time.sleep(10)
-    except:
-        traceback.print_exc()
-        sys.exit(1)
+
+    conn = datalab.fab.init_datalab_connection(hostname, args.os_user],
+                                               args.keyfile)
 
     print("Install Java")
     ensure_jre_jdk(args.os_user)
