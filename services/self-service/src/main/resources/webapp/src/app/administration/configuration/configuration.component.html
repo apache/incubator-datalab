@@ -62,6 +62,14 @@
           Discard changes
         </button>
       </ng-template>
+      <button
+        mat-raised-button type="button"
+        class="butt action"
+        (click)="restartServices()"
+        [disabled]="isServiceSelected()"
+      >
+        Restart
+      </button>
       <button mat-raised-button class="butt" (click)="refreshConfig()">
         <i class="material-icons refresh-icon">autorenew</i>Refresh
       </button>
@@ -97,14 +105,6 @@
                   </p>
                 </li>
               </ul>
-              <button
-                mat-raised-button type="button"
-                class="butt action"
-                (click)="restartServices()"
-                [disabled]="isServiceSelected()"
-              >
-                Restart
-              </button>
             </div>
           </section>
         </div>
