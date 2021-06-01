@@ -22,6 +22,7 @@
     <h4 class="modal-title">Manage <span>{{ notebook?.name }}</span> Libraries</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
+  <mat-progress-bar *ngIf="autoComplete === 'UPDATING'" mode="indeterminate"></mat-progress-bar>
   <div class="dialog-content">
    <div class="aligner">
     <div class="info" *ngIf="notebook?.status !== 'running'">
@@ -99,7 +100,7 @@
                   <span class="configuring" >Autocomplete is currently unavailable for {{groupsListMap[group]}} group</span >
                 </mat-option>
                 <mat-option *ngIf="autoComplete === 'UPDATING' && lib.name?.length > 1">
-                  <span class="configuring" >Autocomplete is currently loading for {{groupsListMap[group]}} group</span >
+                  <span class="configuring" >Library list is being loaded at the moment. Please wait a minute</span>
                 </mat-option>
               </mat-autocomplete>
             </div>
