@@ -230,9 +230,9 @@ def ensure_docker_endpoint():
                       'https://download.docker.com/linux/ubuntu '
                       '$(lsb_release -cs) stable"')
             conn.sudo('apt-get update')
-            conn.sudo('apt-cache policy docker-ce')
+            docker_version = conn.sudo("apt-cache policy docker-ce | grep Candidate | awk '{print $2}'").stdout.replace('\n','')
             conn.sudo('apt-get install -y docker-ce={}'
-                      .format(args.docker_version))
+                      .format(docker_version))
             if not exists(conn, '{}/tmp'.format(args.datalab_path)):
                 conn.run('mkdir -p {}/tmp'.format(args.datalab_path))
             conn.put('./daemon.json',
