@@ -122,7 +122,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             sys.exit(1)
 
 
-def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
+def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version, python_venv_path=''):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'r-base')
@@ -150,6 +150,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             datalab.fab.conn.sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             datalab.fab.conn.sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
             datalab.fab.conn.sudo('''echo 'JAVA_HOME="{0}"' >> /home/{1}/.Renviron'''.format(java_home, os_user))
+            #datalab.fab.conn.sudo('''echo 'RETICULATE_PYTHON="{0}"' >> /home/{1}/.Renviron'''.format(python_venv_path, os_user))
             datalab.fab.conn.sudo('touch /home/{}/.Rprofile'.format(os_user))
             datalab.fab.conn.sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             datalab.fab.conn.sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
@@ -255,6 +256,8 @@ def ensure_python3_libraries(os_user):
             #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
+            #datalab.fab.conn.sudo('add-apt-repository ppa:deadsnakes/ppa')
+            #manage_pkg('-y install', 'remote', 'libpython3.7-dev')
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
             datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:
