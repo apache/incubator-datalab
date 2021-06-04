@@ -112,7 +112,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
       )
       .subscribe(value => {
-        if(!!value.match(/\s+/g)) {
+        if(!!value?.match(/\s+/g)) {
           this.libSearch.setValue(value.replace(/\s+/g, ''))
           this.lib.name = value.replace(/\s+/g, '');
         } else {
