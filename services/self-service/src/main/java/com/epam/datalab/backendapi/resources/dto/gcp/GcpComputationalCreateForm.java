@@ -20,6 +20,7 @@
 package com.epam.datalab.backendapi.resources.dto.gcp;
 
 import com.epam.datalab.backendapi.resources.dto.ComputationalCreateFormDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,6 +30,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @ToString(callSuper = true)
+@JsonIgnoreProperties
 public class GcpComputationalCreateForm extends ComputationalCreateFormDTO {
 
     @NotBlank
@@ -56,9 +58,15 @@ public class GcpComputationalCreateForm extends ComputationalCreateFormDTO {
     @JsonProperty("gpu_enabled")
     private Boolean enabledGPU;
 
-    @JsonProperty("gpuType")
-    private String gpuType;
+    @JsonProperty("master_gpu_type")
+    private String masterGpuType;
 
-    @JsonProperty("gpuCount")
-    private String gpuCount;
+    @JsonProperty("master_gpu_count")
+    private String masterGpuCount;
+
+    @JsonProperty("slave_gpu_type")
+    private String slaveGpuType;
+
+    @JsonProperty("slave_gpu_count")
+    private String slaveGpuCount;
 }
