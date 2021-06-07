@@ -331,6 +331,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public addAdditionalParams(block: string) {
     this.isSelected[block] = !this.isSelected[block];
+
+    if (block === 'configuration') {
+      this.selectConfiguration();
+    }
+
     if (block === 'gpu') {
       const controls = ['master_GPU_type', 'master_GPU_count', 'slave_GPU_type', 'slave_GPU_count'];
       if (!this.isSelected.gpu) {

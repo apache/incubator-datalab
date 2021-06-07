@@ -311,7 +311,7 @@
                [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
                *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
               <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('configuration')">
-                <div class="empty-checkbox ml-10" [ngClass]="{'checked': isSelected.configuration}" (click)="selectConfiguration()">
+                <div class="empty-checkbox ml-10" [ngClass]="{'checked': isSelected.configuration}">
                   <span class="checked-checkbox" *ngIf="isSelected.configuration"></span>
                 </div>
                 <span class="pl-5">Cluster configurations</span>
