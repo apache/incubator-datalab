@@ -100,7 +100,7 @@
                   <span class="configuring" >Autocomplete is currently unavailable for {{groupsListMap[group]}} group</span >
                 </mat-option>
                 <mat-option *ngIf="autoComplete === 'UPDATING' && lib.name?.length > 1" disabled>
-                  <span class="configuring" >Library list is being loaded at the moment. Please wait a minute.</span>
+                  <span class="configuring" >Library list is being loaded at the moment. Please wait...</span>
                 </mat-option>
               </mat-autocomplete>
             </div>
