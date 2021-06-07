@@ -1,112 +1,5 @@
 {
   "interpreterSettings": {
-    "2C6RJRBD1": {
-      "id": "2C6RJRBD1",
-      "name": "local_interpreter_python2",
-      "group": "spark",
-      "properties": {
-        "zeppelin.spark.printREPLOutput": {
-            "propertyName": "zeppelin.spark.printREPLOutput",
-            "value": "true",
-            "description": "Print REPL output",
-            "type": "checkbox"
-          },
-        "zeppelin.dep.additionalRemoteRepository": {
-            "envName": "ZEPPELIN_DEP_ADDITIONALREMOTEREPOSITORY",
-            "propertyName": "zeppelin.dep.additionalRemoteRepository",
-            "value": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
-            "description": "",
-            "type": "string"
-          },
-        "zeppelin.spark.sql.stacktrace": {
-            "envName": "ZEPPELIN_SPARK_SQL_STACKTRACE",
-            "propertyName": "zeppelin.spark.sql.stacktrace",
-            "value": "false",
-            "description": "",
-            "type": "checkbox"
-          },
-        "zeppelin.spark.importImplicit":{
-            "envName": "ZEPPELIN_SPARK_IMPORTIMPLICIT",
-            "propertyName": "zeppelin.spark.importImplicit",
-            "value": "true",
-            "description": "",
-            "type": "checkbox"
-          },
-        "zeppelin.spark.concurrentSQL": {
-            "envName": "ZEPPELIN_SPARK_CONCURRENTSQL",
-            "propertyName": "zeppelin.spark.concurrentSQL",
-            "value": "false",
-            "description": "",
-            "type": "checkbox"
-          },
-        "zeppelin.spark.useHiveContext": {
-            "envName": "ZEPPELIN_SPARK_USEHIVECONTEXT",
-            "propertyName": "zeppelin.spark.useHiveContext",
-            "value": "true",
-            "description": "Use HiveContext instead of SQLContext if it is true.",
-            "type": "checkbox"
-          },
-        "zeppelin.pyspark.python": {
-            "envName": "ZEPPELIN_PYSPARK_PYTHON",
-            "propertyName": "zeppelin.pyspark.python",
-            "value": "python",
-            "description": "",
-            "type": "string"
-          },
-        "zeppelin.dep.localrepo": {
-            "envName": "ZEPPELIN_DEP_LOCALREPO",
-            "propertyName": "zeppelin.dep.localrepo",
-            "value": "local-repo",
-            "description": "",
-            "type": "string"
-          },
-        "zeppelin.spark.maxResult": {
-            "envName": "ZEPPELIN_SPARK_MAXRESULT",
-            "propertyName": "zeppelin.spark.maxResult",
-            "value": "1000",
-            "description": "Max number of Spark SQL result to display.",
-            "type": "number"
-          },
-        "master":{
-            "envName": "Master",
-            "propertyName": "spark.master",
-            "value": "local[*]",
-            "description": "Spark master uri. ex) spark://masterhost:7077",
-            "type": "string"
-          },
-        "spark.app.name": {
-            "envName": "SPARK_APP_NAME",
-            "propertyName": "spark.app.name",
-            "value": "Zeppelin",
-            "description": "The name of spark application.",
-            "type": "string"
-          },
-        "spark.driver.memory": {
-              "envName": "MEMORY_DRIVER",
-              "propertyName": "spark.driver.memory",
-              "value": "DRIVER_MEMORY",
-              "description": "",
-              "type": "string"
-          }
-      },
-      "interpreterGroup": [
-        {
-          "class": "org.apache.zeppelin.spark.SparkInterpreter",
-          "name": "spark"
-        },
-        {
-          "class": "org.apache.zeppelin.spark.PySparkInterpreter",
-          "name": "pyspark"
-        }
-      ],
-      "dependencies": [],
-      "option": {
-        "remote": true,
-        "perNoteSession": false,
-        "perNoteProcess": false,
-        "isExistingProcess": false
-      }
-    },
     "2C6RJRBD2": {
       "id": "2C6RJRBD2",
       "name": "local_interpreter_python3",
@@ -199,6 +92,13 @@
               "envName": "MEMORY_DRIVER",
               "propertyName": "spark.driver.memory",
               "value": "DRIVER_MEMORY",
+              "description": "",
+              "type": "string"
+          },
+        "spark.pyspark.python": {
+              "envName": "PYSPARK_PYTHON",
+              "propertyName": "spark.pyspark.python",
+              "value": "PYTHON_VENV_PATH",
               "description": "",
               "type": "string"
           }

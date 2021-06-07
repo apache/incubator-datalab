@@ -58,6 +58,8 @@ spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 scala_link = "https://www.scala-lang.org/files/archive/"
 zeppelin_version = args.zeppelin_version
+python_venv_version = os.environ['notebook_python_venv_version']
+python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version, python_venv_version[:3])
 zeppelin_link = "https://archive.apache.org/dist/zeppelin/zeppelin-" + zeppelin_version + "/zeppelin-" + \
                 zeppelin_version + "-bin-netinst.tgz"
 if args.region == 'cn-north-1':
@@ -161,13 +163,14 @@ def configure_local_livy_kernels(args):
     conn.sudo("systemctl start zeppelin-notebook")
 
 
-def configure_local_spark_kernels(args):
+def configure_local_spark_kernels(args, python_venv_path):
     if not exists(conn,'/home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured'):
         conn.put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
         conn.sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         conn.sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
         spark_memory = get_spark_memory()
         conn.sudo('sed -i "s|DRIVER_MEMORY|{}m|g" /tmp/interpreter.json'.format(spark_memory))
+        conn.sudo('sed -i "s|PYTHON_VENV_PATH|{}m|g" /tmp/interpreter.json'.format(python_venv_path))
         update_zeppelin_interpreters(args.multiple_clusters, r_enabled, 'local')
         conn.sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         conn.sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
@@ -226,8 +229,12 @@ if __name__ == "__main__":
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
-    print("Install Python 3 specific version")
-    ensure_python3_specific_version(python3_version, args.os_user)
+
+    # INSTALL PYTHON IN VIRTUALENV
+    print("Configure Python Virtualenv")
+    ensure_python_venv(python_venv_version)
+    #print("Install Python 3 specific version")
+    #ensure_python3_specific_version(python3_version, args.os_user)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
@@ -249,7 +256,7 @@ if __name__ == "__main__":
         configure_local_livy_kernels(args)
     else:
         print("Configuring local kernels")
-        configure_local_spark_kernels(args)
+        configure_local_spark_kernels(args, python_venv_path)
 
     # INSTALL UNGIT
     print("Install nodejs")
