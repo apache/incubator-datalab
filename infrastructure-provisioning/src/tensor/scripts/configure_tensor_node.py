@@ -49,6 +49,8 @@ jupyter_version = os.environ['notebook_jupyter_version']
 nvidia_version = os.environ['notebook_nvidia_version']
 theano_version = os.environ['notebook_theano_version']
 keras_version = os.environ['notebook_keras_version']
+python_venv_version = os.environ['notebook_python_venv_version']
+python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version, python_venv_version[:3])
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -93,6 +95,10 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
+    # INSTALL PYTHON IN VIRTUALENV
+    print("Configure Python Virtualenv")
+    ensure_python_venv(python_venv_version)
+
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
     install_tensor(args.os_user, cuda_version, cuda_file_name,
@@ -116,10 +122,10 @@ if __name__ == "__main__":
     configure_local_spark(jars_dir, templates_dir)
 
     # INSTALL JUPYTER KERNELS
-    print("Install pyspark local kernel for Jupyter")
-    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
+    #print("Install pyspark local kernel for Jupyter")
+    #ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
     print("Install py3spark local kernel for Jupyter")
-    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
+    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path, python_venv_version)
 
     # INSTALL UNGIT
     print("Install nodejs")
