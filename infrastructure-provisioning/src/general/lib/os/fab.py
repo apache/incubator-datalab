@@ -43,10 +43,12 @@ def ensure_python_venv(python_venv_version):
         if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
             conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_venv_version))
             conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_venv_version))
-            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install' '''.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install --enable-shared' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
-            conn.sudo('virtualenv /opt/python/python{}'.format(python_venv_version))
+            conn.sudo(
+                '''bash -l -c 'echo "export LD_LIBRARY_PATH=/opt/python/python{}/lib" >> /etc/profile' '''.format(python_venv_version))
+            conn.sudo('''bash -l -c 'virtualenv /opt/python/python{0}' '''.format(python_venv_version))
             venv_command = 'source /opt/python/python{}/bin/activate'.format(python_venv_version)
             pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
             conn.sudo('''bash -l -c '{0} && {1} install -U pip=={2}' '''.format(venv_command, pip_command, os.environ['conf_pip_version']))
