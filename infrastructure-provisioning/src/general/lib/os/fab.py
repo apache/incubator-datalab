@@ -43,8 +43,7 @@ def ensure_python_venv(python_venv_version):
         if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
             conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_venv_version))
             conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_venv_version))
-            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} 
-            --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install --enable-shared' '''.format(python_venv_version))
+            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install --enable-shared' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
             conn.sudo(
