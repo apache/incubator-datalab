@@ -256,8 +256,6 @@ def ensure_python3_libraries(os_user):
             #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
-            #datalab.fab.conn.sudo('add-apt-repository ppa:deadsnakes/ppa')
-            #manage_pkg('-y install', 'remote', 'libpython3.7-dev')
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
             datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:

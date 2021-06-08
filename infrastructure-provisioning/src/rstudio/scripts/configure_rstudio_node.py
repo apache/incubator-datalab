@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     # INSTALL PYTHON IN VIRTUALENV
     print("Configure Python Virtualenv")
-    #ensure_python_venv(python_venv_version)
+    ensure_python_venv(python_venv_version)
 
     # INSTALL RSTUDIO
     print("Install RStudio")
