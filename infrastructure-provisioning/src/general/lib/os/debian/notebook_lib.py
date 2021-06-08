@@ -293,37 +293,37 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/tensor_ensured'.format(os_user)):
         try:
             # install nvidia drivers
-            datalab.fab.conn.sudo('''bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
-            datalab.fab.conn.sudo('''bash -c 'echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
-            datalab.fab.conn.sudo('update-initramfs -u')
-            datalab.fab.conn.sudo('reboot', warn=True)
-            time.sleep(60)
-            manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
-            kernel_version = datalab.fab.conn.run('uname -r | tr -d "[..0-9-]"').stdout.replace('\n','')
-            if kernel_version == 'azure':
-                manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
-            else:
+            #datalab.fab.conn.sudo('''bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
+            #datalab.fab.conn.sudo('''bash -c 'echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf' ''')
+            #datalab.fab.conn.sudo('update-initramfs -u')
+            #datalab.fab.conn.sudo('reboot', warn=True)
+            #time.sleep(60)
+            ##manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
+            #kernel_version = datalab.fab.conn.run('uname -r | tr -d "[..0-9-]"').stdout.replace('\n','')
+            #if kernel_version == 'azure':
+            #    manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
+            #else:
                 # legacy support for old kernels
-                datalab.fab.conn.sudo(''' bash -c 'if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '''
-                '''install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;' ''')
-            datalab.fab.conn.sudo('wget https://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
-                 '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
-            datalab.fab.conn.sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
-            datalab.fab.conn.sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
+            #    datalab.fab.conn.sudo(''' bash -c 'if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '''
+            #    '''install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;' ''')
+            #datalab.fab.conn.sudo('wget https://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
+            #     '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
+            #datalab.fab.conn.sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
+            #datalab.fab.conn.sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            datalab.fab.conn.sudo('python3 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'.format(
-                os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            datalab.fab.conn.sudo('wget -P /opt https://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
-                cuda_version, cuda_file_name))
-            datalab.fab.conn.sudo('apt -y install gcc-8 g++-8')
-            datalab.fab.conn.sudo('update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 8')
-            datalab.fab.conn.sudo('update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 8')
-            datalab.fab.conn.sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
+            #datalab.fab.conn.sudo('python3 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'.format(
+            #    os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
+            #datalab.fab.conn.sudo('wget -P /opt https://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
+            #    cuda_version, cuda_file_name))
+            #datalab.fab.conn.sudo('apt -y install gcc-8 g++-8')
+            ##datalab.fab.conn.sudo('update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 8')
+            #datalab.fab.conn.sudo('update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 8')
+            #datalab.fab.conn.sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             #datalab.fab.conn.sudo('update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9')
             #datalab.fab.conn.sudo('update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9')
-            datalab.fab.conn.sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
-            datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
-            datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
+            #datalab.fab.conn.sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
+            #datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
+            #datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
             datalab.fab.conn.run('wget https://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
                 cudnn_version, cudnn_file_name))
@@ -336,11 +336,13 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.run('''bash -l -c 'echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc' ''')
             # install TensorFlow and run TensorBoard
             # datalab.fab.conn.sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
-            datalab.fab.conn.sudo('python3 -m pip install --upgrade tensorflow-gpu=={} --no-cache-dir'.format(tensorflow_version))
+            datalab.fab.install_venv_pip_pkg('tensorflow-gpu',tensorflow_version)
             datalab.fab.conn.sudo('mkdir /var/log/tensorboard')
             datalab.fab.conn.sudo('chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             datalab.fab.conn.put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             datalab.fab.conn.sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
+            venv_activation = 'source /opt/python/python{0}/bin/activate &&'.format(os.environ['notebook_python_venv_version'], os.environ['notebook_python_venv_version'][:3])
+            datalab.fab.conn.sudo("sed -i 's|VENV_ACTIVATION|{}|' /tmp/tensorboard.service".format(venv_activation))
             http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
             https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''').stdout.replace('\n','')
             datalab.fab.conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/tensorboard.service'.format(
@@ -520,13 +522,13 @@ def install_cntk(os_user, cntk_version):
 
 def install_keras(os_user, keras_version):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
-        datalab.fab.conn.sudo('pip3 install keras=={} --no-cache-dir'.format(keras_version))
+        datalab.fab.install_venv_pip_pkg('keras',keras_version)
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
 def install_theano(os_user, theano_version):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
-        datalab.fab.conn.sudo('python3 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        datalab.fab.install_venv_pip_pkg('Theano',theano_version)
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
 
 
