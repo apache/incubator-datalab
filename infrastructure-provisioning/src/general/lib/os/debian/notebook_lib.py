@@ -341,7 +341,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             datalab.fab.conn.sudo('chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             datalab.fab.conn.put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             datalab.fab.conn.sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
-            venv_activation = 'source /opt/python/python{0}/bin/activate &&'.format(os.environ['notebook_python_venv_version'], os.environ['notebook_python_venv_version'][:3])
+            venv_activation = 'source /opt/python/python{0}/bin/activate'.format(os.environ['notebook_python_venv_version'])
             datalab.fab.conn.sudo("sed -i 's|VENV_ACTIVATION|{}|' /tmp/tensorboard.service".format(venv_activation))
             http_proxy = datalab.fab.conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
             https_proxy = datalab.fab.conn.run('''bash -l -c 'echo $https_proxy' ''').stdout.replace('\n','')
