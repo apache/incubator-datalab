@@ -122,9 +122,13 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             sys.exit(1)
 
 
-def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version, python_venv_path=''):
+def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version, python_venv_version=''):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
+            python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version,
+                                                                            python_venv_version[:3])
+            python_venv_lib_path = '/opt/python/python{0}/lib/'.format(python_venv_version,
+                                                                            python_venv_version[:3])
             manage_pkg('-y install', 'remote', 'r-base')
             manage_pkg('-y install', 'remote', 'gdebi-core')
             datalab.fab.conn.sudo('wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-{}-amd64.deb'.format(rstudio_version))
@@ -150,7 +154,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version, py
             datalab.fab.conn.sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             datalab.fab.conn.sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
             datalab.fab.conn.sudo('''echo 'JAVA_HOME="{0}"' >> /home/{1}/.Renviron'''.format(java_home, os_user))
-            #datalab.fab.conn.sudo('''echo 'RETICULATE_PYTHON="{0}"' >> /home/{1}/.Renviron'''.format(python_venv_path, os_user))
+            datalab.fab.conn.sudo('''echo 'RETICULATE_PYTHON="{0}"' >> /home/{1}/.Renviron'''.format(python_venv_path, os_user))
+            datalab.fab.conn.sudo(
+                '''echo 'LD_LIBRARY_PATH="{0}"' >> /home/{1}/.Renviron'''.format(python_venv_lib_path, os_user))
             datalab.fab.conn.sudo('touch /home/{}/.Rprofile'.format(os_user))
             datalab.fab.conn.sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             datalab.fab.conn.sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))

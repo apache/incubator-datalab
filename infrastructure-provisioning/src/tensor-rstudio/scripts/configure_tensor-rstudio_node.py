@@ -55,6 +55,8 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
+python_venv_version = os.environ['notebook_python_venv_version']
+python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version, python_venv_version[:3])
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -96,6 +98,10 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
+    # INSTALL PYTHON IN VIRTUALENV
+    print("Configure Python Virtualenv")
+    ensure_python_venv(python_venv_version)
+
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
     install_tensor(args.os_user, cuda_version, cuda_file_name,
@@ -108,7 +114,7 @@ if __name__ == "__main__":
 
     # INSTALL RSTUDIO
     print("Install RStudio")
-    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
+    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version, python_venv_version)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")

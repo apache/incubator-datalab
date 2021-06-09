@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     # INSTALL RSTUDIO
     print("Install RStudio")
-    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version, python_venv_path)
+    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version, python_venv_version)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
