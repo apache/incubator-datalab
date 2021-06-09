@@ -1064,7 +1064,7 @@ def init_args():
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
     parser.add_argument('--ssn_k8s_alb_dns_name', type=str, default='')
     # TEMPORARY
-
+    print('==========2')
     print(parser.parse_known_args())
     args = parser.parse_known_args()[0]
 
@@ -1106,6 +1106,7 @@ def close_connection():
 def start_deploy():
     global args
     init_args()
+    print('==========1')
     print(args)
     if args.hostname == "":
         args.hostname = args.endpoint_eip_address
