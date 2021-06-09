@@ -59,6 +59,18 @@ def ensure_python_venv(python_venv_version):
         print('Error:', str(err))
         sys.exit(1)
 
+def install_venv_pip_pkg(pkg_name, pkg_version = ''):
+    try:
+        venv_install_command = 'source /opt/python/python{0}/bin/activate && /opt/python/python{0}/bin/pip{1}'.format(
+            os.environ['notebook_python_venv_version'], os.environ['notebook_python_venv_version'][:3])
+        if pkg_version:
+            pip_pkg = '{}=={}'.format(pkg_name,pkg_version)
+        else:
+            pip_pkg = pkg_name
+        conn.sudo('''bash -l -c '{0} install {1} --no-cache-dir' '''.format(venv_install_command, pip_pkg))
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
 
 def ensure_pip(requisites):
     try:

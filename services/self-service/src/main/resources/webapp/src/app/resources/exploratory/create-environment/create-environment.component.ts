@@ -53,10 +53,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public areShapes: boolean;
   public selectedCloud: string = '';
   public gpuCount: Array<number>;
-  public gpuTypes = [
-    {Size: 'S', Gpu_type: 'nvidia-tesla-t4'},
-    {Size: 'M', Gpu_type: 'nvidia-tesla-v100'}
-  ];
+  public gpuTypes: Array<string> = [];
 
   public additionalParams = {
     configurationNode: false,
@@ -155,7 +152,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   public getShapes(template) {
     this.selectedImage = null;
-    const controls = ['notebook_image_name', 'shape', 'gpuType', 'gpuCount']
+    const controls = ['notebook_image_name', 'shape', 'gpuType', 'gpuCount'];
+
     controls.forEach(control => {
       this.createExploratoryForm.controls[control].setValue(null);
       if (control === 'gpuType' || control === 'gpuCount') {
@@ -163,16 +161,26 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         this.createExploratoryForm.controls[control].updateValueAndValidity();
       }
     });
+
     if (this.additionalParams.gpu) {
       this.additionalParams.gpu = !this.additionalParams.gpu;
       this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
     }
     
-    // if (this.selectedCloud === 'gcp' && template.image === 'docker.datalab-jupyter') {
-    //   this.gpuTypes = template.gpu_types;
-    // }
+    if (this.selectedCloud === 'gcp' && 
+        (template?.image === 'docker.datalab-jupyter' ||
+        template?.image === 'docker.datalab-deeplearning' ||
+        template?.image === 'docker.datalab-tensor')) {
+      this.gpuTypes = template?.computationGPU ? template.computationGPU : [];
+
+      if(template?.image === 'docker.datalab-tensor' || template?.image === 'docker.datalab-deeplearning') {
+        this.addGpuFields();
+      }
+    }
+
     this.currentTemplate = template;
     const allowed: any = ['GPU optimized'];
+
     if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
       && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deeplearning notebook') === -1
     ) {
@@ -200,6 +208,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     };
 
     data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null;
+    
     this.userResourceService.createExploratoryEnvironment({ ...parameters, ...data }).subscribe((response: any) => {
       if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
@@ -241,12 +250,25 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         this.createExploratoryForm.controls[control].updateValueAndValidity();
       });
       timer(500).subscribe(_ => {
-        document.querySelector('#buttons').scrollIntoView({ block: 'end', behavior: 'smooth' });
+        document.querySelector('#buttons').scrollIntoView({ block: 'center', behavior: 'smooth' });
       });
     }
   }
 
+  public setInstanceSize() {
+    const controls = ['gpuType', 'gpuCount'];
+    controls.forEach(control => {
+      this.createExploratoryForm.controls[control].setValue(null);
+    });
+  }
+
   public setCount(type: any, gpuType: any): void {
+    if (gpuType && this.currentTemplate.image === 'docker.datalab-deeplearning') {
+      this.additionalParams.gpu = true;
+      this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+      this.createExploratoryForm.controls['gpuCount'].setValidators([Validators.required]);
+      this.createExploratoryForm.controls['gpuCount'].updateValueAndValidity();
+    }
     // if (type === 'master') {
       const masterShape = this.createExploratoryForm.controls['shape'].value;
       this.gpuCount = HelpUtils.setGPUCount(masterShape, gpuType);

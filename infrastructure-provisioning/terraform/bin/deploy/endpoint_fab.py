@@ -230,9 +230,9 @@ def ensure_docker_endpoint():
                       'https://download.docker.com/linux/ubuntu '
                       '$(lsb_release -cs) stable"')
             conn.sudo('apt-get update')
-            conn.sudo('apt-cache policy docker-ce')
+            docker_version = conn.sudo("apt-cache policy docker-ce | grep Candidate | awk '{print $2}'").stdout.replace('\n','')
             conn.sudo('apt-get install -y docker-ce={}'
-                      .format(args.docker_version))
+                      .format(docker_version))
             if not exists(conn, '{}/tmp'.format(args.datalab_path)):
                 conn.run('mkdir -p {}/tmp'.format(args.datalab_path))
             conn.put('./daemon.json',
@@ -589,22 +589,22 @@ def ensure_jar_endpoint():
             web_path = '{}/webapp'.format(args.datalab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
-            if 'Failed' in conn.run('wget -P {}  --user={} --password={} '
-                     'https://{}/repository/packages/provisioning-service-'
-                     '2.4.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR|Failed" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
+            if 'Failed' in conn.run('wget -P {0}  --user={1} --password={2} '
+                     'https://{3}/repository/packages/{4}/provisioning-service-'
+                     '{4}.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR|Failed" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
                      .format(web_path, args.repository_user,
-                             args.repository_pass, args.repository_address)).stdout:
+                             args.repository_pass, args.repository_address, args.release_tag)).stdout:
                 sys.exit(1)
-            conn.run('mv {0}/provisioning-service-2.4.jar {0}/provisioning-service.jar'
-                     .format(web_path))
-            if 'Failed' in conn.run('wget -P {}  --user={} --password={} '
-                     'https://{}/repository/packages/billing-{}-'
-                     '2.4.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR|Failed" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
+            conn.run('mv {0}/provisioning-service-{1}.jar {0}/provisioning-service.jar'
+                     .format(web_path, args.release_tag))
+            if 'Failed' in conn.run('wget -P {0}  --user={1} --password={2} '
+                     'https://{3}/repository/packages/{5}/billing-{4}-'
+                     '{5}.jar --no-check-certificate 2>&1 | tee /tmp/tee.tmp; if grep -w -i -E  "ERROR|Failed" /tmp/tee.tmp; then echo -e "==============\nFailed jar download.\n=============="; fi'
                      .format(web_path, args.repository_user,
-                             args.repository_pass, args.repository_address, args.cloud_provider)).stdout:
+                             args.repository_pass, args.repository_address, args.cloud_provider, args.release_tag)).stdout:
                 sys.exit(1)
-            conn.run('mv {0}/billing-{1}-2.4.jar {0}/billing.jar'
-                     .format(web_path, args.cloud_provider))
+            conn.run('mv {0}/billing-{1}-{2}.jar {0}/billing.jar'
+                     .format(web_path, args.cloud_provider, args.release_tag))
             conn.sudo('touch {}'.format(ensure_file))
     except Exception as err:
         logging.error('Failed to download jar-provisioner: ', str(err))
@@ -988,6 +988,8 @@ def init_args():
     parser.add_argument('--repository_port', type=str, default='')
     parser.add_argument('--repository_user', type=str, default='')
     parser.add_argument('--repository_pass', type=str, default='')
+    parser.add_argument('--release_tag', type=str,
+                        default='2.5-preview1')
     parser.add_argument('--docker_version', type=str,
                         default='5:20.10.6~3-0~ubuntu-bionic')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
