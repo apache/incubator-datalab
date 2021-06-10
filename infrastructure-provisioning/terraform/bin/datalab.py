@@ -108,7 +108,7 @@ def get_var_args_string(cli_args):
     args_hidden = list()
     args_plain = ["-var '{0}={1}'".format(key, value) for key, value in args]
     for key, value in args:
-        if key in ["secret_access_key", "access_key_id", "ldap_host", "ldap_user", "ldap_bind_creds", "mongo_password"]:
+        if key in ["secret_access_key", "access_key_id", "ldap_host", "ldap_user", "ldap_bind_creds", "mongo_password", "mongo_host"]:
             value = '********'
         args_hidden.append("-var '{0}={1}'".format(key, value))
     return [' '.join(args_plain), ' '.join(args_hidden)]
