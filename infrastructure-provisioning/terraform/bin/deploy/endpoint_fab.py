@@ -1122,7 +1122,6 @@ def start_deploy():
     print("Start provisioning of Endpoint.")
     time.sleep(40)
 
-    print(args)
     logging.info("Creating datalab-user")
     create_user()
 
