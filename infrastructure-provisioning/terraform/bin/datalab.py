@@ -105,8 +105,13 @@ def get_var_args_string(cli_args):
         str: string of joined key=values
     """
     args = extract_args(cli_args)
-    args = ["-var '{0}={1}'".format(key, value) for key, value in args]
-    return ' '.join(args)
+    args_hidden = list()
+    args_plain = ["-var '{0}={1}'".format(key, value) for key, value in args]
+    for key, value in args:
+        if key in ["secret_access_key", "access_key_id", "ldap_host", "ldap_user", "ldap_bind_creds", "mongo_password", "mongo_host"]:
+            value = '********'
+        args_hidden.append("-var '{0}={1}'".format(key, value))
+    return [' '.join(args_plain), ' '.join(args_hidden)]
 
 
 def get_args_string(cli_args):
@@ -285,13 +290,12 @@ class TerraformProvider:
              None
         """
         logging.info('terraform apply')
-
-        args_str = get_var_args_string(cli_args)
+        args_list = get_var_args_string(cli_args)
         params_str = get_args_string(tf_params)
-        command = ('terraform apply -auto-approve {} {} {}'
-                   .format(self.no_color, params_str, args_str))
-        logging.info(command)
-        Console.execute_to_command_line(command)
+        command = ('terraform apply -auto-approve {} {}'
+                   .format(self.no_color, params_str))
+        logging.info('{} {}'.format(command, args_list[1]))
+        Console.execute_to_command_line('{} {}'.format(command, args_list[0]))
 
     def destroy(self, tf_params, cli_args, keep_state_file=False):
         """Destroy terraform
@@ -304,12 +308,12 @@ class TerraformProvider:
              None
         """
         logging.info('terraform destroy')
-        args_str = get_var_args_string(cli_args)
+        args_list = get_var_args_string(cli_args)
         params_str = get_args_string(tf_params)
-        command = ('terraform destroy -auto-approve {} {} {}'
-                   .format(self.no_color, params_str, args_str))
-        logging.info(command)
-        Console.execute_to_command_line(command)
+        command = ('terraform destroy -auto-approve {} {}'
+                   .format(self.no_color, params_str))
+        logging.info('{} {}'.format(command, args_list[1]))
+        Console.execute_to_command_line('{} {}'.format(command, args_list[0]))
         if not keep_state_file:
             state_file = tf_params['-state']
             state_file_backup = tf_params['-state'] + '.backup'
@@ -810,11 +814,11 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 validate = conn.run('terraform validate').stdout.lower()
                 if 'success' not in init or 'success' not in validate:
                     raise TerraformProviderError
-                command = ('terraform apply -auto-approve {} '
+                command = ('terraform apply -auto-approve '
                            '-var \'ssn_k8s_nlb_dns_name={}\''
-                           .format(args_str, nlb_dns_name))
-                logging.info(command)
-                conn.run(command)
+                           .format(nlb_dns_name))
+                logging.info('{} {}'.format(command, args_str[1]))
+                conn.run('{} {}'.format(command, args_str[0]))
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
                 self.fill_args_from_dict(json.loads(output))
