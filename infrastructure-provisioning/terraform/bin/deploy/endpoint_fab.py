@@ -1106,8 +1106,6 @@ def close_connection():
 def start_deploy():
     global args
     init_args()
-    print('==========1')
-    print(args)
     if args.hostname == "":
         args.hostname = args.endpoint_eip_address
     endpoint_keystore_password = id_generator()
