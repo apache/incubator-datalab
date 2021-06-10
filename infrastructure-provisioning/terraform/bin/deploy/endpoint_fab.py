@@ -1064,10 +1064,19 @@ def init_args():
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
     parser.add_argument('--ssn_k8s_alb_dns_name', type=str, default='')
     # TEMPORARY
-    print('==========2')
-    print(parser.parse_known_args())
+    print(parser.parse_known_args()[1])
     args = parser.parse_known_args()[0]
-
+    args_list = list()
+    for key in args.__dict__:
+        value = args.__dict__[key]
+        if key in ["secret_access_key", "keycloak_auth_server_url", "keycloak_realm_name", "keycloak_user_name",
+                   "keycloak_user_password", "keycloak_client_id", "keycloak_client_secret","access_key_id",
+                   "ldap_host", "ldap_user", "ldap_bind_creds", "mongo_password", "mongo_host", "mongo_port",
+                   "repository_address", "repository_port", "repository_user", "repository_pass",
+                   "step_root_ca", "step_kid", "step_kid_password"]:
+            value = '********'
+        args_list.append("{0}={1}".format(key, value))
+    print(args_list)
 
 def update_system():
     conn.sudo('apt-get update')
