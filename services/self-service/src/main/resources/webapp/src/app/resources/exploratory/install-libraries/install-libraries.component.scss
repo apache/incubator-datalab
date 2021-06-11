@@ -218,35 +218,38 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 .mat-dialog-container {
   position: relative;
 }
-.mat-list {
-  width: 100%;
-  overflow-y: auto;
-  position: relative;
-  height: 350px;
-  padding-top: 0;
-  margin-top: 8px;
 
-  .list-header{
-    line-height: 40px;
-    position: sticky;
-    top: 0;
-    z-index: 99;
-    background-color: #fff;
-  }
-
-  .filter-row{
-    position: sticky;
-    top: 56px;
-    z-index: 99;
-    background-color: #fff;
-  }
-
-
-  .scrollingList {
-    .info {
-      p {
-        text-align: center;
-        padding: 40px;
+.libs-info {
+  .mat-list {
+    width: 100%;
+    overflow-y: auto;
+    position: relative;
+    height: 350px;
+    padding-top: 0;
+    margin-top: 8px;
+  
+    .list-header{
+      line-height: 40px;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      background-color: #fff;
+    }
+  
+    .filter-row{
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+      background-color: #fff;
+    }
+  
+  
+    .scrollingList {
+      .info {
+        p {
+          text-align: center;
+          padding: 40px;
+        }
       }
     }
   }
