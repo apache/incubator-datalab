@@ -53,6 +53,8 @@ cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 python3_version = "3.4"
+python_venv_version = os.environ['notebook_python_venv_version']
+python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version, python_venv_version[:3])
 scala_link = "https://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
@@ -144,6 +146,10 @@ if __name__ == "__main__":
         print("Install python3 specific version")
         ensure_python3_specific_version(python3_version, args.os_user)
 
+    # INSTALL PYTHON IN VIRTUALENV
+    print("Configure Python Virtualenv")
+    ensure_python_venv(python_venv_version)
+
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
@@ -207,6 +213,7 @@ if __name__ == "__main__":
         conn.sudo('mv /tmp/incubator-livy /opt/livy')
         conn.sudo('mkdir /var/log/livy')
         conn.put('/root/templates/livy-env.sh', '/tmp/livy-env.sh')
+        conn.sudo("sed -i 's|python3|{}|' /tmp/livy-env.sh".format(python_venv_path))
         conn.sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
         conn.sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
         conn.sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))

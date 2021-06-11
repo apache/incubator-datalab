@@ -154,5 +154,5 @@ if __name__ == "__main__":
                 clean_tensor_rstudio()
     else:
         print('Found default ami, do not make clean')
-    conn.close()
+    #conn.close()
     sys.exit(0)

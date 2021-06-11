@@ -41,13 +41,23 @@ from patchwork import files
 def ensure_python_venv(python_venv_version):
     try:
         if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
-            conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_venv_version))
+            conn.sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(
+                python_venv_version))
             conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_venv_version))
-            conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install --enable-shared' '''.format(python_venv_version))
+            if os.environ['application'] in ('rstudio', 'tensor-rstudio'):
+                conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} '''
+                          '''--with-zlib-dir=/usr/local/lib/ --with-ensurepip=install --enable-shared' '''.format(
+                    python_venv_version))
+                conn.sudo(
+                    '''bash -l -c 'echo "export LD_LIBRARY_PATH=/opt/python/python{}/lib" >> /etc/profile' '''.format(
+                        python_venv_version))
+            else:
+                conn.sudo(
+                    '''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} '''
+                    '''--with-zlib-dir=/usr/local/lib/ --with-ensurepip=install' '''.format(
+                        python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
-            conn.sudo(
-                '''bash -l -c 'echo "export LD_LIBRARY_PATH=/opt/python/python{}/lib" >> /etc/profile' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'virtualenv /opt/python/python{0}' '''.format(python_venv_version))
             venv_command = 'source /opt/python/python{}/bin/activate'.format(python_venv_version)
             pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
