@@ -66,7 +66,7 @@ public class ChangePropertiesService {
         }
     }
 
-    public void restart(RestartForm restartForm) {
+    public RestartAnswer restart(RestartForm restartForm) {
         try {
             boolean billing = restartForm.isBilling();
             boolean provserv = restartForm.isProvserv();
@@ -75,8 +75,18 @@ public class ChangePropertiesService {
             log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
             Runtime.getRuntime().exec(shCommand).waitFor();
+            return RestartAnswer.builder()
+                    .billingSuccess(billing)
+                    .provservSuccess(provserv)
+                    .endpoint(restartForm.getEndpoint())
+                    .build();
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage());
+            return RestartAnswer.builder()
+                    .billingSuccess(false)
+                    .provservSuccess(false)
+                    .endpoint(restartForm.getEndpoint())
+                    .build();
         }
     }
 

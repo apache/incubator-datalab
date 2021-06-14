@@ -85,12 +85,12 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
     }
 
 
-    public void restartForExternal(RestartForm restartForm, UserInfo userInfo, String url) {
+    public RestartAnswer restartForExternal(RestartForm restartForm, UserInfo userInfo, String url) {
         if (restartForm.getEndpoint().equals(LOCAL_ENDPOINT_NAME)) {
-            changePropertiesService.restart(restartForm);
+            return changePropertiesService.restart(restartForm);
         } else {
             log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());
-            provService.post(url, userInfo.getAccessToken(), restartForm, Void.class);
+            return provService.post(url, userInfo.getAccessToken(), restartForm, RestartAnswer.class);
         }
     }
 

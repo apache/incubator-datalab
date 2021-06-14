@@ -85,7 +85,7 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     @POST
     @Path("/restart")
     public Response restart(@Auth UserInfo userInfo, RestartForm restartForm) {
-        changePropertiesService.restart(restartForm);
-        return Response.ok().build();
+        return Response.ok(changePropertiesService.restart(restartForm))
+                .build();
     }
 }
