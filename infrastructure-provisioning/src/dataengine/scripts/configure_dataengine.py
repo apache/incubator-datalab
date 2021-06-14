@@ -213,7 +213,7 @@ if __name__ == "__main__":
         conn.sudo('mv /tmp/incubator-livy /opt/livy')
         conn.sudo('mkdir /var/log/livy')
         conn.put('/root/templates/livy-env.sh', '/tmp/livy-env.sh')
-        conn.sudo("sed -i 's|python3|{}|' /tmp/livy-env.sh".format(python_venv_path))
+        conn.sudo("sed -i 's|=python3|={}|' /tmp/livy-env.sh".format(python_venv_path))
         conn.sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
         conn.sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
         conn.sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))
