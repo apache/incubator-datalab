@@ -59,9 +59,9 @@ public class GcpComputationalResource extends UserComputationalResource {
     private final String masterGPUType;
     @JsonProperty("master_gpu_count")
     private final String masterGPUCount;
-    @JsonProperty("masterGPUType")
+    @JsonProperty("slave_gpu_type")
     private final String slaveGPUType;
-    @JsonProperty("masterGPUCount")
+    @JsonProperty("slave_gpu_count")
     private final String slaveGPUCount;
     private final Boolean enabledGPU;
 
@@ -88,8 +88,10 @@ public class GcpComputationalResource extends UserComputationalResource {
         this.slaveGPUType = slaveGPUType;
         this.slaveGPUCount = slaveGPUCount;
         this.enabledGPU = enabledGPU;
-        super.setGpuCount(this.masterGPUCount);
-        super.setGpuType(this.masterGPUType);
+        super.setMasterGpuCount(this.masterGPUCount);
+        super.setMasterGpuType(this.masterGPUType);
+        super.setSlaveGpuCount(this.slaveGPUCount);
+        super.setSlaveGpuType(this.slaveGPUType);
         super.setEnabledGPU(enabledGPU);
     }
 }

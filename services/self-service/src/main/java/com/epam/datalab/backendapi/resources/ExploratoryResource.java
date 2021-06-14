@@ -35,14 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -172,6 +165,8 @@ public class ExploratoryResource implements ExploratoryAPI {
                 .exploratoryTag(formDTO.getExploratoryTag())
                 .gpuType(formDTO.getGpuType())
                 .gpuCount(formDTO.getGpuCount())
+                .slaveGpuCount(formDTO.getSlaveGpuCount())
+                .slaveGpuType(formDTO.getSlaveGpuType())
                 .enabledGPU(formDTO.getEnabledGPU())
                 .build();
     }

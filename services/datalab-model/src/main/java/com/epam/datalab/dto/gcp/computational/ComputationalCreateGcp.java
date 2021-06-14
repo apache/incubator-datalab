@@ -38,13 +38,13 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     private String version;
     @JsonProperty("conf_shared_image_enabled")
     private String sharedImageEnabled;
-    @JsonProperty("masterGPUType")
+    @JsonProperty("master_gpu_type")
     private String masterGPUType;
-    @JsonProperty("slaveGPUType")
+    @JsonProperty("slave_gpu_type")
     private String slaveGPUType;
-    @JsonProperty("masterGPUCount")
+    @JsonProperty("master_gpu_count")
     private String masterGPUCount;
-    @JsonProperty("slaveGPUCount")
+    @JsonProperty("slave_gpu_count")
     private String slaveGPUCount;
 
 

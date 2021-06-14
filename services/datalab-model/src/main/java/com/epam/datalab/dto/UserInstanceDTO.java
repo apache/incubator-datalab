@@ -28,11 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Stores info about the user notebook.
@@ -88,10 +84,14 @@ public class UserInstanceDTO {
     private Map<String, String> tags;
     @JsonProperty("gpu_enabled")
     private boolean enabledGPU = false;
-    @JsonProperty("gpuType")
+    @JsonProperty("gpu_type")
     private String gpuType;
-    @JsonProperty("gpuCount")
+    @JsonProperty("gpu_count")
     private String gpuCount;
+    @JsonProperty("slave_gpu_type")
+    private String slaveGpuType;
+    @JsonProperty("slave_gpu_count")
+    private String slaveGpuCount;
 
     /**
      * Sets the user login name.
@@ -210,6 +210,16 @@ public class UserInstanceDTO {
 
     public UserInstanceDTO withGPUCount(String gpuCount) {
         setGpuCount(gpuCount);
+        return this;
+    }
+
+    public UserInstanceDTO withSlaveGPUType(String slaveGpuType) {
+        setSlaveGpuType(slaveGpuType);
+        return this;
+    }
+
+    public UserInstanceDTO withSlaveGPUCount(String slaveGpuType) {
+        setSlaveGpuCount(slaveGpuType);
         return this;
     }
 }

@@ -61,10 +61,14 @@ public class ExploratoryCreateFormDTO {
     private List<ClusterConfig> clusterConfig;
     @JsonProperty("gpu_enabled")
     private Boolean enabledGPU;
-    @JsonProperty("gpuType")
+    @JsonProperty("gpu_type")
     private String gpuType;
-    @JsonProperty("gpuCount")
+    @JsonProperty("gpu_count")
     private String gpuCount;
+    @JsonProperty("slave_gpu_type")
+    private String slaveGpuType;
+    @JsonProperty("slave_gpu_count")
+    private String slaveGpuCount;
 
     @Override
     public String toString() {
