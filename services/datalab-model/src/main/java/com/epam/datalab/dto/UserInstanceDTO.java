@@ -84,9 +84,9 @@ public class UserInstanceDTO {
     private Map<String, String> tags;
     @JsonProperty("gpu_enabled")
     private boolean enabledGPU = false;
-    @JsonProperty("gpuType")
+    @JsonProperty("gpu_type")
     private String gpuType;
-    @JsonProperty("gpuCount")
+    @JsonProperty("gpu_count")
     private String gpuCount;
     @JsonProperty("slave_gpu_type")
     private String slaveGpuType;

@@ -59,9 +59,9 @@ public class GcpComputationalResource extends UserComputationalResource {
     private final String masterGPUType;
     @JsonProperty("master_gpu_count")
     private final String masterGPUCount;
-    @JsonProperty("masterGPUType")
+    @JsonProperty("slave_gpu_type")
     private final String slaveGPUType;
-    @JsonProperty("masterGPUCount")
+    @JsonProperty("slave_gpu_count")
     private final String slaveGPUCount;
     private final Boolean enabledGPU;
 
