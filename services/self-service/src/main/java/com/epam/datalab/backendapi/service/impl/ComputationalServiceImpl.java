@@ -47,6 +47,7 @@ import com.epam.datalab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -174,6 +175,7 @@ public class ComputationalServiceImpl implements ComputationalService {
             final DataEngineType dataEngineType = compResource.getDataEngineType();
             EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
             ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(resourceCreator, userInstanceDTO, compResource, endpointDTO);
+            log.info("!!!TEST LOG!!!: terminate dto: {}", dto);
 
             final String provisioningUrl = Optional.ofNullable(DATA_ENGINE_TYPE_TERMINATE_URLS.get(dataEngineType))
                     .orElseThrow(UnsupportedOperationException::new);
@@ -346,7 +348,9 @@ public class ComputationalServiceImpl implements ComputationalService {
                 .withComputationalName(computationalName)
                 .withStatus(status);
 
-        computationalDAO.updateComputationalStatus(computationalStatus);
+        UpdateResult updateResult = computationalDAO.updateComputationalStatus(computationalStatus);
+        log.info("!!!TEST LOG!!!: after update: {}", updateResult);
+
     }
 
     private SparkStandaloneClusterResource createInitialComputationalResource(SparkStandaloneClusterCreateForm form) {
