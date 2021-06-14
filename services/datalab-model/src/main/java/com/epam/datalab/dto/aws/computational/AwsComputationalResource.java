@@ -42,19 +42,19 @@ import java.util.Map;
 public class AwsComputationalResource extends UserComputationalResource {
 
 	@JsonProperty("instance_id")
-	private String instanceId;
+	private final String instanceId;
 	@JsonProperty("master_node_shape")
-	private String masterShape;
+	private final String masterShape;
 	@JsonProperty("slave_node_shape")
-	private String slaveShape;
+	private final String slaveShape;
 	@JsonProperty("slave_node_spot")
-	private Boolean slaveSpot;
+	private final Boolean slaveSpot;
 	@JsonProperty("slave_node_spot_pct_price")
-	private Integer slaveSpotPctPrice;
+	private final Integer slaveSpotPctPrice;
 	@JsonProperty("total_instance_number")
-	private String slaveNumber;
+	private final String slaveNumber;
 	@JsonProperty("emr_version")
-	private String version;
+	private final String version;
 
 	@Builder
 	public AwsComputationalResource(String computationalName, String computationalId, String imageName,

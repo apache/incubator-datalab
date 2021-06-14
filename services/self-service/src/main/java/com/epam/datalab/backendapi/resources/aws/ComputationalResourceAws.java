@@ -85,7 +85,6 @@ public class ComputationalResourceAws implements ComputationalAPI {
     @Path("dataengine-service")
     public Response createDataEngineService(@Auth @Parameter(hidden = true) UserInfo userInfo,
                                             @Parameter @Valid @NotNull AwsComputationalCreateForm form) {
-
         log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
         if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
