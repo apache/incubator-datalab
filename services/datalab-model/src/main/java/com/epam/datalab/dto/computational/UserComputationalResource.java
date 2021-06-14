@@ -74,10 +74,14 @@ public class UserComputationalResource {
     private int totalInstanceCount;
     protected List<ClusterConfig> config;
     private Map<String, String> tags;
-    @JsonProperty("masterGPUType")
-    private String gpuType;
-    @JsonProperty("masterGPUCount")
-    private String gpuCount;
+    @JsonProperty("master_gpu_type")
+    private String masterGpuType;
+    @JsonProperty("master_gpu_count")
+    private String masterGpuCount;
+    @JsonProperty("slave_gpu_type")
+    private String slaveGpuType;
+    @JsonProperty("slave_gpu_count")
+    private String slaveGpuCount;
     private boolean enabledGPU;
 
     public UserComputationalResource(String computationalName, String computationalId, String imageName,

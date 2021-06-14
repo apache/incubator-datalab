@@ -41,4 +41,6 @@ public class Exploratory {
     private Boolean enabledGPU;
     private String gpuType;
     private String gpuCount;
+    private String slaveGpuType;
+    private String slaveGpuCount;
 }
