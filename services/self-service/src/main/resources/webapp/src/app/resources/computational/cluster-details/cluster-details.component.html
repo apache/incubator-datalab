@@ -101,25 +101,25 @@
             <div class="col">
               <p>Master GPU type:</p>
             </div>
-            <div class="col"><span>{{resource.masterGPUType}}</span></div>
+            <div class="col"><span>{{resource.master_gpu_type}}</span></div>
           </div>
           <div class="row-wrap">
             <div class="col">
               <p>Slave GPU type:</p>
             </div>
-            <div class="col"><span>{{resource.slaveGPUType}}</span></div>
+            <div class="col"><span>{{resource.slave_gpu_type}}</span></div>
           </div>
           <div class="row-wrap">
             <div class="col">
               <p>Master GPU count:</p>
             </div>
-            <div class="col"><span>{{resource.masterGPUCount}}</span></div>
+            <div class="col"><span>{{resource.master_gpu_count}}</span></div>
           </div>
           <div class="row-wrap">
             <div class="col">
               <p>Slave GPU count:</p>
             </div>
-            <div class="col"><span>{{resource.slaveGPUCount}}</span></div>
+            <div class="col"><span>{{resource.slave_gpu_count}}</span></div>
           </div>
         </ng-template>
         <div *ngIf="resource.status === 'running'">
