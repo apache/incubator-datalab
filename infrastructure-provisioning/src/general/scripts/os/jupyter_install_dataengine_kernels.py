@@ -80,8 +80,8 @@ def install_sparkamagic_kernels(args):
         datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
         datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
         datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
-        pyspark_kernel_name = 'PySpark (Python-3.8 / Spark-{0} ) [{1}]'.format(args.spark_version,
-                                                                         args.cluster_name)
+        pyspark_kernel_name = 'PySpark (Python-{2} / Spark-{0} ) [{1}]'.format(args.spark_version,
+                                                                         args.cluster_name, os.environ['notebook_python_venv_version'][:3])
         datalab.fab.conn.sudo('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user))
         scala_version = datalab.fab.conn.sudo('''bash -l -c 'spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"' ''').stdout.rstrip("\n\r")
