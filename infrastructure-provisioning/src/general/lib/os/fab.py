@@ -134,8 +134,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             res = conn.sudo('''bash -l -c 'cat /tmp/{0}install_{1}.list' '''.format(pip_version, name)).stdout.replace(
                 '\n', '')
             conn.sudo(
-                '''bash -l -c 'cat /tmp/tee.tmp | if ! grep "Successfully installed" > /tmp/{0}install_{1}.list; then  '''
-                '''echo "not_installed" > /tmp/{0}install_{1}.list;fi' '''.format(
+                '''bash -l -c 'cat /tmp/tee.tmp | if ! grep -w -i -E "(Successfully installed|up-to-date)" > '''
+                '''/tmp/{0}install_{1}.list; then  echo "not_installed" > /tmp/{0}install_{1}.list;fi' '''.format(
                     pip_version, name))
             installed_out = conn.sudo(
                 '''bash -l -c 'cat /tmp/{0}install_{1}.list' '''.format(pip_version, name)).stdout.replace('\n', '')
