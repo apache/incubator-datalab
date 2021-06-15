@@ -105,7 +105,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public setEndpoints(project) {
-    const controls = ['endpoint', 'version', 'shape', 'gpuType', 'gpuCount'];
+    const controls = ['endpoint', 'version', 'shape', 'gpu_type', 'gpu_count'];
     this.resetSelections(controls);
     
     this.endpoints = project.endpoints
@@ -152,11 +152,11 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   public getShapes(template) {
     this.selectedImage = null;
-    const controls = ['notebook_image_name', 'shape', 'gpuType', 'gpuCount'];
+    const controls = ['notebook_image_name', 'shape', 'gpu_type', 'gpu_count'];
 
     controls.forEach(control => {
       this.createExploratoryForm.controls[control].setValue(null);
-      if (control === 'gpuType' || control === 'gpuCount') {
+      if (control === 'gpu_type' || control === 'gpu_count') {
         this.createExploratoryForm.controls[control].clearValidators();
         this.createExploratoryForm.controls[control].updateValueAndValidity();
       }
@@ -208,7 +208,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     };
 
     data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null;
-    
+
     this.userResourceService.createExploratoryEnvironment({ ...parameters, ...data }).subscribe((response: any) => {
       if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
@@ -236,7 +236,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     this.additionalParams.gpu = !this.additionalParams.gpu;
     this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
 
-    const controls = ['gpuType', 'gpuCount'];
+    const controls = ['gpu_type', 'gpu_count'];
     if (!this.additionalParams.gpu) {
       controls.forEach(control => {
         this.createExploratoryForm.controls[control].setValue(null);
@@ -256,7 +256,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public setInstanceSize() {
-    const controls = ['gpuType', 'gpuCount'];
+    const controls = ['gpu_type', 'gpu_count'];
     controls.forEach(control => {
       this.createExploratoryForm.controls[control].setValue(null);
     });
@@ -266,8 +266,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     if (gpuType && this.currentTemplate.image === 'docker.datalab-deeplearning') {
       this.additionalParams.gpu = true;
       this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
-      this.createExploratoryForm.controls['gpuCount'].setValidators([Validators.required]);
-      this.createExploratoryForm.controls['gpuCount'].updateValueAndValidity();
+      this.createExploratoryForm.controls['gpu_count'].setValidators([Validators.required]);
+      this.createExploratoryForm.controls['gpu_count'].updateValueAndValidity();
     }
     // if (type === 'master') {
       const masterShape = this.createExploratoryForm.controls['shape'].value;
@@ -293,8 +293,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
       custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]],
-      gpuType: [null],
-      gpuCount: [null],
+      gpu_type: [null],
+      gpu_count: [null],
       gpu_enabled: [false]
     });
   }

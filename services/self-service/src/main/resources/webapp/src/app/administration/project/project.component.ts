@@ -26,7 +26,7 @@ import { ProjectDataService } from './project-data.service';
 import {HealthStatusService, ProjectService, UserResourceService} from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 import { ProjectListComponent } from './project-list/project-list.component';
-import {ExploratoryModel} from '../../resources/resources-grid/resources-grid.model';
+import { EnvironmentsDataService } from '../management/management-data.service';
 
 export interface Endpoint {
   name: string;
@@ -67,7 +67,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
     private healthStatusService: HealthStatusService,
-    private userResourceService: UserResourceService
+    private environmentsDataService: EnvironmentsDataService
   ) { }
 
   ngOnInit() {
@@ -85,10 +85,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private getResources() {
-    this.userResourceService.getUserProvisionedResources()
-      .subscribe((result: any) => {
-        this.resources = ExploratoryModel.loadEnvironments(result);
-      });
+    this.environmentsDataService.getEnvironmentDataDirect().subscribe((data: any) => {
+      this.resources = data;
+    });
   }
 
   refreshGrid() {
@@ -125,13 +124,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   private toggleStatusRequest(data, action, isOnlyOneEdge?) {
     if ( action === 'terminate') {
-      const projectsResources = this.resources.filter(resource => resource.project === data.project_name);
-      const activeProjectsResources = projectsResources.length ? projectsResources[0].exploratory
+      const projectsResources = this.resources
+        .filter(resource => resource.project === data.project_name && resource.resource_type !== "edge node");
+
+      const activeProjectsResources = projectsResources?.length ? projectsResources
         .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
+        
       const termResources = data.endpoint.reduce((res, endp) => {
         res.push(...activeProjectsResources.filter(resource => resource.endpoint === endp));
         return res;
-        }, []).map(resource => resource.name);
+      }, []).map(resource => resource.resource_name);
 
       if (termResources.length === 0 && !isOnlyOneEdge) {
         this.edgeNodeAction(data, action);

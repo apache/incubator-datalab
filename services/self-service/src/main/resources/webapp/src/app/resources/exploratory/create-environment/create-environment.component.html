@@ -223,7 +223,7 @@
                 <span class="form-field-wrapper" [ngClass]="{ 'not-active': !createExploratoryForm.controls['shape'].value}">
                 <mat-form-field>
                   <mat-label>Select GPU type</mat-label>
-                  <mat-select formControlName="gpuType" disableOptionCentering [disabled]="!createExploratoryForm.controls['shape'].value"
+                  <mat-select formControlName="gpu_type" disableOptionCentering [disabled]="!createExploratoryForm.controls['shape'].value"
                               panelClass="create-resources-dialog" placeholder="GPU type">
                       <mat-option *ngFor="let list_item of gpuTypes" [value]="list_item" (click)="setCount('', list_item)">
                         {{ list_item}}
@@ -245,12 +245,12 @@
                        [matTooltip]="'Please, select GPU type.'"
                        matTooltipPosition="above"
                        [matTooltipClass]="'full-size-tooltip'"
-                       [matTooltipDisabled]="!!createExploratoryForm.controls['gpuType'].value"
+                       [matTooltipDisabled]="!!createExploratoryForm.controls['gpu_type'].value"
                   >
-                <span class="form-field-wrapper" [ngClass]="{ 'not-active': !createExploratoryForm.controls['gpuType'].value}">
+                <span class="form-field-wrapper" [ngClass]="{ 'not-active': !createExploratoryForm.controls['gpu_type'].value}">
                 <mat-form-field>
                   <mat-label>Select GPU count</mat-label>
-                  <mat-select formControlName="gpuCount" disableOptionCentering [disabled]="!createExploratoryForm.controls['gpuType'].value"
+                  <mat-select formControlName="gpu_count" disableOptionCentering [disabled]="!createExploratoryForm.controls['gpu_type'].value"
                               panelClass="create-resources-dialog" placeholder="GPU count">
                       <mat-option *ngFor="let list_item of gpuCount" [value]="list_item">
                         {{ list_item }}
