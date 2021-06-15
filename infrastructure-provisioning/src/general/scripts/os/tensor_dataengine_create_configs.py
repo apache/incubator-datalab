@@ -101,8 +101,8 @@ def install_sparkamagic_kernels(args):
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
         subprocess.run('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir), shell=True, check=True)
 
-        pyspark_kernel_name = 'PySpark (Python-3.8 / Spark-{0} ) [{1}]'.format(args.spark_version,
-                                                                         args.cluster_name)
+        pyspark_kernel_name = 'PySpark (Python-{2} / Spark-{0} ) [{1}]'.format(args.spark_version,
+                                                                         args.cluster_name, os.environ['notebook_python_venv_version'][:3])
         subprocess.run('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user), shell=True, check=True)
         scala_version = subprocess.run('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
