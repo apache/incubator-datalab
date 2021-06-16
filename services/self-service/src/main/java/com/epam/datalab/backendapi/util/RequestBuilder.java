@@ -391,17 +391,17 @@ public class RequestBuilder {
         switch (cloudProvider) {
             case AWS:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateAws.class)
-                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-                        .withDataEngineMasterShape(form.getDataEngineInstanceShape())
-                        .withDataEngineSlaveShape(form.getDataEngineInstanceShape())
+                        .withDataEngineInstanceCount(form.getMasterDataEngineInstanceCount())
+                        .withDataEngineMasterShape(form.getMasterDataEngineInstanceShape())
+                        .withDataEngineSlaveShape(form.getMasterDataEngineInstanceShape())
                         .withConfig(form.getConfig())
                         .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
                 break;
             case AZURE:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateAzure.class)
-                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-                        .withDataEngineMasterSize(form.getDataEngineInstanceShape())
-                        .withDataEngineSlaveSize(form.getDataEngineInstanceShape())
+                        .withDataEngineInstanceCount(form.getMasterDataEngineInstanceCount())
+                        .withDataEngineMasterSize(form.getMasterDataEngineInstanceShape())
+                        .withDataEngineSlaveSize(form.getMasterDataEngineInstanceShape())
                         .withConfig(form.getConfig())
                         .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
                 if (settingsDAO.isAzureDataLakeEnabled()) {
@@ -415,9 +415,14 @@ public class RequestBuilder {
                 break;
             case GCP:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateGcp.class)
-                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-                        .withDataEngineMasterSize(form.getDataEngineInstanceShape())
-                        .withDataEngineSlaveSize(form.getDataEngineInstanceShape())
+                        .withDataEngineInstanceCount(form.getMasterDataEngineInstanceCount())
+                        .withSlaveDataEngineInstanceCount(form.getSlaveDataEngineInstanceCount())
+                        .withDataEngineMasterSize(form.getMasterDataEngineInstanceShape())
+                        .withDataEngineSlaveSize(form.getMasterDataEngineInstanceShape())
+                        .withMasterGPUCount(form.getMasterGpuCount())
+                        .withMasterGPUType(form.getMasterGpuType())
+                        .withSlaveGPUCount(form.getSlaveGpuCount())
+                        .withSlaveGPUType(form.getSlaveGpuType())
                         .withConfig(form.getConfig())
                         .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
                 break;
