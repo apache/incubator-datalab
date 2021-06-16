@@ -359,8 +359,15 @@ public class ComputationalServiceImpl implements ComputationalService {
                 .imageName(form.getImage())
                 .templateName(form.getTemplateName())
                 .status(CREATING.toString())
-                .dataEngineInstanceCount(form.getDataEngineInstanceCount())
-                .dataEngineInstanceShape(form.getDataEngineInstanceShape())
+                .masterDataEngineInstanceCount(form.getMasterDataEngineInstanceCount())
+                .masterDataEngineInstanceShape(form.getMasterDataEngineInstanceShape())
+                .slaveDataEngineInstanceCount(form.getSlaveDataEngineInstanceCount())
+                .slaveDataEngineInstanceShape(form.getSlaveDtaEngineInstanceShape())
+                .enabledGPU(form.getEnabledGPU())
+                .masterGpuCount(form.getMasterGpuCount())
+                .masterGpuType(form.getMasterGpuType())
+                .slaveGpuCount(form.getSlaveGpuCount())
+                .slaveGpuType(form.getSlaveGpuType())
                 .config(form.getConfig())
                 .build();
     }

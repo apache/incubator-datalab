@@ -39,24 +39,45 @@ import java.util.Map;
 @ToString(callSuper = true)
 public class SparkStandaloneClusterResource extends UserComputationalResource {
     @NotBlank
-    @JsonProperty("dataengine_instance_count")
-    private String dataEngineInstanceCount;
+    @JsonProperty("master_instance_count")
+    private String masterDataEngineInstanceCount;
 
     @NotBlank
-    @JsonProperty("dataengine_instance_shape")
-    private String dataEngineInstanceShape;
+    @JsonProperty("master_instance_shape")
+    private String masterDataEngineInstanceShape;
+
+    @NotBlank
+    @JsonProperty("slave_instance_count")
+    private String slaveDataEngineInstanceCount;
+
+    @NotBlank
+    @JsonProperty("slave_instance_shape")
+    private String slaveDtaEngineInstanceShape;
 
     @Builder
     public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
                                           String templateName, String status, Date uptime,
                                           SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
-                                          String dataEngineInstanceCount, String dataEngineInstanceShape,
+                                          String masterDataEngineInstanceCount, String masterDataEngineInstanceShape,
+                                          String slaveDataEngineInstanceCount, String slaveDataEngineInstanceShape,
+                                          String masterGpuCount, String masterGpuType,
+                                          String slaveGpuCount, String slaveGpuType,
+                                          Boolean enabledGPU,
                                           List<ResourceURL> resourceURL, LocalDateTime lastActivity,
                                           List<ClusterConfig> config, Map<String, String> tags, int totalInstanceCount) {
         super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
                 reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
-        this.dataEngineInstanceCount = dataEngineInstanceCount;
-        this.dataEngineInstanceShape = dataEngineInstanceShape;
+        super.setMasterGpuCount(masterGpuCount);
+        super.setMasterGpuType(masterGpuType);
+        super.setSlaveGpuCount(slaveGpuCount);
+        super.setSlaveGpuType(slaveGpuType);
+        super.setEnabledGPU(enabledGPU);
+
+        this.masterDataEngineInstanceCount = masterDataEngineInstanceCount;
+        this.masterDataEngineInstanceShape = masterDataEngineInstanceShape;
+        this.slaveDataEngineInstanceCount = slaveDataEngineInstanceCount;
+        this.slaveDtaEngineInstanceShape = slaveDataEngineInstanceShape;
+
         this.config = config;
     }
 }

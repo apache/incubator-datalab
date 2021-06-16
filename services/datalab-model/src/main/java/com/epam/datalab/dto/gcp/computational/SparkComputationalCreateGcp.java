@@ -22,36 +22,75 @@ package com.epam.datalab.dto.gcp.computational;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
+import lombok.ToString;
 
 import java.util.List;
 
 
+@ToString
 public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputationalCreateGcp> {
 
-    @JsonProperty("dataengine_instance_count")
-    private String dataEngineInstanceCount;
-    @JsonProperty("gcp_dataengine_slave_size")
-    private String dataEngineSlaveSize;
+    @JsonProperty("dataengine_master_instance_count")
+    private String masterDataEngineInstanceCount;
     @JsonProperty("gcp_dataengine_master_size")
-    private String dataEngineMasterSize;
+    private String masterDataEngineInstanceShape;
+    @JsonProperty("dataengine_slave_instance_count")
+    private String slaveDataEngineInstanceCount;
+    @JsonProperty("gcp_dataengine_slave_size")
+    private String slaveDtaEngineInstanceShape;
+
+    @JsonProperty("master_gpu_type")
+    private String masterGPUType;
+    @JsonProperty("slave_gpu_type")
+    private String slaveGPUType;
+    @JsonProperty("master_gpu_count")
+    private String masterGPUCount;
+    @JsonProperty("slave_gpu_count")
+    private String slaveGPUCount;
+
+
     @JsonProperty("spark_configurations")
     private List<ClusterConfig> config;
     @JsonProperty("conf_shared_image_enabled")
     private String sharedImageEnabled;
 
     public SparkComputationalCreateGcp withDataEngineInstanceCount(String dataEngineInstanceCount) {
-        this.dataEngineInstanceCount = dataEngineInstanceCount;
+        this.masterDataEngineInstanceCount = dataEngineInstanceCount;
         return this;
     }
 
     public SparkComputationalCreateGcp withDataEngineSlaveSize(String dataEngineSlaveSize) {
-        this.dataEngineSlaveSize = dataEngineSlaveSize;
+        this.slaveDtaEngineInstanceShape = dataEngineSlaveSize;
         return this;
     }
 
     public SparkComputationalCreateGcp withDataEngineMasterSize(String dataEngineMasterSize) {
-        this.dataEngineMasterSize = dataEngineMasterSize;
+        this.masterDataEngineInstanceShape = dataEngineMasterSize;
+        return this;
+    }
+
+    public SparkComputationalCreateGcp withSlaveDataEngineInstanceCount(String slaveDataEngineInstanceCount) {
+        this.slaveDataEngineInstanceCount = slaveDataEngineInstanceCount;
+        return this;
+    }
+
+    public SparkComputationalCreateGcp withMasterGPUType(String masterGPUType) {
+        this.masterGPUType = masterGPUType;
+        return this;
+    }
+
+    public SparkComputationalCreateGcp withSlaveGPUType(String slaveGPUType) {
+        this.slaveGPUType = slaveGPUType;
+        return this;
+    }
+
+    public SparkComputationalCreateGcp withMasterGPUCount(String masterGPUCount) {
+        this.masterGPUCount = masterGPUCount;
+        return this;
+    }
+
+    public SparkComputationalCreateGcp withSlaveGPUCount(String slaveGPUCount) {
+        this.slaveGPUCount = slaveGPUCount;
         return this;
     }
 
@@ -63,19 +102,5 @@ public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputat
     public SparkComputationalCreateGcp withSharedImageEnabled(String sharedImageEnabled) {
         this.sharedImageEnabled = sharedImageEnabled;
         return this;
-    }
-
-
-    @Override
-    public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return super.toStringHelper(self)
-                .add("dataEngineInstanceCount", dataEngineInstanceCount)
-                .add("dataEngineSlaveSize", dataEngineSlaveSize)
-                .add("dataEngineMasterSize", dataEngineMasterSize);
-    }
-
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
     }
 }
