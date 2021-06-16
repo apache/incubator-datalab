@@ -65,10 +65,6 @@ public class ExploratoryCreateFormDTO {
     private String gpuType;
     @JsonProperty("gpu_count")
     private String gpuCount;
-    @JsonProperty("slave_gpu_type")
-    private String slaveGpuType;
-    @JsonProperty("slave_gpu_count")
-    private String slaveGpuCount;
 
     @Override
     public String toString() {

@@ -407,9 +407,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
                         exploratory.getExploratoryTag(), exploratory.getEnabledGPU()))
                 .withGPUCount(exploratory.getGpuCount())
                 .withGPUEnabled(exploratory.getEnabledGPU())
-                .withGPUType(exploratory.getGpuType())
-                .withSlaveGPUCount(exploratory.getSlaveGpuCount())
-                .withSlaveGPUType(exploratory.getSlaveGpuType());
+                .withGPUType(exploratory.getGpuType());
         if (StringUtils.isNotBlank(exploratory.getImageName())) {
             final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory.getImageName(),
                     project, exploratory.getEndpoint());

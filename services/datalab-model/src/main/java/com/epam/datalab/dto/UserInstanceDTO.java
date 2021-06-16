@@ -88,10 +88,7 @@ public class UserInstanceDTO {
     private String gpuType;
     @JsonProperty("gpu_count")
     private String gpuCount;
-    @JsonProperty("slave_gpu_type")
-    private String slaveGpuType;
-    @JsonProperty("slave_gpu_count")
-    private String slaveGpuCount;
+
 
     /**
      * Sets the user login name.
@@ -210,16 +207,6 @@ public class UserInstanceDTO {
 
     public UserInstanceDTO withGPUCount(String gpuCount) {
         setGpuCount(gpuCount);
-        return this;
-    }
-
-    public UserInstanceDTO withSlaveGPUType(String slaveGpuType) {
-        setSlaveGpuType(slaveGpuType);
-        return this;
-    }
-
-    public UserInstanceDTO withSlaveGPUCount(String slaveGpuType) {
-        setSlaveGpuCount(slaveGpuType);
         return this;
     }
 }

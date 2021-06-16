@@ -165,8 +165,6 @@ public class ExploratoryResource implements ExploratoryAPI {
                 .exploratoryTag(formDTO.getExploratoryTag())
                 .gpuType(formDTO.getGpuType())
                 .gpuCount(formDTO.getGpuCount())
-                .slaveGpuCount(formDTO.getSlaveGpuCount())
-                .slaveGpuType(formDTO.getSlaveGpuType())
                 .enabledGPU(formDTO.getEnabledGPU())
                 .build();
     }
