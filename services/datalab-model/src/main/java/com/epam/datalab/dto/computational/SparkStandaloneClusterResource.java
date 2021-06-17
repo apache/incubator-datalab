@@ -52,7 +52,7 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
 
     @NotBlank
     @JsonProperty("slave_instance_shape")
-    private String slaveDtaEngineInstanceShape;
+    private String slaveDataEngineInstanceShape;
 
     @Builder
     public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
@@ -72,11 +72,13 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
         super.setSlaveGpuCount(slaveGpuCount);
         super.setSlaveGpuType(slaveGpuType);
         super.setEnabledGPU(enabledGPU);
+        super.setMasterNodeShape(masterDataEngineInstanceShape);
+        super.setSlaveNodeShape(slaveDataEngineInstanceShape);
 
         this.masterDataEngineInstanceCount = masterDataEngineInstanceCount;
         this.masterDataEngineInstanceShape = masterDataEngineInstanceShape;
         this.slaveDataEngineInstanceCount = slaveDataEngineInstanceCount;
-        this.slaveDtaEngineInstanceShape = slaveDataEngineInstanceShape;
+        this.slaveDataEngineInstanceShape = slaveDataEngineInstanceShape;
 
         this.config = config;
     }

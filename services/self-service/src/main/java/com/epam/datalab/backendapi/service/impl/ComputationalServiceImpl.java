@@ -369,6 +369,8 @@ public class ComputationalServiceImpl implements ComputationalService {
                 .slaveGpuCount(form.getSlaveGpuCount())
                 .slaveGpuType(form.getSlaveGpuType())
                 .config(form.getConfig())
+                .totalInstanceCount(Integer.parseInt(form.getSlaveDataEngineInstanceCount())
+                        + Integer.parseInt(form.getMasterDataEngineInstanceCount()))
                 .build();
     }
 
