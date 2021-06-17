@@ -34,6 +34,7 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--libs', type=str, default='')
+parser.add_argument('--dataengine_service', type=bool, default=False)
 args = parser.parse_args()
 
 
@@ -78,14 +79,14 @@ if __name__ == "__main__":
 
     try:
         print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
-        status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
+        status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2', args.dataengine_service)
         general_status = general_status + status
     except KeyError:
         pass
 
     try:
         print('Installing pip3 packages: {}'.format(pkgs['libraries']['pip3']))
-        status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3')
+        status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3', args.dataengine_service)
         general_status = general_status + status
     except KeyError:
         pass
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     try:
         print('Installing other packages (only tries pip3): {}'.format(pkgs['libraries']['others']))
         for pkg in pkgs['libraries']['others']:
-            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
+            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others', args.dataengine_service)
             general_status = general_status + status_pip3
     except KeyError:
         pass

@@ -99,12 +99,15 @@ def dataengine_dir_prepare(cluster_dir):
     subprocess.run('mkdir -p ' + cluster_dir, shell=True, check=True)
 
 
-def install_pip_pkg(requisites, pip_version, lib_group):
+def install_pip_pkg(requisites, pip_version, lib_group, dataengine_service = False):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires|FileNotFoundError:|RuntimeError:|error:"
     try:
-        venv_install_command = 'source /opt/python/python{0}/bin/activate && /opt/python/python{0}/bin/pip{1}'.format(
-            os.environ['notebook_python_venv_version'], os.environ['notebook_python_venv_version'][:3])
+        if dataengine_service:
+            install_command = pip_version
+        else:
+            install_command = 'source /opt/python/python{0}/bin/activate && /opt/python/python{0}/bin/pip{1}'.format(
+                os.environ['notebook_python_venv_version'], os.environ['notebook_python_venv_version'][:3])
         #if pip_version == 'pip3' and not exists(conn, '/bin/pip3'):
         #    for v in range(4, 8):
         #        if exists(conn, '/bin/pip3.{}'.format(v)):
@@ -124,13 +127,13 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 '''bash -l -c '{0} install -U {1} --use-deprecated=legacy-resolver --no-cache-dir 2>&1 | '''
                 '''tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > /tmp/{4}install_{3}.log; '''
                 '''then  echo "" > /tmp/{4}install_{3}.log;fi' '''.format(
-                    venv_install_command, pip_pkg, error_parser, name, pip_version))
+                    install_command, pip_pkg, error_parser, name, pip_version))
             err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace(
                 '"', "'").replace('\n', ' ')
             conn.sudo(
                 '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}install_{1}.list; '''
                 '''then  echo "not_found" > /tmp/{2}install_{1}.list;fi' '''.format(
-                    venv_install_command, name, pip_version))
+                    install_command, name, pip_version))
             res = conn.sudo('''bash -l -c 'cat /tmp/{0}install_{1}.list' '''.format(pip_version, name)).stdout.replace(
                 '\n', '')
             conn.sudo(
@@ -145,7 +148,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 changed_pip_pkg = changed_pip_pkg[0]
                 conn.sudo(
                     '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}install_{1}.list; then  echo "" > /tmp/{2}install_{1}.list;fi' '''.format(
-                        venv_install_command, changed_pip_pkg, pip_version))
+                        install_command, changed_pip_pkg, pip_version))
                 res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace(
                     '\n', '')
             if err and name not in installed_out:
