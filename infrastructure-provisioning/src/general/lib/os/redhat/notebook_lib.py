@@ -320,7 +320,7 @@ def install_os_pkg(requisites):
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
         manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
-        datalab.fab.conn.sudo('export LC_ALL=C')
+        datalab.fab.conn.run('export LC_ALL=C')
         for os_pkg in requisites:
             name, vers = os_pkg
             if vers != '' and vers !='N/A':

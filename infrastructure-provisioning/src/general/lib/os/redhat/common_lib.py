@@ -82,7 +82,7 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
             manage_pkg('repolist', 'remote', '')
             manage_pkg('-y install', 'remote', 'python3-pip gcc')
             datalab.fab.conn.sudo('rm -f epel-release-latest-7.noarch.rpm')
-            datalab.fab.conn.sudo('export LC_ALL=C')
+            datalab.fab.conn.run('export LC_ALL=C')
             manage_pkg('-y install', 'remote', requisites)
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
     except:
