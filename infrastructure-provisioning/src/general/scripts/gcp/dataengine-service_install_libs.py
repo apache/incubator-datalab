@@ -34,8 +34,8 @@ from fabric import *
 
 
 def install_libs(instance, data_engine):
-    data_engine['instance_ip'] = meta_lib.GCPMeta().get_private_ip_address(instance)
-    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"' \
+    data_engine['instance_ip'] = GCPMeta().get_private_ip_address(instance)
+    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}" --dataengine_service True' \
         .format(data_engine['os_user'], data_engine['instance_ip'],
                 data_engine['keyfile'], data_engine['libs'])
     try:
@@ -65,7 +65,7 @@ if __name__ == "__main__":
             data_engine['gcp_project_id'] = os.environ['gcp_project_id']
             data_engine['gcp_region'] = os.environ['gcp_region']
             data_engine['gcp_zone'] = os.environ['gcp_zone']
-            res = meta_lib.GCPMeta().get_list_instances(data_engine['gcp_zone'], data_engine['cluster_name'])
+            res = GCPMeta().get_list_instances(data_engine['gcp_zone'], data_engine['cluster_name'])
             data_engine['cluster_instances'] = [i.get('name') for i in res['items']]
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
             data_engine['libs'] = os.environ['libs']
