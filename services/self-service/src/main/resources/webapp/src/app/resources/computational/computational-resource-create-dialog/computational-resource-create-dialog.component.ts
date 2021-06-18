@@ -88,7 +88,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectImage($event) {
     this.selectedImage = $event;
-    this.selectedImage.computationGPU = ['tesla1', 'tesla2', 'tesla3'];
     this.filterShapes();
     this.getComputationalResourceLimits();
 
@@ -267,7 +266,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes =
           SortUtils.shapesSort(cluster.computation_resources_shapes));
         this.selectedImage = this.clusterTypes[0];
-        this.selectedImage.computationGPU = ['tesla1', 'tesla2', 'tesla3'];
         if (this.selectedImage) {
           this._ref.detectChanges();
           this.filterShapes();
