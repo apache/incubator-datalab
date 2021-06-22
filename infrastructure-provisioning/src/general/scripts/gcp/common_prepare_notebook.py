@@ -97,7 +97,7 @@ if __name__ == "__main__":
                                                                        notebook_config['project_name'],
                                                                        notebook_config['endpoint_name'],
                                                                        notebook_config['exploratory_name'])
-        notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '16')(
+        notebook_config['primary_disk_size'] = (lambda x: '50' if x == 'deeplearning' else '16')(
             os.environ['application'])
         notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
 
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         if notebook_config['notebook_secondary_image_name'][:63].endswith('-'):
             notebook_config['notebook_secondary_image_name'] = notebook_config['notebook_secondary_image_name'][:63][:-1]
         notebook_config['secondary_image_name'] = GCPMeta.get_image_by_name(
-            notebook_config['notebook_secondary_image_name'])
+            notebook_config['notebook_secondary_image_name'][:63])
         if notebook_config['secondary_image_name'] == '':
             notebook_config['secondary_image_name'] = 'None'
         else:
