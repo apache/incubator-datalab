@@ -140,7 +140,7 @@ if __name__ == "__main__":
                 notebook_config['primary_image_name'].get('name'))
         notebook_config['notebook_secondary_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-secondary-image-{4}'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
-            os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()[:63]) if (x != 'None' and x != '')
+            os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()) if (x != 'None' and x != '')
             else notebook_config['expected_secondary_image_name'])(str(os.environ.get('notebook_image_name')))
         if notebook_config['notebook_secondary_image_name'][:63].endswith('-'):
             notebook_config['notebook_secondary_image_name'] = notebook_config['notebook_secondary_image_name'][:63][:-1]
