@@ -394,6 +394,23 @@ class GCPMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_deeplearning_image_by_family(self, family_name):
+        try:
+            request = self.service.images().getFromFamily(project='deeplearning-platform-release', family=family_name)
+            try:
+                return request.execute()
+            except errors.HttpError as err:
+                if err.resp.status == 404:
+                    return ''
+                else:
+                    raise err
+        except Exception as err:
+            logging.info("Error with getting image by family: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting image by family",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_disk(self, disk_name):
         try:
             request = self.service.disks().get(project=self.project, zone=os.environ['gcp_zone'], disk=disk_name)

@@ -20,7 +20,7 @@
   "exploratory_environment_images" :
   [
     {"Image family": "common-cu110", "Description": "Google Deep Learning Image: Base, m67 CUDA11.0, A debian-10 Linux based image with CUDA 11.0 preinstalled."},
-    {"Image family": "ccommon-cu100", "Description": "Google Deep Learning Image: Base, m67 CUDA10.0. A debian-10 Linux based image with CUDA 10.0 preinstalled."},
+    {"Image family": "common-cu100", "Description": "Google Deep Learning Image: Base, m67 CUDA10.0. A debian-10 Linux based image with CUDA 10.0 preinstalled."},
     {"Image family": "common-cu92", "Description": "Google Deep Learning Image: Base, m67 CUDA 9.2, A Debian based image with CUDA 9.2 pre-installed."},
     {"Image family": "pytorch-latest-gpu", "Description": "Google Deep Learning Image: PyTorch 1.8, m67 CUDA 110, A debian-10 Linux based image with PyTorch 1.8 pre-installed."},
     {"Image family": "rapids-latest-gpu-experimental", "Description": "Google RAPIDS 0.5.1 with XGBoost, m64, RAPIDS 0.5.1 with XGBoost with CUDA 10.0."},
