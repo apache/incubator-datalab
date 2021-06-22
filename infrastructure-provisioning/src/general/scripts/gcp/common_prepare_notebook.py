@@ -119,19 +119,31 @@ if __name__ == "__main__":
             os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()) if (x != 'None' and x != '')
             else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
-        notebook_config['primary_image_name'] = GCPMeta.get_image_by_name(
-            notebook_config['notebook_primary_image_name'])
+
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            notebook_config['primary_image_name'] = GCPMeta.get_deeplearning_image_by_family(os.environ['notebook_image_name'])
+            if notebook_config['primary_image_name']:
+                deeplearning_ami = 'true'
+        else:
+            notebook_config['primary_image_name'] = GCPMeta.get_image_by_name(notebook_config['notebook_primary_image_name'])
+            deeplearning_ami = 'false'
         if notebook_config['primary_image_name'] == '':
             notebook_config['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         else:
             print('Pre-configured primary image found. Using: {}'.format(
                 notebook_config['primary_image_name'].get('name')))
-            notebook_config['primary_image_name'] = 'global/images/{}'.format(
+            if deeplearning_ami == 'true':
+                notebook_config['primary_image_name'] = 'projects/deeplearning-platform-release/global/images/{}'.format(
+                    notebook_config['primary_image_name'].get('name'))
+            else:
+                notebook_config['primary_image_name'] = 'global/images/{}'.format(
                 notebook_config['primary_image_name'].get('name'))
         notebook_config['notebook_secondary_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-secondary-image-{4}'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
             os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()) if (x != 'None' and x != '')
             else notebook_config['expected_secondary_image_name'])(str(os.environ.get('notebook_image_name')))
+        if notebook_config['notebook_secondary_image_name'][:63].endswith('-'):
+            notebook_config['notebook_secondary_image_name'] = notebook_config['notebook_secondary_image_name'][:63][:-1]
         notebook_config['secondary_image_name'] = GCPMeta.get_image_by_name(
             notebook_config['notebook_secondary_image_name'])
         if notebook_config['secondary_image_name'] == '':

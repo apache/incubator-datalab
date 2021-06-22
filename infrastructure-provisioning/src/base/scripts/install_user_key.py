@@ -66,9 +66,11 @@ if __name__ == "__main__":
     except:
         print('Fail connection')
         sys.exit(2)
-
-    print("Ensuring safest ssh ciphers")
-    ensure_ciphers()
+    try:
+        print("Ensuring safest ssh ciphers")
+        ensure_ciphers()
+    except:
+        print('Faild to install safest ssh ciphers')
 
     print("Installing users key...")
     try:

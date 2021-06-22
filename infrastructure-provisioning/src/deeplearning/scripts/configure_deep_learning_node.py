@@ -90,6 +90,22 @@ def install_itorch(os_user):
         conn.sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
         conn.sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(os_user))
 
+def configure_jupyterlab_at_gcp_image(os_user, exploratory_name):
+    if not exists(conn, '/home/{}/.ensure_dir/jupyterlab_ensured'.format(os_user)):
+        jupyter_conf_file = '/home/jupyter/.jupyter/jupyter_notebook_config.py'
+        conn.sudo('''bash -l -c 'sed -i "s|c.NotebookApp|#c.NotebookApp|g" {}' '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.ip = \\"0.0.0.0\\" ' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.port = 8888' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.base_url = \\"/{0}/\\"' >> {1}" '''.format(exploratory_name,
+                                                                                                jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.open_browser = False' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.allow_remote_access = True' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.cookie_secret = b\\"{0}\\"' >> {1}" '''.format(id_generator(),
+                                                                                                    jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo \\"c.NotebookApp.token = u''\\" >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('systemctl restart jupyter')
+        conn.sudo('touch /home/{}/.ensure_dir/jupyterlab_ensured'.format(os_user))
+
 
 if __name__ == "__main__":
     print("Configure connections")
@@ -105,7 +121,16 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
     print("Mount additional volume")
-    prepare_disk(args.os_user)
+    if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['conf_deeplearning_cloud_ami'] == 'true':
+        print('Additional disk premounted by google image')
+        print('Installing nvidia drivers')
+        try:
+            conn.sudo('/opt/deeplearning/install-driver.sh')
+        except:
+            traceback.print_exc()
+            sys.exit(1)
+    else:
+        prepare_disk(args.os_user)
 
     if os.environ['conf_deeplearning_cloud_ami'] == 'false':
         # INSTALL LANGUAGES
@@ -157,10 +182,13 @@ if __name__ == "__main__":
         ensure_additional_python_libs(args.os_user)
         print("Install Matplotlib")
         ensure_matplot(args.os_user)
-    elif os.environ['conf_deeplearning_cloud_ami'] == 'true':
+    elif os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] != 'gcp':
         # CONFIGURE JUPYTER NOTEBOOK
         print("Configure Jupyter")
         configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version, args.exploratory_name)
+    else:
+        configure_jupyterlab_at_gcp_image(args.os_user, args.exploratory_name)
+
 
     # INSTALL UNGIT
     print("Install nodejs")
