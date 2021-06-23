@@ -105,6 +105,8 @@ def install_pip_pkg(requisites, pip_version, lib_group, dataengine_service = Fal
     try:
         if dataengine_service:
             install_command = pip_version
+        elif os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            install_command = 'conda activate && {}'.format(pip_version)
         else:
             install_command = 'source /opt/python/python{0}/bin/activate && /opt/python/python{0}/bin/pip{1}'.format(
                 os.environ['notebook_python_venv_version'], os.environ['notebook_python_venv_version'][:3])
