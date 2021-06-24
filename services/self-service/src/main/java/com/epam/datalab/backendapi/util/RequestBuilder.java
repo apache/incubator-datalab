@@ -391,7 +391,9 @@ public class RequestBuilder {
         switch (cloudProvider) {
             case AWS:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateAws.class)
-                        .withDataEngineInstanceCount(form.getMasterDataEngineInstanceCount())
+                        .withDataEngineInstanceCount(String.valueOf(
+                                Integer.parseInt(form.getSlaveDataEngineInstanceCount())
+                                        + Integer.parseInt(form.getMasterDataEngineInstanceCount())))
                         .withDataEngineMasterShape(form.getMasterDataEngineInstanceShape())
                         .withDataEngineSlaveShape(form.getMasterDataEngineInstanceShape())
                         .withConfig(form.getConfig())
@@ -399,7 +401,9 @@ public class RequestBuilder {
                 break;
             case AZURE:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateAzure.class)
-                        .withDataEngineInstanceCount(form.getMasterDataEngineInstanceCount())
+                        .withDataEngineInstanceCount(String.valueOf(
+                                Integer.parseInt(form.getSlaveDataEngineInstanceCount())
+                                        + Integer.parseInt(form.getMasterDataEngineInstanceCount())))
                         .withDataEngineMasterSize(form.getMasterDataEngineInstanceShape())
                         .withDataEngineSlaveSize(form.getMasterDataEngineInstanceShape())
                         .withConfig(form.getConfig())
@@ -416,7 +420,9 @@ public class RequestBuilder {
             case GCP:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateGcp.class)
                         .withDataEngineInstanceCount(form.getMasterDataEngineInstanceCount())
-                        .withSlaveDataEngineInstanceCount(form.getSlaveDataEngineInstanceCount())
+                        .withDataEngineInstanceCount(String.valueOf(
+                                Integer.parseInt(form.getSlaveDataEngineInstanceCount())
+                                        + Integer.parseInt(form.getMasterDataEngineInstanceCount())))
                         .withDataEngineMasterSize(form.getMasterDataEngineInstanceShape())
                         .withDataEngineSlaveSize(form.getMasterDataEngineInstanceShape())
                         .withMasterGPUCount(form.getMasterGpuCount())
