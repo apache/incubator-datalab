@@ -38,17 +38,14 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class SparkStandaloneClusterResource extends UserComputationalResource {
-    @NotBlank
-    @JsonProperty("master_instance_count")
-    private String masterDataEngineInstanceCount;
 
     @NotBlank
     @JsonProperty("master_instance_shape")
     private String masterDataEngineInstanceShape;
 
     @NotBlank
-    @JsonProperty("slave_instance_count")
-    private String slaveDataEngineInstanceCount;
+    @JsonProperty("data_engine_instance_count")
+    private String dataEngineInstanceCount;
 
     @NotBlank
     @JsonProperty("slave_instance_shape")
@@ -58,8 +55,8 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
     public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
                                           String templateName, String status, Date uptime,
                                           SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
-                                          String masterDataEngineInstanceCount, String masterDataEngineInstanceShape,
-                                          String slaveDataEngineInstanceCount, String slaveDataEngineInstanceShape,
+                                          String dataEngineInstanceCount, String masterDataEngineInstanceShape,
+                                          String slaveDataEngineInstanceShape,
                                           String masterGpuCount, String masterGpuType,
                                           String slaveGpuCount, String slaveGpuType,
                                           Boolean enabledGPU,
@@ -75,10 +72,9 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
         super.setMasterNodeShape(masterDataEngineInstanceShape);
         super.setSlaveNodeShape(slaveDataEngineInstanceShape);
 
-        this.masterDataEngineInstanceCount = masterDataEngineInstanceCount;
         this.masterDataEngineInstanceShape = masterDataEngineInstanceShape;
-        this.slaveDataEngineInstanceCount = slaveDataEngineInstanceCount;
         this.slaveDataEngineInstanceShape = slaveDataEngineInstanceShape;
+        this.dataEngineInstanceCount = dataEngineInstanceCount;
 
         this.config = config;
     }

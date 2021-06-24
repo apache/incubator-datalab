@@ -750,7 +750,7 @@ public class ComputationalServiceImplTest {
                 .computationalName(COMP_NAME)
                 .imageName("dataengine")
                 .status(CREATING.toString())
-                .masterDataEngineInstanceCount(String.valueOf(2))
+                .dataEngineInstanceCount(String.valueOf(2))
                 .tags(Collections.emptyMap())
                 .build();
     }
