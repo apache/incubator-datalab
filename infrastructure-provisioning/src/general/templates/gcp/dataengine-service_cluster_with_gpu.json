@@ -20,7 +20,7 @@
             "numInstances": "NUM_MASTERS",
             "machineTypeUri": "MASTER_INSTANCE",
             "diskConfig": {
-                "bootDiskSizeGb": 30,
+                "bootDiskSizeGb": 35,
                 "numLocalSsds": 0
             },
             "accelerators": [
@@ -34,7 +34,7 @@
             "numInstances": "NUM_SLAVES",
             "machineTypeUri": "SLAVE_INSTANCE",
             "diskConfig": {
-                "bootDiskSizeGb": 30,
+                "bootDiskSizeGb": 35,
                 "numLocalSsds": 0
             },
             "accelerators": [
