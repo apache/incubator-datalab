@@ -27,6 +27,7 @@ from datalab.actions_lib import *
 from datalab.meta_lib import *
 from fabric import *
 import subprocess
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -53,10 +54,11 @@ def configure_notebook(args):
     conn.sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     conn.sudo('chmod 755 /usr/local/bin/create_configs.py')
     conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
-    conn.run('mkdir -p /tmp/datalab_libs/')
-    subprocess.run('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, args.notebook_ip), shell=True, check=True)
-    conn.run('chmod a+x /tmp/datalab_libs/*')
-    conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
+    conn.run('mkdir -p /home/{}/datalab_libs/'.format(args.os_user))
+    conn.local('scp -i {0} /usr/lib/python3.8/datalab/*.py {1}@{2}:/home/{1}/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
+    conn.run('chmod a+x /home/{}/datalab_libs/*'.format(args.os_user))
+    conn.sudo('mv /home/{}/datalab_libs/* /usr/lib/python3.8/datalab/'.format(args.os_user))
+    conn.sudo('rm -rf /home/{}/datalab_libs/'.format(args.os_user))
     if exists(conn, '/usr/lib64'):
         conn.sudo('mkdir -p /usr/lib64/python3.8')
         conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
@@ -68,8 +70,8 @@ if __name__ == "__main__":
     configure_notebook(args)
     spark_version = datalab.actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'spark')
     hadoop_version = datalab.actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'hadoop')
-    conn.sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
+    conn.sudo('''bash -l -c 'echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf' ''')
     conn.sudo('''bash -l -c 'echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc' ''')
-    conn.sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python3 /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11}'
+    conn.sudo('''bash -l -c 'unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python3 /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11}' '''
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name, args.dataproc_version, spark_version, hadoop_version,
                  args.region, args.project_name, args.os_user, args.pip_mirror, args.application))
