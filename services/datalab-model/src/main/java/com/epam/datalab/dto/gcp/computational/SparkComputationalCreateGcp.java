@@ -32,8 +32,8 @@ import java.util.List;
 public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputationalCreateGcp> {
 
     @JsonIgnoreProperties
-    @JsonProperty("dataengine_instance_count")
-    private String dataengineInstanceCount;
+    @JsonProperty("data_engine_instance_count")
+    private String dataEngineInstanceCount;
     @JsonProperty("gcp_dataengine_master_size")
     private String masterDataEngineInstanceShape;
     @JsonProperty("gcp_dataengine_slave_size")
@@ -55,7 +55,7 @@ public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputat
     private String sharedImageEnabled;
 
     public SparkComputationalCreateGcp withDataEngineInstanceCount(String dataengineInstanceCount) {
-        this.dataengineInstanceCount = dataengineInstanceCount;
+        this.dataEngineInstanceCount = dataengineInstanceCount;
         return this;
     }
 

@@ -727,7 +727,7 @@ public class ComputationalServiceImplTest {
         sparkClusterForm.setNotebookName(EXPLORATORY_NAME);
         sparkClusterForm.setName(COMP_NAME);
         sparkClusterForm.setProject(PROJECT);
-        sparkClusterForm.setMasterDataEngineInstanceCount(String.valueOf(2));
+        sparkClusterForm.setDataEngineInstanceCount(String.valueOf(2));
         sparkClusterForm.setImage("dataengine");
         ComputationalCreateFormDTO desClusterForm = new ComputationalCreateFormDTO();
         desClusterForm.setNotebookName(EXPLORATORY_NAME);

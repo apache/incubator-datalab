@@ -217,7 +217,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 
     private void validate(SparkStandaloneClusterCreateForm form) {
 
-        int instanceCount = Integer.parseInt(form.getMasterDataEngineInstanceCount());
+        int instanceCount = Integer.parseInt(form.getDataEngineInstanceCount());
 
         if (instanceCount < configuration.getMinSparkInstanceCount()
                 || instanceCount > configuration.getMaxSparkInstanceCount()) {
