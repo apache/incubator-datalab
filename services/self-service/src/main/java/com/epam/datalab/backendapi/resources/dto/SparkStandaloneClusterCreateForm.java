@@ -33,7 +33,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class SparkStandaloneClusterCreateForm extends ComputationalCreateFormDTO {
 
     @NotBlank
-    @JsonProperty("data_engine_instance_count")
+    @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
 
     @NotBlank
