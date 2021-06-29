@@ -54,7 +54,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                           will be stopped
                       </p>
                   </div>
-                  <span class="strong blue pb-10">by a schedule in less than 15 minutes.</span>
+                  <span class="strong blue pb-10">by a schedule in less than 15 minutes</span>.
               </div>
               <div class="alert" *ngIf="data.type === 'message'">
                 <span  class='highlight'[innerHTML]="data.template"></span>
