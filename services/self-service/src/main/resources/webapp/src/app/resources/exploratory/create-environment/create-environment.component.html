@@ -104,7 +104,6 @@
             <mat-form-field>
               <mat-label>Select image</mat-label>
               <mat-select formControlName="notebook_image_name" panelClass="create-resources-dialog scrolling" disableOptionCentering>
-                <mat-option [value]="null" (click)="selectedImage = null">None</mat-option>
                 <mat-option 
                   *ngFor="let image of images" 
                   [value]="image?.name" 
