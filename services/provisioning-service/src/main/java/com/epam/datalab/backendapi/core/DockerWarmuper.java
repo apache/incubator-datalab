@@ -35,13 +35,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.dropwizard.lifecycle.Managed;
-import lombok.ToString;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -67,7 +66,7 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
         LOGGER.debug("warming up docker");
         final ProcessInfo processInfo = commandExecutor.executeSync("warmup", DockerCommands.generateUUID(),
                 GET_IMAGES);
-        List<String> images = Arrays.asList(processInfo.getStdOut().split("\n"));
+        String[] images = processInfo.getStdOut().split("\n");
         for (String image : images) {
             String uuid = UUID.randomUUID().toString();
             LOGGER.debug("warming up image: {} with uid {}", image, uuid);
@@ -136,17 +135,21 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
     private void addMetadata(byte[] content, String uuid) throws IOException {
         final JsonNode jsonNode = MAPPER.readTree(content);
         ImageMetadataDTO metadata;
-        if (jsonNode.has(EXPLORATORY_RESPONSE_MARKER)) {
-            metadata = MAPPER.readValue(content, ExploratoryMetadataDTO.class);
-            metadata.setImageType(ImageType.EXPLORATORY);
+        if (jsonNode != null) {
+            if (jsonNode.has(EXPLORATORY_RESPONSE_MARKER)) {
+                metadata = MAPPER.readValue(content, ExploratoryMetadataDTO.class);
+                metadata.setImageType(ImageType.EXPLORATORY);
+            } else {
+                metadata = MAPPER.readValue(content, ComputationalMetadataDTO.class);
+                metadata.setImageType(ImageType.COMPUTATIONAL);
+            }
+            String image = imageList.get(uuid);
+            metadata.setImage(image);
+            LOGGER.debug("caching metadata for image {}: {}", image, metadata);
+            metadataDTOs.add(metadata);
         } else {
-            metadata = MAPPER.readValue(content, ComputationalMetadataDTO.class);
-            metadata.setImageType(ImageType.COMPUTATIONAL);
+            log.info("Cannot parse element: \n {}", new String(content, StandardCharsets.UTF_8));
         }
-        String image = imageList.get(uuid);
-        metadata.setImage(image);
-        LOGGER.debug("caching metadata for image {}: {}", image, metadata);
-        metadataDTOs.add(metadata);
     }
 
     @Override

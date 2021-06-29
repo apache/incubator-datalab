@@ -41,15 +41,16 @@ public interface DockerCommands {
     String GET_RUNNING_CONTAINERS_FOR_USER = "docker ps --format \"{{.Names}}\" -f name=%s";
 
     ObjectMapper MAPPER = new ObjectMapper()
-            .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+            .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
+            .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
     static String generateUUID() {
         return UUID.randomUUID().toString();
     }
 
     static String extractUUID(String fileName) {
-        Integer beginIndex = fileName.lastIndexOf('_');
-        Integer endIndex = fileName.lastIndexOf('.');
+        int beginIndex = fileName.lastIndexOf('_');
+        int endIndex = fileName.lastIndexOf('.');
         beginIndex = beginIndex < 0 ? 0 : beginIndex + 1;
         if (endIndex < 0) {
             endIndex = fileName.length();

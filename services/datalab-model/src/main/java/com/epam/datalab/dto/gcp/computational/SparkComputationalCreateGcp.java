@@ -21,6 +21,7 @@ package com.epam.datalab.dto.gcp.computational;
 
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.base.computational.ComputationalBase;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.ToString;
 
@@ -30,6 +31,7 @@ import java.util.List;
 @ToString
 public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputationalCreateGcp> {
 
+    @JsonIgnoreProperties
     @JsonProperty("dataengine_instance_count")
     private String dataengineInstanceCount;
     @JsonProperty("gcp_dataengine_master_size")

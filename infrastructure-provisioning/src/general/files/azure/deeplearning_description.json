@@ -14,5 +14,7 @@
       "version": "microsoft-dsvm:ubuntu-1804:1804-gen2",
       "vendor": "Azure"
     }
-  ]
+  ],
+  "exploratory_environment_images" :
+  []
 }

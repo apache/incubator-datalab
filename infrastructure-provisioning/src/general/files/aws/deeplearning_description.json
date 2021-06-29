@@ -14,5 +14,7 @@
       "version": "Deep Learning AMI (Ubuntu 18.04) Version 42.1",
       "vendor": "AWS"
     }
-  ]
+  ],
+  "exploratory_environment_images" :
+  []
 }
