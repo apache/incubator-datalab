@@ -415,7 +415,7 @@ public class RequestBuilder {
                 break;
             case GCP:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateGcp.class)
-                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
+                        .withDataengineInstanceCount(form.getDataEngineInstanceCount())
                         .withDataEngineMasterSize(form.getMasterDataEngineInstanceShape())
                         .withDataEngineSlaveSize(form.getMasterDataEngineInstanceShape())
                         .withMasterGPUCount(form.getMasterGpuCount())

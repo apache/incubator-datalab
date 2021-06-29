@@ -21,7 +21,6 @@ package com.epam.datalab.dto.gcp.computational;
 
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.base.computational.ComputationalBase;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.ToString;
 
@@ -32,7 +31,7 @@ import java.util.List;
 public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputationalCreateGcp> {
 
     @JsonProperty("dataengine_instance_count")
-    private String dataEngineInstanceCount;
+    private String dataengineInstanceCount;
     @JsonProperty("gcp_dataengine_master_size")
     private String masterDataEngineInstanceShape;
     @JsonProperty("gcp_dataengine_slave_size")
@@ -53,8 +52,8 @@ public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputat
     @JsonProperty("conf_shared_image_enabled")
     private String sharedImageEnabled;
 
-    public SparkComputationalCreateGcp withDataEngineInstanceCount(String dataengineInstanceCount) {
-        this.dataEngineInstanceCount = dataengineInstanceCount;
+    public SparkComputationalCreateGcp withDataengineInstanceCount(String dataengineInstanceCount) {
+        this.dataengineInstanceCount = dataengineInstanceCount;
         return this;
     }
 
