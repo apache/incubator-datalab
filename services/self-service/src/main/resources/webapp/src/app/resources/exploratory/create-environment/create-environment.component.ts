@@ -156,7 +156,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
     controls.forEach(control => {
       this.createExploratoryForm.controls[control].setValue(null);
-      if (control === 'gpu_type' || control === 'gpu_count') {
+      if (control !== 'shape') {
         this.createExploratoryForm.controls[control].clearValidators();
         this.createExploratoryForm.controls[control].updateValueAndValidity();
       }
@@ -165,6 +165,11 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     if (this.additionalParams.gpu) {
       this.additionalParams.gpu = !this.additionalParams.gpu;
       this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+    }
+
+    if (this.selectedCloud === 'gcp' && template?.image === 'docker.datalab-deeplearning') {
+      this.createExploratoryForm.controls['notebook_image_name'].setValidators([Validators.required]);
+      this.createExploratoryForm.controls['notebook_image_name'].updateValueAndValidity();
     }
     
     if (this.selectedCloud === 'gcp' && 
