@@ -31,8 +31,7 @@ import java.util.List;
 @ToString
 public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputationalCreateGcp> {
 
-    @JsonIgnoreProperties
-    @JsonProperty("data_engine_instance_count")
+    @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
     @JsonProperty("gcp_dataengine_master_size")
     private String masterDataEngineInstanceShape;
