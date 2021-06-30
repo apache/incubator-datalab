@@ -533,6 +533,13 @@ def install_r_pkg(requisites):
     status = list()
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping|couldn't find"
     try:
+        if os.environ['conf_resource'] in ('dataengine-service'):
+            if os.environ['conf_cloud_provider'] in ('aws'):
+                manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
+            elif os.environ['conf_cloud_provider'] in ('gcp'):
+                # manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
+                manage_pkg('-y install', 'remote', 'libxml2-dev libcurl4-openssl-dev')
+            conn.sudo('R -e "install.packages(\'devtools\', repos = \'cloud.r-project.org\')"')
         for r_pkg in requisites:
             name, vers = r_pkg
             version = vers
