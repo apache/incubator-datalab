@@ -106,20 +106,25 @@ public class UserRoles {
 
     public static boolean isProjectAdmin(UserInfo userInfo) {
         final List<UserRole> roles = UserRoles.getRoles();
-        return roles == null || roles.stream().anyMatch(r -> PROJECT_ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
+        return roles == null || roles.stream()
+                .anyMatch(r -> PROJECT_ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
                 (userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), r.getGroups()) || userRoles.hasAccessByUserName(userInfo, r)));
     }
 
     public static boolean isProjectAdmin(UserInfo userInfo, Set<String> groups) {
         final List<UserRole> roles = UserRoles.getRoles();
-        return roles == null || roles.stream().anyMatch(r -> PROJECT_ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
-                (userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), retainGroups(r.getGroups(), groups)) || userRoles.hasAccessByUserName(userInfo, r)));
+        return roles == null || roles.stream()
+                .anyMatch(r -> PROJECT_ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
+                (userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), retainGroups(r.getGroups(), groups))
+                        || userRoles.hasAccessByUserName(userInfo, r)));
     }
 
     public static boolean isAdmin(UserInfo userInfo) {
         final List<UserRole> roles = UserRoles.getRoles();
-        return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
-                (userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), r.getGroups()) || userRoles.hasAccessByUserName(userInfo, r)));
+        return roles == null || roles.stream()
+                .anyMatch(r -> ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
+                (userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), r.getGroups())
+                        || userRoles.hasAccessByUserName(userInfo, r)));
     }
 
     /**
@@ -256,7 +261,7 @@ public class UserRoles {
         if (userRoles == null) {
             return true;
         }
-        LOGGER.trace("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(),
+        LOGGER.info("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(),
                 type, name);
         Set<String> groups = getGroups(type, name);
         if (groups == null || groups.isEmpty()) {
