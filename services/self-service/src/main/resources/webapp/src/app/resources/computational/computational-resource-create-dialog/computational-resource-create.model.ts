@@ -71,7 +71,7 @@ export class ComputationalResourceModel {
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
         name: parameters.cluster_alias_name,
-        data_engine_instance_count: parameters.instance_number,
+        dataengine_instance_count: parameters.instance_number,
         master_instance_shape: parameters.shape_master,
         slave_instance_shape: parameters.shape_slave,
         gpu_enabled: gpu,
