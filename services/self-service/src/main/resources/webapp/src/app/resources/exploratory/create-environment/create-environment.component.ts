@@ -187,7 +187,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     const allowed: any = ['GPU optimized'];
 
     if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
-      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deeplearning notebook') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deeplearning') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deep learning') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('data science') === -1
     ) {
       const filtered = Object.keys(
         SortUtils.shapesSort(template.exploratory_environment_shapes))
