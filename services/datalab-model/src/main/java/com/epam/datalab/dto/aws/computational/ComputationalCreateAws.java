@@ -22,9 +22,13 @@ package com.epam.datalab.dto.aws.computational;
 import com.epam.datalab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class ComputationalCreateAws extends ComputationalBase<ComputationalCreateAws> {
     @JsonProperty("emr_instance_count")
     private String instanceCount;
@@ -56,25 +60,9 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
         return this;
     }
 
-    public String getMasterInstanceType() {
-        return masterInstanceType;
-    }
-
-    public void setMasterInstanceType(String masterInstanceType) {
-        this.masterInstanceType = masterInstanceType;
-    }
-
     public ComputationalCreateAws withMasterInstanceType(String masterInstanceType) {
         setMasterInstanceType(masterInstanceType);
         return this;
-    }
-
-    public String getSlaveInstanceType() {
-        return slaveInstanceType;
-    }
-
-    public void setSlaveInstanceType(String slaveInstanceType) {
-        this.slaveInstanceType = slaveInstanceType;
     }
 
     public ComputationalCreateAws withSlaveInstanceType(String slaveInstanceType) {
@@ -82,21 +70,9 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
         return this;
     }
 
-    public Boolean getSlaveInstanceSpot() {
-        return slaveInstanceSpot;
-    }
-
-    public void setSlaveInstanceSpot(Boolean slaveInstanceSpot) {
-        this.slaveInstanceSpot = slaveInstanceSpot;
-    }
-
     public ComputationalCreateAws withSlaveInstanceSpot(Boolean slaveInstanceSpot) {
         setSlaveInstanceSpot(slaveInstanceSpot);
         return this;
-    }
-
-    public Integer getSlaveInstanceSpotPctPrice() {
-        return slaveInstanceSpotPctPrice;
     }
 
     public void setSlaveInstanceSpotPctPrice(Integer slaveInstanceSpotPctPrice) {
@@ -108,25 +84,9 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
         return this;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public ComputationalCreateAws withVersion(String version) {
         setVersion(version);
         return this;
-    }
-
-    public List<ClusterConfig> getConfig() {
-        return config;
-    }
-
-    public void setConfig(List<ClusterConfig> config) {
-        this.config = config;
     }
 
     public ComputationalCreateAws withConfig(List<ClusterConfig> config) {
@@ -134,16 +94,13 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
         return this;
     }
 
-    public String getSharedImageEnabled() {
-        return sharedImageEnabled;
-    }
-
-    public void setSharedImageEnabled(String sharedImageEnabled) {
-        this.sharedImageEnabled = sharedImageEnabled;
-    }
-
     public ComputationalCreateAws withSharedImageEnabled(String sharedImageEnabled) {
         setSharedImageEnabled(sharedImageEnabled);
+        return this;
+    }
+
+    public ComputationalCreateAws withNotebookName(String name) {
+        setNotebookInstanceName(name);
         return this;
     }
 

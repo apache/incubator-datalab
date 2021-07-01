@@ -155,7 +155,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         return Exploratory.builder()
                 .name(formDTO.getName())
                 .dockerImage(formDTO.getImage())
-                .imageName(formDTO.getImageName())
+                .imageName(formDTO.getImageName().isEmpty() ? formDTO.getVersion() : formDTO.getImageName())
                 .templateName(formDTO.getTemplateName())
                 .version(formDTO.getVersion())
                 .clusterConfig(formDTO.getClusterConfig())

@@ -52,6 +52,4 @@ public class AwsComputationalCreateForm extends ComputationalCreateFormDTO {
     @NotBlank
     @JsonProperty("emr_version")
     private String version;
-
-
 }
