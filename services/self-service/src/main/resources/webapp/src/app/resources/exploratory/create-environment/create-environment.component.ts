@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
-import {CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils} from '../../../core/util';
+import {CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import {tap} from 'rxjs/operators';
@@ -284,8 +284,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.createExploratoryForm.controls['gpu_count'].updateValueAndValidity();
     }
     // if (type === 'master') {
-      const masterShape = this.createExploratoryForm.controls['shape'].value;
-      this.gpuCount = HelpUtils.setGPUCount(masterShape, gpuType);
+      this.gpuCount = [1, 2, 4];
     // } else {
     //   const slaveShape = this.resourceForm.controls['shape_slave'].value;
     //   this.slaveGPUcount = HelpUtils.setGPUCount(slaveShape, gpuType);

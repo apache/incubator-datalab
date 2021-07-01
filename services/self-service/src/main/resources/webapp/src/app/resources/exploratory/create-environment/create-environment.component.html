@@ -105,6 +105,13 @@
               <mat-label>Select image</mat-label>
               <mat-select formControlName="notebook_image_name" panelClass="create-resources-dialog scrolling" disableOptionCentering>
                 <mat-option 
+                  *ngIf="currentTemplate?.image !== 'docker.datalab-deeplearning'" 
+                  [value]="null" 
+                  (click)="setImage(null)"
+                >
+                  None
+                </mat-option>
+                <mat-option 
                   *ngFor="let image of images" 
                   [value]="image?.name" 
                   (click)="setImage(image)"
