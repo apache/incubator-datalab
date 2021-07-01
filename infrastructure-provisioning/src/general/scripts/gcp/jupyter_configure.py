@@ -245,7 +245,7 @@ if __name__ == "__main__":
             try:
                 subprocess.run("~/scripts/{}.py {}".format('common_install_gpu', params), shell=True, check=True)
             except:
-                datalab.fab.append_result("Failed installing users key")
+                datalab.fab.append_result("Failed installing gpu drivers")
                 raise Exception
 
         except Exception as err:
