@@ -214,6 +214,13 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       template_name: this.currentTemplate.exploratory_environment_versions[0].template_name
     };
 
+    
+    if (!data.notebook_image_name 
+      && this.currentTemplate.image === 'docker.datalab-deeplearning' 
+      && this.selectedCloud === 'aws' || this.selectedCloud === 'azure') {
+      data.notebook_image_name = this.currentTemplate.exploratory_environment_versions[0].version;
+    }
+
     data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null;
 
     this.userResourceService.createExploratoryEnvironment({ ...parameters, ...data }).subscribe((response: any) => {
