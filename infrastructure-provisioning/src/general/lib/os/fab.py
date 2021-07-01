@@ -127,31 +127,32 @@ def install_pip_pkg(requisites, pip_version, lib_group, dataengine_service = Fal
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
             conn.sudo(
                 '''bash -l -c '{0} install -U {1} --use-deprecated=legacy-resolver --no-cache-dir 2>&1 | '''
-                '''tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > /tmp/{4}install_{3}.log; '''
-                '''then  echo "" > /tmp/{4}install_{3}.log;fi' '''.format(
+                '''tee /tmp/{4}_install_{3}.tmp; if ! grep -w -i -E  "({2})" /tmp/{4}_install_{3}.tmp > /tmp/{4}_install_{3}.log; '''
+                '''then  echo "" > /tmp/{4}_install_{3}.log;fi' '''.format(
                     install_command, pip_pkg, error_parser, name, pip_version))
-            err = conn.sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace(
+            err = conn.sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).stdout.replace(
                 '"', "'").replace('\n', ' ')
             conn.sudo(
-                '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}install_{1}.list; '''
-                '''then  echo "not_found" > /tmp/{2}install_{1}.list;fi' '''.format(
+                '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}_install_{1}.list; '''
+                '''then  echo "not_found" > /tmp/{2}_install_{1}.list;fi' '''.format(
                     install_command, name, pip_version))
-            res = conn.sudo('''bash -l -c 'cat /tmp/{0}install_{1}.list' '''.format(pip_version, name)).stdout.replace(
+            res = conn.sudo('''bash -l -c 'cat /tmp/{0}_install_{1}.list' '''.format(pip_version, name)).stdout.replace(
                 '\n', '')
             conn.sudo(
-                '''bash -l -c 'cat /tmp/tee.tmp | if ! grep -w -i -E "(Successfully installed|up-to-date)" > '''
-                '''/tmp/{0}install_{1}.list; then  echo "not_installed" > /tmp/{0}install_{1}.list;fi' '''.format(
+                '''bash -l -c 'cat /tmp/{0}_install_{1}.tmp | if ! grep -w -i -E "(Successfully installed|up-to-date)" > '''
+                '''/tmp/{0}_install_{1}.list; then  echo "not_installed" > /tmp/{0}_install_{1}.list;fi' '''.format(
                     pip_version, name))
             installed_out = conn.sudo(
-                '''bash -l -c 'cat /tmp/{0}install_{1}.list' '''.format(pip_version, name)).stdout.replace('\n', '')
+                '''bash -l -c 'cat /tmp/{0}_install_{1}.list' '''.format(pip_version, name)).stdout.replace('\n', '')
             changed_pip_pkg = False
             if 'not_found' in res:
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
                 changed_pip_pkg = changed_pip_pkg[0]
                 conn.sudo(
-                    '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}install_{1}.list; then  echo "" > /tmp/{2}install_{1}.list;fi' '''.format(
+                    '''bash -l -c '{0} freeze --all | if ! grep -w -i {1} > /tmp/{2}_install_{1}.list; then  echo "" > '''
+                    '''/tmp/{2}_install_{1}.list;fi' '''.format(
                         install_command, changed_pip_pkg, pip_version))
-                res = conn.sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace(
+                res = conn.sudo('cat /tmp/{0}_install_{1}.list'.format(pip_version, changed_pip_pkg)).stdout.replace(
                     '\n', '')
             if err and name not in installed_out:
                 status_msg = 'installation_error'
@@ -178,11 +179,9 @@ def install_pip_pkg(requisites, pip_version, lib_group, dataengine_service = Fal
                 else:
                     versions = []
 
-            conn.sudo(
-                '''bash -l -c 'cat /tmp/tee.tmp | if ! grep -w -i -E  "Installing collected packages:" > '''
-                '''/tmp/{0}install_{1}.dep; then  echo "" > /tmp/{0}install_{1}.dep;fi' '''.format(
-                    pip_version, name))
-            dep = conn.sudo('cat /tmp/{0}install_{1}.dep'.format(pip_version, name)).stdout.replace('\n', '').strip()[31:]
+            conn.sudo('cat /tmp/{0}_install_{1}.tmp | if ! grep -w -i -E  "Installing collected packages:" > '
+                      '/tmp/{0}_install_{1}.dep; then  echo "" > /tmp/{0}_install_{1}.dep;fi'.format(pip_version, name))
+            dep = conn.sudo('cat /tmp/{0}_install_{1}.dep'.format(pip_version, name)).stdout.replace('\n', '').strip()[31:]
             if dep == '':
                 dep = []
             else:
@@ -197,6 +196,7 @@ def install_pip_pkg(requisites, pip_version, lib_group, dataengine_service = Fal
                 dep = [i for i in dep if i]
             status.append({"group": lib_group, "name": name, "version": version, "status": status_msg,
                            "error_message": err, "available_versions": versions, "add_pkgs": dep})
+            conn.sudo('rm -rf /tmp/*{}*'.format(name))
         return status
     except Exception as err:
         for pip_pkg in requisites:
@@ -548,13 +548,13 @@ def install_r_pkg(requisites):
             else:
                 vers = '"{}"'.format(vers)
             if name == 'sparklyr':
-                conn.run('sudo -i R -e \'devtools::install_version("{0}", version = {1}, repos = "http://cran.us.r-project.org", dependencies = NA)\' 2>&1 | '
-                        'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
+                conn.run('sudo -i R -e \'devtools::install_version("{0}", version = {1}, repos = "http://cran.us.r-project.org", '
+                         'dependencies = NA)\' 2>&1 | tee /tmp/install_{0}.tmp; if ! grep -w -E  "({2})" /tmp/install_{0}.tmp '
+                         '> /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
             else:
-                conn.sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dependencies = NA)\' 2>&1 | '
-                         'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
-            dep = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $1}\'').stdout.replace('\n', ' ')
-            dep_ver = conn.sudo('grep "(NA.*->". /tmp/tee.tmp | awk \'{print $4}\'').stdout.replace('\n', ' ').replace(')', '').split(' ')
+                conn.sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dependencies = NA)\' 2>&1 | tee /tmp/install_{0}.tmp; if ! grep -w -E "({2})" /tmp/install_{0}.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
+            dep = conn.sudo('grep "(NA.*->". /tmp/install_' + name + '.tmp | awk \'{print $1}\'').stdout.replace('\n', ' ')
+            dep_ver = conn.sudo('grep "(NA.*->". /tmp/install_' + name + '.tmp | awk \'{print $4}\'').stdout.replace('\n', ' ').replace(')', '').split(' ')
             if dep == '':
                 dep = []
             else:
@@ -587,6 +587,7 @@ def install_r_pkg(requisites):
             else:
                 versions = []
             status.append({"group": "r_pkg", "name": name, "version": version, "status": status_msg, "error_message": err, "available_versions": versions, "add_pkgs": dep})
+        conn.sudo('rm /tmp/*{}*'.format(name))
         return status
     except Exception as err:
         for r_pkg in requisites:
@@ -642,7 +643,7 @@ def install_java_pkg(requisites):
             conn.sudo('mkdir -p {0}'.format(ivy_cache_dir))
             group, artifact, version, override = java_pkg
             print("Installing package (override: {3}): {0}:{1}:{2}".format(group, artifact, version, override))
-            conn.sudo('''bash -c "{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  \\"({7})\\" /tmp/tee.tmp > /tmp/install_{5}.log; then echo \\"\\" > /tmp/install_{5}.log;fi" '''.format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser, java_proxy))
+            conn.sudo('''bash -c "{8}; java -jar {0} -settings {1}/{2} -cache {3} -dependency {4} {5} {6} 2>&1 | tee /tmp/install_{5}.tmp; if ! grep -w -E  \\"({7})\\" /tmp/install_{5}.tmp > /tmp/install_{5}.log; then echo \\"\\" > /tmp/install_{5}.log;fi" '''.format(ivy_jar, ivy_dir, ivy_settings, ivy_cache_dir, group, artifact, version, error_parser, java_proxy))
             err = conn.sudo('cat /tmp/install_{0}.log'.format(artifact)).stdout.replace('"', "'").strip()
             conn.sudo('find {0} -name "{1}*.jar" | head -n 1 | rev | cut -f1 -d "/" | rev | \
                 if ! grep -w -i {1} > /tmp/install_{1}.list; then echo "" > /tmp/install_{1}.list;fi'.format(ivy_cache_dir, artifact))
@@ -653,6 +654,7 @@ def install_java_pkg(requisites):
             else:
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error", "error_message": err})
         update_spark_jars()
+        conn.sudo('rm -rf /tmp/*{}*'.format(artifact))
         return status
     except Exception as err:
         for java_pkg in requisites:
