@@ -168,7 +168,8 @@ public class RequestBuilder {
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider);
         }
 
-        return exploratoryCreate.withExploratoryName(exploratory.getName())
+
+        T t = exploratoryCreate.withExploratoryName(exploratory.getName())
                 .withNotebookImage(exploratory.getDockerImage())
                 .withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
                 .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
@@ -181,6 +182,8 @@ public class RequestBuilder {
                 .withGPUCount(exploratory.getGpuCount())
                 .withGPUType(exploratory.getGpuType())
                 .withEnabledGPU(exploratory.getEnabledGPU());
+        System.out.println("TEST LOG!!!! send to prov: + " + t.toString());
+        return t;
     }
 
     @SuppressWarnings("unchecked")
