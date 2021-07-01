@@ -97,7 +97,7 @@ if __name__ == "__main__":
                                                                        notebook_config['project_name'],
                                                                        notebook_config['endpoint_name'],
                                                                        notebook_config['exploratory_name'])
-        notebook_config['primary_disk_size'] = (lambda x: '50' if x == 'deeplearning' else '16')(
+        notebook_config['primary_disk_size'] = (lambda x: '60' if x == 'deeplearning' else '20')(
             os.environ['application'])
         notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
 
@@ -155,9 +155,14 @@ if __name__ == "__main__":
                 notebook_config['secondary_image_name'].get('name'))
 
         notebook_config['gpu_accelerator_type'] = 'None'
+        notebook_config['gpu_accelerator_count'] = 'None'
 
         if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning') or os.environ['gpu_enabled'] == 'True':
-            notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
+            if os.environ['gpuType'] != '':
+                notebook_config['gpu_accelerator_type'] = os.environ['gpuType']
+                notebook_config['gpu_accelerator_count'] = os.environ['gpuCount']
+            else:
+                notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
 
         notebook_config['network_tag'] = '{0}-{1}-{2}-ps'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
@@ -194,16 +199,16 @@ if __name__ == "__main__":
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
-                 "--secondary_disk_size {13} --gpu_accelerator_type {14} --network_tag {15} --labels '{16}' " \
-                 "--service_base_name {17}".\
+                 "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} --network_tag {16} --labels '{17}' " \
+                 "--service_base_name {18}".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'],
                    notebook_config['vpc_name'], notebook_config['subnet_name'], notebook_config['instance_size'],
                    notebook_config['ssh_key_path'], notebook_config['initial_user'],
                    notebook_config['notebook_service_account_name'], notebook_config['primary_image_name'],
                    notebook_config['secondary_image_name'], 'notebook', notebook_config['primary_disk_size'],
                    notebook_config['secondary_disk_size'], notebook_config['gpu_accelerator_type'],
-                   notebook_config['network_tag'], json.dumps(notebook_config['labels']),
-                   notebook_config['service_base_name'])
+                   notebook_config['gpu_accelerator_count'], notebook_config['network_tag'],
+                   json.dumps(notebook_config['labels']), notebook_config['service_base_name'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:

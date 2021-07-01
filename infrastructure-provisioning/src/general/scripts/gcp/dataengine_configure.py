@@ -124,6 +124,22 @@ def configure_slave(slave_number, data_engine):
         datalab.fab.append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
+    if 'slave_gpu_type' in os.environ:
+        try:
+            print('[INSTALLING GPU DRIVERS ON MASTER NODE]')
+            params = "--hostname {} --keyfile {} --os_user {}".format(
+                slave_hostname, keyfile_name, data_engine['datalab_ssh_user'])
+            try:
+                subprocess.run("~/scripts/{}.py {}".format('common_install_gpu', params), shell=True, check=True)
+            except:
+                datalab.fab.append_result("Failed installing gpu drivers")
+                raise Exception
+
+        except Exception as err:
+            datalab.fab.append_result("Failed to install GPU drivers.", str(err))
+            GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+            sys.exit(1)
+
 
 def clear_resources():
     for i in range(data_engine['instance_count'] - 1):
@@ -297,6 +313,22 @@ if __name__ == "__main__":
         datalab.fab.append_result("Failed to configure master node", str(err))
         clear_resources()
         sys.exit(1)
+
+    if 'master_gpu_type' in os.environ:
+        try:
+            print('[INSTALLING GPU DRIVERS ON MASTER NODE]')
+            params = "--hostname {} --keyfile {} --os_user {}".format(
+                master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'])
+            try:
+                subprocess.run("~/scripts/{}.py {}".format('common_install_gpu', params), shell=True, check=True)
+            except:
+                datalab.fab.append_result("Failed installing gpu drivers")
+                raise Exception
+
+        except Exception as err:
+            datalab.fab.append_result("Failed to install GPU drivers.", str(err))
+            GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+            sys.exit(1)
 
     try:
         jobs = []
