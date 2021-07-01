@@ -17,18 +17,17 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Inject, ChangeDetectorRef } from '@angular/core';
-import {FormGroup, FormBuilder, Validators, FormControl} from '@angular/forms';
+import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
+import {FormGroup, FormBuilder, Validators} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import {HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils, HelpUtils} from '../../../core/util';
+import {HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils} from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
-import {Logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'computational-resource-create-dialog',
@@ -59,8 +58,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
-  public masterGPUcount: Array<number>;
-  public slaveGPUcount: Array<number>;
+  public gpuCount: Array<number> = [1, 2, 4];
   public isSelected = {
     preemptible: false,
     gpu: false,
@@ -352,17 +350,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           this.resourceForm.controls[control].updateValueAndValidity();
         });
       }
-    }
-  }
-
-
-  public setCount(type: any, gpuType: any): void {
-    if (type === 'master') {
-      const masterShape = this.resourceForm.controls['shape_master'].value;
-      this.masterGPUcount = HelpUtils.setGPUCount(masterShape, gpuType);
-    } else {
-      const slaveShape = this.resourceForm.controls['shape_slave'].value;
-      this.slaveGPUcount = HelpUtils.setGPUCount(slaveShape, gpuType);
     }
   }
 

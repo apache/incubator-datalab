@@ -171,7 +171,7 @@
                                 placeholder="Select master GPU type"
                                 [disabled]="!resourceForm.controls['shape_master'].value">
                       <mat-option *ngFor="let type of selectedImage.computationGPU"
-                                  [value]="type" (click)="setCount('master', type)">
+                                  [value]="type" >
                         {{ type }}
                       </mat-option>
                       <mat-option *ngIf="!selectedImage.computationGPU?.length" class="multiple-select ml-10" disabled>
@@ -196,10 +196,10 @@
                   <mat-form-field>
                     <mat-label>Select master GPU count</mat-label>
                     <mat-select formControlName="master_GPU_count" disableOptionCentering [disabled]="!resourceForm.controls['master_GPU_type'].value">
-                      <mat-option *ngFor="let type of masterGPUcount" [value]="type">
+                      <mat-option *ngFor="let type of gpuCount" [value]="type">
                         {{ type }}
                       </mat-option>
-                      <mat-option *ngIf="!masterGPUcount?.length" class="multiple-select ml-10" disabled>Master GPU counts list is empty</mat-option>
+                      <mat-option *ngIf="!gpuCount?.length" class="multiple-select ml-10" disabled>Master GPU counts list is empty</mat-option>
                     </mat-select>
                     <button class="caret">
                       <i class="material-icons">keyboard_arrow_down</i>
@@ -223,7 +223,7 @@
                   <mat-form-field>
                     <mat-label>Select slave GPU type</mat-label>
                     <mat-select formControlName="slave_GPU_type" disableOptionCentering [disabled]="!resourceForm.controls['shape_slave'].value">
-                      <mat-option *ngFor="let type of selectedImage.computationGPU" [value]="type" (click)="setCount('slave', type)">
+                      <mat-option *ngFor="let type of selectedImage.computationGPU" [value]="type">
                         {{ type }}
                       </mat-option>
                       <mat-option *ngIf="!selectedImage.computationGPU?.length" class="multiple-select ml-10" disabled>
@@ -250,10 +250,10 @@
                   <mat-form-field>
                     <mat-label>Select slave GPU сount</mat-label>
                     <mat-select formControlName="slave_GPU_count" disableOptionCentering [disabled]="!resourceForm.controls['slave_GPU_type'].value">
-                      <mat-option *ngFor="let type of slaveGPUcount" [value]="type">
+                      <mat-option *ngFor="let type of gpuCount" [value]="type">
                         {{ type }}
                       </mat-option>
-                      <mat-option *ngIf="!slaveGPUcount?.length" class="multiple-select ml-10" disabled>
+                      <mat-option *ngIf="!gpuCount?.length" class="multiple-select ml-10" disabled>
                         Slave GPU counts list is empty
                       </mat-option>
                     </mat-select>
