@@ -320,7 +320,7 @@ class GCPActions:
                         initial_user, image_name, secondary_image_name, service_account_name, instance_class,
                         network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
-                        gpu_accelerator_type='None'):
+                        gpu_accelerator_type='None', gpu_accelerator_count='1'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
@@ -439,12 +439,12 @@ class GCPActions:
         if instance_class == 'notebook' or instance_class == 'dataengine':
             del instance_params['networkInterfaces'][0]['accessConfigs']
         if gpu_accelerator_type != 'None':
-            request = self.service.acceleratorTypes().list(project=self.project, zone = zone)
-            result = request.execute().get('items')
-            gpu_accelerator_type = result[0].get('name')
+            #request = self.service.acceleratorTypes().list(project=self.project, zone = zone)
+            #result = request.execute().get('items')
+            #gpu_accelerator_type = result[0].get('name')
             instance_params['guestAccelerators'] = [
                 {
-                    "acceleratorCount": 1,
+                    "acceleratorCount": gpu_accelerator_count,
                     "acceleratorType": "projects/{0}/zones/{1}/acceleratorTypes/{2}".format(
                         self.project, zone, gpu_accelerator_type)
                 }
