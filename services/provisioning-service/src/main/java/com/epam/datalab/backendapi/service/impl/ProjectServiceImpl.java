@@ -21,11 +21,7 @@ package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.datalab.backendapi.core.commands.CommandBuilder;
-import com.epam.datalab.backendapi.core.commands.DockerAction;
-import com.epam.datalab.backendapi.core.commands.DockerCommands;
-import com.epam.datalab.backendapi.core.commands.ICommandExecutor;
-import com.epam.datalab.backendapi.core.commands.RunDockerCommand;
+import com.epam.datalab.backendapi.core.commands.*;
 import com.epam.datalab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.datalab.backendapi.core.response.handlers.ProjectCallbackHandler;
 import com.epam.datalab.backendapi.service.ProjectService;
@@ -45,51 +41,56 @@ import java.util.Objects;
 
 @Slf4j
 public class ProjectServiceImpl implements ProjectService {
-	private static final String PROJECT_IMAGE = "docker.datalab-project";
-	private static final String EDGE_IMAGE = "docker.datalab-edge";
-	private static final String CALLBACK_URI = "/api/project/status";
-	private static final String PROJECT_RESOURCE_TYPE = "project";
-	private static final String EDGE_RESOURCE_TYPE = "edge";
+    private static final String PROJECT_IMAGE = "docker.datalab-project";
+    private static final String EDGE_IMAGE = "docker.datalab-edge";
+    private static final String CALLBACK_URI = "/api/project/status";
+    private static final String PROJECT_RESOURCE_TYPE = "project";
+    private static final String EDGE_RESOURCE_TYPE = "edge";
 
-	protected final RESTService selfService;
-	private final ProvisioningServiceApplicationConfiguration configuration;
-	private final FolderListenerExecutor folderListenerExecutor;
-	private final ICommandExecutor commandExecutor;
-	private final CommandBuilder commandBuilder;
+    protected final RESTService selfService;
+    private final ProvisioningServiceApplicationConfiguration configuration;
+    private final FolderListenerExecutor folderListenerExecutor;
+    private final ICommandExecutor commandExecutor;
+    private final CommandBuilder commandBuilder;
 
-	@Inject
-	public ProjectServiceImpl(RESTService selfService, ProvisioningServiceApplicationConfiguration configuration,
-	                          FolderListenerExecutor folderListenerExecutor, ICommandExecutor commandExecutor, CommandBuilder commandBuilder) {
-	    this.selfService = selfService;
-	    this.configuration = configuration;
-	    this.folderListenerExecutor = folderListenerExecutor;
-	    this.commandExecutor = commandExecutor;
-	    this.commandBuilder = commandBuilder;
+    @Inject
+    public ProjectServiceImpl(RESTService selfService, ProvisioningServiceApplicationConfiguration configuration,
+                              FolderListenerExecutor folderListenerExecutor, ICommandExecutor commandExecutor, CommandBuilder commandBuilder) {
+        this.selfService = selfService;
+        this.configuration = configuration;
+        this.folderListenerExecutor = folderListenerExecutor;
+        this.commandExecutor = commandExecutor;
+        this.commandBuilder = commandBuilder;
     }
 
-	@Override
-	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
-	}
+    @Override
+    public String create(UserInfo userInfo, ProjectCreateDTO dto) {
+        log.info("Trying to create project: {}", dto);
+        return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
+    }
 
-	@Override
-	public String recreate(UserInfo userInfo, ProjectCreateDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.RECREATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
-	}
+    @Override
+    public String recreate(UserInfo userInfo, ProjectCreateDTO dto) {
+        log.info("Trying to recreate project: {}", dto);
+        return executeDocker(userInfo, dto, DockerAction.RECREATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
+    }
 
-	@Override
-	public String terminate(UserInfo userInfo, ProjectActionDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
-	}
+    @Override
+    public String terminate(UserInfo userInfo, ProjectActionDTO dto) {
+        log.info("Trying to terminate project: {}", dto);
+        return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), PROJECT_RESOURCE_TYPE, PROJECT_IMAGE, dto.getEndpoint());
+    }
 
-	@Override
-	public String start(UserInfo userInfo, ProjectActionDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), EDGE_RESOURCE_TYPE, EDGE_IMAGE, dto.getEndpoint());
-	}
+    @Override
+    public String start(UserInfo userInfo, ProjectActionDTO dto) {
+        log.info("Trying to start project: {}", dto);
+        return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), EDGE_RESOURCE_TYPE, EDGE_IMAGE, dto.getEndpoint());
+    }
 
     @Override
     public String stop(UserInfo userInfo, ProjectActionDTO dto) {
-	    return executeDocker(userInfo, dto, DockerAction.STOP, dto.getName(), EDGE_RESOURCE_TYPE, EDGE_IMAGE, dto.getEndpoint());
+        log.info("Trying to stop project: {}", dto);
+        return executeDocker(userInfo, dto, DockerAction.STOP, dto.getName(), EDGE_RESOURCE_TYPE, EDGE_IMAGE, dto.getEndpoint());
     }
 
     private String executeDocker(UserInfo userInfo, ResourceBaseDTO dto, DockerAction action, String projectName,
@@ -113,6 +114,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .withConfKeyName(configuration.getAdminKey())
                 .withImage(image)
                 .withAction(action);
+        log.info("Docker command : {}", runDockerCommand);
         if (configuration.getCloudProvider() == CloudProvider.AZURE &&
                 Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
                 !configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {

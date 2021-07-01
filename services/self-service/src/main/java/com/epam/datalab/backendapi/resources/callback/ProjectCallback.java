@@ -23,10 +23,12 @@ import com.epam.datalab.backendapi.dao.EndpointDAO;
 import com.epam.datalab.backendapi.dao.GpuDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.domain.RequestId;
+import com.epam.datalab.backendapi.schedulers.CheckInfrastructureStatusScheduler;
 import com.epam.datalab.backendapi.service.ExploratoryService;
 import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.base.project.ProjectResult;
 import com.epam.datalab.dto.imagemetadata.EdgeGPU;
+import com.epam.datalab.exceptions.DatalabException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,34 +49,55 @@ public class ProjectCallback {
     private final ExploratoryService exploratoryService;
     private final RequestId requestId;
     private final GpuDAO gpuDAO;
+    private final CheckInfrastructureStatusScheduler scheduler;
 
     @Inject
     public ProjectCallback(ProjectDAO projectDAO, EndpointDAO endpointDAO, ExploratoryService exploratoryService, RequestId requestId,
-                           GpuDAO gpuDAO) {
+                           GpuDAO gpuDAO, CheckInfrastructureStatusScheduler scheduler) {
         this.projectDAO = projectDAO;
         this.exploratoryService = exploratoryService;
         this.requestId = requestId;
         this.gpuDAO = gpuDAO;
+        this.scheduler = scheduler;
     }
 
 
     @POST
     public Response updateProjectStatus(ProjectResult projectResult) {
-        requestId.checkAndRemove(projectResult.getRequestId());
-        final String projectName = projectResult.getProjectName();
-        final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
-        if (projectResult.getEdgeInfo().getGpuList() != null) {
-            List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
-            log.info("Adding edgeGpu with gpu_types: {}, for project: {}", gpuList, projectName);
-            gpuDAO.create(new EdgeGPU(projectName, gpuList));
-        }
-        if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
-            projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
-        } else {
-            updateExploratoriesStatusIfNeeded(status, projectResult.getProjectName(), projectResult.getEndpointName());
-            projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
+        try {
+
+            log.info("TEST LOG!!!: projectResult: {}", projectResult);
+
+            requestId.checkAndRemove(projectResult.getRequestId());
+            final String projectName = projectResult.getProjectName();
+            final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
+            saveGpuForProject(projectResult, projectName);
+            if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
+                projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
+            } else {
+                updateExploratoriesStatusIfNeeded(status, projectResult.getProjectName(), projectResult.getEndpointName());
+                projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            log.info("Run scheduler");
+            scheduler.execute(null);
         }
         return Response.ok().build();
+    }
+
+    private void saveGpuForProject(ProjectResult projectResult, String projectName) {
+        try {
+
+            if (projectResult.getEdgeInfo().getGpuList() != null) {
+                List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
+                log.info("Adding edgeGpu with gpu_types: {}, for project: {}", gpuList, projectName);
+                gpuDAO.create(new EdgeGPU(projectName, gpuList));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new DatalabException(e.getMessage(), e);
+        }
     }
 
     private void updateExploratoriesStatusIfNeeded(UserInstanceStatus status, String projectName, String endpoint) {

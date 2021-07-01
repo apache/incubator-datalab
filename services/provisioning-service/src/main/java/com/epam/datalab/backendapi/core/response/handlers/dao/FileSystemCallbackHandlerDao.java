@@ -111,6 +111,7 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
     }
 
     private Optional<PersistentFileHandler> toPersistentFileHandler(Path path) {
+        log.info("TEST LOG!!!: path: {}",path);
         try {
             return Optional.of(mapper.readValue(path.toFile(), PersistentFileHandler.class));
         } catch (Exception e) {

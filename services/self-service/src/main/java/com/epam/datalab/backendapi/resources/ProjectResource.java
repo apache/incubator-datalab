@@ -39,6 +39,7 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
@@ -61,6 +62,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("project")
+@Slf4j
 public class ProjectResource {
     private final ProjectService projectService;
     private final AccessKeyService keyService;
@@ -90,6 +92,7 @@ public class ProjectResource {
     @RolesAllowed("/api/project/create")
     public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                   @Valid CreateProjectDTO projectDTO) {
+        log.info("Trying to create project: {}", projectDTO);
         List<ProjectEndpointDTO> projectEndpointDTOS = projectDTO.getEndpoints()
                 .stream()
                 .map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
@@ -115,6 +118,8 @@ public class ProjectResource {
     @RolesAllowed("/api/project")
     public Response recreateProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                     @NotNull @Valid ProjectActionFormDTO startProjectDto) {
+        log.info("Trying to recreate project: {}", startProjectDto);
+
         startProjectDto.getEndpoints()
                 .forEach(endpoint -> projectService.recreate(userInfo, endpoint, startProjectDto.getProjectName()));
         return Response
@@ -133,6 +138,7 @@ public class ProjectResource {
     @RolesAllowed("/api/project")
     public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                  @NotNull @Valid ProjectActionFormDTO startProjectDto) {
+        log.info("Trying to start project: {}", startProjectDto);
         projectService.start(userInfo, startProjectDto.getEndpoints(), startProjectDto.getProjectName());
         return Response
                 .accepted()
@@ -150,6 +156,7 @@ public class ProjectResource {
     @RolesAllowed("/api/project")
     public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                 @NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
+        log.info("Trying to stop project: {}", stopProjectDTO);
         projectService.stopWithResources(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
         return Response
                 .accepted()
