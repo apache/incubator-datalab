@@ -536,10 +536,11 @@ def install_r_pkg(requisites):
         if os.environ['conf_resource'] in ('dataengine-service'):
             if os.environ['conf_cloud_provider'] in ('aws'):
                 manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
-            elif os.environ['conf_cloud_provider'] in ('gcp'):
-                # manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
-                manage_pkg('-y install', 'remote', 'libxml2-dev libcurl4-openssl-dev')
-            conn.sudo('R -e "install.packages(\'devtools\', repos = \'cloud.r-project.org\')"')
+            elif (os.environ['conf_cloud_provider'] in 'gcp') and ('-w-' in conn.sudo('hostname').stdout.replace('\n', '')):
+                #manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
+                manage_pkg('-y install', 'remote', 'libxml2-dev libcurl4-openssl-dev pkg-config')
+                conn.sudo('R -e ".libPaths(\'/usr/lib/R/site-library\')"')
+            conn.sudo('R -e "install.packages(\'devtools\', repos = \'cloud.r-project.org\'"')
         for r_pkg in requisites:
             name, vers = r_pkg
             version = vers
@@ -552,7 +553,9 @@ def install_r_pkg(requisites):
                          'dependencies = NA)\' 2>&1 | tee /tmp/install_{0}.tmp; if ! grep -w -E  "({2})" /tmp/install_{0}.tmp '
                          '> /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
             else:
-                conn.sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dependencies = NA)\' 2>&1 | tee /tmp/install_{0}.tmp; if ! grep -w -E "({2})" /tmp/install_{0}.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
+                conn.sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", '
+                          'dependencies = NA)\' 2>&1 | tee /tmp/install_{0}.tmp; if ! grep -w -E "({2})" /tmp/install_{0}.tmp > '
+                          '/tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
             dep = conn.sudo('grep "(NA.*->". /tmp/install_' + name + '.tmp | awk \'{print $1}\'').stdout.replace('\n', ' ')
             dep_ver = conn.sudo('grep "(NA.*->". /tmp/install_' + name + '.tmp | awk \'{print $4}\'').stdout.replace('\n', ' ').replace(')', '').split(' ')
             if dep == '':
@@ -565,6 +568,7 @@ def install_r_pkg(requisites):
                     else:
                         dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
                 dep = [i for i in dep if i]
+            conn.sudo('hostname')
             err = conn.sudo('cat /tmp/install_{0}.log'.format(name)).stdout.replace('"', "'").replace('\n', '')
             conn.sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
             res = conn.sudo('cat /tmp/install_{0}.list'.format(name)).stdout.replace('\n', '')
