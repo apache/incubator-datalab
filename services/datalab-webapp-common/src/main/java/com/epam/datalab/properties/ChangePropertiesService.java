@@ -92,16 +92,26 @@ public class ChangePropertiesService {
 
 
     private String hideSecretsAndRemoveLicence(String currentConf) {
-        Matcher m = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(currentConf);
+        Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(currentConf);
+        Matcher userMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(currentConf);
         List<String> secrets = new ArrayList<>();
+        List<String> users = new ArrayList<>();
         String confWithReplacedSecretConf = removeLicence(currentConf);
-        while (m.find()) {
-            String secret = m.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
+        while (passMatcher.find()) {
+            String secret = passMatcher.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
             if (!(secret.isEmpty() || secret.trim().isEmpty()))
                 secrets.add(secret);
         }
+        while (userMatcher.find()) {
+            String user = userMatcher.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
+            if (!(user.isEmpty() || user.trim().isEmpty()))
+                users.add(user);
+        }
         for (String secret : secrets) {
             confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secret, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
+        }
+        for (String user : users) {
+            confWithReplacedSecretConf = confWithReplacedSecretConf.replace(user, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
         }
         return confWithReplacedSecretConf;
     }
