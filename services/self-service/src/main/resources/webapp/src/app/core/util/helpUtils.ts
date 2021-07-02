@@ -35,4 +35,28 @@ export class HelpUtils {
         return;
     }
   }
+
+  public static sortGpuTypes(gpuType: Array<string>): Array<string> {
+    let sortedTypes = [];
+
+    gpuType.forEach(type => checkType(type));
+
+    function checkType(type) {
+      switch (type) {
+        case 'nvidia-tesla-t4':
+          sortedTypes[0] = type;
+          return;
+  
+        case 'nvidia-tesla-p100':
+          sortedTypes[1] = type;
+          return;
+  
+        case 'nvidia-tesla-v100':
+          sortedTypes[2] = type;
+          return;
+      }
+    }
+
+    return sortedTypes;
+  }
 }
