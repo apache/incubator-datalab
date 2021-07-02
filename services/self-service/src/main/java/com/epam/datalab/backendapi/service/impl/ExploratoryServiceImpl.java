@@ -118,6 +118,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
         try {
             final ProjectDTO projectDTO = projectService.get(project);
             final EndpointDTO endpointDTO = endpointService.get(exploratory.getEndpoint());
+            changeImageNameForDeepLearningOnAWSandAzure(exploratory, endpointDTO);
             final UserInstanceDTO userInstanceDTO = getUserInstanceDTO(userInfo, exploratory, project, endpointDTO.getCloudProvider());
             exploratoryDAO.insertExploratory(userInstanceDTO);
             isAdded = true;
@@ -141,6 +142,18 @@ public class ExploratoryServiceImpl implements ExploratoryService {
             throw new DatalabException("Could not create exploratory environment " + exploratory.getName() + " for user "
                     + userInfo.getName() + ": " + Optional.ofNullable(t.getCause()).map(Throwable::getMessage).orElse(t.getMessage()), t);
         }
+    }
+
+    private void changeImageNameForDeepLearningOnAWSandAzure(Exploratory exploratory, EndpointDTO endpointDTO) {
+        if (isDeepLearningOnAwsOrAzure(exploratory, endpointDTO)) {
+            if (exploratory.getImageName() == null || exploratory.getImageName().isEmpty())
+                exploratory.setImageName(exploratory.getVersion());
+        }
+    }
+
+    private boolean isDeepLearningOnAwsOrAzure(Exploratory exploratory, EndpointDTO endpointDTO) {
+        return exploratory.getVersion().equals("Deep Learning AMI (Ubuntu 18.04) Version 42.1") ||
+                exploratory.getVersion().equals("microsoft-dsvm:ubuntu-1804:1804-gen2");
     }
 
     @Override

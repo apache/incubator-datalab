@@ -33,7 +33,7 @@ public class Exploratory {
     private final String version;
     private final String templateName;
     private final String shape;
-    private final String imageName;
+    private String imageName;
     private final String endpoint;
     private final String project;
     private final String exploratoryTag;

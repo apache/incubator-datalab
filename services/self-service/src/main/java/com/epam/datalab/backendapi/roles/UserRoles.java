@@ -261,8 +261,6 @@ public class UserRoles {
         if (userRoles == null) {
             return true;
         }
-        LOGGER.info("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(),
-                type, name);
         Set<String> groups = getGroups(type, name);
         if (groups == null || groups.isEmpty()) {
             return checkDefault(useDefault);
