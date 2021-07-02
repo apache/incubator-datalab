@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
-import {CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
+import {CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import {tap} from 'rxjs/operators';
@@ -150,6 +150,19 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   }
 
+  public addSizeToGpuType(gpuType: string): string {
+    switch (gpuType) {
+      case 'nvidia-tesla-t4':
+        return 'S';
+
+      case 'nvidia-tesla-p100':
+        return 'M';
+
+      case 'nvidia-tesla-v100':
+        return 'L';
+    }
+  }
+
   public getShapes(template) {
     this.selectedImage = null;
     const controls = ['notebook_image_name', 'shape', 'gpu_type', 'gpu_count'];
@@ -176,7 +189,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         (template?.image === 'docker.datalab-jupyter' ||
         template?.image === 'docker.datalab-deeplearning' ||
         template?.image === 'docker.datalab-tensor')) {
-      this.gpuTypes = template?.computationGPU ? template.computationGPU : [];
+          
+      this.gpuTypes = template?.computationGPU ? HelpUtils.sortGpuTypes(template.computationGPU) : [];
 
       if(template?.image === 'docker.datalab-tensor' || template?.image === 'docker.datalab-deeplearning') {
         this.addGpuFields();
