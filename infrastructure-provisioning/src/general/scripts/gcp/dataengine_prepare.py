@@ -53,6 +53,11 @@ if __name__ == "__main__":
         data_engine['endpoint_tag'] = data_engine['endpoint_name']
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
+        data_engine['gpu_accelerator_type'] = 'None'
+        data_engine['gpu_master_accelerator_type'] = 'None'
+        data_engine['gpu_master_accelerator_count'] = 'None'
+        data_engine['gpu_slave_accelerator_type'] = 'None'
+        data_engine['gpu_slave_accelerator_count'] = 'None'
 
         edge_status = GCPMeta.get_instance_status('{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                                             data_engine['project_name'],
@@ -148,7 +153,6 @@ if __name__ == "__main__":
             data = {"hostname": data_engine['cluster_name'], "error": ""}
             json.dump(data, f)
 
-        data_engine['gpu_accelerator_type'] = 'None'
         if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
             if os.environ['gpu_type'] != '':
                 notebook_config['gpu_accelerator_type'] = os.environ['gpu_type']
