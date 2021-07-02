@@ -232,7 +232,7 @@
                   <mat-select formControlName="gpu_type" disableOptionCentering [disabled]="!createExploratoryForm.controls['shape'].value"
                               panelClass="create-resources-dialog" placeholder="GPU type">
                       <mat-option *ngFor="let list_item of gpuTypes" [value]="list_item" (click)="setCount('', list_item)">
-                        {{ list_item}}
+                        <strong class="highlight icon-label">{{ addSizeToGpuType(list_item) }}</strong> {{ list_item }}
                       </mat-option>
                       <mat-option *ngIf="!gpuTypes.length" class="multiple-select ml-10" disabled>
                         GPU list is empty
