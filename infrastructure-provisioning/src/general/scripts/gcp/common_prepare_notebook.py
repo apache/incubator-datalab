@@ -120,13 +120,14 @@ if __name__ == "__main__":
             else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
 
+        deeplearning_ami = 'false'
+
         if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
             notebook_config['primary_image_name'] = GCPMeta.get_deeplearning_image_by_family(os.environ['notebook_image_name'])
             if notebook_config['primary_image_name']:
                 deeplearning_ami = 'true'
-        else:
+        if deeplearning_ami != 'true':
             notebook_config['primary_image_name'] = GCPMeta.get_image_by_name(notebook_config['notebook_primary_image_name'])
-            deeplearning_ami = 'false'
         if notebook_config['primary_image_name'] == '':
             notebook_config['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         else:
