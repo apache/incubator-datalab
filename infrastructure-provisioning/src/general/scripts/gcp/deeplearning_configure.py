@@ -267,7 +267,7 @@ if __name__ == "__main__":
     try:
         # generating output information
         ip_address = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
-        tensorboard_url = "http://" + ip_address + ":6006/"
+        #tensorboard_url = "http://" + ip_address + ":6006/"
         jupyter_ip_url = 'http://' + ip_address + ':8888/{}/'.format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(
             notebook_config['exploratory_name'])
@@ -275,8 +275,8 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'])
         jupyter_ungit_access_url = "https://" + edge_instance_hostname + "/{}-ungit/".format(
             notebook_config['exploratory_name'])
-        tensorboard_access_url = "https://" + edge_instance_hostname + "/{}-tensor/".format(
-            notebook_config['exploratory_name'])
+        #tensorboard_access_url = "https://" + edge_instance_hostname + "/{}-tensor/".format(
+        #    notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))
@@ -284,8 +284,8 @@ if __name__ == "__main__":
         print("Instance type: {}".format(notebook_config['instance_type']))
         print("Key name: {}".format(notebook_config['key_name']))
         print("User key name: {}".format(notebook_config['project_name']))
-        print("TensorBoard URL: {}".format(tensorboard_url))
-        print("TensorBoard log dir: /var/log/tensorboard")
+        #print("TensorBoard URL: {}".format(tensorboard_url))
+        #print("TensorBoard log dir: /var/log/tensorboard")
         print("Jupyter URL: {}".format(jupyter_ip_url))
         print("Ungit URL: {}".format(ungit_ip_url))
         print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(
@@ -302,8 +302,8 @@ if __name__ == "__main__":
                    "exploratory_url": [
                        {"description": "Jupyter",
                         "url": jupyter_notebook_access_url},
-                       {"description": "TensorBoard",
-                        "url": tensorboard_access_url},
+                       #{"description": "TensorBoard",
+                       # "url": tensorboard_access_url},
                        {"description": "Ungit",
                         "url": jupyter_ungit_access_url}#,
                        #{"description": "Jupyter (via tunnel)",
