@@ -255,12 +255,17 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.unsubscribe$),
       )
-      .subscribe(res => {
+      .subscribe(
+        res => {
           this.messagesStatus.success.push(serviceName);
           this.messagesStatus.counter -= 1;
         },
         error => {
-          this.messagesStatus.error.push(serviceName);
+          if (serviceName === 'Self-service') {
+            this.messagesStatus.success.push(serviceName);
+          } else {
+            this.messagesStatus.error.push(serviceName);
+          }
           this.messagesStatus.counter -= 1;
         }
       );
