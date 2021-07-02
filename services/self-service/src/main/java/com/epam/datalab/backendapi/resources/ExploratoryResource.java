@@ -78,6 +78,7 @@ public class ExploratoryResource implements ExploratoryAPI {
             log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
             throw new DatalabException("You do not have the privileges to create a " + formDTO.getTemplateName());
         }
+
         String uuid = exploratoryService.create(userInfo, getExploratory(formDTO), formDTO.getProject(), formDTO.getName());
         return Response.ok(uuid).build();
 
@@ -155,8 +156,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         return Exploratory.builder()
                 .name(formDTO.getName())
                 .dockerImage(formDTO.getImage())
-                .imageName((formDTO.getImageName() == null || formDTO.getImageName().isEmpty())
-                        ? formDTO.getVersion() : formDTO.getImageName())
+                .imageName(formDTO.getImageName())
                 .templateName(formDTO.getTemplateName())
                 .version(formDTO.getVersion())
                 .clusterConfig(formDTO.getClusterConfig())
