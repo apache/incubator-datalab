@@ -528,19 +528,31 @@ def ensure_ciphers():
         print('Failed to ensure ciphers: ', str(err))
         sys.exit(1)
 
+def ensure_dataengine_service_devtools():
+    try:
+        if not exists(conn, '/home/{}/dataengine-service-devtools-ensured'.format(os.environ['conf_os_user'])):
+            if os.environ['conf_cloud_provider'] in 'aws':
+                manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
+            elif (os.environ['conf_cloud_provider'] in 'gcp') and (
+                    '-w-' in conn.sudo('hostname').stdout.replace('\n', '')):
+                # manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
+                manage_pkg('-y install', 'remote', 'libxml2-dev libcurl4-openssl-dev pkg-config')
+            conn.sudo('R -e "install.packages(\'devtools\', repos = \'cloud.r-project.org\')"')
+            if (os.environ['conf_cloud_provider'] in 'gcp') and (
+                    "R_LIBS_SITE" not in conn.sudo('cat /opt/conda/miniconda3/lib/R/etc/Renviron').stdout):
+                conn.sudo(
+                    '''bash -l -c 'echo "R_LIBS_SITE=${R_LIBS_SITE-'/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library'}" >> /opt/conda/miniconda3/lib/R/etc/Renviron' ''')
+            conn.sudo('touch /home/{}/dataengine-service-devtools-ensured'.format(os.environ['conf_os_user']))
+    except Exception as err:
+        print('Failed to ensure devtools for dataproc with err: {}'.format(err))
+        sys.exit(1)
 
 def install_r_pkg(requisites):
     status = list()
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping|couldn't find"
+    if os.environ['conf_resource'] in 'dataengine-service':
+        ensure_dataengine_service_devtools()
     try:
-        if os.environ['conf_resource'] in ('dataengine-service'):
-            if os.environ['conf_cloud_provider'] in ('aws'):
-                manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
-            elif (os.environ['conf_cloud_provider'] in 'gcp') and ('-w-' in conn.sudo('hostname').stdout.replace('\n', '')):
-                #manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
-                manage_pkg('-y install', 'remote', 'libxml2-dev libcurl4-openssl-dev pkg-config')
-                conn.sudo('R -e ".libPaths(\'/usr/lib/R/site-library\')"')
-            conn.sudo('R -e "install.packages(\'devtools\', repos = \'cloud.r-project.org\'"')
         for r_pkg in requisites:
             name, vers = r_pkg
             version = vers
