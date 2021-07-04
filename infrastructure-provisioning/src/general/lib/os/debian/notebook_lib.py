@@ -420,11 +420,14 @@ def install_os_pkg(requisites):
             else:
                 version = 'N/A'
                 os_pkg = os_pkg[0]
-            datalab.fab.conn.sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{2}.log; then echo "no_error" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
+            datalab.fab.conn.sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | '
+                                  'tee /tmp/os_install_{2}.tmp; if ! grep -w -E "({1})" /tmp/os_install_{2}.tmp > '
+                                  '/tmp/os_install_{2}.log; then echo "no_error" > /tmp/os_install_{2}.log;fi'
+                                  .format(os_pkg, error_parser, name))
             err = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout.replace('"', "'")
-            datalab.fab.conn.sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{0}.log; then echo "no_new_pkgs" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
+            datalab.fab.conn.sudo('cat /tmp/os_install_{0}.tmp | if ! grep -w -E -A 30 "({1})" /tmp/os_install_{0}.tmp > '
+                                  '/tmp/os_install_{0}.log; then echo "no_new_pkgs" > /tmp/os_install_{0}.log;fi'
+                                  .format(name, new_pkgs_parser))
             dep = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout
             if 'no_new_pkgs' in dep:
                 dep = []
@@ -460,6 +463,7 @@ def install_os_pkg(requisites):
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})
         datalab.fab.conn.sudo('unattended-upgrades -v')
         #datalab.fab.conn.sudo('export LC_ALL=C')
+        datalab.fab.conn.sudo('rm /tmp/*{}*'.format(name))
         return status
     except Exception as err:
         for os_pkg in requisites:
