@@ -80,7 +80,7 @@ if __name__ == "__main__":
                                                                       notebook_config['project_name'],
                                                                       notebook_config['endpoint_name'],
                                                                       notebook_config['exploratory_name'], args.uuid)
-        notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '16')(
+        notebook_config['primary_disk_size'] = (lambda x: '100' if x == 'deeplearning' else '16')(
             os.environ['application'])
         notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-profile'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'])
@@ -105,7 +105,7 @@ if __name__ == "__main__":
             os.environ['conf_os_family'])])
         image_id = datalab.meta_lib.get_ami_id_by_name(notebook_config['notebook_image_name'], 'available')
         if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning' and image_id == '':
-            image_id = datalab.meta_lib.get_ami_id(notebook_config['notebook_image_name'])
+            image_id = datalab.meta_lib.get_ami_id(os.environ['notebook_image_name'])
         if image_id != '':
             notebook_config['ami_id'] = image_id
             print('Pre-configured image found. Using: {}'.format(notebook_config['ami_id']))
