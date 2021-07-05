@@ -53,7 +53,13 @@
         <dependency>
             <groupId>com.github.michaelklishin</groupId>
             <artifactId>quartz-mongodb</artifactId>
-            <version>2.1.0</version>
+            <version>v2.2.0-rc1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.2</version>
         </dependency>
 
         <dependency>

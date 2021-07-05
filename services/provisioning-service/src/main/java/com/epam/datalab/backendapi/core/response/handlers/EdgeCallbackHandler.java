@@ -29,9 +29,11 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<E>> extends ResourceCallbackHandler<T> {
     @JsonProperty
     private final String callbackURI;
@@ -57,7 +59,8 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
     }
 
     protected T parseOutResponse(JsonNode resultNode, T baseStatus) {
-        if (resultNode != null && getAction() == DockerAction.CREATE
+        log.info("TEST LOG!!!: edge callback: resultNode: {}, baseStatus: {}", resultNode, baseStatus);
+        if (resultNode != null && (getAction() == DockerAction.CREATE || getAction() == DockerAction.START)
                 && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {
                 E credential = mapper.readValue(resultNode.toString(), responseType);
