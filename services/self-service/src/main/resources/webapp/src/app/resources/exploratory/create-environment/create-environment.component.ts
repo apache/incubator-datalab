@@ -54,6 +54,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public selectedCloud: string = '';
   public gpuCount: Array<number>;
   public gpuTypes: Array<string> = [];
+  public addSizeToGpuType = HelpUtils.addSizeToGpuType;
 
   public additionalParams = {
     configurationNode: false,
@@ -148,19 +149,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         }
       );
 
-  }
-
-  public addSizeToGpuType(gpuType: string): string {
-    switch (gpuType) {
-      case 'nvidia-tesla-t4':
-        return 'S';
-
-      case 'nvidia-tesla-p100':
-        return 'M';
-
-      case 'nvidia-tesla-v100':
-        return 'L';
-    }
   }
 
   public getShapes(template) {
