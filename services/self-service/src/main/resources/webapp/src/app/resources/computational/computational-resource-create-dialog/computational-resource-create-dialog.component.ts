@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import {HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils} from '../../../core/util';
+import {HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils, HelpUtils} from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
@@ -65,6 +65,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     spotInstances: false,
     configuration: false,
   };
+  public sortGpuTypes = HelpUtils.sortGpuTypes;
+  public addSizeToGpuType = HelpUtils.addSizeToGpuType;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
