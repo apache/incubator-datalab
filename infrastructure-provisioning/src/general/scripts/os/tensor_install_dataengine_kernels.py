@@ -66,6 +66,43 @@ def configure_notebook(keyfile, hoststring):
             conn.sudo('mkdir -p /usr/lib64/python3.8')
             conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
+def install_sparkamagic_kernels(args):
+    try:
+        datalab.fab.conn.sudo('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
+        sparkmagic_dir = datalab.fab.conn.sudo(''' bash -l -c 'pip3 show sparkmagic | grep "Location: "' ''').stdout.rstrip("\n\r").split(' ')[1]
+        datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
+        datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
+        #datalab.fab.conn.sudo('jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --prefix=/home/{}/.local/'.format(sparkmagic_dir, args.os_user))
+        pyspark_kernel_name = 'PySpark (Python-{2} / Spark-{0} ) [{1}]'.format(args.spark_version,
+                                                                         args.cluster_name, os.environ['notebook_python_venv_version'][:3])
+        datalab.fab.conn.sudo('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
+            pyspark_kernel_name, args.os_user))
+        scala_version = datalab.fab.conn.sudo('''bash -l -c 'spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"' ''').stdout.rstrip("\n\r")
+        spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(scala_version, args.spark_version,
+                                                                         args.cluster_name)
+        datalab.fab.conn.sudo('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
+            spark_kernel_name, args.os_user))
+        #r_version = datalab.fab.conn.sudo(''' bash -l -c 'R --version | grep -o -P "R version \K.{0,5}"' ''').stdout.rstrip("\n\r")
+        #sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(r_version, args.spark_version,
+        #                                                                    args.cluster_name)
+        #datalab.fab.conn.sudo('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(
+        #    sparkr_kernel_name, args.os_user))
+        datalab.fab.conn.sudo('sudo mv -f /home/{0}/.local/share/jupyter/kernels/pysparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/pysparkkernel_{1}'.format(args.os_user, args.cluster_name))
+        datalab.fab.conn.sudo('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/sparkkernel_{1}'.format(args.os_user, args.cluster_name))
+        #datalab.fab.conn.run('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkrkernel '
+        #      '/home/{0}/.local/share/jupyter/kernels/sparkrkernel_{1}'.format(args.os_user, args.cluster_name))
+        datalab.fab.conn.sudo('mkdir -p /home/' + args.os_user + '/.sparkmagic')
+        datalab.fab.conn.sudo('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json')
+        spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
+        datalab.fab.conn.sudo('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
+                spark_master_ip, args.os_user))
+        datalab.fab.conn.sudo('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user))
+    except Exception as err:
+        print(err)
+        sys.exit(1)
+
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')
     conn.sudo('''bash -l -c "date +%s > /opt/inactivity/{}_inactivity" '''.format(reworked_ip))
@@ -80,9 +117,10 @@ if __name__ == "__main__":
     if 'spark_configurations' not in os.environ:
         os.environ['spark_configurations'] = '[]'
     configure_notebook(args.keyfile, args.notebook_ip)
+    install_sparkamagic_kernels(args)
     create_inactivity_log(args.spark_master_ip, args.notebook_ip)
-    conn.sudo('/usr/bin/python3 /usr/local/bin/tensor_dataengine_create_configs.py '
-         '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
-         '--datalake_enabled {} --spark_configurations "{}"'.
-         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,
-                args.datalake_enabled, os.environ['spark_configurations']))
+    #conn.sudo('/usr/bin/python3 /usr/local/bin/tensor_dataengine_create_configs.py '
+    #     '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
+    #     '--datalake_enabled {} --spark_configurations "{}"'.
+    #     format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,
+    #            args.datalake_enabled, os.environ['spark_configurations']))
