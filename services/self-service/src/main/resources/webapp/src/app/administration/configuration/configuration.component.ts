@@ -372,8 +372,8 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
         <span [hidden]="(filterProvisioning.length < 2) || filterProvisioning.length === 2 && filterProvisioning[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
 
-      <ng-template [ngIf]="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && (data.services.includes('provisioning') || !filterProvisioning.length)">
-        <div class="warning" [ngStyle]="data.services.includes('provisioning') && data.services?.length > 1 && {'margin-top': '10px'}">
+      <ng-template [ngIf]="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && (data?.services?.includes('provisioning') || !filterProvisioning.length)">
+        <div class="warning" [ngStyle]="data?.services?.includes('provisioning') && data.services?.length > 1 && {'margin-top': '10px'}">
         <span>Provisioning service: </span>can not be restarted because one of resources is in processing stage. Please try again later.
         </div>
       </ng-template>
@@ -381,14 +381,14 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       <ng-template [ngIf]="data.action === 'discard'" ]>Discard all unsaved changes.</ng-template>
       <ng-template [ngIf]="data.action === 'save'" ]>After you save changes you need to restart service.</ng-template>
     </div>
-    <div class="text-center " *ngIf="!data.environmentStatuses[data.activeEndpoint]?.length || (data.environmentStatuses[data.activeEndpoint]?.length && (!data.services.includes('provisioning') || filterProvisioning?.length))">
+    <div class="text-center " *ngIf="!data.environmentStatuses[data.activeEndpoint]?.length || (data.environmentStatuses[data.activeEndpoint]?.length && (!data?.services?.includes('provisioning') || filterProvisioning?.length))">
       <p class="strong">Do you want to proceed?</p>
     </div>
-    <div class="text-center m-top-20 pb-25" *ngIf="!data.environmentStatuses[data.activeEndpoint]?.length || (data.environmentStatuses[data.activeEndpoint]?.length && (!data.services.includes('provisioning') || filterProvisioning.length))">
+    <div class="text-center m-top-20 pb-25" *ngIf="!data.environmentStatuses[data.activeEndpoint]?.length || (data.environmentStatuses[data.activeEndpoint]?.length && (!data?.services?.includes('provisioning') || filterProvisioning.length))">
       <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
       <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
     </div>
-    <div class="text-center m-top-20 pb-25" *ngIf="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && data.services.includes('provisioning') && data.services.length === 1">
+    <div class="text-center m-top-20 pb-25" *ngIf="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && data?.services?.includes('provisioning') && data.services.length === 1">
       <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
     </div>
   </div>
@@ -415,7 +415,7 @@ export class SettingsConfirmationDialogComponent implements OnInit {
   ) {
   }
   ngOnInit() {
-    this.filterProvisioning = this.data.services?.filter(service => service !== 'provisioning');
+    this.filterProvisioning = this.data?.services?.filter(service => service !== 'provisioning');
   }
 }
 

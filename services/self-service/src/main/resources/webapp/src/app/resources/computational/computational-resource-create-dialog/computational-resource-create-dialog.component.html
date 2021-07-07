@@ -170,9 +170,9 @@
                     <mat-select formControlName="master_GPU_type" disableOptionCentering
                                 placeholder="Select master GPU type"
                                 [disabled]="!resourceForm.controls['shape_master'].value">
-                      <mat-option *ngFor="let type of selectedImage.computationGPU"
+                      <mat-option *ngFor="let type of sortGpuTypes(selectedImage.computationGPU)"
                                   [value]="type" >
-                        {{ type }}
+                        <strong class="highlight icon-label">{{ addSizeToGpuType(type) }}</strong> {{ type }}
                       </mat-option>
                       <mat-option *ngIf="!selectedImage.computationGPU?.length" class="multiple-select ml-10" disabled>
                         Master GPU types list is empty
@@ -223,8 +223,8 @@
                   <mat-form-field>
                     <mat-label>Select slave GPU type</mat-label>
                     <mat-select formControlName="slave_GPU_type" disableOptionCentering [disabled]="!resourceForm.controls['shape_slave'].value">
-                      <mat-option *ngFor="let type of selectedImage.computationGPU" [value]="type">
-                        {{ type }}
+                      <mat-option *ngFor="let type of sortGpuTypes(selectedImage.computationGPU)" [value]="type">
+                        <strong class="highlight icon-label">{{ addSizeToGpuType(type) }}</strong> {{ type }}
                       </mat-option>
                       <mat-option *ngIf="!selectedImage.computationGPU?.length" class="multiple-select ml-10" disabled>
                         Slave GPU types list is empty
