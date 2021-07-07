@@ -205,9 +205,13 @@ public class ComputationalServiceImpl implements ComputationalService {
         boolean isAdded = computationalDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(), project,
                 computationalResource);
 
+        log.info("TEST LOG!!!: isAdded: {}", isAdded);
+
         if (isAdded) {
             try {
                 EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
+                log.info("TEST LOG!!!: send to prov");
+
                 String uuid =
                         provisioningService.post(endpointDTO.getUrl() + COMPUTATIONAL_CREATE_CLOUD_SPECIFIC,
                                 userInfo.getAccessToken(),

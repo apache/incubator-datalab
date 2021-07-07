@@ -68,7 +68,8 @@ public class ComputationalResourceAws extends DockerService implements DockerCom
     @POST
     @Path(ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC)
     public String create(@Auth UserInfo ui, ComputationalCreateAws dto) {
-        log.debug("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
+
+        log.info("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
