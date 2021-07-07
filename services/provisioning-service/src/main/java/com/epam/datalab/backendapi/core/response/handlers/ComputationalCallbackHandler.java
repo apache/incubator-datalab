@@ -75,11 +75,15 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 
     @Override
     protected ComputationalStatusDTO parseOutResponse(JsonNode resultNode, ComputationalStatusDTO baseStatus) {
+        log.info("TEST LOG!!!: parseOutResponse :\n resultNode: {}", resultNode);
+
         if (resultNode == null) {
             return baseStatus;
         }
         baseStatus.withComputationalUrl(extractUrl(resultNode));
         baseStatus.withLastActivity(Date.from(Instant.now()));
+        log.info("TEST LOG!!!: base status: {}", baseStatus);
+        log.info("TEST LOG!!!: getAction: {}", getAction());
 
         if (DockerAction.CREATE == getAction()) {
             baseStatus

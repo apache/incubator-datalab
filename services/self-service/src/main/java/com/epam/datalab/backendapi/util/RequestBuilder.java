@@ -65,6 +65,7 @@ import com.epam.datalab.model.exploratory.Exploratory;
 import com.epam.datalab.util.UsernameUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,7 @@ import java.util.UUID;
 import static com.epam.datalab.cloud.CloudProvider.*;
 
 @Singleton
+@Slf4j
 public class RequestBuilder {
     private static final String UNSUPPORTED_CLOUD_PROVIDER_MESSAGE = "Unsupported cloud provider ";
     private static final String AZURE_REFRESH_TOKEN_KEY = "refresh_token";
@@ -335,6 +337,8 @@ public class RequestBuilder {
                                                                      UserInstanceDTO userInstance,
                                                                      ComputationalCreateFormDTO form,
                                                                      EndpointDTO endpointDTO) {
+        log.info("TEST LOG!!!: newComputationalCreate: \n form: {}", form);
+
         T computationalCreate;
         CloudProvider cloudProvider = endpointDTO.getCloudProvider();
         switch (cloudProvider) {
@@ -351,6 +355,8 @@ public class RequestBuilder {
                         .withVersion(awsForm.getVersion())
                         .withConfig((awsForm.getConfig()))
                         .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
+                log.info("TEST LOG!!!: computationalCreate: {}", computationalCreate);
+
                 break;
             case GCP:
                 GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
