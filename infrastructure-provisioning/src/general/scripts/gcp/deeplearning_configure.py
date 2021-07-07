@@ -286,7 +286,7 @@ if __name__ == "__main__":
         print("User key name: {}".format(notebook_config['project_name']))
         #print("TensorBoard URL: {}".format(tensorboard_url))
         #print("TensorBoard log dir: /var/log/tensorboard")
-        print("Jupyter URL: {}".format(jupyter_ip_url))
+        print("JupyterLab URL: {}".format(jupyter_ip_url))
         print("Ungit URL: {}".format(ungit_ip_url))
         print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(
             notebook_config['key_name'], notebook_config['datalab_ssh_user'], ip_address))
@@ -300,7 +300,7 @@ if __name__ == "__main__":
                    "notebook_name": notebook_config['instance_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [
-                       {"description": "Jupyter",
+                       {"description": "JupyterLab",
                         "url": jupyter_notebook_access_url},
                        #{"description": "TensorBoard",
                        # "url": tensorboard_access_url},
