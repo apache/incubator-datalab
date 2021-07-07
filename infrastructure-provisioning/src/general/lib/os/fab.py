@@ -550,7 +550,7 @@ def ensure_dataengine_service_devtools():
 def install_r_pkg(requisites):
     status = list()
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping|couldn't find"
-    if os.environ['conf_resource'] in 'dataengine-service':
+    if os.environ['conf_resource'] == 'dataengine-service':
         ensure_dataengine_service_devtools()
     try:
         for r_pkg in requisites:
