@@ -153,12 +153,6 @@ if __name__ == "__main__":
             data = {"hostname": data_engine['cluster_name'], "error": ""}
             json.dump(data, f)
 
-        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
-            if os.environ['gpu_type'] != '':
-                notebook_config['gpu_accelerator_type'] = os.environ['gpu_type']
-            else:
-                notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
-
         if 'master_gpu_type' in os.environ:
             data_engine['gpu_master_accelerator_type'] = os.environ['master_gpu_type']
             data_engine['gpu_master_accelerator_count'] = os.environ['master_gpu_count']
