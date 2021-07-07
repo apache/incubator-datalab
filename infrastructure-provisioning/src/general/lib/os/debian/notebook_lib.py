@@ -279,10 +279,13 @@ def install_nvidia_drivers(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nvidia_ensured'.format(os_user)):
         try:
             # install nvidia drivers
-            datalab.fab.conn.sudo('wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin')
+            datalab.fab.conn.sudo(
+                'wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin')
             datalab.fab.conn.sudo('mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600')
-            datalab.fab.conn.sudo('apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub')
-            datalab.fab.conn.sudo('add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"')
+            datalab.fab.conn.sudo(
+                'wget https://developer.download.nvidia.com/compute/cuda/11.4.0/local_installers/cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb')
+            datalab.fab.conn.sudo('dpkg -i cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb')
+            datalab.fab.conn.sudo('apt-key add /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub')
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'cuda')
             #clean space on disk
