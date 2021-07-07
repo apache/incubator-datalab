@@ -49,21 +49,39 @@ public class ChangePropertiesService {
         }
     }
 
+
     public void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
-        try {
-            String oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
-            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
-            log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
-            writer.write(addLicence());
-            writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
-            log.info("{} overwritten successfully", serviceName);
-            writer.close();
-            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
+        String oldFile = readFile(serviceName, servicePath);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath))) {
+            try {
+                //            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
+                log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
+                writer.write(addLicence());
+                writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
+                log.info("{} overwritten successfully", serviceName);
+                writer.close();
+                //            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
+            } catch (Exception e) {
+                log.error("Failed during overwriting {}", serviceName);
+                writer.write(oldFile);
+                throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
+            }
         } catch (IOException e) {
-            log.error("Failed during overwriting {}", serviceName);
+            log.error("Failed to create writer with path {}", servicePath);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
         }
+    }
+
+    private String readFile(String serviceName, String servicePath) {
+        String oldFile;
+        try {
+            oldFile = FileUtils.readFileToString(new File(servicePath), Charset.defaultCharset());
+        } catch (IOException e) {
+            log.error("Failed to read with path {}", servicePath);
+            throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
+
+        }
+        return oldFile;
     }
 
     public RestartAnswer restart(RestartForm restartForm) {
@@ -94,24 +112,30 @@ public class ChangePropertiesService {
     private String hideSecretsAndRemoveLicence(String currentConf) {
         Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(currentConf);
         Matcher userMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(currentConf);
-        List<String> secrets = new ArrayList<>();
-        List<String> users = new ArrayList<>();
+        List<String> secretsAndUsers = new ArrayList<>();
         String confWithReplacedSecretConf = removeLicence(currentConf);
         while (passMatcher.find()) {
             String secret = passMatcher.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
             if (!(secret.isEmpty() || secret.trim().isEmpty()))
-                secrets.add(secret);
+                secretsAndUsers.add(secret);
         }
         while (userMatcher.find()) {
             String user = userMatcher.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
             if (!(user.isEmpty() || user.trim().isEmpty()))
-                users.add(user);
+                secretsAndUsers.add(user);
         }
-        for (String secret : secrets) {
-            confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secret, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
-        }
-        for (String user : users) {
-            confWithReplacedSecretConf = confWithReplacedSecretConf.replace(user, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
+        for (String secretOrUser : secretsAndUsers) {
+            int start = confWithReplacedSecretConf.indexOf(secretOrUser);
+            int end = confWithReplacedSecretConf.indexOf(":", start);
+            boolean isTure;
+            try {
+                String s = confWithReplacedSecretConf.substring(start, end);
+                isTure = s.equals(secretOrUser);
+            } catch (StringIndexOutOfBoundsException e) {
+                isTure = true;
+            }
+            if (isTure)
+                confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secretOrUser, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
         }
         return confWithReplacedSecretConf;
     }
@@ -137,29 +161,45 @@ public class ChangePropertiesService {
     }
 
     private String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
-        Map<String, String> emptySecrets = findEmptySecret(newPropFile);
-        return emptySecrets.isEmpty() ? newPropFile : replaceEmptySecret(newPropFile, oldProf, emptySecrets);
+        Map<String, String> emptySecretsAndUserNames = findEmptySecretAndNames(newPropFile);
+        return emptySecretsAndUserNames.isEmpty() ? newPropFile : replaceEmptySecret(newPropFile, oldProf, emptySecretsAndUserNames);
     }
 
     private String replaceEmptySecret(String newPropFile, String oldProf, Map<String, String> emptySecrets) {
         String fileWithReplacedEmptySecrets = newPropFile;
-        Matcher oldProfMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(oldProf);
-        while (oldProfMatcher.find()) {
-            String[] s = oldProfMatcher.group().split(":");
+        Matcher oldPassMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(oldProf);
+        Matcher oldUserMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(oldProf);
+
+        while (oldPassMatcher.find()) {
+            String[] s = oldPassMatcher.group().split(":");
             if (emptySecrets.containsKey(s[ChangePropertiesConst.DEFAULT_NAME_PLACE])) {
-                fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replace(emptySecrets.get(s[ChangePropertiesConst.DEFAULT_NAME_PLACE]), oldProfMatcher.group());
+                fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replace(emptySecrets.get(s[ChangePropertiesConst.DEFAULT_NAME_PLACE]), oldPassMatcher.group());
+            }
+        }
+        while (oldUserMatcher.find()) {
+            String[] s = oldUserMatcher.group().split(":");
+            if (emptySecrets.containsKey(s[ChangePropertiesConst.DEFAULT_NAME_PLACE])) {
+                fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replace(emptySecrets.get(s[ChangePropertiesConst.DEFAULT_NAME_PLACE]), oldUserMatcher.group());
             }
         }
         return fileWithReplacedEmptySecrets;
     }
 
-    private Map<String, String> findEmptySecret(String newPropFile) {
-        Matcher newPropFileMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(newPropFile);
+    private Map<String, String> findEmptySecretAndNames(String newPropFile) {
+        Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(newPropFile);
+        Matcher userNameMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(newPropFile);
         Map<String, String> emptySecrets = new HashMap<>();
-        while (newPropFileMatcher.find()) {
-            String[] s = newPropFileMatcher.group().split(":");
+        while (passMatcher.find()) {
+            String[] s = passMatcher.group().split(":");
             if (s[ChangePropertiesConst.DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
-                emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], newPropFileMatcher.group());
+                emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], passMatcher.group());
+            }
+        }
+
+        while (userNameMatcher.find()) {
+            String[] s = userNameMatcher.group().split(":");
+            if (s[ChangePropertiesConst.DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
+                emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], userNameMatcher.group());
             }
         }
         return emptySecrets;
