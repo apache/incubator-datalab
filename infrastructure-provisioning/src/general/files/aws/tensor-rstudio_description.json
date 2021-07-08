@@ -8,10 +8,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "RStudio with TensorFlow 2.1.0",
+      "template_name": "RStudio with TensorFlow 2.5.0",
       "description": "Base image with TensorFlow and RStudio node creation routines",
       "environment_type": "exploratory",
-      "version": "tensorflow_gpu-2.1.0",
+      "version": "tensorflow_gpu-2.5.0",
       "vendor": "AWS"
     }
   ]
