@@ -11,10 +11,7 @@
     "group": "r_pkg",
     "start_with": "sp"
   },
-  {
-    "group": "pip2",
-    "start_with": "sp"
-  },
+
   {
     "group": "pip3",
     "start_with": "sp"

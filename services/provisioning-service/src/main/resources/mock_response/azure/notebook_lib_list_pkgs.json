@@ -5,11 +5,6 @@
   	"pyvcf/xenial": "0.6.7-2build1",
   	"pyxplot/xenial": "0.9.2-6build1"
   	},
-  "pip2": {
-  	"requests": "N/A",
-  	"configparser": "N/A",
-	  "SparseAce": "N/A"
-  	},
   "pip3": {
   	"configparser": "N/A",
 	  "sparkL": "N/A"

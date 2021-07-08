@@ -19,6 +19,11 @@
 
 package com.epam.datalab.backendapi.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum NotebookTemplate {
     JUPYTER("Jupyter notebook 6.1.6"),
     JUPYTER_LAB("JupyterLab 0.35.6"),
@@ -26,15 +31,9 @@ public enum NotebookTemplate {
     DEEP_LEARNING("Deep Learning  2.4"),
     TENSOR("Jupyter with TensorFlow 2.3.2"),
     TENSOR_RSTUDIO("RStudio with TensorFlow 2.3.2"),
-    RSTUDIO("RStudio 1.4.1103");
+    RSTUDIO("RStudio 1.4.1103"),
+    TENSOR_GCP("Jupyter with TensorFlow 2.1.0"),
+    DEEP_LEARNING_GCP("Deeplearning notebook");
 
-    private String name;
-
-    NotebookTemplate(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    private final String name;
 }

@@ -65,11 +65,10 @@ under the License.
             [
               {"group": "os_pkg", "name": "nmap"},
               {"group": "os_pkg", "name": "htop"},
-              {"group": "pip2", "name": "requests"},
               {"group": "pip3", "name": "configparser"},
               {"group": "r_pkg", "name": "rmarkdown"},
             ]
-            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
+            Types: for OS - os_pkg, for Python - pip3, for R - r_pkg
             NOTE: You need to escape each double quote.
             For Example: {\"group\": \"os_pkg\", \"name\": \"htop\"}
           </description>
