@@ -54,13 +54,13 @@ public class ChangePropertiesService {
         String oldFile = readFile(serviceName, servicePath);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath))) {
             try {
-                //            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
+                changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
                 log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
                 writer.write(addLicence());
                 writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
                 log.info("{} overwritten successfully", serviceName);
                 writer.close();
-                //            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
+                changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
             } catch (Exception e) {
                 log.error("Failed during overwriting {}", serviceName);
                 writer.write(oldFile);
