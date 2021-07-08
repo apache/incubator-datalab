@@ -309,7 +309,7 @@
             rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another
             customer. Make sure to backup your data on periodic basis.</span>
         </div>
-        <div class="checkbox-group control-group m-top-10"
+        <div class="checkbox-group control-group"
               [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
               *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
           <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('configuration')">
