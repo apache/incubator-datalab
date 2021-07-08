@@ -79,7 +79,6 @@ public class ChangePropertiesService {
         } catch (IOException e) {
             log.error("Failed to read with path {}", servicePath);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
-
         }
         return oldFile;
     }
@@ -126,7 +125,7 @@ public class ChangePropertiesService {
         }
         for (String secretOrUser : secretsAndUsers) {
             int start = confWithReplacedSecretConf.indexOf(secretOrUser);
-            int end = confWithReplacedSecretConf.indexOf(":", start);
+            int end = confWithReplacedSecretConf.indexOf("\n", start) - 1;
             boolean isTure;
             try {
                 String s = confWithReplacedSecretConf.substring(start, end);
