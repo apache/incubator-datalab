@@ -36,40 +36,23 @@ export class HelpUtils {
     }
   }
 
-  public static addSizeToGpuType(gpuType: string = ''): string {
-    switch (gpuType) {
-      case 'nvidia-tesla-t4':
-        return 'S';
+  public static addSizeToGpuType(index): string {
 
-      case 'nvidia-tesla-p100':
-        return 'M';
+    const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
-      case 'nvidia-tesla-v100':
-        return 'L';
-    }
+    return sizes[index];
   }
 
   public static sortGpuTypes(gpuType: Array<string> = []): Array<string> {
-    let sortedTypes = [];
+    
+    const sortedTypes = [
+      'nvidia-tesla-t4', 
+      'nvidia-tesla-k80', 
+      'nvidia-tesla-p4', 
+      'nvidia-tesla-p100', 
+      'nvidia-tesla-v100'
+    ];
 
-    gpuType?.forEach(type => checkType(type));
-
-    function checkType(type) {
-      switch (type) {
-        case 'nvidia-tesla-t4':
-          sortedTypes[0] = type;
-          return;
-  
-        case 'nvidia-tesla-p100':
-          sortedTypes[1] = type;
-          return;
-  
-        case 'nvidia-tesla-v100':
-          sortedTypes[2] = type;
-          return;
-      }
-    }
-
-    return sortedTypes;
+    return sortedTypes.filter(el => gpuType.includes(el));;
   }
 }
