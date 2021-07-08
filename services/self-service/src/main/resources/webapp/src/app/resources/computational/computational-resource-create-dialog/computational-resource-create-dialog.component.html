@@ -170,9 +170,9 @@
                     <mat-select formControlName="master_GPU_type" disableOptionCentering
                                 placeholder="Select master GPU type"
                                 [disabled]="!resourceForm.controls['shape_master'].value">
-                      <mat-option *ngFor="let type of sortGpuTypes(selectedImage.computationGPU)"
+                      <mat-option *ngFor="let type of sortGpuTypes(selectedImage.computationGPU); index as i"
                                   [value]="type" >
-                        <strong class="highlight icon-label">{{ addSizeToGpuType(type) }}</strong> {{ type }}
+                        <strong class="highlight icon-label">{{ addSizeToGpuType(i) }}</strong> {{ type }}
                       </mat-option>
                       <mat-option *ngIf="!selectedImage.computationGPU?.length" class="multiple-select ml-10" disabled>
                         Master GPU types list is empty
@@ -223,8 +223,8 @@
                   <mat-form-field>
                     <mat-label>Select slave GPU type</mat-label>
                     <mat-select formControlName="slave_GPU_type" disableOptionCentering [disabled]="!resourceForm.controls['shape_slave'].value">
-                      <mat-option *ngFor="let type of sortGpuTypes(selectedImage.computationGPU)" [value]="type">
-                        <strong class="highlight icon-label">{{ addSizeToGpuType(type) }}</strong> {{ type }}
+                      <mat-option *ngFor="let type of sortGpuTypes(selectedImage.computationGPU); index as i" [value]="type">
+                        <strong class="highlight icon-label">{{ addSizeToGpuType(i) }}</strong> {{ type }}
                       </mat-option>
                       <mat-option *ngIf="!selectedImage.computationGPU?.length" class="multiple-select ml-10" disabled>
                         Slave GPU types list is empty
@@ -309,7 +309,7 @@
             rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another
             customer. Make sure to backup your data on periodic basis.</span>
         </div>
-        <div class="checkbox-group control-group"
+        <div class="checkbox-group control-group m-top-10"
               [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
               *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'">
           <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('configuration')">
