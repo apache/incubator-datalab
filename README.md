@@ -1171,7 +1171,6 @@ List of parameters for Notebook node to **get list** of available libraries:
 ```
 {
   "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
-  "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
   "others": {"Keras": "N/A"}
@@ -1190,7 +1189,7 @@ List of parameters for Notebook node to **install** additional libraries:
 | notebook\_instance\_name      | Name of the Notebook instance to terminate                                           |
 | aws\_region                   | AWS region where infrastructure was deployed                                         |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
-| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
 
 **Example** of additional_libs parameter:
@@ -1201,7 +1200,6 @@ List of parameters for Notebook node to **install** additional libraries:
   "libs": [
     {"group": "os_pkg", "name": "nmap"},
     {"group": "os_pkg", "name": "htop"},
-    {"group": "pip2", "name": "requests"},
     {"group": "pip3", "name": "configparser"},
     {"group": "r_pkg", "name": "rmarkdown"},
     {"group": "others", "name": "Keras"}
@@ -1237,7 +1235,7 @@ List of parameters for Notebook node to **install** additional libraries:
 | notebook\_instance\_name      | Name of the Notebook instance to terminate                                           |
 | azure\_resource\_group\_name  | Name of the resource group where all DataLab resources are being provisioned            |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
-| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
 </details>
 
@@ -1269,7 +1267,7 @@ List of parameters for Notebook node to **install** additional libraries:
 | gcp\_project\_id              | ID of GCP project                                                                    |
 | gcp\_zone                     | GCP zone name                                                                        |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
-| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
 </details>
 
@@ -1462,7 +1460,6 @@ List of parameters for Dataengine-service node to **get list** of available libr
 ```
 {
   "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
-  "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
   "others": {"Keras": "N/A"}
@@ -1480,7 +1477,7 @@ List of parameters for Dataengine-service to **install** additional libraries:
 | computational\_id             | Name of Dataengine-service                                                           |
 | aws\_region                   | AWS region where infrastructure was deployed                                         |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
-| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
 
 **Example** of additional_libs parameter:
@@ -1491,7 +1488,6 @@ List of parameters for Dataengine-service to **install** additional libraries:
   "libs": [
     {"group": "os_pkg", "name": "nmap"},
     {"group": "os_pkg", "name": "htop"},
-    {"group": "pip2", "name": "requests"},
     {"group": "pip3", "name": "configparser"},
     {"group": "r_pkg", "name": "rmarkdown"},
     {"group": "others", "name": "Keras"}
@@ -1678,7 +1674,6 @@ List of parameters for Dataengine node to **get list** of available libraries:
 ```
 {
   "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
-  "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
   "others": {"Keras": "N/A"}
@@ -1706,7 +1701,6 @@ List of parameters for Dataengine node to **install** additional libraries:
   "libs": [
     {"group": "os_pkg", "name": "nmap"},
     {"group": "os_pkg", "name": "htop"},
-    {"group": "pip2", "name": "requests"},
     {"group": "pip3", "name": "configparser"},
     {"group": "r_pkg", "name": "rmarkdown"},
     {"group": "others", "name": "Keras"}

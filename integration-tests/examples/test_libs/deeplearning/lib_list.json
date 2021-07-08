@@ -8,10 +8,6 @@
     "start_with": "gh"
   },
   {
-    "group": "pip2",
-    "start_with": "sp"
-  },
-  {
     "group": "pip3",
     "start_with": "sp"
   }

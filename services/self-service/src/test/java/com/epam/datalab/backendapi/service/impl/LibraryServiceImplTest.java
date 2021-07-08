@@ -79,7 +79,6 @@ public class LibraryServiceImplTest {
     private final String COMPUTATIONAL_NAME = "compName";
 
     private static final String GROUP_JAVA = "java";
-    private static final String GROUP_PIP2 = "pip2";
     private static final String GROUP_PIP3 = "pip3";
     private static final String GROUP_R_PKG = "r_pkg";
     private static final String GROUP_OS_PKG = "os_pkg";
@@ -366,7 +365,7 @@ public class LibraryServiceImplTest {
 
     @Test
     public void getExploratoryJupyterLibGroups() {
-        List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG, GROUP_R_PKG, GROUP_JAVA);
+        List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG, GROUP_R_PKG, GROUP_JAVA);
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getJupyterUserInstanceDtoForLibGroups());
 
         List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);
@@ -377,7 +376,7 @@ public class LibraryServiceImplTest {
 
     @Test
     public void getExploratoryRstudioLibGroups() {
-        List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG, GROUP_R_PKG);
+        List<Object> exploratoryGroups = Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG, GROUP_R_PKG);
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getRstudioUserInstanceDtoForLibGroups());
 
         List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);

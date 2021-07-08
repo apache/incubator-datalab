@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.service.impl;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.annotation.*;
 import com.epam.datalab.backendapi.dao.BaseDAO;
+import com.epam.datalab.backendapi.dao.ComputationalDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
@@ -70,24 +71,24 @@ public class LibraryServiceImpl implements LibraryService {
     private static final String COMPUTATIONAL_NOT_FOUND_MSG = "Computational with name %s was not found";
     private static final String LIB_ALREADY_INSTALLED = "Library %s is already installing";
 
-    @Inject
-    private ExploratoryDAO exploratoryDAO;
+    private final ExploratoryDAO exploratoryDAO;
+    private final ExploratoryLibDAO libraryDAO;
+    private final RequestBuilder requestBuilder;
+    private final RESTService provisioningService;
+    private final RequestId requestId;
+    private final EndpointService endpointService;
 
     @Inject
-    private ExploratoryLibDAO libraryDAO;
-
-    @Inject
-    private RequestBuilder requestBuilder;
-
-    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-    @Inject
-    private RESTService provisioningService;
-
-    @Inject
-    private RequestId requestId;
-
-    @Inject
-    private EndpointService endpointService;
+    public LibraryServiceImpl(ExploratoryDAO exploratoryDAO, ExploratoryLibDAO libraryDAO, RequestBuilder requestBuilder,
+                              @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+                              RequestId requestId, EndpointService endpointService, ComputationalDAO computationalDAO) {
+        this.exploratoryDAO = exploratoryDAO;
+        this.libraryDAO = libraryDAO;
+        this.requestBuilder = requestBuilder;
+        this.provisioningService = provisioningService;
+        this.requestId = requestId;
+        this.endpointService = endpointService;
+    }
 
 
     @Override
@@ -100,7 +101,6 @@ public class LibraryServiceImpl implements LibraryService {
             Document document = (Document) libraryDAO.findComputationalLibraries(user, project,
                     exploratoryName, computationalName)
                     .getOrDefault(ExploratoryLibDAO.COMPUTATIONAL_LIBS, new Document());
-
             return (List<Document>) document.getOrDefault(computationalName, new ArrayList<>());
         }
     }
@@ -158,7 +158,7 @@ public class LibraryServiceImpl implements LibraryService {
     public List<String> getExploratoryLibGroups(UserInfo userInfo, String projectName, String exploratoryName) {
         UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName, exploratoryName);
         final String templateName = userInstanceDTO.getTemplateName();
-        List<LibraryGroups> groups = new ArrayList<>(Arrays.asList(GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG));
+        List<LibraryGroups> groups = new ArrayList<>(Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG));
 
         if (isTemplateGroup(templateName, Stream.of(JUPYTER, ZEPPELIN))) {
             groups.addAll(Arrays.asList(GROUP_R_PKG, GROUP_JAVA));
@@ -168,6 +168,9 @@ public class LibraryServiceImpl implements LibraryService {
         }
         if (isTemplateGroup(templateName, Stream.of(RSTUDIO, TENSOR_RSTUDIO))) {
             groups.add(GROUP_R_PKG);
+        }
+        if (isTemplateGroup(templateName, Stream.of(DEEP_LEARNING_GCP, TENSOR_GCP))) {
+            groups.add(GROUP_JAVA);
         }
 
         return groups

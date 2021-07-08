@@ -21,7 +21,6 @@ package com.epam.datalab.dto;
 
 public enum LibraryGroups {
     GROUP_JAVA("java"),
-    GROUP_PIP2("pip2"),
     GROUP_PIP3("pip3"),
     GROUP_R_PKG("r_pkg"),
     GROUP_OS_PKG("os_pkg"),
