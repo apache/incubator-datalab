@@ -140,12 +140,12 @@ if __name__ == "__main__":
 
     subprocess.run("echo Waiting for changes to propagate; sleep 10", shell=True, check=True)
 
-    if 'masterGPUCount' in os.environ:
+    if 'master_gpu_count' in os.environ:
         dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster_with_gpu.json').read())
-        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['masterGPUCount'])
-        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['masterGPUType']
-        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['slaveGPUCount'])
-        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['slaveGPUType']
+        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['master_gpu_count'])
+        dataproc_cluster['config']['masterConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['master_gpu_type']
+        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorCount'] = int(os.environ['slave_gpu_count'])
+        dataproc_cluster['config']['workerConfig']['accelerators'][0]['acceleratorTypeUri'] = os.environ['slave_gpu_type']
         gpu_driver = 'gs://goog-dataproc-initialization-actions-{}/gpu/install_gpu_driver.sh'.format(dataproc_conf['region'])
         dataproc_cluster['config']['initializationActions'][0]['executableFile'] = gpu_driver
 
