@@ -82,8 +82,8 @@ if __name__ == "__main__":
         all_pkgs['os_pkg'] = get_available_os_pkgs()
     elif args.group == 'java':
         all_pkgs['java'] = {}
-    elif args.group == 'pip2':
-        all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
+    #elif args.group == 'pip2':
+        #all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
     elif args.group == 'pip3':
         all_pkgs['pip3'] = get_available_pip_pkgs("3.8")
     elif args.group == 'others':
