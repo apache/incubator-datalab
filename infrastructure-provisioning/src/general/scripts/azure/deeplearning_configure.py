@@ -360,8 +360,8 @@ if __name__ == "__main__":
                    "exploratory_url": [
                    {"description": "Jupyter",
                     "url": jupyter_notebook_access_url},
-                   {"description": "TensorBoard",
-                    "url": tensorboard_access_url},
+                   #{"description": "TensorBoard",
+                   # "url": tensorboard_access_url},
                    {"description": "Ungit",
                     "url": jupyter_ungit_access_url}#,
                    #{"description": "Jupyter (via tunnel)",
