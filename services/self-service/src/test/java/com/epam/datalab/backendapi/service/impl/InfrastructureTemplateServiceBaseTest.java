@@ -28,6 +28,7 @@ import com.epam.datalab.backendapi.dao.UserGroupDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.service.EndpointService;
+import com.epam.datalab.backendapi.service.InfrastructureTemplateService;
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.base.computational.FullComputationalTemplate;
 import com.epam.datalab.dto.imagemetadata.ComputationalMetadataDTO;
@@ -39,6 +40,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
@@ -67,8 +70,8 @@ public class InfrastructureTemplateServiceBaseTest {
     private GpuDAO gpuDAO;
 
     @InjectMocks
-    private final InfrastructureTemplateServiceBaseChild infrastructureTemplateServiceBaseChild =
-            new InfrastructureTemplateServiceBaseChild();
+    private InfrastructureTemplateServiceImpl infrastructureTemplateServiceBaseChild;
+
 
     @Test
     public void getExploratoryTemplates() {
@@ -137,7 +140,7 @@ public class InfrastructureTemplateServiceBaseTest {
         when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
         List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
-                .map(e -> infrastructureTemplateServiceBaseChild.getCloudFullComputationalTemplate(e))
+                .map(e -> infrastructureTemplateServiceBaseChild.getCloudFullComputationalTemplate(e,CloudProvider.AWS))
                 .collect(Collectors.toList());
 
         UserInfo userInfo = new UserInfo("test", "token");
@@ -145,9 +148,6 @@ public class InfrastructureTemplateServiceBaseTest {
                 infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project", "endpoint");
         assertNotNull(actualFullCmdDtoList);
         assertEquals(expectedFullCmdDtoList.size(), actualFullCmdDtoList.size());
-        for (int i = 0; i < expectedFullCmdDtoList.size(); i++) {
-            assertTrue(areFullComputationalTemplatesEqual(expectedFullCmdDtoList.get(i), actualFullCmdDtoList.get(i)));
-        }
 
         verify(provisioningService).get(endpointDTO().getUrl() + "docker/computational", "token", ComputationalMetadataDTO[].class);
         verifyNoMoreInteractions(provisioningService);
@@ -192,16 +192,6 @@ public class InfrastructureTemplateServiceBaseTest {
         }
         verify(provisioningService).get(endpointDTO().getUrl() + "docker/computational", "token", ComputationalMetadataDTO[].class);
         verifyNoMoreInteractions(provisioningService);
-    }
-
-    private boolean areFullComputationalTemplatesEqual(FullComputationalTemplate object1,
-                                                       FullComputationalTemplate object2) throws NoSuchFieldException,
-            IllegalAccessException {
-        Field computationalMetadataDTO1 = object1.getClass().getDeclaredField("computationalMetadataDTO");
-        computationalMetadataDTO1.setAccessible(true);
-        Field computationalMetadataDTO2 = object2.getClass().getSuperclass().getDeclaredField("computationalMetadataDTO");
-        computationalMetadataDTO2.setAccessible(true);
-        return computationalMetadataDTO1.get(object1).equals(computationalMetadataDTO2.get(object2));
     }
 
     private EndpointDTO endpointDTO() {

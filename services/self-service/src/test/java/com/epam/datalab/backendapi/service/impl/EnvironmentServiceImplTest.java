@@ -327,9 +327,9 @@ public class EnvironmentServiceImplTest {
     public void updateEnvironmentStatuses() {
         environmentService.updateEnvironmentStatuses(getEnvResourceList());
 
-        verify(projectService).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
-        verify(exploratoryService).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, NAME, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
-        verify(computationalService).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, NAME, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
+        verify(projectService,times(2)).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
+        verify(exploratoryService,times(2)).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, NAME, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
+        verify(computationalService,times(2)).updateAfterStatusCheck(getSystemUser(), PROJECT, ENDPOINT, NAME, INSTANCE_ID, UserInstanceStatus.of(STATUS), AUDIT_UPDATE_STATUS);
         verifyNoMoreInteractions(projectService, exploratoryService, computationalService);
     }
 
@@ -337,6 +337,7 @@ public class EnvironmentServiceImplTest {
     public void updateEnvironmentStatusesWithUnknownStatus() {
         EnvResourceList envResourceList = EnvResourceList.builder()
                 .hostList(Collections.singletonList(new EnvResource().withStatus("unknown status")))
+                .clusterList(Collections.singletonList(new EnvResource().withStatus("unknown status")))
                 .build();
 
         environmentService.updateEnvironmentStatuses(envResourceList);
@@ -351,8 +352,11 @@ public class EnvironmentServiceImplTest {
     private EnvResourceList getEnvResourceList() {
         List<EnvResource> hostList = Arrays.asList(getEnvResource(ResourceType.EDGE), getEnvResource(ResourceType.EXPLORATORY),
                 getEnvResource(ResourceType.COMPUTATIONAL));
+        List<EnvResource> clusterList = Arrays.asList(getEnvResource(ResourceType.EDGE), getEnvResource(ResourceType.EXPLORATORY),
+                getEnvResource(ResourceType.COMPUTATIONAL));
         return  EnvResourceList.builder()
                 .hostList(hostList)
+                .clusterList(clusterList)
                 .build();
     }
 
@@ -388,6 +392,7 @@ public class EnvironmentServiceImplTest {
                 .endpoint(ENDPOINT_NAME)
                 .cloudProvider("aws")
                 .exploratoryUrls(null)
+                .gpuEnabled(Boolean.FALSE)
                 .build();
     }
 

@@ -59,7 +59,6 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response getAllPropertiesForEndpoint(@Auth UserInfo userInfo, @QueryParam("endpoint") String endpoint) {
         if (UserRoles.isAdmin(userInfo)) {
             String url = findEndpointDTOUrl(endpoint) + ChangePropertiesConst.BASE_CONFIG_URL;
-            log.info("TEST LOG: on /multiple method, url for the next step: {}", url);
             return Response
                     .ok(externalChangeProperties.getPropertiesWithExternal(endpoint, userInfo, url))
                     .build();
@@ -94,7 +93,6 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response overwriteExternalProvisioningServiceProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
             String url = findEndpointDTOUrl(ymlDTO.getEndpointName()) + BASE_CONFIG_URL;
-            log.info("TEST LOG: on /multiple method, url for the next step: {}", url);
             externalChangeProperties.overwritePropertiesWithExternal(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE,
                     ymlDTO, userInfo, url);
             return Response.status(Response.Status.OK).build();
@@ -110,7 +108,6 @@ public class ChangePropertiesResource implements ChangePropertiesConst {
     public Response overwriteExternalBillingProperties(@Auth UserInfo userInfo, YmlDTO ymlDTO) {
         if (UserRoles.isAdmin(userInfo)) {
             String url = findEndpointDTOUrl(ymlDTO.getEndpointName()) + BASE_CONFIG_URL;
-            log.info("TEST LOG: on /multiple method, url for the next step: {}", url);
             externalChangeProperties.overwritePropertiesWithExternal(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE,
                     ymlDTO, userInfo, url);
             return Response.status(Response.Status.OK).build();

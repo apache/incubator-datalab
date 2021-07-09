@@ -57,20 +57,15 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 
     @Override
     protected ProjectResult parseOutResponse(JsonNode resultNode, ProjectResult baseStatus) {
-        log.info("TEST LOG!!!: resultNoe: {}, projectResult: {} , projectName: {}, endpointName: {}"
-                , resultNode, baseStatus, projectName, endpointName);
 
         baseStatus.setProjectName(projectName);
         baseStatus.setEndpointName(endpointName);
         if (resultNode != null &&
                 Arrays.asList(DockerAction.CREATE, DockerAction.RECREATE, DockerAction.START).contains(getAction()) &&
                 UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
-            log.info("TEST LOG!!!: result!=null, dockerAction = create,recreate");
             try {
                 final EdgeInfo projectEdgeInfo = mapper.readValue(resultNode.toString(), clazz);
-                log.info("TEST LOG!!!: edgeInfo:{}", projectEdgeInfo);
                 baseStatus.setEdgeInfo(projectEdgeInfo);
-                log.info("TEST LOG!!!: baseStatus:{}", baseStatus);
             } catch (IOException e) {
                 throw new DatalabException("Cannot parse the EDGE info in JSON: " + e.getLocalizedMessage(), e);
             }

@@ -66,7 +66,6 @@ public class ComputationalCallback {
     @POST
     @Path(ApiCallbacks.STATUS_URI)
     public Response status(ComputationalStatusDTO dto) {
-        log.info("TEST LOG!!!: status: {}", dto);
 
         log.debug("Updating status for computational resource {} for user {}: {}",
                 dto.getComputationalName(), dto.getUser(), dto);
@@ -80,7 +79,6 @@ public class ComputationalCallback {
                                         "project %s for user %s doesn't exist", dto.getComputationalName(),
                                 dto.getExploratoryName(), dto.getProject(), dto.getUser())));
 
-        log.info("TEST LOG!!!: compResource: {}", compResource);
 
         log.info("Current status for computational resource {} of exploratory environment {} for user {} is {}",
                 dto.getComputationalName(), dto.getExploratoryName(), dto.getUser(),

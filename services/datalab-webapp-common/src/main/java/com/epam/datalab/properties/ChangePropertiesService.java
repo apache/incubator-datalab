@@ -51,21 +51,16 @@ public class ChangePropertiesService {
 
 
     public void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
-        String oldFile = readFile(serviceName, servicePath);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath))) {
-            try {
-                changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
-                log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
-                writer.write(addLicence());
-                writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
-                log.info("{} overwritten successfully", serviceName);
-                writer.close();
-                changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
-            } catch (Exception e) {
-                log.error("Failed during overwriting {}", serviceName);
-                writer.write(oldFile);
-                throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
-            }
+        try {
+            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
+            String oldFile = readFile(serviceName, servicePath);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
+            log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
+            writer.write(addLicence());
+            writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
+            log.info("{} overwritten successfully", serviceName);
+            writer.close();
+            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
         } catch (IOException e) {
             log.error("Failed to create writer with path {}", servicePath);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
@@ -124,17 +119,8 @@ public class ChangePropertiesService {
                 secretsAndUsers.add(user);
         }
         for (String secretOrUser : secretsAndUsers) {
-            int start = confWithReplacedSecretConf.indexOf(secretOrUser);
-            int end = confWithReplacedSecretConf.indexOf("\n", start) - 1;
-            boolean isTure;
-            try {
-                String s = confWithReplacedSecretConf.substring(start, end);
-                isTure = s.equals(secretOrUser);
-            } catch (StringIndexOutOfBoundsException e) {
-                isTure = true;
-            }
-            if (isTure)
-                confWithReplacedSecretConf = confWithReplacedSecretConf.replace(secretOrUser, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
+            String regex = "(" + secretOrUser + "\\b)";
+            confWithReplacedSecretConf = confWithReplacedSecretConf.replaceAll(regex, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
         }
         return confWithReplacedSecretConf;
     }

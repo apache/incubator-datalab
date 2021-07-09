@@ -248,7 +248,8 @@ public class ComputationalServiceImplTest {
 
         SparkStandaloneClusterCreateForm form = (SparkStandaloneClusterCreateForm) formList.get(0);
         try {
-            computationalService.createSparkCluster(userInfo, form.getName(), form, PROJECT, String.format(AUDIT_MESSAGE, form.getNotebookName()));
+            computationalService.createSparkCluster(userInfo, form.getName(),
+                    form, PROJECT, String.format(AUDIT_MESSAGE, form.getNotebookName()));
         } catch (DatalabException e) {
             assertEquals("Cannot create instance of resource class ", e.getMessage());
         }
@@ -729,6 +730,7 @@ public class ComputationalServiceImplTest {
         sparkClusterForm.setProject(PROJECT);
         sparkClusterForm.setDataEngineInstanceCount(String.valueOf(2));
         sparkClusterForm.setImage("dataengine");
+        sparkClusterForm.setEnabledGPU(Boolean.FALSE);
         ComputationalCreateFormDTO desClusterForm = new ComputationalCreateFormDTO();
         desClusterForm.setNotebookName(EXPLORATORY_NAME);
         desClusterForm.setName(COMP_NAME);
@@ -751,7 +753,9 @@ public class ComputationalServiceImplTest {
                 .imageName("dataengine")
                 .status(CREATING.toString())
                 .dataEngineInstanceCount(String.valueOf(2))
+                .totalInstanceCount(2)
                 .tags(Collections.emptyMap())
+                .enabledGPU(Boolean.FALSE)
                 .build();
     }
 

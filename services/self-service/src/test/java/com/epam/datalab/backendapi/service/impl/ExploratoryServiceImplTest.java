@@ -298,7 +298,12 @@ public class ExploratoryServiceImplTest {
         when(gitCredsDAO.findGitCreds(anyString())).thenReturn(egcDto);
 
         ExploratoryCreateDTO ecDto = new ExploratoryCreateDTO();
-        Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).endpoint("test").build();
+        Exploratory exploratory = Exploratory.builder()
+                .name(EXPLORATORY_NAME)
+                .endpoint("test")
+                .enabledGPU(false)
+                .version("someVersion")
+                .build();
         when(requestBuilder.newExploratoryCreate(any(ProjectDTO.class), any(EndpointDTO.class),
                 any(Exploratory.class), any(UserInfo.class), any(ExploratoryGitCredsDTO.class), anyMapOf(String.class, String.class))).thenReturn(ecDto);
         String exploratoryCreate = "exploratory/create";
@@ -312,6 +317,7 @@ public class ExploratoryServiceImplTest {
 
         userInstance.withStatus("creating");
         userInstance.withResources(Collections.emptyList());
+        userInstance.withImageVersion("someVersion");
         verify(projectService).get("project");
         verify(exploratoryDAO).insertExploratory(userInstance);
         verify(gitCredsDAO).findGitCreds(USER);
@@ -330,7 +336,11 @@ public class ExploratoryServiceImplTest {
         expectedException.expectMessage("Could not create exploratory environment expName for user test: " +
                 "Exploratory for user with name not found");
 
-        Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
+        Exploratory exploratory = Exploratory.builder()
+                .name(EXPLORATORY_NAME)
+                .enabledGPU(false)
+                .version("someVersion")
+                .build();
         exploratoryService.create(userInfo, exploratory, "project", "exploratory");
         verify(endpointService).get(anyString());
     }
@@ -339,7 +349,13 @@ public class ExploratoryServiceImplTest {
     public void createWhenMethodInsertExploratoryThrowsExceptionWithItsCatching() {
         when(endpointService.get(anyString())).thenReturn(endpointDTO());
         doThrow(new RuntimeException()).when(exploratoryDAO).insertExploratory(any(UserInstanceDTO.class));
-        Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).endpoint("test").build();
+        Exploratory exploratory = Exploratory
+                .builder()
+                .name(EXPLORATORY_NAME)
+                .endpoint("test")
+                .enabledGPU(false)
+                .version("someVersion")
+                .build();
         try {
             exploratoryService.create(userInfo, exploratory, "project", "exploratory");
         } catch (DatalabException e) {
@@ -348,6 +364,7 @@ public class ExploratoryServiceImplTest {
         }
         userInstance.withStatus("creating");
         userInstance.withResources(Collections.emptyList());
+        userInstance.withImageVersion("someVersion");
         verify(exploratoryDAO).insertExploratory(userInstance);
         verify(exploratoryDAO, never()).updateExploratoryStatus(any(StatusEnvBaseDTO.class));
         verify(endpointService).get("test");
@@ -363,7 +380,12 @@ public class ExploratoryServiceImplTest {
         ExploratoryGitCredsDTO egcDto = new ExploratoryGitCredsDTO();
         when(gitCredsDAO.findGitCreds(anyString())).thenReturn(egcDto);
 
-        Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).endpoint("test").build();
+        Exploratory exploratory = Exploratory.builder()
+                .name(EXPLORATORY_NAME)
+                .endpoint("test")
+                .version("someVersion")
+                .enabledGPU(false)
+                .build();
 
         doThrow(new DatalabException("Cannot create instance of resource class ")).when(requestBuilder)
                 .newExploratoryCreate(any(ProjectDTO.class), any(EndpointDTO.class), any(Exploratory.class),
@@ -381,6 +403,7 @@ public class ExploratoryServiceImplTest {
 
         userInstance.withStatus("creating");
         userInstance.withResources(Collections.emptyList());
+        userInstance.withImageVersion("someVersion");
         verify(projectService).get("project");
         verify(exploratoryDAO).insertExploratory(userInstance);
         verify(exploratoryDAO).insertExploratory(userInstance);

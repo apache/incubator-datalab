@@ -59,7 +59,6 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
     }
 
     protected T parseOutResponse(JsonNode resultNode, T baseStatus) {
-        log.info("TEST LOG!!!: edge callback: resultNode: {}, baseStatus: {}", resultNode, baseStatus);
         if (resultNode != null && (getAction() == DockerAction.CREATE || getAction() == DockerAction.START)
                 && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {
