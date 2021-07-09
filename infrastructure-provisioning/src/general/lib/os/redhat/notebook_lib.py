@@ -320,7 +320,7 @@ def install_os_pkg(requisites):
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
         manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
-        datalab.fab.conn.sudo('export LC_ALL=C')
+        #datalab.fab.conn.sudo('export LC_ALL=C')
         for os_pkg in requisites:
             name, vers = os_pkg
             if vers != '' and vers !='N/A':
@@ -329,14 +329,14 @@ def install_os_pkg(requisites):
             else:
                 version = 'N/A'
                 os_pkg = name
-            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" '
-                                               '/tmp/tee.tmp >  /tmp/os_install_{2}.log; then  echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
-            install_output = datalab.fab.conn.sudo('cat /tmp/tee.tmp').stdout
+            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/os_install_{2}.tmp; if ! grep -w -E  "({1})" '
+                                               '/tmp/os_install_{2}.tmp >  /tmp/os_install_{2}.log; then  echo "no_error" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
+            install_output = datalab.fab.conn.sudo('cat /tmp/os_install_{}.tmp'.format(name)).stdout
             err = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout.replace('"', "'")
-            datalab.fab.conn.sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
+            datalab.fab.conn.sudo('cat /tmp/os_install_{0}.tmp | if ! grep -w -E -A 30 "({1})" /tmp/os_install_{0}.tmp > '
+                 '/tmp/os_install_{0}.log; then echo "no_dependencies" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
             dep = datalab.fab.conn.sudo('cat /tmp/os_install_{}.log'.format(name)).stdout
-            if dep == '':
+            if 'no_dependencies' in dep:
                 dep = []
             else:
                 dep = dep[len(new_pkgs_parser): dep.find("Complete!") - 1].replace('  ', '').strip().split('\r\n')
@@ -346,13 +346,15 @@ def install_os_pkg(requisites):
                     dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version     : ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             versions = []
-            res = datalab.fab.conn.sudo(
-                'python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(
-                    name)).stdout.split('\r\n')[1]
-            if err:
+            datalab.fab.conn.sudo(
+                'yum list installed | if ! grep "{0}\." > /tmp/os_install_{0}.list; then echo "not_installed" > /tmp/os_install_{0}.list;fi'.format(
+                    name))
+            res = datalab.fab.conn.sudo('cat /tmp/os_install_{}.list '.format(name) + '| awk \'{print $1":"$2}\'').stdout.replace('\n', '')
+            #res = datalab.fab.conn.sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\']"'.format(name)).stdout.split('\r\n')[1]
+            if "no_error" not in err:
                 status_msg = 'installation_error'
-            elif res != []:
-                version = res.split("'")[1].split("-")[0]
+            elif "not_installed" not in res:
+                version = res.split(":")[1]
                 status_msg = "installed"
             if 'No package {} available'.format(os_pkg) in install_output:
                 versions = datalab.fab.conn.sudo('yum --showduplicates list ' + name + ' | expand | grep ' + name + ' | awk \'{print $2}\'').stdout.replace('\r\n', '')
@@ -369,6 +371,7 @@ def install_os_pkg(requisites):
                     status_msg = 'invalid_name'
             status.append({"group": "os_pkg", "name": name, "version": version, "status": status_msg,
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})
+        datalab.fab.conn.sudo('rm /tmp/*{}*'.format(name))
         return status
     except Exception as err:
         for os_pkg in requisites:
@@ -387,14 +390,15 @@ def remove_os_pkg(pkgs):
 
 def get_available_os_pkgs():
     try:
+        os_pkgs = dict()
         manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
-        downgrade_python_version()
-        yum_raw = datalab.fab.conn.sudo('python3 -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); '
-                            'print {pkg.name:pkg.vr for pkg in pl.available}"').stdout
-        yum_re = re.sub\
-            (r'\w*\s\w*\D\s\w*.\w*.\s\w*.\w*.\w.\w*.\w*.\w*', '', yum_raw)
-        yum_list = yum_re.replace("'", "\"")
-        os_pkgs = json.loads(yum_list)
+        #downgrade_python_version()
+        yum_names = datalab.fab.conn.sudo("yum list available | grep -v \"Loaded plugins:\|Available Packages\" | xargs -n3 | column -t | awk '{print $1}'").stdout.split('\n')
+        for pkg in yum_names:
+            if "." in pkg:
+                os_pkgs[pkg.split('.')[0]] = 'N/A'
+            elif pkg != '':
+                os_pkgs[pkg] = 'N/A'
         return os_pkgs
     except Exception as err:
         append_result("Failed to get available os packages.", str(err))

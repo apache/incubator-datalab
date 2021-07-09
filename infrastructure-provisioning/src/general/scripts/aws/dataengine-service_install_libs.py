@@ -35,7 +35,7 @@ from fabric import *
 
 def install_libs(instance, data_engine):
     data_engine['instance_ip'] = instance.get('PrivateIpAddress')
-    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"' \
+    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}" --dataengine_service True' \
         .format(data_engine['os_user'], data_engine['instance_ip'],
                 data_engine['keyfile'], data_engine['libs'])
     try:
