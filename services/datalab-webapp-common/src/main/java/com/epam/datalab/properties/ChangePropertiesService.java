@@ -28,10 +28,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.epam.datalab.properties.ChangePropertiesConst.DEFAULT_NAME_PLACE;
+import static com.epam.datalab.properties.ChangePropertiesConst.DEFAULT_VALUE_PLACE;
 
 @Slf4j
 public class ChangePropertiesService {
@@ -104,28 +106,26 @@ public class ChangePropertiesService {
     private String hideSecretsAndRemoveLicence(String currentConf) {
         Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(currentConf);
         Matcher userMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(currentConf);
-        Map<String, String> secretsAndUsers = new HashMap<>();
+        List<String> secretsAndUsers = new ArrayList<>();
         final String[] confWithReplacedSecretConf = {removeLicence(currentConf)};
         while (passMatcher.find()) {
             String[] secret = passMatcher.group().split(":");
-            if (!(secret[ChangePropertiesConst.DEFAULT_VALUE_PLACE].isEmpty() ||
-                    secret[ChangePropertiesConst.DEFAULT_VALUE_PLACE].trim().isEmpty())) {
+            if (!(secret[DEFAULT_VALUE_PLACE].isEmpty() ||
+                    secret[DEFAULT_VALUE_PLACE].trim().isEmpty())) {
 
-                secretsAndUsers.put(secret[ChangePropertiesConst.DEFAULT_NAME_PLACE],
-                        secret[ChangePropertiesConst.DEFAULT_VALUE_PLACE]);
+                secretsAndUsers.add(secret[DEFAULT_NAME_PLACE] + ":" + secret[DEFAULT_VALUE_PLACE]);
             }
         }
         while (userMatcher.find()) {
             String[] user = userMatcher.group().split(":");
-            if (!(user[ChangePropertiesConst.DEFAULT_VALUE_PLACE].isEmpty() ||
-                    user[ChangePropertiesConst.DEFAULT_VALUE_PLACE].trim().isEmpty()))
-                secretsAndUsers.put(user[ChangePropertiesConst.DEFAULT_NAME_PLACE],
-                        user[ChangePropertiesConst.DEFAULT_VALUE_PLACE]);
+            if (!(user[DEFAULT_VALUE_PLACE].isEmpty() ||
+                    user[DEFAULT_VALUE_PLACE].trim().isEmpty()))
+                secretsAndUsers.add(user[DEFAULT_NAME_PLACE] + ":" + user[DEFAULT_VALUE_PLACE]);
+
         }
-        secretsAndUsers.forEach((key, value) -> {
-            String replacement = key + ":" + value;
-            String toReplace = key + ":" + ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT;
-            confWithReplacedSecretConf[0] = confWithReplacedSecretConf[0].replace(replacement, toReplace);
+        secretsAndUsers.forEach(x -> {
+            String toReplace = x.split(":")[DEFAULT_NAME_PLACE] + ":" + ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT;
+            confWithReplacedSecretConf[0] = confWithReplacedSecretConf[0].replace(x, toReplace);
         });
         return confWithReplacedSecretConf[0];
     }
@@ -151,11 +151,11 @@ public class ChangePropertiesService {
     }
 
     private String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
-        Map<String, String> emptySecretsAndUserNames = findEmptySecretAndNames(newPropFile);
-        return emptySecretsAndUserNames.isEmpty() ? newPropFile : replaceEmptySecret(newPropFile, oldProf, emptySecretsAndUserNames);
+        Map<String, Queue<String>> emptySecretsAndUserNames = findEmptySecretAndNames(newPropFile);
+        return emptySecretsAndUserNames.isEmpty() ? newPropFile : replaceOldSecret(newPropFile, oldProf, emptySecretsAndUserNames);
     }
 
-    private String replaceEmptySecret(String newPropFile, String oldProf, Map<String, String> emptySecrets) {
+    private String replaceOldSecret(String newPropFile, String oldProf, Map<String, Queue<String>> emptySecrets) {
         String fileWithReplacedEmptySecrets = newPropFile;
         Matcher oldPassMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(oldProf);
         Matcher oldUserMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(oldProf);
@@ -163,33 +163,64 @@ public class ChangePropertiesService {
         while (oldPassMatcher.find()) {
             String[] s = oldPassMatcher.group().split(":");
             if (emptySecrets.containsKey(s[ChangePropertiesConst.DEFAULT_NAME_PLACE])) {
-                fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replace(emptySecrets.get(s[ChangePropertiesConst.DEFAULT_NAME_PLACE]), oldPassMatcher.group());
+
+                String poll = emptySecrets.get(s[DEFAULT_NAME_PLACE]).poll();
+                if (poll != null) {
+                    poll = poll.replace("*", "\\*");
+                    String old = oldPassMatcher.group();
+                    old = old.replace("$", "\\$");
+                    old = old.replace("{", "\\}");
+                    old = old.replace("}", "\\}");
+                    fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replaceFirst(poll, old);
+                }
             }
         }
         while (oldUserMatcher.find()) {
             String[] s = oldUserMatcher.group().split(":");
             if (emptySecrets.containsKey(s[ChangePropertiesConst.DEFAULT_NAME_PLACE])) {
-                fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replace(emptySecrets.get(s[ChangePropertiesConst.DEFAULT_NAME_PLACE]), oldUserMatcher.group());
+                String poll = emptySecrets.get(s[DEFAULT_NAME_PLACE]).poll();
+                if (poll != null) {
+                    poll = poll.replace("*", "\\*");
+                    String old = oldUserMatcher.group();
+                    old = old.replace("$", "\\$");
+                    old = old.replace("{", "\\}");
+                    old = old.replace("}", "\\}");
+                    fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replaceFirst(poll, old);
+                }
             }
         }
         return fileWithReplacedEmptySecrets;
     }
 
-    private Map<String, String> findEmptySecretAndNames(String newPropFile) {
+    private Map<String, Queue<String>> findEmptySecretAndNames(String newPropFile) {
         Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(newPropFile);
         Matcher userNameMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(newPropFile);
-        Map<String, String> emptySecrets = new HashMap<>();
+        Map<String, Queue<String>> emptySecrets = new HashMap<>();
         while (passMatcher.find()) {
             String[] s = passMatcher.group().split(":");
-            if (s[ChangePropertiesConst.DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
-                emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], passMatcher.group());
+            if (s[DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
+                if (emptySecrets.get(s[DEFAULT_NAME_PLACE]) == null) {
+                    Queue<String> values = new ArrayDeque<>();
+                    values.add(passMatcher.group());
+                    emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], values);
+                } else {
+                    Queue<String> values = emptySecrets.get(s[DEFAULT_NAME_PLACE]);
+                    values.add(passMatcher.group());
+                }
             }
         }
 
         while (userNameMatcher.find()) {
             String[] s = userNameMatcher.group().split(":");
-            if (s[ChangePropertiesConst.DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
-                emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], userNameMatcher.group());
+            if (s[DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
+                if (emptySecrets.get(s[DEFAULT_NAME_PLACE]) == null) {
+                    Queue<String> values = new ArrayDeque<>();
+                    values.add(userNameMatcher.group());
+                    emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], values);
+                } else {
+                    Queue<String> values = emptySecrets.get(s[DEFAULT_NAME_PLACE]);
+                    values.add(userNameMatcher.group());
+                }
             }
         }
         return emptySecrets;

@@ -23,15 +23,15 @@ public interface ChangePropertiesConst {
     String GKE_SELF_SERVICE_PATH = "/root/self-service.yaml";
     String GKE_SELF_SERVICE = "self-service.yaml";
     String SELF_SERVICE = "self-service.yml";
-        String SELF_SERVICE_PROP_PATH = "/opt/datalab/conf/self-service.yml";
-//    String SELF_SERVICE_PROP_PATH = "services/self-service/self-service.yml";
+    String SELF_SERVICE_PROP_PATH = "/opt/datalab/conf/self-service.yml";
+    //            String SELF_SERVICE_PROP_PATH = "services/self-service/self-service.yml";
     String PROVISIONING_SERVICE = "provisioning.yml";
-        String PROVISIONING_SERVICE_PROP_PATH = "/opt/datalab/conf/provisioning.yml";
-//    String PROVISIONING_SERVICE_PROP_PATH = "services/provisioning-service/provisioning.yml";
+    String PROVISIONING_SERVICE_PROP_PATH = "/opt/datalab/conf/provisioning.yml";
+//            String PROVISIONING_SERVICE_PROP_PATH = "services/provisioning-service/provisioning.yml";
 
     String BILLING_SERVICE = "billing.yml";
-        String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
-//    String BILLING_SERVICE_PROP_PATH = "services/billing-gcp/billing.yml";
+    String BILLING_SERVICE_PROP_PATH = "/opt/datalab/conf/billing.yml";
+    //        String BILLING_SERVICE_PROP_PATH = "services/billing-gcp/billing.yml";
     //      String BILLING_SERVICE_PROP_PATH = "services/billing-azure/billing.yml";
 //    String BILLING_SERVICE_PROP_PATH = "services/billing-aws/billing.yml";
     String GKE_BILLING_PATH = "/root/billing.yaml";
@@ -43,7 +43,7 @@ public interface ChangePropertiesConst {
     String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
     String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
     String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
-    String SECRET_REGEX = "((.*)([sS]ecret(.*)|[pP]assword)): (.*)";
+    String SECRET_REGEX = "((.*)[sS]ecret(.*)|(p|P)assword): (.*)";
     String USER_REGEX = " *(user|username): (.*)";
     String SECRET_REPLACEMENT_FORMAT = " ***********";
     String SUPERVISORCTL_RESTART_SH_COMMAND = "sudo supervisorctl restart";
