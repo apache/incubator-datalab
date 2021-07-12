@@ -28,9 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,23 +104,30 @@ public class ChangePropertiesService {
     private String hideSecretsAndRemoveLicence(String currentConf) {
         Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(currentConf);
         Matcher userMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(currentConf);
-        List<String> secretsAndUsers = new ArrayList<>();
-        String confWithReplacedSecretConf = removeLicence(currentConf);
+        Map<String, String> secretsAndUsers = new HashMap<>();
+        final String[] confWithReplacedSecretConf = {removeLicence(currentConf)};
         while (passMatcher.find()) {
-            String secret = passMatcher.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
-            if (!(secret.isEmpty() || secret.trim().isEmpty()))
-                secretsAndUsers.add(secret);
+            String[] secret = passMatcher.group().split(":");
+            if (!(secret[ChangePropertiesConst.DEFAULT_VALUE_PLACE].isEmpty() ||
+                    secret[ChangePropertiesConst.DEFAULT_VALUE_PLACE].trim().isEmpty())) {
+
+                secretsAndUsers.put(secret[ChangePropertiesConst.DEFAULT_NAME_PLACE],
+                        secret[ChangePropertiesConst.DEFAULT_VALUE_PLACE]);
+            }
         }
         while (userMatcher.find()) {
-            String user = userMatcher.group().split(":")[ChangePropertiesConst.DEFAULT_VALUE_PLACE];
-            if (!(user.isEmpty() || user.trim().isEmpty()))
-                secretsAndUsers.add(user);
+            String[] user = userMatcher.group().split(":");
+            if (!(user[ChangePropertiesConst.DEFAULT_VALUE_PLACE].isEmpty() ||
+                    user[ChangePropertiesConst.DEFAULT_VALUE_PLACE].trim().isEmpty()))
+                secretsAndUsers.put(user[ChangePropertiesConst.DEFAULT_NAME_PLACE],
+                        user[ChangePropertiesConst.DEFAULT_VALUE_PLACE]);
         }
-        for (String secretOrUser : secretsAndUsers) {
-            String regex = "(" + secretOrUser + "\\b)";
-            confWithReplacedSecretConf = confWithReplacedSecretConf.replaceAll(regex, ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT);
-        }
-        return confWithReplacedSecretConf;
+        secretsAndUsers.forEach((key, value) -> {
+            String replacement = key + ":" + value;
+            String toReplace = key + ":" + ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT;
+            confWithReplacedSecretConf[0] = confWithReplacedSecretConf[0].replace(replacement, toReplace);
+        });
+        return confWithReplacedSecretConf[0];
     }
 
     private String removeLicence(String conf) {
