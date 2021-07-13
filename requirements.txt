@@ -1,0 +1,4 @@
+fabric==1.14.0
+invoke==1.5.0
+Sphinx==3.5.4
+sphinx-argparse-cli==1.6.0
