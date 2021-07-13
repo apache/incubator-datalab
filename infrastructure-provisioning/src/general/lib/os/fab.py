@@ -1139,7 +1139,7 @@ def init_datalab_connection(hostname, username, keyfile):
         attempt = 0
         while attempt < 15:
             print('connection attempt {}'.format(attempt))
-            conn = Connection(host = hostname, user = username, connect_kwargs={'banner_timeout': 60,
+            conn = Connection(host = hostname, user = username, connect_kwargs={'banner_timeout': 200,
                                                                                 'key_filename': keyfile})
             conn.config.run.echo = True
             try:
