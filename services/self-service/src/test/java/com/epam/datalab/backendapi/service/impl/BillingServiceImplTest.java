@@ -66,6 +66,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
@@ -82,7 +83,7 @@ public class BillingServiceImplTest extends TestBase {
     private static final String PROJECT_2 = "project2";
     private static final String ENDPOINT = "endpoint";
     private static final String USAGE_DATE = "2020-06-00";
-    private static final String USAGE_DATE_FORMATTED = "2020-06";
+    private static final String USAGE_DATE_FORMATTED = "2020-06-00";
     private static final String SERVICE_BASE_NAME = "sbn";
     private static final String IMAGE_NAME = "image_name";
     private static final String IMAGE_DESCRIPTION = "imageDescription";
@@ -178,6 +179,13 @@ public class BillingServiceImplTest extends TestBase {
         when(exploratoryService.getUserInstance(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(Optional.of(getUserInstanceDTOWithCompute()));
 
 	    String actualBillingReport = billingService.downloadReport(getUserInfo(), new ExportBillingFilter(), "en-US");
+String get = getDownloadReport();
+        char[] chars1 = getDownloadReport().toCharArray();
+        char[] chars2 = actualBillingReport.toCharArray();
+        for (int i = 0; i < getDownloadReport().length(); i++) {
+            if (chars1[i] != chars2[i])
+                System.out.println(chars1[i] + " = " + chars2[i] + "  i = " + i);
+        }
 
 	    assertEquals("reports should be equal", getDownloadReport(), actualBillingReport);
 	    verify(billingDAO).aggregateBillingData(new ExportBillingFilter());
@@ -679,16 +687,16 @@ public class BillingServiceImplTest extends TestBase {
     private String getDownloadReport() {
 	    StringBuilder sb = new StringBuilder();
 	    sb.append("\"Service base name: ").append(SERVICE_BASE_NAME).append(". Available reporting period from: ").append("Jan 1, 2020")
-			    .append(" to: ").append("May 1, 2020").append("\"\n");
+			    .append(" to: ").append("May 1, 2020").append("\"\r\n");
 
 	    sb.append(new StringJoiner(",").add("DataLab ID").add("User").add("Project").add("DataLab Resource Type").add("Status").add("Shape").add("Product")
-			    .add("Cost\n").toString());
+			    .add("Cost\r\n").toString());
 
-	    sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + "\n"));
-	    sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + "\n"));
-	    sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + "\n"));
+	    sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + "\r\n"));
+	    sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + "\r\n"));
+	    sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + "\r\n"));
 
-	    sb.append(",,,,,,,Total: 4.0 currency\n");
+	    sb.append(",,,,,,,Total: 4.0 currency\r\n");
 
         return sb.toString();
     }

@@ -184,7 +184,6 @@ public class RequestBuilder {
                 .withGPUCount(exploratory.getGpuCount())
                 .withGPUType(exploratory.getGpuType())
                 .withEnabledGPU(exploratory.getEnabledGPU());
-        System.out.println("TEST LOG!!!! send to prov: + " + t.toString());
         return t;
     }
 
@@ -337,8 +336,6 @@ public class RequestBuilder {
                                                                      UserInstanceDTO userInstance,
                                                                      ComputationalCreateFormDTO form,
                                                                      EndpointDTO endpointDTO) {
-        log.info("TEST LOG!!!: newComputationalCreate: \n form: {}", form);
-
         T computationalCreate;
         CloudProvider cloudProvider = endpointDTO.getCloudProvider();
         switch (cloudProvider) {
@@ -355,8 +352,6 @@ public class RequestBuilder {
                         .withVersion(awsForm.getVersion())
                         .withConfig((awsForm.getConfig()))
                         .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
-                log.info("TEST LOG!!!: computationalCreate: {}", computationalCreate);
-
                 break;
             case GCP:
                 GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;

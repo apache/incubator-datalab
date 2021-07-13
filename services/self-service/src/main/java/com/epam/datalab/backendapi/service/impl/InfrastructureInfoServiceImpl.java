@@ -130,11 +130,6 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
     @Override
     public InfrastructureMetaInfoDTO getInfrastructureMetaInfo() {
         final String branch = Manifests.read("GIT-Branch");
-        log.info("TEST LOG!!!: Mainfests: {}, branch: {}", Manifests.DEFAULT, branch);
-        log.info("TEST LOG!!!: Git-Commit: {} ", Manifests.read("GIT-Commit"));
-        log.info("TEST LOG!!!: Datalab-Version: {}", Manifests.read("DataLab-Version"));
-        log.info("TEST LOG!!!: RELEASE_NOTES_FORMAT: {}", RELEASE_NOTES_FORMAT);
-
         return InfrastructureMetaInfoDTO.builder()
                 .branch(branch)
                 .commit(Manifests.read("GIT-Commit"))

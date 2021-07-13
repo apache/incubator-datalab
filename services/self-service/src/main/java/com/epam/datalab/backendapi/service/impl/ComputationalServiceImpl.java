@@ -175,7 +175,6 @@ public class ComputationalServiceImpl implements ComputationalService {
             final DataEngineType dataEngineType = compResource.getDataEngineType();
             EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
             ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(resourceCreator, userInstanceDTO, compResource, endpointDTO);
-            log.info("!!!TEST LOG!!!: terminate dto: {}", dto);
 
             final String provisioningUrl = Optional.ofNullable(DATA_ENGINE_TYPE_TERMINATE_URLS.get(dataEngineType))
                     .orElseThrow(UnsupportedOperationException::new);
@@ -205,13 +204,9 @@ public class ComputationalServiceImpl implements ComputationalService {
         boolean isAdded = computationalDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(), project,
                 computationalResource);
 
-        log.info("TEST LOG!!!: isAdded: {}", isAdded);
-
         if (isAdded) {
             try {
                 EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
-                log.info("TEST LOG!!!: send to prov");
-
                 String uuid =
                         provisioningService.post(endpointDTO.getUrl() + COMPUTATIONAL_CREATE_CLOUD_SPECIFIC,
                                 userInfo.getAccessToken(),
@@ -353,8 +348,6 @@ public class ComputationalServiceImpl implements ComputationalService {
                 .withStatus(status);
 
         UpdateResult updateResult = computationalDAO.updateComputationalStatus(computationalStatus);
-        log.info("!!!TEST LOG!!!: after update: {}", updateResult);
-
     }
 
     private SparkStandaloneClusterResource createInitialComputationalResource(SparkStandaloneClusterCreateForm form) {

@@ -43,8 +43,6 @@ public class ExploratoryService extends DockerService implements DockerCommands 
                 configuration.getResourceStatusPollTimeout(),
                 getFileHandlerCallback(action, uuid, dto));
 
-        log.info("TEST LOG!!!: dto: {}", dto);
-
         RunDockerCommand runDockerCommand = new RunDockerCommand()
                 .withInteractive()
                 .withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName()))
@@ -56,7 +54,6 @@ public class ExploratoryService extends DockerService implements DockerCommands 
                 .withConfKeyName(configuration.getAdminKey())
                 .withImage(dto.getNotebookImage())
                 .withAction(action);
-        log.info("TEST LOG!!!: command: {}", runDockerCommand);
 
         if (configuration.getCloudProvider() == CloudProvider.AZURE &&
                 Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&

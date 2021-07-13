@@ -104,8 +104,6 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         debugMessage("Send post request to self service {} for UUID {}, object is {}",
                 getCallbackURI(), uuid, object);
         try {
-            log.info("TEST LOG!!!: post to ss. SS: {}, uri: {}, obj: {}, resultType: {}"
-                    , selfService, getCallbackURI(), object, resultType);
             selfService.post(getCallbackURI(), object, resultType);
         } catch (Exception e) {
             log.error("{} Send request or response error for UUID {}: {}", this.getClass().toString(), uuid, e.getLocalizedMessage(), e);
@@ -131,7 +129,6 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
         }
         result = parseOutResponse(resultNode, result);
-        log.info("TEST LOG!!!: send to ss: {}", result);
         selfServicePost(result);
         return !UserInstanceStatus.FAILED.equals(status);
     }

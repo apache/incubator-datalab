@@ -31,7 +31,7 @@ public class CSVFormatterTest {
     @Test
     public void formatLine() {
         List<String> values = Arrays.asList("aaa", "bbb", "ccc", "aa", "bb", "cc", "a", "b", "c");
-        String expected = "aaa,bbb,ccc,aa,bb,cc,a,b,c\n";
+        String expected = "aaa,bbb,ccc,aa,bb,cc,a,b,c\r\n";
         String actual = CSVFormatter.formatLine(values, ',');
         assertEquals(expected, actual);
     }
@@ -39,7 +39,7 @@ public class CSVFormatterTest {
     @Test
     public void formatLineWithCustomQuote() {
         List<String> values = Arrays.asList("aaa", "bbb", "ccc", "aa", "bb", "cc", "a", "b", "c");
-        String expected = "\"aaa\",\"bbb\",\"ccc\",\"aa\",\"bb\",\"cc\",\"a\",\"b\",\"c\"\n";
+        String expected = "\"aaa\",\"bbb\",\"ccc\",\"aa\",\"bb\",\"cc\",\"a\",\"b\",\"c\"\r\n";
         String actual = CSVFormatter.formatLine(values, ',', '"');
         assertEquals(expected, actual);
     }
