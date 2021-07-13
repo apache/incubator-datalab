@@ -169,8 +169,8 @@ public class ChangePropertiesService {
                     poll = poll.replace("*", "\\*");
                     String old = oldPassMatcher.group();
                     old = old.replace("$", "\\$");
-                    old = old.replace("{", "\\}");
-                    old = old.replace("}", "\\}");
+                    old = old.replaceFirst("\\{", "\\{");
+                    old = old.replaceFirst("}", "\\}");
                     fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replaceFirst(poll, old);
                 }
             }
