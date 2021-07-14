@@ -16,6 +16,5 @@ target
 
 /services/self-service/src/main/resources/webapp/ts-node-*
 /web_app
-/integration-tests/examples/keys
-/integration-tests/test-output
-/integration-tests/output.log
+/integration-tests
+/integration-tests-cucumber
