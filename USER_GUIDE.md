@@ -52,6 +52,8 @@ DataLab is an essential toolset for analytics. It is a self-service Web Console,
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DataLab quotas](#manage_datalab_quotas)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Configuration](#configuration)
+
 [DataLab billing report](#billing_page)
 
 [DataLab audit report](#audit_page)
@@ -155,6 +157,12 @@ These groups have T-Shirt based shapes (configurable), that can help Data Scient
 
 You can override the default configurations of local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in the text box.
 
+Also there is a posibility to add GPU on GCP for Jupyter, Deeplearning notebook or Jupyter with TensorFlow. For Jupyter adding GPU is not mandatory. You can mark a check box and select GPU type from the list:
+
+<p align="center"> 
+    <img src="doc/notebook_create_gpu.png" alt="Select gpu" width="574">
+</p>
+
 After you Select the template, fill in the Name and specify desired instance shape - you need to click on "Create" button for your analytical toolset to be created. Corresponding record shows up in your dashboard:
 
 ![Dashboard](doc/main_page2.png)
@@ -241,7 +249,7 @@ To create new analytical environment from custom image click on "Create new" but
     <img src="doc/create_notebook_from_ami.png" alt="Create notebook from AMI" width="560">
 </p>
 
-Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
+Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape". For Deeplearning notebook on GCP there is also a list of predefined images.
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
@@ -316,14 +324,20 @@ To tune computational resource configuration check off "Cluster configurations" 
     <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
 
-This picture shows menu for creating Dataproc (Data Engine Service) for GCP:
+You can specify Master and Slave GPU type and GPU count for Dataproc (Data Engine Service) or Standalone Apache Spark cluster on GCP.
+
+This picture shows menu for creating Dataproc (Data Engine Service) and Standalone Apache Spark cluster for GCP:
 <p align="center"> 
     <img src="doc/dataproc_create.png" alt="Create Computational resource on GCP" width="760">
 </p>
 
+<p align="center"> 
+    <img src="doc/spark_create_gcp.png" alt="Create Computational resource on GCP" width="760">
+</p>
+
 To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
-This picture shows menu for creating Standalone Apache Spark cluster for Azure, AWS and GCP:
+This picture shows menu for creating Standalone Apache Spark cluster for Azure and AWS:
 <p align="center"> 
     <img src="doc/spark_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
@@ -661,6 +675,37 @@ If project and DataLab quotas are exceeded the warning shows up during login.
 </p>
 
 In such case user cannot create new instance and already "Running" instance changes its status to "Stopping", except for Data Engine Service (its status changes "Terminating") and soon becomes "Stopped" or "Terminated" appropriately.
+
+## Configuration <a name="configuration"></a>
+
+DataLab Configuration page is an administrative page allowing administrator to restart services and/or edit configuration files for self-service, provisioning and billing services.
+
+To access Configuration page, navigate to it through the main menu:
+
+<p align="center"> 
+    <img src="doc/configuration_page.png" alt="Configuration">
+</p>
+
+Navigate between tabs to edit services configuration files:
+
+<p align="center"> 
+    <img src="doc/configuration_page1.png" alt="Configuration">
+</p>
+
+To restart the service, select the appropriate endpoint from the list, and then select one or several services you want to restart and click on 'Restart' button. A confirmation dialog shows up, allowing you to confirm or reject the action:
+
+**NOTE:** Restarting services will make DataLab unavailable for some time.
+
+<p align="center"> 
+    <img src="doc/configuration_page_restart.png" alt="Configurationt">
+</p>
+
+**NOTE:** You will not be able to restart provisioning service if one of resources 
+is in processing stage (creating, configuring, reconfiguring, creating image, stopping, starting, terminating):
+
+<p align="center"> 
+    <img src="doc/configuration_page_prov.png" alt="Configuration">
+</p>
 
 --------------------------------
 
