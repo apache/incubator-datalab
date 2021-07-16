@@ -150,7 +150,7 @@ import {Endpoint} from '../../../administration/project/project.component';
       </div>
   `,
   styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; }
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; max-height: 75vh; }
     .info { color: #35afd5; }
     .info .confirm-dialog { color: #607D8B; }
     header { display: flex; justify-content: space-between; color: #607D8B; }
