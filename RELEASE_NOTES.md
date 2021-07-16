@@ -1,62 +1,61 @@
-# DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
+# DataLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## New features in v2.4.0
+## New features in v2.5.0
 **All Cloud platforms:**
-- Implemented bucket browser. Now user is able to manage Cloud data source by means of accessing Cloud Blob Storage from DLab Web UI;
-- Added support of audit. Now DLab administrators can view history of all actions;
+- Implemented Configuration page. Now DataLab administrators can view, edit configuration files and restart the services;
+- Implemented localization. Now the DataLab UI is automatically updated to a specific location (e.g., date and time format, currency view etc.);
 - Updated versions of installed software:
-  * Ubuntu v.18.04;
-  * TensorFlow notebook v.2.1.0;
-  * MongoDB v.4.2.
+  * Ubuntu v.20.04;
+  * Python v.3.x;
+  * Pip v.21.0.1;
+  * R v.4.1.0;
+  * Angular v.10.2.2;
+  * Jupyter notebook v.6.1.6;
+  * RStudio notebook v.1.4.1103;
+  * Apache Zeppelin notebook v.0.9.0;
+  * TensorFlow notebook v.2.5.0;
+  * Apache Spark v.3.0.1;
+  * Ungit v.1.5.15.
 
 **AWS:**
-- Added support of new version of Data Engine Service (EMR) v.5.30.0 and v.6.0.0.
+- Added support of new version of Data Engine Service (EMR) v.6.2.0.
 
-## Improvements in v2.4.0
+**GCP:**
+- Added support of new version of Data Engine Service (Dataproc) v.2.0.0-RC22-ubuntu18.
+
+## Improvements in v2.5.0
 **All Cloud platforms:**
-- Added support of connection via Livy and SparkMagic for Jupyter and RStudio notebooks;
-- Added ability to select multiple resources on &#39;Environment management&#39; to make user experience easier and more intuitive;
-- Added support to install libraries of particular version from DLab Web UI. Also, now user is able to update/downgrade library via Web UI;
-- Extended billing functionality introducing new entity - monthly project quota(s);
-- Added notifications for cases when project quota is exceeded;
-- Conveyed analytical environment URL&#39;s to DLab administration page.
+- Added DeepLearning notebook creation based on Cloud native image;
+- Added specific python versions via virtual environments for all notebooks and compute resources (except Data Engine Service and DeepLearning).
 
 **GCP:**
-- Added possibility to create custom image for notebook.
+- Added optional notebook/compute creation with GPU for Jupyter notebook, Data Engine Service (Dataproc) and Data Engine (standalone cluster).
 
-## Bug fixes in v2.4.0
+## Bug fixes in v2.5.0
 **All Cloud platforms:**
-- Fixed a bug when administrative permissions disappeared after endpoint connectivity issues;
-- Fixed a bug when all resources disappeared in &#39;List of resources&#39; page after endpoint connectivity issues;
-- Fixed a bug when administrative role could not be edited for already existing group;
-- Fixed a bug when billing report was not populated in Safari;
-- Fixed a bug with discrepancies in detailed billing and in-grid billing report.
+- Fixed a bug when instance status on the DataLab WEB UI was not synched up with Cloud instance status after provisioning restart;
+- Fixed a bug when Spark executor memory was not allocated in depends on notebook instance shape;
+- Fixed a bug when reminder about notebook stopping continued to show up after scheduler had been triggered;
+- Fixed a bug when library status did not change on the DataLab WEB UI in case of unknown library name installation.
 
+## Known issues in v2.5.0
 **GCP:**
-- Fixed a bug when billing was not correctly updated for period overlapping two calendar years;
-
-**Microsoft Azure:**
-- Fixed a rare bug when notebooks or SSN were not always created successfully from the first attempt.
-
-## Known issues in v2.4.0
-**GCP:**
+- Superset creation fails during configuration;
 - SSO is not available for Superset.
 
 **Microsoft Azure:**
-- Notebook creation fails on RedHat;
-- Web terminal is not working for Notebooks only for remote endpoint.
+- Notebook WEB terminal does not work for remote endpoint.
 
-*Refer to the following link in order to view the other major/minor issues in v2.4.0:*
+*Refer to the following link in order to view other major/minor issues in v2.5.0:*
 
-[Apache DLab: Known issues](https://issues.apache.org/jira/issues/?filter=12349399 "Apache DLab: Known issues")
+[Apache DataLab: Known issues](https://issues.apache.org/jira/issues/?filter=12350724 "Apache DataLab: Known issues")
 
-## Known issues caused by cloud provider limitations in v2.4.0
+## Known issues caused by cloud provider limitations in v2.5.0
 
 **Microsoft Azure:**
 - Resource name length should not exceed 80 chars;
-- TensorFlow templates are not supported for RedHat Enterprise Linux;
-- Low priority Virtual Machines are not supported yet.
 
 **GCP:**
 - Resource name length should not exceed 64 chars;
-- NOTE: DLab has not been tested on GCP for RedHat Enterprise Linux.
+
+**NOTE:** the DataLab has not been tested on GCP for RedHat Enterprise Linux.
