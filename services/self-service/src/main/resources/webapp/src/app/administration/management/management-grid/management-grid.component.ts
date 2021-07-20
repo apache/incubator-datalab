@@ -194,7 +194,10 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
         const isTypeName = item.name ? item.name.toLowerCase()
           .indexOf(config.type.toLowerCase()) !== -1 : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
         const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-        const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+        const isShape = config.shapes.length > 0 ? 
+              (config.shapes.indexOf(item.shape) !== -1 || 
+              config.shapes.indexOf(item.gpu_type) !== -1 ||
+              config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1 ) : true;
         const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
         const isEndpoint = config.endpoints.length > 0 ? (config.endpoints.indexOf(item.endpoint) !== -1) : true;
 
@@ -249,7 +252,8 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   }
 
   private getDefaultFilterConfiguration(data): void {
-    const users = [], projects = [], shapes = [], statuses = [], resources = [], endpoints = [];
+    const users = [], projects = [], shapes = [],  statuses = [], 
+          resources = [], endpoints = [], gpuTypes = [], gpuCounts = [];
 
     data && data.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1) users.push(item.user);
@@ -257,6 +261,8 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
       if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1) statuses.push(item.status.toLowerCase());
       if (item.project && projects.indexOf(item.project) === -1) projects.push(item.project);
       if (item.shape && shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+      if (item.gpu_type && gpuTypes.indexOf(item.gpu_type) === -1) gpuTypes.push(item.gpu_type);
+      if (item.gpu_count && gpuCounts.indexOf(`GPU count: ${item.gpu_count}`) === -1) gpuCounts.push(`GPU count: ${item.gpu_count}`);
       if (item.computational_resources) {
          item.computational_resources.map((resource: any) => {
               if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
@@ -265,7 +271,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
       }
     });
 
-    this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources, endpoints);
+    this.filterConfiguration = new ManagementConfigModel(users, '', projects, [...shapes, ...gpuTypes, ...gpuCounts], statuses, resources, endpoints);
   }
 
   public openNotebookDetails(data) {
