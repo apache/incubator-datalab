@@ -327,10 +327,13 @@ export class ResourcesGridComponent implements OnInit {
 
   private getDefaultFilterConfiguration(): void {
     const data = this.environments;
-    const shapes = [], statuses = [], resources = [];
+    const shapes = [], statuses = [], resources = [],
+          gpuTypes = [], gpuCounts = [];
 
     data.filter(elem => elem.exploratory.map((item: any) => {
       if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+      if(item.gpu_type && gpuTypes.indexOf(item.gpu_type) === -1) gpuTypes.push(item.gpu_type);
+      if(item.gpu_count && gpuCounts.indexOf(`GPU count: ${item.gpu_count}`) === -1) gpuCounts.push(`GPU count: ${item.gpu_count}`);
       if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
       statuses.sort(SortUtils.statusSort);
 
@@ -340,7 +343,7 @@ export class ResourcesGridComponent implements OnInit {
       });
     }));
 
-    this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '', '');
+    this.filterConfiguration = new FilterConfigurationModel('', statuses, [...shapes, ...gpuTypes, ...gpuCounts], resources, '', '');
   }
 
   public applyFilter_btnClick(config: FilterConfigurationModel): void {
@@ -366,7 +369,10 @@ export class ResourcesGridComponent implements OnInit {
 
             const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
             const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-            const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+            const isShape = config.shapes.length > 0 ? 
+                  (config.shapes.indexOf(item.shape) !== -1 ||
+                  config.shapes.indexOf(item.gpu_type) !== -1 ||
+                  config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1 ) : true;
 
             const modifiedResources = containsStatus(item.resources, config.resources);
             let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;

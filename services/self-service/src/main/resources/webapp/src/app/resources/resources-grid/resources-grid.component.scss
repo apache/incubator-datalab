@@ -139,11 +139,12 @@ table.resources {
   }
 
 
-  .status-col,
-  .shape-col {
+  .status-col {
     width: 11%;
   }
+
   .shape-col{
+    width: 13%;
     color: #577289;
     .label{
       color: $table-header-color;
@@ -166,7 +167,7 @@ table.resources {
   }
 
   .resources-col {
-    width: 30%;
+    width: 28%;
   }
 
   .cost-col {
