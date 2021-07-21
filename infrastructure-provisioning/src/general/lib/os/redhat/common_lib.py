@@ -89,13 +89,6 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
         sys.exit(1)
 
 
-def change_pkg_repos():
-    if not exists(datalab.fab.conn,'/tmp/pkg_china_ensured'):
-        datalab.fab.conn.put('/root/files/sources.list', '/tmp/sources.list')
-        datalab.fab.conn.sudo('mv /tmp/sources.list  /etc/yum.repos.d/CentOS-Base-aliyun.repo')
-        datalab.fab.conn.sudo('touch /tmp/pkg_china_ensured')
-
-
 def find_java_path_remote():
     java_path = datalab.fab.conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'").stdout.replace('\n','')
     return java_path

@@ -43,24 +43,11 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
-def create_china_pip_conf_file(conn):
-    if not exists(conn,'/home/{}/pip_china_ensured'.format(args.user)):
-        conn.sudo('touch /etc/pip.conf')
-        conn.sudo('echo "[global]" >> /etc/pip.conf')
-        conn.sudo('echo "timeout = 600" >> /etc/pip.conf')
-        conn.sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        conn.sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        conn.sudo('touch /home/{}/pip_china_ensured'.format(args.user))
-
 if __name__ == "__main__":
     print("Configure connections")
     global conn
     conn = init_datalab_connection(args.hostname, args.user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
-
-    if args.region == 'cn-north-1':
-        change_pkg_repos()
-        create_china_pip_conf_file()
 
     print("Updating hosts file")
     update_hosts_file(args.user)

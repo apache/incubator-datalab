@@ -37,7 +37,8 @@ if __name__ == "__main__":
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
-                        filename=local_log_filepath)
+                        filename=local_log_filepath,
+                        handlers=[logging.StreamHandler()])
     ssn_conf = dict()
     ssn_conf['instance'] = 'ssn'
     ssn_conf['pre_defined_vpc'] = False
@@ -59,7 +60,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[DERIVING NAMES]')
-        print('[DERIVING NAMES]')
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         ssn_conf['role_name'] = '{}-ssn-role'.format(ssn_conf['service_base_name'])
@@ -101,7 +101,6 @@ if __name__ == "__main__":
         try:
             ssn_conf['pre_defined_vpc'] = True
             logging.info('[CREATE VPC AND ROUTE TABLE]')
-            print('[CREATE VPC AND ROUTE TABLE]')
             params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --vpc_name {}".format(
                 ssn_conf['vpc_cidr'], ssn_conf['region'], ssn_conf['tag_name'], ssn_conf['service_base_name'],
                 ssn_conf['vpc_name'])
@@ -127,7 +126,6 @@ if __name__ == "__main__":
         try:
             ssn_conf['pre_defined_vpc2'] = True
             logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
-            print('[CREATE SECONDARY VPC AND ROUTE TABLE]')
             params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary " \
                      "--vpc_name {}".format(ssn_conf['vpc2_cidr'], ssn_conf['region'], ssn_conf['tag2_name'],
                                             ssn_conf['service_base_name'], ssn_conf['vpc2_name'])
@@ -154,7 +152,6 @@ if __name__ == "__main__":
         try:
             ssn_conf['pre_defined_subnet'] = True
             logging.info('[CREATE SUBNET]')
-            print('[CREATE SUBNET]')
             params = "--vpc_id {0} --username {1} --infra_tag_name {2} --infra_tag_value {3} --prefix {4} " \
                      "--ssn {5} --zone {6} --subnet_name {7}".format(
                       os.environ['aws_vpc_id'], 'ssn', ssn_conf['tag_name'],ssn_conf['service_base_name'], '20',
@@ -193,7 +190,6 @@ if __name__ == "__main__":
     except KeyError:
         try:
             logging.info('[CREATE PEERING CONNECTION]')
-            print('[CREATE PEERING CONNECTION]')
             os.environ['aws_peering_id'] = datalab.actions_lib.create_peering_connection(
                 os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], ssn_conf['service_base_name'])
             print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
@@ -226,7 +222,6 @@ if __name__ == "__main__":
         try:
             ssn_conf['pre_defined_sg'] = True
             logging.info('[CREATE SG FOR SSN]')
-            print('[CREATE SG FOR SSN]')
             ssn_conf['ingress_sg_rules_template'] = datalab.meta_lib.format_sg([
                 {
                     "PrefixListIds": [],
@@ -301,7 +296,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE ROLES]')
-        print('[CREATE ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
                  "--infra_tag_name {} --infra_tag_value {} --user_tag_value {}".\
             format(ssn_conf['role_name'], ssn_conf['role_profile_name'], ssn_conf['policy_name'],
@@ -337,7 +331,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE ENDPOINT AND ROUTE-TABLE]')
-        print('[CREATE ENDPOINT AND ROUTE-TABLE]')
         params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
             os.environ['aws_vpc_id'], os.environ['aws_region'], ssn_conf['tag_name'], ssn_conf['service_base_name'])
         try:
@@ -370,7 +363,6 @@ if __name__ == "__main__":
     if os.environ['conf_duo_vpc_enable'] == 'true':
         try:
             logging.info('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
-            print('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
             params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
                 os.environ['aws_vpc2_id'], os.environ['aws_region'], ssn_conf['tag2_name'],
                 ssn_conf['service_base_name'])
@@ -403,7 +395,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SSN INSTANCE]')
-        print('[CREATE SSN INSTANCE]')
         params = "--node_name {0} --ami_id {1} --instance_type {2} --key_name {3} --security_group_ids {4} " \
                  "--subnet_id {5} --iam_profile {6} --infra_tag_name {7} --infra_tag_value {8} --instance_class {9} " \
                  "--primary_disk_size {10}".\
@@ -443,7 +434,6 @@ if __name__ == "__main__":
     if ssn_conf['network_type'] == 'public':
         try:
             logging.info('[ASSOCIATING ELASTIC IP]')
-            print('[ASSOCIATING ELASTIC IP]')
             ssn_conf['ssn_id'] = datalab.meta_lib.get_instance_by_name(ssn_conf['tag_name'], ssn_conf['instance_name'])
             try:
                 ssn_conf['elastic_ip'] = os.environ['ssn_elastic_ip']
@@ -491,7 +481,6 @@ if __name__ == "__main__":
     if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and 'ssn_subdomain' in os.environ:
         try:
             logging.info('[CREATING ROUTE53 RECORD]')
-            print('[CREATING ROUTE53 RECORD]')
             try:
                 datalab.actions_lib.create_route_53_record(os.environ['ssn_hosted_zone_id'],
                                                            os.environ['ssn_hosted_zone_name'],
