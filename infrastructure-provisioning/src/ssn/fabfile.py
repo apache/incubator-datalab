@@ -27,6 +27,7 @@ import sys
 import traceback
 import uuid
 from fabric import task
+import subprocess
 
 @task
 def run(ctx):
