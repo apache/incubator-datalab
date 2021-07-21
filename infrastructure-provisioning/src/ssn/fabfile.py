@@ -26,8 +26,8 @@ import os
 import sys
 import traceback
 import uuid
-from fabric import task
-import subprocess
+from datalab.fab import *
+from fabric import *
 
 @task
 def run(ctx):
