@@ -141,6 +141,8 @@ def build_parser():
                         help='password to access repository (used for jars download)')
     parser.add_argument('--conf_repository_address', type=str, default='',
                         help='address to access repository (used for jars download)')
+    parser.add_argument('--default_endpoint_name', type=str, default='local',
+                               help='Name of localhost provisioning service, that created by default')
 
     required_args = parser.add_argument_group('Required arguments')
     required_args.add_argument('--conf_service_base_name', type=str,
@@ -159,8 +161,7 @@ def build_parser():
     required_args.add_argument('--keycloak_user', type=str, default='datalab', help='Keycloak user', required=True)
     required_args.add_argument('--keycloak_user_password', type=str, default='keycloak-user-password',
                                help='Keycloak user password', required=True)
-    required_args.add_argument('--default_endpoint_name', type=str, default='local',
-                               help='Name of localhost provisioning service, that created by default', required=True)
+
 
     # subparsers
     subparsers = parser.add_subparsers(dest='conf_cloud_provider', required=True, help='sub-command help',
