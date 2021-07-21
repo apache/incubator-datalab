@@ -37,8 +37,7 @@ if __name__ == "__main__":
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
-                        filename=local_log_filepath,
-                        handlers=[logging.StreamHandler()])
+                        handlers=[logging.StreamHandler(), logging.FileHandler(local_log_filepath)])
     ssn_conf = dict()
     ssn_conf['instance'] = 'ssn'
     ssn_conf['pre_defined_vpc'] = False
