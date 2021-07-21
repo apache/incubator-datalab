@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.Strings;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -38,7 +39,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,6 +71,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
         } catch (IOException e) {
             throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
+        log.info("TEST LOG!!!: envList: {}", cloudResourceList);
 
         EnvResourceList envResourceList = EnvResourceList.builder()
                 .hostList(getListOrEmpty(cloudResourceList.getHostList()))
@@ -87,7 +88,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     private String checkAndMapStatus(String status) {
-        if (status.equalsIgnoreCase ("terminated_with_errors")) {
+        if (status.equalsIgnoreCase("terminated_with_errors")) {
             log.trace("While parsing response changed: {} -> {}", status, UserInstanceStatus.TERMINATED);
             return UserInstanceStatus.TERMINATED.toString();
         } else {
@@ -97,6 +98,8 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
     @Override
     public boolean handle(String fileName, byte[] content) {
+        log.info("TEST LOG!!!: content: {}", Strings.fromByteArray(content));
+
         try {
             return super.handle(fileName, content);
         } catch (Exception e) {
@@ -117,12 +120,14 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     private List<EnvResource> getChangedEnvResources(List<EnvResource> envResources) {
-        return envResources
-                .stream()
-                .filter(e -> !e.getStatus().equals(datalabHostResources.get(e.getId()).getStatus()))
-                .map(e -> datalabHostResources.get(e.getId())
-                        .withStatus(checkAndMapStatus(e.getStatus())))
-                .collect(Collectors.toList());
+        if (envResources != null)
+            return envResources
+                    .stream()
+                    .filter(e -> !e.getStatus().equals(datalabHostResources.get(e.getId()).getStatus()))
+                    .map(e -> datalabHostResources.get(e.getId())
+                            .withStatus(checkAndMapStatus(e.getStatus())))
+                    .collect(Collectors.toList());
+        else return Collections.emptyList();
     }
 
     private Map<String, EnvResource> getEnvResources(EnvResourceList envResources) {
@@ -131,6 +136,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     private List<EnvResource> getListOrEmpty(List<EnvResource> source) {
-        return getChangedEnvResources(Optional.of(source).orElse(Collections.emptyList()));
+        log.info("TEST LOG!!!: source: {}", source);
+        return getChangedEnvResources(source);
     }
 }
