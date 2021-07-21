@@ -41,7 +41,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 # Install any python dependencies
-RUN python3 -m pip install -UI pip==21.0.1 && \
+RUN python3 -m pip install -UI pip==21.1.2 && \
     python3 -m pip install -U six patchwork configparser boto3 backoff fabric fabvenv argparse ujson jupyter pycryptodome google-api-python-client google-cloud-storage \
     pyyaml google-auth-httplib2 oauth2client
 
@@ -79,7 +79,6 @@ COPY ${SRC_PATH}general/scripts/gcp/common_* /root/scripts/
 COPY ${SRC_PATH}general/lib/gcp/* /usr/lib/python3.8/datalab/
 COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python3.8/datalab/common_lib.py
 COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python3.8/datalab/fab.py
-COPY ${SRC_PATH}general/files/os/${OS}/sources.list /root/files/
 COPY ${SRC_PATH}general/files/os/ivysettings.xml /root/templates/
 COPY ${SRC_PATH}general/files/os/local_endpoint.json /root/files/
 COPY ${SRC_PATH}project/templates/locations/ /root/locations/

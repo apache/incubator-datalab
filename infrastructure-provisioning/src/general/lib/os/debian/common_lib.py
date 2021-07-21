@@ -156,12 +156,7 @@ def renew_gpg_key():
         sys.exit(1)
 
 
-def change_pkg_repos():
-    if not exists(datalab.fab.conn,'/tmp/pkg_china_ensured'):
-        datalab.fab.conn.put('/root/files/sources.list', '/tmp/sources.list')
-        datalab.fab.conn.sudo('mv /tmp/sources.list /etc/apt/sources.list')
-        manage_pkg('update', 'remote', '')
-        datalab.fab.conn.sudo('touch /tmp/pkg_china_ensured')
+
 
 
 def find_java_path_remote():

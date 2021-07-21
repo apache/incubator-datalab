@@ -73,11 +73,6 @@ def download_toree():
         sys.exit(1)
 
 
-def add_china_repository(datalab_path):
-    conn.sudo('''bash -c 'cd {1}sources/infrastructure-provisioning/src/base/ && sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" Dockerfile' '''.format(os.environ['conf_pypi_mirror'], datalab_path))
-    conn.sudo('''bash -c 'cd {}sources/infrastructure-provisioning/src/base/ && sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile' '''.format(datalab_path))
-    conn.sudo('''bash -c 'cd {}sources/infrastructure-provisioning/src/base/ && sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile' '''.format(datalab_path))
-
 def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
     if gcr_creds != '':
         try:
@@ -119,8 +114,6 @@ def build_docker_images(image_list, region, datalab_path):
                   'azure_auth.json'.format(args.keyfile, host_string, args.datalab_path))
             conn.sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
                  '/home/{1}/keys/azure_auth.json'.format(args.datalab_path, args.os_user))
-        if region == 'cn-north-1':
-            add_china_repository(datalab_path)
         for image in image_list:
             name = image['name']
             tag = image['tag']

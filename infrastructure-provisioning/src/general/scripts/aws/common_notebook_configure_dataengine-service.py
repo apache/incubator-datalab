@@ -87,12 +87,12 @@ if __name__ == "__main__":
         print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         params = "--bucket {} --cluster_name {} --emr_version {} --keyfile {} --notebook_ip {} --region {} " \
                  "--emr_excluded_spark_properties {} --project_name {} --os_user {}  --edge_hostname {} " \
-                 "--proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
+                 "--proxy_port {} --scala_version {} --application {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['emr_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['aws_region'],
                     os.environ['emr_excluded_spark_properties'], os.environ['project_name'],
                     os.environ['conf_os_user'], edge_instance_hostname, '3128', os.environ['notebook_scala_version'],
-                    os.environ['application'], os.environ['conf_pypi_mirror'])
+                    os.environ['application'])
         try:
             subprocess.run("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params), shell=True, check=True)
             datalab.actions_lib.remove_emr_tag(notebook_config['cluster_id'], ['State'])
