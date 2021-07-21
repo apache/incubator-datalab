@@ -177,6 +177,8 @@ def build_parser():
                             deployment script is executed on local machine and uses
                             IAM user permissions to create resources in AWS.''')
     aws_parser.add_argument('--aws_secret_access_key', type=str, help='AWS Secret Access Key')
+    aws_parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.large',
+                                   help='The SSN instance shape')
     aws_parser.add_argument('--ssn_assume_role_arn', type=str,
                             help='Role ARN for creating Route53 record in different AWS account')
     aws_parser.add_argument('--aws_vpc_id', type=str, help='AWS VPC ID')
@@ -197,8 +199,6 @@ def build_parser():
     aws_required_args = aws_parser.add_argument_group('Required arguments')
     aws_required_args.add_argument('--aws_region', type=str, required=True, help='AWS region')
     aws_required_args.add_argument('--aws_zone', type=str, required=True, help='AWS zone')
-    aws_required_args.add_argument('--aws_ssn_instance_size', type=str, required=True, default='t2.large',
-                                   help='The SSN instance shape')
     aws_required_args.add_argument('--aws_account_id', type=str, required=True, help='The ID of Amazon account')
 
     # --------azure subcommand -------------------------
