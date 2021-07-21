@@ -64,6 +64,7 @@ public class ProjectCallback {
 
     @POST
     public Response updateProjectStatus(ProjectResult projectResult) {
+        log.info("TEST LOG!!!: projectResult: {}", projectResult);
         try {
             requestId.checkAndRemove(projectResult.getRequestId());
             final String projectName = projectResult.getProjectName();
@@ -76,6 +77,7 @@ public class ProjectCallback {
                 projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
             }
         } catch (Exception e) {
+            log.error(e.toString());
             log.error(e.getMessage());
             log.info("Run scheduler");
             scheduler.execute(null);
