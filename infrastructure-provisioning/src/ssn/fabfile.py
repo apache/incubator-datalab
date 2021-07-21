@@ -26,6 +26,7 @@ import os
 import sys
 import traceback
 import uuid
+from fabric import task
 
 @task
 def run(ctx):
