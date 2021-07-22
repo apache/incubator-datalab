@@ -132,7 +132,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.libs_uploaded = false;
     this.uploading = true;
 
-    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name)
       .pipe(
         takeUntil(this.unsubscribe$),
       )
