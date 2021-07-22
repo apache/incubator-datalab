@@ -488,4 +488,12 @@ export class ResourcesGridComponent implements OnInit {
     this.filterForm.name = targetElement;
     this.checkFilters();
   }
+
+  public checkLibStatus(element) {
+    let installingLib = [];
+    if(element.libs) {
+      installingLib = element.libs.filter(lib => lib.status === 'installing'); 
+    }
+    return !!installingLib.length;
+  }
 }

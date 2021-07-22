@@ -243,9 +243,15 @@
                       </div>
                     </li>
                   </div>
-                  <li (click)="exploratoryAction(element, 'ami')"
+                  <li
+                      matTooltip="You can create an image after the library installation is complete"
+                      matTooltipPosition="above" [matTooltipDisabled]="!checkLibStatus(element)"
+                      [matTooltipClass]="'full-size-tooltip'"
+                      [ngClass]="{'not-allow': checkLibStatus(element) }" 
                       *ngIf="element.status === 'running'  && element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'">
-                    <div>
+                    <div 
+                      (click)="exploratoryAction(element, 'ami')"
+                      [ngClass]="{'not-allowed': checkLibStatus(element) }">
                       <i class="material-icons">view_module</i>
                       <span>Create AMI</span>
                     </div>
