@@ -50,6 +50,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   images: Array<any>;
   selectedImage: any;
   maxNotebookLength: number = 14;
+  maxCustomTagLength: number = 63;
   public areShapes: boolean;
   public selectedCloud: string = '';
   public gpuCount: Array<number>;
@@ -307,7 +308,10 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         this.checkDuplication.bind(this)
       ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
-      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]],
+      custom_tag: ['', [
+        Validators.pattern(PATTERNS.namePattern),
+        Validators.maxLength(this.maxCustomTagLength)
+      ]],
       gpu_type: [null],
       gpu_count: [null],
       gpu_enabled: [false]
