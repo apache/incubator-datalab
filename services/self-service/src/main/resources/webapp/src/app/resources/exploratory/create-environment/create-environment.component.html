@@ -190,8 +190,14 @@
           <div class="control">
             <input type="text" class="form-control" placeholder="Enter custom tag" formControlName="custom_tag">
           </div>
+          <span 
+            class="error"
+            *ngIf="createExploratoryForm?.controls['custom_tag'].hasError('maxlength') &&
+                  !createExploratoryForm?.controls['custom_tag'].hasError('pattern')">
+              Custom tag name cannot be longer than {{maxCustomTagLength}} characters.
+            </span>
           <span class="error"
-            *ngIf="!createExploratoryForm?.controls.custom_tag.valid && createExploratoryForm?.controls.custom_tag.dirty">
+            *ngIf="createExploratoryForm?.controls['custom_tag'].hasError('pattern')">
             Custom tag can only contain letters, numbers, hyphens and '_' but can not end with special characters.</span>
         </div>
 
