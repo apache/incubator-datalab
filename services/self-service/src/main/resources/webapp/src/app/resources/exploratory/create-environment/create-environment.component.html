@@ -185,7 +185,10 @@
           </div>
         </div>
 
-        <div class="control-group m-bott-10">
+        <div 
+          class="control-group m-bott-10"
+          [ngClass]="{'m-bott-20': createExploratoryForm?.controls['custom_tag'].hasError('pattern')}"
+        >
           <label class="label">Custom tag</label>
           <div class="control">
             <input type="text" class="form-control" placeholder="Enter custom tag" formControlName="custom_tag">

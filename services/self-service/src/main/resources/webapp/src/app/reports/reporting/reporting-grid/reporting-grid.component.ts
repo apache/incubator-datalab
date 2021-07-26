@@ -147,14 +147,20 @@ export class ReportingGridComponent implements OnInit {
     report = this.reportData.sort((a, b) => {
       if (a[sortItem] === null) a[sortItem] = '';
       if (b[sortItem] === null) b[sortItem] = '';
-     return (a[sortItem] > b[sortItem]) ? 1 : -1;
+
+      if ((a[sortItem] > b[sortItem])) return 1;
+      if ((a[sortItem] < b[sortItem])) return -1;
+      return 0;
     });
   }
   if (direction === 'up') {
     report = this.reportData.sort((a, b) => {
       if (a[sortItem] === null) a[sortItem] = '';
       if (b[sortItem] === null) b[sortItem] = '';
-      return (a[sortItem] < b[sortItem]) ? 1 : -1 ;
+
+      if ((a[sortItem] < b[sortItem])) return 1;
+      if ((a[sortItem] > b[sortItem])) return -1;
+      return 0;
     });
   }
   this.refreshData(this.fullReport, report);
