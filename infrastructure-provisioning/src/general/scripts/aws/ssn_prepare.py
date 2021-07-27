@@ -359,20 +359,21 @@ if __name__ == "__main__":
 
     #creating route53 records
     try:
-        if ssn_conf['network_type'] == 'private':
-            ssn_conf['instance_ip'] = datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
-                                                                               ssn_conf['instance_name']).get('Private')
-        else:
-            ssn_conf['instance_ip'] = datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
-                                                                               ssn_conf['instance_name']).get('Public')
-        logging.info('[CREATING ROUTE53 RECORD]')
-        try:
-            datalab.actions_lib.create_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                       os.environ['ssn_hosted_zone_name'],
-                                                       os.environ['ssn_subdomain'], ssn_conf['instance_ip'])
-        except:
-            traceback.print_exc()
-            raise Exception
+        if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and 'ssn_subdomain' in os.environ:
+            if ssn_conf['network_type'] == 'private':
+                ssn_conf['instance_ip'] = datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
+                                                                                   ssn_conf['instance_name']).get('Private')
+            else:
+                ssn_conf['instance_ip'] = datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
+                                                                                   ssn_conf['instance_name']).get('Public')
+            logging.info('[CREATING ROUTE53 RECORD]')
+            try:
+                datalab.actions_lib.create_route_53_record(os.environ['ssn_hosted_zone_id'],
+                                                           os.environ['ssn_hosted_zone_name'],
+                                                           os.environ['ssn_subdomain'], ssn_conf['instance_ip'])
+            except:
+                traceback.print_exc()
+                raise Exception
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create route53 record", str(err))

@@ -80,14 +80,17 @@ if __name__ == "__main__":
 
     print("Removing security groups")
     try:
-        datalab.actions_lib.remove_sgroups(args.de_se_sg)
-        datalab.actions_lib.remove_sgroups(args.de_sg)
-        datalab.actions_lib.remove_sgroups(args.nb_sg)
-        datalab.actions_lib.remove_sgroups(args.edge_sg)
+        try:
+            datalab.actions_lib.remove_sgroups(args.de_se_sg)
+            datalab.actions_lib.remove_sgroups(args.de_sg)
+            datalab.actions_lib.remove_sgroups(args.nb_sg)
+            datalab.actions_lib.remove_sgroups(args.edge_sg)
+        except:
+            print("There are no SG for compute resources")
         try:
             datalab.actions_lib.remove_sgroups(args.tag_name)
         except:
-            print("There is no pre-defined SSN SG")
+            print("There is SSN SG")
     except Exception as err:
         datalab.fab.append_result("Failed to remove security groups.", str(err))
         sys.exit(1)
