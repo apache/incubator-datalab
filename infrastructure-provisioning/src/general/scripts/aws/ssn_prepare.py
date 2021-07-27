@@ -136,7 +136,7 @@ if __name__ == "__main__":
         if os.environ['conf_duo_vpc_enable'] == 'true' and 'aws_vpc2_id' in os.environ \
                 and os.environ['aws_vpc2_id'] != '':
             ssn_conf['aws_vpc2_id'] = os.environ['aws_vpc2_id']
-        else:
+        elif os.environ['conf_duo_vpc_enable'] == 'true':
             logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
             params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary" \
                      " --vpc_name {}".format(ssn_conf['vpc2_cidr'], ssn_conf['region'], ssn_conf['tag2_name'],
@@ -254,7 +254,7 @@ if __name__ == "__main__":
             except:
                 traceback.print_exc()
                 raise Exception
-            ssn_conf['aws_security_groups_ids'] = get_security_group_by_name(ssn_conf['sg_name'])
+            ssn_conf['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create security group for SSN", str(err))
