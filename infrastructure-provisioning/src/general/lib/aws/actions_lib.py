@@ -1173,7 +1173,7 @@ def remove_sgroups(tag_value):
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         tag_name = os.environ['conf_service_base_name']
-        print('removing sg with tag key {} and tag value {}'.format(tag_name, tag_value))
+        print('Removing SG with tag key: {} and tag value: {}'.format(tag_name, tag_value))
         sgs = ec2.security_groups.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
         if sgs:
