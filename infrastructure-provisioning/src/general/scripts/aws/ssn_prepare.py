@@ -128,7 +128,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create secondary VPC", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating subnet
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create Subnet", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating peering connection
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create peering connection", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating security groups
@@ -235,7 +235,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create security group for SSN", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating roles
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create roles", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating endpoint and rout-table
@@ -270,7 +270,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create endpoint", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     # creating endpoint and rout-table notebook vpc
@@ -288,7 +288,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create secondary endpoint", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating ssn instance
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create ssn instance", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #associating elastic ip
@@ -331,7 +331,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create elastic ip", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating route53 records
@@ -353,5 +353,5 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create route53 record", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
