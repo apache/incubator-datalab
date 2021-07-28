@@ -111,7 +111,7 @@ if __name__ == "__main__":
     #creating aws vpc
     try:
         if 'aws_vpc_id' in os.environ and os.environ['aws_vpc_id'] != '':
-            ssn_conf['aws_vpc_id'] = os.environ['aws_vpc_id']
+            ssn_conf['predefined_aws_vpc'] = 'true'
         else:
             logging.info('[CREATE VPC AND ROUTE TABLE]')
             params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --vpc_name {}".format(
@@ -122,9 +122,9 @@ if __name__ == "__main__":
             except:
                 traceback.print_exc()
                 raise Exception
-            ssn_conf['aws_vpc_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag_name'],
+            os.environ['aws_vpc_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag_name'],
                                                                        ssn_conf['service_base_name'])
-        for cidr in datalab.meta_lib.get_vpc_cidr_by_id(ssn_conf['aws_vpc_id']):
+        for cidr in datalab.meta_lib.get_vpc_cidr_by_id(os.environ['aws_vpc_id']):
             ssn_conf['allowed_vpc_cidr_ip_ranges'].append({"CidrIp": cidr})
     except Exception as err:
         logging.error('Error: {0}'.format(err))
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             except:
                 traceback.print_exc()
                 raise Exception
-            ssn_conf['aws_vpc2_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
+            os.environ['aws_vpc2_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
                                                                 ssn_conf['service_base_name'])
     except Exception as err:
         logging.error('Error: {0}'.format(err))
@@ -157,11 +157,11 @@ if __name__ == "__main__":
     #creating subnet
     try:
         if 'aws_subnet_id' in os.environ and os.environ['aws_subnet_id'] != '':
-            ssn_conf['aws_subnet_id'] = os.environ['aws_subnet_id']
+            ssn_conf['predefined_aws_subnet'] = 'true'
         else:
             logging.info('[CREATE SUBNET]')
             params = "--vpc_id {0} --username {1} --infra_tag_name {2} --infra_tag_value {3} --prefix {4} " \
-                     "--ssn {5} --zone {6} --subnet_name {7}".format(ssn_conf['aws_vpc_id'], 'ssn',
+                     "--ssn {5} --zone {6} --subnet_name {7}".format(os.environ['aws_vpc_id'], 'ssn',
                                                                      ssn_conf['tag_name'],
                                                                      ssn_conf['service_base_name'],
                                                                      '20', True,
@@ -171,9 +171,9 @@ if __name__ == "__main__":
             except:
                 traceback.print_exc()
                 raise Exception
-            ssn_conf['aws_subnet_id'] = datalab.meta_lib.get_subnet_by_tag(ssn_conf['subnet_tag'], True,
-                                                                           ssn_conf['aws_vpc_id'])
-            datalab.actions_lib.enable_auto_assign_ip(ssn_conf['aws_subnet_id'])
+            os.environ['aws_subnet_id'] = datalab.meta_lib.get_subnet_by_tag(ssn_conf['subnet_tag'], True,
+                                                                           os.environ['aws_vpc_id'])
+            datalab.actions_lib.enable_auto_assign_ip(os.environ['aws_subnet_id'])
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create Subnet", str(err))
@@ -182,14 +182,14 @@ if __name__ == "__main__":
 
     #creating peering connection
     try:
-        if os.environ['conf_duo_vpc_enable'] == 'true' and ssn_conf['aws_vpc_id'] and ssn_conf['aws_vpc2_id']:
+        if os.environ['conf_duo_vpc_enable'] == 'true' and os.environ['aws_vpc_id'] and os.environ['aws_vpc2_id']:
             logging.info('[CREATE PEERING CONNECTION]')
-            ssn_conf['aws_peering_id'] = datalab.actions_lib.create_peering_connection(
-                ssn_conf['aws_vpc_id'], ssn_conf['aws_vpc2_id'], ssn_conf['service_base_name'])
-            logging.info('PEERING CONNECTION ID:' + ossn_conf['aws_peering_id'])
-            datalab.actions_lib.create_route_by_id(ssn_conf['aws_subnet_id'], ssn_conf['aws_vpc_id'],
-                                                   ssn_conf['aws_peering_id'],
-                                                   datalab.meta_lib.get_cidr_by_vpc(ssn_conf['aws_vpc2_id']))
+            os.environ['aws_peering_id'] = datalab.actions_lib.create_peering_connection(
+                os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], ssn_conf['service_base_name'])
+            logging.info('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
+            datalab.actions_lib.create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'],
+                                                   os.environ['aws_peering_id'],
+                                                   datalab.meta_lib.get_cidr_by_vpc(os.environ['aws_vpc2_id']))
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create peering connection", str(err))
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     #creating security groups
     try:
         if 'aws_security_groups_ids' in os.environ and os.environ['aws_security_groups_ids'] != '':
-            ssn_conf['aws_security_groups_ids'] = os.environ['aws_security_groups_ids']
+            ssn_conf['predefined_security_groups'] = 'true'
         else:
             logging.info('[CREATE SG FOR SSN]')
             ssn_conf['ingress_sg_rules_template'] = datalab.meta_lib.format_sg([
@@ -246,7 +246,7 @@ if __name__ == "__main__":
             ])
             params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
                      "--infra_tag_value {} --force {} --ssn {}". \
-                format(ssn_conf['sg_name'], ssn_conf['aws_vpc_id'],
+                format(ssn_conf['sg_name'], os.environ['aws_vpc_id'],
                        json.dumps(ssn_conf['ingress_sg_rules_template']), json.dumps(egress_sg_rules_template),
                        ssn_conf['service_base_name'], ssn_conf['tag_name'], False, True)
             try:
@@ -254,7 +254,7 @@ if __name__ == "__main__":
             except:
                 traceback.print_exc()
                 raise Exception
-            ssn_conf['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
+            os.environ['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create security group for SSN", str(err))
@@ -286,7 +286,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE ENDPOINT AND ROUTE-TABLE]')
         params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
-            ssn_conf['aws_vpc_id'], ssn_conf['region'], ssn_conf['tag_name'], ssn_conf['service_base_name'])
+            os.environ['aws_vpc_id'], ssn_conf['region'], ssn_conf['tag_name'], ssn_conf['service_base_name'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True, check=True)
         except:
@@ -303,7 +303,7 @@ if __name__ == "__main__":
         if os.environ['conf_duo_vpc_enable'] == 'true':
             logging.info('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
             params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
-                ssn_conf['aws_vpc2_id'], ssn_conf['aws_region'], ssn_conf['tag2_name'],
+                os.environ['aws_vpc2_id'], ssn_conf['aws_region'], ssn_conf['tag2_name'],
                 ssn_conf['service_base_name'])
             try:
                 subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True, check=True)
@@ -323,7 +323,7 @@ if __name__ == "__main__":
                  "--subnet_id {5} --iam_profile {6} --infra_tag_name {7} --infra_tag_value {8} --instance_class {9} " \
                  "--primary_disk_size {10}".\
             format(ssn_conf['instance_name'], ssn_conf['ssn_ami_id'], os.environ['aws_ssn_instance_size'],
-                   os.environ['conf_key_name'], ssn_conf['aws_security_groups_ids'], ssn_conf['aws_subnet_id'],
+                   os.environ['conf_key_name'], os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
                    ssn_conf['role_profile_name'], ssn_conf['tag_name'], ssn_conf['instance_name'], 'ssn', '20')
 
         try:

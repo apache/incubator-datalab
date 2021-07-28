@@ -31,28 +31,36 @@ import subprocess
 from botocore.client import Config as botoConfig
 from datalab.fab import *
 
-
-def get_instance_hostname(tag_name, instance_name):
+def get_instance_metadata(tag_name, instance_name, metadata):
     try:
-        public = ''
-        private = ''
         ec2 = boto3.resource('ec2')
         instances = ec2.instances.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                      {'Name': 'instance-state-name', 'Values': ['running']}])
         for instance in instances:
-            public = getattr(instance, 'public_dns_name')
-            private = getattr(instance, 'private_dns_name')
-            if public:
-                return public
-            else:
-                return private
-        if public == '' and private == '':
-            raise Exception("Unable to find instance hostname with instance name: " + instance_name)
+            if metadata == 'hostname':
+                public = getattr(instance, 'public_dns_name')
+                private = getattr(instance, 'private_dns_name')
+                if public:
+                    return public
+                else:
+                    return private
+                if public == '' and private == '':
+                    raise Exception("Unable to find instance hostname with instance name: " + instance_name)
+            elif metadata == 'ip_address':
+                public = getattr(instance, 'public_ip_address')
+                private = getattr(instance, 'private_ip_address')
+                ips = {'Public': public, 'Private': private}
+                if ips == {}:
+                    raise Exception("Unable to find instance IP addresses with instance name: " + instance_name)
+                return ips
     except Exception as err:
-        logging.error("Error with finding instance hostname with instance name: " + instance_name + " : " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Error with finding instance hostname", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.error("Error with finding instance metadata with instance name: "
+                      + instance_name + " : " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with finding instance metadata",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 
 
 def get_vpc_endpoints(vpc_id):
@@ -104,26 +112,6 @@ def get_bucket_by_name(bucket_name):
     except Exception as err:
         logging.error("Error with getting bucket by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Error with getting bucket by name", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
-
-
-def get_instance_ip_address(tag_name, instance_name):
-    try:
-        ec2 = boto3.resource('ec2')
-        instances = ec2.instances.filter(
-            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
-                     {'Name': 'instance-state-name', 'Values': ['running']}])
-        ips = {}
-        for instance in instances:
-            public = getattr(instance, 'public_ip_address')
-            private = getattr(instance, 'private_ip_address')
-            ips = {'Public': public, 'Private': private}
-        if ips == {}:
-            raise Exception("Unable to find instance IP addresses with instance name: " + instance_name)
-        return ips
-    except Exception as err:
-        logging.error("Error with getting ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Error with getting ip address by name", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
