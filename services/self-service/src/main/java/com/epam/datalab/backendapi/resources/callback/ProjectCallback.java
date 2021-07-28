@@ -87,7 +87,6 @@ public class ProjectCallback {
 
     private void saveGpuForProject(ProjectResult projectResult, String projectName) {
         try {
-
             if (projectResult.getEdgeInfo().getGpuList() != null) {
                 List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
                 log.info("Adding edgeGpu with gpu_types: {}, for project: {}", gpuList, projectName);
