@@ -140,6 +140,9 @@ if __name__ == "__main__":
             os.environ['keycloak_client_name'] = '{}-ui'.format(ssn_conf['service_base_name'])
         if 'keycloak_client_secret' not in os.environ:
             os.environ['keycloak_client_secret'] = str(uuid.uuid4())
+
+        print('AWS SG ID: {}'.format(os.environ['aws_security_groups_ids']))
+
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
