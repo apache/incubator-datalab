@@ -33,7 +33,7 @@ import traceback
 import subprocess
 from fabric import *
 
-def cleanup_aws_cloud_resources(tag_name, service_base_name):
+def cleanup_aws_resources(tag_name, service_base_name):
     try:
         params = "--tag_name {} --service_base_name {}".format(tag_name, service_base_name)
         subprocess.run("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params), shell=True, check=True)
@@ -86,6 +86,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         traceback.print_exc()
         sys.exit(1)
 
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed creating ssh user", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #installing prerequisites to ssn instance
@@ -115,7 +116,7 @@ if __name__ == "__main__":
                                             os.environ['pip_packages_fabric'], os.environ['pip_packages_awscli'],
                                             os.environ['pip_packages_pymongo'], os.environ['pip_packages_pyyaml'],
                                             os.environ['pip_packages_jinja2'])
-        params = "--hostname {} --keyfile {} --pip_packages {} --user {} --region {}".format(
+        params = "--hostname {} --keyfile {} --pip_packages '{}' --user {} --region {}".format(
             ssn_conf['instance_hostname'], "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
             pip_packages, ssn_conf['datalab_ssh_user'], ssn_conf['region'])
         try:
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed installing software: pip, packages.", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #configuring ssn instance
@@ -150,7 +151,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to configure SSN node.", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #configuring docker at ssn instance
@@ -184,7 +185,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to configure docker.", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #configuring keycloak client for ui
@@ -193,7 +194,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to configure Keycloak client for DataLab UI.", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #configuring UI
@@ -529,7 +530,7 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to configure Datalab UI.", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #ssn deployment summary
@@ -584,5 +585,5 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Error with writing results.", str(err))
-        remove_cloud_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
