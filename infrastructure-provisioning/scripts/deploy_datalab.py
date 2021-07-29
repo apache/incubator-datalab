@@ -265,7 +265,7 @@ def generate_docker_command():
         command.append('-v {}:/root/azure_auth.json '.format(args.azure_auth_path))
     elif args.conf_cloud_provider == 'gcp':
         command.append('-v {}:/root/service_account.json '.format(args.gcp_service_account_path))
-    if args.ssl_cert_path != '' and args.ssl_key_path != '':
+    if args.ssl_cert_path and args.ssl_cert_path != '' and args.ssl_key_path and args.ssl_key_path != '':
         command.append('-v {}:/root/certs/datalab.crt -v {}:/root/certs/datalab.key '.format(args.ssl_cert_path,
                                                                                              args.ssl_key_path))
     attrs = vars(args)
