@@ -65,6 +65,7 @@ if __name__ == "__main__":
         ssn_conf['region'] = os.environ['aws_region']
         ssn_conf['ssn_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_conf['subnet_name'] = '{}-subnet'.format(ssn_conf['service_base_name'])
+        ssn_conf['subnet_tag'] = {"Key": ssn_conf['tag_name'], "Value": ssn_conf['subnet_name']}
         ssn_conf['sg_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
         ssn_conf['network_type'] = os.environ['conf_network_type']
         ssn_conf['datalab_ssh_user'] = os.environ['conf_os_user']
@@ -82,11 +83,39 @@ if __name__ == "__main__":
                 'Public')) if x == 'public' else ' --san {0}'.format(datalab.meta_lib.get_instance_metadata(
             ssn_conf['tag_name'], ssn_conf['instance_name'], 'ip_address').get('Private')))(
             ssn_conf['network_type']) if x == 'true' else '')(os.environ['conf_stepcerts_enabled'])
-
-
-        print('AWS SG ID: {}'.format(os.environ['aws_security_groups_ids']))
-
-    except Exception as err:
+        if 'aws_vpc_id' in os.environ and os.environ['aws_vpc_id'] != '':
+            ssn_conf['aws_vpc_id'] = os.environ['aws_vpc_id']
+        else:
+            ssn_conf['aws_vpc_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag_name'],
+                                                                     ssn_conf['service_base_name'])
+        if os.environ['conf_duo_vpc_enable'] == 'true' and 'aws_vpc2_id' in os.environ\
+                and os.environ['aws_vpc2_id'] != '':
+            ssn_conf['aws_vpc2_id'] = os.environ['aws_vpc2_id']
+        else:
+            ssn_conf['aws_vpc2_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
+                                                                      ssn_conf['service_base_name'])
+        if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_peering_id']:
+            ssn_conf['aws_peering_id'] = datalab.meta_lib.get_peering_by_tag(ssn_conf['tag_name'],
+                                                                           ssn_conf['service_base_name'])
+        if 'aws_subnet_id' in os.environ and os.environ['aws_subnet_id'] != '':
+            ssn_conf['aws_subnet_id'] = os.environ['aws_subnet_ids']
+        else:
+            ssn_conf['aws_subnet_id'] = datalab.meta_lib.get_subnet_by_tag(ssn_conf['subnet_tag'], True)
+        if 'aws_security_groups_ids' in os.environ and os.environ['aws_security_groups_ids'] != '':
+            ssn_conf['aws_security_groups_ids'] = os.environ['aws_security_groups_ids']
+        else:
+            ssn_conf['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
+        if 'aws_billing_bucket' in os.environ and os.environ['aws_billing_bucket'] == '':
+            ssn_conf['billing_enabled'] = True
+            ssn_conf['aws_billing_bucket'] = os.environ['aws_billing_bucket']
+        else:
+            ssn_conf['billing_enabled'] = False
+            ssn_conf['aws_billing_bucket'] = 'None'
+        if 'aws_report_path' in os.environ and os.environ['aws_report_path'] == '':
+            ssn_conf['aws_report_path'] = os.environ['aws_report_path']
+        else:
+            ssn_conf['aws_report_path'] = ''
+     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
@@ -138,8 +167,8 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE SSN INSTANCE]')
         additional_config = {"nginx_template_dir": "/root/templates/",
                              "service_base_name": ssn_conf['service_base_name'],
-                             "security_group_id": os.environ['aws_security_groups_ids'],
-                             "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'],
+                             "security_group_id": ssn_conf['aws_security_groups_ids'],
+                             "vpc_id": ssn_conf['aws_vpc_id'], "subnet_id": ssn_conf['aws_subnet_id'],
                              "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --datalab_path {}" \
                  " --tag_resource_id {} --step_cert_sans '{}' ".format(
@@ -247,23 +276,23 @@ if __name__ == "__main__":
             },
             {
                 'key': 'SUBNET_ID',
-                'value': os.environ['aws_subnet_id']
+                'value': ssn_conf['aws_subnet_id']
             },
             {
                 'key': 'REGION',
-                'value': os.environ['aws_region']
+                'value': ssn_conf['aws_region']
             },
             {
                 'key': 'ZONE',
-                'value': os.environ['aws_zone']
+                'value': ssn_conf['aws_zone']
             },
             {
                 'key': 'TAG_RESOURCE_ID',
-                'value': os.environ['conf_tag_resource_id']
+                'value': ssn_conf['conf_tag_resource_id']
             },
             {
                 'key': 'SG_IDS',
-                'value': os.environ['aws_security_groups_ids']
+                'value': ssn_conf['aws_security_groups_ids']
             },
             {
                 'key': 'SSN_INSTANCE_SIZE',
@@ -271,7 +300,7 @@ if __name__ == "__main__":
             },
             {
                 'key': 'VPC_ID',
-                'value': os.environ['aws_vpc_id']
+                'value': ssn_conf['aws_vpc_id']
             },
             {
                 'key': 'CONF_KEY_DIR',
@@ -314,33 +343,33 @@ if __name__ == "__main__":
             cloud_params.append(
                 {
                     'key': 'SUBNET2_ID',
-                    'value': os.environ['aws_subnet_id']
+                    'value': ssn_conf['aws_subnet_id']
                 })
             cloud_params.append(
                 {
                     'key': 'VPC2_ID',
-                    'value': os.environ['aws_vpc2_id']
+                    'value': ssn_conf['aws_vpc2_id']
                 })
             cloud_params.append(
                 {
                     'key': 'PEERING_ID',
-                    'value': os.environ['aws_peering_id']
+                    'value': ssn_conf['aws_peering_id']
                 })
         else:
             cloud_params.append(
                 {
                     'key': 'SUBNET2_ID',
-                    'value': os.environ['aws_subnet_id']
+                    'value': ssn_conf['aws_subnet_id']
                 })
             cloud_params.append(
                 {
                     'key': 'VPC2_ID',
-                    'value': os.environ['aws_vpc_id']
+                    'value': ssn_conf['aws_vpc_id']
                 })
             cloud_params.append(
                 {
                     'key': 'PEERING_ID',
-                    'value': os.environ['aws_peering_id']
+                    'value': ssn_conf['aws_peering_id']
                 })
         if os.environ['conf_stepcerts_enabled'] == 'true':
             cloud_params.append(
@@ -508,9 +537,9 @@ if __name__ == "__main__":
                    os.environ['conf_billing_tag'],
                    os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'],
-                   os.environ['aws_billing_bucket'],
+                   ssn_conf['aws_billing_bucket'],
                    os.environ['aws_job_enabled'],
-                   os.environ['aws_report_path'],
+                   ssn_conf['aws_report_path'],
                    ssn_conf['billing_enabled'],
                    json.dumps(cloud_params),
                    os.environ['datalab_id'],
@@ -546,9 +575,9 @@ if __name__ == "__main__":
         logging.info("Role profile name: {}".format(ssn_conf['role_profile_name']))
         logging.info("Policy name: {}".format(ssn_conf['policy_name']))
         logging.info("Key name: {}".format(os.environ['conf_key_name']))
-        logging.info("VPC ID: {}".format(os.environ['aws_vpc_id']))
-        logging.info("Subnet ID: {}".format(os.environ['aws_subnet_id']))
-        logging.info("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
+        logging.info("VPC ID: {}".format(ssn_conf['aws_vpc_id']))
+        logging.info("Subnet ID: {}".format(ssn_conf['aws_subnet_id']))
+        logging.info("Security IDs: {}".format(ossn_conf['aws_security_groups_ids']))
         logging.info("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
         logging.info("SSN AMI name: {}".format(ssn_conf['ssn_image_name']))
         logging.info("Region: {}".format(ssn_conf['region']))
@@ -566,9 +595,9 @@ if __name__ == "__main__":
                    "role_profile_name": ssn_conf['role_profile_name'],
                    "policy_name": ssn_conf['policy_name'],
                    "master_keyname": os.environ['conf_key_name'],
-                   "vpc_id": os.environ['aws_vpc_id'],
-                   "subnet_id": os.environ['aws_subnet_id'],
-                   "security_id": os.environ['aws_security_groups_ids'],
+                   "vpc_id": ssn_conf['aws_vpc_id'],
+                   "subnet_id": ssn_conf['aws_subnet_id'],
+                   "security_id": ssn_conf['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
