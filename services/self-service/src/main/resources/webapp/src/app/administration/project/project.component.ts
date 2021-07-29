@@ -23,7 +23,7 @@ import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
 import { ProjectDataService } from './project-data.service';
-import {HealthStatusService, ProjectService, UserResourceService} from '../../core/services';
+import {HealthStatusService, ProjectService } from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 import { ProjectListComponent } from './project-list/project-list.component';
 import { EnvironmentsDataService } from '../management/management-data.service';
@@ -72,10 +72,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.subscriptions.add(this.projectDataService._projects.subscribe(
-      (value: Project[]) => {
+    this.subscriptions.add(this.projectDataService._projects
+      .subscribe((value: Project[]) => {
         if (value) this.projectList = value;
-      }));
+      })
+    );
     this.refreshGrid();
     this.getResources();
   }
@@ -85,9 +86,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private getResources() {
-    this.environmentsDataService.getEnvironmentDataDirect().subscribe((data: any) => {
-      this.resources = data;
-    });
+    this.environmentsDataService.getEnvironmentDataDirect()
+      .subscribe((data: any) => {
+        this.resources = data;
+      });
   }
 
   refreshGrid() {
@@ -105,9 +107,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public toggleFiltering(): void {
     this.activeFiltering = !this.activeFiltering;
-
     this.activeFiltering ? this.list.showActiveInstances() : this.projectDataService.updateProjects();
-
   }
 
   public editProject($event) {
@@ -118,7 +118,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus($event) {
-    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
+    const data = { 
+      'project_name': $event.project.name, 
+      endpoint: $event.endpoint.map(endpoint => endpoint.name)
+    };
     this.toggleStatusRequest(data, $event.action, $event.oneEdge);
   }
 
@@ -139,7 +142,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.edgeNodeAction(data, action);
       } else {
         this.dialog.open(NotificationDialogComponent, { data: {
-            type: 'terminateNode', item: {action: data, resources: termResources}
+            type: 'terminateNode', 
+            item: {action: data, resources: termResources}
           }, panelClass: 'modal-sm' })
           .afterClosed().subscribe(result => {
           result && this.edgeNodeAction(data, action);
@@ -151,12 +155,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private edgeNodeAction(data, action) {
-    this.projectService.toggleProjectStatus(data, action).subscribe(() => {
-      this.refreshGrid();
-      this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
-    }, error => {
-      this.toastr.error(error.message, 'Oops!');
-    });
+    this.projectService.toggleProjectStatus(data, action)
+      .subscribe(
+        () => {
+          this.refreshGrid();
+          this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
+        }, 
+        error => {
+          this.toastr.error(error.message, 'Oops!');
+        }
+      );
   }
 
   private getEnvironmentHealthStatus() {
@@ -165,15 +173,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private toEndpointAction(action) {
-    if (action === 'start') {
-      return 'starting';
-    } else if (action === 'stop') {
-      return 'stopping';
-    } else if (action === 'terminate') {
-      return 'terminating';
-    } else {
-      return action;
-    }
+    if (action === 'start') return 'starting';
+    else if (action === 'stop') return 'stopping';
+    else if (action === 'terminate') return 'terminating';
+    else return action;
   }
 }
 

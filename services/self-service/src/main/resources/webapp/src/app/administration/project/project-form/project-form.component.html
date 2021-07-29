@@ -31,7 +31,8 @@
               <div>
                 <a href="#/help/publickeyguide" target="_blank">
                   <small class="helper_instruction">
-                    <i class="material-icons">help_outline</i>Where can I get public key?</small>
+                    <i class="material-icons">help_outline</i>Where can I get public key?
+                  </small>
                 </a>
               </div>
             </div>
@@ -40,40 +41,69 @@
                 <span class="upload-icon"></span> Upload
                 <input (change)="onFileChange($event)" type="file" name="file" accept=".pub" />
               </span>
-              <button mat-raised-button type="button" class="butt butt-generate" [ngClass]="{ 'not-allowed' : item }"
-                (click)="generateUserAccessKey()">
+              <button 
+                mat-raised-button 
+                type="button" 
+                class="butt butt-generate" 
+                [ngClass]="{ 'not-allowed' : item }"
+                (click)="generateUserAccessKey()"
+              >
                 <i class="material-icons">move_to_inbox</i> Generate
               </button>
 
               <div *ngIf="keyLabel" class="m-bott-10 m-top-10 ellipsis" [class.danger_color]="!accessKeyValid">
-                {{ keyLabel }}</div>
+                {{ keyLabel }}
+              </div>
             </div>
           </div>
           <div class="text-center m-bott-10">
-            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
-            <button mat-raised-button type="button" class="butt next" matStepperNext>Next
-              <i class="material-icons arrow-icon">keyboard_arrow_right</i></button>
+            <button 
+              mat-raised-button 
+              type="button" 
+              class="butt" 
+              [disabled]="item" 
+              (click)="reset()"
+            >
+              Clear
+            </button>
+            <button 
+              mat-raised-button 
+              type="button" 
+              class="butt next" 
+              matStepperNext
+            >
+              Next
+              <i class="material-icons arrow-icon">keyboard_arrow_right</i>
+            </button>
           </div>
         </div>
       </section>
     </mat-step>
+
     <mat-step [completed]='false'>
       <ng-template matStepLabel>Project</ng-template>
       <section class="inner-step mat-reset">
-
         <div class="form-block">
           <div>
             <div class="control-group m-bott-10">
               <label class="label">Project name</label>
               <div class="control">
-                <input type="text" formControlName="name" placeholder="Enter project name"
-                  (blur)="generateProjectTag($event)" [ngClass]="{ 'not-allowed' : item }">
-                <span class="error" *ngIf="projectForm?.controls.name.hasError('duplication')">This project name already
-                  exists.</span>
-                <span class="error" *ngIf="!projectForm?.controls.name.valid
-                  && !projectForm?.controls.name.hasError('duplication')
-                  && !projectForm?.controls.name.hasError('limit')
-                  && projectForm?.controls.name.dirty">
+                <input 
+                  type="text" 
+                  formControlName="name" 
+                  placeholder="Enter project name"
+                  (blur)="generateProjectTag($event)" 
+                  [ngClass]="{ 'not-allowed' : item }"
+                />
+                <span class="error" *ngIf="projectForm?.controls.name.hasError('duplication')">
+                  This project name already exists.
+                </span>
+                <span 
+                  class="error" 
+                  *ngIf="!projectForm?.controls.name.valid
+                      && !projectForm?.controls.name.hasError('duplication')
+                      && !projectForm?.controls.name.hasError('limit')
+                      && projectForm?.controls.name.dirty">
                   Project name can only contain letters and numbers.
                 </span>
                 <span class="error" *ngIf="projectForm?.controls.name.hasError('limit')">
@@ -84,8 +114,13 @@
             <div class="control-group m-bott-10">
               <label class="label">Project tag</label>
               <div class="control">
-                <input readonly type="text" formControlName="tag" placeholder="< equal to project name >"
-                  class="not-allowed">
+                <input 
+                  readonly 
+                  type="text" 
+                  formControlName="tag" 
+                  placeholder="< equal to project name >"
+                  class="not-allowed"
+                />
               </div>
             </div>
             <div class="control-group m-bott-10">
@@ -97,7 +132,8 @@
                     disableOptionCentering 
                     formControlName="endpoints" 
                     placeholder="Select endpoints"
-                    panelClass="crete-project-dialog scrolling">
+                    panelClass="crete-project-dialog scrolling"
+                  >
                     <mat-option class="multiple-select" disabled>
                       <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
                         <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -107,12 +143,20 @@
                         <i class="material-icons">clear</i>&nbsp;None
                       </a>
                     </mat-option>
-                    <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name"
-                      [disabled]="isDisabled(endpoint.name) || endpoint.status !== 'ACTIVE'">
+                    <mat-option 
+                      *ngFor="let endpoint of endpointsList" 
+                      [value]="endpoint.name"
+                      [disabled]="isDisabled(endpoint.name) || endpoint.status !== 'ACTIVE'"
+                    >
                       {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + (endpoint.status !== 'ACTIVE' ? ' (inactive)' : '')}}
                     </mat-option>
-                    <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>
-                      Endpoints list is empty</mat-option>
+                    <mat-option 
+                      *ngIf="!endpointsList.length" 
+                      class="multiple-select empty ml-10" 
+                      disabled
+                    >
+                      Endpoints list is empty
+                    </mat-option>
                   </mat-select>
                   <button class="caret">
                     <i class="material-icons">keyboard_arrow_down</i>
@@ -123,16 +167,35 @@
           </div>
 
           <div class="text-center m-bott-10">
-            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
-            <button mat-raised-button matStepperPrevious class="butt"><i
-                class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
-            <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i
-                class="material-icons arrow-icon">keyboard_arrow_right</i></button>
+            <button 
+              mat-raised-button 
+              type="button" 
+              class="butt" 
+              [disabled]="item" 
+              (click)="reset()"
+            >
+              Clear
+            </button>
+            <button 
+              mat-raised-button 
+              matStepperPrevious 
+              class="butt"
+            >
+              <i class="material-icons arrow-icon">keyboard_arrow_left</i>Back
+            </button>
+            <button 
+              mat-raised-button 
+              type="button" 
+              class="butt next" 
+              matStepperNext
+            >
+              Next<i class="material-icons arrow-icon">keyboard_arrow_right</i>
+            </button>
           </div>
         </div>
-
       </section>
     </mat-step>
+
     <mat-step [completed]='false'>
       <ng-template matStepLabel>Groups</ng-template>
       <div class="inner-step mat-reset">
@@ -146,7 +209,8 @@
                   disableOptionCentering 
                   formControlName="groups" 
                   placeholder="Select user groups"
-                  panelClass="crete-project-dialog scrolling">
+                  panelClass="crete-project-dialog scrolling"
+                >
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -158,7 +222,8 @@
                   <mat-option *ngFor="let group of groupsList" [value]="group">
                     {{ group }}
                   </mat-option>
-                  <mat-option *ngIf="!groupsList.length" class="multiple-select ml-10" disabled>Groups list is empty
+                  <mat-option *ngIf="!groupsList.length" class="multiple-select ml-10" disabled>
+                    Groups list is empty
                   </mat-option>
                 </mat-select>
                 <button class="caret">
@@ -173,11 +238,29 @@
 <!--                <span class="hold-label">Use shared image</span>-->
 <!--              </mat-slide-toggle>-->
 <!--            </div>-->
-            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
-            <button mat-raised-button matStepperPrevious class="butt"><i
-                class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
-            <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
-              (click)="confirm(projectForm.value)">
+            <button 
+              mat-raised-button 
+              type="button" 
+              class="butt" 
+              [disabled]="item" 
+              (click)="reset()"
+            >
+              Clear
+            </button>
+            <button 
+              mat-raised-button 
+              matStepperPrevious 
+              class="butt"
+            >
+              <i class="material-icons arrow-icon">keyboard_arrow_left</i>Back
+            </button>
+            <button 
+              mat-raised-button 
+              type="button" 
+              class="butt butt-success" 
+              [disabled]="!projectForm.valid"
+              (click)="confirm(projectForm.value)"
+            >
               <span *ngIf="item; else update">Update</span>
               <ng-template #update>Create</ng-template>
             </button>

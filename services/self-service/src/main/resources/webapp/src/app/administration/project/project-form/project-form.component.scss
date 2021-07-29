@@ -32,16 +32,16 @@
 
         .ellipsis {
           position: absolute;
-          width: 100%;
           right: 0;
+          width: 100%;
         }
       }
     }
   }
 
   &.split {
-    flex-direction: column;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     height: 240px;
   }
@@ -58,7 +58,7 @@
     position: absolute;
     right: 0;
     bottom: -2px;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     font-weight: 300;
   }
 }
@@ -76,6 +76,6 @@
 
 .mat-form-field {
   .mat-select {
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
   }
 }
