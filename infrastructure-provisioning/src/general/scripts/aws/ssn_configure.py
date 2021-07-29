@@ -125,7 +125,7 @@ if __name__ == "__main__":
             ssn_conf['aws_report_path'] = os.environ['aws_report_path']
         else:
             ssn_conf['aws_report_path'] = ''
-     except Exception as err:
+    except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
