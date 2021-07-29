@@ -25,7 +25,11 @@
   <div class="dialog-content">
     <div class="content-box">
       <div *ngIf="data.projectsList?.length">
-        <form [formGroup]="manageUsersForm" (submit)="setBudgetLimits(manageUsersForm.value)" novalidate>
+        <form 
+          [formGroup]="manageUsersForm" 
+          (submit)="setBudgetLimits(manageUsersForm.value)" 
+          novalidate
+        >
           <mat-list>
             <mat-list-item class="list-header">
               <div class="username">Project</div>
@@ -33,54 +37,93 @@
               <div class="quotes">Limit</div>
             </mat-list-item>
             <div class="scrolling-content" id="scrolling" formArrayName="projects">
-              <mat-list-item *ngFor="let item of usersEnvironments.controls; let i=index" [formGroupName]="i"
-                class="list-item">
+              <mat-list-item 
+                *ngFor="let item of usersEnvironments.controls; let i=index" 
+                [formGroupName]="i"
+                class="list-item"
+              >
                 <div class="username ellipsis">
-                  <span class="ellipsis"
-                  matTooltip="{{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}"
-                  matTooltipPosition="above">{{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}
-                    </span>
+                  <span 
+                    class="ellipsis"
+                    matTooltip="{{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}"
+                    matTooltipPosition="above"
+                  >
+                    {{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}
+                  </span>
                 </div>
                 <div class="period">
-                  <mat-slide-toggle formControlName="monthlyBudget">
-                  </mat-slide-toggle>
+                  <mat-slide-toggle formControlName="monthlyBudget"></mat-slide-toggle>
                 </div>
                 <div class="quotes">
-                  <input type="number" (keypress)="CheckUtils.numberOnly($event)" min="0"
-                    placeholder="Enter limit, in USD" formControlName="budget">
-                  <span class="error"
-                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('overrun') &&
-                     !manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('max')"
+                  <input 
+                    type="number" 
+                    (keypress)="CheckUtils.numberOnly($event)" 
+                    min="0"
+                    placeholder="Enter limit, in USD" formControlName="budget" 
+                  />
+                  <span 
+                    class="error"
+                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('overrun') 
+                        && !manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('max')"
                   >
                     Projects budget cannot be higher than total budget.
                   </span>
-                  <span class="error"
-                        *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('max')">Project budget cannot be higher than 1000000000.</span>
+                  <span 
+                    class="error"
+                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('max')"
+                  >
+                    Project budget cannot be higher than 1000000000.
+                  </span>
                 </div>
               </mat-list-item>
             </div>
             <div class="control-group total-budget">
-
               <mat-list-item class="list-item">
                 <div class="username ellipsis">
                   <span class="ellipsis">Total budget</span>
                 </div>
-                <div class="period">
-                </div>
+                <div class="period"></div>
                 <div class="quotes">
-                  <input type="number" (keypress)="CheckUtils.numberOnly($event)" formControlName="total"
-                         placeholder="Enter total budget, in USD">
-                  <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')
-                  && !manageUsersForm?.controls['total'].hasError('max')">Total budget cannot be lower than a sum of project quotes.</span>
-                  <span class="error"
-                        *ngIf="manageUsersForm?.controls['total'].hasError('max')">Total budget cannot be higher than 1000000000.</span>
+                  <input 
+                    type="number" 
+                    (keypress)="CheckUtils.numberOnly($event)" 
+                    formControlName="total"
+                    placeholder="Enter total budget, in USD" 
+                  />
+                  <span 
+                    class="error" 
+                    *ngIf="manageUsersForm?.controls['total'].hasError('overrun')
+                        && !manageUsersForm?.controls['total'].hasError('max')"
+                  >
+                    Total budget cannot be lower than a sum of project quotes.
+                  </span>
+                  <span 
+                    class="error"
+                    *ngIf="manageUsersForm?.controls['total'].hasError('max')"
+                  >
+                    Total budget cannot be higher than 1000000000.
+                  </span>
                 </div>
               </mat-list-item>
             </div>
             <div class="text-center m-top-30">
-              <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
-              <button mat-raised-button type="submit" [disabled]="!manageUsersForm.valid || isFormChanged" class="butt butt-success"
-                [ngClass]="{'not-allowed': !manageUsersForm.valid}">Apply</button>
+              <button 
+                mat-raised-button 
+                type="button" 
+                (click)="dialogRef.close()" 
+                class="butt action"
+              >
+                Cancel
+              </button>
+              <button 
+                mat-raised-button 
+                type="submit" 
+                [disabled]="!manageUsersForm.valid || isFormChanged" 
+                class="butt butt-success"
+                [ngClass]="{'not-allowed': !manageUsersForm.valid}"
+              >
+                Apply
+              </button>
             </div>
           </mat-list>
         </form>

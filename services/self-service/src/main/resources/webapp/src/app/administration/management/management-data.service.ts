@@ -40,7 +40,9 @@ export class EnvironmentsDataService {
   }
 
   private getAllEnvironmentData() {
-    this.manageEnvironmentsService.getAllEnvironmentData().subscribe(
-      (response) => this._data.next(response));
+    this.manageEnvironmentsService.getAllEnvironmentData()
+      .subscribe(
+        (response) => this._data.next(response)
+      );
   }
 }

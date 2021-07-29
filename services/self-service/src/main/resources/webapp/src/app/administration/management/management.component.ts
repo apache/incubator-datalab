@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -39,9 +39,9 @@ import { ExploratoryModel } from '../../resources/resources-grid/resources-grid.
 
 import { EnvironmentsDataService } from './management-data.service';
 import { ProjectService } from '../../core/services';
-import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
-import {ManagementGridComponent, ReconfirmationDialogComponent} from './management-grid/management-grid.component';
-import {FolderTreeComponent} from '../../resources/bucket-browser/folder-tree/folder-tree.component';
+import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../shared/modal-dialog/confirmation-dialog';
+import { ManagementGridComponent, ReconfirmationDialogComponent } from './management-grid/management-grid.component';
+import { FolderTreeComponent } from '../../resources/bucket-browser/folder-tree/folder-tree.component';
 
 @Component({
   selector: 'environments-management',
@@ -58,8 +58,7 @@ export class ManagementComponent implements OnInit {
   public selectedRunning: any[];
   public selectedStopped: any[];
 
-  @ViewChild(ManagementGridComponent, {static: true}) managementGrid;
-
+  @ViewChild(ManagementGridComponent, { static: true }) managementGrid;
 
   constructor(
     public toastr: ToastrService,
@@ -84,7 +83,7 @@ export class ManagementComponent implements OnInit {
   }
 
   public refreshGrid() {
-     this.buildGrid();
+    this.buildGrid();
   }
 
   public manageEnvironmentAction($event) {
@@ -95,9 +94,11 @@ export class ManagementComponent implements OnInit {
         $event.environment.project,
         $event.environment.type === 'edge node' ? 'edge' : $event.environment.name,
         $event.resource ? $event.resource.computational_name : null
-      ).subscribe(
+      )
+      .subscribe(
         () => this.buildGrid(),
-        error => this.toastr.error('Environment management failed!', 'Oops!'));
+        error => this.toastr.error('Environment management failed!', 'Oops!')
+      );
   }
 
   // showBackupDialog() {
@@ -111,10 +112,14 @@ export class ManagementComponent implements OnInit {
 
   openManageEnvironmentDialog() {
     this.projectService.getProjectsList().subscribe(projectsList => {
-      this.getTotalBudgetData().subscribe(total => {
-        this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
-        this.dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
-      }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
+      this.getTotalBudgetData()
+        .subscribe(
+          total => {
+            this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
+            this.dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
+          }, 
+          () => this.toastr.error('Failed users list loading!', 'Oops!')
+        );
     });
   }
 
@@ -131,28 +136,31 @@ export class ManagementComponent implements OnInit {
 
   setBudgetLimits($event) {
     if ($event.projects.length) {
-      this.projectService.updateProjectsBudget($event.projects).subscribe((result: any) => {
-        if ($event.isTotalChanged) {
-          this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
-            result.status === HTTP_STATUS_CODES.OK
-            && res.status === HTTP_STATUS_CODES.NO_CONTENT
-            && this.toastr.success('Budget limits updated!', 'Success!');
-            this.buildGrid();
-          });
-        } else {
-          result.status === HTTP_STATUS_CODES.OK && this.toastr.success('Budget limits updated!', 'Success!');
-          this.buildGrid();
-        }
-
-      }, error => this.toastr.error(error.message, 'Oops!'));
+      this.projectService.updateProjectsBudget($event.projects)
+        .subscribe(
+          (result: any) => {
+            if ($event.isTotalChanged) {
+              this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
+                result.status === HTTP_STATUS_CODES.OK
+                  && res.status === HTTP_STATUS_CODES.NO_CONTENT
+                  && this.toastr.success('Budget limits updated!', 'Success!');
+                this.buildGrid();
+              });
+            } else {
+              result.status === HTTP_STATUS_CODES.OK && this.toastr.success('Budget limits updated!', 'Success!');
+              this.buildGrid();
+            }
+          }, 
+          error => this.toastr.error(error.message, 'Oops!'));
     } else {
-      this.healthStatusService.updateTotalBudgetData($event.total).subscribe((res: any) => {
-        res.status === HTTP_STATUS_CODES.NO_CONTENT
-        && this.toastr.success('Budget limits updated!', 'Success!');
-        this.buildGrid();
-      });
+      this.healthStatusService.updateTotalBudgetData($event.total)
+        .subscribe((res: any) => {
+          res.status === HTTP_STATUS_CODES.NO_CONTENT
+            && this.toastr.success('Budget limits updated!', 'Success!');
+          this.buildGrid();
+        });
     }
-    }
+  }
 
 
   // manageEnvironment(event: { action: string, project: any }) {
@@ -216,12 +224,18 @@ export class ManagementComponent implements OnInit {
   }
 
   toggleResourceAction($event): void {
-    const {environment, action, resource} = $event;
+    const { environment, action, resource } = $event;
     if (resource) {
       const resource_name = resource ? resource.computational_name : environment.name;
       this.dialog.open(ReconfirmationDialogComponent, {
-        data: { action, resource_name, user: environment.user, type: 'cluster'},
-        width: '550px', panelClass: 'error-modalbox'
+        data: { 
+          action, 
+          resource_name, 
+          user: environment.user, 
+          type: 'cluster' 
+        },
+        width: '550px', 
+        panelClass: 'error-modalbox'
       }).afterClosed().subscribe(result => {
         result && this.manageEnvironmentAction({ action, environment, resource });
       });
@@ -230,15 +244,20 @@ export class ManagementComponent implements OnInit {
       if (action === 'stop') {
         notebooks = notebooks.filter(note => note.status !== 'stopped');
         this.dialog.open(ReconfirmationDialogComponent, {
-          data: { notebooks: notebooks, type: 'notebook', action },
-          width: '550px', panelClass: 'error-modalbox'
+          data: { 
+            notebooks: notebooks, 
+            type: 'notebook', 
+            action 
+          },
+          width: '550px', 
+          panelClass: 'error-modalbox'
         }).afterClosed().subscribe((res) => {
           if (res) {
             notebooks.forEach((env) => {
               this.manageEnvironmentsService.environmentManagement(env.user, 'stop', env.project, env.name)
                 .subscribe(response => {
-                    this.buildGrid();
-                  },
+                  this.buildGrid();
+                },
                   error => console.log(error)
                 );
             });
@@ -250,7 +269,13 @@ export class ManagementComponent implements OnInit {
         });
       } else if (action === 'terminate') {
         this.dialog.open(ReconfirmationDialogComponent, {
-          data: { notebooks: notebooks, type: 'notebook', action }, width: '550px', panelClass: 'error-modalbox'
+          data: { 
+            notebooks: notebooks, 
+            type: 'notebook', 
+            action 
+          }, 
+          width: '550px', 
+          panelClass: 'error-modalbox'
         }).afterClosed().subscribe((res) => {
           if (res) {
             notebooks.forEach((env) => {
@@ -268,16 +293,16 @@ export class ManagementComponent implements OnInit {
           }
           this.isActionsOpen = false;
         });
-      // } else if (action === 'run') {
-      //   this.healthStatusService.runEdgeNode().subscribe(() => {
-      //     this.buildGrid();
-      //     this.toastr.success('Edge node is starting!', 'Processing!');
-      //   }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
-      // } else if (action === 'recreate') {
-      //   this.healthStatusService.recreateEdgeNode().subscribe(() => {
-      //     this.buildGrid();
-      //     this.toastr.success('Edge Node recreation is processing!', 'Processing!');
-      //   }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
+        // } else if (action === 'run') {
+        //   this.healthStatusService.runEdgeNode().subscribe(() => {
+        //     this.buildGrid();
+        //     this.toastr.success('Edge node is starting!', 'Processing!');
+        //   }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
+        // } else if (action === 'recreate') {
+        //   this.healthStatusService.recreateEdgeNode().subscribe(() => {
+        //     this.buildGrid();
+        //     this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+        //   }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
       }
     }
   }
@@ -291,8 +316,7 @@ export class ManagementComponent implements OnInit {
     }
   }
 
-
   public resourseAction(action) {
-      this.toggleResourceAction({environment: this.selected, action: action});
+    this.toggleResourceAction({ environment: this.selected, action: action });
   }
 }

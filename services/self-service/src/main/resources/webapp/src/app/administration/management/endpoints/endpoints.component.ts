@@ -21,11 +21,11 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { map } from 'rxjs/operators';
 
 import { EndpointService } from '../../../core/services';
 import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 import { PATTERNS } from '../../../core/util';
-import { map } from 'rxjs/operators';
 
 export interface Endpoint {
   name: string;
@@ -71,51 +71,75 @@ export class EndpointsComponent implements OnInit {
 
   public deleteEndpoint(data): void {
     this.endpointService.getEndpointsResource(data.name)
-      .pipe(map(resource =>
-        resource.projects.map(project =>
-          EndpointsComponent.createResourceList(
-            project.name,
-            resource.exploratories.filter(notebook => notebook.project === project.name),
-            project.endpoints.filter(endpoint => endpoint.name === data.name)[0].status))
-          .filter(project => project.nodeStatus !== 'TERMINATED'
-            && project.nodeStatus !== 'TERMINATING'
-            && project.nodeStatus !== 'FAILED'
-          )))
+      .pipe(
+        map(resource =>
+          resource.projects
+            .map(project =>
+              EndpointsComponent.createResourceList(
+                project.name,
+                resource.exploratories.filter(notebook => notebook.project === project.name),
+                project.endpoints.filter(endpoint => endpoint.name === data.name)[0].status)
+            )
+            .filter(project => project.nodeStatus !== 'TERMINATED'
+              && project.nodeStatus !== 'TERMINATING'
+              && project.nodeStatus !== 'FAILED'
+            )
+        )
+      )
       .subscribe((resource: any) => {
-         this.dialog.open(NotificationDialogComponent, { data: {
-           type: 'confirmation', item: data, list:  resource
-           }, panelClass: 'modal-sm' })
-         .afterClosed().subscribe(result => {
-         result && this.deleteEndpointOption(data);
-       });
-    });
+        this.dialog.open(NotificationDialogComponent, {
+          data: {
+            type: 'confirmation', item: data, list: resource
+          }, panelClass: 'modal-sm'
+        })
+          .afterClosed().subscribe(result => {
+            result && this.deleteEndpointOption(data);
+          });
+      });
   }
 
   public getEndpoinConnectionStatus(url) {
     const getStatus = this.endpointService.getEndpoinConnectionStatus(encodeURIComponent(url));
-    this.dialog.open(EndpointTestResultDialogComponent, { data: {url: url, getStatus}, panelClass: 'modal-sm' });
+    this.dialog.open(EndpointTestResultDialogComponent, { data: { url: url, getStatus }, panelClass: 'modal-sm' });
   }
 
   private static createResourceList(name: string, resource: Array<any>, nodeStatus: string): Object {
-    return {name, resource, nodeStatus};
+    return { name, resource, nodeStatus };
   }
 
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
       name: ['', Validators.compose([
-        Validators.required, Validators.pattern(PATTERNS.namePattern), this.validateName.bind(this), this.providerMaxLength.bind(this)
+        Validators.required, 
+        Validators.pattern(PATTERNS.namePattern), 
+        this.validateName.bind(this), 
+        this.providerMaxLength.bind(this)
       ])],
-      url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.fullUrl), this.validateUrl.bind(this)])],
-      account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
-      endpoint_tag: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
+      url: ['', Validators.compose([
+        Validators.required, 
+        Validators.pattern(PATTERNS.fullUrl), 
+        this.validateUrl.bind(this)
+      ])],
+      account: ['', Validators.compose([
+        Validators.required, 
+        Validators.pattern(PATTERNS.namePattern)
+      ])],
+      endpoint_tag: ['', Validators.compose([
+        Validators.required, 
+        Validators.pattern(PATTERNS.namePattern)
+      ])]
     });
   }
 
   private deleteEndpointOption(data): void {
-    this.endpointService.deleteEndpoint(`${data.name}`).subscribe(() => {
-      this.toastr.success( 'Endpoint successfully disconnected. All related resources are terminating!', 'Success!');
-      this.getEndpointList();
-    }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+    this.endpointService.deleteEndpoint(`${data.name}`)
+      .subscribe(
+        () => {
+          this.toastr.success('Endpoint successfully disconnected. All related resources are terminating!', 'Success!');
+          this.getEndpointList();
+        }, 
+        error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!')
+      );
   }
 
   private getEndpointList(): void {
@@ -218,19 +242,20 @@ export class EndpointTestResultDialogComponent {
     public dialogRef: MatDialogRef<EndpointTestResultDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    this.data.getStatus.subscribe(() => {
-        this.isConnected = true;
-        this.response = true;
-        return;
-      },
-      () => {
-        this.isConnected = false;
-        this.response = true;
-        return;
-      });
+    this.data.getStatus
+      .subscribe(
+        () => {
+          this.isConnected = true;
+          this.response = true;
+          return;
+        },
+        () => {
+          this.isConnected = false;
+          this.response = true;
+          return;
+        });
   }
   public cutToLongUrl(url) {
     return url.length > 25 ? url.slice(0, 25) + '...' : url;
   }
-
 }

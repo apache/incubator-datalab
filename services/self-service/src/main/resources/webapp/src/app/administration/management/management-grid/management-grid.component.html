@@ -27,22 +27,25 @@
             *ngIf="allActiveNotebooks?.length"
             [checked]="selected?.length === allActiveNotebooks?.length"
             (toggleSelection)="toggleSelectionAll()"
-          >
-          </datalab-checkbox>
+          ></datalab-checkbox>
           <button mat-icon-button aria-label="More" class="ar checkbox-border" (click)="toggleFilterRow()">
             <i class="material-icons">
-  <!--            <span *ngIf="filtering && filterForm.users.length > 0 && !collapsedFilterRow">filter_list</span>-->
+              <!-- <span *ngIf="filtering && filterForm.users.length > 0 && !collapsedFilterRow">filter_list</span> -->
               <span>more_vert</span>
             </i>
           </button>
         </th>
         <td mat-cell *matCellDef="let element">
-          <ng-template [ngIf]="element.type !== 'odahu' && element.type !== 'edge node' && (element.status==='running' || element.status==='stopped') && !clustersInProgress(element.resources)">
+          <ng-template 
+            [ngIf]="element.type !== 'odahu' 
+                  && element.type !== 'edge node' 
+                  && (element.status==='running' || element.status==='stopped') 
+                  && !clustersInProgress(element.resources)"
+          >
             <datalab-checkbox
               [checked]="element.isSelected"
               (toggleSelection)="toggleActionForAll(element)"
-            >
-            </datalab-checkbox>
+            ></datalab-checkbox>
           </ng-template>
         </td>
       </ng-container>
@@ -50,12 +53,18 @@
       <ng-container matColumnDef="user">
         <th mat-header-cell *matHeaderCellDef class="user label-header">
           <span class="label">User</span>
-          <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <button 
+            mat-icon-button 
+            aria-label="More" 
+            class="ar" 
+            (click)="toggleFilterRow()"
+          >
             <i class="material-icons">
               <span *ngIf="filtering && filterForm.users.length > 0 && !collapsedFilterRow">filter_list</span>
               <span [hidden]="filtering && filterForm.users.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
-          </button> </th>
+          </button>
+        </th>
         <td
           mat-cell *matCellDef="let element"
           class="user-name ellipsis"
@@ -70,36 +79,54 @@
       <ng-container matColumnDef="project">
         <th mat-header-cell *matHeaderCellDef class="project label-header">
           <span class="label">Project</span>
-          <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <button 
+            mat-icon-button 
+            aria-label="More" 
+            class="ar" 
+            (click)="toggleFilterRow()"
+          >
             <i class="material-icons">
               <span *ngIf="filtering && filterForm.projects.length > 0 && !collapsedFilterRow">filter_list</span>
               <span [hidden]="filtering && filterForm.projects.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
-          </button> </th>
+          </button> 
+        </th>
         <td mat-cell *matCellDef="let element">{{ element.project }}</td>
       </ng-container>
 
       <ng-container matColumnDef="endpoint">
         <th mat-header-cell *matHeaderCellDef class="endpoint label-header">
           <span class="label">Endpoint</span>
-          <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <button 
+            mat-icon-button 
+            aria-label="More" 
+            class="ar" 
+            (click)="toggleFilterRow()"
+          >
             <i class="material-icons">
               <span *ngIf="filtering && filterForm.endpoints.length > 0 && !collapsedFilterRow">filter_list</span>
               <span [hidden]="filtering && filterForm.endpoints.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
-          </button> </th>
+          </button>
+        </th>
         <td mat-cell *matCellDef="let element">{{ element.endpoint }}</td>
       </ng-container>
 
       <ng-container matColumnDef="type">
         <th mat-header-cell *matHeaderCellDef class="type label-header">
           <span class="label">Name</span>
-          <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <button 
+            mat-icon-button 
+            aria-label="More" 
+            class="ar" 
+            (click)="toggleFilterRow()"
+          >
             <i class="material-icons">
               <span *ngIf="filtering && filterForm.type.length > 0 && !collapsedFilterRow">filter_list</span>
               <span [hidden]="filtering && filterForm.type.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
-          </button> </th>
+          </button>
+        </th>
         <td type mat-cell *matCellDef="let element">
           <span
             *ngIf="element.name"
@@ -115,12 +142,18 @@
       <ng-container matColumnDef="shape">
         <th mat-header-cell *matHeaderCellDef class="shape label-header">
           <span class="label">Shape / Resource id</span>
-          <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <button 
+            mat-icon-button 
+            aria-label="More" 
+            class="ar" 
+            (click)="toggleFilterRow()"
+          >
             <i class="material-icons">
               <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">filter_list</span>
               <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
-          </button> </th>
+          </button>
+        </th>
         <td mat-cell *matCellDef="let element" class="shape">
           <div>{{ element.shape || element.ip }}</div>
           <div *ngIf="element.gpu_type">{{ element.gpu_type }}</div>
@@ -131,13 +164,18 @@
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef class="status label-header">
           <span class="label">Status</span>
-
-          <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <button 
+            mat-icon-button 
+            aria-label="More" 
+            class="ar" 
+            (click)="toggleFilterRow()"
+          >
             <i class="material-icons">
               <span *ngIf="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">filter_list</span>
               <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
-          </button> </th>
+          </button>
+        </th>
         <td mat-cell *matCellDef="let element" class="ani status" >
           <span ngClass="{{element.status || ''}}">{{ element.status }}</span>
         </td>
@@ -146,12 +184,18 @@
       <ng-container matColumnDef="resources">
         <th mat-header-cell *matHeaderCellDef class="resources label-header">
           <span class="label">Compute</span>
-          <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <button 
+            mat-icon-button 
+            aria-label="More" 
+            class="ar" 
+            (click)="toggleFilterRow()"
+          >
             <i class="material-icons">
               <span *ngIf="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">filter_list</span>
               <span [hidden]="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">more_vert</span>
             </i>
-          </button> </th>
+          </button>
+        </th>
         <td mat-cell *matCellDef="let element" class="ani resources">
           <div class="source" *ngIf="element.resources">
             <div *ngIf="!element.resources?.length">
@@ -160,21 +204,27 @@
             <div *ngIf="element.resources?.length">
               <div *ngFor="let resource of element.resources" class="resource-wrap">
                 <div class="resource-name">
-                  <a>
-                    {{ resource.computational_name }}
-                  </a>
+                  <a>{{ resource.computational_name }}</a>
                 </div>
                 <span ngClass="{{resource.status || ''}}" class="resource-status">{{ resource.status }}</span>
                 <div class="resource-actions">
                   <span class="not-allow">
                     <a class="start-stop-action" *ngIf="resource.image === 'docker.datalab-dataengine'">
-                      <i class="material-icons" (click)="toggleResourceAction(element, 'stop', resource)"
-                         [ngClass]="{'not-allowed' : resource.status !== 'running' || selected?.length }">pause_circle_outline</i>
+                      <i 
+                        class="material-icons" 
+                        (click)="toggleResourceAction(element, 'stop', resource)"
+                        [ngClass]="{'not-allowed' : resource.status !== 'running' || selected?.length }"
+                      >
+                        pause_circle_outline
+                      </i>
                     </a>
                   </span>
                   <span class="not-allow">
-                    <a class="remove_butt" (click)="toggleResourceAction(element, 'terminate', resource)"
-                      [ngClass]="{ 'disabled' : element.status !== 'running' || (resource.status !== 'running' && resource.status !== 'stopped') || selected?.length }">
+                    <a 
+                      class="remove_butt" 
+                      (click)="toggleResourceAction(element, 'terminate', resource)"
+                      [ngClass]="{ 'disabled' : element.status !== 'running' || (resource.status !== 'running' && resource.status !== 'stopped') || selected?.length }"
+                    >
                       <i class="material-icons">highlight_off</i>
                     </a>
                   </span>
@@ -191,30 +241,49 @@
         </th>
         <td mat-cell *matCellDef="let element" class="settings actions-col">
           <span [ngClass]="{'not-allow' : selected?.length}">
-            <span #settings class="actions" (click)="actions.toggle($event, settings)" *ngIf="element.type !== 'edge node' && element.type !== 'odahu'"
+            <span 
+              #settings 
+              class="actions" 
+              (click)="actions.toggle($event, settings)" 
+              *ngIf="element.type !== 'edge node' && element.type !== 'odahu'"
               [ngClass]="{
                 'disabled' : (element.status !== 'running' && element.status !== 'stopped')
-                 || selected?.length || inProgress(element.resources)}">
-
+                          || selected?.length || inProgress(element.resources)}"
+            >
             </span>
           </span>
           <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
             <ul class="list-unstyled">
               <li
-                matTooltip="{{ element.type !== 'edge node' ? 'Unable to stop notebook because at least one computational resource is in progress' : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
-                matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)"
-                [hidden]="element.name === 'edge node' && element.status === 'stopped'">
-                <div (click)="toggleResourceAction(element, 'stop')"
-                  [ngClass]="{'not-allowed' : element.status === 'stopped' || element.status === 'stopping' || element.status === 'starting' || element.status === 'creating image' || element.status === 'failed' || isResourcesInProgress(element)}">
+                matTooltip="{{ element.type !== 'edge node' 
+                  ? 'Unable to stop notebook because at least one computational resource is in progress' 
+                  : 'Unable to stop edge node because at least one resource of this user is in progress' }}"
+                matTooltipPosition="above" 
+                [matTooltipDisabled]="!isResourcesInProgress(element)"
+                [hidden]="element.name === 'edge node' && element.status === 'stopped'"
+              >
+                <div 
+                  (click)="toggleResourceAction(element, 'stop')"
+                  [ngClass]="{'not-allowed' : element.status === 'stopped' || element.status === 'stopping' || 
+                                              element.status === 'starting' || element.status === 'creating image' || 
+                                              element.status === 'failed' || isResourcesInProgress(element)}"
+                >
                   <i class="material-icons">pause_circle_outline</i>
                   <span>Stop</span>
                 </div>
               </li>
-              <li *ngIf="element.name !== 'edge node'"
+              <li 
+                *ngIf="element.name !== 'edge node'"
                 matTooltip="Unable to terminate notebook because at least one compute is in progress"
-                matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
-                <div (click)="toggleResourceAction(element, 'terminate')"
-                  [ngClass]="{'not-allowed' : element.status !== 'running' && element.status !== 'stopped' || isResourcesInProgress(element)}">
+                matTooltipPosition="above" 
+                [matTooltipDisabled]="!isResourcesInProgress(element)"
+              >
+                <div 
+                  (click)="toggleResourceAction(element, 'terminate')"
+                  [ngClass]="{'not-allowed' : element.status !== 'running' && 
+                                              element.status !== 'stopped' || 
+                                              isResourcesInProgress(element)}"
+                >
                   <i class="material-icons">phonelink_off</i>
                   <span>Terminate</span>
                 </div>
@@ -234,113 +303,186 @@
 
       <!-- FILTERING -->
       <ng-container matColumnDef="checkbox-filter" sticky>
-        <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-
-        </th>
+        <th mat-header-cell *matHeaderCellDef class="filter-row-item"></th>
       </ng-container>
 
       <ng-container matColumnDef="user-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'users'" [items]="filterConfiguration.users"
-            [model]="filterForm.users"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'users'" 
+            [items]="filterConfiguration.users"
+            [model]="filterForm.users"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="type-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-          <input placeholder="Filter by name" type="text" class="form-control filter-field"
-            [value]="filterForm.type" (input)="onFilterNameUpdate($event.target['value'])"/>
+          <input 
+            placeholder="Filter by name" 
+            type="text" 
+            class="form-control filter-field"
+            [value]="filterForm.type" 
+            (input)="onFilterNameUpdate($event.target['value'])"
+          />
         </th>
       </ng-container>
+
       <ng-container matColumnDef="project-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'projects'"
-            [items]="filterConfiguration.projects" [model]="filterForm.projects"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'projects'"
+            [items]="filterConfiguration.projects" 
+            [model]="filterForm.projects"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
       <ng-container matColumnDef="endpoint-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'endpoints'"
-                                 [items]="filterConfiguration.endpoints" [model]="filterForm.endpoints"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'endpoints'"
+            [items]="filterConfiguration.endpoints" 
+            [model]="filterForm.endpoints"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="shape-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shapes'"
-            [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'shapes'"
+            [items]="filterConfiguration.shapes" 
+            [model]="filterForm.shapes"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="status-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'"
-            [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'statuses'"
+            [items]="filterConfiguration.statuses" 
+            [model]="filterForm.statuses"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="resource-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
-            [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'resources'"
+            [items]="filterConfiguration.resources" 
+            [model]="filterForm.resources"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="actions-filter" sticky>
         <th mat-header-cell *matHeaderCellDef  class="actions-col filter-row-item">
           <div class="actions">
-            <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="!isFilterSelected">
+            <button 
+              mat-icon-button 
+              class="btn reset" 
+              (click)="resetFilterConfigurations()" 
+              [disabled]="!isFilterSelected"
+            >
               <i class="material-icons">close</i>
             </button>
 
-            <button mat-icon-button class="btn apply" (click)="applyFilter(filterForm)"
-              [disabled]="isFilterChanged">
-              <i class="material-icons"
-                [ngClass]="{'not-allowed': allFilteredEnvironmentData?.length == 0 && !filtering}">done</i>
+            <button 
+              mat-icon-button 
+              class="btn apply" 
+              (click)="applyFilter(filterForm)"
+              [disabled]="isFilterChanged"
+            >
+              <i 
+                class="material-icons"
+                [ngClass]="{'not-allowed': allFilteredEnvironmentData?.length == 0 && !filtering}"
+              >
+                done
+              </i>
             </button>
           </div>
         </th>
       </ng-container>
 
-
       <ng-container matColumnDef="placeholder">
         <td mat-footer-cell *matFooterCellDef colspan="8">
-          <div class="info"
-            *ngIf="(!allFilteredEnvironmentData) && !filtering || (allFilteredEnvironmentData?.length == 0) && !filtering">
-            To start working, please, create new environment</div>
+          <div 
+            class="info"
+            *ngIf="(!allFilteredEnvironmentData) && !filtering || (allFilteredEnvironmentData?.length == 0) && !filtering"
+          >
+            To start working, please, create new environment
+          </div>
           <div *ngIf="(allFilteredEnvironmentData?.length == 0) && filtering" class="info">No matches found</div>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="scrollButtons">
-          <td mat-footer-cell *matFooterCellDef colspan="9" class="buttons-wrap">
-            <div class="buttons" [ngStyle]="{'width.px': tableWrapperWidth }" [hidden]="!tableWrapperWidth">
-              <div class="button-container">
-                <button mat-mini-fab aria-label="Scroll left"
-                        (click)="sctollTo('left')"
-                        [ngClass]="{'not-allowed': wrapper.scrollLeft === 0 }"
-                >
-                  <mat-icon [ngClass]="{'highlight': wrapper.scrollLeft !== 0 }">keyboard_arrow_left</mat-icon>
-                </button>
-              </div>
-              <div class="button-container" [ngClass]="{'not-allowed': checkMaxRight()}">
-                <button mat-mini-fab aria-label="Scroll right"
-                        (click)="sctollTo('right')"
-
-                        [ngClass]="{'not-allowed': !(isMaxRight | async)}"
-                >
-                  <mat-icon [ngClass]="{'highlight': (isMaxRight | async) || false}">keyboard_arrow_right</mat-icon>
-                </button>
-              </div>
+        <td 
+          mat-footer-cell 
+          *matFooterCellDef 
+          colspan="9" 
+          class="buttons-wrap"
+        >
+          <div 
+            class="buttons" 
+            [ngStyle]="{'width.px': tableWrapperWidth }" 
+            [hidden]="!tableWrapperWidth"
+          >
+            <div class="button-container">
+              <button 
+                mat-mini-fab aria-label="Scroll left"
+                (click)="sctollTo('left')"
+                [ngClass]="{'not-allowed': wrapper.scrollLeft === 0 }"
+              >
+                <mat-icon [ngClass]="{'highlight': wrapper.scrollLeft !== 0 }">keyboard_arrow_left</mat-icon>
+              </button>
             </div>
-          </td>
-        </ng-container>
+            <div class="button-container" [ngClass]="{'not-allowed': checkMaxRight()}">
+              <button 
+                mat-mini-fab aria-label="Scroll right"
+                (click)="sctollTo('right')"
+                [ngClass]="{'not-allowed': !(isMaxRight | async)}"
+              >
+                <mat-icon [ngClass]="{'highlight': (isMaxRight | async) || false}">keyboard_arrow_right</mat-icon>
+              </button>
+            </div>
+          </div>
+        </td>
+      </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
-      <tr [hidden]="!collapsedFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
-        class="filter-row"></tr>
+      <tr 
+        mat-header-row 
+        *matHeaderRowDef="displayedColumns; sticky: true" 
+        class="header-row"
+      ></tr>
+      <tr 
+        [hidden]="!collapsedFilterRow" 
+        mat-header-row 
+        *matHeaderRowDef="displayedFilterColumns; sticky: true"
+        class="filter-row"
+      ></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-
-      <tr [hidden]="allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['placeholder']" class="info"></tr>
-      <tr [hidden]="!tableEl || !tableEl['offsetWidth'] || tableWrapper.offsetWidth - tableEl['offsetWidth'] > -16 || !allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['scrollButtons']; sticky: true" class="info"></tr>
+      <tr 
+        [hidden]="allFilteredEnvironmentData?.length" 
+        mat-footer-row *matFooterRowDef="['placeholder']" 
+        class="info"
+      ></tr>
+      <tr 
+        [hidden]="!tableEl || !tableEl['offsetWidth'] || tableWrapper.offsetWidth - tableEl['offsetWidth'] > -16 || !allFilteredEnvironmentData?.length" 
+        mat-footer-row 
+        *matFooterRowDef="['scrollButtons']; sticky: true" 
+        class="info"
+      ></tr>
     </table>
-
     </div>
   </div>
 </div>
