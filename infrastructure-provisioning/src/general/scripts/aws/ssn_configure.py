@@ -83,6 +83,9 @@ if __name__ == "__main__":
             ssn_conf['tag_name'], ssn_conf['instance_name'], 'ip_address').get('Private')))(
             ssn_conf['network_type']) if x == 'true' else '')(os.environ['conf_stepcerts_enabled'])
 
+
+        print('AWS SG ID: {}'.format(os.environ['aws_security_groups_ids']))
+
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
