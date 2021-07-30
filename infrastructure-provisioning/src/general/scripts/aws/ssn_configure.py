@@ -280,11 +280,11 @@ if __name__ == "__main__":
             },
             {
                 'key': 'REGION',
-                'value': ssn_conf['aws_region']
+                'value': ssn_conf['region']
             },
             {
                 'key': 'ZONE',
-                'value': ssn_conf['aws_zone']
+                'value': os.environ['aws_zone']
             },
             {
                 'key': 'TAG_RESOURCE_ID',
