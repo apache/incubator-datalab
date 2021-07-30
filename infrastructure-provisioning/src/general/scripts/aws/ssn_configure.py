@@ -72,17 +72,17 @@ if __name__ == "__main__":
         ssn_conf['datalab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['ssn_datalab_path'] = os.environ['ssn_datalab_path']
         ssn_conf['conf_tag_resource_id'] = os.environ['conf_tag_resource_id']
-        ssn_conf['instance_hostname'] = (lambda x: datalab.meta_lib.get_instance_metadata(
-            ssn_conf['tag_name'], ssn_conf['instance_name'], 'ip_address').get(
-            'Private') if x == 'private' else datalab.meta_lib.get_instance_metadata(
-            ssn_conf['tag_name'], ssn_conf['instance_name'], 'hostname'))(ssn_conf['network_type'])
+        ssn_conf['instance_hostname'] = (lambda x: datalab.meta_lib.get_instance_ip_address(
+            ssn_conf['tag_name'], ssn_conf['instance_name']).get(
+            'Private') if x == 'private' else datalab.meta_lib.get_instance_hostname(
+            ssn_conf['tag_name'], ssn_conf['instance_name']))(ssn_conf['network_type'])
         ssn_conf['initial_user'] = (lambda x: 'ubuntu' if x == 'debian' else 'ec2-user')(os.environ['conf_os_family'])
         ssn_conf['sudo_group'] = (lambda x: 'sudo' if x == 'debian' else 'wheel')(os.environ['conf_os_family'])
         ssn_conf['step_cert_sans'] = (lambda x: (lambda x: ' --san {0} --san {1}'.format(
-            datalab.meta_lib.get_instance_metadata(ssn_conf['tag_name'], ssn_conf['instance_name'], 'hostname'),
-            datalab.meta_lib.get_instance_metadata(ssn_conf['tag_name'], ssn_conf['instance_name'], 'ip_address').get(
-                'Public')) if x == 'public' else ' --san {0}'.format(datalab.meta_lib.get_instance_metadata(
-            ssn_conf['tag_name'], ssn_conf['instance_name'], 'ip_address').get('Private')))(
+            datalab.meta_lib.get_instance_hostname(ssn_conf['tag_name'], ssn_conf['instance_name']),
+            datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'], ssn_conf['instance_name']).get(
+                'Public')) if x == 'public' else ' --san {0}'.format(datalab.meta_lib.get_instance_ip_address(
+            ssn_conf['tag_name'], ssn_conf['instance_name']).get('Private')))(
             ssn_conf['network_type']) if x == 'true' else '')(os.environ['conf_stepcerts_enabled'])
 
 
