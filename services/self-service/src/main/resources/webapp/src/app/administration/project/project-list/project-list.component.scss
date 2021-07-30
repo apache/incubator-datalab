@@ -17,13 +17,12 @@
  * under the License.
  */
 
-
-.table-wrapper{
+.table-wrapper {
+  position: relative;
+  margin: 0 -15px -15px -15px;
+  padding: 0 15px 15px 15px;
   height: calc(100vh - 120px);
   overflow: auto;
-  position: relative;
-  margin:  0 -15px -15px -15px;
-  padding: 0 15px 15px 15px;
   .mat-header-cell {
     position: sticky;
     top: 0;
@@ -31,6 +30,7 @@
     background: white;
   }
 }
+
 table {
   width: 100%;
 
@@ -41,16 +41,16 @@ table {
   .name {
     width: 25%;
     padding: 20px 0 10px 24px;
-    &.project-name{
+    &.project-name {
       padding-top: 10px;
     }
   }
 
-  th.name{
+  th.name {
     padding-top: 10px;
   }
 
-  .mat-header-row{
+  .mat-header-row {
     padding-top: 12px;
   }
 
@@ -59,13 +59,15 @@ table {
     padding: 15px 0;
 
     .resource-wrap {
-      .resource-name, .resource-status {
+      .resource-name,
+      .resource-status {
         width: 30%;
         padding-left: 0;
       }
     }
 
-    .label-endpoint, .label-endpoint-status {
+    .label-endpoint,
+    .label-endpoint-status {
       display: inline-block;
       width: 30%;
     }
@@ -75,7 +77,7 @@ table {
     }
 
     &.source {
-      &.endpoints .resource-wrap{
+      &.endpoints .resource-wrap {
         justify-content: flex-start;
       }
       .no-details {
@@ -94,19 +96,19 @@ table {
   }
 
   .project-actions {
-    color: #607d8b;
     width: 10%;
+    padding: 10px 24px;
+    color: #607d8b;
     text-align: right;
     vertical-align: top;
-    padding: 10px 24px;
 
-    &.mat-header-cell{
+    &.mat-header-cell {
       padding-top: 19px;
-      color: rgba(0,0,0,.54);
+      color: rgba(0, 0, 0, 0.54);
     }
 
     span:not(.mat-header-cell span) {
-      transition: all .5s ease-in-out;
+      transition: all 0.5s ease-in-out;
       cursor: pointer;
 
       .mat-icon {
@@ -126,47 +128,49 @@ td.settings {
   vertical-align: middle !important;
   text-align: right;
   .actions {
-    margin-top: 3px;
-    background-image: url(../../../../assets/svg/settings_icon.svg);
+    display: inline-block;
     width: 16px;
     height: 16px;
-    display: inline-block;
+    margin-top: 3px;
+    background-image: url(../../../../assets/svg/settings_icon.svg);
     text-align: center;
     cursor: pointer;
   }
 }
-.project-seting-item{
+
+.project-seting-item {
   display: flex;
-  padding: 10px;
   align-items: center;
+  padding: 10px;
   border-bottom: 1px solid #edf1f5;
   cursor: pointer;
   color: #577289;
-  &:last-child{
+  &:last-child {
     border-bottom: none;
   }
-  &:hover{
+  &:hover {
     color: #36afd5;
-    transition: all .45s ease-in-out;
+    transition: all 0.45s ease-in-out;
   }
-  a{
+  a {
     padding-left: 5px;
   }
 }
+
 .material-icons {
   font-size: 18px;
   padding-top: 1px;
 }
 
-.list-menu{
+.list-menu {
   min-width: 205px;
 }
 
-.project-endpoint-name{
-   color: #577289;
+.project-endpoint-name {
+  color: #577289;
 }
 
-.actions-list{
+.actions-list {
   padding: 10px 15px;
 }
 
@@ -175,7 +179,3 @@ td.settings {
   white-space: nowrap;
   display: inline-block;
 }
-
-
-
-
