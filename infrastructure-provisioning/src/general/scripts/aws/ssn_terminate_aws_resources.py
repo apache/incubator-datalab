@@ -21,6 +21,7 @@
 #
 # ******************************************************************************
 
+import logging
 import argparse
 import boto3
 import os
