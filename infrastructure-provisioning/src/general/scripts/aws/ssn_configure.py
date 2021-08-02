@@ -97,6 +97,11 @@ if __name__ == "__main__":
         if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_peering_id']:
             ssn_conf['aws_peering_id'] = datalab.meta_lib.get_peering_by_tag(ssn_conf['tag_name'],
                                                                            ssn_conf['service_base_name'])
+        elif os.environ['conf_duo_vpc_enable'] == 'true' and aws_peering_id in os.environ \
+                and os.environ['aws_peering_id'] != '':
+            ssn_conf['aws_peering_id'] = os.environ['aws_peering_id']
+        else:
+            ssn_conf['aws_peering_id'] = None
         if 'aws_subnet_id' in os.environ and os.environ['aws_subnet_id'] != '':
             ssn_conf['aws_subnet_id'] = os.environ['aws_subnet_ids']
         else:
