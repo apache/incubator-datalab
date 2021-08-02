@@ -607,7 +607,7 @@ if __name__ == "__main__":
         logging.info("Key name: {}".format(os.environ['conf_key_name']))
         logging.info("VPC ID: {}".format(ssn_conf['aws_vpc_id']))
         logging.info("Subnet ID: {}".format(ssn_conf['aws_subnet_id']))
-        logging.info("Security IDs: {}".format(ossn_conf['aws_security_groups_ids']))
+        logging.info("Security IDs: {}".format(ssn_conf['aws_security_groups_ids']))
         logging.info("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
         logging.info("SSN AMI name: {}".format(ssn_conf['ssn_image_name']))
         logging.info("Region: {}".format(ssn_conf['region']))

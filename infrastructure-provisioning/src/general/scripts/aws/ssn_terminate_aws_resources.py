@@ -21,9 +21,10 @@
 #
 # ******************************************************************************
 
-import logging
 import argparse
 import boto3
+import logging
+import datalab.ssn_lib
 import os
 import sys
 
