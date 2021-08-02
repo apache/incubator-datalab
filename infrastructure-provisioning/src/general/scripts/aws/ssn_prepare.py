@@ -43,20 +43,20 @@ def cleanup_aws_resources(tag_name, service_base_name):
 if __name__ == "__main__":
     #creating aws config file
     try:
-        datalab.fab.logging_datalab.info('[CREATE AWS CONFIG FILE]')
+        logging.info('[CREATE AWS CONFIG FILE]')
         if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
             datalab.actions_lib.create_aws_config_files(generate_full_config=True)
         else:
             datalab.actions_lib.create_aws_config_files()
     except Exception as err:
-        datalab.fab.logging_datalab.info('Unable to create configuration')
+        logging.info('Unable to create configuration')
         datalab.fab.append_result("Unable to create configuration", err)
         traceback.print_exc()
         sys.exit(1)
 
     #deriving variables for ssn node deployment
     try:
-        datalab.fab.logging_datalab.info('[DERIVING NAMES]')
+        logging.info('[DERIVING NAMES]')
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
@@ -94,11 +94,11 @@ if __name__ == "__main__":
     #checking sbn for unique value
     try:
         if datalab.meta_lib.get_instance_by_name(ssn_conf['tag_name'], ssn_conf['instance_name']):
-            datalab.fab.logging_datalab.info("Service base name should be unique and less or equal 20 symbols. Please try again.")
+            logging.info("Service base name should be unique and less or equal 20 symbols. Please try again.")
             sys.exit(1)
     except Exception as err:
         datalab.fab.append_result("Failed to make predeployment check.", str(err))
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         traceback.print_exc()
         sys.exit(1)
 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
         if 'aws_vpc_id' in os.environ and os.environ['aws_vpc_id'] != '':
             ssn_conf['aws_vpc_id'] = os.environ['aws_vpc_id']
         else:
-            datalab.fab.logging_datalab.info('[CREATE VPC AND ROUTE TABLE]')
+            logging.info('[CREATE VPC AND ROUTE TABLE]')
             params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --vpc_name {}".format(
                 ssn_conf['vpc_cidr'], ssn_conf['region'], ssn_conf['tag_name'], ssn_conf['service_base_name'],
                 ssn_conf['vpc_name'])
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         for cidr in datalab.meta_lib.get_vpc_cidr_by_id(ssn_conf['aws_vpc_id']):
             ssn_conf['allowed_vpc_cidr_ip_ranges'].append({"CidrIp": cidr})
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create VPC", str(err))
         sys.exit(1)
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
                 and os.environ['aws_vpc2_id'] != '':
             ssn_conf['aws_vpc2_id'] = os.environ['aws_vpc2_id']
         elif os.environ['conf_duo_vpc_enable'] == 'true':
-            datalab.fab.logging_datalab.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
+            logging.info('[CREATE SECONDARY VPC AND ROUTE TABLE]')
             params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {} --secondary" \
                      " --vpc_name {}".format(ssn_conf['vpc2_cidr'], ssn_conf['region'], ssn_conf['tag2_name'],
                                             ssn_conf['service_base_name'], ssn_conf['vpc2_name'])
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             ssn_conf['aws_vpc2_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
                                                                 ssn_conf['service_base_name'])
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create secondary VPC", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
@@ -153,7 +153,7 @@ if __name__ == "__main__":
         if 'aws_subnet_id' in os.environ and os.environ['aws_subnet_id'] != '':
             ssn_conf['aws_subnet_id'] = os.environ['aws_subnet_id']
         else:
-            datalab.fab.logging_datalab.info('[CREATE SUBNET]')
+            logging.info('[CREATE SUBNET]')
             params = "--vpc_id {0} --username {1} --infra_tag_name {2} --infra_tag_value {3} --prefix {4} " \
                      "--ssn {5} --zone {6} --subnet_name {7}".format(ssn_conf['aws_vpc_id'], 'ssn',
                                                                      ssn_conf['tag_name'],
@@ -169,7 +169,7 @@ if __name__ == "__main__":
                                                                            ssn_conf['aws_vpc_id'])
             datalab.actions_lib.enable_auto_assign_ip(ssn_conf['aws_subnet_id'])
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create Subnet", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
@@ -177,15 +177,15 @@ if __name__ == "__main__":
     #creating peering connection
     try:
         if os.environ['conf_duo_vpc_enable'] == 'true' and ssn_conf['aws_vpc_id'] and ssn_conf['aws_vpc2_id']:
-            datalab.fab.logging_datalab.info('[CREATE PEERING CONNECTION]')
+            logging.info('[CREATE PEERING CONNECTION]')
             ssn_conf['aws_peering_id'] = datalab.actions_lib.create_peering_connection(
                 ssn_conf['aws_vpc_id'], ssn_conf['aws_vpc2_id'], ssn_conf['service_base_name'])
-            datalab.fab.logging_datalab.info('PEERING CONNECTION ID:' + ssn_conf['aws_peering_id'])
+            logging.info('PEERING CONNECTION ID:' + ssn_conf['aws_peering_id'])
             datalab.actions_lib.create_route_by_id(ssn_conf['aws_subnet_id'], ssn_conf['aws_vpc_id'],
                                                    ssn_conf['aws_peering_id'],
                                                    datalab.meta_lib.get_cidr_by_vpc(ssn_conf['aws_vpc2_id']))
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create peering connection", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
@@ -195,7 +195,7 @@ if __name__ == "__main__":
         if 'aws_security_groups_ids' in os.environ and os.environ['aws_security_groups_ids'] != '':
             ssn_conf['aws_security_groups_ids'] = os.environ['aws_security_groups_ids']
         else:
-            datalab.fab.logging_datalab.info('[CREATE SG FOR SSN]')
+            logging.info('[CREATE SG FOR SSN]')
             ssn_conf['ingress_sg_rules_template'] = datalab.meta_lib.format_sg([
                 {
                     "PrefixListIds": [],
@@ -250,14 +250,14 @@ if __name__ == "__main__":
                 raise Exception
             ssn_conf['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create security group for SSN", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating roles
     try:
-        datalab.fab.logging_datalab.info('[CREATE ROLES]')
+        logging.info('[CREATE ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
                  "--infra_tag_name {} --infra_tag_value {} --user_tag_value {}". \
             format(ssn_conf['role_name'], ssn_conf['role_profile_name'], ssn_conf['policy_name'],
@@ -271,14 +271,14 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create roles", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating endpoint and rout-table
     try:
-        datalab.fab.logging_datalab.info('[CREATE ENDPOINT AND ROUTE-TABLE]')
+        logging.info('[CREATE ENDPOINT AND ROUTE-TABLE]')
         params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
             ssn_conf['aws_vpc_id'], ssn_conf['region'], ssn_conf['tag_name'], ssn_conf['service_base_name'])
         try:
@@ -287,7 +287,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create endpoint", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
@@ -295,7 +295,7 @@ if __name__ == "__main__":
     # creating endpoint and rout-table notebook vpc
     try:
         if os.environ['conf_duo_vpc_enable'] == 'true':
-            datalab.fab.logging_datalab.info('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
+            logging.info('[CREATE ENDPOINT AND ROUTE-TABLE FOR NOTEBOOK VPC]')
             params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
                 ssn_conf['aws_vpc2_id'], ssn_conf['aws_region'], ssn_conf['tag2_name'],
                 ssn_conf['service_base_name'])
@@ -305,14 +305,14 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create secondary endpoint", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     #creating ssn instance
     try:
-        datalab.fab.logging_datalab.info('[CREATE SSN INSTANCE]')
+        logging.info('[CREATE SSN INSTANCE]')
         params = "--node_name {0} --ami_id {1} --instance_type {2} --key_name {3} --security_group_ids {4} " \
                  "--subnet_id {5} --iam_profile {6} --infra_tag_name {7} --infra_tag_value {8} --instance_class {9} " \
                  "--primary_disk_size {10}".\
@@ -326,7 +326,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create ssn instance", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
@@ -334,7 +334,7 @@ if __name__ == "__main__":
     #associating elastic ip
     try:
         if ssn_conf['network_type'] == 'public':
-            datalab.fab.logging_datalab.info('[ASSOCIATING ELASTIC IP]')
+            logging.info('[ASSOCIATING ELASTIC IP]')
             ssn_conf['ssn_id'] = datalab.meta_lib.get_instance_by_name(ssn_conf['tag_name'], ssn_conf['instance_name'])
             try:
                 ssn_conf['elastic_ip'] = os.environ['ssn_elastic_ip']
@@ -348,7 +348,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create elastic ip", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
@@ -362,7 +362,7 @@ if __name__ == "__main__":
             else:
                 ssn_conf['instance_ip'] = datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
                                                                                    ssn_conf['instance_name']).get('Public')
-            datalab.fab.logging_datalab.info('[CREATING ROUTE53 RECORD]')
+            logging.info('[CREATING ROUTE53 RECORD]')
             try:
                 datalab.actions_lib.create_route_53_record(os.environ['ssn_hosted_zone_id'],
                                                            os.environ['ssn_hosted_zone_name'],
@@ -371,7 +371,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        datalab.fab.logging_datalab.error('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create route53 record", str(err))
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)

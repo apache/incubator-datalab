@@ -38,6 +38,16 @@ from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
+local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
+local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                    level=logging.DEBUG,
+                    filename='{}'.format(local_log_filepath),
+                    filemode='w')
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+logging.getLogger('').addHandler(console)
+
 def ensure_python_venv(python_venv_version):
     try:
         if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
@@ -1156,13 +1166,3 @@ def init_datalab_connection(hostname, username, keyfile):
     except:
         traceback.print_exc()
         sys.exit(1)
-
-def logging_datalab():
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename='{}'.format(local_log_filepath),
-                        filemode='w')
-    console = logging.StreamHandler()
-    logging.getLogger('').addHandler(console)
