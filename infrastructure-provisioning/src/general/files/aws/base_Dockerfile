@@ -79,6 +79,7 @@ COPY ${SRC_PATH}general/scripts/aws/common_* /root/scripts/
 COPY ${SRC_PATH}general/lib/aws/* /usr/lib/python3.8/datalab/
 COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python3.8/datalab/common_lib.py
 COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python3.8/datalab/fab.py
+COPY ${SRC_PATH}general/lib/os/logger.py /usr/lib/python3.8/datalab/logger.py
 COPY ${SRC_PATH}general/files/os/ivysettings.xml /root/templates/
 COPY ${SRC_PATH}general/files/os/local_endpoint.json /root/files/
 COPY ${SRC_PATH}project/templates/locations/ /root/locations/
