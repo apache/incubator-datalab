@@ -22,7 +22,6 @@
 import csv
 import datetime
 import json
-import logging
 import os
 import random
 import re
@@ -37,16 +36,6 @@ from datalab.meta_lib import *
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
-
-local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                    level=logging.DEBUG,
-                    filename='{}'.format(local_log_filepath),
-                    filemode='w')
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-logging.getLogger('').addHandler(console)
 
 def ensure_python_venv(python_venv_version):
     try:
