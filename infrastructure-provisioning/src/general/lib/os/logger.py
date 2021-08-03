@@ -20,6 +20,7 @@
 # ******************************************************************************
 
 import logging
+import os
 
 local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
 local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
