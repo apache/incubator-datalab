@@ -26,7 +26,7 @@ import datalab.fab
 import datalab.meta_lib
 import datalab.ssn_lib
 import json
-import logging
+import logger
 import os
 import sys
 import traceback
