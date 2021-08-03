@@ -43,13 +43,6 @@ def cleanup_aws_resources(tag_name, service_base_name):
         raise Exception
 
 if __name__ == "__main__":
-    #configuring logs
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        handlers=[logging.StreamHandler(), logging.FileHandler(local_log_filepath)])
-
     # deriving variables for ssn node deployment
     try:
         logging.info('[DERIVING NAMES]')
