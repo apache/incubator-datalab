@@ -43,7 +43,7 @@ def cleanup_aws_resources(tag_name, service_base_name):
 if __name__ == "__main__":
     #creating aws config file
     try:
-        logging.info('[CREATE AWS CONFIG FILE]')
+        datalab.logger.logging.info('[CREATE AWS CONFIG FILE]')
         if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
             datalab.actions_lib.create_aws_config_files(generate_full_config=True)
         else:
