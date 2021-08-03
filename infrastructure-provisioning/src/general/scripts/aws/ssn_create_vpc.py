@@ -24,6 +24,7 @@
 import argparse
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc', type=str, default='')
@@ -48,18 +49,18 @@ if __name__ == "__main__":
         try:
             vpc_id = get_vpc_by_tag(args.infra_tag_name, args.infra_tag_value)
             if vpc_id == '':
-                print("Creating {3}vpc {0} in region {1} with tag {2}".format(args.vpc, args.region, json.dumps(tag), sec_str))
+                logging.info("Creating {3}vpc {0} in region {1} with tag {2}".format(args.vpc, args.region, json.dumps(tag), sec_str))
                 vpc_id = create_vpc(args.vpc, tag)
                 create_tag(vpc_id, vpc_tag_name)
                 enable_vpc_dns(vpc_id)
                 rt_id = create_rt(vpc_id, args.infra_tag_name, args.infra_tag_value, args.secondary)
                 create_tag(rt_id, rt_tag_name)
             else:
-                print("REQUESTED {}VPC ALREADY EXISTS".format(sec_str))
-            print("{0}VPC_ID: {1}".format(sec_str, vpc_id))
+                logging.info("REQUESTED {}VPC ALREADY EXISTS".format(sec_str))
+            logging.info("{0}VPC_ID: {1}".format(sec_str, vpc_id))
             args.vpc_id = vpc_id
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
     else:
         parser.print_help()

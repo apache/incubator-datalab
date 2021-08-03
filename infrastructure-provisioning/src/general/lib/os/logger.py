@@ -27,7 +27,7 @@ local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_fi
 logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.DEBUG,
                     filename='{}'.format(local_log_filepath),
-                    filemode='w')
+                    filemode='a')
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
 logging.getLogger('').addHandler(console)

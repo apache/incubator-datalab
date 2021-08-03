@@ -296,6 +296,7 @@ def build_docker_images(args):
 def deploy_datalab(args):
     # Creating SSN node
     docker_command = generate_docker_command()
+    print('Docker command: {}'.format(docker_command ))
     subprocess.run(docker_command, shell=True, check=True)
 
 
