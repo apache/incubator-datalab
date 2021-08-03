@@ -118,7 +118,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus($event) {
-    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
+    const data = { 
+      'project_name': $event.project.name, 
+      endpoint: $event.endpoint.map(endpoint => endpoint.name),
+      'edge_status': $event.endpoint.map(endpoint => endpoint.status)[0]
+    };
     this.toggleStatusRequest(data, $event.action, $event.oneEdge);
   }
 
