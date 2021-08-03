@@ -24,8 +24,8 @@
 import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
-import json
 from datalab.logger import logging
+import json
 import os
 import sys
 import traceback
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         else:
             datalab.actions_lib.create_aws_config_files()
     except Exception as err:
-        logging.info('Unable to create configuration')
+        logging.error('Unable to create configuration')
         datalab.fab.append_result("Unable to create configuration", err)
         traceback.print_exc()
         sys.exit(1)
