@@ -24,10 +24,11 @@ import os
 
 local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
 local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+logger = logging
+logger.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.DEBUG,
                     filename='{}'.format(local_log_filepath),
                     filemode='w')
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
-logger = logging.getLogger('').addHandler(console)
+logger.getLogger('').addHandler(console)
