@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import datalab.logger
+from datalab.logger import logger
 import os
 import sys
 import traceback
@@ -43,13 +43,13 @@ def cleanup_aws_resources(tag_name, service_base_name):
 if __name__ == "__main__":
     #creating aws config file
     try:
-        datalab.logger.logging.info('[CREATE AWS CONFIG FILE]')
+        logger.info('[CREATE AWS CONFIG FILE]')
         if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
             datalab.actions_lib.create_aws_config_files(generate_full_config=True)
         else:
             datalab.actions_lib.create_aws_config_files()
     except Exception as err:
-        logging.info('Unable to create configuration')
+        logger.info('Unable to create configuration')
         datalab.fab.append_result("Unable to create configuration", err)
         traceback.print_exc()
         sys.exit(1)

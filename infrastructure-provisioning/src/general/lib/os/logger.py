@@ -30,4 +30,4 @@ logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     filemode='w')
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
-logging.getLogger('').addHandler(console)
+logger = logging.getLogger('').addHandler(console)
