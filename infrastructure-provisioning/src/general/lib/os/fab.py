@@ -868,7 +868,7 @@ def configure_data_engine_service_livy(hostname, os_user, keyfile):
     if exists(conn,'/usr/local/lib/livy'):
         conn.sudo('rm -r /usr/local/lib/livy')
     conn.sudo('wget -P /tmp/  --user={} --password={} '
-                         '{}/repository/packages/livy.tar.gz --no-check-certificate'
+                         'https://{}/repository/packages/livy.tar.gz --no-check-certificate'
                          .format(os.environ['conf_repository_user'],
                                  os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
     conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /usr/local/lib/')

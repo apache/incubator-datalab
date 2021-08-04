@@ -161,14 +161,14 @@ def build_ui():
         # Building Back-end
         if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ:
             conn.sudo(
-                'wget -P {0}sources/services/provisioning-service/target/  --user={1} --password={2} {3}/repository/packages/{4}/provisioning-service-{4}.jar --no-check-certificate'
+                'wget -P {0}sources/services/provisioning-service/target/  --user={1} --password={2} https://{3}/repository/packages/{4}/provisioning-service-{4}.jar --no-check-certificate'
                      .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address'], os.environ['conf_release_tag']))
             conn.sudo(
-                'wget -P {0}sources/services/self-service/target/  --user={1} --password={2} {3}/repository/packages/{4}/self-service-{4}.jar --no-check-certificate'
+                'wget -P {0}sources/services/self-service/target/  --user={1} --password={2} https://{3}/repository/packages/{4}/self-service-{4}.jar --no-check-certificate'
                 .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
                         os.environ['conf_repository_address'], os.environ['conf_release_tag']))
             conn.sudo(
-                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} {3}/repository/packages/{5}/billing-{4}-{5}.jar --no-check-certificate'
+                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} https://{3}/repository/packages/{5}/billing-{4}-{5}.jar --no-check-certificate'
                 .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
                         os.environ['conf_repository_address'], args.cloud_provider, os.environ['conf_release_tag']))
         else:
