@@ -121,7 +121,7 @@ def build_docker_images(image_list, region, datalab_path):
                 tag = image['tag']
                 conn.sudo('docker pull {}:8083/docker.datalab-{}-{}:{}'
                           .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
-                conn.sudo('docker image tag {0}:8083/docker.datalab-{1}-{2}:{3} docker.datalab-{1}-{2}:{3}'
+                conn.sudo('docker image tag {0}:8083/docker.datalab-{1}-{2}:{3} docker.datalab-{2}:{3}'
                           .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
                 conn.sudo('docker image rm {}:8083/docker.datalab-{}-{}:{}'
                           .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
