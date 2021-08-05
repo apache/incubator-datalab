@@ -206,11 +206,21 @@ def generate_docker_command():
 
 
 def build_docker_images(args):
-    # Building base and ssn docker images
-    subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
+    if args.conf_repository_user and args.conf_repository_pass and args.conf_repository_address:
+        subprocess.run( 'sudo docker login -u {0} -p {1} {2}:8083'
+                        .format(args.conf_repository_user, args.conf_repository_pass, args.conf_repository_address), shell=True, check=True)
+        subprocess.run('sudo docker pull {}:8083/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image tag {}:8083/docker.datalab-base-{} docker.datalab-base'.format(args.conf_repository_address, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image rm {}:8083/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker pull {}:8083/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image tag {}:8083/docker.datalab-ssn-{} docker.datalab-ssn'.format(args.conf_repository_address, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image rm {}:8083/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_cloud_provider), shell=True, check=True)
+    else:
+        # Building base and ssn docker images
+        subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
               'infrastructure-provisioning/src/general/files/{1}/'
               'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
-    subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+        subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
               'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
 
 

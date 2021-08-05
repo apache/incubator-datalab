@@ -113,28 +113,42 @@ def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
 
 def build_docker_images(image_list, region, datalab_path):
     try:
-        host_string = '{}@{}'.format(args.os_user, args.hostname)
-        if os.environ['conf_cloud_provider'] == 'azure':
-            conn.local('scp -i {} /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
-                  'azure_auth.json'.format(args.keyfile, host_string, args.datalab_path))
-            conn.sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
-                 '/home/{1}/keys/azure_auth.json'.format(args.datalab_path, args.os_user))
-        if region == 'cn-north-1':
-            add_china_repository(datalab_path)
-        for image in image_list:
-            name = image['name']
-            tag = image['tag']
-            conn.sudo('cp {0}sources/infrastructure-provisioning/src/general/files/{1}/{2}_description.json '
-                 '{0}sources/infrastructure-provisioning/src/{2}/description.json'.format(args.datalab_path, args.cloud_provider, name))
-            if name == 'base':
-                conn.sudo("bash -c 'cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
-                          "--build-arg SRC_PATH=\"\" --file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} "
-                          ".'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
-            else:
-                conn.sudo("bash -c 'cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
-                          "--file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} .'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
-        conn.sudo('rm -f {}sources/infrastructure-provisioning/src/base/azure_auth.json'.format(args.datalab_path))
-        return True
+        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ:
+            conn.sudo('sudo docker login -u {0} -p {1} {2}:8083'
+                      .format(os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+            for image in image_list:
+                name = image['name']
+                tag = image['tag']
+                conn.sudo('docker pull {0}:8083/docker.datalab-{2}-{1}:{3}'
+                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
+                conn.sudo('docker image tag {0}:8083/docker.datalab-{2}-{1}:{3} docker.datalab-{2}:{3}'
+                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
+                conn.sudo('docker image rm {0}:8083/docker.datalab-{2}-{1}:{3}'
+                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
+            return True
+        else:
+            host_string = '{}@{}'.format(args.os_user, args.hostname)
+            if os.environ['conf_cloud_provider'] == 'azure':
+                conn.local('scp -i {} /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
+                      'azure_auth.json'.format(args.keyfile, host_string, args.datalab_path))
+                conn.sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
+                     '/home/{1}/keys/azure_auth.json'.format(args.datalab_path, args.os_user))
+            if region == 'cn-north-1':
+                add_china_repository(datalab_path)
+            for image in image_list:
+                name = image['name']
+                tag = image['tag']
+                conn.sudo('cp {0}sources/infrastructure-provisioning/src/general/files/{1}/{2}_description.json '
+                     '{0}sources/infrastructure-provisioning/src/{2}/description.json'.format(args.datalab_path, args.cloud_provider, name))
+                if name == 'base':
+                    conn.sudo("bash -c 'cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
+                              "--build-arg SRC_PATH=\"\" --file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} "
+                              ".'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
+                else:
+                    conn.sudo("bash -c 'cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
+                              "--file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} .'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
+            conn.sudo('rm -f {}sources/infrastructure-provisioning/src/base/azure_auth.json'.format(args.datalab_path))
+            return True
     except:
         return False
 
