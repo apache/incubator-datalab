@@ -20,23 +20,24 @@
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../../core/services';
+import { BillingReportService, HealthStatusService } from '../../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
 import { FileUtils } from '../../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {LocalizationService} from '../../core/services/localization.service';
+import { ProgressBarService } from '../../core/services/progress-bar.service';
+import { LocalizationService } from '../../core/services/localization.service';
 
 @Component({
   selector: 'datalab-reporting',
   template: `
     <div class="base-retreat">
-      <datalab-toolbar (rebuildReport)="rebuildBillingReport()"
-                        (exportReport)="exportBillingReport()"
-                        (setRangeOption)="setRangeOption($event)">
-      </datalab-toolbar>
+      <datalab-toolbar 
+        (rebuildReport)="rebuildBillingReport()"
+        (exportReport)="exportBillingReport()"
+        (setRangeOption)="setRangeOption($event)"
+      ></datalab-toolbar>
       <mat-divider></mat-divider>
       <datalab-reporting-grid
         (filterReport)="filterReport($event)"
@@ -53,10 +54,10 @@ import {LocalizationService} from '../../core/services/localization.service';
       left: 0;
       bottom: 0;
       width: 100%;
+      padding: 5px 15px;
       background: #a1b7d1;
       color: #ffffff;
       text-align: right;
-      padding: 5px 15px;
       font-size: 18px;
       box-shadow: 0 9px 18px 15px #f5f5f5;
     }
@@ -136,27 +137,32 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),
-        () => this.toastr.error('Billing report export failed!', 'Oops!'));
+        () => this.toastr.error('Billing report export failed!', 'Oops!')
+      );
   }
 
   getDefaultFilterConfiguration(data): void {
     const users = [], types = [], shapes = [], services = [], statuses = [], projects = [];
 
     data.report_lines.forEach((item: any) => {
-      if (item.user && users.indexOf(item.user) === -1)
+      if (item.user && users.indexOf(item.user) === -1) {
         users.push(item.user);
+      }
 
-      if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1)
+      if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1) {
         statuses.push(item.status.toLowerCase());
+      }
 
-      if (item.project && projects.indexOf(item.project) === -1)
+      if (item.project && projects.indexOf(item.project) === -1) {
         projects.push(item.project);
+      }
 
-      if (item['resource_type'] && types.indexOf(item['resource_type']) === -1)
+      if (item['resource_type'] && types.indexOf(item['resource_type']) === -1) {
         types.push(item['resource_type']);
+      }
 
       if (item.shape && types.indexOf(item.shape)) {
-       if (item.shape.indexOf('Master') > -1) {
+        if (item.shape.indexOf('Master') > -1) {
           for (let shape of item.shape.split(/(?=Slave)/g)) {
             shape = shape.replace('Master: ', '');
             shape = shape.replace(/Slave: /, '');
@@ -175,8 +181,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
         }
       }
 
-      if (item.product && services.indexOf(item.product) === -1)
+      if (item.product && services.indexOf(item.product) === -1) {
         services.push(item.product);
+      }
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {

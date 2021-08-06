@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
-import {skip} from 'rxjs/operators';
-import {Subscription} from 'rxjs';
-import {HealthStatusService} from '../../../core/services';
-import {GeneralEnvironmentStatus} from '../../../administration/management/management.model';
+import { skip } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { HealthStatusService } from '../../../core/services';
+import { GeneralEnvironmentStatus } from '../../../administration/management/management.model';
 
 @Component({
   selector: 'datalab-toolbar',
@@ -102,11 +102,13 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   onChange(dateRange: string): void {
     const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
 
-    for (let label = 0; label < rangeLabels.length; ++label)
+    for (let label = 0; label < rangeLabels.length; ++label) {
       if (rangeLabels[label].classList.contains('untouched')) {
         rangeLabels[label].classList.remove('untouched');
         rangeLabels[label].classList.remove('d-none');
       }
+    }
+
     const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
     labels[0].innerHTML = 'From:';
     labels[1].innerHTML = 'To:';

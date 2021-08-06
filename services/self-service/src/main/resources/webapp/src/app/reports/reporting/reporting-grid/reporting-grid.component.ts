@@ -25,14 +25,11 @@ import {
   ViewChild,
   Input,
   HostListener,
-  AfterViewInit,
   ChangeDetectorRef,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
-import {BehaviorSubject, fromEvent, Observable, of, Subject, timer} from 'rxjs';
-import {logger} from 'codelyzer/util/logger';
-import {take} from 'rxjs/operators';
+import {BehaviorSubject, Subject } from 'rxjs';
 import {CompareUtils} from '../../../core/util/compareUtils';
 
 export interface IFullReport {
@@ -64,8 +61,16 @@ export class ReportingGridComponent implements OnInit {
   fullReport: IFullReport;
   isFiltered: boolean = false;
   active: object = {};
-  displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'empty', 'charge'];
-  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter',  'service-filter', 'empty-filter', 'actions'];
+  displayedColumns: string[] = [
+    'name', 'user', 'project', 
+    'type', 'status', 'shape', 
+    'service', 'empty', 'charge'
+  ];
+  displayedFilterColumns: string[] = [
+    'name-filter', 'user-filter', 'project-filter', 
+    'type-filter', 'status-filter', 'shape-filter',  
+    'service-filter', 'empty-filter', 'actions'
+  ];
   filtered: any;
   isMaxRight: Subject<boolean> = new BehaviorSubject(false);
   isFilterSelected: boolean;
@@ -97,8 +102,7 @@ export class ReportingGridComponent implements OnInit {
     this.checkMaxRight();
   }
 
-  constructor(private changeDetector: ChangeDetectorRef) {
-  }
+  constructor(private changeDetector: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.userAgentIndex = window.navigator.userAgent.indexOf('Firefox');
@@ -137,35 +141,37 @@ export class ReportingGridComponent implements OnInit {
   }
 
   sortBy(sortItem, direction) {
-  if (this.previousItem === sortItem && this.previousDirection === direction) {
-    return;
-  }
-  let report: Array<object>;
-  this.previousItem = sortItem;
-  this.previousDirection = direction;
-  if (direction === 'down') {
-    report = this.reportData.sort((a, b) => {
-      if (a[sortItem] === null) a[sortItem] = '';
-      if (b[sortItem] === null) b[sortItem] = '';
+    if (this.previousItem === sortItem && this.previousDirection === direction) return;
 
-      if ((a[sortItem] > b[sortItem])) return 1;
-      if ((a[sortItem] < b[sortItem])) return -1;
-      return 0;
-    });
-  }
-  if (direction === 'up') {
-    report = this.reportData.sort((a, b) => {
-      if (a[sortItem] === null) a[sortItem] = '';
-      if (b[sortItem] === null) b[sortItem] = '';
+    let report: Array<object>;
+    this.previousItem = sortItem;
+    this.previousDirection = direction;
 
-      if ((a[sortItem] < b[sortItem])) return 1;
-      if ((a[sortItem] > b[sortItem])) return -1;
-      return 0;
-    });
-  }
-  this.refreshData(this.fullReport, report);
-  this.removeSorting();
-  this.active[sortItem + direction] = true;
+    if (direction === 'down') {
+      report = this.reportData.sort((a, b) => {
+        if (a[sortItem] === null) a[sortItem] = '';
+        if (b[sortItem] === null) b[sortItem] = '';
+
+        if ((a[sortItem] > b[sortItem])) return 1;
+        if ((a[sortItem] < b[sortItem])) return -1;
+        return 0;
+      });
+    }
+
+    if (direction === 'up') {
+      report = this.reportData.sort((a, b) => {
+        if (a[sortItem] === null) a[sortItem] = '';
+        if (b[sortItem] === null) b[sortItem] = '';
+
+        if ((a[sortItem] < b[sortItem])) return 1;
+        if ((a[sortItem] > b[sortItem])) return -1;
+        return 0;
+      });
+    }
+    
+    this.refreshData(this.fullReport, report);
+    this.removeSorting();
+    this.active[sortItem + direction] = true;
   }
 
   removeSorting() {
