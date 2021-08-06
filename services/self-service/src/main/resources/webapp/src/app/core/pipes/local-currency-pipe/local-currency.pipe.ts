@@ -18,8 +18,8 @@
  */
 
 import { Pipe, PipeTransform } from '@angular/core';
-import {formatCurrency, getCurrencySymbol} from '@angular/common';
-import {LocalizationService} from '../../services/localization.service';
+import { formatCurrency, getCurrencySymbol } from '@angular/common';
+import { LocalizationService } from '../../services/localization.service';
 
 @Pipe({ name: 'localcurrency' })
 

@@ -18,13 +18,10 @@
  */
 
 
-import {fromEvent as observableFromEvent,  Observable } from 'rxjs';
+import { fromEvent as observableFromEvent } from 'rxjs';
 
-import {tap, delay} from 'rxjs/operators';
+import { tap, delay } from 'rxjs/operators';
 import { Directive, OnInit, OnDestroy, Output, EventEmitter, ElementRef } from '@angular/core';
-
-
-
 
 @Directive({
   selector: '[clickOutside]'

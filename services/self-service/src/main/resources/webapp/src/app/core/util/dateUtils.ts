@@ -29,8 +29,8 @@ export class DateUtils {
   }
 
   public getQuarterRange() {
-    const currentMonth = (new Date()).getMonth();
-    const yyyy = (new Date()).getFullYear();
+    const currentMonth = new Date().getMonth();
+    const yyyy = new Date().getFullYear();
     const start = (Math.floor(currentMonth / 3) * 3 ) + 1,
           end = start + 3,
           startDate = new Date(start + '-01-' + yyyy);

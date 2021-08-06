@@ -21,7 +21,6 @@ export class CompareUtils {
   public static compareFilters(currentData, previousData) {
     return Object.keys(currentData).every(el => {
       if (Array.isArray(previousData[el])) {
-        // console.log('arr', el, previousData[el], currentData[el]);
         if (previousData[el].length === 0 && currentData[el].length === 0) return true;
         if (previousData[el].length === currentData[el].length) {
           return currentData[el].every(element => previousData[el].includes(element));
@@ -29,10 +28,8 @@ export class CompareUtils {
           return false;
         }
       } else {
-        // console.log(el, previousData[el] === currentData[el]);
         return previousData[el] === currentData[el];
       }
     });
   }
-
 }

@@ -40,12 +40,14 @@ export class HealthStatusService {
   }
 
   public reloadInitialStatusData() {
-    this.getEnvironmentHealthStatus().subscribe(
-      (res: GeneralEnvironmentStatus) => {
-        this._statusData.next(res);
-        console.log('reload Initial Status Data');
-      },
-      err => console.error('Error retrieving status'));
+    this.getEnvironmentHealthStatus()
+      .subscribe(
+        (res: GeneralEnvironmentStatus) => {
+          this._statusData.next(res);
+          console.log('reload Initial Status Data');
+        },
+        err => console.error('Error retrieving status')
+      );
   }
 
   public isHealthStatusOk(): Observable<boolean> {

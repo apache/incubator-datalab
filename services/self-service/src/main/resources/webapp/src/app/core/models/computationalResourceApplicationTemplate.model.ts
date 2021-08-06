@@ -36,9 +36,10 @@ export class ComputationalResourceApplicationTemplate {
     this.template_name = template_name;
     this.description = description;
 
-    if (jsonModel.applications && jsonModel.applications.length > 0)
-      for (let index = 0; index < jsonModel.applications.length; index++)
+    if (jsonModel.applications && jsonModel.applications.length > 0) {
+      for (let index = 0; index < jsonModel.applications.length; index++) {
         this.applications.push(new ComputationalResourceApplication(jsonModel.applications[index]));
-
+      }
+    }
   }
 }

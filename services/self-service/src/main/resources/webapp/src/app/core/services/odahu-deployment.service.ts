@@ -47,9 +47,9 @@ export class OdahuDeploymentService {
 
   public odahuAction(data, action) {
     return this.applicationServiceFacade
-        .odahuStartStop(data, action)
-        .pipe(
-            map(response => response),
-            catchError(ErrorUtils.handleServiceError));
+      .odahuStartStop(data, action)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }
