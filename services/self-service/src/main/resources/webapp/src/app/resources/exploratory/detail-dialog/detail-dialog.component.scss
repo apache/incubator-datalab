@@ -17,7 +17,7 @@
  * under the License.
  */
 
-@import '_variables.scss';
+@import "_variables.scss";
 
 .scroll-box {
   max-height: 65vh;
@@ -26,36 +26,36 @@
 }
 
 .links_block {
-
-  .odahu-links:not(:last-child){
+  .odahu-links:not(:last-child) {
     margin-bottom: 20px;
   }
 
-  .grafana{
-    white-space: nowrap;
+  .grafana {
     padding-left: 30px;
+    white-space: nowrap;
     color: $blue-grey-color;
 
-    div{
+    div {
       display: flex;
 
-      span{
+      span {
         font-size: 13px;
         font-weight: 500;
 
-        &.creds{
+        &.creds {
           font-weight: 600;
         }
       }
     }
   }
 
-  >p, .odahu-link {
-     display: flex;
+  > p,
+  .odahu-link {
+    display: flex;
 
     .description {
-      white-space: nowrap;
       padding-left: 7px;
+      white-space: nowrap;
       font-weight: 600;
       color: $blue-grey-color;
     }
@@ -73,7 +73,6 @@
   }
 
   span {
-
     &.danger_color {
       position: absolute;
       bottom: -20px;
@@ -83,9 +82,9 @@
 }
 
 .config-details {
-  text-align: left;
   position: relative;
   height: 280px;
+  text-align: left;
 
   textarea {
     height: 100%;
@@ -111,35 +110,33 @@
   color: $blue-grey-color;
 }
 
-.bucket-link{
+.bucket-link {
   padding: 15px;
   padding-left: 0;
   color: #35afd5;
-  .open-bucket{
+  .open-bucket {
     cursor: pointer;
     font-size: 14px;
   }
-  &.not-allow{
+  &.not-allow {
     cursor: not-allowed;
     color: $blue-grey-color !important;
   }
 }
 
-.copy-icon-wrapper{
+.copy-icon-wrapper {
   width: 20px;
   margin-left: 5px;
   margin-right: 5px;
 }
 
-.bucket-info-wrapper{
+.bucket-info-wrapper {
   width: 100%;
-  .bucket-info{
+  .bucket-info {
     max-width: 90%;
   }
 }
 
-.resources-url{
+.resources-url {
   max-width: 70%;
 }
-
-

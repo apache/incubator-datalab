@@ -19,8 +19,13 @@
 
 <section class="table-wrapper resources-wrapper">
   <div class="table-wrapper scrolling">
-    <table mat-table [dataSource]="filteredEnvironments" multiTemplateDataRows
-           class="data-grid resources mat-elevation-z6" [trackBy]="trackBy">
+    <table 
+      mat-table 
+      [dataSource]="filteredEnvironments" 
+      multiTemplateDataRows
+      class="data-grid resources mat-elevation-z6" 
+      [trackBy]="trackBy"
+    >
 
       <ng-container matColumnDef="project">
         <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="project-name"> {{ element.project }} </td>
@@ -50,6 +55,7 @@
           </button>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="statuses">
         <th mat-header-cell *matHeaderCellDef class="status-col label-header">
           <span class="label"> Status </span>
@@ -61,6 +67,7 @@
           </button>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="shapes">
         <th mat-header-cell *matHeaderCellDef class="shape-col label-header">
           <span class="label"> Shape </span>
@@ -72,6 +79,7 @@
           </button>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="tag">
         <th mat-header-cell *matHeaderCellDef class="tag-col label-header">
           <span class="label"> Tags </span>
@@ -82,6 +90,7 @@
           </button>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="resources">
         <th mat-header-cell *matHeaderCellDef class="resources-col label-header">
           <span class="label"> Compute </span>
@@ -93,6 +102,7 @@
           </button>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="cost">
         <th mat-header-cell *matHeaderCellDef class="cost-col label-header">
           <span class="label"> Cost </span>
@@ -103,6 +113,7 @@
           </button>
         </th>
       </ng-container>
+
       <ng-container matColumnDef="actions" stickyEnd>
         <th mat-header-cell *matHeaderCellDef class="settings label-header">
           <span class="label"> Actions </span>
@@ -126,9 +137,10 @@
                 {{ element.name }}
               </span>
               <ng-template #odahu>
-                <span [matTooltip]=" element.name "
-                      matTooltipPosition="above"
-                      (click)="printDetailOdahuModal(element)"
+                <span 
+                  [matTooltip]=" element.name "
+                  matTooltipPosition="above"
+                  (click)="printDetailOdahuModal(element)"
                 >
                   {{ element.name }}
                 </span>
@@ -165,57 +177,86 @@
             </td>
 
             <td class="resources-col">
-              <computational-resources-list [resources]="element.resources" [environment]="element"
-                                            (buildGrid)="buildGrid()">
-              </computational-resources-list>
+              <computational-resources-list 
+                [resources]="element.resources" 
+                [environment]="element"
+                (buildGrid)="buildGrid()"
+              ></computational-resources-list>
             </td>
             <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
               <span class="total_cost">{{ element.billing?.report_lines?.length ? (element.cost | localcurrency) : 'N/A' }}</span>
-              <span (click)="element.billing && printCostDetails(element)" class="currency_details"
-                    [ngClass]="{ 'not-allowed' : !element.billing?.report_lines?.length }">
-              <i class="material-icons">help_outline</i>
-            </span>
+              <span 
+                (click)="element.billing && printCostDetails(element)" 
+                class="currency_details"
+                [ngClass]="{ 'not-allowed' : !element.billing?.report_lines?.length }"
+              >
+                <i class="material-icons">help_outline</i>
+              </span>
             </td>
 
             <td class="settings">
-            <span #settings (click)="actions.toggle($event, settings)" class="actions"
-                  [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating'
-              || (element.image === 'docker.datalab-superset' && element.status !== 'running' && element.status !== 'stopped')
-              || (element.image === 'docker.datalab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }">
-            </span>
+            <span 
+              #settings 
+              (click)="actions.toggle($event, settings)" 
+              class="actions"
+              [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating'
+                || (element.image === 'docker.datalab-superset' && element.status !== 'running' && element.status !== 'stopped')
+                || (element.image === 'docker.datalab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }"
+              ></span>
 
               <bubble-up #actions class="list-menu scrolling" position="bottom-left" alternative="top-left">
                 <ul class="list-unstyled" *ngIf="element.shape !== 'odahu cluster'">
-                  <div class="active-items" *ngIf="element.status.toLowerCase() !== 'failed'
-                && element.status !== 'terminating'
-                && element.status !== 'terminated'
-                && element.status !== 'creating image'">
+                  <div 
+                    class="active-items" 
+                    *ngIf="element.status.toLowerCase() !== 'failed'
+                      && element.status !== 'terminating'
+                      && element.status !== 'terminated'
+                      && element.status !== 'creating image'"
+                  >
                     <li
-                      *ngIf="element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'starting' && element.status !== 'creating image' && element.status.toLowerCase() !== 'reconfiguring'"
+                      *ngIf="element.status !== 'stopped' && element.status !== 'stopping' 
+                        && element.status !== 'starting' && element.status !== 'creating image' 
+                        && element.status.toLowerCase() !== 'reconfiguring'"
                       matTooltip="Unable to stop notebook because at least one compute is in progress"
-                      matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
-                      <div (click)="exploratoryAction(element, 'stop')"
-                           [ngClass]="{'not-allowed': isResourcesInProgress(element) }">
+                      matTooltipPosition="above" 
+                      [matTooltipDisabled]="!isResourcesInProgress(element)"
+                    >
+                      <div 
+                        (click)="exploratoryAction(element, 'stop')"
+                        [ngClass]="{'not-allowed': isResourcesInProgress(element) }"
+                      >
                         <i class="material-icons">pause_circle_outline</i>
                         <span>Stop</span>
                       </div>
                     </li>
-                    <li *ngIf="element.status.toLowerCase() === 'stopped' || element.status.toLowerCase() === 'stopping'"
-                        matTooltip="{{element.edgeNodeStatus !== 'running' ? 'Unable to run notebook if edge node is not running.' : 'Unable to run notebook until it will be stopped.'}}" matTooltipPosition="above"
-                        [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping' && element.edgeNodeStatus === 'running'"
-                        [ngClass]="{'not-allow': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || element.edgeNodeStatus !== 'running' }"
+                    <li 
+                      *ngIf="element.status.toLowerCase() === 'stopped' || element.status.toLowerCase() === 'stopping'"
+                      matTooltip="{{element.edgeNodeStatus !== 'running' 
+                        ? 'Unable to run notebook if edge node is not running.' 
+                        : 'Unable to run notebook until it will be stopped.'}}" 
+                      matTooltipPosition="above"
+                      [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping' 
+                        && element.edgeNodeStatus === 'running'"
+                      [ngClass]="{'not-allow': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' 
+                        || element.edgeNodeStatus !== 'running' }"
                     >
-                      <div (click)="exploratoryAction(element, 'run')"
-                           [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || element.edgeNodeStatus !== 'running' }">
+                      <div 
+                        (click)="exploratoryAction(element, 'run')"
+                        [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' 
+                          || element.edgeNodeStatus !== 'running' }">
                         <i class="material-icons">play_circle_outline</i>
                         <span>Run</span>
                       </div>
                     </li>
-                    <li *ngIf="element.status.toLowerCase() === 'running' || element.status.toLowerCase() === 'stopped'"
-                        matTooltip="Unable to terminate notebook because at least one compute is in progress"
-                        matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
-                      <div (click)="exploratoryAction(element, 'terminate')"
-                           [ngClass]="{'not-allowed': isResourcesInProgress(element) }">
+                    <li 
+                      *ngIf="element.status.toLowerCase() === 'running' || element.status.toLowerCase() === 'stopped'"
+                      matTooltip="Unable to terminate notebook because at least one compute is in progress"
+                      matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)"
+                    >
+                      <div 
+                        (click)="exploratoryAction(element, 'terminate')"
+                        [ngClass]="{'not-allowed': isResourcesInProgress(element) }"
+                      >
                         <i class="material-icons">phonelink_off</i>
                         <span>Terminate</span>
                       </div>
@@ -223,7 +264,8 @@
                     <li
                       *ngIf="element.status === 'running' && element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'"
                       matTooltip="Only one compute can be associated with analytical tool at a time"
-                      matTooltipPosition="above" [matTooltipDisabled]="!element.activeCompute"
+                      matTooltipPosition="above" 
+                      [matTooltipDisabled]="!element.activeCompute"
                       [matTooltipClass]="'full-size-tooltip'"
                       [ngClass]="{'not-allow': element.activeCompute }"
                     >
@@ -235,8 +277,11 @@
                         <span>Add compute</span>
                       </div>
                     </li>
-                    <li (click)="exploratoryAction(element, 'schedule')" *ngIf="element.status.toLowerCase() === 'running'
-                || element.status.toLowerCase() === 'stopped'">
+                    <li 
+                      (click)="exploratoryAction(element, 'schedule')" 
+                      *ngIf="element.status.toLowerCase() === 'running'
+                        || element.status.toLowerCase() === 'stopped'"
+                    >
                       <div>
                         <i class="material-icons">schedule</i>
                         <span>Scheduler</span>
@@ -244,20 +289,26 @@
                     </li>
                   </div>
                   <li
-                      matTooltip="You can create an image after the library installation is complete"
-                      matTooltipPosition="above" [matTooltipDisabled]="!checkLibStatus(element)"
-                      [matTooltipClass]="'full-size-tooltip'"
-                      [ngClass]="{'not-allow': checkLibStatus(element) }" 
-                      *ngIf="element.status === 'running'  && element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'">
+                    matTooltip="You can create an image after the library installation is complete"
+                    matTooltipPosition="above" 
+                    [matTooltipDisabled]="!checkLibStatus(element)"
+                    [matTooltipClass]="'full-size-tooltip'"
+                    [ngClass]="{'not-allow': checkLibStatus(element) }" 
+                    *ngIf="element.status === 'running'  && element.image !== 'docker.datalab-superset' 
+                      && element.image !== 'docker.datalab-jupyterlab'"
+                  >
                     <div 
                       (click)="exploratoryAction(element, 'ami')"
-                      [ngClass]="{'not-allowed': checkLibStatus(element) }">
+                      [ngClass]="{'not-allowed': checkLibStatus(element) }"
+                    >
                       <i class="material-icons">view_module</i>
                       <span>Create AMI</span>
                     </div>
                   </li>
-                  <li (click)="exploratoryAction(element, 'install')"
-                      *ngIf="element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'">
+                  <li 
+                    (click)="exploratoryAction(element, 'install')"
+                    *ngIf="element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'"
+                  >
                     <div>
                       <i class="material-icons">developer_board</i>
                       <span>Manage libraries</span>
@@ -294,9 +345,12 @@
                       </a>
                     </div>
                   </li>
-                  <li class="project-seting-item"
-                      [ngClass]="{'disabled': element.status === 'stopped' || element.status.toLowerCase() === 'stopping' || element.status.toLowerCase() === 'starting'}"
-                      *ngIf="element.status === element.status !== 'terminated' && element.status !== 'terminating'" (click)="odahuAction(element, 'terminate')"
+                  <li 
+                    class="project-seting-item"
+                    [ngClass]="{'disabled': element.status === 'stopped' || element.status.toLowerCase() === 'stopping' 
+                      || element.status.toLowerCase() === 'starting'}"
+                    *ngIf="element.status === element.status !== 'terminated' && element.status !== 'terminating'" 
+                    (click)="odahuAction(element, 'terminate')"
                   >
                     <div>
                       <i class="material-icons">phonelink_off</i>
@@ -316,40 +370,51 @@
       <ng-container matColumnDef="name-filter" sticky>
         <th mat-header-cell *matHeaderCellDef class="name-col filter-row-item ">
           <div class="input-wrapper">
-            <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
-                   [value]="filterForm.name" (input)="onFilterNameUpdate($event.target['value'])"/>
+            <input 
+              placeholder="Filter by environment name" 
+              type="text" 
+              class="form-control filter-field"
+              [value]="filterForm.name" 
+              (input)="onFilterNameUpdate($event.target['value'])"
+            />
           </div>
         </th>
       </ng-container>
       <ng-container matColumnDef="status-filter">
         <th mat-header-cell *matHeaderCellDef class="status-col filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'"
-                                 [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'statuses'"
+            [items]="filterConfiguration.statuses" 
+            [model]="filterForm.statuses"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
       <ng-container matColumnDef="shape-filter">
         <th mat-header-cell *matHeaderCellDef class="shape-col filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)"
-                                 [type]="'shapes'" [items]="filterConfiguration.shapes"
-                                 [model]="filterForm.shapes"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)"
+            [type]="'shapes'" 
+            [items]="filterConfiguration.shapes"
+            [model]="filterForm.shapes"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
       <ng-container matColumnDef="tag-filter">
-        <th mat-header-cell *matHeaderCellDef class="tag-col filter-row-item">
-
-
-        </th>
+        <th mat-header-cell *matHeaderCellDef class="tag-col filter-row-item"></th>
       </ng-container>
       <ng-container matColumnDef="resource-filter">
         <th mat-header-cell *matHeaderCellDef class="resources-col filter-row-item">
-          <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
-                                 [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
+          <multi-select-dropdown 
+            (selectionChange)="onUpdate($event)" 
+            [type]="'resources'"
+            [items]="filterConfiguration.resources" 
+            [model]="filterForm.resources"
+          ></multi-select-dropdown>
         </th>
       </ng-container>
       <ng-container matColumnDef="cost-filter">
-        <th mat-header-cell *matHeaderCellDef class="cost-col filter-row-item">
-
-        </th>
+        <th mat-header-cell *matHeaderCellDef class="cost-col filter-row-item"></th>
       </ng-container>
 
       <ng-container matColumnDef="action-filter" stickyEnd>
@@ -359,19 +424,27 @@
               <i class="material-icons">close</i>
             </button>
 
-            <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)"
-                    [disabled]="!isFilterChanged">
+            <button 
+              mat-icon-button 
+              class="btn apply" 
+              (click)="applyFilter_btnClick(filterForm)"
+              [disabled]="!isFilterChanged"
+            >
               <i class="material-icons">done</i>
             </button>
           </div>
         </th>
       </ng-container>
       <ng-container matColumnDef="placeholder">
-        <td mat-footer-cell *matFooterCellDef
-            [colSpan]="!healthStatus?.billingEnabled ? displayedFilterColumns.length -1 : displayedFilterColumns.length"
-            class="info">
-        <span *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering">
-          To start working, please, create new environment</span>
+        <td 
+          mat-footer-cell 
+          *matFooterCellDef
+          [colSpan]="!healthStatus?.billingEnabled ? displayedFilterColumns.length -1 : displayedFilterColumns.length"
+          class="info"
+        >
+          <span *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering">
+            To start working, please, create new environment
+          </span>
           <span *ngIf="(filteredEnvironments.length == 0) && filtering">No matches found</span>
         </td>
       </ng-container>
@@ -380,8 +453,12 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
 
-      <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
-          class="filter-row"></tr>
+      <tr 
+        [hidden]="!collapseFilterRow" 
+        mat-header-row 
+        *matHeaderRowDef="displayedFilterColumns; sticky: true"
+        class="filter-row"
+      ></tr>
 
       <tr mat-row *matRowDef="let element; columns: ['project']" class="element-row">
         <!--      [class.expanded-row]="expandedElement === element"-->

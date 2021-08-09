@@ -17,16 +17,15 @@
  * under the License.
  */
 
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
-import {ApplicationSecurityService, HealthStatusService} from '../core/services';
+import { ApplicationSecurityService, HealthStatusService } from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
-import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
-
+import { BucketBrowserComponent } from './bucket-browser/bucket-browser.component';
 
 @Component({
   selector: 'datalab-resources',
@@ -69,8 +68,6 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
-
-
   public toggleFiltering(): void {
     if (this.resourcesGrid.activeFiltering) {
       this.resourcesGrid.resetFilterConfigurations();
@@ -93,7 +90,8 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
           bucketStatus: this.bucketStatus,
           buckets: this.resourcesGrid.bucketsList
         },
-      panelClass: 'modal-fullscreen' })
+        panelClass: 'modal-fullscreen' 
+      })
       .afterClosed().subscribe();
   }
 
@@ -108,18 +106,15 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
   }
 
   private checkAutorize() {
-   this.applicationSecurityService.isLoggedIn().subscribe( () => {
-     this.getEnvironmentHealthStatus();
-     }
-   );
+    this.applicationSecurityService.isLoggedIn().subscribe(() => {
+      this.getEnvironmentHealthStatus();
+    });
   }
-
 
   public getEnvironments(environment) {
     this.exploratoryEnvironments = environment;
     this.projects = environment.map(env => env.project);
   }
-
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
@@ -128,6 +123,7 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
         this.resourcesGrid.healthStatus = this.healthStatus;
         this.bucketStatus = this.healthStatus.bucketBrowser;
       },
-      error => this.toastr.error(error.message, 'Oops!'));
+      error => this.toastr.error(error.message, 'Oops!')
+    );
   }
 }

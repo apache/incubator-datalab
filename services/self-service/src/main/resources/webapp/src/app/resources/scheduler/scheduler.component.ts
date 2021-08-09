@@ -25,7 +25,6 @@ import { ToastrService } from 'ngx-toastr';
 import * as _moment from 'moment';
 import 'moment-timezone';
 
-
 import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
 import { SchedulerCalculations } from './scheduler.calculations';
@@ -184,13 +183,16 @@ export class SchedulerComponent implements OnInit {
   }
 
   public setInactivity(...params) {
-    this.model.setInactivityTime(params).subscribe((response: any) => {
-      if (response.status === HTTP_STATUS_CODES.OK) {
-        this.toastr.success('Schedule data were successfully saved', 'Success!');
-        this.dialogRef.close();
-      }
-    },
-      error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'));
+    this.model.setInactivityTime(params)
+      .subscribe(
+        (response: any) => {
+          if (response.status === HTTP_STATUS_CODES.OK) {
+            this.toastr.success('Schedule data were successfully saved', 'Success!');
+            this.dialogRef.close();
+          }
+        },
+        error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!')
+      );
   }
 
   public inactivityCounter($event, action: string): void {
@@ -320,12 +322,13 @@ export class SchedulerComponent implements OnInit {
   }
 
   private validInactivityRange(control) {
-    if (control)
+    if (control) {
       return this.enableIdleTime
         ? (control.value
           && control.value >= this.inactivityLimits.min
           && control.value <= this.inactivityLimits.max ? null : { valid: false })
         : control.value;
+    }
   }
 
   private checkIsActiveSpark() {

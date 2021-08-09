@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import {HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils, HelpUtils} from '../../../core/util';
+import { HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils, HelpUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
@@ -91,8 +91,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.filterShapes();
     this.getComputationalResourceLimits();
 
-    if ($event.templates && $event.templates.length)
+    if ($event.templates && $event.templates.length) {
       this.resourceForm.controls['version'].setValue($event.templates[0].version);
+    }
   }
 
   public selectSpotInstances(): void {
@@ -131,8 +132,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public isAvailableSpots(): boolean {
-    if (this.PROVIDER === 'aws' && this.selectedImage.image === 'docker.datalab-dataengine-service')
+    if (this.PROVIDER === 'aws' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
       return !!Object.keys(this.filterAvailableSpots()).length;
+    }
 
     return false;
   }
@@ -140,9 +142,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public createComputationalResource(data) {
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance,
       this.spotInstance, this.PROVIDER.toLowerCase(), this.isSelected.gpu)
-      .subscribe((response: any) => {
-        if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
-      }, error => this.toastr.error(error.message, 'Oops!'));
+      .subscribe(
+        (response: any) => {
+          if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
+        }, 
+        error => this.toastr.error(error.message, 'Oops!')
+      );
   }
 
   private initFormModel(): void {
@@ -202,22 +207,24 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   //  Validation
 
   private validInstanceNumberRange(control) {
-    if (control && control.value)
+    if (control && control.value) {
       if (this.PROVIDER === 'gcp' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
         this.validPreemptibleNumberRange();
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
       } else {
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
       }
+    }
   }
 
   private validPreemptibleRange(control) {
-    if (this.isSelected.preemptible)
+    if (this.isSelected.preemptible) {
       return this.isSelected.preemptible
         ? (control.value !== null
           && control.value >= this.minPreemptibleInstanceNumber
           && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false })
         : control.value;
+    }
   }
 
   private validPreemptibleNumberRange() {
@@ -233,17 +240,19 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validInstanceSpotRange(control) {
-    if (this.isSelected.spotInstances)
+    if (this.isSelected.spotInstances) {
       return this.isSelected.spotInstances
         ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
         : control.value;
+    }
   }
 
   private validConfiguration(control) {
-    if (this.isSelected.configuration)
-      return this.isSelected.configuration ?
-        (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+    if (this.isSelected.configuration) {
+      return this.isSelected.configuration 
+        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
+    }
   }
 
   private checkDuplication(control) {

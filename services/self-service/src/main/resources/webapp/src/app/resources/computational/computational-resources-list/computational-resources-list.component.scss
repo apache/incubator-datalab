@@ -1,4 +1,4 @@
- /*!
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,116 +17,96 @@
  * under the License.
  */
 
- :host{
- width:100%;
- }
+:host {
+  width: 100%;
+}
 
- .source {
-   .no-details {
-     color: #bdc9d5;
-   }
+.source {
+  .no-details {
+    color: #bdc9d5;
+  }
 
-   .resource-wrap {
-     display: flex;
-     justify-content: space-between;
-     height: 26px;
-     align-items: center;
+  .resource-wrap {
+    display: flex;
+    justify-content: space-between;
+    height: 26px;
+    align-items: center;
 
-     .resource-name {
-       width: 50%;
-       white-space: nowrap;
-       overflow: hidden;
+    .resource-name {
+      width: 50%;
+      white-space: nowrap;
+      overflow: hidden;
 
-       .detailed-link {
-         color: #35afd5;
-         cursor: pointer;
-       }
-     }
+      .detailed-link {
+        color: #35afd5;
+        cursor: pointer;
+      }
+    }
 
-     .resource-status {
-       width: 35%;
-       text-transform: capitalize;
-     }
+    .resource-status {
+      width: 35%;
+      text-transform: capitalize;
+    }
 
-     .resource-actions {
-       width: 15%;
-       display: flex;
-       justify-content: flex-end;
-       padding-right: 10px;
+    .resource-actions {
+      display: flex;
+      justify-content: flex-end;
+      width: 15%;
+      padding-right: 10px;
 
-       a {
-         text-decoration: none;
-         color: #748ba3;
-         font-size: 18px;
-         text-align: center;
+      a {
+        text-decoration: none;
+        color: #748ba3;
+        font-size: 18px;
+        text-align: center;
 
-         i {
-           font-size: 18px;
-           padding: 0 2px;
-         }
-       }
+        i {
+          font-size: 18px;
+          padding: 0 2px;
+        }
+      }
 
-       .schedule {
-         cursor: pointer;
-         display: flex;
-         align-items: center;
-         font-size: 18px;
+      .schedule {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        cursor: pointer;
 
-         &.not-allowed {
-           pointer-events: none;
-         }
+        &.not-allowed {
+          pointer-events: none;
+        }
 
-         &.active {
-           color: #49af38;
-         }
-       }
+        &.active {
+          color: #49af38;
+        }
+      }
 
-       .start-stop-action {
-         display: flex;
-         align-items: center;
-         font-size: 18px;
-         color: #36afd5;
+      .start-stop-action {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        color: #36afd5;
 
-         i {
-           cursor: pointer;
+        i {
+          cursor: pointer;
 
-           &.not-allowed {
-             pointer-events: none;
-           }
-         }
-       }
+          &.not-allowed {
+            pointer-events: none;
+          }
+        }
+      }
 
-       .remove_butt {
-         cursor: pointer;
-         color: #ef5c4b;
-         display: flex;
-         align-items: center;
+      .remove_butt {
+        display: flex;
+        align-items: center;
+        color: #ef5c4b;
+        cursor: pointer;
 
-         &.disabled {
-           color: #f5d3d3;
-           pointer-events: none;
-         }
-       }
-     }
-   }
- }
- //@media screen and (max-width: 1520px) {
- //  .resources,
- //  managment {
- //    .source {
- //      .resource-wrap {
- //        .resource-name {
- //          width: 42%;
- //        }
- //
- //        .resource-status {
- //          width: 43%;
- //        }
- //
- //        .resource-actions {
- //          width: 15%;
- //        }
- //      }
- //    }
- //  }
- //}
+        &.disabled {
+          color: #f5d3d3;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}

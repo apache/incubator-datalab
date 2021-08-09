@@ -88,8 +88,7 @@ export class BucketDataService {
 
   constructor(
     private bucketBrowserService: BucketBrowserService,
-  ) {
-  }
+  ) { }
 
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
@@ -114,59 +113,59 @@ export class BucketDataService {
   }
 
   public buildFileTree(obj: {[key: string]: any}, level: number): TodoItemNode[] {
-      return Object.keys(obj).reduce<TodoItemNode[]>((accumulator, key) => {
-        if (key === '') {
-          return accumulator;
-        }
-        const value = obj[key];
-        const node = new TodoItemNode();
-        node.item = key;
-        if (value === '') {
-          node.children = this.buildFileTree({}, level + 1);
-          return accumulator.concat(node);
-        }
-        if (Object.keys(value).filter(v => v !== 'obj').length > 0) {
-          if (typeof value === 'object') {
-            node.object = value.obj || {'bucket': node.item, 'object': '', 'size': '', 'lastModifiedDate': ''};
-            delete value.obj;
-            node.children = this.buildFileTree(value, level + 1);
-          } else {
-            node.item = value;
-          }
-        } else {
-          node.object = value.obj;
-        }
+    return Object.keys(obj).reduce<TodoItemNode[]>((accumulator, key) => {
+      if (key === '') {
+        return accumulator;
+      }
+      const value = obj[key];
+      const node = new TodoItemNode();
+      node.item = key;
+      if (value === '') {
+        node.children = this.buildFileTree({}, level + 1);
         return accumulator.concat(node);
-      }, []);
-    }
+      }
+      if (Object.keys(value).filter(v => v !== 'obj').length > 0) {
+        if (typeof value === 'object') {
+          node.object = value.obj || {'bucket': node.item, 'object': '', 'size': '', 'lastModifiedDate': ''};
+          delete value.obj;
+          node.children = this.buildFileTree(value, level + 1);
+        } else {
+          node.item = value;
+        }
+      } else {
+        node.object = value.obj;
+      }
+      return accumulator.concat(node);
+    }, []);
+  }
 
   public insertItem(parent: TodoItemNode, name, isFile, emptyFolderObj?) {
     if (parent.children) {
-        if (isFile) {
-          parent.children.unshift(name as TodoItemNode);
+      if (isFile) {
+        parent.children.unshift(name as TodoItemNode);
+      } else {
+        if (name) {
+          console.log('parentObject', parent.object);
+          const child = {item: name, children: [], object: JSON.parse(JSON.stringify(parent.object))};
+          child.object.object = child.object.object.replace(/ا/g, '') + child.item + '/';
+          parent.children.unshift(child as TodoItemNode);
         } else {
-          if (name) {
-            console.log('parentObject', parent.object);
-            const child = {item: name, children: [], object: JSON.parse(JSON.stringify(parent.object))};
-            child.object.object = child.object.object.replace(/ا/g, '') + child.item + '/';
-            parent.children.unshift(child as TodoItemNode);
-          } else {
-            parent.children.unshift({item: '', children: [], object: {}} as TodoItemNode);
-            this.emptyFolder = emptyFolderObj;
-            this._bucketData.next(this.data);
-          }
+          parent.children.unshift({item: '', children: [], object: {}} as TodoItemNode);
+          this.emptyFolder = emptyFolderObj;
+          this._bucketData.next(this.data);
         }
       }
     }
+  }
 
   public updateItem(node: TodoItemNode, file) {
-      node.item = file;
-      this._bucketData.next(this.data);
+    node.item = file;
+    this._bucketData.next(this.data);
   }
 
   public removeItem(parent, child) {
-     parent.children.splice( parent.children.indexOf(child), 1);
-     this._bucketData.next(this.data);
+    parent.children.splice( parent.children.indexOf(child), 1);
+    this._bucketData.next(this.data);
   }
 
   public processFiles = (files, target, object) => {
@@ -179,7 +178,6 @@ export class BucketDataService {
       if (!pointer.obj) {
         pointer.obj = object;
       }
-
     });
   }
 
@@ -197,5 +195,4 @@ export class BucketDataService {
     }
     return finalData;
   }
-
 }

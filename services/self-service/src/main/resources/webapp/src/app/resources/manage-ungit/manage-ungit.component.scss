@@ -32,9 +32,9 @@
   }
 
   .scrollingList {
-    overflow-x: hidden;
-    padding: 5px 0;
     height: 250px;
+    padding: 5px 0;
+    overflow-x: hidden;
 
     &.info {
       display: flex;
@@ -51,8 +51,8 @@
   .user-field,
   .login-field {
     width: 25%;
-    overflow: hidden;
     padding: 5px;
+    overflow: hidden;
   }
 
   .hostname-field {
@@ -63,8 +63,8 @@
 
   .actions {
     position: relative;
-    overflow: visible;
     width: 50px;
+    overflow: visible;
 
     span {
       position: absolute;
@@ -86,14 +86,14 @@
     display: flex;
 
     .control-group {
-      width: 100%;
-      font-family: 'Open Sans', sans-serif;
-      padding: 10px 0 25px;
       position: relative;
+      width: 100%;
+      padding: 10px 0 25px;
+      font-family: "Open Sans", sans-serif;
 
-      input[type='text'],
-      input[type='password'],
-      input[type='email'] {
+      input[type="text"],
+      input[type="password"],
+      input[type="email"] {
         font-size: 14px;
       }
 
