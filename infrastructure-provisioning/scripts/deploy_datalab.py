@@ -170,9 +170,9 @@ parser.add_argument('--conf_repository_address', type=str, default='',
 parser.add_argument('--conf_repository_port', type=str, default='',
                     help='port to access repository (used for jars download)')
 parser.add_argument('--conf_download_jars', type=bool, default=False,
-                    help='whether to download jars from repository')
+                    help='whether to download jars from repository (True) or to build from sources (False)')
 parser.add_argument('--conf_download_docker_images', type=bool, default=False,
-                    help='wheher tto download docker images from repository')
+                    help='whether to download docker images from repository (True) or to build from sources (False)')
 parser.add_argument('--conf_letsencrypt_domain_name', type=str, default='', help='Domain names to apply. '
                                                                                  'For multiple domains enter a comma separated list of domains as a parameter'
                                                                                  'ssn.domain_name will be used for ssn_node, DNS A record have to exist during deployment')
