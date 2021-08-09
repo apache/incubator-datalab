@@ -627,7 +627,7 @@ if __name__ == "__main__":
             f.write(json.dumps(res))
 
         logging.info('Upload response file')
-        local_log_filepath = "/logs/{}/{}_{}.log".format(+ os.environ['conf_resource'], os.environ['conf_resource'],
+        local_log_filepath = "/logs/{}/{}_{}.log".format(os.environ['conf_resource'], os.environ['conf_resource'],
                                                          os.environ['request_id'])
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}". \
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'],
