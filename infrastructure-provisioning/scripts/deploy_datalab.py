@@ -169,9 +169,9 @@ parser.add_argument('--conf_repository_address', type=str, default='',
                     help='address to access repository (used for jars download)')
 parser.add_argument('--conf_repository_port', type=str, default='',
                     help='port to access repository (used for jars download)')
-parser.add_argument('--conf_download_jars', type=bool, default=False,
+parser.add_argument('--conf_download_jars', type=str, default='false',
                     help='whether to download jars from repository (True) or to build from sources (False)')
-parser.add_argument('--conf_download_docker_images', type=bool, default=False,
+parser.add_argument('--conf_download_docker_images', type=str, default='false',
                     help='whether to download docker images from repository (True) or to build from sources (False)')
 parser.add_argument('--conf_letsencrypt_domain_name', type=str, default='', help='Domain names to apply. '
                                                                                  'For multiple domains enter a comma separated list of domains as a parameter'
@@ -212,7 +212,7 @@ def generate_docker_command():
 
 
 def build_docker_images(args):
-    if args.conf_repository_user and args.conf_repository_pass and args.conf_repository_port and args.conf_repository_address and args.conf_download_docker_images:
+    if args.conf_repository_user and args.conf_repository_pass and args.conf_repository_port and args.conf_repository_address and args.conf_download_docker_images == 'true':
         subprocess.run( 'sudo docker login -u {0} -p {1} {2}:{3}'
                         .format(args.conf_repository_user, args.conf_repository_pass, args.conf_repository_address, args.conf_repository_port), shell=True, check=True)
         subprocess.run('sudo docker pull {}:{}/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
