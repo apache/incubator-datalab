@@ -161,7 +161,8 @@ def build_ui():
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ and os.environ['conf_download_jars']:
+        print(os.environ)
+        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ and os.environ['conf_download_jars'] == 'true':
             conn.sudo(
                 'wget -P {0}sources/services/provisioning-service/target/  --user={1} --password={2} https://{3}/repository/packages/{4}/provisioning-service-{4}.jar --no-check-certificate'
                      .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address'], os.environ['conf_release_tag']))
