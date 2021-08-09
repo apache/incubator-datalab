@@ -113,28 +113,28 @@ def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
 
 def build_docker_images(image_list, region, datalab_path):
     try:
-        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ:
-            conn.sudo('sudo docker login -u {0} -p {1} {2}:8083'
-                      .format(os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+        host_string = '{}@{}'.format(args.os_user, args.hostname)
+        if os.environ['conf_cloud_provider'] == 'azure':
+            conn.local('scp -i {} /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
+                       'azure_auth.json'.format(args.keyfile, host_string, args.datalab_path))
+            conn.sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
+                      '/home/{1}/keys/azure_auth.json'.format(args.datalab_path, args.os_user))
+        if region == 'cn-north-1':
+            add_china_repository(datalab_path)
+        if 'conf_repository_user' in os.environ and 'conf_repository_port' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ and os.environ['conf_download_docker_images'] == 'true':
+            conn.sudo('sudo docker login -u {0} -p {1} {2}:{3}'
+                      .format(os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address'], os.environ['conf_repository_port']))
             for image in image_list:
                 name = image['name']
                 tag = image['tag']
-                conn.sudo('docker pull {0}:8083/docker.datalab-{2}-{1}:{3}'
-                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
-                conn.sudo('docker image tag {0}:8083/docker.datalab-{2}-{1}:{3} docker.datalab-{2}:{3}'
-                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
-                conn.sudo('docker image rm {0}:8083/docker.datalab-{2}-{1}:{3}'
-                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag))
+                conn.sudo('docker pull {0}:{4}/docker.datalab-{2}-{1}:{3}'
+                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag, os.environ['conf_repository_port']))
+                conn.sudo('docker image tag {0}:{4}/docker.datalab-{2}-{1}:{3} docker.datalab-{2}:{3}'
+                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag, os.environ['conf_repository_port']))
+                conn.sudo('docker image rm {0}:{4}/docker.datalab-{2}-{1}:{3}'
+                          .format(os.environ['conf_repository_address'], os.environ['conf_cloud_provider'], name, tag, os.environ['conf_repository_port']))
             return True
         else:
-            host_string = '{}@{}'.format(args.os_user, args.hostname)
-            if os.environ['conf_cloud_provider'] == 'azure':
-                conn.local('scp -i {} /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
-                      'azure_auth.json'.format(args.keyfile, host_string, args.datalab_path))
-                conn.sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
-                     '/home/{1}/keys/azure_auth.json'.format(args.datalab_path, args.os_user))
-            if region == 'cn-north-1':
-                add_china_repository(datalab_path)
             for image in image_list:
                 name = image['name']
                 tag = image['tag']
