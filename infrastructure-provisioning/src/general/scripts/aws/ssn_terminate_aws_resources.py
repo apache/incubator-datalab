@@ -25,6 +25,7 @@ import argparse
 import boto3
 import logging
 import datalab.ssn_lib
+from datalab.logger import logging
 import os
 import sys
 
@@ -43,13 +44,6 @@ tag2 = args.service_base_name + '-secondary-tag'
 ##############
 
 if __name__ == "__main__":
-    # configuring logs
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        handlers=[logging.StreamHandler(), logging.FileHandler(local_log_filepath)])
-
     logging.info('Terminating EMR cluster')
     try:
         clusters_list = datalab.meta_lib.get_emr_list(args.tag_name)

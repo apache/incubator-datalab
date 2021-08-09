@@ -26,6 +26,7 @@ import json
 import os
 from datalab.common_lib import *
 from datalab.fab import *
+from datalab.logger import logging
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -44,25 +45,25 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    print("Configure connections")
+    logging.info("Configure connections")
     global conn
     conn = init_datalab_connection(args.hostname, args.user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
-    print("Updating hosts file")
+    logging.info("Updating hosts file")
     update_hosts_file(args.user)
 
-    print("Updating repositories and installing requested tools.")
+    logging.info("Updating repositories and installing requested tools.")
     try:
         ensure_pkg(args.user)
     except:
         traceback.print_exc()
         sys.exit(1)
 
-    print("Installing python packages: {}".format(args.pip_packages))
+    logging.info("Installing python packages: {}".format(args.pip_packages))
     ensure_pip(args.pip_packages)
 
-    print("Installing NTPd")
+    logging.info("Installing NTPd")
     ensure_ntpd(args.user, args.edge_private_ip)
 
     conn.close()
