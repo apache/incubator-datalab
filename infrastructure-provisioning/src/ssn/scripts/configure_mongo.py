@@ -26,7 +26,7 @@ import json
 import subprocess
 import time
 import yaml
-from datalab.fab import *
+#from datalab.fab import *
 from pymongo import MongoClient
 
 path = "/etc/mongod.conf"
