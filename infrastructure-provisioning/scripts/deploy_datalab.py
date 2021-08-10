@@ -167,6 +167,12 @@ parser.add_argument('--conf_repository_pass', type=str, default='',
                     help='password to access repository (used for jars download)')
 parser.add_argument('--conf_repository_address', type=str, default='',
                     help='address to access repository (used for jars download)')
+parser.add_argument('--conf_repository_port', type=str, default='',
+                    help='port to access repository (used for jars download)')
+parser.add_argument('--conf_download_jars', type=str, default='false',
+                    help='whether to download jars from repository (True) or to build from sources (False)')
+parser.add_argument('--conf_download_docker_images', type=str, default='false',
+                    help='whether to download docker images from repository (True) or to build from sources (False)')
 parser.add_argument('--conf_letsencrypt_domain_name', type=str, default='', help='Domain names to apply. '
                                                                                  'For multiple domains enter a comma separated list of domains as a parameter'
                                                                                  'ssn.domain_name will be used for ssn_node, DNS A record have to exist during deployment')
@@ -206,11 +212,21 @@ def generate_docker_command():
 
 
 def build_docker_images(args):
-    # Building base and ssn docker images
-    subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
+    if args.conf_repository_user and args.conf_repository_pass and args.conf_repository_port and args.conf_repository_address and args.conf_download_docker_images == 'true':
+        subprocess.run( 'sudo docker login -u {0} -p {1} {2}:{3}'
+                        .format(args.conf_repository_user, args.conf_repository_pass, args.conf_repository_address, args.conf_repository_port), shell=True, check=True)
+        subprocess.run('sudo docker pull {}:{}/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image tag {}:{}/docker.datalab-base-{} docker.datalab-base'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image rm {}:{}/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker pull {}:{}/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image tag {}:{}/docker.datalab-ssn-{} docker.datalab-ssn'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image rm {}:{}/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+    else:
+        # Building base and ssn docker images
+        subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
               'infrastructure-provisioning/src/general/files/{1}/'
               'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
-    subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+        subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
               'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
 
 

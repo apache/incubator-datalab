@@ -33,7 +33,10 @@ public enum NotebookTemplate {
     TENSOR_RSTUDIO("RStudio with TensorFlow 2.3.2"),
     RSTUDIO("RStudio 1.4.1103"),
     TENSOR_GCP("Jupyter with TensorFlow 2.1.0"),
-    DEEP_LEARNING_GCP("Deeplearning notebook");
+    DEEP_LEARNING_GCP("Deeplearning notebook"),
+    DEEP_LEARNING_AWS("Deep Learning AMI Version 42.1"),
+    DEEP_LEARNING_AZURE("Data Science Virtual Machine - Ubuntu 18.04");
+
 
     private final String name;
 }

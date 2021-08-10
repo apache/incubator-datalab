@@ -63,7 +63,7 @@
                 {{ (endpoint.endpointStatus | titlecase) || 'N/A'}}
               </span>
             </div>
-
+            
             <span class="status resource-status" [ngClass]="endpoint?.status.toLowerCase() || ''">
               {{ endpoint?.status.toLowerCase() }}
             </span>
@@ -93,12 +93,12 @@
                 Stop edge node
               </a>
             </li>
-            <!-- <li class="project-seting-item " *ngIf="element.areTerminatedNode" (click)="openEdgeDialog('recreate', element)">
+            <li class="project-seting-item " *ngIf="element.areTerminatedNode" (click)="openEdgeDialog('recreate', element)">
               <i class="material-icons">refresh</i>
               <a class="action">
                 Recreate edge node
               </a>
-            </li> -->
+            </li>
             <li class="project-seting-item " *ngIf="element.areStoppedNode || element.areRunningNode" (click)="openEdgeDialog('terminate', element)">
               <i class="material-icons">phonelink_off</i>
               <a class="action">
