@@ -867,10 +867,7 @@ def configure_data_engine_service_livy(hostname, os_user, keyfile):
     init_datalab_connection(hostname, os_user, keyfile)
     if exists(conn,'/usr/local/lib/livy'):
         conn.sudo('rm -r /usr/local/lib/livy')
-    conn.sudo('wget -P /tmp/  --user={} --password={} '
-                         'https://{}/repository/packages/livy.tar.gz --no-check-certificate'
-                         .format(os.environ['conf_repository_user'],
-                                 os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+    conn.sudo('wget -P /tmp/ https://nexus.develop.dlabanalytics.com/repository/packages-public/livy.tar.gz --no-check-certificate')
     conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /usr/local/lib/')
     conn.sudo('ln -s /usr/local/lib/incubator-livy /usr/local/lib/livy')
     conn.put('/root/templates/dataengine-service_livy-env.sh', '/usr/local/lib/livy/conf/livy-env.sh')
