@@ -17,13 +17,19 @@
  * under the License.
  */
 
-import {Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, ApplicationRef} from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {Subscription, timer, interval, Subject} from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { RouterOutlet } from '@angular/router';
 
-import { ApplicationSecurityService, HealthStatusService, AppRoutingService, SchedulerService, StorageService } from '../../core/services';
+import { 
+  ApplicationSecurityService, 
+  HealthStatusService, 
+  AppRoutingService, 
+  SchedulerService, 
+  StorageService 
+} from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
 import {
@@ -31,12 +37,11 @@ import {
   animate,
   transition,
   style,
-  query, group,
-
+  query, 
+  group,
 } from '@angular/animations';
 import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-
 
 interface Quota {
   projectQuotas: {};

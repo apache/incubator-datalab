@@ -17,7 +17,7 @@
  * under the License.
  */
 
-@import '_variables.scss';
+@import "_variables.scss";
 
 .modal-xs {
   width: 375px;
@@ -61,22 +61,22 @@ mat-dialog-container {
   overflow-x: hidden;
 
   &.mat-dialog-container {
+    position: relative;
     padding: 0;
     border-radius: 0;
     overflow-x: hidden;
-    position: relative;
 
     #dialog-box {
-      color: $modal-text-color;
       min-height: 150px;
+      color: $modal-text-color;
       font-family: "Open Sans", sans-serif;
 
       .dialog-header {
-        padding-left: 30px;
-        background: $modal-header-color;
-        height: 50px;
-        line-height: 50px;
         position: relative;
+        padding-left: 30px;
+        height: 50px;
+        background: $modal-header-color;
+        line-height: 50px;
 
         .modal-title {
           width: 90%;
@@ -89,8 +89,8 @@ mat-dialog-container {
           font-size: 18px;
           background: $modal-header-color;
 
-          &::after{
-            content: '';
+          &::after {
+            content: "";
             display: block;
           }
 
@@ -112,7 +112,7 @@ mat-dialog-container {
           color: #577289;
           outline: none;
           cursor: pointer;
-          transition: all .45s ease-in-out;
+          transition: all 0.45s ease-in-out;
 
           &:hover {
             color: #36afd5;
@@ -126,7 +126,7 @@ mat-dialog-container {
 
       .dialog-content {
         .mat-select {
-          font-family: 'Opens Sans', sans-serif;
+          font-family: "Opens Sans", sans-serif;
         }
       }
 
@@ -137,7 +137,7 @@ mat-dialog-container {
       .upload-key {
         margin-bottom: 20px;
 
-        &>div>div {
+        & > div > div {
           margin-top: 5px;
         }
       }
@@ -156,9 +156,10 @@ mat-dialog-container {
       a {
         color: #35afd5;
         text-decoration: none;
-        transition: all .45s ease-in-out;
+        transition: all 0.45s ease-in-out;
         line-height: 19px;
-        &.spark-url{
+
+        &.spark-url {
           line-height: 16px;
         }
 
@@ -168,21 +169,21 @@ mat-dialog-container {
       }
 
       .info-label {
-        font-size: 15px;
         margin-top: 20px;
+        font-size: 15px;
       }
 
       .control-label {
-        font-weight: 600;
         margin-top: 6px;
+        font-weight: 600;
       }
 
       .form-group {
         small {
-          font-size: 12px;
-          color: #9cadbe;
           display: inline-block;
           margin-top: 6px;
+          font-size: 12px;
+          color: #9cadbe;
         }
       }
     }
@@ -195,40 +196,39 @@ mat-dialog-container {
 
 .butt-file {
   position: relative;
-  overflow: hidden;
-  margin-bottom: 10px;
   display: inline-block;
-  color: #35afd5;
-  padding: 6px 29px 6px 23px;
   width: 170px;
+  margin-bottom: 10px;
+  padding: 6px 29px 6px 23px;
+  overflow: hidden;
+  color: #35afd5;
   // font: 600 16px/1.45 'Open Sans';
   font-style: normal;
   font-weight: 600;
   font-size: 16px;
   line-height: 1.45;
-  font-family: 'Open Sans', sans-serif;
-
+  font-family: "Open Sans", sans-serif;
   text-align: center;
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 
   .upload-icon {
-    background: url(/../../assets/img/upload-icon.png) no-repeat;
-    background-size: 100%;
+    position: relative;
+    top: 2px;
     display: inline-block;
     width: 17px;
     height: 17px;
     margin-right: 8px;
-    position: relative;
-    top: 2px;
+    background: url(/../../assets/img/upload-icon.png) no-repeat;
+    background-size: 100%;
   }
 
-  input[type=file] {
+  input[type="file"] {
+    display: block;
     font-size: 100px;
     text-align: right;
     outline: none;
     background: #fff;
     cursor: inherit;
-    display: block;
   }
 
   &:active {
@@ -237,15 +237,15 @@ mat-dialog-container {
 }
 
 .detail-header {
-  border-bottom: 0;
   width: 100%;
+  border-bottom: 0;
   border-collapse: collapse;
   table-layout: fixed;
 
   td {
+    padding: 20px;
     border: 1px solid #edf1f5;
     text-align: center;
-    padding: 20px;
     text-align: center !important;
     background: #fff;
 
@@ -257,8 +257,8 @@ mat-dialog-container {
       text-overflow: ellipsis;
       overflow: hidden;
       cursor: default;
-      &::after{
-        content: '';
+      &::after {
+        content: "";
         display: block;
       }
     }
@@ -276,9 +276,9 @@ mat-dialog-container {
 
 .detail-info {
   p {
-    font-weight: 400;
-    margin-bottom: 10px;
     display: flex;
+    margin-bottom: 10px;
+    font-weight: 400;
 
     small {
       font-size: 12px;
@@ -286,21 +286,23 @@ mat-dialog-container {
     }
   }
 
-  span:not(.description),{
+  span:not(.description) {
+    display: block;
+    max-width: 450px;
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
-    max-width: 450px;
     white-space: nowrap;
-    &::after{
-      content: '';
+
+    &::after {
+      content: "";
       display: block;
     }
-    &.link-icon{
+
+    &.link-icon {
       //margin-left: 10px;
-      cursor: pointer;
       padding-top: 2px;
+      cursor: pointer;
     }
   }
 
@@ -326,7 +328,8 @@ mat-dialog-container {
     }
   }
 
-  .create-resources-dialog, .top-select {
+  .create-resources-dialog,
+  .top-select {
     margin-left: 6px;
     min-width: calc(100% + 10px) !important;
   }
@@ -356,102 +359,102 @@ mat-dialog-container {
   display: flex;
 }
 
-.endpoints-table{
+.endpoints-table {
   border-collapse: separate;
 }
 
-.mat-step-icon-state-number .mat-step-icon-content{
+.mat-step-icon-state-number .mat-step-icon-content {
   top: 49%;
 }
 
-.confirmation-dialog p.delete-user{
-  font-weight: 500;
+.confirmation-dialog p.delete-user {
   max-height: 200px;
   padding: 5px;
+  font-weight: 500;
   overflow: hidden auto;
   text-overflow: ellipsis;
 }
 
-.bucket-browser{
+.bucket-browser {
   .mat-form-field-appearance-legacy .mat-form-field-subscript-wrapper {
     width: calc(100% + 85px);
   }
 }
 
-.full-size-tooltip{
-  max-width: 1100px  !important;
+.full-size-tooltip {
+  max-width: 1100px !important;
   white-space: pre-line;
 }
 
-.mat-list-base .mat-list-item.delete-item{
+.mat-list-base .mat-list-item.delete-item {
   height: 30px;
 }
 
-.mat-list-item{
+.mat-list-item {
   font-family: "Open Sans", sans-serif;
   font-weight: 400;
 }
 
-.d-none{
+.d-none {
   display: none !important;
 }
 
-.d-flex{
+.d-flex {
   display: flex !important;
 }
 
-.progres{
-  border: 1px solid rgba(0,0,0,.12);
-  height: 17px;
+.progres {
   position: relative;
+  height: 17px;
   width: 155px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 
-  .bar{
+  .bar {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     width: 0;
-    background-color:  #00bcd4;
+    background-color: #00bcd4;
   }
 
-  .progress-bar-text{
+  .progress-bar-text {
     position: absolute;
     left: 5px;
     top: 0;
     bottom: 0;
+    z-index: 10;
     font-size: 11px;
     line-height: 13px;
     color: rgba(0, 0, 0, 0.87);
-    z-index: 10;
   }
 }
 
-.not-allow{
+.not-allow {
   cursor: not-allowed !important;
-  &.open-bucket{
+  
+  &.open-bucket {
     color: $blue-grey-color !important;
   }
 }
 
-.audit-info-content{
+.audit-info-content {
   .mat-list {
     height: unset;
 
     .list-header {
       line-height: unset;
-      
-      .mat-list-item-content{
+
+      .mat-list-item-content {
         align-items: start !important;
       }
     }
   }
 }
 
-.add-folder-form .mat-hint{
+.add-folder-form .mat-hint {
   color: #00bcd4;
 }
-
 
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {

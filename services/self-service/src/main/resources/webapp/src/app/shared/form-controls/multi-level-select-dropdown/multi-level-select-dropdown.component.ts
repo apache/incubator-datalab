@@ -18,7 +18,7 @@
  */
 
 import { Input, Output, Component, EventEmitter } from '@angular/core';
-import {SortUtils} from '../../../core/util';
+import { SortUtils } from '../../../core/util';
 
 @Component({
   selector: 'multi-level-select-dropdown',
@@ -34,12 +34,8 @@ export class MultiLevelSelectDropdownComponent {
   @Input() isAdmin: boolean;
   @Output() selectionChange: EventEmitter<{}> = new EventEmitter();
 
-  public isOpenCategory = {
-  };
-
-  public isCloudOpen = {
-
-  };
+  public isOpenCategory = {};
+  public isCloudOpen = {};
 
   public labels = {
     COMPUTATIONAL_SHAPE: 'Compute shapes',
@@ -49,8 +45,7 @@ export class MultiLevelSelectDropdownComponent {
   };
   public selectedList: any;
 
-  constructor() {
-  }
+  constructor() {}
 
   toggleSelectedOptions( model, value, event?) {
     if (event) event.preventDefault();
@@ -63,7 +58,9 @@ export class MultiLevelSelectDropdownComponent {
     if (event) event.preventDefault();
     const categoryItems = this.items.filter(role => role.type === value);
     this.selectedAllInCattegory(value) ? this.model = this.model.filter(role => role.type !== value) : categoryItems.forEach(role => {
-      if (!model.filter(mod => mod.role === role.role).length) {this.model.push(role); }
+      if (!model.filter(mod => mod.role === role.role).length) {
+        this.model.push(role); 
+      }
     });
     this.onUpdate(event);
   }
