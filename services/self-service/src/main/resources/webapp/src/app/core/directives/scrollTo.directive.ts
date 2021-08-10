@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { ElementRef, HostBinding, Input } from '@angular/core';
+import { ElementRef, Input } from '@angular/core';
 import { Directive } from '@angular/core';
 
 @Directive({

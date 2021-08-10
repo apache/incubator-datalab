@@ -17,7 +17,7 @@
  * under the License.
  */
 
-@import '_variables.scss';
+@import "_variables.scss";
 
 @-webkit-keyframes bounce {
   from {
@@ -88,15 +88,15 @@
 }
 
 .time-cover {
-  max-height: 100%;
-  width: 300px;
   display: flex;
   flex-direction: column;
+  max-height: 100%;
+  width: 300px;
 
   .container {
-    padding: 15px;
     min-width: 160px;
     width: 160px;
+    padding: 15px;
 
     &.mat-toolbar-single-row {
       background: $modal-header-color;
@@ -105,9 +105,9 @@
   }
 
   .selected-time {
+    display: flex;
     font-size: 3.5rem;
     font-weight: 400;
-    display: flex;
 
     .active {
       color: #36afd5;
@@ -115,9 +115,9 @@
   }
 
   .selected-meridiem {
+    padding-top: 2rem;
     font-size: 1rem;
     line-height: 1.3rem;
-    padding-top: 2rem;
 
     .active {
       color: #36afd5;
@@ -135,19 +135,19 @@
   }
 }
 
-.selected-time>span,
-.selected-meridiem>span {
+.selected-time > span,
+.selected-meridiem > span {
   outline: 0;
   opacity: 0.5;
 }
 
-.selected-time>span:not(.active),
-.selected-meridiem>span:not(.active) {
+.selected-time > span:not(.active),
+.selected-meridiem > span:not(.active) {
   cursor: pointer;
 }
 
-.selected-time>span.active,
-.selected-meridiem>span.active {
+.selected-time > span.active,
+.selected-meridiem > span.active {
   opacity: 1;
 }
 
@@ -164,50 +164,50 @@
   .ticker {
     width: 200px;
     height: 200px;
+    padding: 24px;
+    margin: 30px auto;
     border-radius: 50%;
     cursor: pointer;
-    padding: 24px;
     background: #ededed;
-    margin: 30px auto;
 
     .ticker-container {
-      width: 100%;
-      height: 100%;
       position: relative;
       display: block;
+      width: 100%;
+      height: 100%;
     }
 
     .ticker-center {
-      height: 6px;
-      width: 6px;
       position: absolute;
       left: 0;
       right: 0;
       top: 0;
       bottom: 0;
+      height: 6px;
+      width: 6px;
       margin: auto;
       border-radius: 50%;
     }
 
     .pointer {
       box-shadow: none;
-      width: 1px;
-      height: 50%;
       position: absolute;
       left: 0;
       right: 0;
       bottom: 0;
+      z-index: 0;
+      width: 1px;
+      height: 50%;
       margin: 0 auto;
       padding: 0;
       transform-origin: top center;
       transition: transform 200ms;
-      z-index: 0;
       pointer-events: none;
     }
 
     .ticker-step {
-      display: block;
       position: absolute;
+      display: block;
       transform: translate(-50%, -50%);
       transition: transform 200ms;
 

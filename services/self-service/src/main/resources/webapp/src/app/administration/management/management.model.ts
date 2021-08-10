@@ -102,7 +102,6 @@ export class ManagementConfigModel {
     public statuses: Array<string>,
     public resources: Array<string>,
     public endpoints: Array<string>,
-
   ) { }
 
   defaultConfigurations(): void {

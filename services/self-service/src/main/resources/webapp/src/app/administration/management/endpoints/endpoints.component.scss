@@ -18,8 +18,8 @@
  */
 .endpoints-dialog {
   .content-box {
-    padding: 10px 30px 30px;
     height: 400px;
+    padding: 10px 30px 30px;
 
     .split {
       display: flex;
@@ -35,9 +35,9 @@
             position: absolute;
             right: 0;
             bottom: 5px;
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 300;
             top: 34px;
+            font-family: "Open Sans", sans-serif;
+            font-weight: 300;
           }
         }
       }
@@ -56,37 +56,37 @@
 
       table.mat-table {
         width: 100%;
-        thead{
+        thead {
           background: transparent;
-          .mat-header-row{
-            background-clip:padding-box;
+          .mat-header-row {
+            background-clip: padding-box;
           }
         }
         tr {
           td {
-            vertical-align: middle;
             max-width: 150px;
+            vertical-align: middle;
             overflow: hidden;
             text-overflow: ellipsis;
-            &::after{
-              content: '';
+            &::after {
+              content: "";
               display: block;
             }
           }
         }
 
         .actions {
+          width: 14%;
           color: #607d8b;
           text-align: center;
-          width: 14%;
 
           span {
-            transition: all .5s ease-in-out;
+            transition: all 0.5s ease-in-out;
             cursor: pointer;
 
             .mat-icon {
-              font-size: 18px;
               padding-top: 5px;
+              font-size: 18px;
             }
 
             &:hover {

@@ -17,17 +17,18 @@
  * under the License.
  */
 
-import {Component, OnInit, Inject, HostListener, OnDestroy, ViewChild, ElementRef} from '@angular/core';
+import { Component, OnInit, Inject, HostListener, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {HealthStatusService, AppRoutingService, EndpointService} from '../../core/services';
-import {MatTabChangeEvent} from '@angular/material/tabs';
-import {Router} from '@angular/router';
-import {ConfigurationService} from '../../core/services/configutration.service';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 import 'brace';
 import 'brace/mode/yaml';
-import {ToastrService} from 'ngx-toastr';
-import {Observable, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+
+import { HealthStatusService, AppRoutingService, EndpointService } from '../../core/services';
+import { ConfigurationService } from '../../core/services/configutration.service';
 import { EnvironmentsDataService } from '../management/management-data.service';
 import { EnvironmentModel } from '../management/management.model';
 
@@ -42,12 +43,12 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   @ViewChild('billingEditor') billingEditor: ElementRef<HTMLElement>;
   private unsubscribe$ = new Subject();
   private healthStatus: any;
-  public activeTab = {index: 0};
+  public activeTab = { index: 0 };
   public activeService: string;
   public services = {
-    'self-service': {label: 'Self-service', selected: false, config: '', serverConfig: '', isConfigChanged: false},
-    'provisioning': {label: 'Provisioning', selected: false, config: '', serverConfig: '', isConfigChanged: false},
-    'billing': {label: 'Billing', selected: false, config: '', serverConfig: '', isConfigChanged: false},
+    'self-service': { label: 'Self-service', selected: false, config: '', serverConfig: '', isConfigChanged: false },
+    'provisioning': { label: 'Provisioning', selected: false, config: '', serverConfig: '', isConfigChanged: false },
+    'billing': { label: 'Billing', selected: false, config: '', serverConfig: '', isConfigChanged: false },
   };
 
   public messagesStatus = {
@@ -55,7 +56,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     error: [],
     counter: 0
   };
-  
+
   public environmentStatuses = {};
   public environments = [];
   public ingStatuses = ['creating', 'configuring', 'reconfiguring', 'creating image', 'stopping', 'starting', 'terminating'];
@@ -96,25 +97,26 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.getEnvironmentHealthStatus();
     this.getEndpoints()
       .subscribe(endpoints => {
-      this.endpoints = endpoints;
-      
-      this.endpoints = this.endpoints.map(endpoint => ({name: endpoint.name, status: endpoint.status }));
+        this.endpoints = endpoints;
 
-      this.activeEndpoint = this.endpoints[0].name;
-      this.getServicesConfig(this.activeEndpoint);
-    });
+        this.endpoints = this.endpoints.map(endpoint => ({ name: endpoint.name, status: endpoint.status }));
 
-    this.environmentsDataService.getEnvironmentDataDirect().subscribe((data: any) => {
-      this.environments = EnvironmentModel.loadEnvironments(data);
-      this.environments.map(env => {
-        this.checkResource(env.status, env.endpoint);
-        if(env.resources?.length > 0) {
-          env.resources.map(resource => {
-            this.checkResource(resource.status, env.endpoint);
-          })
-        }
+        this.activeEndpoint = this.endpoints[0].name;
+        this.getServicesConfig(this.activeEndpoint);
       });
-    });
+
+    this.environmentsDataService.getEnvironmentDataDirect()
+      .subscribe((data: any) => {
+        this.environments = EnvironmentModel.loadEnvironments(data);
+        this.environments.map(env => {
+          this.checkResource(env.status, env.endpoint);
+          if (env.resources?.length > 0) {
+            env.resources.map(resource => {
+              this.checkResource(resource.status, env.endpoint);
+            });
+          }
+        });
+      });
   }
 
   ngOnDestroy() {
@@ -123,8 +125,8 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   }
 
   public checkResource(resourceStatus: string, endpoint: string) {
-    if( this.ingStatuses.includes(resourceStatus) ) {
-      if(!this.environmentStatuses[endpoint]) {
+    if (this.ingStatuses.includes(resourceStatus)) {
+      if (!this.environmentStatuses[endpoint]) {
         this.environmentStatuses[endpoint] = [];
         this.environmentStatuses[endpoint].push(resourceStatus);
       } else {
@@ -139,10 +141,9 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
         takeUntil(this.unsubscribe$)
       )
       .subscribe((result: any) => {
-          this.healthStatus = result;
-          !this.healthStatus.admin && !this.healthStatus.projectAdmin && this.appRoutingService.redirectToHomePage();
-          }
-      );
+        this.healthStatus = result;
+        !this.healthStatus.admin && !this.healthStatus.projectAdmin && this.appRoutingService.redirectToHomePage();
+      });
   }
 
   private getEndpoints(): Observable<{}> {
@@ -154,34 +155,34 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   }
 
   public action(action: string): void {
-    this.dialog.open(SettingsConfirmationDialogComponent, { data: {
-        action: action, 
+    this.dialog.open(SettingsConfirmationDialogComponent, {
+      data: {
+        action: action,
         message: action === 'discard' ? this.confirmMessages.discardChanges : this.confirmMessages.saveChanges,
         environmentStatuses: this.environmentStatuses,
         activeEndpoint: this.activeEndpoint
-      }, panelClass: 'modal-sm' })
+      }, panelClass: 'modal-sm'
+    })
       .afterClosed().subscribe(result => {
-      if (result && action === 'save') this.setServiceConfig(this.activeService, this.services[this.activeService].config);
-      if (result && action === 'discard') this.services[this.activeService].config = this.services[this.activeService].serverConfig;
-      this.configUpdate(this.activeService);
-    });
+        if (result && action === 'save') this.setServiceConfig(this.activeService, this.services[this.activeService].config);
+        if (result && action === 'discard') this.services[this.activeService].config = this.services[this.activeService].serverConfig;
+        this.configUpdate(this.activeService);
+      });
   }
 
   private getServicesConfig(endpoint): void {
-      this.configurationService.getServiceSettings(endpoint)
-        .pipe(
-          takeUntil(this.unsubscribe$)
-        )
-        .subscribe(config => {
-          for (const service in this.services) {
-            const file = `${service}.yml`;
-            this.services[service].config = config[file];
-            this.services[service].serverConfig = config[file];
-            this.configUpdate(service);
-          }
+    this.configurationService.getServiceSettings(endpoint)
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe(config => {
+        for (const service in this.services) {
+          const file = `${service}.yml`;
+          this.services[service].config = config[file];
+          this.services[service].serverConfig = config[file];
+          this.configUpdate(service);
         }
-      );
-
+      });
     this.clearSelectedServices();
   }
 
@@ -190,16 +191,17 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.unsubscribe$)
       )
-      .subscribe(res => {
-      this.getServicesConfig(this.activeEndpoint);
-      this.toastr.success('Service configuration saved!', 'Success!');
-      },
-      error => this.toastr.error( error.message || 'Service configuration is not saved', 'Oops!')
-    );
+      .subscribe(
+        res => {
+          this.getServicesConfig(this.activeEndpoint);
+          this.toastr.success('Service configuration saved!', 'Success!');
+        },
+        error => this.toastr.error(error.message || 'Service configuration is not saved', 'Oops!')
+      );
   }
 
   refreshServiceEditor(editor: ElementRef<HTMLElement>) {
-    if(editor) {
+    if (editor) {
       editor.nativeElement.children[3].scrollTop = 100;
       editor.nativeElement.children[3].scrollTop = 0;
     }
@@ -207,16 +209,16 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.activeTab = tabChangeEvent;
-    
+
     if (this.activeTab.index === 1 && this.activeEndpoint === 'local') {
       this.activeService = 'self-service';
       this.refreshServiceEditor(this.selfEditor);
-    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 1) || 
-            (this.activeTab.index === 2 && this.activeEndpoint === 'local')) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 1) ||
+              (this.activeTab.index === 2 && this.activeEndpoint === 'local')) {
       this.activeService = 'provisioning';
       this.refreshServiceEditor(this.provEditor);
-    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 2) || 
-            (this.activeTab.index === 3 && this.activeEndpoint === 'local')) {
+    } else if ((this.activeEndpoint !== 'local' && this.activeTab.index === 2) ||
+              (this.activeTab.index === 3 && this.activeEndpoint === 'local')) {
       this.activeService = 'billing';
       this.refreshServiceEditor(this.billingEditor);
     } else {
@@ -225,18 +227,20 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
     if (!!this.activeService) {
       if (this.services[this.activeService].config !== this.services[this.activeService].serverConfig) {
-        this.dialog.open(SettingsConfirmationDialogComponent, { data: {
+        this.dialog.open(SettingsConfirmationDialogComponent, {
+          data: {
             action: 'Was changed',
             environmentStatuses: this.environmentStatuses,
             activeEndpoint: this.activeEndpoint
-          }, panelClass: 'modal-sm' })
+          }, panelClass: 'modal-sm'
+        })
           .afterClosed().subscribe(result => {
-          if (result) {
-            this.services[this.activeService].serverConfig = this.services[this.activeService].config;
-          } else {
-            this.services[this.activeService].config = this.services[this.activeService].serverConfig;
-          }
-        });
+            if (result) {
+              this.services[this.activeService].serverConfig = this.services[this.activeService].config;
+            } else {
+              this.services[this.activeService].config = this.services[this.activeService].serverConfig;
+            }
+          });
       }
     }
     this.clearSelectedServices();
@@ -271,7 +275,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
       );
   }
 
-  public restartServices(): void  {
+  public restartServices(): void {
     const selectedServices = [];
     for (const service in this.services) {
       if (this.services[service].selected) {
@@ -280,56 +284,56 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     }
 
     this.dialog.open(
-      SettingsConfirmationDialogComponent, 
-      { 
+      SettingsConfirmationDialogComponent,
+      {
         data: {
-          action: 'restart', 
+          action: 'restart',
           services: selectedServices,
           environmentStatuses: this.environmentStatuses,
-          activeEndpoint: this.activeEndpoint 
-        }, 
-        panelClass: 'modal-sm' 
+          activeEndpoint: this.activeEndpoint
+        },
+        panelClass: 'modal-sm'
       })
       .afterClosed().subscribe(result => {
         if (result) {
           this.messagesStatus.error = [];
           this.messagesStatus.success = [];
-          
-          if(this.environmentStatuses[this.activeEndpoint] && this.services['provisioning'].selected) {
+
+          if (this.environmentStatuses[this.activeEndpoint] && this.services['provisioning'].selected) {
             this.services['provisioning'].selected = false;
           }
 
-          if(this.services['self-service'].selected) {
+          if (this.services['self-service'].selected) {
             this.messagesStatus.counter += 1;
             this.restartSingleService(true, false, false, 'Self-service')
-          } 
-          if(this.services['provisioning'].selected) {
+          }
+          if (this.services['provisioning'].selected) {
             this.messagesStatus.counter += 1;
             this.restartSingleService(false, true, false, 'Provisioning service')
-          } 
-          if(this.services['billing'].selected) {
+          }
+          if (this.services['billing'].selected) {
             this.messagesStatus.counter += 1;
             this.restartSingleService(false, false, true, 'Billing service')
           }
 
           let timer = setInterval(() => {
-            
-            if(this.messagesStatus.counter === 0) {
-              for(let key in this.messagesStatus) {
-                if(key === 'error' && this.messagesStatus[key].length > 0) {
+
+            if (this.messagesStatus.counter === 0) {
+              for (let key in this.messagesStatus) {
+                if (key === 'error' && this.messagesStatus[key].length > 0) {
                   this.toastr.error(`${this.messagesStatus[key].join(', ')} restarting failed`, 'Oops!');
-                } else if(key === 'success' && this.messagesStatus[key].length > 0) {
+                } else if (key === 'success' && this.messagesStatus[key].length > 0) {
                   this.toastr.success(`${this.messagesStatus[key].join(', ')} restarting started!`, 'Success!');
                 }
               }
               clearInterval(timer);
-            } 
+            }
           }, 200);
           this.clearSelectedServices();
         } else {
           this.clearSelectedServices();
         }
-    });
+      });
   }
 
   public configUpdate(service: string): void {
@@ -412,8 +416,7 @@ export class SettingsConfirmationDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<SettingsConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-  }
+  ) {}
   ngOnInit() {
     this.filterProvisioning = this.data?.services?.filter(service => service !== 'provisioning');
   }

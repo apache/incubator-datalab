@@ -18,7 +18,6 @@
   -->
 
 <div class="source">
-
   <div *ngIf="!resources?.length">
     <span *ngIf="!resources.length" class="no-details">no details</span>
   </div>
@@ -32,25 +31,44 @@
       <span ngClass="{{resource.status.toLowerCase() || ''}}" class="resource-status">{{resource.status}}</span>
 
       <div class="resource-actions">
-        <a class="schedule" [ngClass]="{'active': resource.scheduler_data,
-              'not-allowed': environment.status !== 'running' && environment.status !== 'stopped'
-              || resource.status !== 'running' && resource.status !== 'stopped' }">
+        <a 
+          class="schedule" 
+          [ngClass]="{
+            'active': resource.scheduler_data,
+            'not-allowed': environment.status !== 'running' && environment.status !== 'stopped'
+              || resource.status !== 'running' && resource.status !== 'stopped' }"
+        >
           <i class="material-icons" (click)="openScheduleDialog(resource)">schedule</i>
         </a>
 
-        <a class="start-stop-action"
-           *ngIf="resource.image === 'docker.datalab-dataengine' && environment.status === 'running'">
-            <i class="material-icons" *ngIf="resource.status === 'running' || resource.status === 'stopping'"
-               (click)="toggleResourceAction(resource, 'stop')"
-               [ngClass]="{'not-allowed' : resource.status === 'stopping' }">pause_circle_outline</i>
-            <i class="material-icons" *ngIf="resource.status === 'stopped' || resource.status === 'starting'"
-               (click)="toggleResourceAction(resource, 'start')"
-               [ngClass]="{'not-allowed' : resource.status === 'starting' }">play_circle_outline</i>
+        <a 
+          class="start-stop-action"
+          *ngIf="resource.image === 'docker.datalab-dataengine' && environment.status === 'running'"
+        >
+          <i 
+            class="material-icons" 
+            *ngIf="resource.status === 'running' || resource.status === 'stopping'"
+            (click)="toggleResourceAction(resource, 'stop')"
+            [ngClass]="{'not-allowed' : resource.status === 'stopping' }"
+          >
+            pause_circle_outline
+          </i>
+          <i 
+            class="material-icons" 
+            *ngIf="resource.status === 'stopped' || resource.status === 'starting'"
+            (click)="toggleResourceAction(resource, 'start')"
+            [ngClass]="{'not-allowed' : resource.status === 'starting' }"
+          >
+            play_circle_outline
+          </i>
         </a>
 
-        <a class="remove_butt" [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'
+        <a 
+          class="remove_butt" 
+          [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'
               && resource.status != 'running' && resource.status != 'failed' && resource.status != 'stopped' }"
-          (click)="toggleResourceAction(resource, 'terminate')">
+          (click)="toggleResourceAction(resource, 'terminate')"
+        >
           <i class="material-icons">highlight_off</i>
         </a>
       </div>

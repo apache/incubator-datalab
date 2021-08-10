@@ -32,27 +32,27 @@ import { InstallLibrariesModule } from '../exploratory/install-libraries';
 import { AmiCreateDialogModule } from '../exploratory/ami-create-dialog';
 import { SchedulerModule } from '../scheduler';
 import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
-import {LocalCurrencyModule} from '../../core/pipes/local-currency-pipe';
+import { LocalCurrencyModule } from '../../core/pipes/local-currency-pipe';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        RouterModule,
-        ComputationalResourcesModule,
-        ConfirmationDialogModule,
-        BubbleModule,
-        DetailDialogModule,
-        ComputationalResourceCreateDialogModule,
-        FormControlsModule,
-        CostDetailsDialogModule,
-        InstallLibrariesModule,
-        SchedulerModule,
-        AmiCreateDialogModule,
-        UnderscorelessPipeModule,
-        MaterialModule,
-        LocalCurrencyModule
-    ],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ComputationalResourcesModule,
+    ConfirmationDialogModule,
+    BubbleModule,
+    DetailDialogModule,
+    ComputationalResourceCreateDialogModule,
+    FormControlsModule,
+    CostDetailsDialogModule,
+    InstallLibrariesModule,
+    SchedulerModule,
+    AmiCreateDialogModule,
+    UnderscorelessPipeModule,
+    MaterialModule,
+    LocalCurrencyModule
+  ],
   declarations: [ResourcesGridComponent],
   exports: [ResourcesGridComponent]
 })
-export class ResourcesGridModule {}
+export class ResourcesGridModule { }

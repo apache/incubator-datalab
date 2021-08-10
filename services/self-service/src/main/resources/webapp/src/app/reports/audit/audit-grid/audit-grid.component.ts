@@ -22,9 +22,7 @@ import {FilterAuditModel} from '../filter-audit.model';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {AuditService} from '../../../core/services/audit.service';
 import {SortUtils} from '../../../core/util';
-import {LocalizationService} from '../../../core/services/localization.service';
 import {CompareUtils} from '../../../core/util/compareUtils';
-
 
 export interface AuditItem {
   action: string;
@@ -61,13 +59,11 @@ export class AuditGridComponent implements OnInit {
 
   @Output() resetDateFilter: EventEmitter<any> = new EventEmitter();
 
-
   constructor(
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
     public dialog: MatDialog,
     private auditService: AuditService,
-  ) {
-  }
+  ) { }
 
   ngOnInit() {}
 
@@ -130,9 +126,11 @@ export class AuditGridComponent implements OnInit {
 
   public openActionInfo(element: AuditItem): void {
     if (element.type === 'GROUP' && element.info.indexOf('role') !== -1) {
-      this.dialog.open(AuditInfoDialogComponent, { data: {element, dialogSize: 'big'}, panelClass: 'modal-xl-m' });
+      this.dialog.open(AuditInfoDialogComponent, 
+        { data: { element, dialogSize: 'big' }, panelClass: 'modal-xl-m' });
     } else {
-      this.dialog.open(AuditInfoDialogComponent, { data: {element, dialogSize: 'small'}, panelClass: 'modal-md' });
+      this.dialog.open(AuditInfoDialogComponent, 
+        { data:  {element, dialogSize: 'small' }, panelClass: 'modal-md' });
     }
   }
 
@@ -151,15 +149,18 @@ export class AuditGridComponent implements OnInit {
       this.lastItem = this.showItemsPrPage;
     } else if (action === 'previous') {
       this.firstItem = this.firstItem - this.showItemsPrPage;
-      this.lastItem = this.lastItem % this.showItemsPrPage === 0 ?
-        this.lastItem - this.showItemsPrPage : this.lastItem - (this.lastItem % this.showItemsPrPage);
+      this.lastItem = this.lastItem % this.showItemsPrPage === 0 
+        ? this.lastItem - this.showItemsPrPage 
+        : this.lastItem - (this.lastItem % this.showItemsPrPage);
     } else if (action === 'next') {
       this.firstItem = this.firstItem + this.showItemsPrPage;
-      this.lastItem = (this.lastItem + this.showItemsPrPage) > this.allItems ?
-        this.allItems : this.lastItem + this.showItemsPrPage;
+      this.lastItem = (this.lastItem + this.showItemsPrPage) > this.allItems 
+        ? this.allItems 
+        : this.lastItem + this.showItemsPrPage;
     } else if (action === 'last') {
-      this.firstItem = this.allItems % this.showItemsPrPage === 0 ?
-        this.allItems - this.showItemsPrPage : this.allItems - (this.allItems % this.showItemsPrPage) + 1;
+      this.firstItem = this.allItems % this.showItemsPrPage === 0 
+        ? this.allItems - this.showItemsPrPage 
+        : this.allItems - (this.allItems % this.showItemsPrPage) + 1;
       this.lastItem = this.allItems;
     }
   }
@@ -176,7 +177,6 @@ export class AuditGridComponent implements OnInit {
   }
 }
 
-
 @Component({
   selector: 'audit-info-dialog',
   template: `
@@ -185,8 +185,15 @@ export class AuditGridComponent implements OnInit {
               <h4 class="modal-title">{{data.element.action | convertaction}}</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
-          <div mat-dialog-content class="content audit-info-content" [ngClass]="{'pb-40': actionList[0].length > 1}">
-            <mat-list *ngIf="actionList[0].length > 1 && data.element.action !== 'FOLLOW_LINK'|| data.element.info.indexOf('Update quota') !== -1;else message">
+          <div 
+            mat-dialog-content 
+            class="content audit-info-content" 
+            [ngClass]="{'pb-40': actionList[0].length > 1}"
+          >
+            <mat-list 
+              *ngIf="actionList[0].length > 1 && data.element.action !== 'FOLLOW_LINK'
+                    || data.element.info.indexOf('Update quota') !== -1;else message"
+            >
               <ng-container *ngIf="data.element.info.indexOf('Update quota') === -1;else quotas">
 
                 <mat-list-item class="list-header">
@@ -196,15 +203,27 @@ export class AuditGridComponent implements OnInit {
 
                 <div class="scrolling-content mat-list-wrapper" id="scrolling">
                   <mat-list-item class="list-item" *ngFor="let action of actionList">
-                    <div *ngIf="(data.element.action === 'upload' && action[0] === 'File(s)') || (data.element.action === 'download' && action[0] === 'File(s)');else multiAction" class="info-item-title">File</div>
+                    <div 
+                      *ngIf="(data.element.action === 'upload' && action[0] === 'File(s)') 
+                          || (data.element.action === 'download' && action[0] === 'File(s)');else multiAction" 
+                      class="info-item-title"
+                    >
+                      File
+                    </div>
                     <ng-template #multiAction>
                        <div class="info-item-title" [ngClass]="{'same-column-width': data.dialogSize === 'small'}">{{action[0]}}</div>
                     </ng-template>
-                    <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}" *ngIf="action[0] === 'File(s)'">
-                      <div class="file-description ellipsis"
-                           *ngFor="let description of action[1]?.split(',')"
-                           [matTooltip]="description"
-                           matTooltipPosition="above">
+                    <div 
+                      class="info-item-data" 
+                      [ngClass]="{'same-column-width': data.dialogSize === 'small'}" 
+                      *ngIf="action[0] === 'File(s)'"
+                    >
+                      <div 
+                        class="file-description ellipsis"
+                        *ngFor="let description of action[1]?.split(',')"
+                        [matTooltip]="description"
+                        matTooltipPosition="above"
+                      >
                         {{description}}
                       </div>
                     </div>
@@ -215,7 +234,8 @@ export class AuditGridComponent implements OnInit {
                           class="ellipsis"
                           [ngStyle]="description.length < 20 ? {'width' :'fit-content'} : {'width':'100%'}"
                           matTooltipPosition="above"
-                          matTooltipClass="mat-tooltip-description">
+                          matTooltipClass="mat-tooltip-description"
+                      >
                         {{description}}
                         </div>
                     </div>
@@ -334,5 +354,3 @@ export class AuditInfoDialogComponent {
     this.actionList = data.element.info.split('\n').map(v => v.split(':')).filter(v => v[0] !== '');
   }
 }
-
-

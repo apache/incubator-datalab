@@ -17,15 +17,16 @@
  * under the License.
  */
 
-import {Component, OnInit, Output, EventEmitter, Inject, ViewChild} from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import {RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService} from '../../core/services';
-import {CheckUtils, SortUtils} from '../../core/util';
+
+import { RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService } from '../../core/services';
+import { CheckUtils, SortUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
+import { ProgressBarService } from '../../core/services/progress-bar.service';
+import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../shared/modal-dialog/confirmation-dialog';
 
 @Component({
   selector: 'datalab-roles',
@@ -34,6 +35,10 @@ import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/
 })
 export class RolesComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+
+  @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
+
+  private startedGroups: Array<any>;
 
   public groupsData: Array<any> = [];
   public roles: Array<any> = [];
@@ -46,13 +51,11 @@ export class RolesComponent implements OnInit {
   public healthStatus: any;
   public delimitersRegex = /[-_]?/g;
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
+  public noPermissionMessage: string = 'You have not permissions for groups which are not assigned to your projects.';
+  public maxGroupLength: number = 25;
 
   stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
-  @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
-  private startedGroups: Array<any>;
-  public noPermissionMessage: string = 'You have not permissions for groups which are not assigned to your projects.';
-  public maxGroupLength: number = 25;
 
   constructor(
     public toastr: ToastrService,
@@ -74,45 +77,57 @@ export class RolesComponent implements OnInit {
       this.rolesService.getRolesData().subscribe(
         (roles: any) => {
           this.roles = roles;
-          this.rolesList = roles.map((role) => {
-              return {role: role.description, type: role.type, cloud: role.cloud};
-          });
+          this.rolesList = roles.map((role) => ({
+            role: role.description,
+            type: role.type,
+            cloud: role.cloud
+          }));
           this.rolesList = SortUtils.sortByKeys(this.rolesList, ['role', 'cloud', 'type']);
           this.updateGroupData(groups);
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
-        this.progressBarService.stopProgressBar();
-      },
-      error => {
-      this.toastr.error(error.message, 'Oops!');
       this.progressBarService.stopProgressBar();
-    });
+    },
+      error => {
+        this.toastr.error(error.message, 'Oops!');
+        this.progressBarService.stopProgressBar();
+      }
+    );
   }
 
   getGroupsData() {
-    this.rolesService.getGroupsData().subscribe(
-      list => this.updateGroupData(list),
-      error => this.toastr.error(error.message, 'Oops!'));
+    this.rolesService.getGroupsData()
+      .subscribe(
+        list => this.updateGroupData(list),
+        error => this.toastr.error(error.message, 'Oops!')
+      );
   }
 
   public selectAllOptions(item, values, byKey?) {
-    byKey ? (item[byKey] = values ? values : []) : this.setupRoles = values ? values : [];
+    if (byKey) {
+      item[byKey] = values ? values : [];
+    } else {
+      this.setupRoles = values ? values : [];
+    }
   }
 
   public manageAction(action: string, type: string, item?: any, value?) {
     if (action === 'create') {
-      this.manageRolesGroups(
-        {
-          action, type, value: {
-            name: this.setupGroup,
-            users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()).filter(el => !!el) : [],
-            roleIds: this.extractIds(this.roles, this.setupRoles.map(v => v.role))
-          }
-        });
+      this.manageRolesGroups({
+        action,
+        type,
+        value: {
+          name: this.setupGroup,
+          users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()).filter(el => !!el) : [],
+          roleIds: this.extractIds(this.roles, this.setupRoles.map(v => v.role))
+        }
+      });
       this.stepperView = false;
     } else if (action === 'delete') {
-      const data = (type === 'users') ? { group: item.group, user: value } : { group: item.group, id: item };
+      const data = (type === 'users')
+        ? { group: item.group, user: value }
+        : { group: item.group, id: item };
       const dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialogComponent> = this.dialog.open(
         ConfirmDeleteUserAccountDialogComponent,
         { data: data, width: '550px', panelClass: 'error-modalbox' }
@@ -128,28 +143,34 @@ export class RolesComponent implements OnInit {
       });
     } else if (action === 'update') {
       const currGroupSource = this.startedGroups.filter(cur => cur.group === item.group)[0];
-      let deletedUsers = currGroupSource.users.filter(user => {
-        return !item.users.includes(user);
-      });
-      this.dialog.open(ConfirmationDialogComponent, { data:
-          { notebook: deletedUsers, type: ConfirmationDialogType.deleteUser }, panelClass: 'modal-sm' })
+      let deletedUsers = currGroupSource.users.filter(user => !item.users.includes(user));
+
+      this.dialog.open(ConfirmationDialogComponent, {
+        data: {
+          notebook: deletedUsers,
+          type: ConfirmationDialogType.deleteUser
+        },
+        panelClass: 'modal-sm'
+      })
         .afterClosed().subscribe((res) => {
-        if (!res) {
-          item.users = [...currGroupSource.users];
-          item.selected_roles = [...currGroupSource.selected_roles];
-          item.roles = [...currGroupSource.roles];
-        } else {
-          const selectedRoles = item.selected_roles.map(v => v.role);
-          this.manageRolesGroups({
-            action, type, value: {
-              name: item.group,
-              roles: this.extractIds(this.roles, selectedRoles),
-              users: item.users || []
-            }
-          });
-        }
-        deletedUsers = [];
-      });
+          if (!res) {
+            item.users = [...currGroupSource.users];
+            item.selected_roles = [...currGroupSource.selected_roles];
+            item.roles = [...currGroupSource.roles];
+          } else {
+            const selectedRoles = item.selected_roles.map(v => v.role);
+            this.manageRolesGroups({
+              action,
+              type,
+              value: {
+                name: item.group,
+                roles: this.extractIds(this.roles, selectedRoles),
+                users: item.users || []
+              }
+            });
+          }
+          deletedUsers = [];
+        });
     }
     this.resetDialog();
   }
@@ -157,31 +178,42 @@ export class RolesComponent implements OnInit {
   public manageRolesGroups($event) {
     switch ($event.action) {
       case 'create':
-        this.rolesService.setupNewGroup($event.value).subscribe(() => {
-          this.toastr.success('Group creation success!', 'Created!');
-          this.getGroupsData();
-        }, () => this.toastr.error('Group creation failed!', 'Oops!'));
+        this.rolesService.setupNewGroup($event.value)
+          .subscribe(
+            () => {
+              this.toastr.success('Group creation success!', 'Created!');
+              this.getGroupsData();
+            },
+            () => this.toastr.error('Group creation failed!', 'Oops!'));
         break;
 
       case 'update':
-        this.rolesService.updateGroup($event.value).subscribe(() => {
-          this.toastr.success(`Group data is updated successfully!`, 'Success!');
-            this.openManageRolesDialog();
-        }, (re) => this.toastr.error('Failed group data updating!', 'Oops!'));
-
+        this.rolesService.updateGroup($event.value)
+          .subscribe(
+            () => {
+              this.toastr.success(`Group data is updated successfully!`, 'Success!');
+              this.openManageRolesDialog();
+            },
+            () => this.toastr.error('Failed group data updating!', 'Oops!'));
         break;
 
       case 'delete':
         if ($event.type === 'users') {
-          this.rolesService.removeUsersForGroup($event.value).subscribe(() => {
-            this.toastr.success('Users was successfully deleted!', 'Success!');
-            this.getGroupsData();
-          }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
+          this.rolesService.removeUsersForGroup($event.value)
+            .subscribe(
+              () => {
+                this.toastr.success('Users was successfully deleted!', 'Success!');
+                this.getGroupsData();
+              },
+              () => this.toastr.error('Failed users deleting!', 'Oops!'));
         } else if ($event.type === 'group') {
-          this.rolesService.removeGroupById($event.value).subscribe(() => {
-            this.toastr.success('Group was successfully deleted!', 'Success!');
-            this.getGroupsData();
-          }, (error) => this.toastr.error(error.message, 'Oops!'));
+          this.rolesService.removeGroupById($event.value)
+            .subscribe(
+              () => {
+                this.toastr.success('Group was successfully deleted!', 'Success!');
+                this.getGroupsData();
+              },
+              (error) => this.toastr.error(error.message, 'Oops!'));
         }
         break;
 
@@ -197,7 +229,11 @@ export class RolesComponent implements OnInit {
       return v;
     }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
-      const selectedRoles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      const selectedRoles = item.roles.map(role => ({
+        role: role.description,
+        type: role.type,
+        cloud: role.cloud
+      }));
       item.selected_roles = SortUtils.sortByKeys(selectedRoles, ['role', 'type']);
     });
     this.getGroupsListCopy();
@@ -206,7 +242,7 @@ export class RolesComponent implements OnInit {
   public extractIds(sourceList, target) {
     const map = new Map();
     const mapped = sourceList.reduce((acc, item) => {
-      target.includes(item.description) && acc.set( item._id, item.description);
+      target.includes(item.description) && acc.set(item._id, item.description);
       return acc;
     }, map);
 
@@ -216,7 +252,7 @@ export class RolesComponent implements OnInit {
   mapToObj(inputMap) {
     const obj = {};
 
-    inputMap.forEach(function(value, key) {
+    inputMap.forEach((value, key) => {
       obj[key] = value;
     });
 
@@ -247,17 +283,17 @@ export class RolesComponent implements OnInit {
 
   public isGroupChanded(currGroup) {
     const currGroupSource = this.startedGroups.filter(cur => cur.group === currGroup.group)[0];
-   if (currGroup.users.length !== currGroupSource.users.length &&
-     currGroup.selected_roles.length !== currGroupSource.selected_roles.length) {
-     return false;
-   }
-   return JSON.stringify(currGroup.users) === JSON.stringify(currGroupSource.users) &&
-     JSON.stringify(
-       currGroup.selected_roles.map(role => role.role).sort()
-     ) === JSON
-       .stringify(
-         currGroupSource.selected_roles.map(role => role.role).sort()
-       );
+    if (currGroup.users.length !== currGroupSource.users.length &&
+      currGroup.selected_roles.length !== currGroupSource.selected_roles.length) {
+      return false;
+    }
+    return JSON.stringify(currGroup.users) === JSON.stringify(currGroupSource.users) &&
+      JSON.stringify(
+        currGroup.selected_roles.map(role => role.role).sort()
+      ) === JSON
+        .stringify(
+          currGroupSource.selected_roles.map(role => role.role).sort()
+        );
   }
 
   public resetDialog() {
@@ -288,28 +324,28 @@ export class RolesComponent implements OnInit {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
         this.healthStatus = result;
-          if (!this.healthStatus.admin && !this.healthStatus.projectAdmin) {
-            this.appRoutingService.redirectToHomePage();
-          } else {
-            this.openManageRolesDialog();
-          }
-      }
-      );
+        if (!this.healthStatus.admin && !this.healthStatus.projectAdmin) {
+          this.appRoutingService.redirectToHomePage();
+        } else {
+          this.openManageRolesDialog();
+        }
+      });
   }
 
   public onUpdate($event): void {
-   if ($event.type) {
-     this.groupsData.filter(group => group.group === $event.type)[0].selected_roles = $event.model;
-   } else {
-     this.setupRoles = $event.model;
-   }
+    if ($event.type) {
+      this.groupsData.filter(group => group.group === $event.type)[0].selected_roles = $event.model;
+    } else {
+      this.setupRoles = $event.model;
+    }
   }
 
   public checkIfUserAdded(element: any, value: string) {
-    element.isUserAdded = element.users.map(v => v.toLowerCase()).includes(value.toLowerCase());
+    element.isUserAdded = element.users
+      .map(v => v.toLowerCase())
+      .includes(value.toLowerCase());
   }
 }
-
 
 @Component({
   selector: 'dialog-result-example-dialog',
@@ -320,14 +356,33 @@ export class RolesComponent implements OnInit {
   </div>
   <div mat-dialog-content class="content">
 
-    <p *ngIf="data.user">User <span class="strong">{{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.
+    <p *ngIf="data.user">User <span class="strong">
+      {{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.
     </p>
-    <p *ngIf="data.id">Group <span class="ellipsis group-name strong">{{ data.group }}</span> will be decommissioned.</p>
-    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
+    <p *ngIf="data.id">Group <span class="ellipsis group-name strong">
+      {{ data.group }}</span> will be decommissioned.
+    </p>
+    <p class="m-top-20">
+      <span class="strong">Do you want to proceed?</span>
+    </p>
   </div>
   <div class="text-center">
-    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
-    <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
+    <button 
+      type="button" 
+      class="butt" 
+      mat-raised-button 
+      (click)="dialogRef.close()"
+    >
+      No
+    </button>
+    <button 
+      type="button" 
+      class="butt butt-success" 
+      mat-raised-button 
+      (click)="dialogRef.close(true)"
+    >
+      Yes
+    </button>
   </div>
   `,
   styles: [`.group-name { max-width: 96%; display: inline-block; vertical-align: bottom; }`]

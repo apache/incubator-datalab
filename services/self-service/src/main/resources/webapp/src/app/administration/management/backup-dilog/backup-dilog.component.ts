@@ -18,10 +18,10 @@
  */
 
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { BackupOptionsModel } from '../management.model';
 import { BackupService } from '../../../core/services';
 
@@ -54,18 +54,20 @@ export class BackupDilogComponent implements OnInit {
     this.backupOptions[key] instanceof Array
       ? (this.backupOptions[key][0] = $event.checked ? 'all' : 'skip')
       : (this.backupOptions[key] = !this.backupOptions[key]);
-
     this.checkValidity();
   }
 
   public applyOptions(): void {
-    this.backupService.createBackup(this.backupOptions).subscribe(result => {
-      this.getBackupStatus(result);
-      this.toastr.success('Backup configuration is processing!', 'Processing!');
-      this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
-      this.dialogRef.close(this.backupOptions);
-    },
-      error => this.toastr.error(error.message, 'Oops!'));
+    this.backupService.createBackup(this.backupOptions)
+      .subscribe(
+        result => {
+          this.getBackupStatus(result);
+          this.toastr.success('Backup configuration is processing!', 'Processing!');
+          this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
+          this.dialogRef.close(this.backupOptions);
+        },
+        error => this.toastr.error(error.message, 'Oops!')
+      );
   }
 
   private checkValidity(): void {
@@ -85,17 +87,20 @@ export class BackupDilogComponent implements OnInit {
   private getBackupStatus(result) {
     const uuid = result.body;
     this.backupService.getBackupStatus(uuid)
-      .subscribe((backupStatus: any) => {
-        if (!this.creatingBackup) {
-          backupStatus.status === 'FAILED'
-            ? this.toastr.error('Backup configuration failed!', 'Oops!')
-            : this.toastr.success('Backup configuration completed!', 'Success!');
+      .subscribe(
+        (backupStatus: any) => {
+          if (!this.creatingBackup) {
+            backupStatus.status === 'FAILED'
+              ? this.toastr.error('Backup configuration failed!', 'Oops!')
+              : this.toastr.success('Backup configuration completed!', 'Success!');
+            clearInterval(this.clear);
+          }
+        }, 
+        () => {
           clearInterval(this.clear);
+          this.toastr.error('Backup configuration failed!', 'Oops!');
         }
-      }, () => {
-        clearInterval(this.clear);
-        this.toastr.error('Backup configuration failed!', 'Oops!');
-      });
+      );
   }
 
   get creatingBackup(): boolean {

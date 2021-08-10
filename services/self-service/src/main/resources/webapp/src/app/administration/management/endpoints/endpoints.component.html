@@ -21,7 +21,11 @@
 <div class="endpoints-dialog" id="dialog-box">
   <header class="dialog-header">
     <h4 class="modal-title">Connect endpoint</h4>
-    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+    <button 
+      type="button" 
+      class="close" 
+      (click)="dialogRef.close()"
+    >&times;</button>
   </header>
   <div class="dialog-content tabs">
     <div class="content-box">
@@ -32,24 +36,33 @@
               <div class="control-group">
                 <label class="label">Name</label>
                 <div class="control">
-                  <input type="text" formControlName="name" placeholder="Enter endpoint name"
-                    (blur)="generateEndpointTag($event)">
-                  <span class="error"
+                  <input 
+                    type="text" 
+                    formControlName="name" 
+                    placeholder="Enter endpoint name"
+                    (blur)="generateEndpointTag($event)"
+                  />
+                  <span 
+                    class="error"
                     *ngIf="!createEndpointForm?.controls.name.valid
-                    && createEndpointForm?.controls.name.touched
-                    && !createEndpointForm?.controls['name'].hasError('isDuplicate')
-                    && !createEndpointForm?.controls['name'].hasError('limit')"
+                        && createEndpointForm?.controls.name.touched
+                        && !createEndpointForm?.controls['name'].hasError('isDuplicate')
+                        && !createEndpointForm?.controls['name'].hasError('limit')"
                   >
                     Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
                     characters.
                   </span>
-                  <span class="error"
-                        *ngIf="createEndpointForm?.controls['name'].hasError('isDuplicate')">
+                  <span 
+                    class="error"
+                    *ngIf="createEndpointForm?.controls['name'].hasError('isDuplicate')"
+                  >
                     This endpoint name already exists.
                   </span>
-                  <span class="error"
-                        *ngIf="createEndpointForm?.controls['name'].hasError('limit')">
-                     Endpoint name cannot be longer than {{ maxEndpointNameLength }} characters.
+                  <span 
+                    class="error"
+                    *ngIf="createEndpointForm?.controls['name'].hasError('limit')"
+                  >
+                    Endpoint name cannot be longer than {{ maxEndpointNameLength }} characters.
                   </span>
                 </div>
               </div>
@@ -58,8 +71,12 @@
                 <div class="control">
                   <input type="text" formControlName="url" placeholder="Enter endpoint url">
                   <span class="error" *ngIf="createEndpointForm?.controls['url'].hasError('isDuplicate')">This endpoint url already exists.</span>
-                  <span class="error"
-                        *ngIf="!createEndpointForm?.controls.url.valid && createEndpointForm.controls.url.touched && !createEndpointForm?.controls['url'].hasError('isDuplicate')">
+                  <span 
+                    class="error"
+                    *ngIf="!createEndpointForm?.controls.url.valid 
+                        && createEndpointForm.controls.url.touched 
+                        && !createEndpointForm?.controls['url'].hasError('isDuplicate')"
+                  >
                     Please provide a valid endpoint url with slash in the end.
                   </span>
                 </div>
@@ -68,8 +85,10 @@
                 <label class="label">Account</label>
                 <div class="control">
                   <input type="text" formControlName="account" placeholder="Enter account">
-                  <span class="error"
-                    *ngIf="!createEndpointForm?.controls.account.valid && createEndpointForm.controls.account.touched">
+                  <span 
+                    class="error"
+                    *ngIf="!createEndpointForm?.controls.account.valid && createEndpointForm.controls.account.touched"
+                  >
                     Endpoint account can only contain letters, numbers, hyphens and '_' but can not end with special
                     characters.
                   </span>
@@ -78,10 +97,18 @@
               <div class="control-group">
                 <label class="label">Endpoint tag</label>
                 <div class="control">
-                  <input readonly type="text" formControlName="endpoint_tag" placeholder="< equal to endpoint name >"
-                    class="not-allowed">
-                  <span class="error"
-                    *ngIf="!createEndpointForm?.controls.endpoint_tag.valid && createEndpointForm.controls.endpoint_tag.touched">
+                  <input 
+                    readonly 
+                    type="text" 
+                    formControlName="endpoint_tag" 
+                    placeholder="< equal to endpoint name >"
+                    class="not-allowed"
+                  />
+                  <span 
+                    class="error"
+                    *ngIf="!createEndpointForm?.controls.endpoint_tag.valid 
+                        && createEndpointForm.controls.endpoint_tag.touched"
+                  >
                     Endpoint tag can only contain letters, numbers, hyphens and '_' but can not end with special
                     characters.
                   </span>
@@ -89,25 +116,45 @@
               </div>
             </form>
             <div class="action-group m-bott-10">
-              <button mat-raised-button
-                      type="button"
-                      [disabled]="!this.createEndpointForm.value.url || !createEndpointForm.valid"
-                      class="butt action"
-                      (click)="getEndpoinConnectionStatus(createEndpointForm.value.url)"
+              <button 
+                mat-raised-button
+                type="button"
+                [disabled]="!this.createEndpointForm.value.url || !createEndpointForm.valid"
+                class="butt action"
+                (click)="getEndpoinConnectionStatus(createEndpointForm.value.url)"
               >
                 Test
               </button>
               <div class="action-butt">
-                <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
-                <button mat-raised-button type="button" [disabled]="!createEndpointForm.valid"
-                  (click)="assignChanges(createEndpointForm.value)" class="butt butt-success action">Connect</button>
+                <button 
+                  mat-raised-button 
+                  type="button" 
+                  class="butt action" 
+                  (click)="dialogRef.close()"
+                >
+                  Cancel
+                </button>
+                <button 
+                  mat-raised-button 
+                  type="button" 
+                  [disabled]="!createEndpointForm.valid"
+                  (click)="assignChanges(createEndpointForm.value)" 
+                  class="butt butt-success action"
+                >
+                  Connect
+                </button>
               </div>
             </div>
           </div>
         </mat-tab>
         <mat-tab label="ENDPOINTS LIST">
           <div class="endpoints scrolling">
-            <table mat-table [dataSource]="endpoints" class="endpoints-table" *ngIf="endpoints?.length; else empty">
+            <table 
+              mat-table 
+              [dataSource]="endpoints" 
+              class="endpoints-table" 
+              *ngIf="endpoints?.length; else empty"
+            >
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef class="name"> Endpoint name </th>
                 <td mat-cell *matCellDef="let element"> {{element.name}} </td>
@@ -115,9 +162,7 @@
 
               <ng-container matColumnDef="url">
                 <th mat-header-cell *matHeaderCellDef class="url"> Url </th>
-                <td mat-cell
-                    *matCellDef="let element"
-                >
+                <td mat-cell *matCellDef="let element">
                   <span matTooltip="{{element.url}}" matTooltipPosition="above">{{element.url}}</span>
                 </td>
               </ng-container>
@@ -135,10 +180,18 @@
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef class="actions"></th>
                 <td mat-cell *matCellDef="let element" class="actions">
-                  <span (click)="getEndpoinConnectionStatus(element.url)" matTooltip="Test" matTooltipPosition="above">
+                  <span 
+                    matTooltip="Test" 
+                    matTooltipPosition="above"
+                    (click)="getEndpoinConnectionStatus(element.url)" 
+                  >
                     <mat-icon>compare_arrows</mat-icon>
                   </span>
-                  <span (click)="deleteEndpoint(element)" matTooltip="Disconnect" matTooltipPosition="above">
+                  <span 
+                    matTooltip="Disconnect" 
+                    matTooltipPosition="above"
+                    (click)="deleteEndpoint(element)" 
+                  >
                     <mat-icon>delete_forever</mat-icon>
                   </span>
                 </td>
@@ -152,7 +205,6 @@
               <div class="info empty-box">
                 <div class="content">
                   <p>Looks like you don't have any endpoints</p>
-
                   <button mat-raised-button class="butt" (click)="tabGroup.selectedIndex = 0">
                     <i class="material-icons">settings_system_daydream</i>New endpoint
                   </button>

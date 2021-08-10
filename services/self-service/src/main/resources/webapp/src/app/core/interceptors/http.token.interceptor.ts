@@ -18,10 +18,10 @@
  */
 
 import { Injectable } from '@angular/core';
-import { StorageService } from '../services';
+import { Observable } from 'rxjs';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import { StorageService } from '../services';
 
 @Injectable() export class HttpTokenInterceptor implements HttpInterceptor {
   constructor(private jwtService: StorageService) { }
@@ -30,16 +30,18 @@ import { Observable } from 'rxjs';
     const token = this.jwtService.getToken();
     const headersConfig = {};
 
-    if (token)
+    if (token) {
       headersConfig['Authorization'] = `Bearer ${token}`;
+    }
 
     if (!request.headers.has('Content-Type')
       && !request.headers.has('Upload')
       && request.url.indexOf('upload') === -1
       && request.url.indexOf('download') === -1
       && request.url.indexOf('admin') === -1
-    )
-    headersConfig['Content-Type'] = 'application/json; charset=UTF-8';
+    ) {
+      headersConfig['Content-Type'] = 'application/json; charset=UTF-8';
+    }
 
     const header = request.clone({ setHeaders: headersConfig });
     return next.handle(header);

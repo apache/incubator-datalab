@@ -42,16 +42,16 @@ import {AuditGridComponent} from './audit-grid/audit-grid.component';
       left: 0;
       bottom: 0;
       width: 100%;
+      padding: 5px 15px;
       background: #a1b7d1;
       color: #ffffff;
       text-align: right;
-      padding: 5px 15px;
       font-size: 18px;
       box-shadow: 0 9px 18px 15px #f5f5f5;
     }
   `]
 })
-export class AuditComponent implements OnInit, OnDestroy {
+export class AuditComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   @ViewChild(AuditGridComponent, { static: true }) auditGrid: AuditGridComponent;
@@ -65,9 +65,6 @@ export class AuditComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.buildAuditReport();
-  }
-
-  ngOnDestroy() {
   }
 
   public buildAuditReport(): void {

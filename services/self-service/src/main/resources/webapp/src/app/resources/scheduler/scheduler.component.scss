@@ -20,7 +20,7 @@
 .scheduler-dialog {
   .mat-form-field-appearance-legacy {
     .mat-form-field-label {
-      font-family: 'Open Sans', sans-serif !important;
+      font-family: "Open Sans", sans-serif !important;
       font-size: 13px;
     }
   }
@@ -49,17 +49,17 @@
 
   .enable-schedule {
     display: flex;
-    margin-bottom: 10px;
     justify-content: space-between;
+    margin-bottom: 10px;
 
     .idle {
       display: flex;
       width: 50%;
 
       i {
-        font-size: 20px;
         padding-left: 10px;
         align-self: center;
+        font-size: 20px;
         user-select: none;
         cursor: pointer;
       }
@@ -69,17 +69,17 @@
   .info-message,
   .idle-control {
     height: 0;
+    padding-bottom: 0;
     opacity: 0;
     visibility: hidden;
     text-align: left;
     transition: height 0.35s linear 0.2s;
-    padding-bottom: 0;
 
     &.show {
       height: 30px;
+      margin-bottom: 50px;
       visibility: visible;
       opacity: 1;
-      margin-bottom: 50px;
     }
   }
 
@@ -207,7 +207,7 @@
         box-shadow: none;
         margin: 2px;
         border: none;
-        color: #607D8B;
+        color: #607d8b;
 
         &.mat-button-toggle-checked {
           background-color: rgba(77, 184, 218, 0.62);
@@ -219,10 +219,10 @@
         }
 
         .mat-button-toggle-label-content {
-          line-height: 26px;
-          padding: 0px 8px;
           width: 26px;
+          padding: 0px 8px;
           font-size: 13px;
+          line-height: 26px;
           text-align: center;
           background: rgba(196, 231, 243, 0.3);
         }
@@ -242,10 +242,10 @@
   }
 
   .options {
+    margin-bottom: 10px;
     color: #718ba6;
     font-size: 15px;
     font-weight: 600;
-    margin-bottom: 10px;
 
     .mat-slide-toggle-content {
       padding: 5px;

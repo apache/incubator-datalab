@@ -17,26 +17,27 @@
  * under the License.
  */
 
-@import '_variables.scss';
+@import "_variables.scss";
 
 .aligner {
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
 
-  >div {
+  > div {
     &.actions {
+      position: absolute;
+      bottom: 30px;
+      left: 0;
+      right: 0;
       display: flex;
       flex: initial;
       justify-content: center;
       flex-direction: initial;
       margin-bottom: 10px;
-      bottom: 30px;
-      left: 0;
-      right: 0;
-      position: absolute;
     }
-    strong{
+
+    strong {
       font-weight: 600;
     }
   }
@@ -46,20 +47,20 @@
   height: 30%;
 }
 
-.top-wrapper{
+.top-wrapper {
   height: 285px;
 }
 
-.list-item{
+.list-item {
   display: flex;
   width: 100%;
   padding-left: 20px;
 }
 
 .object {
-  width: 70%;
   display: flex;
   align-items: center;
+  width: 70%;
   padding-right: 10px;
 }
 
@@ -67,7 +68,7 @@
   width: 30%;
 }
 
-ul.resources{
+ul.resources {
   padding-left: 10px;
 }
 
@@ -80,7 +81,7 @@ ul.resources{
     flex-direction: column;
     width: 100%;
 
-    &>div {
+    & > div {
       display: flex;
       flex-direction: row;
     }
@@ -89,22 +90,22 @@ ul.resources{
       width: 50%;
       padding-bottom: 0;
 
-      &.java-library-search{
+      &.java-library-search {
         width: 100%;
 
-        .label{
+        .label {
           width: 10%;
         }
 
-        .control{
+        .control {
           width: 85%;
         }
       }
 
-      .control{
+      .control {
         width: 70%;
 
-        input{
+        input {
           font-size: 15px;
           padding-left: 15px;
         }
@@ -124,8 +125,8 @@ ul.resources{
       flex-grow: 1;
       padding-bottom: 0;
       flex-direction: column;
-      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
       margin-top: 40px;
+      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 
       .mat-form-field-flex {
         padding-left: 15px;
@@ -135,11 +136,10 @@ ul.resources{
         width: 100%;
         overflow-y: auto;
 
-
         &.mat-form-field {
           width: 100%;
 
-          .mat-form-field-infix{
+          .mat-form-field-infix {
             display: flex;
           }
         }
@@ -152,17 +152,16 @@ ul.resources{
   }
 }
 
-
 .suggestions {
   text-decoration: none;
   list-style: none;
 
   mat-option {
-    font-size: 13px;
-    font-weight: 300;
-    font-family: 'Open Sans', sans-serif;
     position: relative;
     padding-top: 4px;
+    font-size: 13px;
+    font-weight: 300;
+    font-family: "Open Sans", sans-serif;
 
     a {
       display: block;
@@ -189,7 +188,7 @@ ul.resources{
         position: absolute;
         top: 9px;
         right: -21px;
-        color: #35afd5
+        color: #35afd5;
       }
     }
   }
@@ -209,7 +208,7 @@ ul.resources{
 
 mat-chip.mat-chip:not(.mat-basic-chip) {
   margin: 2px !important;
-  background-color: rgba(47, 174, 215, .2) !important;
+  background-color: rgba(47, 174, 215, 0.2) !important;
   color: #687e96;
 }
 
@@ -221,29 +220,28 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 .libs-info {
   .mat-list {
-    width: 100%;
-    overflow-y: auto;
     position: relative;
+    width: 100%;
     height: 350px;
     padding-top: 0;
     margin-top: 8px;
-  
-    .list-header{
-      line-height: 40px;
+    overflow-y: auto;
+
+    .list-header {
       position: sticky;
       top: 0;
       z-index: 99;
+      line-height: 40px;
       background-color: #fff;
     }
-  
-    .filter-row{
+
+    .filter-row {
       position: sticky;
       top: 56px;
       z-index: 99;
       background-color: #fff;
     }
-  
-  
+
     .scrollingList {
       .info {
         p {
@@ -260,11 +258,11 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   padding-right: 10px;
   padding-left: 20px;
 
-  &-col{
+  &-col {
     display: flex;
   }
 
-  .lib-name-wrapper{
+  .lib-name-wrapper {
     overflow: hidden;
     display: block;
   }
@@ -315,8 +313,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
     .lib-resource-type-col {
       width: 33.3%;
-      color: #36afd5;
       padding-left: 15px;
+      color: #36afd5;
     }
 
     .lib-status-col {
@@ -331,8 +329,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
         div {
           display: inline-block;
-          cursor: pointer;
           width: 25px;
+          cursor: pointer;
           pointer-events: auto;
 
           span {
@@ -349,11 +347,11 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 .mat-dialog-container.mat-dialog-container .install-libraries#dialog-box {
-  .mat-header-cell{
-    padding: 0;
-    border: none;
+  .mat-header-cell {
     position: absolute;
     right: 10px;
+    padding: 0;
+    border: none;
   }
 
   .filter-actions {
@@ -361,10 +359,10 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     margin-left: 6px;
 
     .btn {
-      padding: 6px;
       height: auto;
       width: auto;
       min-width: 0;
+      padding: 6px;
 
       .mat-button-wrapper {
         display: flex;
@@ -390,24 +388,25 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   }
 }
 
-.error-message{
+.error-message {
   position: absolute;
   left: 20%;
   top: 40px;
   font-size: 11px;
   color: red;
-  &.version-error{
+
+  &.version-error {
     right: 0;
     left: unset;
   }
 }
 
-.info-icon{
+.info-icon {
   color: lightgray;
   cursor: pointer;
 }
 
-.lib-info{
+.lib-info {
   width: 100%;
 
   .delete-item {
@@ -417,21 +416,21 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     width: 100%;
     padding: 5px 10px;
 
-    .butt.action{
+    .butt.action {
       line-height: 26px;
     }
   }
 }
 
-.btn{
+.btn {
   line-height: 26px;
 
-  &.install-btn{
+  &.install-btn {
     margin-left: 0;
   }
 }
 
-.control-relative{
+.control-relative {
   position: relative;
 
   .plus-icon {
@@ -447,12 +446,12 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     }
   }
 
-  .other-message{
+  .other-message {
     position: absolute;
-    font-size: 12px;
-    color: $link-color;
     top: 40px;
     left: 12px;
+    font-size: 12px;
+    color: $link-color;
   }
 }
 
@@ -460,7 +459,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .libs-info {
     .mat-list {
       height: 250px;
-      .dropdown-multiselect .list-menu{
+      .dropdown-multiselect .list-menu {
         max-height: 143px;
       }
     }
@@ -471,7 +470,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .libs-info {
     .mat-list {
       height: 200px;
-      .dropdown-multiselect .list-menu{
+      .dropdown-multiselect .list-menu {
         max-height: 94px;
       }
     }
@@ -479,8 +478,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 @media screen and (max-height: 640px) {
-
-  .aligner>div.actions {
+  .aligner > div.actions {
     margin-bottom: 0;
   }
 
@@ -491,7 +489,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .libs-info {
     .mat-list {
       height: 160px;
-      .dropdown-multiselect .list-menu{
+      .dropdown-multiselect .list-menu {
         max-height: 54px;
       }
     }

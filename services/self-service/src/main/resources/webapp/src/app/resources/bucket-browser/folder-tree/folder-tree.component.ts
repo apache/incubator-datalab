@@ -17,16 +17,16 @@
  * under the License.
  */
 
-import {Component, Output, EventEmitter, OnDestroy, Input, OnInit} from '@angular/core';
-import {FlatTreeControl} from '@angular/cdk/tree';
-import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
-import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
-import {BucketDataService} from '../bucket-data.service';
-import {Subscription} from 'rxjs';
-import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
-import {ErrorStateMatcher} from '@angular/material/core';
-import {PATTERNS} from '../../../core/util';
-import {ToastrService} from 'ngx-toastr';
+import { Component, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
+import { FlatTreeControl } from '@angular/cdk/tree';
+import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
+import { BucketBrowserService, TodoItemFlatNode, TodoItemNode } from '../../../core/services/bucket-browser.service';
+import { BucketDataService } from '../bucket-data.service';
+import { Subscription } from 'rxjs';
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
+import { PATTERNS } from '../../../core/util';
+import { ToastrService } from 'ngx-toastr';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -34,8 +34,6 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     return !!(control && control.invalid && (control.dirty));
   }
 }
-
-
 
 @Component({
   selector: 'datalab-folder-tree',
@@ -76,32 +74,35 @@ export class FolderTreeComponent implements OnDestroy {
         this.dataSource.data = data;
         const subject = this.dataSource._flattenedData;
         const subjectData = subject.getValue();
-          if (this.selectedFolder) {
-            if (this.cloud !== 'azure') {
-              this.selectedFolder = subjectData.find(v => v.item === this.selectedFolder.item &&
-                v.level === this.selectedFolder.level && v.obj === this.selectedFolder.obj);
-            } else {
-              const selectedFolderPath = this.selectedFolder.obj.slice(0, this.selectedFolder.obj.lastIndexOf('/') + 1);
-              this.selectedFolder = subjectData.find(v => {
-                const objectPath = v.obj.slice(0, v.obj.lastIndexOf('/') + 1);
-                return v.item === this.selectedFolder.item &&
-                  v.level === this.selectedFolder.level && objectPath === selectedFolderPath;
-              });
-            }
+
+        if (this.selectedFolder) {
+          if (this.cloud !== 'azure') {
+            this.selectedFolder = subjectData.find(v => v.item === this.selectedFolder.item &&
+              v.level === this.selectedFolder.level && v.obj === this.selectedFolder.obj);
+          } else {
+            const selectedFolderPath = this.selectedFolder.obj.slice(0, this.selectedFolder.obj.lastIndexOf('/') + 1);
+            this.selectedFolder = subjectData.find(v => {
+              const objectPath = v.obj.slice(0, v.obj.lastIndexOf('/') + 1);
+              return v.item === this.selectedFolder.item &&
+                v.level === this.selectedFolder.level && objectPath === selectedFolderPath;
+            });
           }
-          this.expandAllParents(this.selectedFolder || subjectData[0]);
-          this.showItem(this.selectedFolder || subjectData[0]);
-          if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
-            setTimeout(() => {
-              const element = document.querySelector('.folder-item-line.active-item');
-              element && element.scrollIntoView({ block: 'start', behavior: 'smooth' });
-            }, 0);
-          } else if (this.selectedFolder && this.bucketDataService.emptyFolder) {
-            setTimeout(() => {
-              const element = document.querySelector('#folder-form');
-              element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
-            }, 0);
-          }
+        }
+
+        this.expandAllParents(this.selectedFolder || subjectData[0]);
+        this.showItem(this.selectedFolder || subjectData[0]);
+
+        if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
+          setTimeout(() => {
+            const element = document.querySelector('.folder-item-line.active-item');
+            element && element.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          }, 0);
+        } else if (this.selectedFolder && this.bucketDataService.emptyFolder) {
+          setTimeout(() => {
+            const element = document.querySelector('#folder-form');
+            element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+          }, 0);
+        }
       }
     }));
     this.dataSource._flattenedData.subscribe();
@@ -213,21 +214,24 @@ export class FolderTreeComponent implements OnDestroy {
   }
 
 
-private addNewItem(node: TodoItemFlatNode, file, isFile) {
-  const currNode = this.flatNodeMap.get(node);
-  if (!currNode.object) {
-    currNode.object = {bucket: currNode.item, object: ''};
-  }
-  const emptyFolderObject = currNode.object;
-  if (emptyFolderObject.object.lastIndexOf('ا') !== emptyFolderObject.object.length - 1 || emptyFolderObject.object === '') {
-    emptyFolderObject.object += 'ا';
-  }
-  this.bucketDataService.insertItem(currNode!, file, isFile, emptyFolderObject);
-  this.treeControl.expand(node);
-  setTimeout(() => {
-    const element = document.querySelector('#folder-form');
-    element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
-  }, 0);
+  private addNewItem(node: TodoItemFlatNode, file, isFile) {
+    const currNode = this.flatNodeMap.get(node);
+    if (!currNode.object) {
+      currNode.object = {
+        bucket: currNode.item, 
+        object: ''
+      };
+    }
+    const emptyFolderObject = currNode.object;
+    if (emptyFolderObject.object.lastIndexOf('ا') !== emptyFolderObject.object.length - 1 || emptyFolderObject.object === '') {
+      emptyFolderObject.object += 'ا';
+    }
+    this.bucketDataService.insertItem(currNode!, file, isFile, emptyFolderObject);
+    this.treeControl.expand(node);
+    setTimeout(() => {
+      const element = document.querySelector('#folder-form');
+      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    }, 0);
   }
 
   public removeItem(node: TodoItemFlatNode) {

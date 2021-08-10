@@ -38,77 +38,90 @@ import {ReportingComponent} from './reports/reporting/reporting.component';
 import {OdahuComponent} from './administration/odahu/odahu.component';
 import {AuditComponent} from './reports/audit/audit.component';
 
-const routes: Routes = [{
-  path: 'login',
-  component: LoginComponent
-}, {
-  path: '',
-  canActivate: [CheckParamsGuard],
-  component: LayoutComponent,
-  children: [
-    {
-      path: '',
-      redirectTo: 'resources_list',
-      pathMatch: 'full'
-    }, {
-      path: 'resources_list',
-      component: ResourcesComponent,
-      canActivate: [AuthorizationGuard]
-    }, {
-      path: 'billing_report',
-      component: ReportingComponent,
-      canActivate: [AuthorizationGuard, CloudProviderGuard]
-    }, {
-      path: 'projects',
-      component: ProjectComponent,
-      canActivate: [AuthorizationGuard, AdminGuard],
-    },
-     {
-    //   path: 'odahu',
-    //   component: OdahuComponent,
-    //   canActivate: [AuthorizationGuard, AdminGuard],
-    // }, {
-      path: 'roles',
-      component: RolesComponent,
-      canActivate: [AuthorizationGuard, AdminGuard],
-    }, {
-      path: 'environment_management',
-      component: ManagementComponent,
-      canActivate: [AuthorizationGuard, AdminGuard]
-    }, {
-      path: 'configuration',
-      component: ConfigurationComponent,
-      canActivate: [AuthorizationGuard, AdminGuard, ProjectAdminGuard]
-    },
-    {
-      path: 'swagger',
-      component: SwaggerComponent,
-      canActivate: [AuthorizationGuard]
-    }, {
-      path: 'help/publickeyguide',
-      component: PublicKeyGuideComponent,
-      canActivate: [AuthorizationGuard]
-    }, {
-      path: 'help/accessnotebookguide',
-      component: AccessNotebookGuideComponent,
-      canActivate: [AuthorizationGuard]
-    },
-    {
-      path: 'audit',
-      component: AuditComponent,
-      canActivate: [AuthorizationGuard, AuditGuard],
-    },
-  ]
-}, {
-  path: 'terminal/:id/:endpoint',
-  component: WebterminalComponent
-}, {
-  path: '403',
-  component: AccessDeniedComponent,
-  canActivate: [AuthorizationGuard]
-}, {
+const routes: Routes = [
+  {
+    path: 'login',
+    component: LoginComponent
+  }, 
+  {
+    path: '',
+    canActivate: [CheckParamsGuard],
+    component: LayoutComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'resources_list',
+        pathMatch: 'full'
+      }, 
+      {
+        path: 'resources_list',
+        component: ResourcesComponent,
+        canActivate: [AuthorizationGuard]
+      }, 
+      {
+        path: 'billing_report',
+        component: ReportingComponent,
+        canActivate: [AuthorizationGuard, CloudProviderGuard]
+      }, 
+      {
+        path: 'projects',
+        component: ProjectComponent,
+        canActivate: [AuthorizationGuard, AdminGuard],
+      },
+      {
+      //   path: 'odahu',
+      //   component: OdahuComponent,
+      //   canActivate: [AuthorizationGuard, AdminGuard],
+      // }, {
+        path: 'roles',
+        component: RolesComponent,
+        canActivate: [AuthorizationGuard, AdminGuard],
+      }, 
+      {
+        path: 'environment_management',
+        component: ManagementComponent,
+        canActivate: [AuthorizationGuard, AdminGuard]
+      }, 
+      {
+        path: 'configuration',
+        component: ConfigurationComponent,
+        canActivate: [AuthorizationGuard, AdminGuard, ProjectAdminGuard]
+      },
+      {
+        path: 'swagger',
+        component: SwaggerComponent,
+        canActivate: [AuthorizationGuard]
+      }, 
+      {
+        path: 'help/publickeyguide',
+        component: PublicKeyGuideComponent,
+        canActivate: [AuthorizationGuard]
+      }, 
+      {
+        path: 'help/accessnotebookguide',
+        component: AccessNotebookGuideComponent,
+        canActivate: [AuthorizationGuard]
+      },
+      {
+        path: 'audit',
+        component: AuditComponent,
+        canActivate: [AuthorizationGuard, AuditGuard],
+      },
+    ]
+  }, 
+  {
+    path: 'terminal/:id/:endpoint',
+    component: WebterminalComponent
+  }, 
+  {
+    path: '403',
+    component: AccessDeniedComponent,
+    canActivate: [AuthorizationGuard]
+  }, 
+  {
   path: '**',
   component: NotFoundComponent
-}];
+  }
+];
 
 export const AppRoutingModule: ModuleWithProviders<RouterModule> = RouterModule.forRoot(routes, { useHash: true });

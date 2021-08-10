@@ -25,12 +25,21 @@
       matTooltipPosition="above"
       [matTooltipDisabled]="healthStatus?.admin"
     >
-      <button mat-raised-button class="butt butt-create" (click)="createProject()" [disabled]="!projectList.length || !healthStatus?.admin && healthStatus?.projectAdmin">
+      <button 
+        mat-raised-button 
+        class="butt butt-create" 
+        (click)="createProject()" 
+        [disabled]="!projectList.length || !healthStatus?.admin && healthStatus?.projectAdmin"
+      >
         <i class="material-icons">add</i>Create new
       </button>
     </div>
     <div>
-      <button mat-raised-button class="butt butt-tool mr-10" (click)="toggleFiltering()">
+      <button 
+        mat-raised-button 
+        class="butt butt-tool mr-10" 
+        (click)="toggleFiltering()"
+      >
         <span *ngIf="!activeFiltering">
           <i class="material-icons">visibility_off</i> Show active
         </span>
@@ -38,7 +47,12 @@
           <i class="material-icons">visibility</i> Show all
         </span>
       </button>
-      <button mat-raised-button class="butt" (click)="refreshGrid()" [hidden]="!projectList.length">
+      <button 
+        mat-raised-button 
+        class="butt" 
+        (click)="refreshGrid()" 
+        [hidden]="!projectList.length"
+      >
         <i class="material-icons refresh-icon">autorenew</i>Refresh
       </button>
     </div>
@@ -51,8 +65,11 @@
   </mat-card>
 
   <div [hidden]="!projectList.length">
-    <project-list (editItem)="editProject($event)" (toggleStatus)="toggleStatus($event)" [isProjectAdmin]="!healthStatus?.admin && healthStatus?.projectAdmin">
-    </project-list>
+    <project-list 
+      (editItem)="editProject($event)" 
+      (toggleStatus)="toggleStatus($event)" 
+      [isProjectAdmin]="!healthStatus?.admin && healthStatus?.projectAdmin"
+    ></project-list>
   </div>
 
   <inform-message [message]="noPermissionMessage" *ngIf="!healthStatus?.admin && healthStatus?.projectAdmin && !projectList.length"></inform-message>
