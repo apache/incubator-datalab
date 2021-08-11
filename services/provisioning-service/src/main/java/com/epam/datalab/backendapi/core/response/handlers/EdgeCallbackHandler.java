@@ -59,12 +59,21 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
     }
 
     protected T parseOutResponse(JsonNode resultNode, T baseStatus) {
-        if (resultNode != null && (getAction() == DockerAction.CREATE || getAction() == DockerAction.START)
+        log.info("TEST LOG!!!: edge Call back Handler");
+
+        log.info("TEST LOG!!!: resultNode: {}, baseStatus: {}", resultNode, baseStatus);
+        log.info("TEST LOG!!!: getAction: {}, UserInstanceStatus.of(baseStatus.getStatus()): {}",
+                getAction(), UserInstanceStatus.of(baseStatus.getStatus()));
+        if (resultNode != null
+                && (getAction() == DockerAction.CREATE || getAction() == DockerAction.START)
                 && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {
+                log.info("TEST LOG!!!: TRY");
                 E credential = mapper.readValue(resultNode.toString(), responseType);
+                log.info("TEST LOG!!!: credential: {}", credential);
                 credential.setEdgeStatus(UserInstanceStatus.RUNNING.toString());
                 baseStatus.withEdgeInfo(credential);
+                log.info("TEST LOG!!!: baseStatus: {}", baseStatus);
             } catch (IOException e) {
                 throw new DatalabException("Cannot parse the EDGE info in JSON: " + e.getLocalizedMessage(), e);
             }

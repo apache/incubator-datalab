@@ -29,7 +29,6 @@ public class ExploratoryActionDTO<T extends ExploratoryActionDTO<?>> extends Exp
     @JsonProperty("reupload_key_required")
     private boolean reuploadKeyRequired;
 
-
     public boolean isReuploadKeyRequired() {
         return reuploadKeyRequired;
     }

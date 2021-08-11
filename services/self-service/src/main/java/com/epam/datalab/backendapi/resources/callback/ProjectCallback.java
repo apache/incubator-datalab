@@ -69,12 +69,22 @@ public class ProjectCallback {
             requestId.checkAndRemove(projectResult.getRequestId());
             final String projectName = projectResult.getProjectName();
             final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
-            saveGpuForProject(projectResult, projectName);
+            if (projectResult.getEdgeInfo() != null) {
+                saveGpuForProject(projectResult, projectName);
+            }
+            log.info("TEST LOG!!!: projectResult: {}", projectResult);
             if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
+                log.info("TEST LOG!!!: before RUNNING update: {}, {}, {}",
+                        projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
                 projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
             } else {
+                log.info("TEST LOG!!!: before updateExploratoriesStatusIfNeeded: {}, {}, {}",
+                        status, projectResult.getProjectName(), projectResult.getEndpointName());
                 updateExploratoriesStatusIfNeeded(status, projectResult.getProjectName(), projectResult.getEndpointName());
+                log.info("TEST LOG!!!: before update: {}, {}, {}"
+                        , projectName, projectResult.getEndpointName(), status);
                 projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
+                log.info("TEST LOG!!!: after update");
             }
         } catch (Exception e) {
             log.error(e.toString());

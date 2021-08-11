@@ -33,7 +33,6 @@ public class ProjectActionFormDTO {
     @NotNull
     @JsonProperty("endpoint")
     private final List<String> endpoints;
-    @NotNull
     @JsonProperty("edge_status")
     private final String edgeStatus;
 }

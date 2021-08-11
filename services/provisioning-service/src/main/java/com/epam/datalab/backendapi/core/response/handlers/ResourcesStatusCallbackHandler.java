@@ -71,8 +71,6 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
         } catch (IOException e) {
             throw new DatalabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
-        log.info("TEST LOG!!!: envList: {}", cloudResourceList);
-
         EnvResourceList envResourceList = EnvResourceList.builder()
                 .hostList(getListOrEmpty(cloudResourceList.getHostList()))
                 .clusterList(getListOrEmpty(cloudResourceList.getClusterList()))
@@ -98,8 +96,6 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
     @Override
     public boolean handle(String fileName, byte[] content) {
-        log.info("TEST LOG!!!: content: {}", Strings.fromByteArray(content));
-
         try {
             return super.handle(fileName, content);
         } catch (Exception e) {
@@ -136,7 +132,6 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     private List<EnvResource> getListOrEmpty(List<EnvResource> source) {
-        log.info("TEST LOG!!!: source: {}", source);
         return getChangedEnvResources(source);
     }
 }
