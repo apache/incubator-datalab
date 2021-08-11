@@ -114,14 +114,21 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 
     @Override
     public boolean handle(String fileName, byte[] content) throws Exception {
+        log.info("TEST LOG!!!: class name: {}", this.getClass().getCanonicalName());
+        log.info("TEST LOG!!!: URI: {}", this.getCallbackURI());
         debugMessage("Got file {} while waiting for UUID {}, for action {}, docker response: {}",
                 fileName, uuid, action.name(), new String(content));
         JsonNode document = mapper.readTree(content);
+        log.info("TEST LOG!!!: document: {}", document);
         boolean success = isSuccess(document);
         UserInstanceStatus status = calcStatus(action, success);
         T result = getBaseStatusDTO(status);
+        log.info("TEST LOG!!!: result: {}", result);
+
 
         JsonNode resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE);
+        log.info("TEST LOG!!!: resultNode: {}", resultNode);
+
         if (success) {
             debugMessage("Did {} resource for user: {}, UUID: {}", action, user, uuid);
         } else {
@@ -129,6 +136,7 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
         }
         result = parseOutResponse(resultNode, result);
+        log.info("TEST LOG!!!: result: {}", result);
         selfServicePost(result);
         return !UserInstanceStatus.FAILED.equals(status);
     }
