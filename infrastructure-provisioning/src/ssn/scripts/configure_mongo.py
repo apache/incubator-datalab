@@ -34,7 +34,6 @@ outfile = "/etc/mongo_params.yml"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--datalab_path', type=str, default='')
-# parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
 
 

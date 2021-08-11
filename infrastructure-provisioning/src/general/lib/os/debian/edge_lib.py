@@ -23,10 +23,7 @@
 
 import os
 import sys
-from datalab.common_lib import configure_nginx_LE
-from datalab.common_lib import install_certbot
 from datalab.common_lib import manage_pkg
-from datalab.common_lib import run_certbot
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -184,12 +181,12 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             datalab.fab.conn.sudo('touch /tmp/nginx_installed')
             if os.environ['conf_letsencrypt_enabled'] == 'true':
                 print("Configuring letsencrypt certificates.")
-                install_certbot(os.environ['conf_os_family'])
+                datalab.fab.install_certbot(user)
                 if 'conf_letsencrypt_email' in os.environ:
-                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower(), os.environ['conf_letsencrypt_email'])
+                    datalab.fab.run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower(), os.environ['conf_letsencrypt_email'])
                 else:
-                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower())
-                configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower())
+                    datalab.fab.run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower())
+                datalab.fab.configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower())
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
         sys.exit(1)
