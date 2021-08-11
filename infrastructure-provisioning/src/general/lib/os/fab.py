@@ -197,6 +197,64 @@ def update_hosts_file(os_user):
         sys.exit(1)
 
 
+def install_certbot(os_user):
+    try:
+        if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/certbot_ensured'.format(os_user)):
+            datalab.fab.conn.sudo('snap install core')
+            datalab.fab.conn.sudo('snap refresh core')
+            datalab.fab.conn.sudo('snap install --classic certbot')
+            datalab.fab.conn.sudo('ln -s /snap/bin/certbot /usr/bin/certbot')
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/certbot_ensured'.format(os_user))
+    except Exception as err:
+        logging.error('Installing Certbot error: ' + str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
+def run_certbot(domain_name, node, email=''):
+    try:
+        if node == 'ssn':
+            datalab.fab.conn.sudo('service nginx stop')
+        else:
+            datalab.fab.conn.sudo('service openresty stop')
+        if email != '':
+            datalab.fab.conn.sudo('certbot certonly --standalone -n -d {}.{} -m {} --agree-tos'.format(node,
+                                                                                                       domain_name,
+                                                                                                       email))
+        else:
+            datalab.fab.conn.sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email '
+                                  '--agree-tos'.format(node, domain_name))
+    except Exception as err:
+        logging.error('Running Certbot error:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
+def configure_nginx_LE(domain_name, node):
+    try:
+        server_name_line ='    server_name {}.{};'.format(node, domain_name)
+        cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}.{}/fullchain.pem;'.format(node, domain_name)
+        cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}.{}/privkey.pem;'.format(node, domain_name)
+        #certbot_service = "ExecStart = /usr/bin/certbot -q renew --pre-hook 'service nginx stop' --post-hook 'service nginx start'"
+        #certbot_service_path = '/lib/systemd/system/certbot.service'
+        if node == 'ssn':
+            nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
+        else:
+            nginx_config_path = '/usr/local/openresty/nginx/conf/conf.d/proxy.conf'
+        datalab.fab.conn.sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
+        datalab.fab.conn.sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
+        datalab.fab.conn.sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
+        #datalab.fab.conn.sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
+        if node == 'ssn':
+            datalab.fab.conn.sudo('systemctl restart nginx')
+        else:
+            datalab.fab.conn.sudo('systemctl restart openresty')
+    except Exception as err:
+        logging.error('Configuring Nginx Let’s Encrypt certs error:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
 # functions for all computation resources
 def ensure_python_venv(python_venv_version):
     try:

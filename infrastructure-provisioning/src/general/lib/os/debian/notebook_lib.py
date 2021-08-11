@@ -47,9 +47,6 @@ def enable_proxy(proxy_host, proxy_port):
             datalab.fab.conn.sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
         datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_string))
         datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_https_string))
-
-        print("Renewing gpg key")
-        renew_gpg_key()
     except:
         sys.exit(1)
 
