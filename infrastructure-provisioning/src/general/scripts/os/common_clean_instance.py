@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,11 +21,11 @@
 #
 # ******************************************************************************
 
+import argparse
 import os
 import sys
-import argparse
-from fabric.api import *
-from dlab.notebook_lib import *
+from datalab.notebook_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -37,16 +37,16 @@ args = parser.parse_args()
 
 def general_clean():
     try:
-        sudo('systemctl stop ungit')
-        sudo('systemctl stop inactive.timer')
-        sudo('rm -f /etc/systemd/system/inactive.service')
-        sudo('rm -f /etc/systemd/system/inactive.timer')
-        sudo('rm -rf /opt/inactivity')
-        sudo('npm -g uninstall ungit')
-        sudo('rm -f /etc/systemd/system/ungit.service')
-        sudo('systemctl daemon-reload')
+        conn.sudo('systemctl stop ungit')
+        conn.sudo('systemctl stop inactive.timer')
+        conn.sudo('rm -f /etc/systemd/system/inactive.service')
+        conn.sudo('rm -f /etc/systemd/system/inactive.timer')
+        conn.sudo('rm -rf /opt/inactivity')
+        conn.sudo('npm -g uninstall ungit')
+        conn.sudo('rm -f /etc/systemd/system/ungit.service')
+        conn.sudo('systemctl daemon-reload')
         remove_os_pkg(['nodejs', 'npm'])
-        sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+        conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -54,16 +54,15 @@ def general_clean():
 
 def clean_jupyter():
     try:
-        sudo('systemctl stop jupyter-notebook')
-        sudo('pip2 uninstall -y notebook jupyter')
-        sudo('pip3.5 uninstall -y notebook jupyter')
-        sudo('rm -rf /usr/local/share/jupyter/')
-        sudo('rm -rf /home/{}/.jupyter/'.format(args.os_user))
-        sudo('rm -rf /home/{}/.ipython/'.format(args.os_user))
-        sudo('rm -rf /home/{}/.ipynb_checkpoints/'.format(args.os_user))
-        sudo('rm -rf /home/{}/.local/share/jupyter/'.format(args.os_user))
-        sudo('rm -f /etc/systemd/system/jupyter-notebook.service')
-        sudo('systemctl daemon-reload')
+        conn.sudo('systemctl stop jupyter-notebook')
+        conn.sudo('pip3 uninstall -y notebook jupyter')
+        conn.sudo('rm -rf /usr/local/share/jupyter/')
+        conn.sudo('rm -rf /home/{}/.jupyter/'.format(args.os_user))
+        conn.sudo('rm -rf /home/{}/.ipython/'.format(args.os_user))
+        conn.sudo('rm -rf /home/{}/.ipynb_checkpoints/'.format(args.os_user))
+        conn.sudo('rm -rf /home/{}/.local/share/jupyter/'.format(args.os_user))
+        conn.sudo('rm -f /etc/systemd/system/jupyter-notebook.service')
+        conn.sudo('systemctl daemon-reload')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -71,14 +70,14 @@ def clean_jupyter():
 
 def clean_zeppelin():
     try:
-        sudo('systemctl stop zeppelin-notebook')
-        sudo('rm -rf /opt/zeppelin* /var/log/zeppelin /var/run/zeppelin')
+        conn.sudo('systemctl stop zeppelin-notebook')
+        conn.sudo('rm -rf /opt/zeppelin* /var/log/zeppelin /var/run/zeppelin')
         if os.environ['notebook_multiple_clusters'] == 'true':
-            sudo('systemctl stop livy-server')
-            sudo('rm -rf /opt/livy* /var/run/livy')
-            sudo('rm -f /etc/systemd/system/livy-server.service')
-        sudo('rm -f /etc/systemd/system/zeppelin-notebook.service')
-        sudo('systemctl daemon-reload')
+            conn.sudo('systemctl stop livy-server')
+            conn.sudo('rm -rf /opt/livy* /var/run/livy')
+            conn.sudo('rm -f /etc/systemd/system/livy-server.service')
+        conn.sudo('rm -f /etc/systemd/system/zeppelin-notebook.service')
+        conn.sudo('systemctl daemon-reload')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -87,8 +86,8 @@ def clean_zeppelin():
 def clean_rstudio():
     try:
         remove_os_pkg(['rstudio-server'])
-        sudo('rm -f /home/{}/.Rprofile'.format(args.os_user))
-        sudo('rm -f /home/{}/.Renviron'.format(args.os_user))
+        conn.sudo('rm -f /home/{}/.Rprofile'.format(args.os_user))
+        conn.sudo('rm -f /home/{}/.Renviron'.format(args.os_user))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -97,9 +96,9 @@ def clean_rstudio():
 def clean_tensor():
     try:
         clean_jupyter()
-        sudo('systemctl stop tensorboard')
-        sudo('systemctl disable tensorboard')
-        sudo('systemctl daemon-reload')
+        conn.sudo('systemctl stop tensorboard')
+        conn.sudo('systemctl disable tensorboard')
+        conn.sudo('systemctl daemon-reload')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -108,9 +107,9 @@ def clean_tensor():
 def clean_tensor_rstudio():
     try:
         clean_rstudio()
-        sudo('systemctl stop tensorboard')
-        sudo('systemctl disable tensorboard')
-        sudo('systemctl daemon-reload')
+        conn.sudo('systemctl stop tensorboard')
+        conn.sudo('systemctl disable tensorboard')
+        conn.sudo('systemctl daemon-reload')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -118,9 +117,8 @@ def clean_tensor_rstudio():
 
 if __name__ == "__main__":
     print('Configure connections')
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     if os.environ['conf_cloud_provider'] == 'azure':
         de_master_name = '{}-{}-{}-de-{}-m'.format(
@@ -156,5 +154,5 @@ if __name__ == "__main__":
                 clean_tensor_rstudio()
     else:
         print('Found default ami, do not make clean')
-
+    #conn.close()
     sys.exit(0)

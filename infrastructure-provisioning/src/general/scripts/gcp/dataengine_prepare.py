@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,16 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import logging
 import os
-import argparse
-from fabric.api import *
+import sys
+import traceback
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -41,8 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -53,6 +53,11 @@ if __name__ == "__main__":
         data_engine['endpoint_tag'] = data_engine['endpoint_name']
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
+        data_engine['gpu_accelerator_type'] = 'None'
+        data_engine['gpu_master_accelerator_type'] = 'None'
+        data_engine['gpu_master_accelerator_count'] = 'None'
+        data_engine['gpu_slave_accelerator_type'] = 'None'
+        data_engine['gpu_slave_accelerator_count'] = 'None'
 
         edge_status = GCPMeta.get_instance_status('{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                                             data_engine['project_name'],
@@ -61,9 +66,10 @@ if __name__ == "__main__":
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = GCPMeta.get_private_ip_address(data_engine['service_base_name'] + '-ssn')
-            dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                         ssn_hostname)
-            dlab.fab.append_result("Edge node is unavailable")
+            datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
+                                            os.environ['conf_os_user'],
+                                            ssn_hostname)
+            datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
 
         try:
@@ -147,24 +153,27 @@ if __name__ == "__main__":
             data = {"hostname": data_engine['cluster_name'], "error": ""}
             json.dump(data, f)
 
-        data_engine['gpu_accelerator_type'] = 'None'
-        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
-            data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
+        if 'master_gpu_type' in os.environ:
+            data_engine['gpu_master_accelerator_type'] = os.environ['master_gpu_type']
+            data_engine['gpu_master_accelerator_count'] = os.environ['master_gpu_count']
+            data_engine['gpu_slave_accelerator_type'] = os.environ['slave_gpu_type']
+            data_engine['gpu_slave_accelerator_count'] = os.environ['slave_gpu_count']
+
         data_engine['network_tag'] = '{0}-{1}-{2}-ps'.format(data_engine['service_base_name'],
                                                              data_engine['project_name'], data_engine['endpoint_name'])
-        additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "").replace(
+        additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "").replace(
             "'}", "").lower()
 
         data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                        "sbn": data_engine['service_base_name'],
                                        "type": "slave",
                                        "notebook_name": data_engine['notebook_name'],
-                                       "product": "dlab"}
+                                       "product": "datalab"}
         data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                         "sbn": data_engine['service_base_name'],
                                         "type": "master",
                                         "notebook_name": data_engine['notebook_name'],
-                                        "product": "dlab"}
+                                        "product": "datalab"}
 
         for tag in additional_tags.split(','):
             label_key = tag.split(':')[0]
@@ -175,7 +184,7 @@ if __name__ == "__main__":
                 data_engine['slave_labels'].update({label_key: label_value})
                 data_engine['master_labels'].update({label_key: label_value})
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
     try:
@@ -184,22 +193,22 @@ if __name__ == "__main__":
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
-                 "--secondary_disk_size {13} --gpu_accelerator_type {14} --network_tag {15} --cluster_name {16} " \
-                 "--labels '{17}' --service_base_name {18}". \
+                 "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} --network_tag {16} --cluster_name {17} " \
+                 "--labels '{18}' --service_base_name {19}". \
             format(data_engine['master_node_name'], data_engine['region'], data_engine['zone'], data_engine['vpc_name'],
                    data_engine['subnet_name'], data_engine['master_size'], data_engine['ssh_key_path'], initial_user,
                    data_engine['dataengine_service_account_name'], data_engine['primary_image_name'],
                    data_engine['secondary_image_name'], 'dataengine', data_engine['primary_disk_size'],
-                   data_engine['secondary_disk_size'], data_engine['gpu_accelerator_type'],
-                   data_engine['network_tag'], data_engine['cluster_name'],
+                   data_engine['secondary_disk_size'], data_engine['gpu_master_accelerator_type'],
+                   data_engine['gpu_master_accelerator_count'], data_engine['network_tag'], data_engine['cluster_name'],
                    json.dumps(data_engine['master_labels']), data_engine['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create instance.", str(err))
+        datalab.fab.append_result("Failed to create instance.", str(err))
         GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
         sys.exit(1)
 
@@ -211,18 +220,19 @@ if __name__ == "__main__":
             params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} " \
                      "--instance_size {5} --ssh_key_path {6} --initial_user {7} --service_account_name {8} " \
                      "--image_name {9} --secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
-                     "--secondary_disk_size {13} --gpu_accelerator_type {14} --network_tag {15} --cluster_name {16} " \
-                     "--labels '{17}' --service_base_name {18}". \
+                     "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} --network_tag {16} --cluster_name {17} " \
+                     "--labels '{18}' --service_base_name {19}". \
                 format(slave_name, data_engine['region'], data_engine['zone'],
                        data_engine['vpc_name'], data_engine['subnet_name'], data_engine['slave_size'],
                        data_engine['ssh_key_path'], initial_user, data_engine['dataengine_service_account_name'],
                        data_engine['primary_image_name'], data_engine['secondary_image_name'], 'dataengine',
                        data_engine['primary_disk_size'],
-                       data_engine['secondary_disk_size'], data_engine['gpu_accelerator_type'],
-                       data_engine['network_tag'], data_engine['cluster_name'],
-                       json.dumps(data_engine['slave_labels']), data_engine['service_base_name'])
+                       data_engine['secondary_disk_size'], data_engine['gpu_slave_accelerator_type'],
+                       data_engine['gpu_slave_accelerator_count'], data_engine['network_tag'],
+                       data_engine['cluster_name'], json.dumps(data_engine['slave_labels']),
+                       data_engine['service_base_name'])
             try:
-                local("~/scripts/{}.py {}".format('common_create_instance', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -234,5 +244,5 @@ if __name__ == "__main__":
             except:
                 print("The slave instance {} hasn't been created.".format(slave_name))
         GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        dlab.fab.append_result("Failed to create slave instances.", str(err))
+        datalab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

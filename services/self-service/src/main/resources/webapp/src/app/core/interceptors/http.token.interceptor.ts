@@ -18,7 +18,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { StorageService } from '../services/storage.service';
+import { StorageService } from '../services';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
@@ -33,8 +33,13 @@ import { Observable } from 'rxjs';
     if (token)
       headersConfig['Authorization'] = `Bearer ${token}`;
 
-    if (!request.headers.has('Content-Type') && !request.headers.has('Upload'))
-      headersConfig['Content-Type'] = 'application/json; charset=UTF-8';
+    if (!request.headers.has('Content-Type')
+      && !request.headers.has('Upload')
+      && request.url.indexOf('upload') === -1
+      && request.url.indexOf('download') === -1
+      && request.url.indexOf('admin') === -1
+    )
+    headersConfig['Content-Type'] = 'application/json; charset=UTF-8';
 
     const header = request.clone({ setHeaders: headersConfig });
     return next.handle(header);

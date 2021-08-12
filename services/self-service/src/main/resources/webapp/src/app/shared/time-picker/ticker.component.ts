@@ -56,7 +56,7 @@ export class TickerComponent implements OnChanges {
   @Input() public color: string;
 
   public steps = new Array<number>();
-  private selectedTimePart;
+  public selectedTimePart;
 
   private format: number = 12;
   private degrees: number;
@@ -117,14 +117,14 @@ export class TickerComponent implements OnChanges {
     return style;
   }
 
-  private getTimeValueClass(step: number, index: number) {
+  public getTimeValueClass(step: number, index: number) {
     let classes = 'ticker-step ticker-deg' + this.degrees * (index + 1);
     if (this.selectedTimePart === step) classes += ' mat-primary';
 
     return classes;
   }
 
-  private changeTimeValue(step: number) {
+  public changeTimeValue(step: number) {
     if (this.currentTemplate === CLOCK_TYPE.HOURS) {
       this.pickTime.hour = step;
       this.viewChange.emit(CLOCK_TYPE.MINUTES);

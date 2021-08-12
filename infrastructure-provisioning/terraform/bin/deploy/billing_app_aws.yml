@@ -26,7 +26,7 @@ spring:
     mongodb:
       username: admin
       password: MONGO_PASSWORD
-      database: dlabdb
+      database: datalabdb
       port: 27017
       host: MONGO_HOST
 
@@ -41,14 +41,14 @@ server.ssl.key-store-password: KEY_STORE_PASSWORD
 server.ssl.key-alias: endpoint
 
 logging:
-  file: /var/opt/dlab/log/ssn/billing.log
+  file: /var/opt/datalab/log/ssn/billing.log
   level:
     com:
       epam: trace
 
 keycloak:
   bearer-only: true
-  realm: dlab
+  realm: datalab
   resource: KEYCLOAK_CLIENT_ID
   credentials.secret: CLIENT_SECRET
   ssl-required: none

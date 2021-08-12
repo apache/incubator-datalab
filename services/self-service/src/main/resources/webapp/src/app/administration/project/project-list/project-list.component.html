@@ -16,19 +16,27 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-
-<table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6 selection">
+<div class="table-wrapper scrolling">
+  <table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6 selection">
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef class="name"> Project name </th>
-    <td mat-cell *matCellDef="let element" class="name"> {{element.name}} </td>
+    <td mat-cell *matCellDef="let element" class="name project-name"> {{element.name}} </td>
   </ng-container>
 
   <ng-container matColumnDef="groups">
     <th mat-header-cell *matHeaderCellDef class="groups"> Group </th>
     <td mat-cell *matCellDef="let element" class="groups">
-      <mat-chip-list>
-        <mat-chip *ngFor="let group of element.groups">{{ group }}</mat-chip>
-      </mat-chip-list>
+      <div class="mat-chip-list-wrap scrolling">
+        <mat-chip-list>
+          <mat-chip *ngFor="let group of element.groups"
+                    [matTooltip]="group"
+                    matTooltipPosition="above"
+                    class="ellipsis"
+          >
+            {{ group }}
+          </mat-chip>
+        </mat-chip-list>
+      </div>
     </td>
   </ng-container>
 
@@ -36,7 +44,7 @@
     <th mat-header-cell *matHeaderCellDef class="endpoints">
       <span class="label-endpoint"> Endpoint </span>
       <span class="label-endpoint-status"> Endpoint status </span>
-      <span class="label-status"> Edge node status </span>
+      <span class="label-status">Edge node status </span>
     </th>
     <td mat-cell *matCellDef="let element" class="source endpoints">
       <div *ngIf="!element.endpoints?.length; else list">
@@ -51,12 +59,12 @@
           </div>
           <div class="resource-status">
             <span [ngClass]="{'active' : endpoint.endpointStatus === 'ACTIVE', 'failed': endpoint.endpointStatus === 'INACTIVE'}">
-              {{ endpoint.endpointStatus | titlecase }}
+              {{ (endpoint.endpointStatus | titlecase) || 'N/A'}}
             </span>
           </div>
 
           <span class="status resource-status"
-            ngClass="{{endpoint.status.toLowerCase() || ''}}">{{ endpoint.status.toLowerCase() }}</span>
+            [ngClass]="endpoint?.status.toLowerCase() || ''">{{ endpoint?.status.toLowerCase() }}</span>
         </div>
       </ng-template>
     </td>
@@ -69,27 +77,33 @@
     <td mat-cell *matCellDef="let element" class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"></span>
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
-        <ul class="list-unstyled">
+        <ul class="list-unstyled actions-list">
           <div class="active-items"></div>
-          <li class="project-seting-item" *ngIf="areStoppedEndpoints(element)" (click)="openEdgeDialog('start', element)">
+          <li class="project-seting-item" *ngIf="element.areStoppedNode" (click)="openEdgeDialog('start', element)">
             <i class="material-icons">play_circle_outline</i>
             <a class="action">
               Start edge node
             </a>
           </li>
-          <li class="project-seting-item" *ngIf="areStartedEndpoints(element)" (click)="openEdgeDialog('stop', element )">
+          <li class="project-seting-item" *ngIf="element.areRunningNode" (click)="openEdgeDialog('stop', element )">
             <i class="material-icons">pause_circle_outline</i>
             <a class="action" >
               Stop edge node
             </a>
           </li>
-          <li class="project-seting-item " *ngIf="areStoppedEndpoints(element) || areStartedEndpoints(element)" (click)="openEdgeDialog('terminate', element)">
+          <!-- <li class="project-seting-item " *ngIf="element.areTerminatedNode" (click)="openEdgeDialog('recreate', element)">
+            <i class="material-icons">refresh</i>
+            <a class="action">
+              Recreate edge node
+            </a>
+          </li> -->
+          <li class="project-seting-item " *ngIf="element.areStoppedNode || element.areRunningNode" (click)="openEdgeDialog('terminate', element)">
             <i class="material-icons">phonelink_off</i>
             <a class="action">
               Terminate edge node
             </a>
           </li>
-          <li class="project-seting-item" (click)="editProject(element)">
+          <li class="project-seting-item" (click)="editProject(element)" *ngIf="!isProjectAdmin">
             <i class="material-icons">mode_edit</i>
             <a >
               Edit project
@@ -107,3 +121,4 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
+</div>

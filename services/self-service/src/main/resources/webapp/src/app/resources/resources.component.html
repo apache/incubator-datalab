@@ -18,23 +18,39 @@
   -->
 
 <div class="base-retreat">
-  <div class="sub-nav">
+  <div class="sub-nav resource-btns">
     <div class="selection">
+      <span
+        matTooltip="{{!healthStatus?.projectAssigned ? 'You are not assigned to any project' : 'You have not any active project'}}"
+        matTooltipPosition="above"
+        [matTooltipClass]="'full-size-tooltip'"
+        [matTooltipDisabled]="healthStatus?.projectAssigned && resourcesGrid.activeProjectsList?.length !== 0"
+      >
       <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
-        [disabled]="!healthStatus?.projectAssigned">
+        [disabled]="!healthStatus?.projectAssigned || !resourcesGrid.activeProjectsList?.length">
         <i class="material-icons">add</i>Create new
       </button>
-
+      </span>
       <div class="mat-reset">
-        <div class="control selector-wrapper" *ngIf="projects.length">
+        <div class="control selector-wrapper" *ngIf="projects?.length">
           <mat-form-field>
-            <mat-label>Select active project</mat-label>
-            <mat-select [(value)]="resourcesGrid.activeProject">
-              <mat-option *ngIf="projects.length > 1" (click)="setActiveProject()">Show all</mat-option>
-              <mat-option *ngFor="let project of projects" [value]="project.name"
-                (click)="setActiveProject(project.name)">
-                {{ project.name }}</mat-option>
-              <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty
+            <mat-label>Select project</mat-label>
+
+            <mat-select 
+              disableOptionCentering
+              [(value)]="resourcesGrid.activeProject" 
+              panelClass="top-select scrolling">
+              <mat-option 
+                *ngIf="projects?.length > 1" 
+                (click)="setActiveProject('')">Show all
+              </mat-option>
+              <mat-option 
+                *ngFor="let project of projects" 
+                [value]="project"
+                (click)="setActiveProject(project)">
+                {{ project }}
+              </mat-option>
+              <mat-option *ngIf="!projects?.length" class="multiple-select ml-10" disabled>Projects list is empty
               </mat-option>
             </mat-select>
             <button class="caret">
@@ -46,22 +62,38 @@
     </div>
 
     <div>
-      <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
-        <i class="material-icons"></i>Git credentials
-      </button>
-      <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()">
-        <span *ngIf="!resourcesGrid.activeFiltering">
-          <i class="material-icons">visibility_off</i> Show active
-        </span>
-        <span *ngIf="resourcesGrid.activeFiltering">
-          <i class="material-icons">visibility</i> Show all
-        </span>
-      </button>
-      <button mat-raised-button class="butt" (click)="refreshGrid()">
-        <i class="material-icons">autorenew</i>Refresh
-      </button>
+      <span  matTooltip="{{!this.bucketStatus?.view ? 'You have not permission to open bucket browser' : 'You have not any bucket'}}"
+             matTooltipPosition="above"
+             matTooltipDisabled="{{resourcesGrid.bucketsList?.length > 0 && this.bucketStatus?.view}}"
+             [matTooltipClass]="'full-size-tooltip'"
+      >
+        <button mat-raised-button class="butt butt-tool" (click)="bucketBrowser(this.bucketStatus?.view)"
+                [disabled]="!this.bucketStatus?.view || resourcesGrid.bucketsList?.length === 0">
+          <i class="material-icons"></i>Bucket browser
+        </button>
+      </span>
+      <span>
+        <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
+          <i class="material-icons"></i>Git credentials
+        </button>
+      </span>
+      <span>
+        <button mat-raised-button class="butt butt-tool show-all-btn" (click)="toggleFiltering()">
+          <span *ngIf="!resourcesGrid.activeFiltering">
+            <i class="material-icons">visibility_off</i> Show active
+          </span>
+          <span *ngIf="resourcesGrid.activeFiltering">
+            <i class="material-icons">visibility</i> Show all
+          </span>
+        </button>
+      </span>
+      <span>
+        <button mat-raised-button class="butt" (click)="refreshGrid()">
+          <i class="material-icons highlight">autorenew</i>Refresh
+        </button>
+      </span>
     </div>
   </div>
   <mat-divider></mat-divider>
-  <resources-grid></resources-grid>
+  <resources-grid (getEnvironments)="getEnvironments($event)" ></resources-grid>
 </div>

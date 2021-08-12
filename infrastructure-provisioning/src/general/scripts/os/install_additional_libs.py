@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,28 +22,25 @@
 # ******************************************************************************
 
 import argparse
-import sys
-from dlab.notebook_lib import *
-from dlab.fab import *
-from fabric.api import *
-import json
 import ast
-
+import json
+import sys
+from datalab.fab import *
+from datalab.notebook_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--libs', type=str, default='')
+parser.add_argument('--dataengine_service', type=bool, default=False)
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.instance_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
     print('Installing libraries: {}'.format(args.libs))
     general_status = list()
@@ -59,7 +56,8 @@ if __name__ == "__main__":
                     [data[row]['name'].split(':')[0], data[row]['name'].split(':')[1],
                      data[row]['version'], data[row]['override']])
             else:
-                pkgs['libraries'][data[row]['group']].append(data[row]['name'])
+                pkgs['libraries'][data[row]['group']].append(
+                    [data[row]['name'], data[row]['version']])
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to parse libs list.", str(err))
@@ -79,29 +77,25 @@ if __name__ == "__main__":
     except KeyError:
         pass
 
-    try:
-        print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
-        status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
-        general_status = general_status + status
-    except KeyError:
-        pass
+    #try:
+        #print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
+        #status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2', args.dataengine_service)
+        #general_status = general_status + status
+    #except KeyError:
+        #pass
 
     try:
         print('Installing pip3 packages: {}'.format(pkgs['libraries']['pip3']))
-        status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3')
+        status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3', args.dataengine_service)
         general_status = general_status + status
     except KeyError:
         pass
 
     try:
-        print('Installing other packages: {}'.format(pkgs['libraries']['others']))
+        print('Installing other packages (only tries pip3): {}'.format(pkgs['libraries']['others']))
         for pkg in pkgs['libraries']['others']:
-            status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
-            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-            if status_pip2[0]['status'] == 'installed':
-                general_status = general_status + status_pip2
-            else:
-                general_status = general_status + status_pip3
+            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others', args.dataengine_service)
+            general_status = general_status + status_pip3
     except KeyError:
         pass
 
@@ -114,7 +108,7 @@ if __name__ == "__main__":
             general_status = general_status + status
         except KeyError:
             pass
-
+    conn.close()
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
                "Libs": general_status}

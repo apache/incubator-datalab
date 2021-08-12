@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,16 +22,14 @@
 # ******************************************************************************
 
 import argparse
-import json
-import datetime
-from fabric.api import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from dlab.fab import *
-import traceback
-import sys
 import ast
-
+import json
+import sys
+import traceback
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--list_resources', type=str, default='')

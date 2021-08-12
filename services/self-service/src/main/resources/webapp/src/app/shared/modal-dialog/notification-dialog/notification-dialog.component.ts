@@ -29,34 +29,36 @@ import {Endpoint} from '../../../administration/project/project.component';
               <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
-          <div mat-dialog-content class="content message">
+          <div mat-dialog-content class="content message scrolling">
             <div *ngIf="data.type === 'terminateNode'" class="table-header">
               <div *ngIf="data.item.action.endpoint.length > 0">
-                Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>
-                        <span class="strong">{{ ' ' + data.item.action.endpoint.join(', ') }}</span> in project
+                Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>&nbsp;<span class="strong">{{ data.item.action.endpoint.join(', ') }}</span> in project
                 <span class="strong">{{ data.item.action.project_name }}</span> will be terminated.
               </div>
             </div>
-              <div *ngIf="data.type === 'list'" class="info">
-                  <div *ngIf="data.template.notebook.length > 0">
-                      Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
-                      <span *ngFor="let item of data.template.notebook">
-                        <span class="strong">{{ item.exploratory_name }}</span>
+              <div  *ngIf="data.type === 'list'" class="info pb-10">
+                  <div class="quota-message" *ngIf="data.template.notebook?.length > 0">
+                      Following notebook server<span *ngIf="data.template.notebook.length>1 || data.template.notebook[0].notebook.length>1">s</span><span *ngFor="let item of data.template.notebook">
+                        <span class="strong blue" *ngFor="let notebook of item.notebook; let i = index">{{i === 0 ? '' : ', '}} {{ notebook }}</span> in project <span
+                        class="strong blue">{{ item.project }}</span>
                         <span *ngIf="data.template.notebook.length > 1">, </span>
-                      </span> will be stopped and all computational resources will be stopped/terminated
+                      </span> will be stopped and all computes will be stopped/terminated
                   </div>
 
-                  <div *ngIf="data.template.cluster.length > 0">
-                      <p *ngFor="let item of data.template.cluster">
-                          Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
-                          <span class="strong">{{ item.computational_name }}</span> on <span
-                              class="strong">{{ item.exploratory_name }}</span>
+                  <div class="quota-message" *ngIf="data.template.cluster?.length > 0">
+                      <p>
+                          Computational resource<span *ngIf="data.template.cluster.length > 1">s</span>&nbsp;<span *ngFor="let item of data.template.cluster; let i = index">{{i === 0 ? '' : ', '}}<span class="strong blue">{{ item.computational_name }}</span> for <span
+                                class="strong blue">{{ item.exploratory_name }}</span> in project <span
+                          class="strong blue">{{ item.project }}</span>
+                          </span>
                           will be stopped
                       </p>
                   </div>
-                  <span class="strong">by a schedule in 15 minutes.</span>
+                  <span class="strong blue pb-10">by a schedule in less than 15 minutes</span>.
               </div>
-              <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
+              <div class="alert" *ngIf="data.type === 'message'">
+                <span  class='highlight'[innerHTML]="data.template"></span>
+              </div>
               <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
                   <p *ngIf="data.template; else label">
                       <span [innerHTML]="data.template"></span>
@@ -77,11 +79,11 @@ import {Endpoint} from '../../../administration/project/project.component';
                               <div class="resource-name">Resource</div>
                               <div class="project">Project</div>
                           </div>
-                          <div class="scrolling-content resource-heigth">
+                          <div class="scrolling-content resource-heigth scrolling">
                               <div class="resource-list-row sans node" *ngFor="let project of data.list">
                                   <div class="resource-name ellipsis">
                                       <div>Edge node</div>
-                                      <div *ngFor="let notebook of project.resource">{{notebook.exploratory_name}}</div>
+                                      <div *ngFor="let notebook of project['resource']">{{notebook['exploratory_name']}}</div>
                                   </div>
                                   <div class="project ellipsis">{{project.name}}</div>
                               </div>
@@ -94,7 +96,7 @@ import {Endpoint} from '../../../administration/project/project.component';
 <!--                          </label>-->
 <!--                      </div>-->
                       <p class="confirm-message">
-                          <span *ngIf="!willNotTerminate">All connected computational resources will be terminated as well.</span>
+                          <span *ngIf="!willNotTerminate">All connected computes will be terminated as well.</span>
                       </p>
                   </div>
                   <mat-list *ngIf="data.item.endpoints?.length">
@@ -102,7 +104,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                           <div class="endpoint">Edge node in endpoint</div>
                           <div class="status">Further status</div>
                       </mat-list-item>
-                      <div class="scrolling-content">
+                      <div class="scrolling-content scrolling">
                           <mat-list-item *ngFor="let endpoint of filterEndpoints()" class="sans node">
                               <div class="endpoint ellipsis">{{endpoint.name}}</div>
                               <div class="status terminated">Terminated</div>
@@ -112,29 +114,29 @@ import {Endpoint} from '../../../administration/project/project.component';
                 <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
                   <div class="text-center m-top-30 m-bott-10">
                       <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
-                      <button *ngIf="!this.willNotTerminate" type="button" class="butt butt-success" mat-raised-button
-                              (click)="dialogRef.close('terminate')">Yes
-                      </button>
-                      <button *ngIf="this.willNotTerminate" type="button" class="butt butt-success" mat-raised-button
-                              (click)="dialogRef.close('noTerminate')">Yes
+                      <button type="button" class="butt butt-success" mat-raised-button
+                              (click)="dialogRef.close(true)">Yes
                       </button>
                   </div>
               </div>
                <div class="confirm-dialog" *ngIf="data.type === 'terminateNode'">
-                   <mat-list *ngIf="data.item.resources.length > 0">
-                     <mat-list-item class="list-header sans">
-                       <div class="endpoint">Resources</div>
-                       <div class="status">Further status</div>
+                 <mat-list *ngIf="data.item.resources.length > 0; else noResources">
+                   <mat-list-item class="list-header sans">
+                     <div class="endpoint">Resources</div>
+                     <div class="status">Further status</div>
+                   </mat-list-item>
+                   <div class="scrolling-content scrolling">
+                     <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
+                       <div class="endpoint ellipsis">{{resource}}</div>
+                       <div class="status terminated">Terminated</div>
                      </mat-list-item>
-                     <div class="scrolling-content">
-                       <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
-                         <div class="endpoint ellipsis">{{resource}}</div>
-                         <div class="status terminated">Terminated</div>
-                       </mat-list-item>
-                     </div>
-                   </mat-list>
+                   </div>
+                 </mat-list>
+                 <ng-template #noResources>
+                   There are not related resources to this edge node.
+                 </ng-template>
                    <div mat-dialog-content class="bottom-message" *ngIf="data.item.resources.length > 0">
-                     <span class="confirm-message">All connected computational resources will be terminated as well.</span>
+                     <span class="confirm-message">All connected computes will be terminated as well.</span>
                    </div>
                  <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
                  <div class="text-center m-top-30 m-bott-10">
@@ -156,7 +158,7 @@ import {Endpoint} from '../../../administration/project/project.component';
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
     .plur { font-style: normal; }
-    .scrolling-content{overflow-y: auto; max-height: 200px; }
+    .scrolling-content{overflow-y: auto; max-height: 200px; border-bottom: 1px solid #edf1f5; }
     .endpoint { width: 70%; text-align: left; color: #577289;}
     .status { width: 30%;text-align: left;}
     .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
@@ -164,16 +166,18 @@ import {Endpoint} from '../../../administration/project/project.component';
     .resource-name { width: 280px;text-align: left; padding: 10px 0;line-height: 26px;}
     .project { width: 30%;text-align: left; padding: 10px 0;line-height: 26px;}
     .resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
-    .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
+    .resource-list-header{display: flex; font-weight: 600; font-size: 14px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
     .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
+    .resource-list-row:last-child{border-bottom: none}
     .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
     .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center; padding-top: 20px}
     .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
     label{cursor: pointer}
-    .bottom-message{padding-top: 15px;}
+    .bottom-message{padding-top: 15px; overflow: hidden}
     .table-header{padding-bottom: 10px;}
-
-
+    .alert{text-align: left; line-height: 22px; padding-bottom: 25px;padding-top: 15px;}
+    .quota-message{padding-top: 10px}
+    .mat-list-base .mat-list-item { font-size: 15px}
   `]
 })
 export class NotificationDialogComponent {

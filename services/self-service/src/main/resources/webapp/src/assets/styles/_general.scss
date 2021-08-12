@@ -30,10 +30,19 @@ body.modal-open {
 }
 
 .alignleft, .al {float: left}
-.alignright, .ar {float: right}
+.alignright, .ar {float: right; left: 26px; z-index: 1010}
 .aligncenter, .ac {margin-left: auto;margin-right: auto}
 
 .mt-5 {margin-top: 5px}
+
+
+.pr-3{padding-right: 3px}
+
+.pb-50 {padding-bottom: 50px;}
+.pb-25 {padding-bottom: 25px;}
+.pb-10 {padding-bottom: 10px;}
+
+.full-width{width: 100%;}
 
 .txt-r {text-align: right }
 .txt-l {text-align: left }
@@ -172,3 +181,44 @@ input[type=file],
 input[type=file]::-webkit-file-upload-button {
     cursor: pointer;
 }
+
+.refresh-icon{
+  color: #35afd5;
+}
+
+.buttons {
+  position: absolute;
+  display: flex;
+  justify-content: space-around;
+  z-index: 102;
+  bottom: 9px;
+  width: 100%;
+
+  .mat-mini-fab {
+    height: 25px;
+    width: 25px;
+
+    .mat-button-wrapper {
+      padding: 0;
+      line-height: unset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 2px;
+    }
+  }
+}
+
+.shadow-none{
+  box-shadow: none !important;
+}
+
+.right-sticky{
+  right: -15px !important;
+}
+
+.cursor-pointer{
+  cursor: pointer;
+}
+
+

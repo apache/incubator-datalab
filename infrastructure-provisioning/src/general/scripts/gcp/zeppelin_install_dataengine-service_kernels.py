@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,10 +22,10 @@
 # ******************************************************************************
 
 import argparse
-from fabric.api import *
-import boto3
-from dlab.meta_lib import *
 import os
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -50,32 +50,33 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     if os.environ['notebook_multiple_clusters'] == 'true':
-        put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
+        conn.put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     else:
-        put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
-    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
-    sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
-    sudo('chmod 755 /usr/local/bin/create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/dlab/')
-    run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/dlab_libs/*')
-    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
-    if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+        conn.put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
+    conn.put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
+    conn.sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
+    conn.sudo('chmod 755 /usr/local/bin/create_configs.py')
+    conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+    conn.run('mkdir -p /home/{}/datalab_libs/'.format(args.os_user))
+    conn.local('scp -i {0} /usr/lib/python3.8/datalab/*.py {1}@{2}:/home/{1}/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
+    conn.run('chmod a+x /home/{}/datalab_libs/*'.format(args.os_user))
+    conn.sudo('mv /home/{}/datalab_libs/* /usr/lib/python3.8/datalab/'.format(args.os_user))
+    conn.sudo('rm -rf /home/{}/datalab_libs/'.format(args.os_user))
+    if exists(conn, '/usr/lib64'):
+        conn.sudo('mkdir -p /usr/lib64/python3.8')
+        conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     configure_notebook(args)
     r_enabled = os.environ['notebook_r_enabled']
-    spark_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'spark')
-    hadoop_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'hadoop')
-    sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
-    sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
-    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11} --livy_version {12} --multiple_clusters {13} --r_enabled {14}'
-         .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name, args.dataproc_version, spark_version, hadoop_version,
-                 args.region, args.project_name, args.os_user, args.pip_mirror, args.application, os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'], r_enabled))
+    spark_version = datalab.actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'spark')
+    hadoop_version = datalab.actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'hadoop')
+    conn.sudo('''bash -l -c 'echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf' ''')
+    conn.sudo('''bash -l -c 'echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc' ''')
+    conn.sudo('''bash -l -c 'unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python3 /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11} --livy_version {12} --multiple_clusters {13} --r_enabled {14}' '''
+        .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name, args.dataproc_version,
+                spark_version, hadoop_version, args.region, args.project_name, args.os_user, args.pip_mirror, args.application,
+                os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'], r_enabled))

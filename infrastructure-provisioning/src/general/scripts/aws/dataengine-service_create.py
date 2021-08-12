@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,28 +21,29 @@
 #
 # ******************************************************************************
 
-import boto3
-from botocore.client import Config
 import argparse
-import re
-import time
-import sys
-from fabric.api import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-import json
-import traceback
-import logging
 import ast
+import boto3
+import logging
+import re
+import sys
+import time
+import traceback
+from botocore.client import Config as botoConfig
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--id', type=str, default='')
 parser.add_argument('--dry_run', action='store_true', help='Print all variables')
 parser.add_argument('--name', type=str, default='', help='Name to be applied to Cluster ( MANDATORY !!! )')
 parser.add_argument('--applications', type=str, default='',
-                    help='Set of applications to be installed on EMR (Default are: "Hadoop Hive Hue Spark")')
-parser.add_argument('--master_instance_type', type=str, default='', help='EC2 instance size for Master-Node (Default: m3.xlarge)')
-parser.add_argument('--slave_instance_type', type=str, default='', help='EC2 instance size for Worker-Nodes (Default: m3.xlarge)')
+                    help='Set of applications to be installed on EMR (Default are: "Hadoop Hive Hue Spark Livy")')
+parser.add_argument('--master_instance_type', type=str, default='',
+                    help='EC2 instance size for Master-Node (Default: m3.xlarge)')
+parser.add_argument('--slave_instance_type', type=str, default='',
+                    help='EC2 instance size for Worker-Nodes (Default: m3.xlarge)')
 parser.add_argument('--instance_count', type=int, default='',
                     help='Number of nodes the cluster will consist of (Default: 3)')
 parser.add_argument('--release_label', type=str, default='', help='EMR release version (Default: "emr-4.8.0")')
@@ -118,9 +119,9 @@ cp_jars = "Name=CUSTOM_JAR, Args=aws " \
           "--sse AES256 --endpoint-url {6} --region {2}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
           "Name=CUSTOM_JAR, Args=sudo " \
-          "/usr/bin/python /tmp/key_importer.py --user_name {4}, " \
+          "/usr/bin/python3 /tmp/key_importer.py --user_name {4}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-          "Name=CUSTOM_JAR, Args=/usr/bin/python /tmp/jars_parser.py " \
+          "Name=CUSTOM_JAR, Args=/usr/bin/python3 /tmp/jars_parser.py " \
           "--bucket {0} --emr_version {3} --region {2} --user_name {4} " \
           "--cluster_name {5}, " \
           "ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".\
@@ -140,7 +141,7 @@ out.close()
 
 def get_object_count(bucket, prefix):
     try:
-        s3_cli = boto3.client('s3', config=Config(signature_version='s3v4'),
+        s3_cli = boto3.client('s3', config=botoConfig(signature_version='s3v4'),
                               region_name=args.region)
         content = s3_cli.get_paginator('list_objects')
         file_list = []
@@ -162,7 +163,7 @@ def get_object_count(bucket, prefix):
 
 def upload_jars_parser(args):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         s3.meta.client.upload_file('/root/scripts/dataengine-service_jars_parser.py',
                                    args.s3_bucket, 'jars_parser.py',
                                    ExtraArgs={'ServerSideEncryption': 'AES256'})
@@ -175,7 +176,7 @@ def upload_jars_parser(args):
 
 def upload_user_key(args):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         s3.meta.client.upload_file(args.key_dir + '/' +
                                    args.project_name + '.pub',
                                    args.s3_bucket, args.project_name +
@@ -196,7 +197,7 @@ def upload_user_key(args):
 def remove_user_key(args):
     try:
         client = boto3.client('s3',
-                              config=Config(signature_version='s3v4'),
+                              config=botoConfig(signature_version='s3v4'),
                               region_name=args.region)
         client.delete_object(Bucket=args.s3_bucket,
                              Key=args.project_name + '.pub')

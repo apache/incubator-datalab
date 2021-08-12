@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,20 +21,13 @@
 #
 # ******************************************************************************
 
-import boto3
-from botocore.client import Config
-from fabric.api import *
 import argparse
-import os
-import sys
-import time
-from fabric.api import lcd
-from fabric.contrib.files import exists
-from fabvenv import virtualenv
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
-from dlab.common_lib import *
+import subprocess
+from datalab.actions_lib import jars, yarn, install_emr_spark, spark_defaults, installing_python, configure_zeppelin_emr_interpreter
+from datalab.common_lib import *
+from datalab.fab import configuring_notebook, update_zeppelin_interpreters
+from datalab.notebook_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -71,20 +64,20 @@ else:
 
 
 def install_remote_livy(args):
-    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
-    local('sudo service zeppelin-notebook stop')
-    local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/'
-          + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip')
-    local('sudo unzip /opt/'
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/', shell=True, check=True)
+    subprocess.run('sudo service zeppelin-notebook stop', shell=True, check=True)
+    subprocess.run('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/'
+          + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip', shell=True, check=True)
+    subprocess.run('sudo unzip /opt/'
           + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip -d /opt/'
-          + args.emr_version + '/' + args.cluster_name + '/')
-    local('sudo mv /opt/' + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version +
-          '/ /opt/' + args.emr_version + '/' + args.cluster_name + '/livy/')
+          + args.emr_version + '/' + args.cluster_name + '/', shell=True, check=True)
+    subprocess.run('sudo mv /opt/' + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version +
+          '/ /opt/' + args.emr_version + '/' + args.cluster_name + '/livy/', shell=True, check=True)
     livy_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/livy/'
-    local('sudo mkdir -p ' + livy_path + '/logs')
-    local('sudo mkdir -p /var/run/livy')
-    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /var/run/livy')
-    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R ' + livy_path)
+    subprocess.run('sudo mkdir -p ' + livy_path + '/logs', shell=True, check=True)
+    subprocess.run('sudo mkdir -p /var/run/livy', shell=True, check=True)
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /var/run/livy', shell=True, check=True)
+    subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R ' + livy_path, shell=True, check=True)
 
 
 if __name__ == "__main__":

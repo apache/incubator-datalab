@@ -28,11 +28,12 @@ import {
   TimePickerComponent,
   TimePickerDialogComponent
 } from './time-picker.component';
+import {LocalDatePipeModule} from '../../core/pipes/local-date-pipe';
 
 export * from './time-picker.component';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, LocalDatePipeModule],
   declarations: [TimePickerComponent, TimePickerDialogComponent, TimeCoverComponent, TickerComponent],
   entryComponents: [TimePickerDialogComponent],
   exports: [TimePickerComponent]

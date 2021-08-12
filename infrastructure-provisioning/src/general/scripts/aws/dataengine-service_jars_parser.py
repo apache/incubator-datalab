@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -39,12 +39,10 @@ if __name__ == "__main__":
     spark_def_path = "/usr/lib/spark/conf/spark-defaults.conf"
     spark_def_path_line1 = subprocess.check_output("cat " + spark_def_path +
                                                    " | grep spark.driver.extraClassPath | awk '{print $2}' | "
-                                                   "sed 's/^:// ; s~jar:~jar ~g; s~/\*:~/\* ~g; s~:~/\* ~g'",
-                                                   shell=True)
+                                                   "sed 's/^:// ; s~jar:~jar ~g; s~/\*:~/\* ~g; s~:~/\* ~g'", shell=True).decode('UTF-8')
     spark_def_path_line2 = subprocess.check_output("cat " + spark_def_path +
                                                    " | grep spark.driver.extraLibraryPath | awk '{print $2}' | "
-                                                   "sed 's/^:// ; s~jar:~jar ~g; s~/\*:~/\* ~g; s~:\|$~/\* ~g'",
-                                                   shell=True)
+                                                   "sed 's/^:// ; s~jar:~jar ~g; s~/\*:~/\* ~g; s~:\|$~/\* ~g'",shell=True).decode('UTF-8')
     spark_def_path_line1 = spark_def_path_line1.strip('\n')
     spark_def_path_line2 = spark_def_path_line2.strip('\n')
     if args.region == 'us-east-1':
@@ -63,9 +61,9 @@ if __name__ == "__main__":
     with open('/tmp/r_version', 'w') as outfile:
         outfile.write(r_ver)
     os.system('touch /tmp/python_version')
-    for v in range(4, 7):
+    for v in range(4, 8):
         python_ver_checker = "python3.{} -V 2>/dev/null".format(v) + " | awk '{print $2}'"
-        python_ver = subprocess.check_output(python_ver_checker, shell=True)
+        python_ver = subprocess.check_output(python_ver_checker, shell=True).decode('UTF-8')
         if python_ver != '':
             with open('/tmp/python_version', 'w') as outfile:
                 outfile.write(python_ver)
@@ -76,10 +74,10 @@ if __name__ == "__main__":
               format(spark_def_path_line1,
                      spark_def_path_line2))
     os.system('/bin/tar -zhcvf /tmp/spark.tar.gz -C /usr/lib/ spark')
-    md5sum = subprocess.check_output('md5sum /tmp/jars.tar.gz', shell=True)
+    md5sum = subprocess.check_output('md5sum /tmp/jars.tar.gz', shell=True).decode('UTF-8')
     with open('/tmp/jars-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
-    md5sum = subprocess.check_output('md5sum /tmp/spark.tar.gz', shell=True)
+    md5sum = subprocess.check_output('md5sum /tmp/spark.tar.gz', shell=True).decode('UTF-8')
     with open('/tmp/spark-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
     os.system('aws s3 cp /tmp/jars.tar.gz '

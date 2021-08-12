@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,11 +22,12 @@
 # ******************************************************************************
 
 import argparse
-from fabric.api import *
-from fabric.contrib.files import exists
-from dlab.meta_lib import *
 import os
-from dlab.fab import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric import *
+from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
@@ -44,39 +45,43 @@ args = parser.parse_args()
 def configure_notebook(keyfile, hoststring):
     scripts_dir = '/root/scripts/'
     templates_dir = '/root/templates/'
-    run('mkdir -p /tmp/{}/'.format(args.cluster_name))
-    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
+    conn.run('mkdir -p /tmp/{}/'.format(args.cluster_name))
+    conn.put(templates_dir + 'notebook_spark-defaults_local.conf',
+        '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
-    run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
-    if not exists('/usr/local/bin/rstudio_dataengine_create_configs.py'):
-        put(scripts_dir + 'rstudio_dataengine_create_configs.py', '/usr/local/bin/rstudio_dataengine_create_configs.py', use_sudo=True)
-        sudo('chmod 755 /usr/local/bin/rstudio_dataengine_create_configs.py')
-    if not exists('/usr/lib/python2.7/dlab/'):
-        sudo('mkdir -p /usr/lib/python2.7/dlab/')
-        put('/usr/lib/python2.7/dlab/*', '/usr/lib/python2.7/dlab/', use_sudo=True)
-        sudo('chmod a+x /usr/lib/python2.7/dlab/*')
-        if exists('/usr/lib64'):
-            sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+    conn.run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory,
+                                                                                                  args.cluster_name))
+    if not exists(conn,'/usr/local/bin/rstudio_dataengine_create_configs.py'):
+        conn.put(scripts_dir + 'rstudio_dataengine_create_configs.py', '/tmp/rstudio_dataengine_create_configs.py')
+        conn.sudo('cp -f /tmp/rstudio_dataengine_create_configs.py /usr/local/bin/rstudio_dataengine_create_configs.py')
+        conn.sudo('chmod 755 /usr/local/bin/rstudio_dataengine_create_configs.py')
+    if not exists(conn,'/usr/lib/python3.8/datalab/'):
+        conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+        conn.local('cd  /usr/lib/python3.8/datalab/; tar -zcvf /tmp/datalab.tar.gz *')
+        conn.put('/tmp/datalab.tar.gz', '/tmp/datalab.tar.gz')
+        conn.sudo('tar -zxvf /tmp/datalab.tar.gz -C /usr/lib/python3.8/datalab/')
+        conn.sudo('chmod a+x /usr/lib/python3.8/datalab/*')
+        if exists(conn, '/usr/lib64'):
+            conn.sudo('mkdir -p /usr/lib64/python3.8')
+            conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 def create_inactivity_log(master_ip, hoststring):
     reworked_ip = master_ip.replace('.', '-')
-    sudo("date +%s > /opt/inactivity/{}_inactivity".format(reworked_ip))
+    conn.sudo('''bash -l -c "date +%s > /opt/inactivity/{}_inactivity" '''.format(reworked_ip))
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     try:
         region = os.environ['aws_region']
     except:
         region = ''
     if 'spark_configurations' not in os.environ:
         os.environ['spark_configurations'] = '[]'
-    configure_notebook(args.keyfile, env.host_string)
-    create_inactivity_log(args.spark_master_ip, env.host_string)
-    sudo('/usr/bin/python /usr/local/bin/rstudio_dataengine_create_configs.py '
+    configure_notebook(args.keyfile, args.notebook_ip)
+    create_inactivity_log(args.spark_master_ip, args.notebook_ip)
+    conn.sudo('/usr/bin/python3 /usr/local/bin/rstudio_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} '
          '--datalake_enabled {} --spark_configurations "{}"'.
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,

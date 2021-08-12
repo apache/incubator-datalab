@@ -43,9 +43,9 @@ export class ConfirmationDialogComponent implements OnInit {
   dataengines: Array<any> = [];
   dataengineServices: Array<any> = [];
   confirmationType: number = 0;
+  public isClusterLength: boolean;
 
   @Input() manageAction: boolean = false;
-
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
@@ -60,21 +60,31 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.confirmationType = this.data.type;
-    this.notebook = this.data.notebook;
-    this.model = new ConfirmationDialogModel(this.confirmationType, this.notebook,
-      response => {
-        if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
-      },
-      error => this.toastr.error(error.message || 'Action failed!', 'Oops'),
-      this.data.manageAction,
-      this.userResourceService,
-      this.healthStatusService,
-      this.manageEnvironmentsService);
+    if (this.data.type !== 5) {
+      this.confirmationType = this.data.type;
+      this.notebook = this.data.notebook;
+      this.model = new ConfirmationDialogModel(this.confirmationType, this.notebook,
+        response => {
+          if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
+        },
+        error => this.toastr.error(error.message || 'Action failed!', 'Oops'),
+        this.data.manageAction,
+        this.userResourceService,
+        this.healthStatusService,
+        this.manageEnvironmentsService);
 
-    if (!this.confirmationType) this.filterResourcesByType(this.notebook.resources);
-    this.isAliveResources = this.model.isAliveResources(this.notebook.resources);
-    this.onlyKilled = this.notebook.resources ? !this.notebook.resources.some(el => el.status !== 'terminated' && el.status !== 'failed') : false;
+      if (!this.confirmationType) this.filterResourcesByType(this.data.compute);
+      this.isAliveResources = this.model.isAliveResources(this.notebook.resources);
+      this.onlyKilled = this.notebook.resources ?
+        !this.notebook.resources.some(el => el.status !== 'terminated' && el.status !== 'failed')
+        : false;
+    }
+
+    if (this.data.type === 0 || this.data.type === 1) {
+      if (this.data.compute.length) {
+        this.isClusterLength = true;
+      }
+    }
   }
 
   public confirm() {
@@ -82,12 +92,8 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   private filterResourcesByType(resources) {
-    resources
-      .filter(resource =>
-        (resource.status !== 'failed' && resource.status !== 'terminated'
-          && resource.status !== 'terminating' && resource.status !== 'stopped'))
-      .forEach(resource => {
-        (resource.image === 'docker.dlab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource);
+    resources.forEach(resource => {
+        (resource.image === 'docker.datalab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource);
       });
   }
 }

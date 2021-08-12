@@ -34,7 +34,7 @@ RUN apk add --update \
     && apk --purge -v del py-pip \
     && rm -rf /var/cache/apk/*
 
-COPY self-service-2.2.jar /root/
+COPY self-service-*.jar /root/
 COPY entrypoint.sh /
 RUN chmod 755 /entrypoint.sh
 

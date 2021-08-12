@@ -27,7 +27,11 @@ export class EnvironmentModel {
     public ip: string,
     public type?: string,
     public project?: string,
-    public cloud_provider?: string
+    public endpoint?: string,
+    public cloud_provider?: string,
+    public gpu_type?: string,
+    public gpu_count?: string,
+    public exploratory_urls?: Array<any>
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -41,7 +45,11 @@ export class EnvironmentModel {
         value.public_ip,
         value.resource_type,
         value.project,
-        value.cloud_provider
+        value.endpoint,
+        value.cloud_provider,
+        value.gpu_type,
+        value.gpu_count,
+        value.exploratory_urls
       ));
     }
   }
@@ -69,19 +77,21 @@ export class BackupOptionsModel {
 
 export interface GeneralEnvironmentStatus {
   admin: boolean;
+  auditEnabled: boolean;
   projectAdmin: boolean;
   billingEnabled: boolean;
   billingQuoteUsed: number;
   list_resources: any;
   status: string;
   projectAssigned: boolean;
+  bucketBrowser: object;
 }
 
 
 export class ManagementConfigModel {
 
   static getDefault(): ManagementConfigModel {
-    return new ManagementConfigModel([], '', [], [], [], []);
+    return new ManagementConfigModel([], '', [], [], [], [], []);
   }
 
   constructor(
@@ -91,6 +101,7 @@ export class ManagementConfigModel {
     public shapes: Array<string>,
     public statuses: Array<string>,
     public resources: Array<string>,
+    public endpoints: Array<string>,
 
   ) { }
 
@@ -101,5 +112,6 @@ export class ManagementConfigModel {
     this.shapes = [];
     this.statuses = [];
     this.resources = [];
+    this.endpoints = [];
   }
 }

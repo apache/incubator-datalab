@@ -18,7 +18,8 @@
   -->
 
 <div class="nav-bar" [hidden]="!isLoggedIn">
-  <mat-progress-bar *ngIf="showProgressBar" mode="indeterminate"></mat-progress-bar>
+<!--  <mat-progress-bar *ngIf="showProgressBar" mode="indeterminate"></mat-progress-bar>-->
+  <mat-progress-bar *ngIf="progressBarService.showProgressBar | async" mode="indeterminate"></mat-progress-bar>
   <div class="menu-area" *ngIf="healthStatus">
 
     <button class="hamburger" (click)="collapse()">
@@ -28,7 +29,7 @@
     </button>
 
     <a [routerLink]="['/resources_list']" class="navbar-logo">
-      <img src="assets/img/logo-nav.png" alt="">
+      <img src="assets/svg/logo.svg" alt="">
     </a>
   </div>
 
@@ -65,9 +66,9 @@
   </div>
 
 </div>
-<mat-sidenav-container class="example-container" autosize>
-  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '60px'" disableClose>
-    <mat-nav-list>
+<mat-sidenav-container class="example-container" autosize >
+  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '60px'" disableClose *ngIf="healthStatus">
+    <mat-nav-list >
       <nav>
         <div>
           <a class="nav-item" [routerLink]="['/resources_list']" [routerLinkActive]="['active']"
@@ -88,17 +89,36 @@
               <span *ngIf="isExpanded; else projects">Projects</span>
               <ng-template #projects><i class="material-icons">dns</i></ng-template>
             </a>
+<!--            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/odahu']"-->
+<!--               [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">-->
+<!--              <span *ngIf="isExpanded; else odahu">Odahu deployment</span>-->
+<!--              <ng-template #odahu><i class="material-icons">get_app</i></ng-template>-->
+<!--            </a>-->
             <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
               [routerLink]="['/environment_management']" [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}">
               <span *ngIf="isExpanded; else env">Environment Management</span>
               <ng-template #env><i class="material-icons">settings</i></ng-template>
             </a>
+            <a *ngIf="healthStatus?.admin" class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
+               [routerLink]="['/configuration']" [routerLinkActive]="['active']"
+               [routerLinkActiveOptions]="{exact:true}" >
+              <span *ngIf="isExpanded; else env">Configuration</span>
+              <ng-template #env><i class="material-icons">build_circle</i></ng-template>
+            </a>
           </a>
-          <a *ngIf="healthStatus?.billingEnabled" class="nav-item" [routerLink]="['/billing_report']"
-            [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-            <span *ngIf="isExpanded; else billing">Billing Report</span>
-            <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
+          <a class="nav-item has-children" *ngIf="healthStatus?.billingEnabled || healthStatus?.auditEnabled">
+            <span *ngIf="isExpanded">Reports</span>
+            <a *ngIf="healthStatus?.auditEnabled" class="sub-nav-item" [routerLink]="['/audit']" [style.margin-left.px]="isExpanded ? '30' : '0'"
+               [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+              <span *ngIf="isExpanded; else audit">Audit</span>
+              <ng-template #audit><i class="material-icons">library_books</i></ng-template>
+            </a>
+            <a *ngIf="healthStatus?.billingEnabled" class="sub-nav-item" [routerLink]="['/billing_report']"
+              [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [style.margin-left.px]="isExpanded ? '30' : '0'">
+              <span *ngIf="isExpanded; else billing">Billing</span>
+              <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
+            </a>
           </a>
         </div>
 <!--        <div>-->
@@ -107,7 +127,6 @@
 <!--            <span *ngIf="isExpanded; else endpoint">Cloud Endpoint API</span>-->
 <!--            <ng-template #endpoint>-->
 <!--              <span>-->
-<!--                <svg width="30px" height="27px" viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">-->
 <!--                  <g>-->
 <!--                    <path d="M127.059657,255.996921 C58.8506544,255.526472 -0.457073619,198.918442 0.00265506057,126.998303 C0.444649399,57.7958628 57.9516598,-0.468967577 129.11002,0.00284555012 C198.267128,0.462386081 256.613109,57.8667711 255.995136,128.194199 C256.568091,197.883453 197.934268,256.489189 127.059657,255.996921 Z M127.059657,255.996921 C58.8506544,255.526472 -0.457073619,198.918442 0.00265506057,126.998303 C0.444649399,57.7958628 57.9516598,-0.468967577 129.11002,0.00284555012 C198.267128,0.462386081 256.613109,57.8667711 255.995136,128.194199 C256.568091,197.883453 197.934268,256.489189 127.059657,255.996921 Z" fill="#FFFFFF"></path>-->
 <!--                    <path id="swager-bgr" d="M127.184644,238.997327 C68.0323765,238.589271 16.6036091,189.498744 17.0023028,127.131428 C17.3860285,67.1185953 67.2554,16.5917106 128.963117,17.0024872 C188.934544,17.4010221 239.531905,67.1825241 238.995778,128.169251 C239.492444,188.602381 188.64743,239.424426 127.184644,238.997327 Z M127.184644,238.997327 C68.0323765,238.589271 16.6036091,189.498744 17.0023028,127.131428 C17.3860285,67.1185953 67.2554,16.5917106 128.963117,17.0024872 C188.934544,17.4010221 239.531905,67.1825241 238.995778,128.169251 C239.492444,188.602381 188.64743,239.424426 127.184644,238.997327 Z" fill="#577289"></path>-->

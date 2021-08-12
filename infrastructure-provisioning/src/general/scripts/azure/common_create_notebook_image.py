@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,20 +21,19 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import os
-import traceback
-import sys
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-from fabric.api import *
-
+import os
+import sys
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     try:
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         image_conf = dict()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -45,7 +44,7 @@ if __name__ == "__main__":
         image_conf['endpoint_tag'] = image_conf['endpoint_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['application'] = os.environ['application']
-        image_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        image_conf['datalab_ssh_user'] = os.environ['conf_os_user']
         image_conf['image_name'] = os.environ['notebook_image_name']
         image_conf['full_image_name'] = '{}-{}-{}-{}-{}'.format(image_conf['service_base_name'],
                                                                 image_conf['project_name'],
@@ -78,7 +77,8 @@ if __name__ == "__main__":
         image = AzureMeta.get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
         if image == '':
             print('Creating image from existing notebook.')
-            dlab.actions_lib.prepare_vm_for_image(True, image_conf['dlab_ssh_user'], instance_hostname, keyfile_name)
+            datalab.actions_lib.prepare_vm_for_image(True, image_conf['datalab_ssh_user'], instance_hostname,
+                                                     keyfile_name)
             AzureActions.create_image_from_instance(image_conf['resource_group_name'],
                                                     image_conf['instance_name'],
                                                     os.environ['azure_region'],
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                                                     json.dumps(image_conf['tags']))
             print("Image was successfully created.")
             try:
-                local("~/scripts/{}.py".format('common_prepare_notebook'))
+                subprocess.run("~/scripts/{}.py".format('common_prepare_notebook'), shell=True, check=True)
                 instance_running = False
                 while not instance_running:
                     if AzureMeta.get_instance_status(image_conf['resource_group_name'],
@@ -94,18 +94,19 @@ if __name__ == "__main__":
                         instance_running = True
                 instance_hostname = AzureMeta.get_private_ip_address(image_conf['resource_group_name'],
                                                                      image_conf['instance_name'])
-                dlab.actions_lib.remount_azure_disk(True, image_conf['dlab_ssh_user'], instance_hostname, keyfile_name)
-                dlab.fab.set_git_proxy(image_conf['dlab_ssh_user'], instance_hostname, keyfile_name,
-                                       'http://{}:3128'.format(edge_instance_hostname))
+                datalab.actions_lib.remount_azure_disk(True, image_conf['datalab_ssh_user'], instance_hostname,
+                                                       keyfile_name)
+                datalab.fab.set_git_proxy(image_conf['datalab_ssh_user'], instance_hostname, keyfile_name,
+                                          'http://{}:3128'.format(edge_instance_hostname))
                 additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, image_conf['instance_name'], keyfile_name,
-                            json.dumps(additional_config), image_conf['dlab_ssh_user'])
-                local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+                            json.dumps(additional_config), image_conf['datalab_ssh_user'])
+                subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True, check=True)
                 print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
             except Exception as err:
                 AzureActions.remove_instance(image_conf['resource_group_name'], image_conf['instance_name'])
-                dlab.fab.append_result("Failed to create instance from image.", str(err))
+                datalab.fab.append_result("Failed to create instance from image.", str(err))
                 sys.exit(1)
 
             with open("/root/result.json", 'w') as result:
@@ -119,5 +120,5 @@ if __name__ == "__main__":
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Failed to create image from notebook", str(err))
+        datalab.fab.append_result("Failed to create image from notebook", str(err))
         sys.exit(1)

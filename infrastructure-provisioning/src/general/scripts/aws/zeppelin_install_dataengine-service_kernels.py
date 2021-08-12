@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,10 +22,9 @@
 # ******************************************************************************
 
 import argparse
-from fabric.api import *
-import boto3
-from dlab.meta_lib import *
 import os
+from datalab.meta_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -50,34 +49,34 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     if os.environ['notebook_multiple_clusters'] == 'true':
-        put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
+        conn.put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     else:
-        put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
-    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
+        conn.put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
+    conn.put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
         '/tmp/zeppelin_dataengine-service_create_configs.py')
-    sudo('\cp /tmp/zeppelin_dataengine-service_create_configs.py /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
-    sudo('chmod 755 /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
-    sudo('mkdir -p /usr/lib/python2.7/dlab/')
-    run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/dlab_libs/*')
-    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
-    if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+    conn.sudo(
+        '\cp /tmp/zeppelin_dataengine-service_create_configs.py /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
+    conn.sudo('chmod 755 /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
+    conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+    conn.run('mkdir -p /tmp/datalab_libs/')
+    conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}@{}:/tmp/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
+    conn.run('chmod a+x /tmp/datalab_libs/*')
+    conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
+    if exists(conn, '/usr/lib64'):
+        conn.sudo('mkdir -p /usr/lib64/python3.8')
+        conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     configure_notebook(args)
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
-    command = "/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
+    command = "/usr/bin/python3 /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
              "--bucket {0} " \
              "--cluster_name {1} " \
              "--emr_version {2} " \
@@ -114,4 +113,4 @@ if __name__ == "__main__":
                 numpy_version,
                 args.application,
                 r_enabled)
-    sudo(command)
+    conn.sudo(command)

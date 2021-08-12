@@ -20,13 +20,13 @@
 # ******************************************************************************
 
 
-FROM docker.dlab-base:latest
+FROM docker.datalab-base:latest
 
 ARG OS
 
 COPY edge/ /root/
 COPY general/scripts/gcp/edge_* /root/scripts/
-COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python2.7/dlab/edge_lib.py
+COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python3.8/datalab/edge_lib.py
 COPY general/files/gcp/ps_policy.json /root/files/ps_policy.json
 COPY general/files/gcp/ps_roles.json /root/files/ps_roles.json
 

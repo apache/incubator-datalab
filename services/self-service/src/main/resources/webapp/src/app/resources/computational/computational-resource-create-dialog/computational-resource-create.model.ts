@@ -28,10 +28,10 @@ export class ComputationalResourceModel {
 
   constructor(private userResourceService: UserResourceService) { }
 
-  public createComputationalResource(parameters, image, env, spot, provider): Observable<{}> {
+  public createComputationalResource(parameters, image, env, spot, provider, gpu?): Observable<{}> {
     const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
 
-    if (provider === 'aws' && image.image === 'docker.dlab-dataengine-service') {
+    if (provider === 'aws' && image.image === 'docker.datalab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: parameters.cluster_alias_name,
         emr_instance_count: parameters.instance_number,
@@ -47,7 +47,7 @@ export class ComputationalResourceModel {
         project: env.project,
         custom_tag: parameters.custom_tag
       }, provider);
-    } else if (provider === 'gcp' && image.image === 'docker.dlab-dataengine-service') {
+    } else if (provider === 'gcp' && image.image === 'docker.datalab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         template_name: image.template_name,
         image: image.image,
@@ -61,13 +61,24 @@ export class ComputationalResourceModel {
         dataproc_version: parameters.version,
         config: config,
         project: env.project,
-        custom_tag: parameters.custom_tag
+        custom_tag: parameters.custom_tag,
+        master_gpu_type: gpu ? parameters.master_GPU_type : null,
+        slave_gpu_type: gpu ? parameters.slave_GPU_type : null,
+        master_gpu_count: gpu ? parameters.master_GPU_count : null,
+        slave_gpu_count: gpu ? parameters.slave_GPU_count : null,
+        gpu_enabled: gpu
       }, provider);
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
         name: parameters.cluster_alias_name,
         dataengine_instance_count: parameters.instance_number,
-        dataengine_instance_shape: parameters.shape_master,
+        master_instance_shape: parameters.shape_master,
+        slave_instance_shape: parameters.shape_slave,
+        gpu_enabled: gpu,
+        master_gpu_type: gpu ? parameters.master_GPU_type : null,
+        slave_gpu_type: gpu ? parameters.slave_GPU_type : null,
+        master_gpu_count: gpu ? parameters.master_GPU_count : null,
+        slave_gpu_count: gpu ? parameters.slave_GPU_count : null,
         notebook_name: env.name,
         image: image.image,
         template_name: image.template_name,

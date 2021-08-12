@@ -1,21 +1,21 @@
 # *****************************************************************************
 #
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
+#  http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
 #
 # ******************************************************************************
 
@@ -26,7 +26,7 @@ spring:
     mongodb:
       username: admin
       password: admin
-      database: dlabdb
+      database: datalabdb
       port: 27017
       host: localhost
 
@@ -36,25 +36,25 @@ server:
     contextPath: /api/billing
 
 server.ssl.key-store-type: JKS
-server.ssl.key-store: /Users/ofuks/keys/dlabcert/billing.jks
+server.ssl.key-store: /home/OS_USER/keys/endpoint.keystore.jks
 server.ssl.key-store-password: KEYSTORE_PASSWORD
 server.ssl.key-alias: billing
 
 logging:
-  file: /var/opt/dlab/log/ssn/billing.log
+  file: /var/opt/datalab/log/ssn/billing.log
   level:
     com:
       epam: trace
 
 keycloak:
   bearer-only: true
-  realm: DLAB_bhliva
-  resource: sss
-  credentials.secret: cf5a484b-039b-4161-8707-ad65c0f25962
+  realm: datalab
+  resource: KEYCLOAK_CLIENT_ID
+  credentials.secret: CLIENT_SECRET
   ssl-required: none
-  auth-server-url: http://52.11.45.11:8080/auth
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
 
-dlab:
+datalab:
   sbn: <CONF_SERVICE_BASE_NAME>
   billingEnabled: true
   clientId: <CLIENT_ID>
@@ -74,7 +74,7 @@ dlab:
     port: 27017
     username: admin
     password: <MONGODB_PASSWORD>
-    database: dlabdb
+    database: datalabdb
   ssnStorageAccountTagName: <AZURE_SSN_STORAGE_ACCOUNT_TAG>
   sharedStorageAccountTagName: <AZURE_SHARED_STORAGE_ACCOUNT_TAG>
   datalakeTagName: <AZURE_DATALAKE_TAG>

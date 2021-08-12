@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,12 +21,12 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
-from fabric.contrib.files import exists
-from dlab.edge_lib import configure_http_proxy_server
 import argparse
 import json
 import sys
+from datalab.edge_lib import configure_http_proxy_server
+from fabric import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -41,12 +41,12 @@ args = parser.parse_args()
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        global conn
+        conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
 
     print("Installing proxy for notebooks.")
     configure_http_proxy_server(deeper_config)
+    conn.close()

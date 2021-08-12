@@ -34,13 +34,23 @@ export class SortUtils {
 
     Object.keys(shapesJson)
       .sort((a, b) => sortOrder.indexOf(a) - sortOrder.indexOf(b))
-      .forEach(key => { sortedShapes[key] = shapesJson[key]; });
+      .forEach(key => {
+        if (shapesJson[key].length) {
+          sortedShapes[key] = shapesJson[key];
+        }
+      });
 
     return sortedShapes;
   }
 
   public static libGroupsSort(groups) {
-    const sortOrder = ['os_pkg', 'pip2', 'pip3', 'r_pkg', 'java', 'others'];
+    const sortOrder = ['os_pkg', 'pip3', 'r_pkg', 'java', 'others'];
+
+    return groups.sort((arg1, arg2) => sortOrder.indexOf(arg1) - sortOrder.indexOf(arg2));
+  }
+
+  public static libFilterGroupsSort(groups) {
+    const sortOrder = ['Apt/Yum', 'Python 3', 'R packages', 'Java', 'Others'];
 
     return groups.sort((arg1, arg2) => sortOrder.indexOf(arg1) - sortOrder.indexOf(arg2));
   }
@@ -48,5 +58,13 @@ export class SortUtils {
   public static flatDeep(arr, d = 1) {
     return d > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? this.flatDeep(val, d - 1) : val), [])
       : arr.slice();
-  };
+  }
+
+  public static sortByKeys(array, keys) {
+    keys.forEach(key => {
+      array = array.sort((a, b) => (a[key] > b[key]) ? 1 : ((b[key] > a[key]) ? -1 : 0));
+    });
+    return array;
+  }
+
 }

@@ -27,7 +27,7 @@ RUN=$(aws s3 ls s3://${k8s-bucket-name}/k8s/masters/ > /dev/null && echo "true" 
 sleep 5
 }
 
-# Creating DLab user
+# Creating DataLab user
 sudo useradd -m -G sudo -s /bin/bash ${k8s_os_user}
 sudo bash -c 'echo "${k8s_os_user} ALL = NOPASSWD:ALL" >> /etc/sudoers'
 sudo mkdir /home/${k8s_os_user}/.ssh
@@ -37,7 +37,7 @@ sudo chmod 700 /home/${k8s_os_user}/.ssh
 sudo chmod 600 /home/${k8s_os_user}/.ssh/authorized_keys
 
 sudo apt-get update
-sudo apt-get install -y python-pip
+sudo apt-get install -y python3-pip
 sudo pip install -U pip
 sudo pip install awscli
 

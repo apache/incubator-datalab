@@ -19,10 +19,11 @@
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import {map, catchError, tap} from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
+import {logger} from 'codelyzer/util/logger';
 
 @Injectable()
 export class ProjectService {

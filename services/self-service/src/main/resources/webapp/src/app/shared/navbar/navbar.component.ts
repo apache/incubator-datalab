@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, ApplicationRef} from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {Subscription, timer, interval, Subject} from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -25,8 +25,6 @@ import { RouterOutlet } from '@angular/router';
 
 import { ApplicationSecurityService, HealthStatusService, AppRoutingService, SchedulerService, StorageService } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
-import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import { FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
 import {
   trigger,
@@ -34,15 +32,18 @@ import {
   transition,
   style,
   query, group,
-  sequence,
-  animateChild,
-  state
+
 } from '@angular/animations';
-import {skip} from 'rxjs/operators';
+import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 
+
+interface Quota {
+  projectQuotas: {};
+  totalQuotaUsed: number;
+}
 @Component({
-  selector: 'dlab-navbar',
+  selector: 'datalab-navbar',
   templateUrl: 'navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
   animations: [trigger('fadeAnimation', [
@@ -76,7 +77,7 @@ import {ProgressBarService} from '../../core/services/progress-bar.service';
 })
 export class NavbarComponent implements OnInit, OnDestroy {
 
-  private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
+  private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 300000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
   currentUserName: string;
@@ -84,10 +85,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   metadata: any;
   isExpanded: boolean = true;
-  public showProgressBar: any = false;
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
-  showProgressBarSubscr = new Subscription();
 
   constructor(
     public toastr: ToastrService,
@@ -97,11 +96,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private schedulerService: SchedulerService,
     private storage: StorageService,
     private dialog: MatDialog,
-    private progressBarService: ProgressBarService,
+    public progressBarService: ProgressBarService,
   ) { }
 
   ngOnInit() {
-    this.showProgressBarSubscr = this.progressBarService.showProgressBar.subscribe(isProgressBarVissible => this.showProgressBar = isProgressBarVissible);
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;
@@ -110,7 +108,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
           this.healthStatus = result;
-          result.status && this.checkQuoteUsed(this.healthStatus);
+          result.status && this.checkQuoteUsed();
           result.status && !result.projectAssigned && !result.admin && this.checkAssignment(this.healthStatus);
         }));
         this.subscriptions.add(timer(0, this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
@@ -122,7 +120,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-    this.showProgressBarSubscr.unsubscribe();
   }
 
   public getRouterOutletState(routerOutlet: RouterOutlet) {
@@ -148,9 +145,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isExpanded = !this.isExpanded;
   }
 
-  public emitQuotes(alert, user_quota?, total_quota?): void {
+  public emitQuotes(alert, total_quota?, exideedProjects?, informProjects?): void {
     const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
-      data: { template: this.selectAlert(alert, user_quota, total_quota), type: 'message' },
+      data: { template: this.selectAlert(alert, total_quota, exideedProjects, informProjects), type: 'message' },
       width: '550px'
     });
     dialogRef.afterClosed().subscribe(() => {
@@ -158,17 +155,41 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  private checkQuoteUsed(params): void {
-    if (!this.storage.getBillingQuoteUsed() && params) {
-      let checkQuotaAlert = '';
+  private checkQuoteUsed(): void {
+    if (!this.storage.getBillingQuoteUsed( )) {
+      this.healthStatusService.getQuotaStatus().pipe(take(1)).subscribe((params: Quota) => {
+        let checkQuotaAlert = '';
+        const exceedProjects = [], informProjects = [];
+        Object.keys(params.projectQuotas).forEach(key => {
+          if (params.projectQuotas[key] > this.quotesLimit && params.projectQuotas[key] < 100) {
+            informProjects.push(key);
+          } else if (params.projectQuotas[key] >= 100) {
+            exceedProjects.push(key);
+          }
+        });
 
-      if (params.billingUserQuoteUsed >= this.quotesLimit && params.billingUserQuoteUsed < 100) checkQuotaAlert = 'user_quota';
-      if (params.billingQuoteUsed >= this.quotesLimit && params.billingQuoteUsed < 100) checkQuotaAlert = 'total_quota';
-      if (Number(params.billingUserQuoteUsed) >= 100) checkQuotaAlert = 'user_exceed';
-      if (Number(params.billingQuoteUsed) >= 100) checkQuotaAlert = 'total_exceed';
+        if (informProjects.length > 0 && exceedProjects.length === 0) checkQuotaAlert = 'project_quota';
+        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100) checkQuotaAlert = 'total_quota';
+        if (exceedProjects.length > 0 && informProjects.length === 0) checkQuotaAlert = 'project_exceed';
+        if (informProjects.length > 0 && exceedProjects.length > 0) checkQuotaAlert = 'project_inform_and_exceed';
+        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100 && exceedProjects.length > 0) {
+          checkQuotaAlert = 'total_quota_and_project_exceed';
+        }
+        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100
+          && informProjects.length > 0 && exceedProjects.length > 0) checkQuotaAlert = 'total_quota_and_project_inform_and_exceed';
 
-      if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
-      checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.billingUserQuoteUsed, params.billingQuoteUsed);
+
+        if (Number(params.totalQuotaUsed) >= 100) checkQuotaAlert = 'total_exceed';
+
+        if (checkQuotaAlert === '') {
+          this.storage.setBillingQuoteUsed('informed');
+        } else {
+          this.storage.setBillingQuoteUsed('');
+        }
+
+        if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
+        checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.totalQuotaUsed, exceedProjects, informProjects);
+      });
     }
   }
 
@@ -194,6 +215,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const memo = { notebook: [], cluster: [] };
     sheduler_data.map(item => !item.computational_name ? memo.notebook.push(item) : memo.cluster.push(item));
     memo.cluster = memo.cluster.filter(el => !memo.notebook.some(elm => el.exploratory_name === elm.exploratory_name));
+    memo.notebook = memo.notebook.reduce((acc, v) => {
+      const existedProject = acc.find(el => el.project === v.project);
+      if (existedProject) {
+        existedProject.notebook.push(v.exploratory_name);
+      } else {
+        acc.push({project: v.project, notebook: [v.exploratory_name]});
+      }
+      return acc;
+    }, []);
     return memo;
   }
 
@@ -206,27 +236,48 @@ export class NavbarComponent implements OnInit, OnDestroy {
       });
   }
 
-  private selectAlert(type: string, user_quota?: number, total_quota?: number): string {
+  private selectAlert(type: string, total_quota?: number, exideedProjects?: string[], informProjects?: string[]): string {
     const alerts = {
-      user_exceed: `Dear <b>${this.currentUserName}</b>,<br />
-          DLab cloud infrastructure usage quota associated with your user has been exceeded.
-          All your analytical environment will be stopped. To proceed working with environment,
-          request increase of user quota from DLab administrator.`,
-      total_exceed: `Dear <b>${this.currentUserName}</b>,<br />
-          DLab cloud infrastructure usage quota has been exceeded.
-          All your analytical environment will be stopped. To proceed working with environment,
-          request increase application quota from DLab administrator.`,
-      user_quota: `Dear <b>${this.currentUserName}</b>,<br />
-          Cloud infrastructure usage quota associated with your user has been used for <b>${user_quota}%</b>.
-          Once quota is depleted all your analytical environment will be stopped.
-          To proceed working with environment you'll have to request increase of user quota from DLab administrator.`,
-      total_quota: `Dear <b>${this.currentUserName}</b>,<br />
-          DLab cloud infrastructure usage quota has been used for <b>${total_quota}%</b>.
-          Once quota is depleted all your analytical environment will be stopped.
-          To proceed working with environment you'll have to request increase of user quota from DLab administrator. `,
-      permissions: `Dear <b>${this.currentUserName}</b>,<br />
+      total_quota_and_project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DataLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          If quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of quota from DataLab administrator. `,
+
+      total_quota_and_project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DataLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of quota from DataLab administrator. `,
+
+      project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DataLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          If quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment, request increase of project quota from DataLab administrator.`,
+      project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DataLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects.join(', ')}</span> has been exceeded.
+          All your analytical environment will be stopped.<br /><br />
+          To proceed working with environment,
+          request increase of project(s) quota from DataLab administrator.`,
+      total_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DataLab cloud infrastructure usage quota has been exceeded.
+          All your analytical environment will be stopped.<br /><br />
+          To proceed working with environment,
+          request increase application quota from DataLab administrator.`,
+      project_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          Cloud infrastructure usage quota associated with project(s) <span class="strong">${informProjects.join(', ')}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of project(s) quota from DataLab administrator.`,
+      total_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DataLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of total quota from DataLab administrator. `,
+      permissions: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
           Currently, you are not assigned to any project. To start working with the environment
-          request permission from DLab administrator.`
+          request permission from DataLab administrator.`
     };
 
     return alerts[type];

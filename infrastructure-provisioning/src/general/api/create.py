@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,15 @@
 #
 # ******************************************************************************
 
-import os
 import json
+import os
 import sys
-from fabric.api import local
-
+import subprocess
 
 if __name__ == "__main__":
     success = True
     try:
-        local('cd /root; fab run')
+        subprocess.run('cd /root; fab run', shell=True, check=True)
     except:
         success = False
 
@@ -55,16 +54,16 @@ if __name__ == "__main__":
         with open("/response/{}.json".format(os.environ['request_id']), 'w') as response_file:
             response_file.write(json.dumps(reply))
     else:
-        reply['response']['log'] = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
-                                                                              os.environ['project_name'],
-                                                                              os.environ['request_id'])
+        reply['response']['log'] = "/var/log/datalab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+                                                                                 os.environ['project_name'],
+                                                                                 os.environ['request_id'])
 
         with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['project_name'],
                                                    os.environ['request_id']), 'w') as response_file:
             response_file.write(json.dumps(reply))
 
     try:
-        local('chmod 666 /response/*')
+        subprocess.run('chmod 666 /response/*', shell=True, check=True)
     except:
         success = False
 

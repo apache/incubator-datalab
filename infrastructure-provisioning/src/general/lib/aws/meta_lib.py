@@ -19,18 +19,17 @@
 #
 # ******************************************************************************
 
-import boto3
-from botocore.client import Config
-import json, urllib2
-import time
-import logging
-import traceback
-import sys
+import datalab.actions_lib
 import backoff
-import random
-import string
-from dlab.fab import *
-import actions_lib
+import boto3
+import json
+import logging
+import sys
+import time
+import traceback
+import subprocess
+from botocore.client import Config as botoConfig
+from datalab.fab import *
 
 
 def get_instance_hostname(tag_name, instance_name):
@@ -97,7 +96,7 @@ def get_route_tables(vpc, tags):
 
 def get_bucket_by_name(bucket_name):
     try:
-        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         for bucket in s3.buckets.all():
             if bucket.name == bucket_name:
                 return bucket.name
@@ -150,7 +149,7 @@ def get_instance_ip_address_by_id(instance_id):
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
-        actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
         return get_instance_ip_address(tag_name, instance_name).get('Private')
     except Exception as err:
         logging.error("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -636,7 +635,6 @@ def get_ami_id(ami_name):
         append_result(str({"error": "Unable to find AMI", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-
 def get_iam_profile(profile_name, count=0):
     client = boto3.client('iam')
     iam_profile = ''
@@ -679,8 +677,7 @@ def check_security_group(security_group_name, count=0):
 
 def emr_waiter(tag_name, tag_value):
     if len(get_emr_list(tag_value, 'Value', False, True)) > 0 or os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']) or get_not_configured_emr(tag_name, tag_value):
-        with hide('stderr', 'running', 'warnings'):
-            local("echo 'Some EMR cluster is still being created/terminated, waiting..'")
+        subprocess.run("echo 'Some EMR cluster is still being created/terminated, waiting..'", shell=True, check=True)
         time.sleep(60)
         emr_waiter(tag_name, tag_value)
     else:
@@ -798,7 +795,7 @@ def get_ec2_price(instance_shape, region):
         # Price API require full name of region, for example: eu-west-1 -> 'EU (Ireland)'
         # endpoints will be loaded from: botocore/botocore/data/endpoints.json
         data = client._loader._cache.get(('load_data', 'endpoints'))
-        standard_partition = filter(lambda x: 'AWS Standard' == x['partitionName'], data['partitions'])[0]
+        standard_partition = next(filter(lambda x: 'AWS Standard' == x['partitionName'], data['partitions']))
         region_description = standard_partition['regions'][region]['description']
 
         response = client.get_products(

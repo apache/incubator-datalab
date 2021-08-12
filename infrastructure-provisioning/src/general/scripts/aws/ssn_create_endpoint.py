@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,12 +22,13 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+import boto3
+import botocore
 import sys
-import boto3, botocore
-from dlab.ssn_lib import *
 import time
+from datalab.actions_lib import *
+from datalab.meta_lib import *
+from datalab.ssn_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_id', type=str, default='')
@@ -35,7 +36,6 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
@@ -61,6 +61,7 @@ if __name__ == "__main__":
                         break
                 print('Created Route-Table with ID: {}'.format(route_table))
                 create_tag(route_table, json.dumps(tag))
+                create_tag(route_table, json.dumps({"Key": "Name", "Value": "{}-rt".format(args.infra_tag_value)}))
             endpoints = get_vpc_endpoints(args.vpc_id)
             if not endpoints:
                 print('Creating EP')

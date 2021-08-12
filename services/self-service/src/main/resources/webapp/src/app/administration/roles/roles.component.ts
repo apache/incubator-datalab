@@ -17,18 +17,18 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Inject, ViewChild} from '@angular/core';
 import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import {RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService} from '../../core/services';
-import { CheckUtils } from '../../core/util';
+import {CheckUtils, SortUtils} from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
 
 @Component({
-  selector: 'dlab-roles',
+  selector: 'datalab-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['../../resources/resources-grid/resources-grid.component.scss', './roles.component.scss']
 })
@@ -51,6 +51,8 @@ export class RolesComponent implements OnInit {
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
   private startedGroups: Array<any>;
+  public noPermissionMessage: string = 'You have not permissions for groups which are not assigned to your projects.';
+  public maxGroupLength: number = 25;
 
   constructor(
     public toastr: ToastrService,
@@ -67,7 +69,7 @@ export class RolesComponent implements OnInit {
   }
 
   openManageRolesDialog() {
-    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.progressBarService.startProgressBar();
     this.rolesService.getGroupsData().subscribe(groups => {
       this.rolesService.getRolesData().subscribe(
         (roles: any) => {
@@ -75,8 +77,7 @@ export class RolesComponent implements OnInit {
           this.rolesList = roles.map((role) => {
               return {role: role.description, type: role.type, cloud: role.cloud};
           });
-          this.rolesList = this.rolesList.sort((a, b) => (a.cloud > b.cloud) ? 1 : ((b.cloud > a.cloud) ? -1 : 0));
-          this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
+          this.rolesList = SortUtils.sortByKeys(this.rolesList, ['role', 'cloud', 'type']);
           this.updateGroupData(groups);
           this.stepperView = false;
         },
@@ -105,7 +106,7 @@ export class RolesComponent implements OnInit {
         {
           action, type, value: {
             name: this.setupGroup,
-            users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()) : [],
+            users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()).filter(el => !!el) : [],
             roleIds: this.extractIds(this.roles, this.setupRoles.map(v => v.role))
           }
         });
@@ -138,14 +139,11 @@ export class RolesComponent implements OnInit {
           item.selected_roles = [...currGroupSource.selected_roles];
           item.roles = [...currGroupSource.roles];
         } else {
-          const isSuperAdminGroup = this.startedGroups.filter(v => v.group === item.group)[0].roles.filter(role => role.description === 'Allow to execute administration operation').length;
-          const selectedRoles = isSuperAdminGroup ?
-            [...item.selected_roles.map(v => v.role), 'Allow to execute administration operation'] :
-            item.selected_roles.map(v => v.role);
+          const selectedRoles = item.selected_roles.map(v => v.role);
           this.manageRolesGroups({
             action, type, value: {
               name: item.group,
-              roleIds: this.extractIds(this.roles, selectedRoles),
+              roles: this.extractIds(this.roles, selectedRoles),
               users: item.users || []
             }
           });
@@ -168,13 +166,7 @@ export class RolesComponent implements OnInit {
       case 'update':
         this.rolesService.updateGroup($event.value).subscribe(() => {
           this.toastr.success(`Group data is updated successfully!`, 'Success!');
-          if (!$event.value.roleIds.includes('admin' || 'projectAdmin')) {
-            this.applicationSecurityService.isLoggedIn().subscribe(() => {
-              this.getEnvironmentHealthStatus();
-            });
-          } else {
             this.openManageRolesDialog();
-          }
         }, (re) => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
@@ -197,13 +189,6 @@ export class RolesComponent implements OnInit {
     }
   }
 
-  public extractIds(sourceList, target) {
-    return sourceList.reduce((acc, item) => {
-      target.includes(item.description) && acc.push(item._id);
-      return acc;
-    }, []);
-  }
-
   public updateGroupData(groups) {
     this.groupsData = groups.map(v => {
       if (!v.users) {
@@ -212,9 +197,30 @@ export class RolesComponent implements OnInit {
       return v;
     }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
-        item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      const selectedRoles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      item.selected_roles = SortUtils.sortByKeys(selectedRoles, ['role', 'type']);
     });
     this.getGroupsListCopy();
+  }
+
+  public extractIds(sourceList, target) {
+    const map = new Map();
+    const mapped = sourceList.reduce((acc, item) => {
+      target.includes(item.description) && acc.set( item._id, item.description);
+      return acc;
+    }, map);
+
+    return this.mapToObj(mapped);
+  }
+
+  mapToObj(inputMap) {
+    const obj = {};
+
+    inputMap.forEach(function(value, key) {
+      obj[key] = value;
+    });
+
+    return obj;
   }
 
   private getGroupsListCopy() {
@@ -224,6 +230,10 @@ export class RolesComponent implements OnInit {
   public groupValidation(): ValidatorFn {
     const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
+      if (control.value && control.value.length > this.maxGroupLength) {
+        return { long: true };
+      }
+
       if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
         return { duplicate: true };
       }
@@ -235,7 +245,7 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  private isGroupChanded(currGroup) {
+  public isGroupChanded(currGroup) {
     const currGroupSource = this.startedGroups.filter(cur => cur.group === currGroup.group)[0];
    if (currGroup.users.length !== currGroupSource.users.length &&
      currGroup.selected_roles.length !== currGroupSource.selected_roles.length) {
@@ -263,10 +273,15 @@ export class RolesComponent implements OnInit {
     list.splice(list.indexOf(item), 1);
   }
 
-  public addUser(value: string, item): void {
-    if (value && value.trim()) {
-      item.users instanceof Array ? item.users.push(value.trim()) : item.users = [value.trim()];
+  public addUser(user, item): void {
+    if (item.isUserAdded) {
+      if (!this.toastr.toasts.length) this.toastr.error('User is already added to this group', 'Oops!');
+      return;
     }
+    if (user.value && user.value.trim()) {
+      item.users instanceof Array ? item.users.push(user.value.trim()) : item.users = [user.value.trim()];
+    }
+    user.value = '';
   }
 
   private getEnvironmentHealthStatus() {
@@ -289,6 +304,10 @@ export class RolesComponent implements OnInit {
      this.setupRoles = $event.model;
    }
   }
+
+  public checkIfUserAdded(element: any, value: string) {
+    element.isUserAdded = element.users.map(v => v.toLowerCase()).includes(value.toLowerCase());
+  }
 }
 
 
@@ -300,7 +319,9 @@ export class RolesComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p *ngIf="data.user">User <span class="strong">{{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.</p>
+
+    <p *ngIf="data.user">User <span class="strong">{{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.
+    </p>
     <p *ngIf="data.id">Group <span class="ellipsis group-name strong">{{ data.group }}</span> will be decommissioned.</p>
     <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>

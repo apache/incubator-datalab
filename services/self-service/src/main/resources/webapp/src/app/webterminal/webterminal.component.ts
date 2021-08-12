@@ -31,7 +31,7 @@ import { StorageService } from '../core/services';
 import { FileUtils } from '../core/util';
 
 @Component({
-  selector: 'dlab-webterminal',
+  selector: 'datalab-webterminal',
   templateUrl: './webterminal.component.html',
   styleUrls: ['./webterminal.component.scss'],
   encapsulation: ViewEncapsulation.None
@@ -41,7 +41,7 @@ export class WebterminalComponent implements OnInit {
   public endpoint: string;
   public state: string = '';
   public layer;
-  @ViewChild('terminal', { read: ElementRef, static: false }) terminal: ElementRef;
+  @ViewChild('terminal', { read: ElementRef }) terminal: ElementRef;
   @ViewChild('clip', { static: true }) clip;
 
 
@@ -62,7 +62,7 @@ export class WebterminalComponent implements OnInit {
     const url = environment.production ? window.location.origin : API_URL;
     const tunnel = new Guacamole.HTTPTunnel(
       `${url}/api/tunnel`, false,
-      { 'DLab-Authorization': `Bearer ${this.storageService.getToken()}` }
+      { 'DataLab-Authorization': `Bearer ${this.storageService.getToken()}` }
     );
 
     const guac = new Guacamole.Client(tunnel);
@@ -85,7 +85,7 @@ export class WebterminalComponent implements OnInit {
       //   mouseState.y = mouseState.y + 65;
       // }
       guac.sendMouseState(mouseState);
-    }
+    };
 
     const keyboard = new Guacamole.Keyboard(document);
     keyboard.onkeydown = (keysym) => guac.sendKeyEvent(1, keysym);

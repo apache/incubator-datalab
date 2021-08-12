@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,13 +21,12 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
-from fabric.contrib.files import exists
-from dlab.fab import *
 import argparse
 import json
 import sys
-import os
+import subprocess
+from datalab.fab import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -38,10 +37,10 @@ args = parser.parse_args()
 
 
 def copy_key(config):
-    admin_key_pub = local('ssh-keygen -y -f {}'.format(args.keyfile),
-                          capture=True)
-    sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
-    sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
+    admin_key_pub = subprocess.run('ssh-keygen -y -f {}'.format(args.keyfile),
+                          capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
+    conn.sudo('rm -f /home/{}/.ssh/authorized_keys'.format(args.user))
+    conn.sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(admin_key_pub, args.user))
     try:
         user_key = '{}{}.pub'.format(
             config.get('user_keydir'),
@@ -51,7 +50,7 @@ def copy_key(config):
             key = open('{0}'.format(user_key)).read()
         else:
             key = config.get('user_key')
-        sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
+        conn.sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
     except:
         print('No user key')
 
@@ -61,20 +60,22 @@ def copy_key(config):
 if __name__ == "__main__":
     print("Configure connections")
     try:
-        env['connection_attempts'] = 100
-        env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        global conn
+        conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
         deeper_config = json.loads(args.additional_config)
     except:
         print('Fail connection')
         sys.exit(2)
-
-    print("Ensuring safest ssh ciphers")
-    ensure_ciphers()
+    try:
+        print("Ensuring safest ssh ciphers")
+        ensure_ciphers()
+    except:
+        print('Faild to install safest ssh ciphers')
 
     print("Installing users key...")
     try:
         copy_key(deeper_config)
+        conn.close()
     except:
         print("Users keyfile {0} could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
         sys.exit(1)

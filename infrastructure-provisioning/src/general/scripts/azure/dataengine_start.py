@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,16 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import logging
 import os
+import sys
 import traceback
-import uuid
-from fabric.api import *
+import subprocess
+from fabric import *
 
 
 def start_data_engine(resource_group_name, cluster_name):
@@ -42,7 +42,7 @@ def start_data_engine(resource_group_name, cluster_name):
                     AzureActions.start_instance(resource_group_name, vm.name)
                     print("Instance {} has been started".format(vm.name))
     except Exception as err:
-        dlab.fab.append_result("Failed to start dataengine", str(err))
+        datalab.fab.append_result("Failed to start dataengine", str(err))
         sys.exit(1)
 
 
@@ -54,8 +54,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    AzureMeta = dlab.meta_lib.AzureMeta()
-    AzureActions = dlab.actions_lib.AzureActions()
+    AzureMeta = datalab.meta_lib.AzureMeta()
+    AzureActions = datalab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
@@ -100,10 +100,10 @@ if __name__ == "__main__":
             .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
                     data_engine['computational_ip'])
         try:
-            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+            subprocess.run("~/scripts/{}.py {}".format('update_inactivity_on_start', params), shell=True, check=True)
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to update last activity time.", str(err))
+            datalab.fab.append_result("Failed to update last activity time.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -115,5 +115,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

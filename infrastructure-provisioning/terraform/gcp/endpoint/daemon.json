@@ -1,0 +1,4 @@
+{
+  DNS_IP_RESOLVE
+  "insecure-registries": ["REPOSITORY"]
+}

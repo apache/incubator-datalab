@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,22 +21,30 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
 import argparse
 import filecmp
-import yaml
-import sys
 import os
+import sys
+import yaml
+import subprocess
+from fabric import *
 
-parser = argparse.ArgumentParser(description="Restore script for DLab configs, keys, certs, jars & database")
-parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
-parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Also available: skip. Default: all')
-parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
-parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab.crt", etc. Also available: skip. Default: all')
-parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service", etc. Default: skip')
-parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
-parser.add_argument('--file', type=str, default='', required=True, help='Full or relative path to backup file or folder. Required field')
-parser.add_argument('--force', action='store_true', default=False, help='Force mode. Without any questions. Key without arguments. Default: disable')
+parser = argparse.ArgumentParser(description="Restore script for DataLab configs, keys, certs, jars & database")
+parser.add_argument('--datalab_path', type=str, default='/opt/datalab/', help='Path to DataLab. Default: /opt/datalab/')
+parser.add_argument('--configs', type=str, default='all',
+                    help='Comma separated names of config files, like "security.yml", etc. Also available: skip. Default: all')
+parser.add_argument('--keys', type=str, default='all',
+                    help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
+parser.add_argument('--certs', type=str, default='all',
+                    help='Comma separated names of SSL certificates and keys, like "datalab.crt", etc. Also available: skip. Default: all')
+parser.add_argument('--jars', type=str, default='skip',
+                    help='Comma separated names of jar application, like "self-service", etc. Default: skip')
+parser.add_argument('--db', action='store_true', default=False,
+                    help='Mongo DB. Key without arguments. Default: disable')
+parser.add_argument('--file', type=str, default='', required=True,
+                    help='Full or relative path to backup file or folder. Required field')
+parser.add_argument('--force', action='store_true', default=False,
+                    help='Force mode. Without any questions. Key without arguments. Default: disable')
 args = parser.parse_args()
 
 
@@ -66,15 +74,15 @@ def restore_prepare():
                 print("Use folder path '{}' in --file key".format(temp_folder))
                 raise Exception
             print("Backup acrhive will be unpacked to: {}".format(temp_folder))
-            local("mkdir {}".format(temp_folder))
-            local("tar -xf {0} -C {1}".format(backup_file, temp_folder))
+            subprocess.run("mkdir {}".format(temp_folder), shell=True, check=True)
+            subprocess.run("tar -xf {0} -C {1}".format(backup_file, temp_folder), shell=True, check=True)
         elif os.path.isdir(backup_file):
             temp_folder = backup_file
         else:
             print("Please, specify file or folder. Try --help for more details.")
             raise Exception
         print("Backup acrhive: {} contains following files (exclude logs):".format(backup_file))
-        local("find {} -not -name '*log'".format(temp_folder))
+        subprocess.run("find {} -not -name '*log'".format(temp_folder), shell=True, check=True)
     except Exception as err:
         print("Failed to open backup.{}".format(str(err)))
         sys.exit(1)
@@ -83,14 +91,14 @@ def restore_prepare():
         if ask("Maybe you want to create backup of existing configuration before restoring?"):
             with settings(hide('everything')):
                 print("Creating new backup...")
-                local("python backup.py --configs all --keys all --certs all --jar all --db")
+                subprocess.run("python3 backup.py --configs all --keys all --certs all --jar all --db", shell=True, check=True)
     except:
         print("Failed to create new backup.")
         sys.exit(1)
 
     try:
         if ask("Stop all services before restoring?"):
-            local("sudo supervisorctl stop all")
+            subprocess.run("sudo supervisorctl stop all", shell=True, check=True)
         else:
             raise Exception
     except:
@@ -118,19 +126,19 @@ def restore_configs():
                 if not os.path.isfile("{0}{1}{2}".format(temp_folder, conf_folder, filename)):
                     print("Config {} are not available in this backup.".format(filename))
                 else:
-                    if os.path.isfile("{0}{1}{2}".format(args.dlab_path, conf_folder, filename)):
+                    if os.path.isfile("{0}{1}{2}".format(args.datalab_path, conf_folder, filename)):
                         backupfile = "{0}{1}{2}".format(temp_folder, conf_folder, filename)
-                        destfile = "{0}{1}{2}".format(args.dlab_path, conf_folder, filename)
+                        destfile = "{0}{1}{2}".format(args.datalab_path, conf_folder, filename)
                         if not filecmp.cmp(backupfile, destfile):
                             if ask("Config {} was changed, rewrite it?".format(filename)):
-                                local("cp -f {0} {1}".format(backupfile, destfile))
+                                subprocess.run("cp -f {0} {1}".format(backupfile, destfile), shell=True, check=True)
                             else:
                                 print("Config {} was skipped.".format(destfile))
                         else:
                             print("Config {} was not changed. Skipped.".format(filename))
                     else:
                         print("Config {} does not exist. Creating.".format(filename))
-                        local("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.dlab_path))
+                        subprocess.run("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.datalab_path), shell=True, check=True)
     except:
         print("Restore configs failed.")
 
@@ -157,14 +165,14 @@ def restore_keys():
                         print("Key {} already exist.".format(filename))
                         if not filecmp.cmp("{0}keys/{1}".format(temp_folder, filename), "{0}{1}".format(keys_folder, filename)):
                             if ask("Key {} was changed, rewrite it?".format(filename)):
-                                local("cp -f {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename))
+                                subprocess.run("cp -f {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename), shell=True, check=True)
                             else:
                                 print("Key {} was skipped.".format(filename))
                         else:
                             print("Key {} was not changed. Skipped.".format(filename))
                     else:
                         print("Key {} does not exist. Creating.".format(filename))
-                        local("cp {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename))
+                        subprocess.run("cp {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename), shell=True, check=True)
     except:
         print("Restore keys failed.")
 
@@ -191,16 +199,16 @@ def restore_certs():
                         print("Cert {} already exist.".format(filename))
                         if not filecmp.cmp("{0}certs/{1}".format(temp_folder, filename), "{0}{1}".format(certs_folder, filename)):
                             if ask("Cert {} was changed, rewrite it?".format(filename)):
-                                local("sudo cp -f {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
-                                local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
+                                subprocess.run("sudo cp -f {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename), shell=True, check=True)
+                                subprocess.run("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename), shell=True, check=True)
                             else:
                                 print("Cert {} was skipped.".format(filename))
                         else:
                             print("Cert {} was not changed. Skipped.".format(filename))
                     else:
                         print("Cert {} does not exist. Creating.".format(filename))
-                        local("sudo cp {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
-                        local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
+                        subprocess.run("sudo cp {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename), shell=True, check=True)
+                        subprocess.run("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename), shell=True, check=True)
     except:
         print("Restore certs failed.")
 
@@ -225,19 +233,21 @@ def restore_jars():
                 else:
                     for root, dirs, files in os.walk("{0}jars/{1}".format(temp_folder, service)):
                         for filename in files:
-                            if os.path.isfile("{0}{1}{2}/{3}".format(args.dlab_path, jars_folder, service, filename)):
+                            if os.path.isfile(
+                                    "{0}{1}{2}/{3}".format(args.datalab_path, jars_folder, service, filename)):
                                 backupfile = "{0}jars/{1}/{2}".format(temp_folder, service, filename)
-                                destfile = "{0}{1}{2}/{3}".format(args.dlab_path, jars_folder, service, filename)
+                                destfile = "{0}{1}{2}/{3}".format(args.datalab_path, jars_folder, service, filename)
                                 if not filecmp.cmp(backupfile, destfile):
                                     if ask("Jar {} was changed, rewrite it?".format(filename)):
-                                        local("cp -fP {0} {1}".format(backupfile, destfile))
+                                        subprocess.run("cp -fP {0} {1}".format(backupfile, destfile), shell=True, check=True)
                                     else:
                                         print("Jar {} was skipped.".format(destfile))
                                 else:
                                     print("Jar {} was not changed. Skipped.".format(filename))
                             else:
                                 print("Jar {} does not exist. Creating.".format(filename))
-                                local("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
+                                subprocess.run("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename,
+                                                                               args.datalab_path, jars_folder), shell=True, check=True)
     except:
         print("Restore jars failed.")
 
@@ -251,12 +261,12 @@ def restore_database():
                 raise Exception
             else:
                 if ask("Do you want to drop existing database and restore another from backup?"):
-                    ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
+                    ssn_conf = open(args.datalab_path + conf_folder + 'ssn.yml').read()
                     data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
                     print("Restoring database from backup")
-                    local("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
+                    subprocess.run("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
                             .format(data['mongo']['host'], data['mongo']['port'], temp_folder,
-                                    data['mongo']['username'], data['mongo']['password'], data['mongo']['database']))
+                                    data['mongo']['username'], data['mongo']['password'], data['mongo']['database']), shell=True, check=True)
         else:
             print("Restore database was skipped.")
     except:
@@ -266,13 +276,13 @@ def restore_database():
 def restore_finalize():
     try:
         if ask("Start all services after restoring?"):
-            local("sudo supervisorctl start all")
+            subprocess.run("sudo supervisorctl start all", shell=True, check=True)
     except:
         print("Failed to start all services.")
 
     try:
         if ask("Clean temporary folder {}?".format(temp_folder)) and temp_folder != "/":
-            local("rm -rf {}".format(temp_folder))
+            subprocess.run("rm -rf {}".format(temp_folder), shell=True, check=True)
     except Exception as err:
         print("Clear temp folder failed. {}".format(str(err)))
 

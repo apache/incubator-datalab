@@ -6,7 +6,7 @@
       "service_base_name": "${CONF_SERVICE_BASE_NAME}",
       "user_name": "${EDGE_USER_NAME}"
     },
-    "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+    "log": "/var/log/datalab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },
   "request_id": "${REQUEST_ID}"
 }

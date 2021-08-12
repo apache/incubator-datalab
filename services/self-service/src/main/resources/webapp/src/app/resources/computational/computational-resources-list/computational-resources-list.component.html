@@ -24,7 +24,7 @@
   </div>
   <div *ngIf="resources?.length">
     <div *ngFor="let resource of resources" class="resource-wrap">
-      <div class="resource-name">
+      <div class="resource-name ellipsis">
         <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">
           {{resource.computational_name}}
         </a>
@@ -39,13 +39,13 @@
         </a>
 
         <a class="start-stop-action"
-          *ngIf="resource.image === 'docker.dlab-dataengine' && environment.status === 'running'">
-          <i class="material-icons" *ngIf="resource.status === 'running' || resource.status === 'stopping'"
-            (click)="toggleResourceAction(resource, 'stop')"
-            [ngClass]="{'not-allowed' : resource.status === 'stopping' }">pause_circle_outline</i>
-          <i class="material-icons" *ngIf="resource.status === 'stopped' || resource.status === 'starting'"
-            (click)="toggleResourceAction(resource, 'start')"
-            [ngClass]="{'not-allowed' : resource.status === 'starting' }">play_circle_outline</i>
+           *ngIf="resource.image === 'docker.datalab-dataengine' && environment.status === 'running'">
+            <i class="material-icons" *ngIf="resource.status === 'running' || resource.status === 'stopping'"
+               (click)="toggleResourceAction(resource, 'stop')"
+               [ngClass]="{'not-allowed' : resource.status === 'stopping' }">pause_circle_outline</i>
+            <i class="material-icons" *ngIf="resource.status === 'stopped' || resource.status === 'starting'"
+               (click)="toggleResourceAction(resource, 'start')"
+               [ngClass]="{'not-allowed' : resource.status === 'starting' }">play_circle_outline</i>
         </a>
 
         <a class="remove_butt" [ngClass]="{'disabled' : environment.status !== 'running' || environment.status !== 'stopped'

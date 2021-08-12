@@ -26,14 +26,17 @@ import { ResourcesComponent } from './resources/resources.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './service-pages/not-found/not-found.component';
 import { AccessDeniedComponent } from './service-pages/access-denied/access-denied.component';
-import { ReportingComponent } from './reporting/reporting.component';
 import { WebterminalComponent } from './webterminal/webterminal.component';
-import { ManagementComponent } from './administration/management/management.component';
+import { ManagementComponent } from './administration/management';
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
-import { SwaggerComponent } from './swagger/swagger.component';
-
-import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard } from './core/services';
+import { SwaggerComponent } from './swagger';
+import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard, AuditGuard } from './core/services';
+import {ConfigurationComponent} from './administration/configuration/configuration.component';
+import {ProjectAdminGuard} from './core/services/projectAdmin.guard';
+import {ReportingComponent} from './reports/reporting/reporting.component';
+import {OdahuComponent} from './administration/odahu/odahu.component';
+import {AuditComponent} from './reports/audit/audit.component';
 
 const routes: Routes = [{
   path: 'login',
@@ -59,7 +62,12 @@ const routes: Routes = [{
       path: 'projects',
       component: ProjectComponent,
       canActivate: [AuthorizationGuard, AdminGuard],
-    }, {
+    },
+     {
+    //   path: 'odahu',
+    //   component: OdahuComponent,
+    //   canActivate: [AuthorizationGuard, AdminGuard],
+    // }, {
       path: 'roles',
       component: RolesComponent,
       canActivate: [AuthorizationGuard, AdminGuard],
@@ -68,10 +76,15 @@ const routes: Routes = [{
       component: ManagementComponent,
       canActivate: [AuthorizationGuard, AdminGuard]
     }, {
-    //   path: 'swagger',
-    //   component: SwaggerComponent,
-    //   canActivate: [AuthorizationGuard]
-    // }, {
+      path: 'configuration',
+      component: ConfigurationComponent,
+      canActivate: [AuthorizationGuard, AdminGuard, ProjectAdminGuard]
+    },
+    {
+      path: 'swagger',
+      component: SwaggerComponent,
+      canActivate: [AuthorizationGuard]
+    }, {
       path: 'help/publickeyguide',
       component: PublicKeyGuideComponent,
       canActivate: [AuthorizationGuard]
@@ -79,7 +92,12 @@ const routes: Routes = [{
       path: 'help/accessnotebookguide',
       component: AccessNotebookGuideComponent,
       canActivate: [AuthorizationGuard]
-    }
+    },
+    {
+      path: 'audit',
+      component: AuditComponent,
+      canActivate: [AuthorizationGuard, AuditGuard],
+    },
   ]
 }, {
   path: 'terminal/:id/:endpoint',
@@ -93,4 +111,4 @@ const routes: Routes = [{
   component: NotFoundComponent
 }];
 
-export const AppRoutingModule: ModuleWithProviders = RouterModule.forRoot(routes, { useHash: true });
+export const AppRoutingModule: ModuleWithProviders<RouterModule> = RouterModule.forRoot(routes, { useHash: true });

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,17 +21,16 @@
 #
 # ******************************************************************************
 
-import logging
-import sys
-import os
-from fabric.api import *
-import dlab.ssn_lib
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-
+import logging
+import os
+import sys
+import traceback
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -49,19 +48,19 @@ if __name__ == "__main__":
         logging.info('[CREATE AWS CONFIG FILE]')
         print('[CREATE AWS CONFIG FILE]')
         if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
-            dlab.actions_lib.create_aws_config_files(generate_full_config=True)
+            datalab.actions_lib.create_aws_config_files(generate_full_config=True)
         else:
-            dlab.actions_lib.create_aws_config_files()
+            datalab.actions_lib.create_aws_config_files()
     except Exception as err:
         logging.info('Unable to create configuration')
-        dlab.fab.append_result("Unable to create configuration", err)
+        datalab.fab.append_result("Unable to create configuration", err)
         traceback.print_exc()
         sys.exit(1)
 
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         ssn_conf['role_name'] = '{}-ssn-role'.format(ssn_conf['service_base_name'])
         ssn_conf['role_profile_name'] = '{}-ssn-profile'.format(ssn_conf['service_base_name'])
@@ -73,7 +72,7 @@ if __name__ == "__main__":
         ssn_conf['region'] = os.environ['aws_region']
         ssn_conf['zone_full'] = os.environ['aws_region'] + os.environ['aws_zone']
         ssn_conf['ssn_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
-        ssn_conf['ssn_ami_id'] = dlab.meta_lib.get_ami_id(ssn_conf['ssn_image_name'])
+        ssn_conf['ssn_ami_id'] = datalab.meta_lib.get_ami_id(ssn_conf['ssn_image_name'])
         ssn_conf['policy_path'] = '/root/files/ssn_policy.json'
         ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         ssn_conf['vpc2_cidr'] = os.environ['conf_vpc2_cidr']
@@ -88,10 +87,10 @@ if __name__ == "__main__":
         ssn_conf['all_ip_cidr'] = '0.0.0.0/0'
         ssn_conf['elastic_ip_name'] = '{0}-ssn-static-ip'.format(ssn_conf['service_base_name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
-    if dlab.meta_lib.get_instance_by_name(ssn_conf['tag_name'], ssn_conf['instance_name']):
+    if datalab.meta_lib.get_instance_by_name(ssn_conf['tag_name'], ssn_conf['instance_name']):
         print("Service base name should be unique and less or equal 20 symbols. Please try again.")
         sys.exit(1)
 
@@ -107,18 +106,18 @@ if __name__ == "__main__":
                 ssn_conf['vpc_cidr'], ssn_conf['region'], ssn_conf['tag_name'], ssn_conf['service_base_name'],
                 ssn_conf['vpc_name'])
             try:
-                local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
-            os.environ['aws_vpc_id'] = dlab.meta_lib.get_vpc_by_tag(ssn_conf['tag_name'],
-                                                                    ssn_conf['service_base_name'])
+            os.environ['aws_vpc_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag_name'],
+                                                                       ssn_conf['service_base_name'])
         except Exception as err:
-            dlab.fab.append_result("Failed to create VPC", str(err))
+            datalab.fab.append_result("Failed to create VPC", str(err))
             sys.exit(1)
 
     ssn_conf['allowed_vpc_cidr_ip_ranges'] = list()
-    for cidr in dlab.meta_lib.get_vpc_cidr_by_id(os.environ['aws_vpc_id']):
+    for cidr in datalab.meta_lib.get_vpc_cidr_by_id(os.environ['aws_vpc_id']):
         ssn_conf['allowed_vpc_cidr_ip_ranges'].append({"CidrIp": cidr})
 
     try:
@@ -133,19 +132,19 @@ if __name__ == "__main__":
                      "--vpc_name {}".format(ssn_conf['vpc2_cidr'], ssn_conf['region'], ssn_conf['tag2_name'],
                                             ssn_conf['service_base_name'], ssn_conf['vpc2_name'])
             try:
-                local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
-            os.environ['aws_vpc2_id'] = dlab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
-                                                                     ssn_conf['service_base_name'])
+            os.environ['aws_vpc2_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
+                                                                        ssn_conf['service_base_name'])
         except Exception as err:
-            dlab.fab.append_result("Failed to create secondary VPC.", str(err))
+            datalab.fab.append_result("Failed to create secondary VPC.", str(err))
             if ssn_conf['pre_defined_vpc']:
-                dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                          ssn_conf['service_base_name'])
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                             ssn_conf['service_base_name'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
             sys.exit(1)
 
     try:
@@ -161,31 +160,31 @@ if __name__ == "__main__":
                       os.environ['aws_vpc_id'], 'ssn', ssn_conf['tag_name'],ssn_conf['service_base_name'], '20',
                       True, ssn_conf['zone_full'], ssn_conf['subnet_name'])
             try:
-                local("~/scripts/{}.py {}".format('common_create_subnet', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
             with open('/tmp/ssn_subnet_id', 'r') as f:
                 os.environ['aws_subnet_id'] = f.read()
-            dlab.actions_lib.enable_auto_assign_ip(os.environ['aws_subnet_id'])
+            datalab.actions_lib.enable_auto_assign_ip(os.environ['aws_subnet_id'])
         except Exception as err:
-            dlab.fab.append_result("Failed to create Subnet.", str(err))
+            datalab.fab.append_result("Failed to create Subnet.", str(err))
             if ssn_conf['pre_defined_vpc']:
-                dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                          ssn_conf['service_base_name'])
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+                datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                             ssn_conf['service_base_name'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
                 try:
-                    dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+                    datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
                 except:
                     print("Subnet hasn't been created.")
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
             if ssn_conf['pre_defined_vpc2']:
                 try:
-                    dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
                 except:
                     print("There are no VPC Endpoints")
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
 
     try:
@@ -195,29 +194,29 @@ if __name__ == "__main__":
         try:
             logging.info('[CREATE PEERING CONNECTION]')
             print('[CREATE PEERING CONNECTION]')
-            os.environ['aws_peering_id'] = dlab.actions_lib.create_peering_connection(
+            os.environ['aws_peering_id'] = datalab.actions_lib.create_peering_connection(
                 os.environ['aws_vpc_id'], os.environ['aws_vpc2_id'], ssn_conf['service_base_name'])
             print('PEERING CONNECTION ID:' + os.environ['aws_peering_id'])
-            dlab.actions_lib.create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'],
-                                                os.environ['aws_peering_id'],
-                                                dlab.meta_lib.get_cidr_by_vpc(os.environ['aws_vpc2_id']))
+            datalab.actions_lib.create_route_by_id(os.environ['aws_subnet_id'], os.environ['aws_vpc_id'],
+                                                   os.environ['aws_peering_id'],
+                                                   datalab.meta_lib.get_cidr_by_vpc(os.environ['aws_vpc2_id']))
         except Exception as err:
-            dlab.fab.append_result("Failed to create peering connection.", str(err))
+            datalab.fab.append_result("Failed to create peering connection.", str(err))
             if ssn_conf['pre_defined_vpc']:
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
                 try:
-                    dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+                    datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
                 except:
                     print("Subnet hasn't been created.")
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
             if ssn_conf['pre_defined_vpc2']:
-                dlab.actions_lib.remove_peering('*')
+                datalab.actions_lib.remove_peering('*')
                 try:
-                    dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
                 except:
                     print("There are no VPC Endpoints")
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
 
     try:
@@ -228,7 +227,7 @@ if __name__ == "__main__":
             ssn_conf['pre_defined_sg'] = True
             logging.info('[CREATE SG FOR SSN]')
             print('[CREATE SG FOR SSN]')
-            ssn_conf['ingress_sg_rules_template'] = dlab.meta_lib.format_sg([
+            ssn_conf['ingress_sg_rules_template'] = datalab.meta_lib.format_sg([
                 {
                     "PrefixListIds": [],
                     "FromPort": 80,
@@ -266,7 +265,7 @@ if __name__ == "__main__":
                     "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                 }
             ])
-            egress_sg_rules_template = dlab.meta_lib.format_sg([
+            egress_sg_rules_template = datalab.meta_lib.format_sg([
                 {"IpProtocol": "-1", "IpRanges": [{"CidrIp": ssn_conf['all_ip_cidr']}], "UserIdGroupPairs": [],
                  "PrefixListIds": []}
             ])
@@ -276,28 +275,28 @@ if __name__ == "__main__":
                        json.dumps(ssn_conf['ingress_sg_rules_template']), json.dumps(egress_sg_rules_template),
                        ssn_conf['service_base_name'], ssn_conf['tag_name'], False, True)
             try:
-                local("~/scripts/{}.py {}".format('common_create_security_group', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
             with open('/tmp/ssn_sg_id', 'r') as f:
                 os.environ['aws_security_groups_ids'] = f.read()
         except Exception as err:
-            dlab.gab_lib.append_result("Failed creating security group for SSN.", str(err))
+            datalab.gab_lib.append_result("Failed creating security group for SSN.", str(err))
             if ssn_conf['pre_defined_vpc']:
-                dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                          ssn_conf['service_base_name'])
-                dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                             ssn_conf['service_base_name'])
+                datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
             if ssn_conf['pre_defined_vpc2']:
-                dlab.actions_lib.remove_peering('*')
+                datalab.actions_lib.remove_peering('*')
                 try:
-                    dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
                 except:
                     print("There are no VPC Endpoints")
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
 
     try:
@@ -309,29 +308,29 @@ if __name__ == "__main__":
                    ssn_conf['policy_path'], os.environ['aws_region'], ssn_conf['tag_name'],
                    ssn_conf['service_base_name'], ssn_conf['user_tag'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create roles.", str(err))
+        datalab.fab.append_result("Unable to create roles.", str(err))
         if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
+            datalab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
         if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+            datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                         ssn_conf['service_base_name'])
+            datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
         if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+            datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+            datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
         if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
+            datalab.actions_lib.remove_peering('*')
             try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
             except:
                 print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+            datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+            datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -340,30 +339,30 @@ if __name__ == "__main__":
         params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
             os.environ['aws_vpc_id'], os.environ['aws_region'], ssn_conf['tag_name'], ssn_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('ssn_create_endpoint', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create an endpoint.", str(err))
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
+        datalab.fab.append_result("Unable to create an endpoint.", str(err))
+        datalab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
         if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
+            datalab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
         if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+            datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                         ssn_conf['service_base_name'])
+            datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
         if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+            datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+            datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
         if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
+            datalab.actions_lib.remove_peering('*')
             try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
             except:
                 print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+            datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+            datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     if os.environ['conf_duo_vpc_enable'] == 'true':
@@ -374,30 +373,30 @@ if __name__ == "__main__":
                 os.environ['aws_vpc2_id'], os.environ['aws_region'], ssn_conf['tag2_name'],
                 ssn_conf['service_base_name'])
             try:
-                local("~/scripts/{}.py {}".format('ssn_create_endpoint', params))
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_endpoint', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Unable to create secondary endpoint.", str(err))
-            dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
+            datalab.fab.append_result("Unable to create secondary endpoint.", str(err))
+            datalab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
             if ssn_conf['pre_defined_sg']:
-                dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
+                datalab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
             if ssn_conf['pre_defined_subnet']:
-                dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                          ssn_conf['service_base_name'])
-                dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+                datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                             ssn_conf['service_base_name'])
+                datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
             if ssn_conf['pre_defined_vpc']:
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
             if ssn_conf['pre_defined_vpc2']:
-                dlab.actions_lib.remove_peering('*')
+                datalab.actions_lib.remove_peering('*')
                 try:
-                    dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
                 except:
                     print("There are no VPC Endpoints")
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
 
     try:
@@ -411,39 +410,39 @@ if __name__ == "__main__":
                    ssn_conf['role_profile_name'], ssn_conf['tag_name'], ssn_conf['instance_name'], 'ssn', '20')
 
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create ssn instance.", str(err))
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        dlab.actions_lib.remove_s3(ssn_conf['instance'])
+        datalab.fab.append_result("Unable to create ssn instance.", str(err))
+        datalab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
+        datalab.actions_lib.remove_s3(ssn_conf['instance'])
         if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
+            datalab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
         if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+            datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                         ssn_conf['service_base_name'])
+            datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
         if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+            datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
+            datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+            datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
         if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
+            datalab.actions_lib.remove_peering('*')
             try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
             except:
                 print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+            datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+            datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     if ssn_conf['network_type'] == 'public':
         try:
             logging.info('[ASSOCIATING ELASTIC IP]')
             print('[ASSOCIATING ELASTIC IP]')
-            ssn_conf['ssn_id'] = dlab.meta_lib.get_instance_by_name(ssn_conf['tag_name'], ssn_conf['instance_name'])
+            ssn_conf['ssn_id'] = datalab.meta_lib.get_instance_by_name(ssn_conf['tag_name'], ssn_conf['instance_name'])
             try:
                 ssn_conf['elastic_ip'] = os.environ['ssn_elastic_ip']
             except:
@@ -451,77 +450,77 @@ if __name__ == "__main__":
             params = "--elastic_ip {} --ssn_id {} --infra_tag_name {} --infra_tag_value {}".format(
                 ssn_conf['elastic_ip'], ssn_conf['ssn_id'], ssn_conf['tag_name'], ssn_conf['elastic_ip_name'])
             try:
-                local("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params))
+                subprocess.run("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to associate elastic ip.", str(err))
-            dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-            dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-            dlab.actions_lib.remove_s3(ssn_conf['instance'])
+            datalab.fab.append_result("Failed to associate elastic ip.", str(err))
+            datalab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
+            datalab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
+            datalab.actions_lib.remove_s3(ssn_conf['instance'])
             if ssn_conf['pre_defined_sg']:
-                dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
+                datalab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
             if ssn_conf['pre_defined_subnet']:
-                dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                          ssn_conf['service_base_name'])
-                dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+                datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                             ssn_conf['service_base_name'])
+                datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
             if ssn_conf['pre_defined_vpc']:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
             if ssn_conf['pre_defined_vpc2']:
-                dlab.actions_lib.remove_peering('*')
+                datalab.actions_lib.remove_peering('*')
                 try:
-                    dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
                 except:
                     print("There are no VPC Endpoints")
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
 
     if ssn_conf['network_type'] == 'private':
-        ssn_conf['instance_ip'] = dlab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
-                                                                        ssn_conf['instance_name']).get('Private')
+        ssn_conf['instance_ip'] = datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
+                                                                           ssn_conf['instance_name']).get('Private')
     else:
-        ssn_conf['instance_ip'] = dlab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
-                                                                        ssn_conf['instance_name']).get('Public')
+        ssn_conf['instance_ip'] = datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
+                                                                           ssn_conf['instance_name']).get('Public')
 
     if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and 'ssn_subdomain' in os.environ:
         try:
             logging.info('[CREATING ROUTE53 RECORD]')
             print('[CREATING ROUTE53 RECORD]')
             try:
-                dlab.actions_lib.create_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                        os.environ['ssn_hosted_zone_name'],
-                                                        os.environ['ssn_subdomain'], ssn_conf['instance_ip'])
+                datalab.actions_lib.create_route_53_record(os.environ['ssn_hosted_zone_id'],
+                                                           os.environ['ssn_hosted_zone_name'],
+                                                           os.environ['ssn_subdomain'], ssn_conf['instance_ip'])
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create route53 record.", str(err))
-            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                    os.environ['ssn_hosted_zone_name'],
-                                   os.environ['ssn_subdomain'])
-            dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-            dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-            dlab.actions_lib.remove_s3(ssn_conf['instance'])
+            datalab.fab.append_result("Failed to create route53 record.", str(err))
+            datalab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
+                                                       os.environ['ssn_hosted_zone_name'],
+                                                       os.environ['ssn_subdomain'])
+            datalab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
+            datalab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
+            datalab.actions_lib.remove_s3(ssn_conf['instance'])
             if ssn_conf['pre_defined_sg']:
-                dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
+                datalab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
             if ssn_conf['pre_defined_subnet']:
-                dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                          ssn_conf['service_base_name'])
-                dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+                datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                             ssn_conf['service_base_name'])
+                datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
             if ssn_conf['pre_defined_vpc']:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
             if ssn_conf['pre_defined_vpc2']:
-                dlab.actions_lib.remove_peering('*')
+                datalab.actions_lib.remove_peering('*')
                 try:
-                    dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+                    datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
                 except:
                     print("There are no VPC Endpoints")
-                dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-                dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+                datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+                datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)

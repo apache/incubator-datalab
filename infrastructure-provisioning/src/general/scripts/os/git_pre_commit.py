@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -30,7 +30,7 @@ data = json.loads(open("/home/" + os.environ['USER'] + "/.gitcreds").read())
 url = subprocess.check_output(["git", "config", "--local", "remote.origin.url"])
 
 for host in data.keys():
-    if host in url:
+    if host in str(url):
         if os.environ['GIT_AUTHOR_NAME'] != data[host][0] or os.environ['GIT_AUTHOR_EMAIL'] != data[host][1]:
             subprocess.check_output(["git", "config", "--local", "user.name", data[host][0]])
             subprocess.check_output(["git", "config", "--local", "user.email", data[host][1]])

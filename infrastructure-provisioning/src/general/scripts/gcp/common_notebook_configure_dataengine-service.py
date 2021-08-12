@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,16 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import logging
 import os
+import sys
 import traceback
-import uuid
-from fabric.api import *
+import subprocess
+from fabric import *
 
 
 def clear_resources():
@@ -49,8 +49,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     else:
         application = os.environ['application']
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+    additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "" ).replace(
         "'}", "").lower()
 
     notebook_config['cluster_labels'] = {
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         "name": notebook_config['cluster_name'],
         "sbn": notebook_config['service_base_name'],
         "notebook_name": os.environ['notebook_instance_name'],
-        "product": "dlab",
+        "product": "datalab",
         "computational_name": (os.environ['computational_name'].replace('_', '-').lower())
     }
 
@@ -107,14 +107,14 @@ if __name__ == "__main__":
                     edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],
                     os.environ['conf_pypi_mirror'])
         try:
-            local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
+            subprocess.run("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params), shell=True, check=True)
             GCPActions.update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['cluster_labels'])
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
         clear_resources()
-        dlab.fab.append_result("Failed installing Dataproc kernels.", str(err))
+        datalab.fab.append_result("Failed installing Dataproc kernels.", str(err))
         sys.exit(1)
 
     try:
@@ -127,12 +127,12 @@ if __name__ == "__main__":
                     notebook_config['key_path'],
                     os.environ['conf_os_user'])
         try:
-            local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
+            subprocess.run("~/scripts/{0}.py {1}".format('common_configure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure Spark.", str(err))
+        datalab.fab.append_result("Failed to configure Spark.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -144,6 +144,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         clear_resources()
         sys.exit(1)

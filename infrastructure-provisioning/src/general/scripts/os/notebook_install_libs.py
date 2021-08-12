@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,15 +21,15 @@
 #
 # ******************************************************************************
 
+import logging
 import os
 import sys
-import logging
 import traceback
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-from fabric.api import *
-
+import subprocess
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                     notebook_config['keyfile'], notebook_config['libs'])
         try:
             # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('install_additional_libs', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

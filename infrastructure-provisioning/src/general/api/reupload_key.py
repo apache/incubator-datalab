@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,15 @@
 #
 # ******************************************************************************
 
-import os
 import json
+import os
 import sys
-from fabric.api import local
-
+import subprocess
 
 if __name__ == "__main__":
     success = True
     try:
-        local('cd /root; fab reupload_key')
+        subprocess.run('cd /root; fab reupload_key', shell=True, check=True)
     except:
         success = False
 
@@ -49,11 +48,9 @@ if __name__ == "__main__":
             result = {"error": "Failed to open result.json"}
             reply['error_message'] = 'Failed to open result.json'
 
-
-
-    log = "/var/log/dlab/edge/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
-                                                                          os.environ['project_name'],
-                                                                          os.environ['request_id'])
+    log = "/var/log/datalab/edge/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+                                                         os.environ['project_name'],
+                                                         os.environ['request_id'])
     try:
         with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['project_name'],
                                                    os.environ['request_id']), 'w') as response_file:
@@ -62,7 +59,7 @@ if __name__ == "__main__":
     except:
         print('Can not write to responce')
     try:
-        local('chmod 666 /response/*')
+        subprocess.run('chmod 666 /response/*', shell=True, check=True)
     except:
         success = False
 

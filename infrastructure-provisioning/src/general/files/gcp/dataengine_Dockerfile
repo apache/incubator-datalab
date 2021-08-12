@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM docker.dlab-base:latest
+FROM docker.datalab-base:latest
 
 ARG OS
 
@@ -29,7 +29,7 @@ COPY general/scripts/os/update_inactivity_on_start.py /root/scripts/
 COPY general/scripts/os/reconfigure_spark.py /root/scripts/
 COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
 COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_available_pkgs.py
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py
 COPY general/scripts/os/notebook_reconfigure_dataengine_spark.py /root/scripts/
 COPY general/scripts/os/common_* /root/scripts/
 COPY general/scripts/gcp/dataengine_* /root/scripts/
@@ -37,6 +37,8 @@ COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/templates/gcp/core-site.xml /root/templates/
 COPY general/templates/os/${OS}/spark-* /root/templates/
+COPY general/templates/os/${OS}/livy.service /root/templates/
+COPY general/templates/os/livy-env.sh /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

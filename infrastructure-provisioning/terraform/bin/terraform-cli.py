@@ -1,25 +1,21 @@
 #!/usr/bin/env python
 
-# *****************************************************************************
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
 #
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-# ******************************************************************************
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
 
 import abc
 import argparse
@@ -388,8 +384,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   choices=['debian', 'redhat'], group='k8s')
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='k8s')
-         .add_str('--os_user', 'Name of DLab service user.',
-                  default='dlab-user', group='k8s')
+         .add_str('--os_user', 'Name of DataLab service user.',
+                  default='datalab-user', group='k8s')
          .add_str('--pkey', 'path to key', required=True, group='service')
          .add_str('--region', 'Name of AWS region.', default='us-west-2',
                   group='k8s')
@@ -398,7 +394,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--service_base_name',
                   'Any infrastructure value (should be unique if '
                   'multiple SSN\'s have been deployed before).',
-                  default='dlab-k8s', group='k8s')
+                  default='datalab-k8s', group='k8s')
          .add_int('--ssn_k8s_masters_count', 'Count of K8S masters.', default=3,
                   group='k8s')
          .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2,
@@ -532,15 +528,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         terraform_args = args.get('helm_charts')
         args_str = get_args_string(terraform_args)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
-            with conn.cd('terraform/ssn-helm-charts/main'):
-                conn.run('terraform init')
-                conn.run('terraform validate')
-                conn.run('terraform apply -auto-approve {} '
+            conn.run('cd terraform/ssn-helm-charts/main && terraform init')
+            conn.run('cd terraform/ssn-helm-charts/main && terraform validate')
+            conn.run('cd terraform/ssn-helm-charts/main && terraform apply -auto-approve {} '
                          '-var \'ssn_k8s_alb_dns_name={}\''
                          .format(args_str, dns_name))
-                output = ' '.join(conn.run('terraform output -json')
+            output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
-                self.fill_args_from_dict(json.loads(output))
+            self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
         dns_name = json.loads(
@@ -554,14 +549,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         ssn_vpc_id = json.loads(TerraformProvider().output('-json ssn_vpc_id'))
 
         logging.info("""
-        DLab SSN K8S cluster has been deployed successfully!
+        DataLab SSN K8S cluster has been deployed successfully!
         Summary:
         DNS name: {}
         Bucket name: {}
         VPC ID: {}
         Subnet IDs:  {}
         SG IDs: {}
-        DLab UI URL: http://{}
+        DataLab UI URL: http://{}
         """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
                    ', '.join(ssn_subnets), ssn_k8s_sg_id, dns_name))
 

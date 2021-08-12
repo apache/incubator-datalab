@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,16 @@
 #
 # ******************************************************************************
 
-from dlab.actions_lib import *
-from dlab.common_lib import *
-from dlab.notebook_lib import *
-from dlab.fab import *
-from fabric.api import *
-from fabric.contrib.files import exists
 import argparse
-import json
-import sys
 import os
+import sys
+from datalab.actions_lib import *
+from datalab.common_lib import *
+from datalab.fab import *
+from datalab.notebook_lib import *
+from fabric import *
+from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -47,6 +47,8 @@ args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
 hadoop_version = os.environ['notebook_hadoop_version']
+python_venv_version = os.environ['notebook_python_venv_version']
+python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version, python_venv_version[:3])
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -57,8 +59,8 @@ local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
-r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
-          'Rcpp', 'rmarkdown', 'base64enc', 'tibble']
+r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
+          'Rcpp', 'rmarkdown', 'base64enc', 'tibble', 'sparklyr']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
@@ -67,15 +69,14 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -86,14 +87,16 @@ if __name__ == "__main__":
     ensure_jre_jdk(args.os_user)
     print("Install R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
+    # INSTALL PYTHON IN VIRTUALENV
+    print("Configure Python Virtualenv")
+    ensure_python_venv(python_venv_version)
+
     # INSTALL RSTUDIO
     print("Install RStudio")
-    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
+    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version, python_venv_version)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
@@ -108,7 +111,7 @@ if __name__ == "__main__":
     install_nodejs(args.os_user)
     print("Install Ungit")
     install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
     # INSTALL INACTIVITY CHECKER
@@ -118,3 +121,5 @@ if __name__ == "__main__":
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    conn.close()

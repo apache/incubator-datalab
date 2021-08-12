@@ -65,11 +65,10 @@ under the License.
             [
               {"group": "os_pkg", "name": "nmap"},
               {"group": "os_pkg", "name": "htop"},
-              {"group": "pip2", "name": "requests"},
               {"group": "pip3", "name": "configparser"},
               {"group": "r_pkg", "name": "rmarkdown"},
             ]
-            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
+            Types: for OS - os_pkg, for Python - pip3, for R - r_pkg
             NOTE: You need to escape each double quote.
             For Example: {\"group\": \"os_pkg\", \"name\": \"htop\"}
           </description>
@@ -87,7 +86,12 @@ under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; echo $rand; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine-service_install_additional_libs/template.json | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/ECN/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -e "libs=$Libs" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action $Action;
+      <command>rand=`openssl rand -hex 10`; echo $rand; sed &apos;s/RID/&apos;${rand}&apos;/g&apos;
+          /var/lib/jenkins/jobs/dataengine-service_install_additional_libs/template.json | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos;
+          | sed &apos;s/ECN/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sudo
+          docker run -i -e "conf_tag_resource_id=CTUN" -e "libs=$Libs" -v /home/datalab-user/keys:/root/keys -v
+          /opt/datalab/tmp/result:/response -v /var/opt/datalab/log/dataengine-service:/logs/dataengine-service
+          docker.datalab-dataengine-service --action $Action;
       </command>
     </hudson.tasks.Shell>
   </builders>

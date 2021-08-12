@@ -1,0 +1,8 @@
+com.epam.datalab.logging.AppenderConsole
+com.epam.datalab.logging.AppenderFile
+com.epam.datalab.module.AdapterConsole
+com.epam.datalab.module.AdapterFile
+com.epam.datalab.module.aws.AdapterS3File
+com.epam.datalab.mongo.AdapterMongoDb
+com.epam.datalab.module.ParserCsv
+com.epam.datalab.module.aws.FilterAWS

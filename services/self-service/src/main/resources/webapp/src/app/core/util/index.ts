@@ -19,6 +19,7 @@
 
 export * from './http-status-codes';
 export * from './sortUtils';
+export * from './helpUtils';
 export * from './errorUtils';
 export * from './dateUtils';
 export * from './fileUtils';

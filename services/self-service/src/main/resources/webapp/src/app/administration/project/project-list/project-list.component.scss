@@ -17,16 +17,41 @@
  * under the License.
  */
 
+
+.table-wrapper{
+  height: calc(100vh - 120px);
+  overflow: auto;
+  position: relative;
+  margin:  0 -15px -15px -15px;
+  padding: 0 15px 15px 15px;
+  .mat-header-cell {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: white;
+  }
+}
 table {
   width: 100%;
 
   td {
-    vertical-align: top;
+    vertical-align: middle;
   }
 
   .name {
     width: 25%;
-    padding: 10px 0 10px 24px;
+    padding: 20px 0 10px 24px;
+    &.project-name{
+      padding-top: 10px;
+    }
+  }
+
+  th.name{
+    padding-top: 10px;
+  }
+
+  .mat-header-row{
+    padding-top: 12px;
   }
 
   .endpoints {
@@ -34,11 +59,7 @@ table {
     padding: 15px 0;
 
     .resource-wrap {
-      .resource-name {
-        width: 30%;
-        padding-left: 0;
-      }
-      resource-name, resource-status{
+      .resource-name, .resource-status {
         width: 30%;
         padding-left: 0;
       }
@@ -81,7 +102,6 @@ table {
 
     &.mat-header-cell{
       padding-top: 19px;
-      padding-right: 13px;
       color: rgba(0,0,0,.54);
     }
 
@@ -106,6 +126,7 @@ td.settings {
   vertical-align: middle !important;
   text-align: right;
   .actions {
+    margin-top: 3px;
     background-image: url(../../../../assets/svg/settings_icon.svg);
     width: 16px;
     height: 16px;
@@ -121,6 +142,9 @@ td.settings {
   border-bottom: 1px solid #edf1f5;
   cursor: pointer;
   color: #577289;
+  &:last-child{
+    border-bottom: none;
+  }
   &:hover{
     color: #36afd5;
     transition: all .45s ease-in-out;
@@ -135,11 +159,21 @@ td.settings {
 }
 
 .list-menu{
-  min-width: 190px;
+  min-width: 205px;
 }
 
 .project-endpoint-name{
    color: #577289;
+}
+
+.actions-list{
+  padding: 10px 15px;
+}
+
+.mat-chip {
+  max-width: 200px !important;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 

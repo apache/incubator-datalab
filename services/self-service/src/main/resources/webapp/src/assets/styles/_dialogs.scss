@@ -36,7 +36,11 @@
 }
 
 .modal-xl-s {
-  width: 660px;
+  width: 665px;
+}
+
+.modal-xl-m {
+  width: 715px;
 }
 
 .modal-xl {
@@ -44,11 +48,12 @@
 }
 
 .modal-xxl {
-  width: 1000px;
+  width: 1100px;
 }
 
 .modal-fullscreen {
-  width: 100vw;
+  width: 90vw;
+  max-width: 90vw !important;
   min-height: 80vh;
 }
 
@@ -59,10 +64,12 @@ mat-dialog-container {
     padding: 0;
     border-radius: 0;
     overflow-x: hidden;
+    position: relative;
 
     #dialog-box {
       color: $modal-text-color;
       min-height: 150px;
+      font-family: "Open Sans", sans-serif;
 
       .dialog-header {
         padding-left: 30px;
@@ -81,6 +88,11 @@ mat-dialog-container {
           color: #455c74;
           font-size: 18px;
           background: $modal-header-color;
+
+          &::after{
+            content: '';
+            display: block;
+          }
 
           i {
             vertical-align: middle;
@@ -112,6 +124,12 @@ mat-dialog-container {
         }
       }
 
+      .dialog-content {
+        .mat-select {
+          font-family: 'Opens Sans', sans-serif;
+        }
+      }
+
       .dialog-body {
         padding-top: 0;
       }
@@ -140,6 +158,9 @@ mat-dialog-container {
         text-decoration: none;
         transition: all .45s ease-in-out;
         line-height: 19px;
+        &.spark-url{
+          line-height: 16px;
+        }
 
         &:hover {
           color: #5faec7;
@@ -202,16 +223,8 @@ mat-dialog-container {
   }
 
   input[type=file] {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
     font-size: 100px;
     text-align: right;
-    opacity: 0;
     outline: none;
     background: #fff;
     cursor: inherit;
@@ -244,6 +257,10 @@ mat-dialog-container {
       text-overflow: ellipsis;
       overflow: hidden;
       cursor: default;
+      &::after{
+        content: '';
+        display: block;
+      }
     }
 
     &.tooltip-wrap {
@@ -252,7 +269,6 @@ mat-dialog-container {
         font-weight: 600;
         color: #455c74;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
     }
   }
@@ -262,6 +278,7 @@ mat-dialog-container {
   p {
     font-weight: 400;
     margin-bottom: 10px;
+    display: flex;
 
     small {
       font-size: 12px;
@@ -269,11 +286,22 @@ mat-dialog-container {
     }
   }
 
-  span:not(.description) {
+  span:not(.description),{
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    max-width: 450px;
+    white-space: nowrap;
+    &::after{
+      content: '';
+      display: block;
+    }
+    &.link-icon{
+      //margin-left: 10px;
+      cursor: pointer;
+      padding-top: 2px;
+    }
   }
 
   .links_block {
@@ -298,7 +326,7 @@ mat-dialog-container {
     }
   }
 
-  .create-resources-dialog {
+  .create-resources-dialog, .top-select {
     margin-left: 6px;
     min-width: calc(100% + 10px) !important;
   }
@@ -339,8 +367,91 @@ mat-dialog-container {
 .confirmation-dialog p.delete-user{
   font-weight: 500;
   max-height: 200px;
-  overflow: auto;
+  padding: 5px;
+  overflow: hidden auto;
+  text-overflow: ellipsis;
 }
+
+.bucket-browser{
+  .mat-form-field-appearance-legacy .mat-form-field-subscript-wrapper {
+    width: calc(100% + 85px);
+  }
+}
+
+.full-size-tooltip{
+  max-width: 1100px  !important;
+  white-space: pre-line;
+}
+
+.mat-list-base .mat-list-item.delete-item{
+  height: 30px;
+}
+
+.mat-list-item{
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
+}
+
+.d-none{
+  display: none !important;
+}
+
+.d-flex{
+  display: flex !important;
+}
+
+.progres{
+  border: 1px solid rgba(0,0,0,.12);
+  height: 17px;
+  position: relative;
+  width: 155px;
+
+  .bar{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    background-color:  #00bcd4;
+  }
+
+  .progress-bar-text{
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    font-size: 11px;
+    line-height: 13px;
+    color: rgba(0, 0, 0, 0.87);
+    z-index: 10;
+  }
+}
+
+.not-allow{
+  cursor: not-allowed !important;
+  &.open-bucket{
+    color: $blue-grey-color !important;
+  }
+}
+
+.audit-info-content{
+  .mat-list {
+    height: unset;
+
+    .list-header {
+      line-height: unset;
+      
+      .mat-list-item-content{
+        align-items: start !important;
+      }
+    }
+  }
+}
+
+.add-folder-form .mat-hint{
+  color: #00bcd4;
+}
+
 
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {

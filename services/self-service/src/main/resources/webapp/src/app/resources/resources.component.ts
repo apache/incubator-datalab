@@ -17,30 +17,31 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
-import { Exploratory } from './resources-grid/resources-grid.model';
 import {ApplicationSecurityService, HealthStatusService} from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
-import { Project } from './../administration/project/project.component';
+import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
+
 
 @Component({
-  selector: 'dlab-resources',
+  selector: 'datalab-resources',
   templateUrl: 'resources.component.html',
   styleUrls: ['./resources.component.scss']
 })
 
-export class ResourcesComponent implements OnInit {
-  public exploratoryEnvironments: Exploratory[] = [];
+export class ResourcesComponent implements OnInit, AfterViewInit {
+  public exploratoryEnvironments = [];
   public healthStatus: any;
-  projects: Project[] = [];
+  projects = [];
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
+  public bucketStatus;
   constructor(
     public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
@@ -50,7 +51,11 @@ export class ResourcesComponent implements OnInit {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.exploratoryEnvironments = this.resourcesGrid.environments;
+    this.projects = this.resourcesGrid.activeProjectsList;
+  }
+
+  ngAfterViewInit() {
+
   }
 
   public createEnvironment(): void {
@@ -64,6 +69,8 @@ export class ResourcesComponent implements OnInit {
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
+
+
   public toggleFiltering(): void {
     if (this.resourcesGrid.activeFiltering) {
       this.resourcesGrid.resetFilterConfigurations();
@@ -75,6 +82,19 @@ export class ResourcesComponent implements OnInit {
   public manageUngit(): void {
     this.dialog.open(ManageUngitComponent, { panelClass: 'modal-xxl' })
       .afterClosed().subscribe(() => this.refreshGrid());
+  }
+
+  public bucketBrowser(permition): void {
+    const defaultBucket = this.resourcesGrid.bucketsList[0].children[0];
+      permition && this.dialog.open(BucketBrowserComponent, { data:
+        {
+          bucket: defaultBucket.name,
+          endpoint: defaultBucket.endpoint,
+          bucketStatus: this.bucketStatus,
+          buckets: this.resourcesGrid.bucketsList
+        },
+      panelClass: 'modal-fullscreen' })
+      .afterClosed().subscribe();
   }
 
   public setActiveProject(project): void {
@@ -94,11 +114,18 @@ export class ResourcesComponent implements OnInit {
   }
 
 
+  public getEnvironments(environment) {
+    this.exploratoryEnvironments = environment;
+    this.projects = environment.map(env => env.project);
+  }
+
+
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
       (result: any) => {
         this.healthStatus = result;
         this.resourcesGrid.healthStatus = this.healthStatus;
+        this.bucketStatus = this.healthStatus.bucketBrowser;
       },
       error => this.toastr.error(error.message, 'Oops!'));
   }

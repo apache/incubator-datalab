@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,17 +21,17 @@
 #
 # ******************************************************************************
 
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-import sys
-import time
-import os
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
 import logging
+import os
+import sys
 import traceback
 import uuid
-from fabric.api import *
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -62,10 +62,10 @@ if __name__ == "__main__":
 
     try:
         print('Generating infrastructure names and tags')
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         edge_conf = dict()
-        edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         edge_conf['key_name'] = os.environ['conf_key_name']
@@ -107,7 +107,7 @@ if __name__ == "__main__":
         edge_conf['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(edge_conf['service_base_name'],
                                                                                edge_conf['project_name'],
                                                                                edge_conf['endpoint_name'])
-        edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        edge_conf['datalab_ssh_user'] = os.environ['conf_os_user']
         edge_conf['keyfile_name'] = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta.get_subnet(edge_conf['resource_group_name'],
                                                                 edge_conf['vpc_name'],
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             edge_conf['step_cert_sans'] = ''
 
     except Exception as err:
-        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
+        datalab.fab.append_result("Failed to generate infrastructure names", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -150,19 +150,19 @@ if __name__ == "__main__":
             edge_conf['initial_user'] = 'ec2-user'
             edge_conf['sudo_group'] = 'wheel'
 
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             edge_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
-            edge_conf['initial_user'], edge_conf['dlab_ssh_user'], edge_conf['sudo_group'])
+            edge_conf['initial_user'], edge_conf['datalab_ssh_user'], edge_conf['sudo_group'])
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
+        datalab.fab.append_result("Failed creating ssh user 'datalab'.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -170,15 +170,15 @@ if __name__ == "__main__":
         print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".format(
-            edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
+            edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['datalab_ssh_user'],
             os.environ['azure_region'])
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
+        datalab.fab.append_result("Failed installing apps: apt & pip.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -196,14 +196,14 @@ if __name__ == "__main__":
                              "allowed_ip_cidr": ['0.0.0.0/0']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
-            edge_conf['dlab_ssh_user'])
+            edge_conf['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('configure_http_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_http_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing http proxy.", str(err))
+        datalab.fab.append_result("Failed installing http proxy.", str(err))
         clear_resources()
         sys.exit(1)
 
@@ -215,14 +215,14 @@ if __name__ == "__main__":
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
-            edge_conf['dlab_ssh_user'])
+            edge_conf['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing users key. Excpeption: " + str(err))
+        datalab.fab.append_result("Failed installing users key. Excpeption: " + str(err))
         clear_resources()
         sys.exit(1)
 
@@ -232,30 +232,34 @@ if __name__ == "__main__":
         edge_conf['keycloak_client_secret'] = str(uuid.uuid4())
         params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
                  "--step_cert_sans '{}'".format(
-                  edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
-                  edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-' + edge_conf['endpoint_name'],
-                  edge_conf['keycloak_client_secret'], edge_conf['step_cert_sans'])
+            edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['datalab_ssh_user'],
+            edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-' + edge_conf['endpoint_name'],
+            edge_conf['keycloak_client_secret'], edge_conf['step_cert_sans'])
 
         try:
-            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
+        if os.environ['conf_letsencrypt_enabled'] == 'true' and 'conf_letsencrypt_domain_name' in os.environ:
+            edge_conf['edge_hostname'] = '{}.{}'.format(edge_conf['project_name'], os.environ['conf_letsencrypt_domain_name'])
+        else:
+            edge_conf['edge_hostname'] = "''"
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                           "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
-                          "--edge_public_ip {} --project_name {} --endpoint_name {} ".format(
+                          "--edge_public_ip {} --project_name {} --endpoint_name {} --hostname {} ".format(
                            edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                            os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                            os.environ['keycloak_user_password'],
                            edge_conf['keycloak_client_secret'], edge_conf['instance_hostname'], edge_conf['project_name'],
-                           edge_conf['endpoint_name'])
+                           edge_conf['endpoint_name'], edge_conf['edge_hostname'])
         try:
-            local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing Nginx reverse proxy. Excpeption: " + str(err))
+        datalab.fab.append_result("Failed installing Nginx reverse proxy. Excpeption: " + str(err))
         clear_resources()
         sys.exit(1)
 
@@ -304,7 +308,7 @@ if __name__ == "__main__":
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
                        "project_name": edge_conf['project_name'],
-                       "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
+                       "@class": "com.epam.datalab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             else:
                 res = {"hostname": edge_conf['instance_dns_name'],
@@ -328,11 +332,11 @@ if __name__ == "__main__":
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
                        "project_name": edge_conf['project_name'],
-                       "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
+                       "@class": "com.epam.datalab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results.", str(err))
+        datalab.fab.append_result("Error with writing results.", str(err))
         clear_resources()
         sys.exit(1)

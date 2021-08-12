@@ -22,11 +22,13 @@ import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from '../../../shared/material.module';
 import { CostDetailsDialogComponent } from './cost-details-dialog.component';
+import {LocalCurrencyModule} from '../../../core/pipes/local-currency-pipe';
+import {LocalDatePipeModule} from '../../../core/pipes/local-date-pipe';
 
 export * from './cost-details-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, LocalCurrencyModule, LocalDatePipeModule],
   declarations: [CostDetailsDialogComponent],
   entryComponents: [CostDetailsDialogComponent],
   exports: [CostDetailsDialogComponent]

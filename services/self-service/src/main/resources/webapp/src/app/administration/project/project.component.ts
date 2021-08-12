@@ -26,7 +26,7 @@ import { ProjectDataService } from './project-data.service';
 import {HealthStatusService, ProjectService, UserResourceService} from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 import { ProjectListComponent } from './project-list/project-list.component';
-import {ExploratoryModel} from '../../resources/resources-grid/resources-grid.model';
+import { EnvironmentsDataService } from '../management/management-data.service';
 
 export interface Endpoint {
   name: string;
@@ -40,10 +40,13 @@ export interface Project {
   tag: string;
   groups: string[];
   shared_image_enabled?: boolean;
+  areStoppedNode?: boolean;
+  areTerminatedNode?: boolean;
+  areRunningNode?: boolean;
 }
 
 @Component({
-  selector: 'dlab-project',
+  selector: 'datalab-project',
   templateUrl: './project.component.html'
 })
 
@@ -52,10 +55,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   healthStatus: any;
   activeFiltering: boolean = false;
   resources: any = [];
+  noPermissionMessage: string = 'You are not assigned to any project.';
 
   private subscriptions: Subscription = new Subscription();
 
-  @ViewChild(ProjectListComponent, { static: false }) list: ProjectListComponent;
+  @ViewChild(ProjectListComponent) list: ProjectListComponent;
 
   constructor(
     public dialog: MatDialog,
@@ -63,7 +67,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
     private healthStatusService: HealthStatusService,
-    private userResourceService: UserResourceService
+    private environmentsDataService: EnvironmentsDataService
   ) { }
 
   ngOnInit() {
@@ -81,10 +85,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private getResources() {
-    this.userResourceService.getUserProvisionedResources()
-      .subscribe((result: any) => {
-        this.resources = ExploratoryModel.loadEnvironments(result);
-      });
+    this.environmentsDataService.getEnvironmentDataDirect().subscribe((data: any) => {
+      this.resources = data;
+    });
   }
 
   refreshGrid() {
@@ -116,25 +119,32 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public toggleStatus($event) {
     const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
-      this.toggleStatusRequest(data, $event.action);
+    this.toggleStatusRequest(data, $event.action, $event.oneEdge);
   }
 
-  private toggleStatusRequest(data, action) {
+  private toggleStatusRequest(data, action, isOnlyOneEdge?) {
     if ( action === 'terminate') {
-      const projectsResources = this.resources.filter(resource => resource.project === data.project_name );
-      const activeProjectsResources = projectsResources.length ? projectsResources[0].exploratory
-        .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
-      let termResources = [];
-      data.endpoint.forEach(v => {
-        termResources = [...termResources, ...activeProjectsResources.filter(resource => resource.endpoint === v)];
-      });
+      const projectsResources = this.resources
+        .filter(resource => resource.project === data.project_name && resource.resource_type !== "edge node");
 
-      this.dialog.open(NotificationDialogComponent, { data: {
-        type: 'terminateNode', item: {action: data, resources: termResources.map(resource => resource.name)}
-        }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(result => {
-        result && this.edgeNodeAction(data, action);
-      });
+      const activeProjectsResources = projectsResources?.length ? projectsResources
+        .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
+        
+      const termResources = data.endpoint.reduce((res, endp) => {
+        res.push(...activeProjectsResources.filter(resource => resource.endpoint === endp));
+        return res;
+      }, []).map(resource => resource.resource_name);
+
+      if (termResources.length === 0 && !isOnlyOneEdge) {
+        this.edgeNodeAction(data, action);
+      } else {
+        this.dialog.open(NotificationDialogComponent, { data: {
+            type: 'terminateNode', item: {action: data, resources: termResources}
+          }, panelClass: 'modal-sm' })
+          .afterClosed().subscribe(result => {
+          result && this.edgeNodeAction(data, action);
+        });
+      }
     } else {
       this.edgeNodeAction(data, action);
     }
@@ -144,7 +154,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.projectService.toggleProjectStatus(data, action).subscribe(() => {
       this.refreshGrid();
       this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
-    }, error => this.toastr.error(error.message, 'Oops!'));
+    }, error => {
+      this.toastr.error(error.message, 'Oops!');
+    });
   }
 
   private getEnvironmentHealthStatus() {

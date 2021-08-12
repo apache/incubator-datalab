@@ -23,4 +23,5 @@ export enum ConfirmationDialogType {
   TerminateComputationalResources = 2,
   StopEdgeNode = 3,
   deleteUser = 4,
+  deleteGroup
 }

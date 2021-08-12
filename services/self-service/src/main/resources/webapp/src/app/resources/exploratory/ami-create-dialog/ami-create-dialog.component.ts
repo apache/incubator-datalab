@@ -27,7 +27,7 @@ import {HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
-  selector: 'dlab-ami-create-dialog',
+  selector: 'datalab-ami-create-dialog',
   templateUrl: './ami-create-dialog.component.html',
   styleUrls: ['./ami-create-dialog.component.scss']
 })
@@ -57,22 +57,17 @@ export class AmiCreateDialogComponent implements OnInit {
 
   public assignChanges(data) {
     this._userResource.createAMI(data).subscribe(
-      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(),
+      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(true),
       error => this.toastr.error(error.message || `Image creation failed!`, 'Oops!'));
   }
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
-      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(10), this.checkDuplication.bind(this)]],
       description: [''],
       exploratory_name: [this.notebook.name],
       project_name: [this.notebook.project]
     });
-  }
-
-  private providerMaxLength(control) {
-    if (control && control.value)
-      return control.value.length <= 10 ? null : { valid: false };
   }
 
   private checkDuplication(control) {

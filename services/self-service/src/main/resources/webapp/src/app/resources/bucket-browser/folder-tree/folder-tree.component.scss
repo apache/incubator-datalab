@@ -1,0 +1,120 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.folder{
+  padding-left: 5px;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mat-tree{
+  font-family: 'Open Sans', sans-serif;
+}
+
+.folder-icon{
+  color: rgb(232, 232, 232);
+}
+
+.folder-item-line{
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+}
+
+.active-item {
+  color: #00bcd4;
+  i{
+    color: #00bcd4;
+  }
+
+
+}
+
+.add-folder-form{
+  display: flex;
+  align-items: center;
+}
+
+.mat-tree-node:not(.input-node){
+  cursor: pointer;
+  transition: .3s;
+  overflow: unset;
+  min-height: auto;
+  button.mat-icon-button{
+    width: 25px;
+    height: 25px;
+    line-height: 28px;
+  }
+}
+
+.mat-tree-node:not(.input-node):not(.cursor-not-allow){
+  &:hover{
+    color: #00bcd4;
+    i{
+      color: #00bcd4;
+    }
+  }
+}
+
+.input-node {
+  overflow: unset;
+  padding-top: 5px;
+  padding-bottom: 7px;
+
+
+  button.mat-icon-button {
+    &.action-btn {
+      color: lightgrey;
+      font-size: 20px;
+      cursor: not-allowed;
+    }
+
+    &.check {
+      color: #49af38;
+      cursor: pointer;
+
+      &:hover {
+        border-color: #49af38;
+        background: #f9fafb;
+      }
+    }
+
+    &.close {
+      color: #f1696e;
+      cursor: pointer;
+
+      &:hover {
+        border-color: #f1696e;
+        background: #f9fafb;
+      }
+    }
+  }
+
+  .mat-error {
+    background-color: #ffffff;
+  }
+}
+
+
+
+
+
+

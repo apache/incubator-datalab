@@ -28,8 +28,10 @@ import { ProjectDataService } from '../project-data.service';
 import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import {ConfirmationDialogComponent} from '../../../shared/modal-dialog/confirmation-dialog';
+import {MatDialog} from '@angular/material/dialog';
 
-export interface GenerateKey { privateKey: string, publicKey: string };
+export interface GenerateKey { privateKey: string; publicKey: string; }
 
 @Component({
   selector: 'project-form',
@@ -62,7 +64,8 @@ export class ProjectFormComponent implements OnInit {
     private rolesService: RolesGroupsService,
     private endpointService: EndpointService,
     private userAccessKeyService: UserAccessKeyService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    public dialog: MatDialog,
   ) { }
 
   ngOnInit() {
@@ -79,12 +82,34 @@ export class ProjectFormComponent implements OnInit {
     }
   }
 
+  private updateProject(data: any) {
+    this.projectService.updateProject(data).subscribe(() => {
+      this.toastr.success('Project updated successfully!', 'Success!');
+      this.update.emit();
+    }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
+  }
+
   public confirm(data) {
     if (this.item) {
-      this.projectService.updateProject(data).subscribe(() => {
-        this.toastr.success('Project updated successfully!', 'Success!');
-        this.update.emit();
-      }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
+      const deletedGroups = this.item.groups.filter((v) => !(this.projectForm.value.groups.includes(v)));
+      if (deletedGroups.length) {
+        this.dialog.open(ConfirmationDialogComponent, {
+          data: {notebook: deletedGroups, type: 5, manageAction: true}, panelClass: 'modal-md'
+        }).afterClosed().subscribe((res) => {
+            if (!res) {
+              this.projectForm.patchValue({
+                groups: this.item.groups
+              });
+              return;
+            } else {
+              this.updateProject(data);
+            }
+          }
+        );
+      } else {
+        this.updateProject(data);
+      }
+
     } else {
       this.projectService.createProject(data).subscribe(() => {
         this.toastr.success('Project creation is processing!', 'Success!');
@@ -138,16 +163,19 @@ export class ProjectFormComponent implements OnInit {
     });
   }
 
+
   public selectOptions(list, key, select?) {
-    let filter = key === 'endpoints' ? list.map(el => el.name) : list;
+    const filter = key === 'endpoints' ? list.filter(el => el.status === 'ACTIVE').map(el => el.name) : list
     this.projectForm.controls[key].setValue(select ? filter : []);
   }
-
 
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'key': ['', Validators.required],
-      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
+      'name': ['', Validators.compose([Validators.required,
+        Validators.pattern(PATTERNS.projectName),
+        this.checkDuplication.bind(this),
+        this.providerMaxLength.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName)])],
       'groups': [[], Validators.required],
@@ -185,7 +213,9 @@ export class ProjectFormComponent implements OnInit {
 
   private getGroupsData() {
     this.rolesService.getGroupsData().subscribe(
-      (list: any) => this.groupsList = list.map(el => el.group),
+      (list: any) => {
+        this.groupsList = list.map(el => el.group);
+      },
       error => this.toastr.error(error.message, 'Oops!'));
   }
 

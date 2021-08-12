@@ -34,7 +34,7 @@
     span {
       &.error {
         position: absolute;
-        padding-left: 5px;
+        padding-left: 10px;
         right: 0;
         top: 36px;
       }
@@ -58,6 +58,7 @@
     vertical-align: middle;
     margin-left: 10px;
     margin-right: 5px;
+    margin-bottom: 4px;
   }
   .spot-details,
   .preemptible-details,
@@ -66,16 +67,18 @@
     opacity: 0;
     visibility: hidden;
     text-align: left;
-  
+
     &.show {
       height: 60px;
       visibility: visible;
       opacity: 1;
     }
   }
-  .preemptible {
+  &.preemptible {
+    height: 50px;
     .label {
-      padding-left: 10px;
+      height: 36px;
+      padding-bottom: 14px;
     }
     .control {
       position: relative;
@@ -87,7 +90,7 @@
   .spot-details, .preemptible-details {
     position: relative;
     .error {
-      bottom: -5px;
+      bottom: 0;
     }
 
     &.show {
@@ -121,7 +124,7 @@
     &.error {
       position: absolute;
       bottom: -20px;
-      left: 0;
+      right: 0;
     }
   }
   &.control-group {

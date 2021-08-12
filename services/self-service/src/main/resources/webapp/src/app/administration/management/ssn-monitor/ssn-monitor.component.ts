@@ -20,12 +20,11 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { HealthStatusService } from '../../../core/services';
 
 @Component({
-  selector: 'dlab-ssn-monitor',
+  selector: 'datalab-ssn-monitor',
   templateUrl: './ssn-monitor.component.html',
   styleUrls: ['./ssn-monitor.component.scss'],
   encapsulation: ViewEncapsulation.None

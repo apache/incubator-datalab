@@ -62,9 +62,9 @@ repository.createRawProxy('amazon-updates','AMAZON_UPDATES_URL', 'packages_store
 
 // create a role for service user
 def role = new org.sonatype.nexus.security.role.Role(
-    roleId: "nx-dlab",
+    roleId: "nx-datalab",
     source: "Nexus",
-    name: "nx-dlab",
+    name: "nx-datalab",
     description: null,
     readOnly: false,
     privileges: [ 'nx-repository-view-*-*-*' ],
@@ -74,8 +74,8 @@ authorizationManager.addRole(role)
 
 // add a service user account
 security.addUser("SERVICE_USER_NAME",
-      "DLab", "Nexus",
-      "dlab-nexus@example.org", true,
+      "DataLab", "Nexus",
+      "datalab-nexus@example.org", true,
       "SERVICE_USER_PASSWORD", [ role.roleId ])
 
 security.securitySystem.changePassword('admin','ADMIN_PASSWORD')

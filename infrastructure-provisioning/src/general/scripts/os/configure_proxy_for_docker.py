@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,10 +21,10 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
-import sys
 import argparse
-
+import sys
+from fabric import *
+from datalab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -37,24 +37,25 @@ https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     print("Configuring proxy for docker")
     try:
-        sudo('mkdir -p /etc/systemd/system/docker.service.d')
-        sudo('touch {}'.format(http_file))
-        sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > {}'.format(http_file))
-        sudo('touch {}'.format(https_file))
-        sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}'.format(https_file))
-        sudo('mkdir /home/{}/.docker'.format(args.os_user))
-        sudo('touch /home/{}/.docker/config.json'.format(args.os_user))
-        sudo(
-            'echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
-        sudo('usermod -a -G docker ' + args.os_user)
-        sudo('update-rc.d docker defaults')
-        sudo('update-rc.d docker enable')
-        sudo('systemctl restart docker')
+        conn.sudo('mkdir -p /etc/systemd/system/docker.service.d')
+        conn.sudo('touch {}'.format(http_file))
+        conn.sudo('''bash -l -c 'echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > {}' '''.format(http_file))
+        conn.sudo('touch {}'.format(https_file))
+        conn.sudo('''bash -l -c 'echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}' '''.format(https_file))
+        conn.sudo('mkdir /home/{}/.docker'.format(args.os_user))
+        conn.sudo('touch /home/{}/.docker/config.json'.format(args.os_user))
+        http_proxy = conn.sudo('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n','')
+        conn.sudo('''echo -e '{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"'''+http_proxy+'''",\n     "httpsProxy":"'''+http_proxy+'''"\n   }\n }\n}'  > /tmp/docker_config.json''')
+        conn.sudo('cp /tmp/docker_config.json /home/{}/.docker/config.json'.format(args.os_user))
+        conn.sudo('usermod -a -G docker ' + args.os_user)
+        conn.sudo('update-rc.d docker defaults')
+        conn.sudo('update-rc.d docker enable')
+        conn.sudo('systemctl restart docker')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
+    conn.close()

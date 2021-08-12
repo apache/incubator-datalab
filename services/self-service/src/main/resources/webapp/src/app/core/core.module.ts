@@ -48,6 +48,9 @@ import { NoCacheInterceptor } from './interceptors/nocache.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {ConfigurationService} from './services/configutration.service';
+import {AuditGuard, OdahuDeploymentService} from './services';
+import {ProjectAdminGuard} from './services/projectAdmin.guard';
 
 @NgModule({
   imports: [CommonModule],
@@ -58,13 +61,15 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 export class CoreModule {
 
-  static forRoot(): ModuleWithProviders {
+  static forRoot(): ModuleWithProviders<CoreModule> {
     return {
       ngModule: CoreModule,
       providers: [
         ApplicationSecurityService,
         AuthorizationGuard,
         AdminGuard,
+        ProjectAdminGuard,
+        AuditGuard,
         CloudProviderGuard,
         CheckParamsGuard,
         AppRoutingService,
@@ -83,6 +88,8 @@ export class CoreModule {
         ProjectService,
         EndpointService,
         UserAccessKeyService,
+        ConfigurationService,
+        OdahuDeploymentService,
 
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: [] },

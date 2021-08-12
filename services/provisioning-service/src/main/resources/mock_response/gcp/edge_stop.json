@@ -5,7 +5,7 @@
       "instance_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge",
       "Action": "Stop edge server"
     },
-    "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+    "log": "/var/log/datalab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
   },
   "request_id": "${REQUEST_ID}"
 }

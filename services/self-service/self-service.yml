@@ -43,18 +43,21 @@ maxSparkInstanceCount: 14
 # Timeout for check the status of environment via provisioning service
 checkEnvStatusTimeout: 5m
 
-# Restrict access to DLab features using roles policy
+# Restrict access to DataLab features using roles policy
 rolePolicyEnabled: true
-# Default access to DLab features using roles policy
-roleDefaultAccess: true
+# Default access to DataLab features using roles policy
+roleDefaultAccess: false
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
+billingPort: 8088
+# Set to true to enable audit
+auditEnabled: true
 # Name of configuration file for billing report.
-<#if DEV_MODE == "true">
+  <#if DEV_MODE == "true">
 billingConfFile: ${sys['user.dir']}/../billing/billing.yml
 <#else>
-billingConfFile: ${DLAB_CONF_DIR}/billing.yml
+billingConfFile: ${DATALAB_CONF_DIR}/billing.yml
 </#if>
 
 ssnInstanceSize: <SSN_INSTANCE_SIZE>
@@ -123,6 +126,9 @@ schedulers:
   inactivity:
     enabled: false
     cron: "0 0 0/2 ? * * *"
+  checkInfrastructureStatusScheduler:
+    enabled: true
+    cron: "0 0/15 * ? * *"
   startComputationalScheduler:
     enabled: true
     cron: "*/20 * * ? * * *"
@@ -159,7 +165,7 @@ guacamole:
   connectionProtocol: ssh
   serverPort: 4822
   port: 22
-  username: dlab-user
+  username: datalab-user
 
 keycloakConfiguration:
   redirectUri: KEYCLOAK_REDIRECT_URI
@@ -180,3 +186,6 @@ jerseyClient:
   gzipEnabled: true
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: true
+  
+#onPremise/GKE
+deployed: onPremise

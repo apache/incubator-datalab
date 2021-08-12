@@ -23,17 +23,19 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../shared/material.module';
 import { DetailDialogComponent } from './detail-dialog.component';
 import { DirectivesModule } from '../../../core/directives';
+import {LongDatePipeModule} from '../../../core/pipes/long-date-pipe';
 
 export * from './detail-dialog.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    DirectivesModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MaterialModule,
+        DirectivesModule,
+        LongDatePipeModule
+    ],
   declarations: [DetailDialogComponent],
   entryComponents: [DetailDialogComponent],
   exports: [DetailDialogComponent]

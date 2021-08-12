@@ -1,0 +1,41 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<section class="audit-toolbar">
+  <div class="info_color">
+    <div class="general" *ngIf="reportData">
+      <div><span>Service base name: </span><strong>{{ reportData.sbn }}</strong></div>
+      <div *ngIf="reportData.tag_resource_id"><span>Resource tag ID:
+        </span><strong>{{ reportData.tag_resource_id }}</strong></div>
+      <div class="report-period info_color" *ngIf="availablePeriodFrom && availablePeriodTo">
+        <span>Available reporting period from:</span>
+        <strong>{{ availablePeriodFrom | date }} </strong>
+        to: <strong>{{ availablePeriodTo | date }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div id="range-picker">
+    <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
+  </div>
+  <div class="action-butt">
+    <button mat-raised-button class="butt" (click)="rebuild($event)">
+      <i class="material-icons refresh-icon">autorenew</i>Refresh
+    </button>
+  </div>
+</section>

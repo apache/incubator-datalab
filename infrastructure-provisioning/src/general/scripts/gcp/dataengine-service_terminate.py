@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,14 @@
 #
 # ******************************************************************************
 
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import logging
-import traceback
-import boto3
-import argparse
-import sys
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
 import json
+import logging
 import os
+import sys
+import traceback
 
 
 def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_user, key_path):
@@ -48,7 +46,7 @@ def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_us
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate Dataproc cluster.", str(err))
+        datalab.fab.append_result("Failed to terminate Dataproc cluster.", str(err))
         sys.exit(1)
 
 
@@ -61,8 +59,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     dataproc_conf = dict()
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
@@ -88,7 +86,7 @@ if __name__ == "__main__":
                                        dataproc_conf['key_path'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to terminate Dataproc cluster.", str(err))
+            datalab.fab.append_result("Failed to terminate Dataproc cluster.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -102,5 +100,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

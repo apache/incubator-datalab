@@ -10,13 +10,15 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": ["es2015", "dom"],
+    "lib": ["es2017", "es2015", "dom"],
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true
   },
   "angularCompilerOptions": {
-    // "fullTemplateTypeCheck": true,
+     //"fullTemplateTypeCheck": true,
     // "preserveWhitespaces": true
+    "annotationsAs": "decorators",
+    "enableIvy": false
   },
   "skipLibCheck": true
 }

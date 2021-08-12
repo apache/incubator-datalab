@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,16 @@
 #
 # ******************************************************************************
 
-from dlab.actions_lib import *
-from dlab.common_lib import *
-from dlab.notebook_lib import *
-from dlab.fab import *
-from fabric.api import *
-from fabric.contrib.files import exists
 import argparse
-import json
-import sys
 import os
+import sys
+from datalab.actions_lib import *
+from datalab.common_lib import *
+from datalab.fab import *
+from datalab.notebook_lib import *
+from fabric import *
+from patchwork.files import exists
+from patchwork import files
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -49,6 +49,8 @@ jupyter_version = os.environ['notebook_jupyter_version']
 nvidia_version = os.environ['notebook_nvidia_version']
 theano_version = os.environ['notebook_theano_version']
 keras_version = os.environ['notebook_keras_version']
+python_venv_version = os.environ['notebook_python_venv_version']
+python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version, python_venv_version[:3])
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -74,15 +76,14 @@ cudnn_file_name = os.environ['notebook_cudnn_file_name']
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -91,10 +92,12 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    print("Install Python 2 modules")
-    ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
+
+    # INSTALL PYTHON IN VIRTUALENV
+    print("Configure Python Virtualenv")
+    ensure_python_venv(python_venv_version)
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
@@ -119,17 +122,17 @@ if __name__ == "__main__":
     configure_local_spark(jars_dir, templates_dir)
 
     # INSTALL JUPYTER KERNELS
-    print("Install pyspark local kernel for Jupyter")
-    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
+    #print("Install pyspark local kernel for Jupyter")
+    #ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
     print("Install py3spark local kernel for Jupyter")
-    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
+    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path, python_venv_version)
 
     # INSTALL UNGIT
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install Ungit")
     install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
     # INSTALL INACTIVITY CHECKER
@@ -145,3 +148,5 @@ if __name__ == "__main__":
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    conn.close()

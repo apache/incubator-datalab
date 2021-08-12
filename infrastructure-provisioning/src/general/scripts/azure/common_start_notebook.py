@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,18 +21,16 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import logging
 import os
-import uuid
-import argparse
-from fabric.api import *
-
+import sys
+import traceback
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -42,8 +40,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    AzureMeta = dlab.meta_lib.AzureMeta()
-    AzureActions = dlab.actions_lib.AzureActions()
+    AzureMeta = datalab.meta_lib.AzureMeta()
+    AzureActions = datalab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
@@ -61,7 +59,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to start notebook.", str(err))
+        datalab.fab.append_result("Failed to start notebook.", str(err))
         sys.exit(1)
 
     try:
@@ -73,12 +71,12 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to setup git credentials.", str(err))
+        datalab.fab.append_result("Failed to setup git credentials.", str(err))
         sys.exit(1)
 
     if os.environ['azure_datalake_enable'] == 'true':
@@ -87,21 +85,20 @@ if __name__ == "__main__":
             print('[UPDATE STORAGE CREDENTIALS]')
             notebook_config['notebook_ip'] = AzureMeta.get_private_ip_address(
                 notebook_config['resource_group_name'], notebook_config['notebook_name'])
-            env.hosts = "{}".format(notebook_config['notebook_ip'])
-            env.user = os.environ['conf_os_user']
-            env.key_filename = "{}".format(notebook_config['keyfile'])
-            env.host_string = env.user + "@" + env.hosts
+            global conn
+            conn = datalab.fab.init_datalab_connection(notebook_config['notebook_ip'], os.environ['conf_os_user'],
+                                                       notebook_config['keyfile'])
             params = '--refresh_token {}'.format(os.environ['azure_user_refresh_token'])
             try:
-                put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
-                sudo('mv /tmp/common_notebook_update_refresh_token.py '
+                conn.put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
+                conn.sudo('mv /tmp/common_notebook_update_refresh_token.py '
                      '/usr/local/bin/common_notebook_update_refresh_token.py')
-                sudo("/usr/bin/python /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
+                conn.sudo("/usr/bin/python3 /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to update storage credentials.", str(err))
+            datalab.fab.append_result("Failed to update storage credentials.", str(err))
             sys.exit(1)
 
     try:
@@ -110,12 +107,12 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+            subprocess.run("~/scripts/{}.py {}".format('update_inactivity_on_start', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to update last activity time.", str(err))
+        datalab.fab.append_result("Failed to update last activity time.", str(err))
         sys.exit(1)
 
     try:
@@ -132,7 +129,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)
-
-

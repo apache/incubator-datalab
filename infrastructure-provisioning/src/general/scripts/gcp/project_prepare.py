@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,18 +21,17 @@
 #
 # ******************************************************************************
 
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-import sys
-import time
-import os
-import traceback
 import logging
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import os
+import sys
+import traceback
 import uuid
-from fabric.api import *
-
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -42,8 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['edge_unique_index'] = str(uuid.uuid4())[:5]
@@ -120,7 +119,7 @@ if __name__ == "__main__":
                                            "sbn": project_conf['service_base_name'],
                                            "project_tag": project_conf['project_tag'],
                                            "endpoint_tag": project_conf['endpoint_tag'],
-                                           "product": "dlab"}
+                                           "product": "datalab"}
         project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
         project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
         if 'conf_user_subnets_range' in os.environ:
@@ -132,8 +131,8 @@ if __name__ == "__main__":
         try:
             project_conf['user_key'] = os.environ['key']
             try:
-                local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
-                                                        project_conf['project_name']))
+                subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
+                                                        project_conf['project_name']), shell=True, check=True)
             except:
                 print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
@@ -144,7 +143,7 @@ if __name__ == "__main__":
             project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(project_conf))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
+        datalab.fab.append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
 
     try:
@@ -155,7 +154,7 @@ if __name__ == "__main__":
                          project_conf['private_subnet_prefix'], project_conf['vpc_cidr'],
                          project_conf['user_subnets_range'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
             project_conf['private_subnet_cidr'] = GCPMeta.get_subnet(project_conf['private_subnet_name'],
                                                                      project_conf['region'])['ipCidrRange']
         except:
@@ -166,7 +165,7 @@ if __name__ == "__main__":
             GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         except:
             print("Subnet hasn't been created.")
-        dlab.fab.append_result("Failed to create subnet.", str(err))
+        datalab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
@@ -179,7 +178,7 @@ if __name__ == "__main__":
             project_conf['edge_unique_index'], project_conf['service_base_name'])
 
         try:
-            local("~/scripts/{}.py {}".format('common_create_service_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -191,7 +190,7 @@ if __name__ == "__main__":
         except:
             print("Service account or role hasn't been created")
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
-        dlab.fab.append_result("Failed to creating service account and role.", str(err))
+        datalab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
     try:
@@ -203,7 +202,7 @@ if __name__ == "__main__":
                   project_conf['ps_roles_path'], project_conf['ps_unique_index'], project_conf['service_base_name'])
 
         try:
-            local("~/scripts/{}.py {}".format('common_create_service_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -218,21 +217,27 @@ if __name__ == "__main__":
                                           project_conf['service_base_name'])
         GCPActions.remove_role(project_conf['edge_role_name'])
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
-        dlab.fab.append_result("Failed to creating service account and role.", str(err))
+        datalab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
     try:
-        pre_defined_firewall = True
         logging.info('[CREATE FIREWALL FOR EDGE NODE]')
         print('[CREATE FIREWALL FOR EDGE NODE]')
         firewall_rules = dict()
         firewall_rules['ingress'] = []
         firewall_rules['egress'] = []
-
         ingress_rule = dict()
+        if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] == 'local':
+            ssn_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-ssn'.format(project_conf['service_base_name']))
+            project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], ssn_public_ip).split(', ')
+        elif os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] != 'local':
+            endpoint_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
+            project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], endpoint_public_ip).split(', ')
+        else:
+            project_conf['allowed_ip_cidr'] = [os.environ['conf_allowed_ip_cidr']]
         ingress_rule['name'] = project_conf['fw_edge_ingress_public']
         ingress_rule['targetTags'] = [project_conf['network_tag']]
-        ingress_rule['sourceRanges'] = [project_conf['allowed_ip_cidr']]
+        ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
                 'IPProtocol': 'tcp',
@@ -247,7 +252,13 @@ if __name__ == "__main__":
         ingress_rule = dict()
         ingress_rule['name'] = project_conf['fw_edge_ingress_internal']
         ingress_rule['targetTags'] = [project_conf['network_tag']]
-        ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr']]
+        if os.environ['gcp_subnet_name']:
+            project_conf['ssn_subnet'] = os.environ['gcp_subnet_name']
+        else:
+            project_conf['ssn_subnet'] = '{}-subnet'.format(project_conf['service_base_name'])
+        ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr'],
+                                        GCPMeta.get_subnet(project_conf['subnet_name'],
+                                                           project_conf['region'])['ipCidrRange']]
         rules = [
             {
                 'IPProtocol': 'all'
@@ -261,7 +272,7 @@ if __name__ == "__main__":
         egress_rule = dict()
         egress_rule['name'] = project_conf['fw_edge_egress_public']
         egress_rule['targetTags'] = [project_conf['network_tag']]
-        egress_rule['destinationRanges'] = [project_conf['allowed_ip_cidr']]
+        egress_rule['destinationRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
                 'IPProtocol': 'udp',
@@ -295,7 +306,7 @@ if __name__ == "__main__":
 
         params = "--firewall '{}'".format(json.dumps(firewall_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_firewall', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -305,7 +316,7 @@ if __name__ == "__main__":
         GCPActions.remove_service_account(project_conf['edge_service_account_name'],
                                           project_conf['service_base_name'])
         GCPActions.remove_role(project_conf['edge_role_name'])
-        dlab.fab.append_result("Failed to create firewall for Edge node.", str(err))
+        datalab.fab.append_result("Failed to create firewall for Edge node.", str(err))
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
 
@@ -359,7 +370,7 @@ if __name__ == "__main__":
         egress_rule['targetTags'] = [
             project_conf['ps_firewall_target']
         ]
-        egress_rule['destinationRanges'] = [project_conf['allowed_ip_cidr']]
+        egress_rule['destinationRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
                 'IPProtocol': 'tcp',
@@ -373,12 +384,12 @@ if __name__ == "__main__":
 
         params = "--firewall '{}'".format(json.dumps(firewall_rules))
         try:
-            local("~/scripts/{}.py {}".format('common_create_firewall', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create firewall for private subnet.", str(err))
+        datalab.fab.append_result("Failed to create firewall for private subnet.", str(err))
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
@@ -403,7 +414,7 @@ if __name__ == "__main__":
         params = "--bucket_name {} --tags '{}'".format(project_conf['shared_bucket_name'],
                                                        json.dumps(project_conf['shared_bucket_tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -419,12 +430,12 @@ if __name__ == "__main__":
                                                        json.dumps(project_conf['bucket_tags']))
 
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create bucket.", str(err))
+        datalab.fab.append_result("Unable to create bucket.", str(err))
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
@@ -448,7 +459,7 @@ if __name__ == "__main__":
         GCPActions.set_bucket_owner(project_conf['shared_bucket_name'], project_conf['ps_service_account_name'],
                                     project_conf['service_base_name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to set bucket permissions.", str(err))
+        datalab.fab.append_result("Failed to set bucket permissions.", str(err))
         GCPActions.remove_bucket(project_conf['bucket_name'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
@@ -470,12 +481,12 @@ if __name__ == "__main__":
         print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(project_conf['static_address_name'], project_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('edge_create_static_ip', params))
+            subprocess.run("~/scripts/{}.py {}".format('edge_create_static_ip', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create static ip.", str(err))
+        datalab.fab.append_result("Failed to create static ip.", str(err))
         try:
             GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
         except:
@@ -517,12 +528,12 @@ if __name__ == "__main__":
                   'edge', project_conf['static_ip'], project_conf['network_tag'],
                   json.dumps(project_conf['instance_labels']), project_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create instance.", str(err))
+        datalab.fab.append_result("Failed to create instance.", str(err))
         GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
         GCPActions.remove_bucket(project_conf['bucket_name'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
@@ -539,3 +550,41 @@ if __name__ == "__main__":
         GCPActions.remove_role(project_conf['edge_role_name'])
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
+
+    if os.environ['edge_is_nat'] == 'true':
+        try:
+            logging.info('[CREATE NAT ROUTE]')
+            print('[REATE NAT ROUTE]')
+            nat_route_name = '{0}-{1}-{2}-nat-route'.format(project_conf['service_base_name'],
+                                                                  project_conf['project_name'],
+                                                                  project_conf['endpoint_name'])
+            edge_instance = GCPMeta.get_instance(project_conf['instance_name'])['selfLink']
+            params = "--nat_route_name {} --vpc {} --tag {} --edge_instance {}".format(nat_route_name,
+                                                                                                       project_conf['vpc_selflink'],
+                                                                                                       project_conf['ps_firewall_target'],
+                                                                                                       edge_instance)
+            try:
+                subprocess.run("~/scripts/{}.py {}".format('common_create_nat_route', params), shell=True, check=True)
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            datalab.fab.append_result("Failed to create nat route.", str(err))
+            GCPActions.remove_instance(project_conf['instance_name'], project_conf['zone'])
+            GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
+            GCPActions.remove_bucket(project_conf['bucket_name'])
+            GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+            GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
+            GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
+            GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
+            GCPActions.remove_firewall(project_conf['fw_ps_ingress'])
+            GCPActions.remove_firewall(project_conf['fw_ps_egress_private'])
+            GCPActions.remove_firewall(project_conf['fw_ps_egress_public'])
+            GCPActions.remove_service_account(project_conf['ps_service_account_name'],
+                                              project_conf['service_base_name'])
+            GCPActions.remove_role(project_conf['ps_role_name'])
+            GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                              project_conf['service_base_name'])
+            GCPActions.remove_role(project_conf['edge_role_name'])
+            GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+            sys.exit(1)

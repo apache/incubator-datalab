@@ -17,97 +17,238 @@
   ~ under the License.
   -->
 
+<script src="detail-dialog.component.ts"></script>
 <div class="detail-dialog" id="dialog-box">
   <header class="dialog-header header-white">
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
-    <div *ngIf="data">
+    <div *ngIf="data.odahu">
       <table class="detail-header">
         <tr>
-          <td>{{notebook.template_name}}</td>
+          <td>{{odahu.name}}</td>
+          <td>
+            <span class="status" ngClass="{{odahu.status || ''}}">
+              {{odahu.status}}
+            </span>
+          </td>
+          <td>{{odahu.shape}}</td>
+        </tr>
+      </table>
+    </div>
+    <div *ngIf="data.notebook">
+      <table class="detail-header">
+        <tr>
+          <td>{{notebook.template_name || notebook.name}}</td>
           <td>
             <span class="status" ngClass="{{notebook.status || ''}}">
               {{notebook.status}}
             </span>
           </td>
-          <td>{{notebook.shape}}</td>
+          <td>
+            <div>{{notebook.shape}}</div>
+            <div *ngIf="notebook.gpu_type">{{notebook.gpu_type}}</div>
+            <div *ngIf="notebook.gpu_count">GPU count: {{notebook.gpu_count}}</div>
+          </td>
         </tr>
       </table>
+
       <div class="content-box">
         <div class="detail-info" *ngIf="notebook.error_message">
           <p class="failed">{{ notebook.error_message }}</p>
         </div>
-
-        <div class="scroll-box" id="scrolling">
+        <div *ngIf="data.type === 'environment'" class="detail-info">
+          <p>Open following URL(s) in your browser to access this box:</p>
+          <div class="links_block">
+<!--            <p *ngFor="let item of notebook.exploratory_urls">-->
+<!--              <span class="description">{{item.description}}: &nbsp;</span>-->
+<!--              <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"-->
+<!--                 target="_blank" (click)="logAction(notebook.name, item.description)">-->
+<!--                &nbsp;{{item.url}}{{notebook.name}}-->
+<!--              </a>-->
+<!--            </p>-->
+            <ng-container *ngFor="let item of notebook.exploratory_urls">
+                <span class="d-none" *ngIf="item.description.toLowerCase() === 'ungit' && notebook.exploratory_urls[0].description.toLowerCase().indexOf('zeppelin') !== -1; else ungit">
+                </span>
+              <ng-template #ungit>
+                <p (mouseleave)="hideCopyIcon()">
+                  <span class="description">{{item.description}}: &nbsp;</span>
+                  <a (mouseover)="showCopyIcon(item.description)"
+                     (click)="logAction(notebook.name, item.description)"
+                     class="ellipsis none-select resources-url" matTooltip="{{item.url}}"
+                     matTooltipPosition="above"
+                     href="{{item.url}}"
+                     target="_blank"
+                     (contextmenu)="false"
+                  >
+                    &nbsp;{{item.url}}
+                  </a>
+                  <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy ' + item.description + ' url': 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
+                      <span  class="link-icon" (click)="copyLink(item.url)" >
+                        <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                       </span>
+                    </span>
+                </p>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
+        <div class="scroll-box" id="scrolling" *ngIf="data.type === 'resource'">
           <div class="detail-info" *ngIf="!notebook.error_message">
             <p>Edge Node IP Address {{notebook.node_ip}}</p>
             <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since
-              {{upTimeSince || "not specified."}}</p>
-            <p>Open following URL(s) in your browser to access this box:</p>
+              {{notebook.time ? (notebook.time | longDate ) : "not specified."}}</p>
+            <p *ngIf="notebook.url?.length">Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
-              <p *ngFor="let item of notebook.url">
-               <ng-container *ngIf="!(item.description === 'Ungit' && notebook.template_name.indexOf('Apache Zeppelin') !== -1)">
-                <span class="description">{{item.description}}: &nbsp;</span>
-                <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
-                  target="_blank">
-                  &nbsp;{{item.url}}
-                </a>
-               </ng-container>
-              </p>
+              <ng-container *ngFor="let item of notebook.url">
+                <span class="d-none" *ngIf="item.description.toLowerCase() === 'ungit' && notebook.template_name.toLowerCase().indexOf('zeppelin ') !== -1; else ungit">
+                </span>
+                <ng-template #ungit>
+                  <p (mouseleave)="hideCopyIcon()">
+                    <span class="description">{{item.description}}: &nbsp;</span>
+                    <a (mouseover)="showCopyIcon(item.description)"
+                       (click)="logAction(notebook.name, item.description)"
+                       class="ellipsis none-select resources-url" matTooltip="{{item.url}}"
+                       matTooltipPosition="above"
+                       href="{{item.url}}"
+                      target="_blank"
+                       (contextmenu)="false"
+                    >
+                      &nbsp;{{item.url}}
+                    </a>
+                    <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy ' + item.description + ' url': 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
+                      <span  class="link-icon" (click)="copyLink(item.url)" >
+                        <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                       </span>
+                    </span>
+                  </p>
+                </ng-template>
+              </ng-container>
             </div>
             <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span
                 class="strong">{{ notebook.username }}</span></p>
             <p class="flex" *ngIf="notebook.password">Password: &nbsp;<span
                 class="strong">{{ notebook.password }}</span></p>
 
-            <p class="m-top-30">{{ DICTIONARY[PROVIDER].personal_storage }}: &nbsp;</p>
-            <div class="links_block">
-              <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY[PROVIDER].account }}
-                <span class="bucket-info">{{ notebook.account_name}}</span></p>
-              <p *ngIf="notebook.bucket_name">{{ DICTIONARY[PROVIDER].container }} <span
-                  class="bucket-info">{{ notebook.bucket_name }}</span></p>
-            </div>
-            <p>Shared endpoint bucket: &nbsp;</p>
-            <div class="links_block">
-              <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}
-                <span class="bucket-info">{{ notebook.shared_account_name}}</span></p>
-              <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}
-                <span class="bucket-info">{{ notebook.shared_bucket_name }}</span></p>
-            </div>
-            <br />
+            <p class="m-top-30">{{ 'Project bucket' }}: &nbsp;</p>
+            <div class="links_block" (mouseleave)="hideCopyIcon()">
+                <p *ngIf="PROVIDER === 'azure' && notebook.account_name" class="bucket-info-wrapper">
+                  <span
+                    class="bucket-info"
+                    (mouseover)="showCopyIcon('bucket')"
+                    [matTooltip]="notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'"
+                    matTooltipPosition="above"
+                    [matTooltipClass]="'full-size-tooltip'"
+                  >
+                    {{notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'}}
+                  </span>
 
-            <div *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.datalake_name">
-              <p>Data Lake Store: &nbsp;</p>
-              <div class="links_block">
-                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>
-                <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>
-                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span>
+                  <span  *ngIf="isCopyIconVissible.bucket" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
+                    <span  class="link-icon" (click)="copyLink(notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net', true);$event.stopPropagation()" >
+                    <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                  </span>
+                  </span>
                 </p>
-              </div>
+                <p *ngIf="notebook.bucket_name && PROVIDER !== 'azure'">{{ DICTIONARY[PROVIDER].container }}
+                  <span
+                    class="bucket-info"
+                    (mouseover)="showCopyIcon('bucket')"
+                  >
+                    {{ notebook.bucket_name }}
+                </span>
+                  <span  *ngIf="isCopyIconVissible.bucket" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
+                    <span  class="link-icon" (click)="copyLink(notebook.bucket_name, true);$event.stopPropagation()" >
+                    <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                  </span>
+                  </span>
+                </p>
             </div>
+            <div class="bucket-info bucket-link">
+              <span></span>
+<!--              <button-->
+<!--                type="button"-->
+<!--                class="butt"-->
+<!--                mat-raised-button-->
+<!--              >-->
+<!--                Open bucket browser-->
+<!--              </button>-->
+<!--              <span class="description open-bucket"-->
+<!--                 [ngClass]="{'not-allow': !this.bucketStatus['view'] || !thisdata.buckets.length}"-->
+<!--                (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus['view'] && thisdata.buckets.length)"-->
+<!--              >-->
+                <span class="description open-bucket"
+                      [matTooltip]="!this.bucketStatus['view']
+                 ? 'You have not permission to open bucket'
+                 : 'You have not any bucket'"
+                      matTooltipDisabled="{{this.bucketStatus['view'] && this.data.buckets.length}}"
+                      matTooltipPosition="above"
+                      [matTooltipClass]="'full-size-tooltip'"
+                      [ngClass]="{'not-allow': !this.bucketStatus['view'] || !this.data.buckets.length}"
+                      (click)="bucketBrowser(notebook.cloud_provider !== 'azure' ? notebook.bucket_name : notebook.account_name + '.' + notebook.bucket_name, notebook.endpoint, this.bucketStatus['view'] && this.data.buckets.length)"
+                >
+                  Open bucket browser
+                </span>
+            </div>
+<!--            <p>Shared endpoint bucket: &nbsp;</p>-->
+<!--            <div class="links_block" (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus['view'])"-->
+<!--                 [matTooltip]="'You have not permission to open bucket'"-->
+<!--                 matTooltipDisabled="{{this.bucketStatus['view']}}"-->
+<!--                 matTooltipPosition="above"-->
+<!--                 [matTooltipClass]="'full-size-tooltip'"-->
+<!--            >-->
+<!--              <p *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}-->
+<!--                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus['view']}" (mouseover)="showCopyIcon('shared')">{{ notebook.shared_account_name}}</span>-->
+<!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_account_name)">-->
+<!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
+<!--                </span>-->
+<!--              </p>-->
+<!--              <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}-->
+<!--                <span-->
+<!--                  class="bucket-info bucket-link"-->
+<!--                  [ngClass]="{'not-allow': !this.bucketStatus['view']}"-->
+<!--                  (mouseover)="showCopyIcon('shared')"-->
+<!--                  (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus['view'])"-->
+<!--                >-->
+<!--                  {{ notebook.shared_bucket_name }}-->
+<!--                </span>-->
+<!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_bucket_name)">-->
+<!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
+<!--                </span>-->
+<!--              </p>-->
+<!--            </div>-->
+<!--            <br />-->
 
-            <!-- <p>
-              <a href="#/help/accessnotebookguide" target="_blank">
-                <small class="helper_instruction">
-                  <i class="material-icons">help_outline</i>
-                  Read instruction how to create the tunnel</small>
-              </a>
-            </p> -->
+<!--            <div *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.datalake_name">-->
+<!--              <p>Data Lake Store: &nbsp;</p>-->
+<!--              <div class="links_block">-->
+<!--                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>-->
+<!--                <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>-->
+<!--                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span>-->
+<!--                </p>-->
+<!--              </div>-->
+<!--            </div>-->
+
+              <!-- <p>
+                <a href="#/help/accessnotebookguide" target="_blank">
+                  <small class="helper_instruction">
+                    <i class="material-icons">help_outline</i>
+                    Read instruction how to create the tunnel</small>
+                </a>
+              </p> -->
           </div>
 
-          <div class="checkbox-group" *ngIf="notebook.image !== 'docker.dlab-zeppelin'; else not_support"
-            [hidden]="notebook.status !== 'running' || notebook.image === 'docker.dlab-superset' || notebook.image === 'docker.dlab-jupyterlab'">
-            <label>
-              <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
-            </label>
-            <div class="checkbox-group">
-              <form [formGroup]="configurationForm" novalidate>
-                <div class="config-details" *ngIf="configuration?.nativeElement['checked'] || false">
+            <div class="checkbox-group" *ngIf="notebook.image !== 'docker.datalab-zeppelin'; else not_support"
+                 [hidden]="notebook.status !== 'running' || notebook.image === 'docker.datalab-superset' || notebook.image === 'docker.datalab-jupyterlab'">
+                <label>
+                    <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
+                </label>
+                <div class="checkbox-group">
+                    <form [formGroup]="configurationForm" novalidate>
+                        <div class="config-details" *ngIf="configuration?.nativeElement['checked'] || false">
                   <textarea formControlName="configuration_parameters" id="config"
-                    placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
-                  <span class="danger_color"
-                    *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
+                            placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
+                            <span class="danger_color"
+                                  *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
                     parameters is not in a valid format</span>
                 </div>
               </form>
@@ -115,9 +256,9 @@
           </div>
           <ng-template #not_support>
             <small [hidden]="notebook.status !== 'running'">Spark default configuration for Apache Zeppelin can not be
-              changed from DLab UI. Currently it can be done directly through Apache Zeppelin interpreter menu.
-              For more details please refer for Apache Zeppelin <a
-                href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
+                changed from DataLab UI. Currently it can be done directly through Apache Zeppelin interpreter menu.
+                For more details please refer for Apache Zeppelin <a
+                href="https://zeppelin.apache.org/docs/0.9.0/usage/interpreter/overview.html" target="_blank">official
                 documentation</a>.
             </small>
           </ng-template>
@@ -129,6 +270,27 @@
               (click)="editClusterConfiguration(configurationForm.value)">Update</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="legion-info" *ngIf="data.odahu">
+      <div class="content-box">
+        <div class="detail-info" *ngIf="!odahu.error_message">
+        <div  class="links_block">
+          <div *ngFor="let url of odahu.url" class="odahu-links">
+            <div class="odahu-link">
+              <span class="description">{{url.description }}: &nbsp;</span>
+              <a class="ellipsis" matTooltip="{{ url.url}}" matTooltipPosition="above" href="{{ url.url}}"
+                 target="_blank">{{ url.url}}
+              </a>
+            </div>
+            <div class="grafana" *ngIf="url.description === 'Grafana'">
+              <div><span>Gafana user:&nbsp;</span><span class="creds">{{odahu.bucket_name}}</span></div>
+              <div><span>Gafana password:&nbsp;</span><span class="creds">{{odahu.shared_bucket_name}}</span></div>
+            </div>
+          </div>
+        </div>
+    </div>
       </div>
     </div>
   </div>

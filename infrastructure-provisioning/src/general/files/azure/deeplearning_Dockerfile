@@ -20,14 +20,14 @@
 # ******************************************************************************
 
 
-FROM docker.dlab-base:latest
+FROM docker.datalab-base:latest
 
 ARG OS
 
 COPY deeplearning/ /root/
 COPY general/scripts/os/* /root/scripts/
 COPY general/scripts/azure/deeplearning_* /root/scripts/
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py
 COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
@@ -35,12 +35,13 @@ COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_dataengine_template.json /root/templates/
 COPY general/templates/os/r_template.json /root/templates/
+COPY general/templates/os/sparkmagic_config_template.json /root/templates/
 COPY general/templates/os/run_template.sh /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/
 COPY general/templates/os/inactive.timer /root/templates/
-COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
+COPY general/files/os/toree-assembly-0.5.0.jar /root/files/
 COPY general/files/os/toree_kernel.tar.gz /root/files/
 COPY general/templates/azure/core-site* /root/templates/
 

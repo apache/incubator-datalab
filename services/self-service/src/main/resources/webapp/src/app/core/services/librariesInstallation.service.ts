@@ -29,8 +29,8 @@ export class LibrariesInstallationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
   public getGroupsList(project, exploratory, computational?): Observable<Response> {
-    let body = `?project_name=${project}&exploratory_name=${exploratory}`;
-    if (computational) body += `&computational_name=${computational}`;
+    let body = `/exploratory?project=${project}&exploratory=${exploratory}`;
+    if (computational) body = '/compute';
 
     return this.applicationServiceFacade
       .buildGetGroupsList(body)
@@ -49,7 +49,6 @@ export class LibrariesInstallationService {
 
   public getAvailableDependencies(data): Observable<{}> {
     const body = `/maven?artifact=${data}`;
-
     return this.applicationServiceFacade
       .buildGetAvailableDependenciest(body)
       .pipe(

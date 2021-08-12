@@ -23,11 +23,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../../../shared/material.module';
 import { DetailComputationalResourcesComponent } from './cluster-details.component';
+import {LongDatePipeModule} from '../../../core/pipes/long-date-pipe';
 
 export * from './cluster-details.component';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, LongDatePipeModule],
   declarations: [DetailComputationalResourcesComponent],
   entryComponents: [DetailComputationalResourcesComponent],
   exports: [DetailComputationalResourcesComponent],

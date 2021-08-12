@@ -28,8 +28,9 @@
   min-width: 100%;
   background: #fff;
   padding-left: 15px;
-  font-size: 14px;
-  // height: 34px;
+  font-size: 13px;
+  padding-top: 1px;
+  height: 34px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -68,7 +69,7 @@
     span {
       color: #999;
       font-weight: 300;
-      display: inline-block;
+      //display: inline-block;
       max-width: 80%;
     }
 
@@ -145,7 +146,7 @@
 }
 
 .dropdown-multiselect .list-menu li a {
-  padding-left: 45px;
+  padding-left: 30px;
   transition: all .45s ease-in-out;
 }
 
@@ -245,9 +246,10 @@
 
 .dropdown-multiselect .list-menu a span {
   position: absolute;
-  top: 8px;
-  left: 12px;
+  top: 10px;
+  left: 9px;
   color: #35afd5;
+  font-size: 18px;
 }
 
 .dropdown-multiselect.btn-group.open .dropdown-toggle {

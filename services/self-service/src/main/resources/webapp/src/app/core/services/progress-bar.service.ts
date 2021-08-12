@@ -17,14 +17,15 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Subject } from "rxjs";
+import {ApplicationRef, ChangeDetectorRef, Injectable} from '@angular/core';
+import {BehaviorSubject, Subject, timer} from 'rxjs';
+import {take} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProgressBarService {
-  public showProgressBar = new Subject();
+  public showProgressBar = new BehaviorSubject(false);
 
   constructor() { }
 
@@ -33,6 +34,6 @@ export class ProgressBarService {
   }
 
   public startProgressBar() {
-    this.showProgressBar.next(true);
+    timer(0).subscribe(_ => this.showProgressBar.next(true));
   }
 }

@@ -20,6 +20,7 @@
 
 import { throwError as observableThrowError } from 'rxjs';
 import { CheckUtils } from './checkUtils';
+import {logger} from 'codelyzer/util/logger';
 
 export class ErrorUtils {
 

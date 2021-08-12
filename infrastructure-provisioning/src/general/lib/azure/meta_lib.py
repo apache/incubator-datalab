@@ -40,13 +40,14 @@ import json
 
 class AzureMeta:
     def __init__(self):
+
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
         self.compute_client = get_client_from_auth_file(ComputeManagementClient)
         self.resource_client = get_client_from_auth_file(ResourceManagementClient)
         self.network_client = get_client_from_auth_file(NetworkManagementClient)
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
-        self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
@@ -128,6 +129,21 @@ class AzureMeta:
             logging.info(
                 "Unable to get Security Group rule: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get Security Group rule",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def list_security_group_rules(self, resource_group_name, sg_name):
+        try:
+            result = self.network_client.security_rules.list(resource_group_name, sg_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get list of security group rules: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get list of rules",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

@@ -40,6 +40,7 @@ export interface Endpoint {
 })
 export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
+  public maxEndpointNameLength: number = 6;
   endpoints: Endpoint[] = [];
   displayedColumns: string[] = ['name', 'url', 'account', 'endpoint_tag', 'actions'];
 
@@ -85,8 +86,7 @@ export class EndpointsComponent implements OnInit {
            type: 'confirmation', item: data, list:  resource
            }, panelClass: 'modal-sm' })
          .afterClosed().subscribe(result => {
-         result === 'noTerminate' && this.deleteEndpointOption(data, false);
-         result === 'terminate' && this.deleteEndpointOption(data, true);
+         result && this.deleteEndpointOption(data);
        });
     });
   }
@@ -102,16 +102,18 @@ export class EndpointsComponent implements OnInit {
 
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
-      name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.validateName.bind(this)])],
+      name: ['', Validators.compose([
+        Validators.required, Validators.pattern(PATTERNS.namePattern), this.validateName.bind(this), this.providerMaxLength.bind(this)
+      ])],
       url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.fullUrl), this.validateUrl.bind(this)])],
       account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       endpoint_tag: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
     });
   }
 
-  private deleteEndpointOption(data, option): void {
-    this.endpointService.deleteEndpoint(`${data.name}?with-resources=${option}`).subscribe(() => {
-      this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminating!' : 'Endpoint successfully disconnected!' , 'Success!');
+  private deleteEndpointOption(data): void {
+    this.endpointService.deleteEndpoint(`${data.name}`).subscribe(() => {
+      this.toastr.success( 'Endpoint successfully disconnected. All related resources are terminating!', 'Success!');
       this.getEndpointList();
     }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
   }
@@ -132,6 +134,10 @@ export class EndpointsComponent implements OnInit {
       const isDublicat = this.endpoints.some(endpoint => endpoint['name'].toLocaleLowerCase() === control.value.toLowerCase());
       return isDublicat ? { isDuplicate: true } : null;
     }
+  }
+
+  private providerMaxLength(control) {
+    return control.value.length <= this.maxEndpointNameLength ? null : { limit: true };
   }
 }
 
@@ -223,7 +229,7 @@ export class EndpointTestResultDialogComponent {
         return;
       });
   }
-  private cutToLongUrl(url) {
+  public cutToLongUrl(url) {
     return url.length > 25 ? url.slice(0, 25) + '...' : url;
   }
 

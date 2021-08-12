@@ -35,13 +35,21 @@
                   <input type="text" formControlName="name" placeholder="Enter endpoint name"
                     (blur)="generateEndpointTag($event)">
                   <span class="error"
-                    *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm?.controls.name.touched && !createEndpointForm?.controls['name'].hasError('isDuplicate')">
+                    *ngIf="!createEndpointForm?.controls.name.valid
+                    && createEndpointForm?.controls.name.touched
+                    && !createEndpointForm?.controls['name'].hasError('isDuplicate')
+                    && !createEndpointForm?.controls['name'].hasError('limit')"
+                  >
                     Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
+                    characters.
                   </span>
                   <span class="error"
                         *ngIf="createEndpointForm?.controls['name'].hasError('isDuplicate')">
                     This endpoint name already exists.
+                  </span>
+                  <span class="error"
+                        *ngIf="createEndpointForm?.controls['name'].hasError('limit')">
+                     Endpoint name cannot be longer than {{ maxEndpointNameLength }} characters.
                   </span>
                 </div>
               </div>
@@ -75,7 +83,7 @@
                   <span class="error"
                     *ngIf="!createEndpointForm?.controls.endpoint_tag.valid && createEndpointForm.controls.endpoint_tag.touched">
                     Endpoint tag can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
+                    characters.
                   </span>
                 </div>
               </div>
@@ -98,7 +106,7 @@
           </div>
         </mat-tab>
         <mat-tab label="ENDPOINTS LIST">
-          <div class="endpoints">
+          <div class="endpoints scrolling">
             <table mat-table [dataSource]="endpoints" class="endpoints-table" *ngIf="endpoints?.length; else empty">
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef class="name"> Endpoint name </th>
@@ -145,8 +153,7 @@
                 <div class="content">
                   <p>Looks like you don't have any endpoints</p>
 
-                  <button mat-raised-button class="butt" (click)="tabGroup.selectedIndex = 0"
-                    [disabled]="creatingBackup">
+                  <button mat-raised-button class="butt" (click)="tabGroup.selectedIndex = 0">
                     <i class="material-icons">settings_system_daydream</i>New endpoint
                   </button>
                 </div>

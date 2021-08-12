@@ -19,19 +19,19 @@
 #
 # ******************************************************************************
 
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 ARG OS
 ARG SRC_PATH
 
 # Install any .deb dependecies
 RUN apt-get update && \
     apt-get -y upgrade && \
-    apt-get -y install python-pip python-dev groff vim less git wget nano libssl-dev libffi-dev libffi6 && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip python3-dev python3-virtualenv groff vim less git wget nano libssl-dev libffi-dev libffi7 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install any python dependencies
-RUN pip install -UI pip==9.0.3 && \
-    pip install backoff fabric==1.14.0 fabvenv argparse requests ujson jupyter pycrypto azure==2.0.0 azure-mgmt-authorization pyyaml
+RUN python3 -m pip install -UI qtconsole==4.7.7 pip==21.0.1 && \
+    python3 -m pip install backoff patchwork fabric fabvenv argparse requests ujson jupyter pycryptodome azure==2.0.0 azure-mgmt-authorization pyyaml
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
@@ -58,16 +58,16 @@ RUN mkdir -p /root/conf && \
     mkdir -p /root/scripts && \
     mkdir -p /root/templates && \
     mkdir -p /root/files && \
-    mkdir -p /usr/lib/python2.7/dlab && \
+    mkdir -p /usr/lib/python3.8/datalab && \
     mkdir -p /root/keys/.ssh
 
 COPY ${SRC_PATH}base/ /root
 COPY ${SRC_PATH}general/conf/* /root/conf/
 COPY ${SRC_PATH}general/api/*.py /bin/
 COPY ${SRC_PATH}general/scripts/azure/common_* /root/scripts/
-COPY ${SRC_PATH}general/lib/azure/* /usr/lib/python2.7/dlab/
-COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
-COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
+COPY ${SRC_PATH}general/lib/azure/* /usr/lib/python3.8/datalab/
+COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python3.8/datalab/common_lib.py
+COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python3.8/datalab/fab.py
 COPY ${SRC_PATH}general/files/os/${OS}/sources.list /root/files/
 COPY ${SRC_PATH}general/files/os/ivysettings.xml /root/templates/
 COPY ${SRC_PATH}general/files/os/local_endpoint.json /root/files/

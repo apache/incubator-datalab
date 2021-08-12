@@ -1,0 +1,67 @@
+{{- /*
+  # *****************************************************************************
+  #
+  # Licensed to the Apache Software Foundation (ASF) under one
+  # or more contributor license agreements.  See the NOTICE file
+  # distributed with this work for additional information
+  # regarding copyright ownership.  The ASF licenses this file
+  # to you under the Apache License, Version 2.0 (the
+  # "License"); you may not use this file except in compliance
+  # with the License.  You may obtain a copy of the License at
+  #
+  #   http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing,
+  # software distributed under the License is distributed on an
+  # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  # KIND, either express or implied.  See the License for the
+  # specific language governing permissions and limitations
+  # under the License.
+  #
+  # ******************************************************************************
+  */ -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "datalab-billing.fullname" . }}-billing-conf
+data:
+  billing.yml: |
+    spring:
+      main:
+        allow-bean-definition-overriding: true
+      data:
+        mongodb:
+          username: {{ .Values.billing.mongo.username }}
+          password: ${MONGO_DB_PASSWORD}
+          database: {{ .Values.billing.mongo.db_name }}
+          port: {{ .Values.billing.mongo.port }}
+          host: {{ .Values.billing.mongo.host }}
+    datalab:
+      sbn: {{ .Values.billing.service_base_name }}
+      bigQueryDataset: {{ .Values.billing.big_query_dataset }}
+      cron: 0 0 * * * *
+
+    server:
+      port: 8088
+      servlet:
+        contextPath: /api/billing
+
+    server.ssl.key-store-type: JKS
+    server.ssl.key-store: /root/keys/ssn.keystore.jks
+    server.ssl.key-store-password: ${SSN_KEYSTORE_PASSWORD}
+    server.ssl.key-alias: ssn
+
+    logging:
+      file: /root/billing.log
+      level:
+        com:
+          epam: trace
+
+    keycloak:
+      bearer-only: true
+      realm: {{ .Values.billing.keycloak.realm_name }}
+      resource: {{ .Values.billing.keycloak.client_id }}
+      credentials.secret: ${KEYCLOAK_CLIENT_SECRET}
+      ssl-required: none
+      auth-server-url: ${KEYCLOAK_AUTH_URL}

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,24 +21,25 @@
 #
 # ******************************************************************************
 
-import json
-from fabric.api import *
 import logging
-import sys
 import os
-from dlab.fab import *
+import sys
 import traceback
+import subprocess
+from datalab.fab import *
+from fabric import *
 
-
-def status():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+@task
+def status(ctx):
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('edge_status'))
+        subprocess.run("~/scripts/{}.py".format('edge_status'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed obtaining EDGE status.", str(err))
@@ -46,14 +47,15 @@ def status():
 
 
 # Main function for stopping EDGE node
-def stop():
+@task
+def stop(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('edge_stop'))
+        subprocess.run("~/scripts/{}.py".format('edge_stop'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed stopping Edge node.", str(err))
@@ -61,14 +63,15 @@ def stop():
 
 
 # Main function for starting stoped EDGE node
-def start():
+@task
+def start(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('edge_start'))
+        subprocess.run("~/scripts/{}.py".format('edge_start'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed starting Edge node.", str(err))

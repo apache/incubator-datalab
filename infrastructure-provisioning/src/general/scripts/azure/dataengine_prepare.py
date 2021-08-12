@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,20 +21,17 @@
 #
 # ******************************************************************************
 
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-import time
-from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
-import sys
-import os
-import uuid
 import logging
+import os
+import sys
+import traceback
+import subprocess
 from Crypto.PublicKey import RSA
-import multiprocessing
-
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -44,8 +41,8 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        AzureMeta = dlab.meta_lib.AzureMeta()
-        AzureActions = dlab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
         data_engine = dict()
         data_engine['user_name'] = os.environ['edge_user_name']
         data_engine['project_name'] = os.environ['project_name']
@@ -86,7 +83,7 @@ if __name__ == "__main__":
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
         key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'],
                                                    os.environ['conf_key_name']), 'rb').read())
-        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
@@ -132,7 +129,7 @@ if __name__ == "__main__":
             data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
             print('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary", str(err))
         sys.exit(1)
 
     try:
@@ -145,12 +142,13 @@ if __name__ == "__main__":
             print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
                                                             data_engine['service_base_name'] + '-ssn')
-            dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                         ssn_hostname)
-            dlab.fab.append_result("Edge node is unavailable")
+            datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
+                                            os.environ['conf_os_user'],
+                                            ssn_hostname)
+            datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
     except Exception as err:
-        dlab.fab.append_result("Failed to verify edge status.", str(err))
+        datalab.fab.append_result("Failed to verify edge status.", str(err))
         sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -169,7 +167,7 @@ if __name__ == "__main__":
 
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
-            --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+            --datalab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
             --instance_type {} --project_name {} --instance_storage_account_type {} --image_name {} \
             --image_type {} --tags '{}'". \
             format(data_engine['master_node_name'], data_engine['master_size'], data_engine['region'],
@@ -180,7 +178,7 @@ if __name__ == "__main__":
                    data_engine['project_name'], data_engine['instance_storage_account_type'],
                    data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['master_tags']))
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -189,7 +187,7 @@ if __name__ == "__main__":
             AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         except:
             print("The instance hasn't been created.")
-        dlab.fab.append_result("Failed to create master instance.", str(err))
+        datalab.fab.append_result("Failed to create master instance.", str(err))
         sys.exit(1)
 
     try:
@@ -204,7 +202,7 @@ if __name__ == "__main__":
 
             params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
                 --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
-                --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+                --datalab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
                 --instance_type {} --project_name {} --instance_storage_account_type {} --image_name {} \
                 --image_type {} --tags '{}'". \
                 format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
@@ -214,7 +212,7 @@ if __name__ == "__main__":
                        data_engine['project_name'], data_engine['instance_storage_account_type'],
                        data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['slave_tags']))
             try:
-                local("~/scripts/{}.py {}".format('common_create_instance', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
@@ -226,5 +224,5 @@ if __name__ == "__main__":
             except:
                 print("The slave instance {} hasn't been created.".format(slave_name))
         AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        dlab.fab.append_result("Failed to create slave instances.", str(err))
+        datalab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

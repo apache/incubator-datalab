@@ -25,17 +25,17 @@ data "template_file" "keycloak-mysql-values" {
     mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_keycloak_user
     mysql_user_password = random_string.mysql_keycloak_user_password.result
-    mysql_db_name       = var.mysql_keycloak_db_name
-    storage_class       = kubernetes_storage_class.dlab-storage-class.metadata[0].name
-    mysql_disk_size     = var.mysql_disk_size
+    mysql_db_name = var.mysql_keycloak_db_name
+    storage_class = kubernetes_storage_class.datalab-storage-class.metadata[0].name
+    mysql_disk_size = var.mysql_disk_size
   }
 }
 
 resource "helm_release" "keycloak-mysql" {
   name       = "keycloak-mysql"
-  chart      = "stable/mysql"
-  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-  wait       = true
+  chart = "stable/mysql"
+  namespace = kubernetes_namespace.datalab-namespace.metadata[0].name
+  wait = true
   values     = [
     data.template_file.keycloak-mysql-values.rendered
   ]

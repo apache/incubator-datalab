@@ -119,7 +119,13 @@ under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`; creds=$git_creds;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_notebook_server/template.json | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NIT/&apos;${instance_shape}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/IMAGE/&apos;${Image_name}&apos;/g&apos; | sed "s|SPC|${Spark_configurations}|g" | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook  docker.dlab-${notebook_app} --action $Action</command>
+          sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_notebook_server/template.json | sed
+          &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NIT/&apos;${instance_shape}&apos;/g&apos; | sed
+          &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/IMAGE/&apos;${Image_name}&apos;/g&apos; | sed
+          "s|SPC|${Spark_configurations}|g" | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -e
+          "conf_tag_resource_id=CTUN" -v /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response -v
+          /var/opt/datalab/log/notebook:/logs/notebook docker.datalab-${notebook_app} --action $Action
+      </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

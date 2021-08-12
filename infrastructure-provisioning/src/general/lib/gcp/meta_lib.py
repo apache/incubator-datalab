@@ -19,19 +19,21 @@
 #
 # ******************************************************************************
 
-from pprint import pprint
-from googleapiclient.discovery import build
-from google.cloud import storage
-from google.cloud import exceptions
-import google.auth
-from dlab.fab import *
-import actions_lib
-import os, re
-from googleapiclient import errors
-import logging
-import traceback
-import sys, time
 import backoff
+import google.auth
+import logging
+import os
+import re
+import sys
+import time
+import traceback
+import subprocess
+from fabric import *
+from datalab.fab import *
+from google.cloud import exceptions
+from google.cloud import storage
+from googleapiclient import errors
+from googleapiclient.discovery import build
 
 
 class GCPMeta:
@@ -153,6 +155,25 @@ class GCPMeta:
             logging.info(
                 "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get Firewall",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_route(self, route_name):
+        request = self.service.routes().get(
+            project=self.project,
+            route=route_name)
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+            else:
+                raise err
+        except Exception as err:
+            logging.info(
+                "Unable to get Route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Route",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -373,6 +394,23 @@ class GCPMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_deeplearning_image_by_family(self, family_name):
+        try:
+            request = self.service.images().getFromFamily(project='deeplearning-platform-release', family=family_name)
+            try:
+                return request.execute()
+            except errors.HttpError as err:
+                if err.resp.status == 404:
+                    return ''
+                else:
+                    raise err
+        except Exception as err:
+            logging.info("Error with getting image by family: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting image by family",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_disk(self, disk_name):
         try:
             request = self.service.disks().get(project=self.project, zone=os.environ['gcp_zone'], disk=disk_name)
@@ -561,6 +599,25 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def get_list_gpu_types(self, zone):
+        try:
+            print('Getting available GPU types')
+            data = []
+            request = self.service.acceleratorTypes().list(project=self.project, zone=zone)
+            result = request.execute().get('items')
+            for id in result:
+                gpu_accelerator_type = id.get('name')
+                if not re.search("vws", gpu_accelerator_type):
+                    data.append(gpu_accelerator_type)
+            return data
+        except Exception as err:
+            logging.info("Error with getting list of GPU types: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list of GPU types",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
     def get_list_static_addresses(self, region, filter_string=''):
         try:
             if not filter_string:
@@ -704,7 +761,7 @@ class GCPMeta:
                 '/response/.emr_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
                 os.environ['notebook_instance_name']):
             with hide('stderr', 'running', 'warnings'):
-                local("echo 'Some Dataproc cluster is still being created/terminated, waiting..'")
+                subprocess.run("echo 'Some Dataproc cluster is still being created/terminated, waiting..'", shell=True, check=True)
             time.sleep(60)
             self.dataproc_waiter(labels)
         else:

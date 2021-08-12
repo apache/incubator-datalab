@@ -35,6 +35,9 @@ keycloak:
     dbUser: ${mysql_user}
     dbPassword: "${mysql_user_password}"
 
+  cli:
+    enabled: false
+
   service:
     type: ClusterIP
     # nodePort: 31088
@@ -51,15 +54,14 @@ keycloak:
     tls:
       - hosts:
           - ${ssn_k8s_alb_dns_name}
-        secretName: dlab-ui-tls
+        secretName: datalab-ui-tls
 
   startupScripts:
     mystartup.sh: |
       ${configure_keycloak_file}
-
   extraInitContainers: |
     - name: theme-provider
-      image: epamdlab/ui-theme:0.1
+      image: epamdatalab/ui-theme:0.1
       imagePullPolicy: Always
       command:
         - sh
@@ -67,14 +69,13 @@ keycloak:
         - -c
         - |
           echo "Copying theme..."
-          cp -R /dlab/* /theme
+          cp -R /datalab/* /theme
       volumeMounts:
         - name: theme
           mountPath: /theme
   extraVolumeMounts: |
     - name: theme
-      mountPath: /opt/jboss/keycloak/themes/dlab
-
+      mountPath: /opt/jboss/keycloak/themes/datalab
   extraVolumes: |
     - name: theme
       emptyDir: {}

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,10 +22,10 @@
 # ******************************************************************************
 
 import argparse
-from dlab.actions_lib import *
-from fabric.api import *
 import os
-
+from datalab.actions_lib import *
+from fabric import *
+from datalab.fab import replace_multi_symbols
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -33,14 +33,10 @@ parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-
 if __name__ == "__main__":
     create_aws_config_files()
-    env.hosts = "{}".format(args.notebook_ip)
-    env['connection_attempts'] = 100
-    env.user = args.os_user
-    env.key_filename = "{}".format(args.keyfile)
-    env.host_string = env.user + "@" + env.hosts
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
 
     service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'][:20], '-', True)
@@ -49,9 +45,11 @@ if __name__ == "__main__":
     bucket_name = ('{0}-{1}-{2}-bucket'.format(service_base_name,
                                                project_name, endpoint_name)).lower().replace('_', '-')
     gitlab_certfile = os.environ['conf_gitlab_certfile']
-    if dlab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
-        put(gitlab_certfile, gitlab_certfile)
-        sudo('chown root:root {}'.format(gitlab_certfile))
+    if datalab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
+        conn.put(gitlab_certfile, gitlab_certfile)
+        conn.sudo('chown root:root {}'.format(gitlab_certfile))
         print('{} has been downloaded'.format(gitlab_certfile))
     else:
         print('There is no {} to download'.format(gitlab_certfile))
+
+    conn.close()

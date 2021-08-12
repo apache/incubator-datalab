@@ -113,7 +113,10 @@ variable "endpoint_policies" {
     "compute.projects.setCommonInstanceMetadata",
     "compute.projects.setDefaultServiceAccount",
     "compute.subnetworks.create",
-    "compute.subnetworks.delete"
+    "compute.subnetworks.delete",
+    "compute.routes.create",
+    "compute.routes.delete",
+    "compute.routes.get"
   ]
 }
 
@@ -137,11 +140,11 @@ variable "path_to_pub_key" {
 }
 
 variable "product" {
-  default = "dlab"
+  default = "datalab"
 }
 
 variable "additional_tag" {
-  default = "product:dlab"
+  default = "product:datalab"
 }
 
 variable "ldap_host" {}

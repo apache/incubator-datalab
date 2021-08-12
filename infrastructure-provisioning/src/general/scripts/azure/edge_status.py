@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,18 +21,15 @@
 #
 # ******************************************************************************
 
-
-import json
-import sys
-import time
-import os
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import logging
-from fabric.api import *
+import os
+import sys
 import traceback
-
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
@@ -52,10 +49,10 @@ if __name__ == "__main__":
         params = '--resource_group_name {} --list_resources "{}"'.format(edge_conf['resource_group_name'],
                                                                          os.environ['edge_list_resources'])
         try:
-            local("~/scripts/{}.py {}".format('common_collect_data', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_collect_data', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to collect necessary information.", str(err))
+        datalab.fab.append_result("Failed to collect necessary information.", str(err))
         sys.exit(1)

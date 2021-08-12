@@ -16,5 +16,8 @@
     "compute.images.get",
     "compute.images.delete",
     "compute.images.setLabels",
-    "compute.images.list"
+    "compute.images.list",
+    "compute.routes.create",
+    "compute.routes.get",
+    "compute.routes.delete"
 ]

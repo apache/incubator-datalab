@@ -77,8 +77,13 @@ under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine_install_additional_libs/template.json | sed &apos;s/APP/&apos;${application}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed "s|SPC|${Spark_configurations}|g" | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-dataengine --action $Action;
-            </command>
+          sed &apos;s/RID/&apos;${rand}&apos;/g&apos;
+          /var/lib/jenkins/jobs/dataengine_install_additional_libs/template.json | sed &apos;s/APP/&apos;${application}&apos;/g&apos;
+          | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos;
+          | sed "s|SPC|${Spark_configurations}|g" | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sudo docker run
+          -i -e "conf_tag_resource_id=CTUN" -v /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response
+          -v /var/opt/datalab/log/dataengine:/logs/dataengine docker.datalab-dataengine --action $Action;
+      </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

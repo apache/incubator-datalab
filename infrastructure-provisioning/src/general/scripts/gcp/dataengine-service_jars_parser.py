@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -37,6 +37,8 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     spark_def_path = "/usr/lib/spark/conf/spark-defaults.conf"
+    os.system(
+        'sudo sed -i "s|secure_path.*$|secure_path=\"/opt/conda/default/bin:/opt/conda/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/usr/local/bin\"|g" /etc/sudoers')
 
     os.system('touch /tmp/r_version')
     r_ver = subprocess.check_output("R --version | awk '/version / {print $3}'", shell=True).decode('UTF-8')
@@ -44,7 +46,7 @@ if __name__ == "__main__":
         outfile.write(r_ver)
 
     os.system('touch /tmp/python_version')
-    for v in range(4, 7):
+    for v in range(4, 9):
         python_ver_checker = "python3.{} -V 2>/dev/null".format(v) + " | awk '{print $2}'"
         python_ver = subprocess.check_output(python_ver_checker, shell=True).decode('UTF-8')
         if python_ver != '':

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,18 +21,18 @@
 #
 # ******************************************************************************
 
+import boto3
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import logging
+import os
 import sys
 import time
-import os
 import traceback
-import boto3
-import logging
-from fabric.api import *
-
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -43,10 +43,10 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        dlab.actions_lib.create_aws_config_files()
+        datalab.actions_lib.create_aws_config_files()
         print('Generating infrastructure names and tags')
         project_conf = dict()
-        project_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+        project_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         project_conf['endpoint_name'] = os.environ['endpoint_name']
         project_conf['endpoint_tag'] = project_conf['endpoint_name']
@@ -56,10 +56,11 @@ if __name__ == "__main__":
         project_conf['public_subnet_id'] = os.environ['aws_subnet_id']
         project_conf['vpc_id'] = os.environ['aws_vpc_id']
         project_conf['region'] = os.environ['aws_region']
-        project_conf['ami_id'] = dlab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(
+        project_conf['ami_id'] = datalab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(
             os.environ['conf_os_family'])])
         project_conf['instance_size'] = os.environ['aws_edge_instance_size']
         project_conf['sg_ids'] = os.environ['aws_security_groups_ids']
+        project_conf['instance_class'] = 'edge'
         project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
                                                                     project_conf['project_name'],
                                                                     project_conf['endpoint_name'])
@@ -117,11 +118,11 @@ if __name__ == "__main__":
         project_conf['provision_instance_ip'] = None
         project_conf['local_endpoint'] = False
         try:
-            project_conf['provision_instance_ip'] = '{}/32'.format(dlab.meta_lib.get_instance_ip_address(
+            project_conf['provision_instance_ip'] = '{}/32'.format(datalab.meta_lib.get_instance_ip_address(
                 project_conf['tag_name'], '{0}-{1}-endpoint'.format(project_conf['service_base_name'],
                                                                     project_conf['endpoint_name'])).get('Private'))
         except:
-            project_conf['provision_instance_ip'] = '{}/32'.format(dlab.meta_lib.get_instance_ip_address(
+            project_conf['provision_instance_ip'] = '{}/32'.format(datalab.meta_lib.get_instance_ip_address(
                 project_conf['tag_name'], '{0}-ssn'.format(project_conf['service_base_name'])).get('Private'))
             project_conf['local_endpoint'] = True
         if 'aws_user_predefined_s3_policies' not in os.environ:
@@ -137,8 +138,8 @@ if __name__ == "__main__":
         try:
             project_conf['user_key'] = os.environ['key']
             try:
-                local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
-                                                        project_conf['project_name']))
+                subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
+                                                        project_conf['project_name']), shell=True, check=True)
             except:
                 print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
@@ -160,13 +161,13 @@ if __name__ == "__main__":
                                                                                            project_conf['endpoint_tag'])
         print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if not project_conf['local_endpoint']:
         # attach project_tag and endpoint_tag to endpoint
         try:
-            endpoint_id = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
+            endpoint_id = datalab.meta_lib.get_instance_by_name(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
                 project_conf['service_base_name'], project_conf['endpoint_name']))
             print("Endpoint id: " + endpoint_id)
             ec2 = boto3.client('ec2')
@@ -196,19 +197,19 @@ if __name__ == "__main__":
                   project_conf['private_subnet_name'],
                   project_conf['zone'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create subnet.", str(err))
+        datalab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     tag = {"Key": project_conf['tag_name'],
            "Value": "{0}-{1}-{2}-subnet".format(project_conf['service_base_name'], project_conf['project_name'],
                                                 project_conf['endpoint_name'])}
-    project_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
-    subnet_id = dlab.meta_lib.get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
+    project_conf['private_subnet_cidr'] = datalab.meta_lib.get_subnet_by_tag(tag)
+    subnet_id = datalab.meta_lib.get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
     print('Subnet id: {}'.format(subnet_id))
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
@@ -219,16 +220,16 @@ if __name__ == "__main__":
                                                       project_conf['endpoint_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
                  "--infra_tag_value {} --user_tag_value {}" \
-                 .format(project_conf['edge_role_name'], project_conf['edge_role_profile_name'],
+            .format(project_conf['edge_role_name'], project_conf['edge_role_profile_name'],
                          project_conf['edge_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
                          project_conf['service_base_name'], user_tag)
         try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to creating roles.", str(err))
+        datalab.fab.append_result("Failed to creating roles.", str(err))
         sys.exit(1)
 
     try:
@@ -243,198 +244,210 @@ if __name__ == "__main__":
                          project_conf['notebook_dataengine_policy_name'], os.environ['aws_region'],
                          project_conf['tag_name'], project_conf['service_base_name'], user_tag)
         try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to creating roles.", str(err))
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        datalab.fab.append_result("Failed to creating roles.", str(err))
+        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
         sys.exit(1)
 
     try:
-        logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print('[CREATE SECURITY GROUPS FOR EDGE]')
-        edge_sg_ingress = dlab.meta_lib.format_sg([
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 3128,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": project_conf['allowed_ip_cidr'],
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
-                "UserIdGroupPairs": [],
-                "PrefixListIds": []
-            }
-        ])
-        edge_sg_egress = dlab.meta_lib.format_sg([
-            {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8888,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8080,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8787,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8787, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 6006,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 6006, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 20888,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8042,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8042, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8088,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8081,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8081, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 4040,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 4140, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 18080,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 18080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 50070,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 50070, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 53,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 123,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 123, "IpProtocol": "udp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8085,
-                "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
-                "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 389,
-                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
-                "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            }
-        ])
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
-            --egress '{}' --force {} --nb_sg_name {} --resource {}".\
-            format(project_conf['edge_security_group_name'], project_conf['vpc_id'], json.dumps(edge_sg_ingress),
-                   project_conf['service_base_name'], project_conf['edge_instance_name'], json.dumps(edge_sg_egress),
-                   True, project_conf['notebook_instance_name'], 'edge')
+        if os.environ['aws_security_groups_ids'] == '':
+            raise KeyError
+    except KeyError:
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
-        except Exception as err:
-            traceback.print_exc()
-            dlab.fab.append_result("Failed creating security group for edge node.", str(err))
-            raise Exception
+            logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
+            print('[CREATE SECURITY GROUPS FOR EDGE]')
+            edge_sg_ingress = datalab.meta_lib.format_sg([
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "UserIdGroupPairs": [], "PrefixListIds": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 22,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 3128,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 80,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 443,
+                    "IpRanges": project_conf['allowed_ip_cidr'],
+                    "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
+                    "UserIdGroupPairs": [],
+                    "PrefixListIds": []
+                }
+            ])
+            edge_sg_egress = datalab.meta_lib.format_sg([
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 22,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8888,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8888, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8080,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8787,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8787, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 6006,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 6006, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 20888,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8042,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8042, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8088,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8081,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8081, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 4040,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 4140, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 18080,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 18080, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 50070,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 50070, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 53,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 80,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 123,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 123, "IpProtocol": "udp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 443,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 8085,
+                    "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
+                    "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": 389,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                },
+                {
+                    "PrefixListIds": [],
+                    "FromPort": -1,
+                    "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                    "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
+                }
+            ])
+            params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
+                --egress '{}' --force {} --nb_sg_name {} --resource {}".\
+                format(project_conf['edge_security_group_name'], project_conf['vpc_id'], json.dumps(edge_sg_ingress),
+                       project_conf['service_base_name'], project_conf['edge_instance_name'], json.dumps(edge_sg_egress),
+                       True, project_conf['notebook_instance_name'], 'edge')
+            try:
+                subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
+            except Exception as err:
+                traceback.print_exc()
+                datalab.fab.append_result("Failed creating security group for edge node.", str(err))
+                raise Exception
 
-        with hide('stderr', 'running', 'warnings'):
             print('Waiting for changes to propagate')
             time.sleep(10)
-    except:
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        sys.exit(1)
+        except:
+            datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+            datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+            sys.exit(1)
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        project_group_id = dlab.meta_lib.check_security_group(project_conf['edge_security_group_name'])
-        sg_list = project_conf['sg_ids'].replace(" ", "").split(',')
         rules_list = []
-        for i in sg_list:
-            rules_list.append({"GroupId": i})
-        private_sg_ingress = dlab.meta_lib.format_sg([
+        sg_list = project_conf['sg_ids'].replace(" ", "").split(',')
+        if os.environ['aws_security_groups_ids'] == '':
+            project_group_id = datalab.meta_lib.check_security_group(project_conf['edge_security_group_name'])
+            rules_list.append({"GroupId": project_group_id})
+        else:
+            for i in sg_list:
+                rules_list.append({"GroupId": i})
+        private_sg_ingress = datalab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [],
-                "UserIdGroupPairs": [{"GroupId": project_group_id}],
+                "UserIdGroupPairs": rules_list,
                 "PrefixListIds": []
             },
             {
@@ -451,7 +464,7 @@ if __name__ == "__main__":
             }
         ])
 
-        private_sg_egress = dlab.meta_lib.format_sg([
+        private_sg_egress = datalab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
@@ -467,7 +480,7 @@ if __name__ == "__main__":
             {
                 "IpProtocol": "-1",
                 "IpRanges": [],
-                "UserIdGroupPairs": [{"GroupId": project_group_id}],
+                "UserIdGroupPairs": rules_list,
                 "PrefixListIds": []
             },
             {
@@ -487,20 +500,19 @@ if __name__ == "__main__":
                                                           project_conf['service_base_name'],
                                                           project_conf['notebook_instance_name'], True)
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
 
-        with hide('stderr', 'running', 'warnings'):
-            print('Waiting for changes to propagate')
-            time.sleep(10)
+        print('Waiting for changes to propagate')
+        time.sleep(10)
     except Exception as err:
-        dlab.fab.append_result("Failed creating security group for private subnet.", str(err))
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        datalab.fab.append_result("Failed creating security group for private subnet.", str(err))
+        datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
@@ -513,16 +525,16 @@ if __name__ == "__main__":
                                                           project_conf['service_base_name'],
                                                           project_conf['dataengine_instances_name'], True)
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create sg.", str(err))
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        datalab.fab.append_result("Failed to create sg.", str(err))
+        datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
@@ -535,17 +547,17 @@ if __name__ == "__main__":
                                                           project_conf['service_base_name'],
                                                           project_conf['dataengine_instances_name'], True)
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create security group.", str(err))
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        datalab.fab.append_result("Failed to create security group.", str(err))
+        datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     try:
@@ -559,7 +571,7 @@ if __name__ == "__main__":
             format(project_conf['shared_bucket_name'], project_conf['shared_bucket_tags'], project_conf['region'],
                    project_conf['shared_bucket_name_tag'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
@@ -571,17 +583,17 @@ if __name__ == "__main__":
                  .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'],
                          project_conf['bucket_name_tag'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create buckets.", str(err))
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        datalab.fab.append_result("Failed to create buckets.", str(err))
+        datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     try:
@@ -595,52 +607,62 @@ if __name__ == "__main__":
                   project_conf['service_base_name'], project_conf['region'],
                   os.environ['aws_user_predefined_s3_policies'], project_conf['endpoint_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_policy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_policy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create bucket policy.", str(err))
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
-        dlab.actions_lib.remove_s3('edge', project_conf['project_name'])
+        datalab.fab.append_result("Failed to create bucket policy.", str(err))
+        datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        datalab.actions_lib.remove_s3('edge', project_conf['project_name'])
         sys.exit(1)
 
     try:
+        if os.environ['aws_security_groups_ids'] == '':
+            edge_group_id = datalab.meta_lib.check_security_group(project_conf['edge_security_group_name'])
+        else:
+            edge_group_id = os.environ['aws_security_groups_ids']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE EDGE INSTANCE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
                  "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
             .format(project_conf['edge_instance_name'], project_conf['ami_id'], project_conf['instance_size'],
-                    project_conf['key_name'], project_group_id, project_conf['public_subnet_id'],
+                    project_conf['key_name'], edge_group_id, project_conf['public_subnet_id'],
                     project_conf['edge_role_profile_name'], project_conf['tag_name'],
                     project_conf['edge_instance_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
-            edge_instance = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'],
-                                                               project_conf['edge_instance_name'])
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
+            edge_instance = datalab.meta_lib.get_instance_by_name(project_conf['tag_name'],
+                                                                  project_conf['edge_instance_name'])
+            if os.environ['edge_is_nat']:
+                try:
+                    datalab.actions_lib.modify_instance_sourcedescheck(edge_instance)
+                except:
+                    traceback.print_exc()
+                    raise Exception
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create instance.", str(err))
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
-        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
-        dlab.actions_lib.remove_s3('edge', project_conf['project_name'])
+        datalab.fab.append_result("Failed to create instance.", str(err))
+        datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        datalab.actions_lib.remove_s3('edge', project_conf['project_name'])
         sys.exit(1)
 
     if project_conf['network_type'] == 'public':
         try:
             logging.info('[ASSOCIATING ELASTIC IP]')
             print('[ASSOCIATING ELASTIC IP]')
-            project_conf['edge_id'] = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'],
-                                                                         project_conf['edge_instance_name'])
+            project_conf['edge_id'] = datalab.meta_lib.get_instance_by_name(project_conf['tag_name'],
+                                                                            project_conf['edge_instance_name'])
             try:
                 project_conf['elastic_ip'] = os.environ['edge_elastic_ip']
             except:
@@ -649,24 +671,58 @@ if __name__ == "__main__":
                 project_conf['elastic_ip'], project_conf['edge_id'], project_conf['tag_name'],
                 project_conf['elastic_ip_name'])
             try:
-                local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
+                subprocess.run("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params), shell=True, check=True)
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to associate elastic ip.", str(err))
+            datalab.fab.append_result("Failed to associate elastic ip.", str(err))
             try:
-                project_conf['edge_public_ip'] = dlab.meta_lib.get_instance_ip_address(
+                project_conf['edge_public_ip'] = datalab.meta_lib.get_instance_ip_address(
                     project_conf['tag_name'], project_conf['edge_instance_name']).get('Public')
-                project_conf['allocation_id'] = dlab.meta_lib.get_allocation_id_by_elastic_ip(
+                project_conf['allocation_id'] = datalab.meta_lib.get_allocation_id_by_elastic_ip(
                     project_conf['edge_public_ip'])
             except:
                 print("No Elastic IPs to release!")
-            dlab.actions_lib.remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
-            dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
-            dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
-            dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
-            dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
-            dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
-            dlab.actions_lib.remove_s3('edge', project_conf['project_name'])
+            datalab.actions_lib.remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
+            datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+            datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+            datalab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+            datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+            datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+            datalab.actions_lib.remove_s3('edge', project_conf['project_name'])
+            sys.exit(1)
+
+    if os.environ['edge_is_nat'] == 'true':
+        try:
+            print('[CONFIGURING ROUTE TABLE FOR NAT]')
+            project_conf['nat_rt_name'] = '{0}-{1}-{2}-nat-rt'.format(project_conf['service_base_name'],
+                                                                              project_conf['project_name'],
+                                                                              project_conf['endpoint_name'])
+            params = "--vpc_id {} --infra_tag_value {} --edge_instance_id {} --private_subnet_id {} --sbn {}".format(
+                project_conf['vpc2_id'], project_conf['nat_rt_name'], edge_instance, subnet_id, project_conf['service_base_name'])
+            try:
+                subprocess.run("~/scripts/{}.py {}".format('edge_configure_route_table', params), shell=True, check=True)
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            datalab.fab.append_result("Failed to configure route table.", str(err))
+            try:
+                project_conf['edge_public_ip'] = datalab.meta_lib.get_instance_ip_address(
+                    project_conf['tag_name'], project_conf['edge_instance_name']).get('Public')
+                project_conf['allocation_id'] = datalab.meta_lib.get_allocation_id_by_elastic_ip(
+                    project_conf['edge_public_ip'])
+            except:
+                print("No Elastic IPs to release!")
+            datalab.actions_lib.remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
+            datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+            datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+            datalab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+            datalab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+            datalab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+            datalab.actions_lib.remove_s3('edge', project_conf['project_name'])
+            datalab.actions_lib.remove_route_tables("Name", False,
+                                                    '{}-{}-{}-nat-rt'.format(service_base_name, project_name,
+                                                                             endpoint_name))
             sys.exit(1)

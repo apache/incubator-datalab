@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,12 +22,11 @@
 # ******************************************************************************
 
 import argparse
-import json
-import sys
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
 import os
+import sys
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.notebook_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -46,7 +45,7 @@ args = parser.parse_args()
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 jupyter_version = os.environ['notebook_jupyter_version']
-scala_link = "http://www.scala-lang.org/files/archive/"
+scala_link = "https://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -71,8 +70,8 @@ jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
-toree_link = 'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz'
-r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
+toree_link = 'http://archive.apache.org/dist/incubator/toree/0.3.0-incubating/toree-pip/toree-0.3.0.tar.gz'
+r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
@@ -81,15 +80,14 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 ##############
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     # PREPARE DISK
     print("Prepare .ensure directory")
     try:
-        if not exists('/home/' + args.os_user + '/.ensure_dir'):
-            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+        if not exists(conn,'/home/' + args.os_user + '/.ensure_dir'):
+            conn.sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
     print("Mount additional volume")
@@ -108,9 +106,11 @@ if __name__ == "__main__":
     install_nodejs(args.os_user)
     print("Install ungit")
     install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
-    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+    if exists(conn, '/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
     install_inactivity_checker(args.os_user, args.ip_address)
+
+    conn.close()

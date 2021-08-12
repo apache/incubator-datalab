@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,11 +21,11 @@
 #
 # ******************************************************************************
 
+import argparse
 import sys
-import os
-from dlab.notebook_lib import *
-from dlab.fab import *
-from fabric.api import *
+from datalab.fab import *
+from datalab.notebook_lib import *
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -37,21 +37,19 @@ superset_dir = '/home/' + args.os_user + '/incubator-superset/contrib/docker'
 
 def start_superset(superset_dir):
     try:
-        with cd('{}'.format(superset_dir)):
-            sudo('docker-compose run --rm superset ./docker-init.sh')
-        sudo('cp /opt/dlab/templates/superset-notebook.service /tmp/')
-        sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(args.os_user))
-        sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
-        sudo('systemctl daemon-reload')
-        sudo('systemctl enable superset-notebook')
-        sudo('systemctl start superset-notebook')
+        conn.sudo('''bash -c 'cd {} && docker-compose run --rm superset ./docker-init.sh' '''.format(superset_dir))
+        conn.sudo('cp /opt/datalab/templates/superset-notebook.service /tmp/')
+        conn.sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(args.os_user))
+        conn.sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
+        conn.sudo('systemctl daemon-reload')
+        conn.sudo('systemctl enable superset-notebook')
+        conn.sudo('systemctl start superset-notebook')
     except: sys.exit(1)
 
 if __name__ == "__main__":
     print("Configure connections")
-    env['connection_attempts'] = 100
-    env.key_filename = [args.keyfile]
-    env.host_string = args.os_user + '@' + args.hostname
+    global conn
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     print("Starting Superset")
     try:
         start_superset(superset_dir)
@@ -59,3 +57,4 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+    conn.close()

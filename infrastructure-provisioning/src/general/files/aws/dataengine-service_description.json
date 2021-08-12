@@ -24,7 +24,7 @@
     },
   "templates":
   [
-    {"version":"emr-5.19.0", "applications": [{"Name":"Hadoop", "Version": "2.8.5"}, {"Name":"Spark", "Version": "2.3.2"}, {"Name":"Hive", "Version": "2.3.3"}]},
-    {"version":"emr-5.28.0", "applications": [{"Name":"Hadoop", "Version": "2.8.5"}, {"Name":"Spark", "Version": "2.4.4"}, {"Name":"Hive", "Version": "2.3.6"}]}
+    {"version":"emr-5.30.0", "applications": [{"Name":"Hadoop", "Version": "2.8.5"}, {"Name":"Spark", "Version": "2.4.5"}, {"Name":"Hive", "Version": "2.3.6"}]},
+    {"version":"emr-6.2.0", "applications": [{"Name":"Hadoop", "Version": "3.2.1"}, {"Name":"Spark", "Version": "3.0.1"}, {"Name":"Hive", "Version": "3.1.2"}]}
   ]
 }

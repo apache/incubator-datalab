@@ -112,9 +112,26 @@ under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_prepare.json | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/EXN/&apos;${exploratory_name}&apos;/g&apos; | sed &apos;s/CON/&apos;${computational_name}&apos;/g&apos; | sed &apos;s/IMC/&apos;${master_count}&apos;/g&apos; | sed &apos;s/ISC/&apos;${slave_count}&apos;/g&apos; | sed &apos;s/IPC/&apos;${preemptible_count}&apos;/g&apos; | sed &apos;s/DVER/&apos;${dataproc_version}&apos;/g&apos; | sed &apos;s/MIT/&apos;${master_instance_type}&apos;/g&apos; | sed &apos;s/SIT/&apos;${slave_instance_type}&apos;/g&apos; | sed &apos;s/NIN/&apos;${notebook_instance_name}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action create;
-rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_configure.json | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/DVER/&apos;${dataproc_version}&apos;/g&apos; |  sed &apos;s/NIN/&apos;${notebook_instance_name}&apos;/g&apos; | sed &apos;s/EXN/&apos;${exploratory_name}&apos;/g&apos; | sed &apos;s/CON/&apos;${computational_name}&apos;/g&apos; |  sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-${notebook_app} --action configure;</command>
+          sed &apos;s/RID/&apos;${rand}&apos;/g&apos;
+          /var/lib/jenkins/jobs/create_dataengine-service/template_prepare.json | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos;
+          | sed &apos;s/EXN/&apos;${exploratory_name}&apos;/g&apos; | sed &apos;s/CON/&apos;${computational_name}&apos;/g&apos;
+          | sed &apos;s/IMC/&apos;${master_count}&apos;/g&apos; | sed &apos;s/ISC/&apos;${slave_count}&apos;/g&apos; |
+          sed &apos;s/IPC/&apos;${preemptible_count}&apos;/g&apos; | sed &apos;s/DVER/&apos;${dataproc_version}&apos;/g&apos;
+          | sed &apos;s/MIT/&apos;${master_instance_type}&apos;/g&apos; | sed &apos;s/SIT/&apos;${slave_instance_type}&apos;/g&apos;
+          | sed &apos;s/NIN/&apos;${notebook_instance_name}&apos;/g&apos; | sudo docker run -i -v
+          /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response -v
+          /var/opt/datalab/log/dataengine-service:/logs/dataengine-service docker.datalab-dataengine-service --action
+          create;
+          rand=`openssl rand -hex 10`;
+          sed &apos;s/RID/&apos;${rand}&apos;/g&apos;
+          /var/lib/jenkins/jobs/create_dataengine-service/template_configure.json | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos;
+          | sed &apos;s/DVER/&apos;${dataproc_version}&apos;/g&apos; | sed &apos;s/NIN/&apos;${notebook_instance_name}&apos;/g&apos;
+          | sed &apos;s/EXN/&apos;${exploratory_name}&apos;/g&apos; | sed &apos;s/CON/&apos;${computational_name}&apos;/g&apos;
+          | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -v
+          /home/datalab-user/keys:/root/keys -v /opt/datalab/tmp/result:/response -v
+          /var/opt/datalab/log/dataengine-service:/logs/dataengine-service docker.datalab-${notebook_app} --action
+          configure;
+      </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

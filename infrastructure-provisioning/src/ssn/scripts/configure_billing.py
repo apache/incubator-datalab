@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -21,22 +21,22 @@
 # ******************************************************************************
 
 
-from fabric.api import *
-import yaml, json, sys
 import argparse
-import os
+import sys
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cloud_provider', type=str,
-                    help='Where DLab should be deployed. Available options: aws, azure')
-parser.add_argument('--infrastructure_tag', type=str, help='unique name for DLab environment')
+                    help='Where DataLab should be deployed. Available options: aws, azure')
+parser.add_argument('--infrastructure_tag', type=str, help='unique name for DataLab environment')
 parser.add_argument('--access_key_id', default='', type=str, help='AWS Access Key ID')
 parser.add_argument('--secret_access_key', default='', type=str, help='AWS Secret Access Key')
 parser.add_argument('--tag_resource_id', type=str, default='user:tag', help='The name of user tag')
-parser.add_argument('--billing_tag', type=str, default='dlab', help='Billing tag')
+parser.add_argument('--billing_tag', type=str, default='datalab', help='Billing tag')
 parser.add_argument('--account_id', type=str, help='The ID of ASW linked account')
 parser.add_argument('--billing_bucket', type=str, help='The name of bucket')
-parser.add_argument('--aws_job_enabled', type=str, default='false', help='Billing format. Available options: true (aws), false(epam)')
+parser.add_argument('--aws_job_enabled', type=str, default='false',
+                    help='Billing format. Available options: true (aws), false(epam)')
 parser.add_argument('--report_path', type=str, default='', help='The path to report folder')
 parser.add_argument('--client_id', type=str, default='', help='Azure client ID')
 parser.add_argument('--client_secret', type=str, default='', help='Azure client secret')
@@ -48,21 +48,30 @@ parser.add_argument('--currency', type=str, default='', help='Azure currency for
 parser.add_argument('--locale', type=str, default='', help='Azure locale')
 parser.add_argument('--region_info', type=str, default='', help='Azure region info')
 parser.add_argument('--mongo_password', type=str, help='The password for Mongo DB')
-parser.add_argument('--dlab_dir', type=str, help='The path to dlab dir')
-parser.add_argument('--dlab_id', type=str, default='resource_tags_user_user_tag', help='Column name in report file that contains dlab id tag')
-parser.add_argument('--usage_date', type=str, default='line_item_usage_start_date', help='Column name in report file that contains usage date tag')
-parser.add_argument('--product', type=str, default='product_product_name', help='Column name in report file that contains product name tag')
-parser.add_argument('--usage_type', type=str, default='line_item_usage_type', help='Column name in report file that contains usage type tag')
-parser.add_argument('--usage', type=str, default='line_item_usage_amount', help='Column name in report file that contains usage tag')
-parser.add_argument('--cost', type=str, default='line_item_blended_cost', help='Column name in report file that contains cost tag')
-parser.add_argument('--resource_id', type=str, default='line_item_resource_id', help='Column name in report file that contains dlab resource id tag')
-parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description', help='Column name in report file that contains tags')
-parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of gcp billing dataset (in big query service')
+parser.add_argument('--datalab_dir', type=str, help='The path to DataLab dir')
+parser.add_argument('--datalab_id', type=str, default='resource_tags_user_user_tag',
+                    help='Column name in report file that contains DataLab id tag')
+parser.add_argument('--usage_date', type=str, default='line_item_usage_start_date',
+                    help='Column name in report file that contains usage date tag')
+parser.add_argument('--product', type=str, default='product_product_name',
+                    help='Column name in report file that contains product name tag')
+parser.add_argument('--usage_type', type=str, default='line_item_usage_type',
+                    help='Column name in report file that contains usage type tag')
+parser.add_argument('--usage', type=str, default='line_item_usage_amount',
+                    help='Column name in report file that contains usage tag')
+parser.add_argument('--cost', type=str, default='line_item_blended_cost',
+                    help='Column name in report file that contains cost tag')
+parser.add_argument('--resource_id', type=str, default='line_item_resource_id',
+                    help='Column name in report file that contains DataLab resource id tag')
+parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description',
+                    help='Column name in report file that contains tags')
+parser.add_argument('--billing_dataset_name', type=str, default='',
+                    help='Name of gcp billing dataset (in big query service')
 
 parser.add_argument('--mongo_host', type=str, default='localhost', help='Mongo DB host')
 parser.add_argument('--mongo_port', type=str, default='27017', help='Mongo DB port')
 parser.add_argument('--service_base_name', type=str, help='Service Base Name')
-parser.add_argument('--os_user', type=str, help='Dlab user')
+parser.add_argument('--os_user', type=str, help='DataLab user')
 parser.add_argument('--keystore_password', type=str, help='Keystore password')
 parser.add_argument('--keycloak_client_id', type=str, help='Keycloak client id')
 parser.add_argument('--keycloak_client_secret', type=str, help='Keycloak client secret')
@@ -90,7 +99,7 @@ def yml_billing(path):
             config_orig = config_orig.replace('SECRET_ACCESS_KEY', args.secret_access_key)
             config_orig = config_orig.replace('CONF_BILLING_TAG', args.billing_tag)
             config_orig = config_orig.replace('SERVICE_BASE_NAME', args.service_base_name)
-            config_orig = config_orig.replace('DLAB_ID', args.dlab_id)
+            config_orig = config_orig.replace('DATALAB_ID', args.datalab_id)
             config_orig = config_orig.replace('USAGE_DATE', args.usage_date)
             config_orig = config_orig.replace('PRODUCT', args.product)
             config_orig = config_orig.replace('USAGE_TYPE', args.usage_type)
@@ -180,10 +189,10 @@ if __name__ == "__main__":
     # Check cloud provider
     # Access to the bucket without credentials?
     try:
-        yml_billing(args.dlab_dir + 'conf/billing.yml')
+        yml_billing(args.datalab_dir + 'conf/billing.yml')
         if args.cloud_provider == 'aws':
-            yml_billing_app(args.dlab_dir + 'conf/billing_app.yml')
-        yml_self_service(args.dlab_dir + 'conf/self-service.yml')
+            yml_billing_app(args.datalab_dir + 'conf/billing_app.yml')
+        yml_self_service(args.datalab_dir + 'conf/self-service.yml')
     except:
         print('Error configure billing')
         sys.exit(1)

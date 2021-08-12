@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,21 +22,22 @@
 # ******************************************************************************
 
 
-from os.path import exists
-from fabric.api import *
 import sys
-import os
 import traceback
+import subprocess
+from fabric import *
+from os.path import exists
+from os import path
 
-src_path = '/opt/dlab/sources/infrastructure-provisioning/src/'
+src_path = '/opt/datalab/sources/infrastructure-provisioning/src/'
 if sys.argv[1] == 'all':
     node = [
-            'edge',
-            'project',
-            'jupyter',
-            'jupyterlab',
-            'rstudio',
-            'zeppelin',
+        'edge',
+        'project',
+        'jupyter',
+        'jupyterlab',
+        'rstudio',
+        'zeppelin',
             'tensor',
             'tensor-rstudio',
             'deeplearning',
@@ -49,26 +50,29 @@ else:
 
 def image_build(src_path, node):
     try:
-        if local("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture=True).stdout == 'Ubuntu':
+        if subprocess.run("cat /etc/lsb-release | grep DISTRIB_ID | awk -F '=' '{print $2}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'Ubuntu':
             os_family = 'debian'
         else:
             os_family = 'redhat'
-        if local("uname -r | awk -F '-' '{print $3}'", capture=True).stdout == 'aws':
+        if subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'aws':
             cloud_provider = 'aws'
-        elif local("uname -r | awk -F '-' '{print $3}'", capture=True).stdout == 'azure':
+        elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'azure':
             cloud_provider = 'azure'
-            if not exists('{}base/azure_auth.json'.format(src_path)):
-                local('cp /home/dlab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path))
+            if not path.exists('{}base/azure_auth.json'.format(src_path)):
+                subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True, check=True)
         else:
             cloud_provider = 'gcp'
-        with lcd(src_path):
-            local('docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.dlab-base:latest .'.format(os_family, cloud_provider))
-            try:
-                for i in range(len(node)):
-                    local('docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.dlab-{2} .'.format(os_family, cloud_provider, node[i]))
-            except Exception as err:
-                print("Failed to build {} image".format(node[i]), str(err))
-                raise Exception
+        subprocess.run('cd {2}; docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.datalab-base:latest .'.format(
+                    os_family, cloud_provider, src_path), shell=True, check=True)
+        try:
+            for i in range(len(node)):
+                subprocess.run('cp {0}general/files/{1}/{2}_description.json '
+                          '{0}{2}/description.json'.format(src_path, cloud_provider, node[i]), shell=True, check=True)
+                subprocess.run('cd {3}; docker build --build-arg OS={0} --file general/files/{1}/{2}_Dockerfile -t docker.datalab-{2} .'.format(
+                            os_family, cloud_provider, node[i], src_path), shell=True, check=True)
+        except Exception as err:
+            print("Failed to build {} image".format(node[i]), str(err))
+            raise Exception
     except Exception as err:
         traceback.print_exc()
         sys.exit(1)

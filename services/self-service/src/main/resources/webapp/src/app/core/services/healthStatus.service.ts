@@ -84,6 +84,14 @@ export class HealthStatusService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getQuotaStatus(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetQuotaStatus()
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public runEdgeNode(): Observable<{}> {
     return this.applicationServiceFacade
       .buildRunEdgeNodeRequest()
@@ -119,7 +127,15 @@ export class HealthStatusService {
               this.appRoutingService.redirectToHomePage();
               return false;
             }
+            if (parameter === 'audit' && !data.auditEnabled) {
+              this.appRoutingService.redirectToHomePage();
+              return false;
+            }
             if (parameter === 'administration' && !data.admin && !data.projectAdmin) {
+              this.appRoutingService.redirectToNoAccessPage();
+              return false;
+            }
+            if (parameter === 'project-admin' && !data.admin && data.projectAdmin) {
               this.appRoutingService.redirectToNoAccessPage();
               return false;
             }

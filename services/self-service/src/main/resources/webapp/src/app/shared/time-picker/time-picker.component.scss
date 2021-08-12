@@ -214,6 +214,7 @@
       .mat-mini-fab {
         box-shadow: none;
         background-color: transparent;
+        transform: translateX(0);
       }
     }
 
@@ -226,6 +227,7 @@
       pointer-events: none;
       box-shadow: none;
       cursor: none;
+      transform: none;
     }
   }
 }
@@ -292,7 +294,7 @@
 
 .ticker-deg180 {
   top: 100%;
-  left: 50%;
+  left: 51%;
 }
 
 .ticker-deg195 {
@@ -302,7 +304,7 @@
 
 .ticker-deg210 {
   top: 93.30127019%;
-  left: 25%;
+  left: 26%;
 }
 
 .ticker-deg225 {
@@ -312,17 +314,17 @@
 
 .ticker-deg240 {
   top: 75%;
-  left: 6.69872981%;
+  left: 7.69872981%;
 }
 
 .ticker-deg255 {
   top: 62.94095226%;
-  left: 1.703708686%;
+  left: 2.703708686%;
 }
 
 .ticker-deg270 {
   top: 50%;
-  left: 0%;
+  left: 1%;
 }
 
 .ticker-deg285 {

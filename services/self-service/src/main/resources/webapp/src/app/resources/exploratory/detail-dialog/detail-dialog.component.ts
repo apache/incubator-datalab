@@ -20,12 +20,15 @@
 import { Component, ViewChild, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 
-import { DateUtils, CheckUtils } from '../../../core/util';
+import {DateUtils, CheckUtils, HelpUtils} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
+import {CopyPathUtils} from '../../../core/util/copyPathUtils';
+import {AuditService} from '../../../core/services/audit.service';
+import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
 
 @Component({
   selector: 'detail-dialog',
@@ -35,37 +38,53 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  readonly PROVIDER = this.data.cloud_provider;
+  readonly PROVIDER = this.data.pro?.cloud_provider?.toLowerCase() || this.data.odahu?.cloud_provider?.toLowerCase();
+  public isCopied: boolean = true;
   notebook: any;
   upTimeInHours: number;
-  upTimeSince: string = '';
   tooltip: boolean = false;
   config: Array<{}> = [];
-
+  bucketStatus: object = {};
+  isBucketAllowed = true;
+  isCopyIconVissible: {bucket} = {bucket: false};
+  public odahu: any;
   public configurationForm: FormGroup;
+  @ViewChild('configurationNode') configuration;
 
-  @ViewChild('configurationNode', { static: false }) configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder,
     public dialogRef: MatDialogRef<DetailDialogComponent>,
-    public toastr: ToastrService
+    private dialog: MatDialog,
+    public toastr: ToastrService,
+    public auditService: AuditService
   ) {
-    this.notebook = data;
+    if (data.notebook) {
+      this.notebook = data.notebook;
+      this.PROVIDER = this.data.notebook.cloud_provider;
+    }
+
+    if (data.odahu) {
+      this.odahu = data.odahu;
+      this.PROVIDER = this.data.odahu.cloud_provider || 'azure';
+    }
   }
 
   ngOnInit() {
-    this.notebook;
-
+    this.bucketStatus = this.data.bucketStatus;
+    this.notebook = this.data.notebook;
     if (this.notebook) {
       this.tooltip = false;
-
       this.upTimeInHours = (this.notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
-      this.upTimeSince = (this.notebook.time) ? new Date(this.notebook.time).toString() : '';
       this.initFormModel();
       this.getClusterConfiguration();
+    if (this.notebook.edgeNodeStatus === 'terminated' ||
+      this.notebook.edgeNodeStatus === 'terminating' ||
+      this.notebook.edgeNodeStatus === 'failed') {
+      this.isBucketAllowed = false;
+    }
     }
   }
 
@@ -96,7 +115,7 @@ export class DetailDialogComponent implements OnInit {
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
       .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.project, this.notebook.name)
-      .subscribe(result => {
+      .subscribe(() => {
         this.dialogRef.close();
       },
         error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
@@ -119,5 +138,40 @@ export class DetailDialogComponent implements OnInit {
       return this.configuration.nativeElement['checked']
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
+  }
+
+  public bucketBrowser(bucketName, endpoint, permition): void {
+    if (!permition) {
+      return;
+    }
+    bucketName = this.isBucketAllowed ? bucketName : this.data.buckets[0].children[0].name;
+    // bucketName = 'ofuks-1304-pr2-local-bucket';
+    this.dialog.open(BucketBrowserComponent, { data:
+        {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},
+      panelClass: 'modal-fullscreen' })
+    .afterClosed().subscribe();
+  }
+
+  public showCopyIcon(element) {
+    this.isCopyIconVissible[element] = true;
+  }
+  public hideCopyIcon() {
+    for (const key in this.isCopyIconVissible) {
+      this.isCopyIconVissible[key] = false;
+    }
+    this.isCopied = true;
+  }
+
+  public copyLink(copyValue, isBucket?) {
+    const protocol = isBucket ? HelpUtils.getBucketProtocol(this.PROVIDER) : '';
+    CopyPathUtils.copyPath(protocol + copyValue);
+  }
+
+  public logAction(name: any, description: string, copy?: string) {
+    if (copy) {
+      this.auditService.sendDataToAudit({resource_name: name, info: `Copy ${description} link`, type: 'NOTEBOOK'}).subscribe();
+    } else {
+      this.auditService.sendDataToAudit({resource_name: name, info: `Follow ${description} link`, type: 'NOTEBOOK'}).subscribe();
+    }
   }
 }

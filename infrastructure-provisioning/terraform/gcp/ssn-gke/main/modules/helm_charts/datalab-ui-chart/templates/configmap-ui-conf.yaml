@@ -1,0 +1,252 @@
+{{- /*
+  # *****************************************************************************
+  #
+  # Licensed to the Apache Software Foundation (ASF) under one
+  # or more contributor license agreements.  See the NOTICE file
+  # distributed with this work for additional information
+  # regarding copyright ownership.  The ASF licenses this file
+  # to you under the Apache License, Version 2.0 (the
+  # "License"); you may not use this file except in compliance
+  # with the License.  You may obtain a copy of the License at
+  #
+  #   http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing,
+  # software distributed under the License is distributed on an
+  # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  # KIND, either express or implied.  See the License for the
+  # specific language governing permissions and limitations
+  # under the License.
+  #
+  # ******************************************************************************
+  */ -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "datalab-ui.fullname" . }}-ui-conf
+data:
+  ssn.yml: |
+    <#assign LOG_ROOT_DIR="/var/opt/datalab/log">
+    <#assign KEYS_DIR="/root/keys">
+    <#assign KEY_STORE_PATH="/root/keys/ssn.keystore.jks">
+    <#assign KEY_STORE_PASSWORD="${SSN_KEYSTORE_PASSWORD}">
+    <#assign TRUST_STORE_PATH="/usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts">
+    <#assign TRUST_STORE_PASSWORD="changeit">
+
+    # Available options are aws, azure, gcp
+    <#assign CLOUD_TYPE="gcp">
+    cloudProvider: ${CLOUD_TYPE}
+
+    #Switch on/off developer mode here
+    <#assign DEV_MODE="false">
+    devMode: ${DEV_MODE}
+
+    mongo:
+      host: {{ .Values.ui.mongo.host }}
+      port: {{ .Values.ui.mongo.port }}
+      username: {{ .Values.ui.mongo.username }}
+      password: ${MONGO_DB_PASSWORD}
+      database: {{ .Values.ui.mongo.db_name }}
+
+    selfService:
+      protocol: https
+      host: localhost
+      port: {{ .Values.ui.service.https_port }}
+      jerseyClient:
+        timeout: 3s
+        connectionTimeout: 3s
+
+    securityService:
+      protocol: https
+      host: localhost
+      port: 8090
+      jerseyClient:
+        timeout: 20s
+        connectionTimeout: 20s
+
+    provisioningService:
+      jerseyClient:
+        timeout: 3s
+        connectionTimeout: 3s
+
+    bucketService:
+      jerseyClient:
+        timeout: 50m
+        connectionTimeout: 3s
+
+    billingService:
+      jerseyClient:
+        timeout: 4m
+        connectionTimeout: 3s
+
+    # Log out user on inactivity
+    inactiveUserTimeoutMillSec: 7200000
+
+  self-service.yml: |
+    <#include "/root/ssn.yml">
+
+    # Minimum and maximum number of slave EMR instances than could be created
+    minEmrInstanceCount: 2
+    maxEmrInstanceCount: 14
+    # Minimum and maximum percentage cost for slave EMR spot instances biding
+    minEmrSpotInstanceBidPct: 20
+    maxEmrSpotInstanceBidPct: 90
+
+    # Maximum length for gcp user name (due to gcp restrictions)
+    maxUserNameLength: 10
+    # Minimum and maximum number of slave Dataproc instances that could be created
+    minInstanceCount: 3
+    maxInstanceCount: 15
+    minDataprocPreemptibleCount: 0
+    gcpOuauth2AuthenticationEnabled: false
+
+    # Boundaries for Spark cluster creation
+    minSparkInstanceCount: 2
+    maxSparkInstanceCount: 14
+
+    # Timeout for check the status of environment via provisioning service
+    checkEnvStatusTimeout: 5m
+
+    # Restrict access to DataLab features using roles policy
+    rolePolicyEnabled: true
+    # Default access to DataLab features using roles policy
+    roleDefaultAccess: true
+
+    # Set to true to enable the scheduler of billing report.
+    billingSchedulerEnabled: true
+    billingPort: 8088
+    # Set to true to enable audit
+    auditEnabled: true
+    # Name of configuration file for billing report.
+    <#if DEV_MODE == "true">
+    billingConfFile: ${sys['user.dir']}/../billing/billing.yml
+    <#else>
+    billingConfFile: ${DATALAB_CONF_DIR}/billing.yml
+    </#if>
+
+    <#if CLOUD_TYPE == "azure">
+    azureUseLdap: <LOGIN_USE_LDAP>
+    maxSessionDurabilityMilliseconds: 288000000
+    </#if>
+
+    serviceBaseName: {{ .Values.ui.service_base_name }}
+    os: {{ .Values.ui.os }}
+    server:
+      requestLog:
+        appenders:
+        - type: file
+          currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
+          archive: true
+          archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+          archivedFileCount: 10
+      rootPath: "/api"
+      applicationConnectors:
+      - type: http
+        port: {{ .Values.ui.service.http_port }}
+      - type: https
+        port: {{ .Values.ui.service.https_port }}
+        certAlias: ssn
+        validateCerts: false
+        keyStorePath: ${KEY_STORE_PATH}
+        keyStorePassword: ${KEY_STORE_PASSWORD}
+        trustStorePath: ${TRUST_STORE_PATH}
+        trustStorePassword: ${TRUST_STORE_PASSWORD}
+      adminConnectors:
+    #    - type: http
+    #      port: 8081
+      - type: https
+        port: 8444
+        certAlias: ssn
+        validateCerts: false
+        keyStorePath: ${KEY_STORE_PATH}
+        keyStorePassword: ${KEY_STORE_PASSWORD}
+        trustStorePath: ${TRUST_STORE_PATH}
+        trustStorePassword: ${TRUST_STORE_PASSWORD}
+
+    mongoMigrationEnabled: false
+
+    logging:
+      level: INFO
+      loggers:
+        com.epam: TRACE
+        com.novemberain: ERROR
+      appenders:
+      - type: console
+      - type: file
+        currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
+
+    mavenSearchService:
+      protocol: http
+      host: search.maven.org
+      port: 80
+      jerseyClient:
+        timeout: 5s
+        connectionTimeout: 5s
+
+    schedulers:
+      inactivity:
+        enabled: false
+        cron: "0 0 0/2 ? * * *"
+      checkInfrastructureStatusScheduler:
+        enabled: true
+        cron: "0 0/15 * ? * *"
+      startComputationalScheduler:
+        enabled: true
+        cron: "*/20 * * ? * * *"
+      stopComputationalScheduler:
+        enabled: true
+        cron: "*/20 * * ? * * *"
+      startExploratoryScheduler:
+        enabled: true
+        cron: "*/20 * * ? * * *"
+      stopExploratoryScheduler:
+        enabled: true
+        cron: "*/20 * * ? * * *"
+      terminateComputationalScheduler:
+        enabled: true
+        cron: "*/20 * * ? * * *"
+      checkQuoteScheduler:
+        enabled: true
+        cron: "0 2/15 * ? * *"
+      checkUserQuoteScheduler:
+        enabled: false
+        cron: "0 0 * ? * * *"
+      checkProjectQuoteScheduler:
+        enabled: true
+        cron: "0 4/15 * ? * *"
+      checkEndpointStatusScheduler:
+        enabled: true
+        cron: "0 6/15 * ? * *"
+      billingScheduler:
+        enabled: true
+        cron: "0 0/15 * ? * *"
+
+    guacamole:
+      connectionProtocol: ssh
+      serverPort: 4822
+      port: 22
+      username: datalab-user
+
+    keycloakConfiguration:
+      redirectUri: {{ .Values.ui.keycloak.redirect_uri }}
+      realm: {{ .Values.ui.keycloak.realm_name }}
+      bearer-only: true
+      auth-server-url: ${KEYCLOAK_AUTH_URL}
+      ssl-required: none
+      register-node-at-startup: true
+      register-node-period: 600
+      resource: {{ .Values.ui.keycloak.client_id }}
+      credentials:
+        secret: ${KEYCLOAK_CLIENT_SECRET}
+
+    jerseyClient:
+      minThreads: 1
+      maxThreads: 128
+      workQueueSize: 8
+      gzipEnabled: true
+      gzipEnabledForRequests: false
+      chunkedEncodingEnabled: true

@@ -52,7 +52,7 @@
           <div class="text-center m-bott-10">
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button type="button" class="butt next" matStepperNext>Next
-              <i class="material-icons">keyboard_arrow_right</i></button>
+              <i class="material-icons arrow-icon">keyboard_arrow_right</i></button>
           </div>
         </div>
       </section>
@@ -74,10 +74,10 @@
                   && !projectForm?.controls.name.hasError('duplication')
                   && !projectForm?.controls.name.hasError('limit')
                   && projectForm?.controls.name.dirty">
-                  Project name can only contain letters and numbers
+                  Project name can only contain letters and numbers.
                 </span>
                 <span class="error" *ngIf="projectForm?.controls.name.hasError('limit')">
-                  Project name cannot be longer than {{ maxProjectNameLength }} characters
+                  Project name cannot be longer than {{ maxProjectNameLength }} characters.
                 </span>
               </div>
             </div>
@@ -92,8 +92,12 @@
               <label class="label">Endpoints</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-select multiple formControlName="endpoints" placeholder="Select endpoints"
-                    panelClass="crete-project-dialog">
+                  <mat-select 
+                    multiple
+                    disableOptionCentering 
+                    formControlName="endpoints" 
+                    placeholder="Select endpoints"
+                    panelClass="crete-project-dialog scrolling">
                     <mat-option class="multiple-select" disabled>
                       <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
                         <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -104,8 +108,8 @@
                       </a>
                     </mat-option>
                     <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name"
-                      [disabled]="isDisabled(endpoint.name)">
-                      {{ endpoint.name }}
+                      [disabled]="isDisabled(endpoint.name) || endpoint.status !== 'ACTIVE'">
+                      {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + (endpoint.status !== 'ACTIVE' ? ' (inactive)' : '')}}
                     </mat-option>
                     <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>
                       Endpoints list is empty</mat-option>
@@ -121,9 +125,9 @@
           <div class="text-center m-bott-10">
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt"><i
-                class="material-icons">keyboard_arrow_left</i>Back</button>
+                class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
             <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i
-                class="material-icons">keyboard_arrow_right</i></button>
+                class="material-icons arrow-icon">keyboard_arrow_right</i></button>
           </div>
         </div>
 
@@ -137,8 +141,12 @@
             <label class="label">Groups</label>
             <div class="control selector-wrapper">
               <mat-form-field>
-                <mat-select multiple formControlName="groups" placeholder="Select user groups"
-                  panelClass="crete-project-dialog">
+                <mat-select 
+                  multiple
+                  disableOptionCentering 
+                  formControlName="groups" 
+                  placeholder="Select user groups"
+                  panelClass="crete-project-dialog scrolling">
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -160,14 +168,14 @@
             </div>
           </div>
           <div class="text-center m-bott-10">
-            <div class="control-group">
-              <mat-slide-toggle formControlName="shared_image_enabled" labelPosition="after">
-                <span class="hold-label">Use shared image</span>
-              </mat-slide-toggle>
-            </div>
+<!--            <div class="control-group">-->
+<!--              <mat-slide-toggle formControlName="shared_image_enabled" labelPosition="after">-->
+<!--                <span class="hold-label">Use shared image</span>-->
+<!--              </mat-slide-toggle>-->
+<!--            </div>-->
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt"><i
-                class="material-icons">keyboard_arrow_left</i>Back</button>
+                class="material-icons arrow-icon">keyboard_arrow_left</i>Back</button>
             <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
               (click)="confirm(projectForm.value)">
               <span *ngIf="item; else update">Update</span>

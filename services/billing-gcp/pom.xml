@@ -22,8 +22,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.epam.dlab</groupId>
-        <artifactId>dlab</artifactId>
+        <groupId>com.epam.datalab</groupId>
+        <artifactId>datalab</artifactId>
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
@@ -94,8 +94,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-model</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

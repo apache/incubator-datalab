@@ -25,12 +25,12 @@
 
 .dropdown-list button,
 .dropdown-multiselect button {
-  height: 38px;
+
   width: 100%;
   background: #fff;
   padding-left: 15px;
-  font-size: 14px;
-  // height: 34px;
+  font-size: 13px;
+  height: 34px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -66,16 +66,22 @@
 
 .dropdown-multiselect {
   button {
-    span {
+    span{
       color: #999;
       font-weight: 300;
       display: inline-block;
       max-width: 80%;
     }
 
+    span:not(.caret-btn){
+      padding-top: 3px;
+      font-size: 14px;
+    }
+
     .selected-items {
       color: #4a5c89;
       max-width: 477px;
+      padding-top: 5px;
     }
   }
 }
@@ -114,9 +120,11 @@
       padding: 0;
       margin: 0;
     }
+
     .role-item{
       padding-left: 30px;
     }
+
     .role-cloud-item{
       padding-left: 60px;
     }
@@ -142,7 +150,7 @@
 
 .dropdown-list .list-menu a,
 .dropdown-multiselect .list-menu li a {
-  display: block;
+  display: flex;
   padding: 10px;
   padding-left: 15px;
   position: relative;
@@ -153,7 +161,7 @@
 }
 
 .dropdown-multiselect .list-menu li a {
-  padding-left: 45px;
+  padding-left: 25px;
   transition: all .45s ease-in-out;
 }
 
@@ -259,7 +267,7 @@
     color: #35afd5;
 
     &.checked-checkbox {
-      top: 0px;
+      top: 0;
       left: 4px;
       width: 5px;
       height: 10px;
@@ -270,7 +278,7 @@
     }
 
     &.line-checkbox {
-      top: 0px;
+      top: 0;
       left: 2px;
       width: 8px;
       height: 7px;
@@ -322,3 +330,6 @@
   display: none;
 }
 
+datalab-checkbox{
+  margin: 2px 5px 0 0;
+}

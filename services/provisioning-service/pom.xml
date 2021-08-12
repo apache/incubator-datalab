@@ -21,17 +21,36 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.epam.dlab</groupId>
-        <artifactId>dlab</artifactId>
+        <groupId>com.epam.datalab</groupId>
+        <artifactId>datalab</artifactId>
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>provisioning-service</artifactId>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>5.3.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.13.9</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
+            <groupId>com.epam.datalab</groupId>
             <artifactId>common</artifactId>
         </dependency>
         <dependency>
@@ -44,18 +63,18 @@
             <artifactId>dropwizard-template-config</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-model</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-utils</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-webapp-common</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-webapp-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -63,7 +82,55 @@
             <artifactId>conveyor</artifactId>
             <version>${com.aegisql.conveyor.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-forms</artifactId>
+            <version>${io.dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>1.107.0</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-storage-blob</artifactId>
+            <version>12.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-identity</artifactId>
+            <version>1.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons-fileupload.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
+        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -100,12 +167,12 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.epam.dlab.backendapi.ProvisioningServiceApplication</mainClass>
+                                    <mainClass>com.epam.datalab.backendapi.ProvisioningServiceApplication</mainClass>
                                     <manifestEntries>
                                         <Created-By>&lt;EPAM&gt; Systems</Created-By>
-                                        <Name>com/epam/dlab</Name>
-                                        <Implementation-Title>DLab Provisioning Service</Implementation-Title>
-                                        <Implementation-Version>${dlab.version}</Implementation-Version>
+                                        <Name>com/epam/datalab</Name>
+                                        <Implementation-Title>DataLab Provisioning Service</Implementation-Title>
+                                        <Implementation-Version>${datalab.version}</Implementation-Version>
                                         <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
                                         <Build-Time>${maven.build.timestamp}</Build-Time>
                                         <Build-OS>${os.name}</Build-OS>
@@ -117,6 +184,20 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*Configuration.*</exclude>
+                        <exclude>**/*Module.*</exclude>
+                        <exclude>**/*Form.*</exclude>
+                        <exclude>com/epam/datalab/process/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/modules/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/validation/**/*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

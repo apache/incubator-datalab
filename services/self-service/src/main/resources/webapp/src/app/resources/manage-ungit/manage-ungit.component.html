@@ -25,11 +25,11 @@
   <div class="dialog-content tabs">
     <mat-tab-group mat-stretch-tabs #tabGroupGit class="content-box">
       <mat-tab label="LIST">
-        <button mat-raised-button class="butt add-creds" (click)="tabGroupGit.selectedIndex = 1">
+        <button mat-raised-button class="butt add-creds" (click)="tabGroupGit.selectedIndex = 1; resetForm()">
           <i class="material-icons">people_outline</i>Add account
         </button>
         <mat-divider></mat-divider>
-        <mat-list *ngIf="gitCredentials?.length">
+        <mat-list *ngIf="gitCredentials?.length" [ngStyle]="editableForm && gitCredentials?.length && {'height': '250px'}">
           <mat-list-item class="list-header">
             <div class="hostname-field">Host name</div>
             <div class="user-field">User</div>
@@ -38,14 +38,14 @@
             <div class="actions"></div>
           </mat-list-item>
 
-          <div class="scrollingList" id="scrolling">
+          <div class="scrollingList" id="scrolling" [ngStyle]="editableForm && gitCredentials?.length && {'height': '200px'}">
             <mat-list-item *ngFor="let item of gitCredentials">
-              <div class="hostname-field">
+              <div class="hostname-field ellipsis">
                 <strong>{{ item.hostname }}</strong>
               </div>
-              <div class="user-field">{{ item.username }}</div>
-              <div class="mail-field">{{ item.email }}</div>
-              <div class="login-field">{{ item.login }}</div>
+              <div class="user-field ellipsis">{{ item.username }}</div>
+              <div class="mail-field ellipsis">{{ item.email }}</div>
+              <div class="login-field ellipsis">{{ item.login }}</div>
               <div class="actions">
                 <span class="git-actions" (click)="editSpecificAccount(item)">
                   <i class="material-icons">mode_edit</i>
@@ -80,11 +80,11 @@
                 <span class="danger_color"
                   *ngIf="!updateAccountCredentialsForm.controls['hostname'].valid
                   && updateAccountCredentialsForm.controls['hostname'].touched && !updateAccountCredentialsForm.controls['hostname'].hasError('duplicate')">
-                  Hostname field is required. Please provide a qualified domain name (e.g. gitlab.com or github.com)
+                  Hostname field is required. Please provide a qualified domain name (e.g. gitlab.com or github.com).
                 </span>
                 <span class="danger_color"
                   *ngIf="updateAccountCredentialsForm.controls['hostname'].hasError('duplicate') && updateAccountCredentialsForm.controls['hostname'].dirty">
-                  The Host name is already in use
+                  The Host name is already in use.
                 </span>
               </div>
               <div class="control-group">
@@ -94,7 +94,7 @@
                 </div>
                 <span class="danger_color"
                   *ngIf="!updateAccountCredentialsForm.controls['username'].valid && updateAccountCredentialsForm.controls['username'].touched">
-                  Username field is required. Please provide a valid username
+                  Username field is required. Please provide a valid username.
                 </span>
               </div>
               <div class="control-group">
@@ -104,7 +104,7 @@
                 </div>
                 <span class="danger_color"
                   *ngIf="!updateAccountCredentialsForm.controls['email'].valid && updateAccountCredentialsForm.controls['email'].touched">
-                  Email field is required. Please provide a valid email
+                  Email field is required. Please provide a valid email.
                 </span>
               </div>
             </div>
@@ -116,7 +116,7 @@
                 </div>
                 <span class="danger_color"
                   *ngIf="!updateAccountCredentialsForm.controls['login'].valid && updateAccountCredentialsForm.controls['login'].touched">
-                  Login field is required. Please provide a valid login
+                  Login field is required. Please provide a valid login.
                 </span>
               </div>
               <div class="control-group">
@@ -126,7 +126,7 @@
                 </div>
                 <span class="danger_color"
                   *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched">
-                  Field is required. Password must be at least 6 characters
+                  Field is required. Password must be at least 6 characters.
                 </span>
               </div>
               <div class="control-group">

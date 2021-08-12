@@ -19,19 +19,22 @@
 #
 # ******************************************************************************
 
-FROM docker.dlab-base:latest
+FROM docker.datalab-base:latest
 
 ARG OS
 
 COPY dataengine-service/fabfile.py /root/
 COPY dataengine-service/description.json /root/
 COPY general/scripts/gcp/dataengine-service_* /root/scripts/
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py
 COPY general/scripts/os/common_* /root/scripts/
 COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
 COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_available_pkgs.py
 COPY general/templates/gcp/dataengine-service_cluster.json /root/templates/dataengine-service_cluster.json
+COPY general/templates/gcp/dataengine-service_cluster_with_gpu.json /root/templates/dataengine-service_cluster_with_gpu.json
 COPY general/templates/gcp/dataengine-service_job.json /root/templates/dataengine-service_job.json
+COPY general/templates/gcp/dataengine-service_livy-env.sh /root/templates/dataengine-service_livy-env.sh
+COPY general/templates/gcp/dataengine-service_livy.service /root/templates/dataengine-service_livy.service
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/
 COPY general/templates/os/inactive.timer /root/templates/

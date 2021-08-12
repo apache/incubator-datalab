@@ -31,23 +31,35 @@
 }
 
 .billing-detail {
+
+  div {
+    font-size: 13px;
+  }
+
   .service {
-    width: 30%;
+    width: 35%;
   }
 
   .resource-type,
   .cost-currency {
-    width: 10%;
+    width: 11%;
   }
 
   .resource-name,
   .usage-date-start,
   .usage-date-end {
-    width: 20%;
     overflow: hidden;
-    text-overflow: ellipsis;
     padding-right: 10px;
     white-space: nowrap;
+  }
+
+  .resource-name{
+    width: 20%;
+  }
+
+  .usage-date-start,
+  .usage-date-end{
+    width: 17%;
   }
 
   .wide-name-field {
@@ -60,13 +72,13 @@
   }
 
   .total {
-    padding: 18px 20px 0;
+    padding-top: 18px;
+    margin-right: 70px;
     text-align: right;
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 600;
   }
 }
-
 
 .scrolling-content {
   max-height: 285px;
@@ -74,7 +86,7 @@
 }
 
 .mat-list-item-content {
-  font-size: 15px !important;
+  font-size: 14px !important;
   justify-content: space-between;
 }
 

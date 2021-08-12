@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,16 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
 import json
+import logging
+import os
 import sys
 import traceback
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import os
-from fabric.api import *
-
+import subprocess
+from fabric import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -40,8 +40,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         notebook_config = dict()
         try:
             notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
@@ -88,11 +88,11 @@ if __name__ == "__main__":
         edge_instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_instance_name)
         edge_instance_private_ip = GCPMeta.get_private_ip_address(edge_instance_name)
         notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['datalab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['zone'] = os.environ['gcp_zone']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
@@ -104,19 +104,19 @@ if __name__ == "__main__":
             notebook_config['initial_user'] = 'ec2-user'
             notebook_config['sudo_group'] = 'wheel'
 
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
+        logging.info('[CREATING DATALAB SSH USER]')
+        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             instance_hostname, notebook_config['ssh_key_path'], notebook_config['initial_user'],
-            notebook_config['dlab_ssh_user'], notebook_config['sudo_group'])
+            notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
 
         try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
+        datalab.fab.append_result("Failed creating ssh user 'datalab'.", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
@@ -127,14 +127,14 @@ if __name__ == "__main__":
         additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
-                    json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+                    json.dumps(additional_config), notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure proxy.", str(err))
+        datalab.fab.append_result("Failed to configure proxy.", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
@@ -143,15 +143,15 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {}". \
-            format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
+            format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['datalab_ssh_user'],
                    os.environ['gcp_region'])
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
+        datalab.fab.append_result("Failed installing apps: apt & pip.", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
@@ -163,18 +163,18 @@ if __name__ == "__main__":
                  "--scala_version {} --spark_version {} " \
                  "--hadoop_version {} --region {} " \
                  "--r_mirror {} --exploratory_name {} --edge_ip {}" \
-                 .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
-                         os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
-                         os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
-                         os.environ['gcp_region'], os.environ['notebook_r_mirror'],
-                         notebook_config['exploratory_name'], edge_instance_private_ip)
+            .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['datalab_ssh_user'],
+                    os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
+                    os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
+                    os.environ['gcp_region'], os.environ['notebook_r_mirror'],
+                    notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
-            local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
+            subprocess.run("~/scripts/{}.py {}".format('configure_deep_learning_node', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure Deep Learning node.", str(err))
+        datalab.fab.append_result("Failed to configure Deep Learning node.", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
@@ -185,14 +185,14 @@ if __name__ == "__main__":
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, notebook_config['ssh_key_path'], json.dumps(additional_config),
-            notebook_config['dlab_ssh_user'])
+            notebook_config['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('install_user_key', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_user_key', params), shell=True, check=True)
         except:
-            dlab.fab.append_result("Failed installing users key")
+            datalab.fab.append_result("Failed installing users key")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed installing users key.", str(err))
+        datalab.fab.append_result("Failed installing users key.", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
@@ -200,15 +200,15 @@ if __name__ == "__main__":
         print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
-            .format(notebook_config['dlab_ssh_user'], instance_hostname, notebook_config['ssh_key_path'])
+            .format(notebook_config['datalab_ssh_user'], instance_hostname, notebook_config['ssh_key_path'])
         try:
-            local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
-            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_download_git_certfile', params), shell=True, check=True)
+            subprocess.run("~/scripts/{}.py {}".format('manage_git_creds', params), shell=True, check=True)
         except:
-            dlab.fab.append_result("Failed setup git credentials")
+            datalab.fab.append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to setup git credentials.", str(err))
+        datalab.fab.append_result("Failed to setup git credentials.", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
                 if image_id_list and image_id_list[1] != '':
                     print("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
         except Exception as err:
-            dlab.fab.append_result("Failed creating image.", str(err))
+            datalab.fab.append_result("Failed creating image.", str(err))
             GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
             GCPActions.remove_image(notebook_config['expected_primary_image_name'])
             GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
@@ -250,24 +250,24 @@ if __name__ == "__main__":
                  "--additional_info '{}'"\
             .format(edge_instance_hostname,
                     notebook_config['ssh_key_path'],
-                    notebook_config['dlab_ssh_user'],
+                    notebook_config['datalab_ssh_user'],
                     'jupyter',
                     notebook_config['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True, check=True)
         except:
-            dlab.fab.append_result("Failed edge reverse proxy template")
+            datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
+        datalab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
         # generating output information
         ip_address = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
-        tensorboard_url = "http://" + ip_address + ":6006/"
+        #tensorboard_url = "http://" + ip_address + ":6006/"
         jupyter_ip_url = 'http://' + ip_address + ':8888/{}/'.format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(
             notebook_config['exploratory_name'])
@@ -275,8 +275,8 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'])
         jupyter_ungit_access_url = "https://" + edge_instance_hostname + "/{}-ungit/".format(
             notebook_config['exploratory_name'])
-        tensorboard_access_url = "https://" + edge_instance_hostname + "/{}-tensor/".format(
-            notebook_config['exploratory_name'])
+        #tensorboard_access_url = "https://" + edge_instance_hostname + "/{}-tensor/".format(
+        #    notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['instance_name']))
@@ -284,12 +284,12 @@ if __name__ == "__main__":
         print("Instance type: {}".format(notebook_config['instance_type']))
         print("Key name: {}".format(notebook_config['key_name']))
         print("User key name: {}".format(notebook_config['project_name']))
-        print("TensorBoard URL: {}".format(tensorboard_url))
-        print("TensorBoard log dir: /var/log/tensorboard")
-        print("Jupyter URL: {}".format(jupyter_ip_url))
+        #print("TensorBoard URL: {}".format(tensorboard_url))
+        #print("TensorBoard log dir: /var/log/tensorboard")
+        print("JupyterLab URL: {}".format(jupyter_ip_url))
         print("Ungit URL: {}".format(ungit_ip_url))
         print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(
-            notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
+            notebook_config['key_name'], notebook_config['datalab_ssh_user'], ip_address))
 
         with open("/root/result.json", 'w') as result:
             res = {"hostname": ip_address,
@@ -300,10 +300,10 @@ if __name__ == "__main__":
                    "notebook_name": notebook_config['instance_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [
-                       {"description": "Jupyter",
+                       {"description": "JupyterLab",
                         "url": jupyter_notebook_access_url},
-                       {"description": "TensorBoard",
-                        "url": tensorboard_access_url},
+                       #{"description": "TensorBoard",
+                       # "url": tensorboard_access_url},
                        {"description": "Ungit",
                         "url": jupyter_ungit_access_url}#,
                        #{"description": "Jupyter (via tunnel)",
@@ -315,6 +315,6 @@ if __name__ == "__main__":
                    ]}
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate output information", str(err))
+        datalab.fab.append_result("Failed to generate output information", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)

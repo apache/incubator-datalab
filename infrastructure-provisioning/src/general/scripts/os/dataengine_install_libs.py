@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,27 +21,28 @@
 #
 # ******************************************************************************
 
+import logging
+import multiprocessing
 import os
 import sys
-import logging
 import traceback
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-from fabric.api import *
-import multiprocessing
+import subprocess
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric import *
 
 
 def install_libs_on_slaves(slave, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave + 1)
     data_engine['slave_ip'] = get_instance_private_ip_address(
         data_engine['tag_name'], slave_name)
-    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"'\
+    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"' \
         .format(data_engine['os_user'], data_engine['slave_ip'],
                 data_engine['keyfile'], data_engine['libs'])
     try:
         # Run script to install additional libs
-        local("~/scripts/{}.py {}".format('install_additional_libs', params))
+        subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -80,7 +81,7 @@ if __name__ == "__main__":
                     data_engine['keyfile'], data_engine['libs'])
         try:
             # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('install_additional_libs', params))
+            subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

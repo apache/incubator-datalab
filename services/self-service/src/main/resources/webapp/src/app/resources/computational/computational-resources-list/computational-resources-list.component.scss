@@ -17,10 +17,13 @@
  * under the License.
  */
 
+ :host{
+ width:100%;
+ }
+
  .source {
    .no-details {
      color: #bdc9d5;
-     padding-left: 10px;
    }
 
    .resource-wrap {
@@ -30,20 +33,18 @@
      align-items: center;
 
      .resource-name {
-       width: 55%;
+       width: 50%;
        white-space: nowrap;
        overflow: hidden;
-       text-overflow: ellipsis;
-       padding-left: 10px;
 
        .detailed-link {
-         color: #577289;
+         color: #35afd5;
          cursor: pointer;
        }
      }
 
      .resource-status {
-       width: 30%;
+       width: 35%;
        text-transform: capitalize;
      }
 
@@ -109,23 +110,23 @@
      }
    }
  }
- @media screen and (max-width: 1520px) {
-   .resources,
-   managment {
-     .source {
-       .resource-wrap {
-         .resource-name {
-           width: 45%;
-         }
-
-         .resource-status {
-           width: 40%;
-         }
-
-         .resource-actions {
-           width: 15%;
-         }
-       }
-     }
-   }
- }
+ //@media screen and (max-width: 1520px) {
+ //  .resources,
+ //  managment {
+ //    .source {
+ //      .resource-wrap {
+ //        .resource-name {
+ //          width: 42%;
+ //        }
+ //
+ //        .resource-status {
+ //          width: 43%;
+ //        }
+ //
+ //        .resource-actions {
+ //          width: 15%;
+ //        }
+ //      }
+ //    }
+ //  }
+ //}

@@ -21,18 +21,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.epam.dlab</groupId>
-        <artifactId>dlab</artifactId>
+        <groupId>com.epam.datalab</groupId>
+        <artifactId>datalab</artifactId>
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
-    <repositories>
-        <repository>
-            <id>michaelklishin</id>
-            <url>https://dl.bintray.com/michaelklishin/maven/</url>
-        </repository>
-    </repositories>
 
     <artifactId>self-service</artifactId>
 
@@ -42,6 +35,13 @@
         <org.glassfish.jersey.media.version>2.23.1</org.glassfish.jersey.media.version>
         <com.github.oshi.core.version>3.8.0</com.github.oshi.core.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>michaelklishin</id>
+            <url>https://dl.bintray.com/michaelklishin/maven/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -55,10 +55,12 @@
             <artifactId>quartz-mongodb</artifactId>
             <version>2.1.0</version>
         </dependency>
+
         <dependency>
-            <groupId>com.epam.dlab</groupId>
+            <groupId>com.epam.datalab</groupId>
             <artifactId>common</artifactId>
         </dependency>
+
         <dependency>
             <groupId>de.thomaskrille</groupId>
             <artifactId>dropwizard-template-config</artifactId>
@@ -118,25 +120,25 @@
             <version>${com.jcraft.jsch.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-model</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-utils</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-webapp-common</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-mongo-migration</artifactId>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-webapp-common</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.epam.datalab</groupId>
+            <artifactId>datalab-mongo-migration</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -186,9 +188,19 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons-fileupload.version}</version>
         </dependency>
     </dependencies>
 
@@ -220,12 +232,12 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.epam.dlab.backendapi.SelfServiceApplication</mainClass>
+                                    <mainClass>com.epam.datalab.backendapi.SelfServiceApplication</mainClass>
                                     <manifestEntries>
                                         <Created-By>&lt;EPAM&gt; Systems</Created-By>
-                                        <Name>com/epam/dlab</Name>
-                                        <Implementation-Title>DLab Self-Service</Implementation-Title>
-                                        <DLab-Version>${dlab.version}</DLab-Version>
+                                        <Name>com/epam/datalab</Name>
+                                        <Implementation-Title>DataLab Self-Service</Implementation-Title>
+                                        <DataLab-Version>${datalab.version}</DataLab-Version>
                                         <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
                                         <Build-Time>${maven.build.timestamp}</Build-Time>
                                         <Build-OS>${os.name}</Build-OS>
@@ -246,7 +258,18 @@
                         <exclude>**/*Configuration.*</exclude>
                         <exclude>**/*Module.*</exclude>
                         <exclude>**/*Form.*</exclude>
-                        <exclude>com/epam/dlab/dto/**/*</exclude>
+                        <exclude>com/epam/datalab/dto/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/auth/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/conf/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/domain/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/dropwizard/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/healthcheck/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/modules/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/resources/dto/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/roles/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/servlet/guacamole/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/util/**/*</exclude>
+                        <exclude>com/epam/datalab/backendapi/validation/**/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -255,13 +278,13 @@
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>2.0.10</version>
                 <configuration>
-                    <outputFileName>dlab-api</outputFileName>
+                    <outputFileName>datalab-api</outputFileName>
                     <outputPath>${project.build.directory}/classes/webapp/dist/assets</outputPath>
                     <outputFormat>JSONANDYAML</outputFormat>
                     <resourcePackages>
-                        <package>com.epam.dlab.backendapi.resources</package>
+                        <package>com.epam.datalab.backendapi.resources</package>
                     </resourcePackages>
-                    <prettyPrint>TRUE</prettyPrint>
+                    <prettyPrint>true</prettyPrint>
                 </configuration>
                 <executions>
                     <execution>

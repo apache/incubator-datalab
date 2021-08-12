@@ -22,7 +22,6 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 import { Dictionary } from '../collections';
-
 import { environment } from '../../../environments/environment';
 import { HTTPMethod } from '../util';
 
@@ -52,6 +51,7 @@ export class ApplicationServiceFacade {
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
+  private static readonly BUCKET = 'bucket';
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly BUDGET = 'budget';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
@@ -75,8 +75,12 @@ export class ApplicationServiceFacade {
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
+  private static readonly ODAHU = 'odahu';
   private static readonly ENDPOINT = 'endpoint';
   private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
+  private static readonly AUDIT = 'audit';
+  private static readonly CONFIG = 'config';
+  private static readonly QUOTA = 'quota';
 
   private requestRegistry: Dictionary<string>;
 
@@ -253,6 +257,40 @@ export class ApplicationServiceFacade {
       null);
   }
 
+
+  public buildGetBucketData(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data);
+  }
+
+  public buildUploadFileToBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/upload',
+      data, { reportProgress: true, observe: 'events' });
+  }
+
+  public buildCreateFolderInBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/folder/upload',
+      data);
+  }
+
+  public buildDownloadFileFromBucket(data) {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data, { dataType : 'binary',
+        processData : false,
+        responseType : 'arraybuffer', reportProgress: true, observe: 'events' } );
+  }
+
+  public buildDeleteFileFromBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/objects/delete',
+      data );
+  }
+
+
   public buildUpdateUserPreferences(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
@@ -270,6 +308,13 @@ export class ApplicationServiceFacade {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS),
       data);
+  }
+
+  public buildGetQuotaStatus(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.QUOTA),
+        null
+    );
   }
 
   public buildRunEdgeNodeRequest(): Observable<any> {
@@ -599,6 +644,57 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public getAuditList(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.AUDIT),
+      data);
+  }
+
+  public postActionToAudit(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.AUDIT),
+      data);
+  }
+
+  public createOdahuCluster(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU),
+      data);
+  }
+
+  public getOdahuList(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU),
+      null);
+  }
+
+  public odahuStartStop(data, params): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU) + `/${params}`,
+      data);
+  }
+
+  public buildGetServiceConfig(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG),
+      data
+      );
+  }
+
+  public buildSetServiceConfig(data, body): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/' + data,
+      body);
+  }
+
+  public buildRestartServices(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+
+      this.requestRegistry.Item(ApplicationServiceFacade.CONFIG) + '/restart',
+      data );
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -641,6 +737,9 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_templates/computational_templates');
 
+    // Bucket browser
+    this.requestRegistry.Add(ApplicationServiceFacade.BUCKET, '/api/bucket');
+
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
     this.requestRegistry.Add(ApplicationServiceFacade.BUDGET, '/api/user/settings/budget');
@@ -660,7 +759,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.SETTINGS, '/api/settings');
 
     // Libraries Installation
-    this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib-groups');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/exploratory_environment/search/lib_list');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
     this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT,
@@ -673,16 +772,30 @@ export class ApplicationServiceFacade {
     // billing report
     this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/billing/report');
     this.requestRegistry.Add(ApplicationServiceFacade.DOWNLOAD_REPORT, '/api/billing/report/download');
+    this.requestRegistry.Add(ApplicationServiceFacade.QUOTA, '/api/billing/quota');
 
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT_CONNECTION, '/api/endpoint/url/');
+
+    // Odahu
+    this.requestRegistry.Add(ApplicationServiceFacade.ODAHU, '/api/odahu');
+
+    // audit
+    this.requestRegistry.Add(ApplicationServiceFacade.AUDIT, '/api/audit');
+
+    // configuration
+
+    this.requestRegistry.Add(ApplicationServiceFacade.CONFIG, '/api/config/multiple');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {
     // added to simplify development process
     const url = environment.production ? url_path : API_URL + url_path;
+    // if (url_path.indexOf('/api/bucket') !== -1) {
+    //   url = 'https://35.233.183.55' + url_path;
+    // }
 
     if (method === HTTPMethod.POST) {
       return this.http.post(url, body, opt);
@@ -690,6 +803,9 @@ export class ApplicationServiceFacade {
       return this.http.delete(body ? url + JSON.parse(body) : url, opt);
     } else if (method === HTTPMethod.PUT) {
       return this.http.put(url, body, opt);
-    } else return this.http.get(body ? (url + body) : url, opt);
+    } else {
+      return this.http.get(body ? (url + body) : url, opt);
+    }
   }
+
 }

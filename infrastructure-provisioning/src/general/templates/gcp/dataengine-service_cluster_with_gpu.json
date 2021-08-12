@@ -1,0 +1,60 @@
+{
+    "projectId": "PROJECT_ID",
+    "clusterName": "CLUSTER_NAME",
+    "labels": "CLUSTER_LABEL",
+    "config": {
+        "configBucket": "CLUSTER_BUCKET",
+        "gceClusterConfig": {
+            "zoneUri": "CLUSTER_ZONE",
+            "subnetworkUri": "CLUSTER_SUBNET",
+            "internalIpOnly": "true",
+            "serviceAccount": "SERVICE_ACCOUNT",
+            "metadata": {
+                "ssh-keys": "SSH_USER:SSH_PUBKEY"
+            },
+            "tags": [
+                "CLUSTER_TAG"
+            ]
+        },
+        "masterConfig": {
+            "numInstances": "NUM_MASTERS",
+            "machineTypeUri": "MASTER_INSTANCE",
+            "diskConfig": {
+                "bootDiskSizeGb": 35,
+                "numLocalSsds": 0
+            },
+            "accelerators": [
+                {
+                    "acceleratorCount": "NUM_MASTERS_GPU_CORES",
+                    "acceleratorTypeUri": "MASTER_GPU_TYPE"
+                }
+            ]
+        },
+        "workerConfig": {
+            "numInstances": "NUM_SLAVES",
+            "machineTypeUri": "SLAVE_INSTANCE",
+            "diskConfig": {
+                "bootDiskSizeGb": 35,
+                "numLocalSsds": 0
+            },
+            "accelerators": [
+                {
+                    "acceleratorCount": "NUM_SLAVESS_GPU_CORES",
+                    "acceleratorTypeUri": "SLAVE_GPU_TYPE"
+                }
+            ]
+        },
+        "secondaryWorkerConfig": {
+            "numInstances": "NUM_SLAVES",
+            "isPreemptible": "true"
+        },
+        "softwareConfig": {
+            "imageVersion": "IMAGE_VERSION"
+        },
+        "initializationActions": [
+            {
+                "executableFile": "GPU_DRIVER"
+            }
+        ]
+    }
+}

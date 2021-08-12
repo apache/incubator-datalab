@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,13 +21,13 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.actions_lib
+import datalab.fab
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import traceback
+import logging
 import os
+import sys
+import traceback
 
 
 def terminate_data_engine(tag_name, notebook_name,
@@ -35,14 +35,14 @@ def terminate_data_engine(tag_name, notebook_name,
                           cluster_name, remote_kernel_name):
     print("Terminating data engine cluster")
     try:
-        dlab.actions_lib.remove_ec2(os.environ['conf_tag_resource_id'], cluster_name)
+        datalab.actions_lib.remove_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
     print("Removing Data Engine kernels from notebook")
     try:
-        dlab.actions_lib.remove_dataengine_kernels(tag_name, notebook_name,
-                                                   os_user, key_path, remote_kernel_name)
+        datalab.actions_lib.remove_dataengine_kernels(tag_name, notebook_name,
+                                                      os_user, key_path, remote_kernel_name)
     except:
         sys.exit(1)
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     print('Generating infrastructure names and tags')
-    dlab.actions_lib.create_aws_config_files()
+    datalab.actions_lib.create_aws_config_files()
     data_engine = dict()
     
     try:
@@ -92,7 +92,7 @@ if __name__ == "__main__":
                     data_engine['cluster_name']), data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to terminate Data Engine.", str(err))
+            datalab.fab.append_result("Failed to terminate Data Engine.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -104,5 +104,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,15 +21,14 @@
 #
 # ******************************************************************************
 
-import logging
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
 import json
-import sys
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import traceback
+import logging
 import os
-import uuid
+import sys
+import traceback
 
 
 def terminate_data_engine(zone, notebook_name, os_user, key_path, cluster_name):
@@ -40,14 +39,14 @@ def terminate_data_engine(zone, notebook_name, os_user, key_path, cluster_name):
             for i in instances['items']:
                 GCPActions.remove_instance(i['name'], zone)
     except Exception as err:
-        dlab.fab.append_result("Failed to terminate dataengine", str(err))
+        datalab.fab.append_result("Failed to terminate dataengine", str(err))
         sys.exit(1)
 
     print("Removing Data Engine kernels from notebook")
     try:
-        dlab.actions_lib.remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name)
+        datalab.actions_lib.remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name)
     except Exception as err:
-        dlab.fab.append_result("Failed to remove dataengine kernels from notebook", str(err))
+        datalab.fab.append_result("Failed to remove dataengine kernels from notebook", str(err))
         sys.exit(1)
 
 
@@ -59,8 +58,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    GCPMeta = dlab.meta_lib.GCPMeta()
-    GCPActions = dlab.actions_lib.GCPActions()
+    GCPMeta = datalab.meta_lib.GCPMeta()
+    GCPActions = datalab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
@@ -92,7 +91,7 @@ if __name__ == "__main__":
                                   data_engine['key_path'], data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
-            dlab.fab.append_result("Failed to terminate Data Engine.", str(err))
+            datalab.fab.append_result("Failed to terminate Data Engine.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -104,5 +103,5 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)

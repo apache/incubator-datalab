@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
+import {NgModule} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import {LocationStrategy, HashLocationStrategy, APP_BASE_HREF} from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -30,17 +30,20 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
-import { LayoutModule } from './layout/layout.module'
+import { LayoutModule } from './layout/layout.module';
 
 import { GuidesModule } from './help';
 import { ServicePagesModule } from './service-pages/service-pages.module';
 import { ResourcesModule } from './resources/resources.module';
-
-import { ReportingModule } from './reporting/reporting.module';
 import { AdministrationModule } from './administration/administration.module';
 import { WebterminalModule } from './webterminal';
 import { CoreModule } from './core/core.module';
 import { SwaggerAPIModule } from './swagger';
+import {ReportsModule} from './reports/reports.module';
+import {LocalizationService} from './core/services/localization.service';
+import {AceEditorModule} from 'ng2-ace-editor';
+
+LocalizationService.registerCulture(window.navigator.language);
 
 @NgModule({
   declarations: [AppComponent],
@@ -55,20 +58,28 @@ import { SwaggerAPIModule } from './swagger';
     ResourcesModule,
     GuidesModule,
     ServicePagesModule,
-    ReportingModule,
+    // ReportingModule,
+
     AdministrationModule,
+    ReportsModule,
     WebterminalModule,
     SwaggerAPIModule,
     RouterModule,
     AppRoutingModule,
     CoreModule.forRoot(),
-    ToastrModule.forRoot({ timeOut: 10000 })
+    ToastrModule.forRoot({ timeOut: 10000 }),
+    AceEditorModule
   ],
   providers: [{
     provide: LocationStrategy,
     useClass: HashLocationStrategy,
     useValue: '/'
-  }],
+  },
+
+    // { provide: LOCALE_ID,
+    //   deps: [LocalizationService],
+    //   useFactory: (localizationService) => localizationService.getLocale() }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

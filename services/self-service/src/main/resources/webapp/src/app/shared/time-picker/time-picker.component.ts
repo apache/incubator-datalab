@@ -21,14 +21,20 @@ import { Component, OnInit, Inject, Input, Output, EventEmitter } from '@angular
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CLOCK_TYPE, TimeFormat } from './ticker.component';
+import {SchedulerCalculations} from '../../resources/scheduler/scheduler.calculations';
 type TimeFormatAlias = TimeFormat;
-     
+
 @Component({
-  selector: 'dlab-time-picker',
+  selector: 'datalab-time-picker',
   template: `
     <div class="time-picker">
       <mat-form-field class="time-select">
-        <input matInput placeholder="{{ label }}" [value]="selectedTime" (input)="checkEmpty($event.target.value)" [disabled]="disable">
+        <input matInput
+               placeholder="{{ label }}"
+               [value]="(selectedTime | localDate : 'shortTime') || null"
+               (input)="checkEmpty($event.target['value'])"
+               [disabled]="disable"
+        />
         <mat-icon matSuffix [ngClass]="{'not-allowed': disable}" (click)="openDatePickerDialog($event)" disabled="disable">access_time</mat-icon>
       </mat-form-field>
     </div>`,
@@ -38,14 +44,16 @@ export class TimePickerComponent implements OnInit {
   @Input() pickTime: TimeFormatAlias;
   @Input() label: string = 'Select time';
   @Input() disable: boolean = false;
+  @Input() milisecTime: number;
   @Output() pickTimeChange: EventEmitter<TimeFormatAlias> = new EventEmitter();
+  @Output() milisecTimeChange: EventEmitter<TimeFormatAlias> = new EventEmitter();
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() { }
 
-  public get selectedTime(): string {
-    return !this.pickTime ? '' : `${this.pickTime.hour}:${this.getFullMinutes()} ${this.pickTime.meridiem}`;
+  public get selectedTime(): string | number {
+    return !this.pickTime ? '' : this.milisecTime;
   }
 
   public getFullMinutes() {
@@ -58,7 +66,7 @@ export class TimePickerComponent implements OnInit {
         time: {
           hour: this.pickTime ? this.pickTime.hour : 0,
           minute: this.pickTime ? this.pickTime.minute : 0,
-          meridiem: this.pickTime ? this.pickTime.meridiem : 'AM' 
+          meridiem: this.pickTime ? this.pickTime.meridiem : 'AM'
         }
       }
     });
@@ -67,13 +75,14 @@ export class TimePickerComponent implements OnInit {
       if (result === undefined) return;
       if (result !== -1) {
         this.pickTime = result;
+        this.milisecTime = SchedulerCalculations.setTimeInMiliseconds(this.pickTime);
         this.emitpickTimeSelection();
       }
     });
     return false;
   }
 
-  checkEmpty(searchValue : string ) {
+  checkEmpty(searchValue: string ) {
     if (!searchValue.length) {
       this.pickTime = null;
       this.emitpickTimeSelection();

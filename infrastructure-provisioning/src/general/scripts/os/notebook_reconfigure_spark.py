@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,15 +21,16 @@
 #
 # ******************************************************************************
 
-import os
-import sys
 import json
 import logging
+import os
+import sys
 import traceback
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-from fabric.api import *
+import subprocess
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -60,7 +61,7 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to get available libs
-            local("~/scripts/{}.py {}".format('reconfigure_spark', params))
+            subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

@@ -1,3 +1,4 @@
+{{- /*
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -18,23 +19,23 @@
 # under the License.
 #
 # ******************************************************************************
+*/ -}}
 
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "step-certificates.fullname" . }}
-  labels:
-  {{ include "step-certificates.labels" . | indent 4 }}
+  labels: {{ include "step-certificates.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
-{{- if .Values.service.nodePort }}
-nodePort: {{ .Values.service.nodePort }}
-{{- end }}
-protocol: TCP
-name: https
-selector:
-  app.kubernetes.io/name: {{ include "step-certificates.name" . }}
-  app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      protocol: TCP
+      name: https
+  selector:
+    app.kubernetes.io/name: {{ include "step-certificates.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

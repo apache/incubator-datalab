@@ -18,6 +18,7 @@
  */
 
 import { Input, Output, Component, EventEmitter } from '@angular/core';
+import {SortUtils} from '../../../core/util';
 
 @Component({
   selector: 'multi-level-select-dropdown',
@@ -43,27 +44,32 @@ export class MultiLevelSelectDropdownComponent {
   public labels = {
     COMPUTATIONAL_SHAPE: 'Compute shapes',
     NOTEBOOK_SHAPE: 'Notebook shapes',
-    COMPUTATIONAL: 'Compute'
+    COMPUTATIONAL: 'Compute',
+    BUCKET_BROWSER: 'Bucket browser actions'
   };
+  public selectedList: any;
 
-  toggleSelectedOptions($event, model, value) {
-    $event.preventDefault();
-    const currRole = model.filter(v => v.role === value.role).length;
-    currRole ? this.model = model.filter(v => v.role !== value.role) : model.push(value);
-    this.onUpdate($event);
+  constructor() {
   }
 
-  toggleselectedCategory($event, model, value) {
-    $event.preventDefault();
+  toggleSelectedOptions( model, value, event?) {
+    if (event) event.preventDefault();
+    const currRole = model.filter(v => v.role === value.role).length;
+    currRole ? this.model = model.filter(v => v.role !== value.role) : model.push(value);
+    this.onUpdate(event);
+  }
+
+  toggleselectedCategory( model, value, event?) {
+    if (event) event.preventDefault();
     const categoryItems = this.items.filter(role => role.type === value);
     this.selectedAllInCattegory(value) ? this.model = this.model.filter(role => role.type !== value) : categoryItems.forEach(role => {
       if (!model.filter(mod => mod.role === role.role).length) {this.model.push(role); }
     });
-    this.onUpdate($event);
+    this.onUpdate(event);
   }
 
-  toggleSelectedCloud($event, model, category, cloud) {
-    $event.preventDefault();
+  toggleSelectedCloud( model, category, cloud, event?) {
+    if (event) event.preventDefault();
     const categoryItems = this.items.filter(role => role.type === category && role.cloud === cloud);
     this.selectedAllInCloud(category, cloud) ? this.model = this.model.filter(role => {
       if (role.type === category && role.cloud === cloud) {
@@ -73,7 +79,7 @@ export class MultiLevelSelectDropdownComponent {
     }) : categoryItems.forEach(role => {
       if (!model.filter(mod => mod.role === role.role).length) {this.model.push(role); }
     });
-    this.onUpdate($event);
+    this.onUpdate(event);
   }
 
   selectAllOptions($event) {
@@ -90,6 +96,7 @@ export class MultiLevelSelectDropdownComponent {
   }
 
   onUpdate($event): void {
+    this.selectedList = SortUtils.sortByKeys(this.getSelectedRolesList(), ['type']);
     this.selectionChange.emit({ model: this.model, type: this.type, $event });
   }
 
@@ -134,7 +141,7 @@ export class MultiLevelSelectDropdownComponent {
     return this.model.filter(v => v.role === item).length;
   }
 
-  public selectedRolesList() {
-    return this.model.map(role => role.role).join(',');
+  public getSelectedRolesList() {
+    return this.model.map(role => role.role);
   }
 }

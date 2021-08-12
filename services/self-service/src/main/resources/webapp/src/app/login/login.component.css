@@ -47,9 +47,12 @@
 }
 
 .login_page .logo {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
   margin-bottom: 45px;
   cursor: default;
+  height: 250px;
+  width: 360px;
 }
 
 .login_page {

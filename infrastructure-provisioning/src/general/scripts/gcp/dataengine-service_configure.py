@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,18 +21,18 @@
 #
 # ******************************************************************************
 
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
+import datalab.notebook_lib
 import json
-import time
-from fabric.api import *
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
-import dlab.notebook_lib
-import traceback
-import sys
-import os
 import logging
 import multiprocessing
+import os
+import sys
+import traceback
+import subprocess
+from fabric import *
 
 
 def configure_dataengine_service(instance, dataproc_conf):
@@ -42,16 +42,16 @@ def configure_dataengine_service(instance, dataproc_conf):
         logging.info('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
         print('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
         additional_config = {"proxy_host": dataproc_conf['edge_instance_name'], "proxy_port": "3128"}
-        params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
+        params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(dataproc_conf['instance_ip'], dataproc_conf['cluster_name'], dataproc_conf['key_path'],
-                    json.dumps(additional_config), dataproc_conf['dlab_ssh_user'])
+                    json.dumps(additional_config), dataproc_conf['datalab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_proxy', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure proxy.", str(err))
+        datalab.fab.append_result("Failed to configure proxy.", str(err))
         GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
@@ -59,17 +59,20 @@ def configure_dataengine_service(instance, dataproc_conf):
         logging.info('[CONFIGURE DATAENGINE SERVICE]')
         print('[CONFIGURE DATAENGINE SERVICE]')
         try:
-            env['connection_attempts'] = 100
-            env.key_filename = "{}".format(dataproc_conf['key_path'])
-            env.host_string = dataproc_conf['dlab_ssh_user'] + '@' + dataproc_conf['instance_ip']
-            dlab.notebook_lib.install_os_pkg(['python-pip', 'python3-pip'])
-            dlab.fab.configure_data_engine_service_pip(dataproc_conf['instance_ip'], dataproc_conf['dlab_ssh_user'],
-                                                       dataproc_conf['key_path'])
+            global conn
+            conn = datalab.fab.init_datalab_connection(dataproc_conf['instance_ip'], dataproc_conf['datalab_ssh_user'], dataproc_conf['key_path'])
+            datalab.fab.configure_data_engine_service_livy(dataproc_conf['instance_ip'],
+                                                           dataproc_conf['datalab_ssh_user'],
+                                                           dataproc_conf['key_path'])
+            datalab.notebook_lib.install_os_pkg([['python3-pip', 'N/A']])
+            datalab.fab.configure_data_engine_service_pip(dataproc_conf['instance_ip'],
+                                                          dataproc_conf['datalab_ssh_user'],
+                                                          dataproc_conf['key_path'])
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure dataengine service.", str(err))
+        datalab.fab.append_result("Failed to configure dataengine service.", str(err))
         GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
@@ -100,17 +103,17 @@ def configure_dataengine_service(instance, dataproc_conf):
                  "--additional_info '{}'"\
             .format(dataproc_conf['edge_instance_hostname'],
                     dataproc_conf['key_path'],
-                    dataproc_conf['dlab_ssh_user'],
+                    dataproc_conf['datalab_ssh_user'],
                     'dataengine-service',
                     dataproc_conf['exploratory_name'],
                     json.dumps(additional_info))
         try:
-            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params), shell=True, check=True)
         except:
-            dlab.fab.append_result("Failed edge reverse proxy template")
+            datalab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to configure reverse proxy.", str(err))
+        datalab.fab.append_result("Failed to configure reverse proxy.", str(err))
         GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
@@ -123,8 +126,8 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         dataproc_conf = dict()
         if 'exploratory_name' in os.environ:
@@ -172,11 +175,11 @@ if __name__ == "__main__":
                                                                         dataproc_conf['endpoint_name'])
         dataproc_conf['edge_instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(
             dataproc_conf['edge_instance_name'])
-        dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        dataproc_conf['datalab_ssh_user'] = os.environ['conf_os_user']
         dataproc_conf['master_name'] = dataproc_conf['cluster_name'] + '-m'
         dataproc_conf['master_ip'] = GCPMeta.get_private_ip_address(dataproc_conf['master_name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
@@ -205,7 +208,7 @@ if __name__ == "__main__":
                 raise Exception
     except Exception as err:
         GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
-        dlab.fab.append_result("Failed to configure Dataengine-service", str(err))
+        datalab.fab.append_result("Failed to configure Dataengine-service", str(err))
         traceback.print_exc()
         raise Exception
 
@@ -242,6 +245,6 @@ if __name__ == "__main__":
             print(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
-        dlab.fab.append_result("Error with writing results", str(err))
+        datalab.fab.append_result("Error with writing results", str(err))
         GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)

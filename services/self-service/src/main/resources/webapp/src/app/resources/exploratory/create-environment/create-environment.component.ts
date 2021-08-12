@@ -17,17 +17,18 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
-import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
+import {CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import {tap} from 'rxjs/operators';
+import {timer} from 'rxjs';
 
 @Component({
   selector: 'create-environment',
@@ -47,8 +48,18 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   shapes = [] || {};
   resourceGrid: any;
   images: Array<any>;
+  selectedImage: any;
+  maxNotebookLength: number = 14;
+  public areShapes: boolean;
+  public selectedCloud: string = '';
+  public gpuCount: Array<number>;
+  public gpuTypes: Array<string> = [];
+  public addSizeToGpuType = HelpUtils.addSizeToGpuType;
 
-  @ViewChild('configurationNode', { static: false }) configuration;
+  public additionalParams = {
+    configurationNode: false,
+    gpu: false,
+  };
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -87,31 +98,116 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     });
   }
 
-  public setEndpoints(project) {
-    if (this.images) this.images = [];
+  public setImage(image) {
+    this.selectedImage = image;
+    timer(500).subscribe(_ => {
+      document.querySelector('#buttons').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  }
 
+  public setEndpoints(project) {
+    const controls = ['endpoint', 'version', 'shape', 'gpu_type', 'gpu_count'];
+    this.resetSelections(controls);
+    
     this.endpoints = project.endpoints
       .filter(e => e.status === 'RUNNING')
       .map(e => e.name);
   }
 
+  public resetSelections(controls: Array<string>) {
+    if (this.images) this.images = [];
+    if (this.selectedCloud) this.selectedCloud = '';
+    if (this.additionalParams.gpu) {
+      this.additionalParams.gpu = !this.additionalParams.gpu;
+      this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+    }
+    this.selectedImage = null;
+    this.areShapes = false;
+    this.templates = [];
+    this.currentTemplate = [];
+    controls.forEach(control => {
+      this.createExploratoryForm.controls[control].setValue(null);
+    });
+  }
+
   public getTemplates(project, endpoint) {
+    const controls = ['version', 'shape'];
+    this.resetSelections(controls);
+
+    const endpoints = this.data.environments.find(env => env.project === project).endpoints;
+    this.selectedCloud = endpoints.find(endp => endp.name === endpoint).cloudProvider.toLowerCase();
+
     this.userResourceService.getExploratoryTemplates(project, endpoint)
       .pipe(tap(results => {
+
         results.sort((a, b) =>
           (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ?
             1 : -1);
       }))
       .subscribe(templates =>  {
         this.templates = templates;
-      }
+        }
       );
+
   }
 
   public getShapes(template) {
+    this.selectedImage = null;
+    const controls = ['notebook_image_name', 'shape', 'gpu_type', 'gpu_count'];
+
+    controls.forEach(control => {
+      this.createExploratoryForm.controls[control].setValue(null);
+      if (control !== 'shape') {
+        this.createExploratoryForm.controls[control].clearValidators();
+        this.createExploratoryForm.controls[control].updateValueAndValidity();
+      }
+    });
+
+    if (this.additionalParams.gpu) {
+      this.additionalParams.gpu = !this.additionalParams.gpu;
+      this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+    }
+
+    if (this.selectedCloud === 'gcp' && template?.image === 'docker.datalab-deeplearning') {
+      this.createExploratoryForm.controls['notebook_image_name'].setValidators([Validators.required]);
+      this.createExploratoryForm.controls['notebook_image_name'].updateValueAndValidity();
+    }
+    
+    if (this.selectedCloud === 'gcp' && 
+        (template?.image === 'docker.datalab-jupyter' ||
+        template?.image === 'docker.datalab-deeplearning' ||
+        template?.image === 'docker.datalab-tensor')) {
+          
+      this.gpuTypes = template?.computationGPU ? HelpUtils.sortGpuTypes(template.computationGPU) : [];
+
+      if(template?.image === 'docker.datalab-tensor' || template?.image === 'docker.datalab-deeplearning') {
+        this.addGpuFields();
+      }
+    }
+
     this.currentTemplate = template;
-    this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes);
-    this.getImagesList();
+    const allowed: any = ['GPU optimized'];
+
+    if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deeplearning') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deep learning') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('data science') === -1
+    ) {
+      const filtered = Object.keys(
+        SortUtils.shapesSort(template.exploratory_environment_shapes))
+        .filter(key => !(allowed.includes(key)))
+        .reduce((obj, key) => {
+          obj[key] = template.exploratory_environment_shapes[key];
+          return obj;
+        }, {});
+      template.exploratory_environment_shapes.computation_resources_shapes = filtered;
+      this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes.computation_resources_shapes);
+      this.getImagesList();
+    } else {
+      this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes);
+      this.getImagesList();
+    }
+    this.areShapes = !!Object.keys(this.shapes).length;
   }
 
   public createExploratoryEnvironment(data) {
@@ -120,7 +216,15 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       template_name: this.currentTemplate.exploratory_environment_versions[0].template_name
     };
 
+    
+    if (!data.notebook_image_name 
+      && this.currentTemplate.image === 'docker.datalab-deeplearning' 
+      && this.selectedCloud === 'aws' || this.selectedCloud === 'azure') {
+      data.notebook_image_name = this.currentTemplate.exploratory_environment_versions[0].version;
+    }
+
     data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null;
+
     this.userResourceService.createExploratoryEnvironment({ ...parameters, ...data }).subscribe((response: any) => {
       if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
@@ -133,11 +237,60 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public selectConfiguration() {
-    const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
-      ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
+    this.additionalParams.configurationNode = !this.additionalParams.configurationNode;
+    if (this.additionalParams.configurationNode) {
+      const value = (this.additionalParams.configurationNode && this.createExploratoryForm)
+        ? JSON.stringify(CLUSTER_CONFIGURATION.SPARK, undefined, 2) : '';
+      timer(500).subscribe(_ => {
+        document.querySelector('#buttons').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+      this.createExploratoryForm.controls['cluster_config'].setValue(value);
+    }
+  }
 
-    document.querySelector('#config').scrollIntoView({ block: 'start', behavior: 'smooth' });
-    this.createExploratoryForm.controls['cluster_config'].setValue(value);
+  public addGpuFields() {
+    this.additionalParams.gpu = !this.additionalParams.gpu;
+    this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+
+    const controls = ['gpu_type', 'gpu_count'];
+    if (!this.additionalParams.gpu) {
+      controls.forEach(control => {
+        this.createExploratoryForm.controls[control].setValue(null);
+        this.createExploratoryForm.controls[control].clearValidators();
+        this.createExploratoryForm.controls[control].updateValueAndValidity();
+      });
+
+    } else {
+      controls.forEach(control => {
+        this.createExploratoryForm.controls[control].setValidators([Validators.required]);
+        this.createExploratoryForm.controls[control].updateValueAndValidity();
+      });
+      timer(500).subscribe(_ => {
+        document.querySelector('#buttons').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
+    }
+  }
+
+  public setInstanceSize() {
+    const controls = ['gpu_type', 'gpu_count'];
+    controls.forEach(control => {
+      this.createExploratoryForm.controls[control].setValue(null);
+    });
+  }
+
+  public setCount(type: any, gpuType: any): void {
+    if (gpuType && this.currentTemplate.image === 'docker.datalab-deeplearning') {
+      this.additionalParams.gpu = true;
+      this.createExploratoryForm.controls['gpu_enabled'].setValue(this.additionalParams.gpu);
+      this.createExploratoryForm.controls['gpu_count'].setValidators([Validators.required]);
+      this.createExploratoryForm.controls['gpu_count'].updateValueAndValidity();
+    }
+    // if (type === 'master') {
+      this.gpuCount = [1, 2, 4];
+    // } else {
+    //   const slaveShape = this.resourceForm.controls['shape_slave'].value;
+    //   this.slaveGPUcount = HelpUtils.setGPUCount(slaveShape, gpuType);
+    // }
   }
 
   private initFormModel(): void {
@@ -147,16 +300,33 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       version: ['', Validators.required],
       notebook_image_name: [''],
       shape: ['', Validators.required],
-      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      name: ['', [
+        Validators.required,
+        Validators.pattern(PATTERNS.namePattern),
+        Validators.maxLength(this.maxNotebookLength),
+        this.checkDuplication.bind(this)
+      ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
-      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]]
+      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]],
+      gpu_type: [null],
+      gpu_count: [null],
+      gpu_enabled: [false]
     });
   }
 
   private getImagesList() {
     this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value,
       this.createExploratoryForm.controls['endpoint'].value)
-      .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
+      .subscribe((res: any) => {
+        this.images = res.filter(el => el.status === 'CREATED');
+        
+        if(this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
+            this.currentTemplate.exploratory_environment_images = this.currentTemplate.exploratory_environment_images.map(image => {
+              return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description}
+            });
+            this.images.push(...this.currentTemplate.exploratory_environment_images);
+          }
+      },
         error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
 
@@ -167,14 +337,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       return { duplication: true };
   }
 
-  private providerMaxLength(control) {
-    if (control && control.value)
-      return control.value.length <= 10 ? null : { valid: false };
-  }
-
   private validConfiguration(control) {
-    if (this.configuration)
-      return this.configuration.nativeElement['checked']
+    if (this.additionalParams.configurationNode)
+      return this.additionalParams.configurationNode
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
   }

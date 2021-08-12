@@ -28,6 +28,9 @@
     font-size: 15px;
     font-family: 'Open Sans', sans-serif;
     color: #577289;
+    &[disabled]{
+      box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    }
 
     i {
       margin: 0 5px 0 0;
@@ -39,7 +42,10 @@
       i {
         margin: 0 5px 0 0;
         font-size: 20px;
-        vertical-align: sub;
+        vertical-align: middle;
+        &.arrow-icon{
+          vertical-align: -5px
+        }
       }
     }
 
@@ -49,6 +55,14 @@
 
     &.action {
       width: 140px;
+
+      &.install-btn{
+        margin-left: 0;
+      }
+
+      &.close-btn{
+        margin-right: 25px;
+      }
     }
 
     &.butt-success {
@@ -85,6 +99,8 @@
     }
   }
 }
+
+
 
 .selector-wrapper {
   display: flex;
@@ -130,6 +146,26 @@
   }
 }
 
+
+.audit{
+  .select-wrapper {
+    .mat-reset{
+      .selector-wrapper{
+        height: 25px;
+
+      .mat-form-field .mat-form-field-wrapper .mat-form-field-infix{
+        padding-top: 6px;
+        font-size: 13px;
+      }
+        .caret {
+          width: 25px;
+          height: 31px;
+
+        }
+      }
+    }
+  }
+}
 .multiple-select {
   border-bottom: 1px solid #dedbdb;
   padding: 0;
@@ -218,10 +254,13 @@
   .mat-select-placeholder {
     cursor: not-allowed;
   }
-
+  .mat-select-value{
+    cursor: not-allowed;
+  }
 }
 
-.mat-select-disabled + .caret {
+.mat-select-disabled + .caret,
+.mat-tab-disabled{
   cursor: not-allowed !important;
 }
 
@@ -238,6 +277,15 @@
 .filter-row input[type='text'] {
   font-size: 14px;
   height: 34px;
+}
+
+input[type="file"] {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0;
 }
 
 span.mat-slide-toggle-content {
@@ -317,9 +365,27 @@ span.mat-slide-toggle-content {
     }
 }
 
+.mat-chip-list {
+  pointer-events: none;
+  .mat-chip{
+    overflow: hidden;
+    pointer-events: all;
+    &.mat-standard-chip.mat-chip-disabled{
+      opacity: 1;
+    }
+  }
+}
+
+.selection, .project-form {
+  .mat-reset .mat-form-field .mat-form-field-wrapper .mat-form-field-label {
+    transform: none;
+  }
+}
+
 .manage-roles,
 .project-form,
-.selection {
+.selection,
+.audit{
   .mat-form-field {
     width: 100%;
   }
@@ -428,6 +494,119 @@ span.mat-slide-toggle-content {
         width: 100%;
         display: flex;
         max-width: 500px;
+      }
+    }
+  }
+}
+
+.audit {
+  .mat-select {
+    font-family: 'Open Sans', sans-serif;
+
+    .mat-select-value-text span {
+      color: unset !important;
+    }
+  }
+}
+
+.empty-checkbox {
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 2px solid lightgrey;
+  margin-top: 2px;
+  position: relative;
+  cursor: pointer;
+
+  &.checked {
+    border-color: #35afd5;
+    background-color: #35afd5;
+  }
+  .checked-checkbox {
+    top: 0;
+    left: 4px;
+    width: 5px;
+    height: 10px;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
+    position: absolute;
+    transform: rotate(45deg);
+  }
+
+  .line-checkbox {
+    top: 0;
+    left: 2px;
+    width: 8px;
+    height: 7px;
+    border-bottom: 2px solid white;
+    position: absolute;
+  }
+}
+.none-select{
+  user-select: none;
+}
+
+.action-select-wrapper{
+  position: relative;
+  display: block !important;
+
+  .action-button-wrapper{
+    position: relative;
+    width: 160px;
+  }
+
+  .mat-raised-button.butt{
+    margin-bottom: 0;
+    padding-left: 45px;
+    text-align: left;
+
+
+    &.actions-btn{
+      padding-right: 38px;
+      margin: 0;
+
+      .material-icons{
+        transition: ease-in-out 1s;
+        font-size: 25px;
+        position: absolute;
+        top: 7px;
+        right: 30px;
+      }
+    }
+  }
+
+  .action-menu{
+    position: absolute;
+    text-align: center;
+    display: block;
+    background-color: #fff;
+
+    &-item.mat-raised-button.butt{
+      z-index: 101;
+      margin: 0;
+      box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 0px 0px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      width: 160px;
+      padding: 0 20px;
+      border-radius: 0;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 15px;
+      font-family: 'Open Sans', sans-serif;
+      color: #577289;
+      position: relative;
+      overflow: hidden;
+      line-height: 36px;
+      &.action-menu-item{
+        &:hover{
+          color:  #00bcd4;
+          background-color: #fafafa;
+        }
+        &.disabled{
+          &:hover{
+            color: #577289;
+          }
+        }
       }
     }
   }
@@ -561,7 +740,7 @@ mat-horizontal-stepper {
 
     .content {
       color: #718ba6;
-      padding: 20px 0;
+      padding: 20px 40px;
       font-size: 14px;
       font-weight: 400;
       text-align: center;
@@ -612,17 +791,32 @@ mat-horizontal-stepper {
   }
 }
 
-.mat-table {
-  .header-row {
-    th.mat-header-cell {
+table.mat-table {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
+
+  .mat-cell{
+    font-size: 13px;
+  }
+  .header-row,
+  .mat-header-row{
+    .mat-header-cell {
       font-family: 'Open Sans', sans-serif;
       font-weight: 600;
+      font-size: 13px;
+      .label{
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+      }
     }
 
     .mat-cell {
       word-break: break-all;
       vertical-align: top;
       padding: 15px 5px 10px 5px;
+      font-size: 13px;
+      font-family: "Open Sans", sans-serif;
 
       td {
         vertical-align: baseline;
@@ -665,5 +859,230 @@ mat-progress-bar {
 .filter-row-item, .label-header{
   box-shadow: inset 0 -1px 0 lightgrey;
   border-bottom: none !important;
+  multi-select-dropdown, .input-wrapper{
+    position: absolute;
+    top: 10px;
+    left: 5px;
+    right: 5px;
+  }
+
+  .input-wrapper{
+    left: 10px;
+    right: 4px;
+  }
 }
+
+/* daterangepicker themes */
+#range-picker {
+  display: flex;
+  justify-content: center;
+  z-index: 120;
+}
+
+#range-picker path#Shape {
+  fill: #36afd5;
+}
+
+#range-picker .ng-daterangepicker,
+ {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#range-picker .ng-daterangepicker .calendar {
+  z-index: 102;
+  border: 1px solid rgba(234, 234, 234, 0.64);
+  border-radius: 0;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+  0 2px 2px 0 rgba(0, 0, 0, 0.14),
+  0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  top: 58px;
+
+  &.is-to:after {
+    left: 250px;
+  }
+
+  &.is-opened{
+    display: flex;
+  }
+}
+
+#range-picker .ng-daterangepicker .calendar::after {
+  border-top: 1px solid rgba(234, 234, 234, 0.64);
+  border-left: 1px solid rgba(234, 234, 234, 0.64);
+}
+
+#range-picker .ng-daterangepicker .calendar .side-container .side-button {
+  background: #fff;
+  color: #718ba6;
+  border: none;
+  border-radius: 0px;
+}
+
+#range-picker .ng-daterangepicker .calendar .side-container .side-button.is-active,
+#range-picker .ng-daterangepicker .input-section .label-txt {
+  color: #35afd5;
+  display: unset;
+  font-size: 13px;
+}
+
+#range-picker .ng-daterangepicker .calendar .side-container .side-button.is-active {
+  color: #fff;
+  background: #35afd5;
+  border-radius: 10px;
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day-num.is-active,
+#range-picker .ng-daterangepicker .calendar .calendar-container .days .day-num:hover {
+  background: #35afd5;
+  background-clip: padding-box;
+
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day-names,
+#range-picker .ng-daterangepicker .calendar .calendar-container .days {
+  width: 310px;
+}
+
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-first-weekday,
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-last-weekday {
+  background-clip: padding-box;
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day.is-within-range {
+  background: #e9f8fc
+}
+
+#range-picker .ng-daterangepicker .input-section .cal-icon svg path {
+  fill: #35afd5;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt {
+  color: #718ba6;
+  display: unset;
+  padding-left: 5px;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt.untouched,
+#range-picker .ng-daterangepicker .input-section .label-txt.untouched {
+  color: #fff;
+}
+
+//#range-picker .ng-daterangepicker .input-section .value-txt.untouched::after {
+//  content: 'date';
+//  position: absolute;
+//  top: 9px;
+//  left: 61px;
+//  color: #718ba6;
+//}
+
+.filter-row .actions {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.filter-row .actions button {
+  background: #fff;
+  border-color: #35afd5;
+  color: #35afd5;
+  outline: none;
+}
+
+.filter-row .actions .reset:not([disabled]):hover {
+  border-color: #f1696e;
+  background: #f9fafb;
+  color: #f1696e;
+}
+
+.filter-row .actions .apply:not([disabled]):hover {
+  border-color: #49af38;
+  background: #f9fafb;
+  color: #49af38;
+}
+
+#range-picker .ng-daterangepicker {
+  height: 37px;
+  width: 360px;
+  display: flex;
+  justify-content: space-between;
+
+
+  .d-none{
+    display: none;
+  }
+
+  .input-section {
+    height: 37px;
+    padding-right: 30px;
+    width: 175px;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+  }
+}
+
+.show-all-btn.mat-raised-button .mat-button-wrapper > *{
+  vertical-align: baseline;
+}
+
+.resource-btns {
+  .mat-raised-button{
+    line-height: 38px;
+  }
+
+  .mat-select-value{
+    margin-top: 1px;
+  }
+}
+
+.alert .highlight .strong{ color: #35afd5}
+
+.audit-table-wrapper,
+.billing-page-wrapper{
+  tfoot{
+    position: sticky;
+    z-index: 102;
+    bottom: 0;
+  }
+
+  .dropdown-multiselect{
+    &.resources {
+      .list-menu {
+        .list-item {
+          text-transform: unset !important;
+        }
+      }
+    }
+  }
+}
+.configuration-wrapper{
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  .mat-tab-header{
+    margin: 0 30px;
+  }
+  .mat-tab-label{
+    .mat-tab-label-content{
+      font-family: "Open Sans", sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+    }
+  }
+
+  .ace-monokai{
+    height: calc(100%);
+  }
+
+  .ace_print-margin {
+    width: unset !important;
+  }
+
+  .ace_scrollbar{
+    scrollbar-width: thin;
+  }
+}
+
+
+
+
+
 

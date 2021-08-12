@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,16 +21,17 @@
 #
 # ******************************************************************************
 
-import sys, os
-from fabric.api import *
-import json
 import argparse
+import datalab.fab
+import datalab.actions_lib
+import datalab.meta_lib
+import json
 import logging
+import os
+import sys
 import traceback
-import dlab.ssn_lib
-import dlab.fab
-import dlab.actions_lib
-import dlab.meta_lib
+import subprocess
+from fabric import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssn_unique_index', type=str, default='')
@@ -43,8 +44,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        GCPMeta = dlab.meta_lib.GCPMeta()
-        GCPActions = dlab.actions_lib.GCPActions()
+        GCPMeta = datalab.meta_lib.GCPMeta()
+        GCPActions = datalab.actions_lib.GCPActions()
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
         ssn_conf['pre_defined_vpc'] = False
@@ -53,8 +54,8 @@ if __name__ == "__main__":
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         ssn_conf['ssn_unique_index'] = args.ssn_unique_index
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-                os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
@@ -77,12 +78,12 @@ if __name__ == "__main__":
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     except Exception as err:
-        dlab.fab.dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if GCPMeta.get_instance(ssn_conf['instance_name']):
-        dlab.fab.dlab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
-                                        "Please try again.")
+        datalab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
+                                              "Please try again.")
         sys.exit(1)
 
     try:
@@ -97,13 +98,13 @@ if __name__ == "__main__":
             print('[CREATE VPC]')
             params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
-                local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+                subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
                 os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create VPC.", str(err))
+            datalab.fab.append_result("Failed to create VPC.", str(err))
             if not ssn_conf['pre_defined_vpc']:
                 try:
                     GCPActions.remove_vpc(ssn_conf['vpc_name'])
@@ -113,7 +114,7 @@ if __name__ == "__main__":
 
     try:
         ssn_conf['vpc_selflink'] = GCPMeta.get_vpc(ssn_conf['vpc_name'])['selfLink']
-        if os.environ['gcp_subnet_name'] == '':
+        if 'gcp_subnet_name' not in os.environ:
             raise KeyError
         else:
             ssn_conf['pre_defined_subnet'] = True
@@ -126,13 +127,13 @@ if __name__ == "__main__":
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
                        ssn_conf['vpc_cidr'], True)
             try:
-                local("~/scripts/{}.py {}".format('common_create_subnet', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_subnet', params), shell=True, check=True)
                 os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create Subnet.", str(err))
+            datalab.fab.append_result("Failed to create Subnet.", str(err))
             if not ssn_conf['pre_defined_subnet']:
                 try:
                     GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
@@ -153,6 +154,10 @@ if __name__ == "__main__":
         try:
             logging.info('[CREATE FIREWALL]')
             print('[CREATE FIREWALL]')
+            if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0':
+                ssn_conf['allowed_ip_cidr'] = ssn_conf['allowed_ip_cidr'].split(', ')
+            else:
+                ssn_conf['allowed_ip_cidr'] = [ssn_conf['allowed_ip_cidr']]
             firewall_rules = dict()
             firewall_rules['ingress'] = []
             firewall_rules['egress'] = []
@@ -160,7 +165,7 @@ if __name__ == "__main__":
             ingress_rule = dict()
             ingress_rule['name'] = '{}-ingress'.format(ssn_conf['firewall_name'])
             ingress_rule['targetTags'] = [ssn_conf['network_tag']]
-            ingress_rule['sourceRanges'] = [ssn_conf['allowed_ip_cidr']]
+            ingress_rule['sourceRanges'] = ssn_conf['allowed_ip_cidr']
             rules = [
                 {
                     'IPProtocol': 'tcp',
@@ -175,7 +180,7 @@ if __name__ == "__main__":
             egress_rule = dict()
             egress_rule['name'] = '{}-egress'.format(ssn_conf['firewall_name'])
             egress_rule['targetTags'] = [ssn_conf['network_tag']]
-            egress_rule['destinationRanges'] = [ssn_conf['allowed_ip_cidr']]
+            egress_rule['destinationRanges'] = ssn_conf['allowed_ip_cidr']
             rules = [
                 {
                     'IPProtocol': 'all',
@@ -188,13 +193,13 @@ if __name__ == "__main__":
 
             params = "--firewall '{}'".format(json.dumps(firewall_rules))
             try:
-                local("~/scripts/{}.py {}".format('common_create_firewall', params))
+                subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True, check=True)
                 os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
             except:
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            dlab.fab.append_result("Failed to create Firewall.", str(err))
+            datalab.fab.append_result("Failed to create Firewall.", str(err))
             if not ssn_conf['pre_defined_subnet']:
                 GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
             if not ssn_conf['pre_defined_vpc']:
@@ -209,12 +214,12 @@ if __name__ == "__main__":
                                                   ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'],
                                                   ssn_conf['ssn_unique_index'], ssn_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_service_account', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_service_account', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create Service account and role.", str(err))
+        datalab.fab.append_result("Unable to create Service account and role.", str(err))
         try:
             GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
             GCPActions.remove_role(ssn_conf['role_name'])
@@ -234,12 +239,12 @@ if __name__ == "__main__":
         print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(ssn_conf['static_address_name'], ssn_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('ssn_create_static_ip', params))
+            subprocess.run("~/scripts/{}.py {}".format('ssn_create_static_ip', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Failed to create static ip.", str(err))
+        datalab.fab.append_result("Failed to create static ip.", str(err))
         try:
             GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
@@ -279,12 +284,12 @@ if __name__ == "__main__":
                    ssn_conf['static_ip'], ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20',
                    ssn_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_instance', params))
+            subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        dlab.fab.append_result("Unable to create ssn instance.", str(err))
+        datalab.fab.append_result("Unable to create ssn instance.", str(err))
         GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions.remove_role(ssn_conf['role_name'])
         GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])

@@ -24,7 +24,8 @@ import {PipeTransform, Pipe} from '@angular/core';
 @Pipe({ name: 'highlight' })
 export class HighLightPipe implements PipeTransform {
   transform(text: string, search: string): string {
-    return search ? text.replace(new RegExp(search, 'i'), `<span class="highlight">${search}</span>`) : text;
+    return search ? text.replace(new RegExp(search, 'i'), function(str) {
+      return `<span class="highlight">${str}</span>`; }) : text;
   }
 }
 

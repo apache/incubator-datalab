@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,40 +21,41 @@
 #
 # ******************************************************************************
 
-import json
-import time
-from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-import sys
-import os
-import uuid
 import logging
+import os
+import sys
+import subprocess
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric import *
 
 
-def run():
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
+@task
+def run(ctx):
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('dataengine_prepare'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_prepare'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Data Engine.", str(err))
         sys.exit(1)
 
     try:
-        local("~/scripts/{}.py".format('dataengine_configure'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_configure'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Data Engine.", str(err))
         sys.exit(1)
 
 
-def start():
+@task
+def start(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -62,7 +63,7 @@ def start():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine_start'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_start'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed starting Data Engine.", str(err))
@@ -70,7 +71,8 @@ def start():
 
 
 # Main function for installing additional libraries for Dataengine
-def install_libs():
+@task
+def install_libs(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -79,7 +81,7 @@ def install_libs():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine_install_libs'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_install_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed installing additional libs for DataEngine.", str(err))
@@ -87,7 +89,8 @@ def install_libs():
 
 
 # Main function for get available libraries for Data Engine
-def list_libs():
+@task
+def list_libs(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -96,14 +99,15 @@ def list_libs():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine_list_libs'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_list_libs'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed get available libraries for Data Engine.", str(err))
         sys.exit(1)
 
 
-def stop():
+@task
+def stop(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -111,14 +115,15 @@ def stop():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine_stop'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_stop'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed stopping Data Engine.", str(err))
         sys.exit(1)
 
 
-def terminate():
+@task
+def terminate(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -126,7 +131,7 @@ def terminate():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine_terminate'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_terminate'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating Data Engine.", str(err))
@@ -134,7 +139,8 @@ def terminate():
 
 
 # Main function for reconfiguring Spark for Data Engine
-def reconfigure_spark():
+@task
+def reconfigure_spark(ctx):
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -143,7 +149,7 @@ def reconfigure_spark():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('dataengine_reconfigure_spark'))
+        subprocess.run("~/scripts/{}.py".format('dataengine_reconfigure_spark'), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to reconfigure Spark for Data Engine.", str(err))

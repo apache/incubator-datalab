@@ -25,7 +25,6 @@
   },
   "templates":
   [
-    {"version":"1.3", "applications": [{"Name":"Hadoop", "Version": "2.9.2"}, {"Name":"Spark", "Version": "2.3.2"}, {"Name":"Hive", "Version": "2.3.4"}]},
-    {"version":"1.4", "applications": [{"Name":"Hadoop", "Version": "2.9.2"}, {"Name":"Spark", "Version": "2.4.4"}, {"Name":"Hive", "Version": "2.3.6"}]}
+    {"version":"2.0.0-RC22-ubuntu18", "applications": [{"Name":"Hadoop", "Version": "3.2.2"}, {"Name":"Spark", "Version": "3.1.1"}, {"Name":"Hive", "Version": "3.1.2"}]}
   ]
 }

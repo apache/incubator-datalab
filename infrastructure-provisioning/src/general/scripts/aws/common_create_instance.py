@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -23,10 +23,9 @@
 
 import argparse
 import json
-from dlab.actions_lib import *
-from dlab.meta_lib import *
 import sys
-
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--node_name', type=str, default='')

@@ -11,6 +11,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": ["chart.js", "ng-daterangepicker", "moment-timezone"],
+            "aot": true,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -41,6 +43,12 @@
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -110,11 +118,11 @@
   "defaultProject": "webapp",
   "schematics": {
     "@schematics/angular:component": {
-      "prefix": "dlab",
-      "styleext": "scss"
+      "prefix": "datalab",
+      "style": "scss"
     },
     "@schematics/angular:directive": {
-      "prefix": "dlab"
+      "prefix": "datalab"
     }
   }
 }

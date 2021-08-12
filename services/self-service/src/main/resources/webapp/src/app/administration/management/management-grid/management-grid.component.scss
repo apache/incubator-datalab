@@ -17,34 +17,100 @@
  * under the License.
  */
 
-.data-grid {
-  &.management {
+.managment-wrapper{
+  position: relative;
+  height: calc(100vh - 130px);
+  scroll-behavior: smooth;
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  overflow: auto;
 
-    .user,
+  .scroll-wrapper {
+    overflow: auto;
+    scroll-behavior: smooth;
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  }
+
+  .ani{
+    max-height: calc(100vh - 130px);
+    position: relative;
+    .wrapper{
+      width: 100%;
+      display: block;
+      max-height: calc(100vh - 130px);
+      overflow: unset;
+      position: relative;
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+.data-grid {
+
+  &.management {
+    .filter-row-item{
+      padding: 5px;
+    }
+
+    .settings{
+      min-width: 7%;
+    }
+
+    .mat-column-checkbox{
+      padding-left: 10px;
+      padding-right: 0px;
+      min-width: 38px;
+
+      &.label-header{
+         .empty-checkbox{
+           z-index: 1011
+         }
+      }
+    }
+
+    .user{
+      width: 15%;
+      min-width: 180px;
+    }
+
     .name,
     .project {
-      width: 12%;
-
+      width: 9%;
+      min-width: 140px;
       .list-menu li {
         text-transform: inherit;
       }
     }
 
     .shape {
-      width: 19% !important;
+      width: 15% !important;
+
+      .label{
+        position: absolute;
+      }
+      min-width: 150px;
+    }
+
+    .endpoint{
+      width: 10% !important;
+      min-width: 140px;
     }
 
     .status {
-      width: 13% !important;
+      width: 10% !important;
+      min-width: 125px;
     }
 
     .type {
-      width: 14%;
+      width: 10%;
+      min-width: 110px;
     }
 
     .resources {
-      width: 22%;
-      padding: 5px;
+      width: 27%;
+      min-width: 240px;
     }
 
     .settings {
@@ -52,27 +118,127 @@
 
 
     }
+
     .actions {
       margin-top: 0px;
+      padding-right: 10px;
+      position: sticky;
       .label{
         padding-right: 5px;
       }
     }
+
     .actions-col {
       width: 6%;
+    }
 
+    .label-header{
+      padding-left: 15px;
+      height: 56px;
+
+      .ar{
+        left: 21px;
+        top: 2px;
+        &.checkbox-border
+        {
+          left: 19px;
+        }
+      }
+
+      .settings{
+        min-width: 7%;
+      }
+
+      &.mat-column-checkbox{
+        z-index: 12 !important;
+        padding-left: 10px;
+
+        .ar{
+          position: absolute;
+          top: 10px;
+        }
+      }
+
+      &.user{
+        z-index: 11 !important;
+
+      }
+
+      &.type{
+        z-index: 10 !important;
+      }
+
+      &.project {
+        z-index: 9 !important;
+
+        .label {
+          position: absolute;
+        }
+      }
+
+      &.endpoint {
+        z-index: 8 !important;
+
+        .label {
+          position: absolute;
+        }
+      }
+
+      &.shape {
+        z-index: 7 !important;
+      }
+
+      &.status {
+        z-index: 6 !important;
+      }
+
+      &.resources {
+        z-index: 5 !important;
+      }
+
+      &.actions {
+        z-index: 4 !important;
+        min-width: 100px !important;
+      }
     }
 
     .dashboard_table_body {
+
       td:first-child {
         cursor: default;
       }
     }
-  }
-}
 
-.source .resource-wrap .resource-name .detailed-link {
-  cursor: default !important;
+    .user-name{
+      padding-right: 22px;
+      overflow: hidden;
+      word-break: break-all;
+      white-space: nowrap;
+      max-width: 250px;
+    }
+
+    .buttons-wrap{
+      padding: 0;
+      border-top: 1px solid rgba(0,0,0,.12);
+      transform: translateY(-1px);
+    }
+
+    .buttons{
+      position: sticky;
+      left: 0;
+    }
+
+    button{
+      background-color: #fff;
+      box-shadow: none;
+      mat-icon{
+        color: lightgrey;
+        &.highlight{
+          color: #35afd5;
+        }
+      }
+    }
+  }
 }
 
 table.management {
@@ -82,8 +248,9 @@ table.management {
     background: transparent !important;
   }
 
-  td {
+  td:not(.info) {
     padding: 5px;
+    padding-left: 20px;
   }
 
   .header-row {
@@ -93,7 +260,6 @@ table.management {
       padding-top: 14px;
       vertical-align: super !important;
       padding-left: 5px;
-      font-size: 12px;
     }
     .actions {
       text-align: right;
@@ -106,5 +272,70 @@ table.management {
 
   .filter-row {
     background: inherit;
+
+    .filter-row-item{
+      left: auto !important;
+       &.actions-col{
+         right: -15px;
+       }
+    }
+
+    .filter-field{
+      font-size: 13px;
+      padding-left: 15px;
+    }
+  }
+
+  .info{
+    padding: 40px;
+    text-align: center;
+  }
+
+  .source .resource-wrap {
+    .resource-actions{
+      padding-right: 0;
+    }
+    .resource-name .detailed-link {
+      cursor: default !important;
+    }
   }
 }
+
+.computation{
+  cursor: pointer;
+  color: #35afd5;
+}
+
+.table-footer{
+  height: 48px;
+}
+
+.header-checkbox{
+  margin-top: 7px;
+  float: left;
+}
+
+
+
+@media screen and (max-width: 1550px) {
+  .managment-wrapper{
+    .source {
+      .resource-wrap {
+        .resource-name {
+          width: 40%;
+        }
+
+        .resource-status {
+          width: 40%;
+        }
+
+        .resource-actions {
+          width: 20%;
+
+        }
+      }
+    }
+  }
+}
+
+

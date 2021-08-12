@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,25 +21,26 @@
 #
 # ******************************************************************************
 
+import logging
+import multiprocessing
 import os
 import sys
-import logging
 import traceback
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-from fabric.api import *
-import multiprocessing
+import subprocess
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
+from fabric import *
 
 
 def install_libs(instance, data_engine):
     data_engine['instance_ip'] = instance.get('PrivateIpAddress')
-    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"'\
+    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}" --dataengine_service True' \
         .format(data_engine['os_user'], data_engine['instance_ip'],
                 data_engine['keyfile'], data_engine['libs'])
     try:
         # Run script to install additional libs
-        local("~/scripts/{}.py {}".format('install_additional_libs', params))
+        subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
     except:
         traceback.print_exc()
         raise Exception

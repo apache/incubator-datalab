@@ -23,9 +23,10 @@ import { CommonModule } from '@angular/common';
 import { DropdownListComponent } from './dropdown-list/dropdown-list.component';
 import { MultiSelectDropdownComponent } from './multi-select-dropdown/multi-select-dropdown.component';
 import { DirectivesModule } from '../../core/directives';
-import { KeysPipeModule, UnderscorelessPipeModule } from '../../core/pipes';
+import {ConvertActionPipeModule, KeysPipeModule, UnderscorelessPipeModule} from '../../core/pipes';
 import { BubbleModule } from '..';
 import {MultiLevelSelectDropdownComponent} from './multi-level-select-dropdown/multi-level-select-dropdown.component';
+import {CheckboxModule} from '../checkbox';
 
 export * from './multi-select-dropdown/multi-select-dropdown.component';
 export * from './dropdown-list/dropdown-list.component';
@@ -36,7 +37,9 @@ export * from './dropdown-list/dropdown-list.component';
     DirectivesModule,
     KeysPipeModule,
     UnderscorelessPipeModule,
-    BubbleModule
+    BubbleModule,
+    ConvertActionPipeModule,
+    CheckboxModule
   ],
   declarations: [DropdownListComponent, MultiSelectDropdownComponent, MultiLevelSelectDropdownComponent],
   exports: [DropdownListComponent, MultiSelectDropdownComponent, MultiLevelSelectDropdownComponent]

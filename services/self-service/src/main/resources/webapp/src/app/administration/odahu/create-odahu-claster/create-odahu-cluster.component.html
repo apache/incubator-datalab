@@ -1,0 +1,112 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div class="create-odahu-cluster" id="dialog-box">
+  <header class="dialog-header">
+    <h4 class="modal-title">Create Odahu cluster</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content selection">
+    <div id="scrolling" class="content-box mat-reset scrolling-content">
+      <form [formGroup]="createOdahuForm" *ngIf="createOdahuForm" novalidate>
+        <div class="control-group">
+          <label class="label">Select project</label>
+          <div class="control selector-wrapper">
+            <mat-form-field>
+              <mat-label>Select project</mat-label>
+              <mat-select formControlName="project" panelClass="create-resources-dialog">
+                <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
+                  {{ project.name }}</mat-option>
+                <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>
+                  No projects for creating Odahu clusters
+                </mat-option>
+              </mat-select>
+              <button class="caret">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="label">Select endpoint</label>
+          <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !endpoints.length }">
+            <mat-form-field>
+              <mat-label>Select endpoint</mat-label>
+              <mat-select formControlName="endpoint" disableOptionCentering [disabled]="!endpoints.length"
+                          panelClass="create-resources-dialog">
+                <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">
+                  {{ endpoint }}
+                </mat-option>
+                <mat-option *ngIf="!endpoints.length" class="multiple-select ml-10" disabled>Endpoints list is empty</mat-option>
+              </mat-select>
+              <button class="caret">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="control-group name-control">
+          <label class="label">Name</label>
+          <div class="control">
+            <input type="text" class="form-control" placeholder="Enter Name" formControlName="name">
+            <span class="error" *ngIf="!createOdahuForm.controls.name.valid && createOdahuForm.controls.name.dirty && !createOdahuForm.controls.name.hasError('duplication')">
+              Odahu cluster name can only contain letters and numbers
+            </span>
+            <span class="error" *ngIf="createOdahuForm.controls.name.hasError('duplication')">This Odahu cluster name already exists.</span>
+          </div>
+        </div>
+
+        <div class="control-group name-control">
+          <label class="label">Custom tag</label>
+          <div class="control">
+            <input type="text" class="form-control" placeholder="Enter custom tag" formControlName="custom_tag">
+          <span class="error"
+            *ngIf="!createOdahuForm.controls.custom_tag.valid && createOdahuForm.controls.custom_tag.dirty">
+            Custom tag can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
+          </div>
+        </div>
+
+<!--        <div class="control-group">-->
+<!--          <label class="label" [ngStyle]="!createLegionClusterForm.controls.useExistingClusterUrl.value && {'width': '100%' }">-->
+<!--            <input  type="checkbox" formControlName="useExistingClusterUrl"/> Use existing k8s cluster-->
+<!--          </label>-->
+<!--          <div class="control" *ngIf="createLegionClusterForm.controls.useExistingClusterUrl.value">-->
+<!--            <input type="text" class="form-control"-->
+<!--                                   formControlName="existingClusterUrl" placeholder="Enter ODAHU k8s cluster URL"/>-->
+<!--            <span class="error url-error">-->
+<!--                  <span *ngIf="!createLegionClusterForm.controls.existingClusterUrl.valid">Please enter valid cluster URL</span>-->
+<!--                </span>-->
+<!--          </div>-->
+<!--        </div>-->
+
+        <div class="text-center m-top-30">
+          <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
+          <button mat-raised-button type="button" class="butt butt-success action"
+                  [disabled]="!createOdahuForm.valid" (click)="createOdahuCluster(createOdahuForm.value)">
+            Create
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+

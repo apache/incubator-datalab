@@ -22,14 +22,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                    http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.epam.dlab</groupId>
-    <artifactId>dlab</artifactId>
+    <groupId>com.epam.datalab</groupId>
+    <artifactId>datalab</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:https://github.com/apache/incubator-dlab.git</connection>
-        <url>scm:git:https://github.com/apache/incubator-dlab.git</url>
+        <connection>scm:git:https://github.com/apache/incubator-datalab.git</connection>
+        <url>scm:git:https://github.com/apache/incubator-datalab.git</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -52,16 +52,56 @@
                 <module>services/billing-gcp</module>
             </modules>
         </profile>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>
+                    http://localhost:9000/sonar
+                </sonar.host.url>
+                <sonar.coverage.exclusions>
+                    **/*Exception.java,
+                    **/BucketServiceAwsImpl.java,
+                    **/BucketServiceAzureImpl.java,
+                    **/BucketServiceGcpImpl.java,
+                    **/*DAO.java,
+                    **/*DAOImpl.java,
+                    **/*Configuration.java,
+                    **/*ApplicationConfiguration.java,
+                    **/*Application.java,
+                    src/main/java/com/epam/datalab/dto/**,
+                    src/main/java/com/epam/datalab/backendapi/interceptor/**,
+                    src/main/java/com/epam/datalab/backendapi/auth/**,
+                    src/main/java/com/epam/datalab/backendapi/conf/**,
+                    src/main/java/com/epam/datalab/backendapi/domain/**,
+                    src/main/java/com/epam/datalab/backendapi/dropwizard/**,
+                    src/main/java/com/epam/datalab/backendapi/healthcheck/**,
+                    src/main/java/com/epam/datalab/backendapi/modules/**,
+                    src/main/java/com/epam/datalab/backendapi/resources/dto/**,
+                    src/main/java/com/epam/datalab/backendapi/roles/**,
+                    src/main/java/com/epam/datalab/backendapi/servlet/guacamole/**,
+                    src/main/java/com/epam/datalab/backendapi/util/**,
+                    src/main/java/com/epam/datalab/backendapi/validation/**,
+                    src/main/java/com/epam/datalab/backendapi/core/commands/**,
+                    src/main/java/com/epam/datalab/process/**,
+                    src/main/java/com/epam/datalab/backendapi/modules/**,
+                    src/main/java/com/epam/datalab/backendapi/validation/**,
+                    src/main/java/com/epam/datalab/backendapi/schedulers/**
+                </sonar.coverage.exclusions>
+            </properties>
+        </profile>
     </profiles>
 
     <modules>
         <module>services/common</module>
         <module>services/provisioning-service</module>
         <module>services/self-service</module>
-        <module>services/dlab-model</module>
-        <module>services/dlab-utils</module>
-        <module>services/dlab-webapp-common</module>
-        <module>services/dlab-mongo-migration</module>
+        <module>services/datalab-model</module>
+        <module>services/datalab-utils</module>
+        <module>services/datalab-webapp-common</module>
+        <module>services/datalab-mongo-migration</module>
         <module>services/billing-azure</module>
         <module>services/billing-gcp</module>
         <module>services/billing-aws</module>
@@ -69,7 +109,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <io.dropwizard.version>1.3.2</io.dropwizard.version>
+        <io.dropwizard.version>1.3.21</io.dropwizard.version>
         <dropwizard.swagger.version>1.3.5-1</dropwizard.swagger.version>
         <com.google.inject.version>4.2.0</com.google.inject.version>
         <dropwizard-template-config.version>1.4.0</dropwizard-template-config.version>
@@ -86,7 +126,9 @@
         <lombok.version>1.16.18</lombok.version>
         <hibernate.validator.version>5.4.2.Final</hibernate.validator.version>
         <logback.version>1.2.3</logback.version>
+        <commons-fileupload.version>1.3.3</commons-fileupload.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -95,7 +137,7 @@
                 <version>1.3</version>
             </dependency>
             <dependency>
-                <groupId>com.epam.dlab</groupId>
+                <groupId>com.epam.datalab</groupId>
                 <artifactId>common</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -129,8 +171,6 @@
                 <artifactId>dropwizard-util</artifactId>
                 <version>${io.dropwizard.version}</version>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
 
@@ -151,7 +191,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}-${dlab.version}</finalName>
+        <finalName>${project.artifactId}-${datalab.version}</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -172,6 +212,11 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -229,7 +274,7 @@
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
-                <version>0.7</version>
+                <version>0.13</version>
                 <configuration>
                     <excludes>
                         <exclude>.git/**</exclude>

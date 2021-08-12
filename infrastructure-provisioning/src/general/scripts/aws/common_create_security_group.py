@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -21,13 +21,11 @@
 #
 # ******************************************************************************
 
-import json
 import argparse
-from dlab.actions_lib import *
-from dlab.meta_lib import *
+import json
 import sys
-from botocore.exceptions import ClientError
-
+from datalab.actions_lib import *
+from datalab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', type=str, default='')

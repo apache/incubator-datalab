@@ -26,9 +26,11 @@ import { DateUtils, CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
+import {AuditService} from '../../../core/services/audit.service';
+import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 
 @Component({
-  selector: 'dlab-cluster-details',
+  selector: 'datalab-cluster-details',
   templateUrl: 'cluster-details.component.html',
   styleUrls: ['./cluster-details.component.scss']
 })
@@ -39,20 +41,22 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   resource: any;
   environment: any;
-  @ViewChild('configurationNode', { static: false }) configuration;
+  @ViewChild('configurationNode') configuration;
 
   upTimeInHours: number;
-  upTimeSince: string = '';
   tooltip: boolean = false;
   config: Array<{}> = [];
   public configurationForm: FormGroup;
+  isCopyIconVissible: any = {};
+  isCopied: boolean = true;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
     public dialogRef: MatDialogRef<DetailComputationalResourcesComponent>,
     private dataengineConfigurationService: DataengineConfigurationService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private auditService: AuditService
   ) { }
 
   ngOnInit() {
@@ -66,10 +70,9 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
 
     this.upTimeInHours = (this.resource.up_time) ? DateUtils.diffBetweenDatesInHours(this.resource.up_time) : 0;
-    this.upTimeSince = (this.resource.up_time) ? new Date(this.resource.up_time).toString() : '';
     this.initFormModel();
 
-    if (this.resource.image === 'docker.dlab-dataengine') this.getClusterConfiguration();
+    if (this.resource.image === 'docker.datalab-dataengine') this.getClusterConfiguration();
   }
 
   public isEllipsisActive($event): void {
@@ -97,7 +100,11 @@ export class DetailComputationalResourcesComponent implements OnInit {
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
       .editClusterConfiguration(
-        data.configuration_parameters, this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER
+        data.configuration_parameters,
+        this.environment.project,
+        this.environment.name,
+        this.resource.computational_name,
+        this.PROVIDER
       )
       .subscribe(result => {
         this.dialogRef.close();
@@ -116,5 +123,32 @@ export class DetailComputationalResourcesComponent implements OnInit {
       return this.configuration.nativeElement['checked']
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
+  }
+
+  public logAction(resource: any, environment, copy?: string) {
+    const clusterInfo = {
+      action: copy,
+      cluster: resource.computational_name,
+      notebook: environment.name,
+      clusterType: resource.dataEngineType === 'dataengine-service' ? 'Hadoop' : 'Master'
+    };
+
+    this.auditService.sendDataToAudit(
+      {resource_name: resource.computational_name, info: JSON.stringify(clusterInfo), type: 'COMPUTE'}
+      ).subscribe();
+  }
+
+  public copyLink(url: string) {
+    CopyPathUtils.copyPath(url);
+  }
+
+  public showCopyIcon(element) {
+    this.isCopyIconVissible[element] = true;
+  }
+  public hideCopyIcon() {
+    for (const key in this.isCopyIconVissible) {
+      this.isCopyIconVissible[key] = false;
+    }
+    this.isCopied = true;
   }
 }

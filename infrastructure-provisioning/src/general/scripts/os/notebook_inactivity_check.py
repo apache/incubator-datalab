@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # *****************************************************************************
 #
@@ -22,15 +22,16 @@
 # ******************************************************************************
 
 
-import json
-from dlab.fab import *
-from dlab.meta_lib import *
-import sys, time, os
-from dlab.actions_lib import *
-
+import os
+import sys
+import subprocess
+from datalab.actions_lib import *
+from datalab.fab import *
+from datalab.meta_lib import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -63,7 +64,7 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'], notebook_config['resource_type'], notebook_config['dataengine_ip'])
         try:
             # Run script to get available libs
-            local("~/scripts/{}.py {}".format('check_inactivity', params))
+            subprocess.run("~/scripts/{}.py {}".format('check_inactivity', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

@@ -39,20 +39,25 @@
   }
 
   .username {
-    width: 45%;
+    width: 30%;
   }
 
   .quotes {
-    width: 55%;
+    width: 45%;
     margin-right: 10px;
     position: relative;
 
     .error {
       position: absolute;
       left: 0;
-      top: 34px;
+      top: 37px;
       font-family: 'Open Sans', sans-serif;
+      font-size: 11px;
     }
+  }
+
+  .period{
+    width: 25%;
   }
 
   .total-budget {

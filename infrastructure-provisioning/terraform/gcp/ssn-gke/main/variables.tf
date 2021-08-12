@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 variable "namespace_name" {
-    default = "dlab"
+    default = "datalab"
 }
 
 variable "credentials_file_path" {
@@ -48,7 +48,7 @@ variable "subnet_name" {
 }
 
 variable "service_base_name" {
-  default = "dlab-k8s"
+  default = "datalab-k8s"
 }
 
 variable "subnet_cidr" {
@@ -56,7 +56,7 @@ variable "subnet_cidr" {
 }
 
 variable "additional_tag" {
-  default = "product:dlab"
+  default = "product:datalab"
 }
 
 variable "ssn_k8s_workers_count" {
@@ -64,7 +64,7 @@ variable "ssn_k8s_workers_count" {
 }
 
 variable "gke_cluster_version" {
-  default = "1.14.8-gke.12"
+  default = "1.14.10-gke.50"
 }
 
 // Couldn't assign in GCP
@@ -93,7 +93,7 @@ variable "ssn_k8s_alb_dns_name" {
 }
 
 variable "keycloak_user" {
-    default = "dlab-admin"
+  default = "datalab-admin"
 }
 
 variable "mysql_user" {
@@ -141,11 +141,11 @@ variable "mongo_db_username" {
 }
 
 variable "mongo_dbname" {
-    default = "dlabdb"
+  default = "datalabdb"
 }
 
 variable "mongo_image_tag" {
-    default = "4.0.10-debian-9-r13"
+    default = "4.2.4-debian-10-r0"
     description = "MongoDB Image tag"
 }
 
@@ -196,9 +196,9 @@ variable "domain" {
 }
 
 variable "keycloak_realm_name" {
-  default = "dlab"
+  default = "datalab"
 }
 
 variable "keycloak_client_id" {
-  default = "dlab-ui"
+  default = "datalab-ui"
 }

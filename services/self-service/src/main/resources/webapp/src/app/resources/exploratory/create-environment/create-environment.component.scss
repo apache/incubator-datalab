@@ -18,6 +18,11 @@
  */
 
 .checkbox-group {
+
+  .empty-checkbox{
+    margin: 0;
+  }
+
   .config-details {
     height: 0;
     opacity: 0;
@@ -41,6 +46,12 @@
       font-family: Consolas, monospace;
     }
 
+    .spark-config{
+      position: absolute;
+      bottom: -15px;
+      right: 0;
+    }
+
     span {
       &.danger_color {
         position: absolute;
@@ -55,7 +66,7 @@
   .error {
     position: absolute;
     right: 0;
-    top: 35px;
+    top: 38px;
   }
 
   &.name-control {
@@ -63,9 +74,22 @@
   }
 }
 
+.image-description {
+  font-size: 12.5px;
+  overflow-wrap: break-word;
+
+  i {
+    font-size: 14px;
+  }
+}
+
 .content-box {
   max-height: 580px;
   overflow-y: auto;
+}
+
+.form-field-wrapper{
+  width: 100%;
 }
 
 @-moz-document url-prefix() {
