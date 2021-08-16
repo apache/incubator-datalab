@@ -48,7 +48,6 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
         this.projectName = projectName;
         this.clazz = clazz;
         this.endpointName = endpointName;
-        log.info("TEST LOG!!!: CREATED ProjectCallbackHandler: clazz:{}, selfService:{}, action: {}", clazz, selfService, action);
     }
 
     @Override
@@ -58,34 +57,18 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 
     @Override
     protected ProjectResult parseOutResponse(JsonNode resultNode, ProjectResult baseStatus) {
-
-        log.info("TEST LOG!!!: resultNode: {} , base status: {}", resultNode, baseStatus);
-
         baseStatus.setProjectName(projectName);
         baseStatus.setEndpointName(endpointName);
-        log.info("TEST LOG!!!:base status: {},getAction() {}, UserInstanceStatus.of(baseStatus.getStatus()) {}",
-                baseStatus.getStatus(), getAction(), UserInstanceStatus.of(baseStatus.getStatus()));
         if (resultNode != null &&
                 Arrays.asList(DockerAction.CREATE, DockerAction.RECREATE, DockerAction.START).contains(getAction()) &&
                 UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {
-                log.info("TEST LOG!!!: if");
-                log.info("TEST LOG!!!: clazz: {}, resultNode: {}", clazz, resultNode.toString());
-
-                Object o = mapper.readValue(resultNode.toString(), Object.class);
-                log.info("TEST LOG!!!: o:{}", o);
                 final EdgeInfo projectEdgeInfo = mapper.readValue(resultNode.toString(), clazz);
-                log.info("TEST LOG!!!: projectEdgeInfo: {}", projectEdgeInfo);
-
                 baseStatus.setEdgeInfo(projectEdgeInfo);
-                log.info("TEST LOG!!!: baseStatus: {}", baseStatus);
-
             } catch (IOException e) {
                 throw new DatalabException("Cannot parse the EDGE info in JSON: " + e.getLocalizedMessage(), e);
             }
         }
-        log.info("TEST LOG!!!: baseStatus: {}", baseStatus);
-
         return baseStatus;
     }
 }

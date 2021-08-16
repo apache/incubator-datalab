@@ -27,10 +27,6 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = EdgeInfoGcp.class, name = "gcp")
-})
 public class EdgeInfo {
     @JsonProperty("_id")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
