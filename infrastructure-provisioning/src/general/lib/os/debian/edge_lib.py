@@ -23,41 +23,12 @@
 
 import os
 import sys
-from datalab.common_lib import manage_pkg
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
 import datalab.fab
-
-def configure_http_proxy_server(config):
-    try:
-        if not exists(datalab.fab.conn,'/tmp/http_proxy_ensured'):
-            manage_pkg('-y install', 'remote', 'squid')
-            template_file = config['template_file']
-            proxy_subnet = config['exploratory_subnet']
-            datalab.fab.conn.put(template_file, '/tmp/squid.conf')
-            datalab.fab.conn.sudo('\cp /tmp/squid.conf /etc/squid/squid.conf')
-#            datalab.fab.conn.sudo('sed -i "s|PROXY_SUBNET|{}|g" /etc/squid/squid.conf'.format(proxy_subnet))
-#            datalab.fab.conn.sudo('sed -i "s|EDGE_USER_NAME|{}|g" /etc/squid/squid.conf'.format(config['project_name']))
-#            datalab.fab.conn.sudo('sed -i "s|LDAP_HOST|{}|g" /etc/squid/squid.conf'.format(config['ldap_host']))
-#            datalab.fab.conn.sudo('sed -i "s|LDAP_DN|{}|g" /etc/squid/squid.conf'.format(config['ldap_dn']))
-#            datalab.fab.conn.sudo('sed -i "s|LDAP_SERVICE_USERNAME|{}|g" /etc/squid/squid.conf'.format(config['ldap_user']))
-#            datalab.fab.conn.sudo('sed -i "s|LDAP_SERVICE_PASSWORD|{}|g" /etc/squid/squid.conf'.format(config['ldap_password']))
-#            datalab.fab.conn.sudo('sed -i "s|LDAP_AUTH_PATH|{}|g" /etc/squid/squid.conf'.format('/usr/lib/squid/basic_ldap_auth'))
-            replace_string = ''
-            for cidr in config['vpc_cidrs']:
-                replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
-            datalab.fab.conn.sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
-            replace_string = ''
-            for cidr in config['allowed_ip_cidr']:
-                replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
-            datalab.fab.conn.sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
-            datalab.fab.conn.sudo('systemctl restart squid')
-            datalab.fab.conn.sudo('touch /tmp/http_proxy_ensured')
-    except Exception as err:
-        print("Failed to install and configure squid: " + str(err))
-        sys.exit(1)
-
+from datalab.common_lib import manage_pkg
+from datalab.logger import logging
 
 def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id,
                       keycloak_client_secret, user, hostname, step_cert_sans):
@@ -189,27 +160,4 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 datalab.fab.configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'].lower())
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
-        sys.exit(1)
-
-def configure_nftables(config):
-    try:
-        if not exists(datalab.fab.conn,'/tmp/nftables_ensured'):
-            manage_pkg('-y install', 'remote', 'nftables')
-            datalab.fab.conn.sudo('systemctl enable nftables.service')
-            datalab.fab.conn.sudo('systemctl start nftables')
-            datalab.fab.conn.sudo('sysctl net.ipv4.ip_forward=1')
-            if os.environ['conf_cloud_provider'] == 'aws':
-                interface = 'eth0'
-            elif os.environ['conf_cloud_provider'] == 'gcp':
-                interface = 'ens4'
-            datalab.fab.conn.sudo('sed -i \'s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g\' /etc/sysctl.conf')
-            datalab.fab.conn.sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/nftables.conf'.format(config['edge_ip']))
-            datalab.fab.conn.sudo('sed -i "s|INTERFACE|{}|g" /opt/datalab/templates/nftables.conf'.format(interface))
-            datalab.fab.conn.sudo(
-                'sed -i "s|SUBNET_CIDR|{}|g" /opt/datalab/templates/nftables.conf'.format(config['exploratory_subnet']))
-            datalab.fab.conn.sudo('cp /opt/datalab/templates/nftables.conf /etc/')
-            datalab.fab.conn.sudo('systemctl restart nftables')
-            datalab.fab.conn.sudo('touch /tmp/nftables_ensured')
-    except Exception as err:
-        print("Failed to configure nftables: " + str(err))
         sys.exit(1)
