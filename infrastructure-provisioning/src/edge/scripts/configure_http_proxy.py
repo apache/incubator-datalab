@@ -24,7 +24,6 @@
 import argparse
 import json
 import sys
-from datalab.edge_lib import configure_http_proxy_server
 from fabric import *
 from datalab.fab import *
 
@@ -48,5 +47,5 @@ if __name__ == "__main__":
         sys.exit(2)
 
     print("Installing proxy for notebooks.")
-    configure_http_proxy_server(deeper_config)
+    datalab.fab.configure_http_proxy_server(deeper_config)
     conn.close()

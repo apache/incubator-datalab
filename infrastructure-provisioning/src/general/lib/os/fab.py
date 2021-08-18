@@ -255,6 +255,57 @@ def configure_nginx_LE(domain_name, node):
         sys.exit(1)
 
 
+#function for edge node only
+def configure_http_proxy_server(config):
+    try:
+        if not exists(datalab.fab.conn,'/tmp/http_proxy_ensured'):
+            manage_pkg('-y install', 'remote', 'squid')
+            template_file = config['template_file']
+            proxy_subnet = config['exploratory_subnet']
+            conn.put(template_file, '/tmp/squid.conf')
+            conn.sudo('\cp /tmp/squid.conf /etc/squid/squid.conf')
+            conn.sudo('sed -i "s|PROXY_SUBNET|{}|g" /etc/squid/squid.conf'.format(proxy_subnet))
+            replace_string = ''
+            for cidr in config['vpc_cidrs']:
+                replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
+            conn.sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            replace_string = ''
+            for cidr in config['allowed_ip_cidr']:
+                replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
+            conn.sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
+            conn.sudo('systemctl restart squid')
+            fab.conn.sudo('touch /tmp/http_proxy_ensured')
+    except Exception as err:
+        logging.error('Fai to install and configure squid:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
+def configure_nftables(config):
+    try:
+        if not exists(datalab.fab.conn,'/tmp/nftables_ensured'):
+            manage_pkg('-y install', 'remote', 'nftables')
+            conn.sudo('systemctl enable nftables.service')
+            conn.sudo('systemctl start nftables')
+            conn.sudo('sysctl net.ipv4.ip_forward=1')
+            if os.environ['conf_cloud_provider'] == 'aws':
+                interface = 'eth0'
+            elif os.environ['conf_cloud_provider'] == 'gcp':
+                interface = 'ens4'
+            conn.sudo('sed -i \'s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g\' /etc/sysctl.conf')
+            conn.sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/nftables.conf'.format(config['edge_ip']))
+            conn.sudo('sed -i "s|INTERFACE|{}|g" /opt/datalab/templates/nftables.conf'.format(interface))
+            conn.sudo(
+                'sed -i "s|SUBNET_CIDR|{}|g" /opt/datalab/templates/nftables.conf'.format(config['exploratory_subnet']))
+            conn.sudo('cp /opt/datalab/templates/nftables.conf /etc/')
+            conn.sudo('systemctl restart nftables')
+            conn.sudo('touch /tmp/nftables_ensured')
+    except Exception as err:
+        logging.error('Failed to configure nftables:', (err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
 # functions for all computation resources
 def ensure_python_venv(python_venv_version):
     try:
