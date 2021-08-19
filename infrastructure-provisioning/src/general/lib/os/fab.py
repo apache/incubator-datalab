@@ -211,7 +211,7 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 
 
 def ensure_dataengine_tensorflow_jars(jars_dir):
-    subprocess.run('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+    subprocess.run('wget https://repos.spark-packages.org/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
          -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir), shell=True, check=True)
 
 
