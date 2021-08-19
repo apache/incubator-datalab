@@ -104,7 +104,7 @@ def configure_zeppelin(os_user):
             conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin-' + zeppelin_version + '-bin-netinst')
             conn.sudo('mkdir -p /opt/zeppelin/lib/interpreter/')
             conn.sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/md/zeppelin-markdown-*.jar /opt/zeppelin/lib/interpreter/') # necessary when executing paragraph launches java process with "-cp :/opt/zeppelin/lib/interpreter/*:"
-            conn.sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/shell/zeppelin-shell-*.jar /opt/zeppelin/lib/interpreter/')
+            conn.sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/sh/zeppelin-shell-*.jar /opt/zeppelin/lib/interpreter/')
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
