@@ -1232,6 +1232,15 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         conn.close()
 
+def ensure_right_mount_paths():
+    opt_disk = datalab.fab.conn.sudo("cat /etc/fstab | grep /opt/ | awk '{print $1}'").stdout.split('\n')[0].split('/')[2]
+    if opt_disk not in datalab.fab.conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in datalab.fab.conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
+         disk_names = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
+         for disk in disk_names:
+             if disk != '' and disk not in datalab.fab.conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in datalab.fab.conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
+                 datalab.fab.conn.sudo("umount -l /opt")
+                 datalab.fab.conn.sudo("mount /dev/{}1 /opt".format(disk))
+                 datalab.fab.conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
@@ -1285,6 +1294,8 @@ def prepare_disk(os_user):
             traceback.print_exc()
             print('Error:', str(err))
             sys.exit(1)
+    else:
+        ensure_right_mount_paths()
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
