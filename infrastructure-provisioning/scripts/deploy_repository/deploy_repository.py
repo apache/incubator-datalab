@@ -1219,7 +1219,7 @@ def download_packages():
                     configuration['notebook_zeppelin_version']),
                 'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(
                     configuration['notebook_livy_version']),
-                'https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
+                'https://repos.spark-packages.org/tapanalyticstoolkit/spark-tensorflow-connector/'
                 '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar',
                 'https://archive.apache.org/dist/incubator/toree/0.3.0-incubating/toree/'
                 'toree-0.3.0-incubating-bin.tar.gz',
