@@ -75,7 +75,7 @@ if __name__ == "__main__":
     print("Installing users key...")
     try:
         copy_key(deeper_config)
-        conn.close()
+        #conn.close()
     except:
         print("Users keyfile {0} could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
         sys.exit(1)

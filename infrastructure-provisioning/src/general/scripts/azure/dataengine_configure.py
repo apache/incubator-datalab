@@ -74,8 +74,21 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
-        logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
-        print('[CLEANING INSTANCE FOR MASTER NODE]')
+        logging.info('[ENSURING RIGHT MOUNT PATHS FOR SLAVE NODE]')
+        print('[ENSURING RIGHT MOUNT PATHS FOR SLAVE NODE]')
+        try:
+            AzureActions.ensure_right_mount_paths()
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        clear_resources()
+        datalab.fab.append_result("Failed to ensure_right_mount_paths on slave instance..", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[CLEANING INSTANCE FOR SLAVE NODE]')
+        print('[CLEANING INSTANCE FOR SLAVE NODE]')
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
             .format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
@@ -264,6 +277,18 @@ if __name__ == "__main__":
         datalab.fab.append_result("Failed to install ssh user key on master.", str(err))
         sys.exit(1)
 
+    try:
+        logging.info('[ENSURING RIGHT MOUNT PATHS FOR MASTER NODE]')
+        print('[ENSURING RIGHT MOUNT PATHS FOR MASTER NODE]')
+        try:
+            AzureActions.ensure_right_mount_paths()
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        clear_resources()
+        datalab.fab.append_result("Failed to ensure right mount paths on master instance..", str(err))
+        sys.exit(1)
 
     try:
         logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
