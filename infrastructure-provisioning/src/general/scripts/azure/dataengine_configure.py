@@ -74,8 +74,8 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
-        logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
-        print('[CLEANING INSTANCE FOR MASTER NODE]')
+        logging.info('[CLEANING INSTANCE FOR SLAVE NODE]')
+        print('[CLEANING INSTANCE FOR SLAVE NODE]')
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
             .format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:

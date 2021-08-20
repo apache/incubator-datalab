@@ -25,6 +25,7 @@ import argparse
 import os
 import sys
 from datalab.notebook_lib import *
+from datalab.actions_lib import ensure_right_mount_paths
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -121,6 +122,7 @@ if __name__ == "__main__":
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     if os.environ['conf_cloud_provider'] == 'azure':
+        ensure_right_mount_paths()
         de_master_name = '{}-{}-{}-de-{}-m'.format(
             os.environ['conf_service_base_name'],
             os.environ['project_name'],
