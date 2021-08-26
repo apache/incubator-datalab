@@ -261,7 +261,7 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            if os.environ['conf_deeplearning_cloud_ami'] == 'false' or os.environ['application'] != 'deeplearning':
+            if os.environ['conf_deeplearning_cloud_ami'] == 'false' or os.environ['application'] != 'deeplearning' or os.environ['conf_cloud_provider'] == 'azure':
                 conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
                 conn.sudo('pip3 install jupyter --no-cache-dir')
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
@@ -296,7 +296,11 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             #    http_proxy))
             #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
             #    https_proxy))
-            java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
+            if os.environ['application'] == 'deeplearning' and os.environ['conf_cloud_provider'] == 'azure':
+                java_home = conn.run(
+                    "update-alternatives --query java | grep -o --color=never \'/.*/java-11.*/bin/java\'").stdout.splitlines()[0]
+            else:
+                java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
                 java_home))
             conn.sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
@@ -1140,12 +1144,15 @@ def init_datalab_connection(hostname, username, keyfile):
                                                                                 'key_filename': keyfile})
             conn.config.run.echo = True
             try:
-                conn.run('ls')
+                conn.run('hostname')
                 conn.config.run.echo = True
                 return conn
             except:
                 attempt += 1
                 time.sleep(10)
+        if attempt == 15:
+            print('Unable to establish connection')
+            raise Exception
     except:
         traceback.print_exc()
         sys.exit(1)
