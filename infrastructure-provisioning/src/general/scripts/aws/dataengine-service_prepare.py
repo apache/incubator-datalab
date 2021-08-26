@@ -307,6 +307,8 @@ if __name__ == "__main__":
                     emr_conf['service_base_name'],
                     emr_conf['additional_emr_sg_name'],
                     emr_conf['configurations'])
+        if 'aws_permissions_boundary_arn' in os.environ:
+            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)
         except:

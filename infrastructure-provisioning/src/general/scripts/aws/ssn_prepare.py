@@ -307,6 +307,8 @@ if __name__ == "__main__":
             format(ssn_conf['role_name'], ssn_conf['role_profile_name'], ssn_conf['policy_name'],
                    ssn_conf['policy_path'], os.environ['aws_region'], ssn_conf['tag_name'],
                    ssn_conf['service_base_name'], ssn_conf['user_tag'])
+        if 'aws_permissions_boundary_arn' in os.environ:
+            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
