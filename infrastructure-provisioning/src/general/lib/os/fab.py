@@ -261,7 +261,7 @@ def put_resource_status(resource, status, datalab_path, os_user, hostname):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists(conn,'/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            if os.environ['conf_deeplearning_cloud_ami'] == 'false' or os.environ['application'] != 'deeplearning':
+            if os.environ['conf_deeplearning_cloud_ami'] == 'false' or os.environ['application'] != 'deeplearning' or os.environ['conf_cloud_provider'] == azure:
                 conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
                 conn.sudo('pip3 install jupyter --no-cache-dir')
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
