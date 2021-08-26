@@ -54,6 +54,8 @@ parser.add_argument('--service_role', type=str, default='',
                     help='Role name EMR cluster (Default: "EMR_DefaultRole")')
 parser.add_argument('--ec2_role', type=str, default='',
                     help='Role name for EC2 instances in cluster (Default: "EMR_EC2_DefaultRole")')
+parser.add_argument('--permissions_boundary_arn', type=str, default='',
+                    help='permissions boundary to be attached to new roles')
 parser.add_argument('--ssh_key', type=str, default='')
 parser.add_argument('--availability_zone', type=str, default='')
 parser.add_argument('--subnet', type=str, default='', help='Subnet CIDR')
@@ -421,7 +423,7 @@ if __name__ == "__main__":
             print("There is no default EMR service role. Creating...")
             create_iam_role(args.service_role,
                             args.service_role,
-                            args.region,
+                            args.region, args.permissions_boundary_arn,
                             service='elasticmapreduce')
             attach_policy(args.service_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole')
@@ -429,7 +431,7 @@ if __name__ == "__main__":
             print("There is no default EMR EC2 role. Creating...")
             create_iam_role(args.ec2_role,
                             args.ec2_role,
-                            args.region)
+                            args.region, args.permissions_boundary_arn)
             attach_policy(args.ec2_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role')
         upload_jars_parser(args)

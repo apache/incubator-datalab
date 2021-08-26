@@ -29,6 +29,7 @@ from datalab.meta_lib import *
 parser = argparse.ArgumentParser()
 parser.add_argument('--role_name', type=str, default='')
 parser.add_argument('--role_profile_name', type=str, default='')
+parser.add_argument('--permissions_boundary_arn', type=str, default='')
 parser.add_argument('--policy_name', type=str, default='')
 parser.add_argument('--policy_arn', type=str, default='')
 parser.add_argument('--policy_file_name', type=str, default='')
@@ -47,7 +48,7 @@ if __name__ == "__main__":
                 tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
                 user_tag = {"Key": "user:tag", "Value": args.user_tag_value}
                 print("Creating role {0}, profile name {1}".format(args.role_name, args.role_profile_name))
-                create_iam_role(args.role_name, args.role_profile_name, args.region, tag=tag, user_tag=user_tag)
+                create_iam_role(args.role_name, args.role_profile_name, args.region, args.permissions_boundary_arn, tag=tag, user_tag=user_tag)
             else:
                 print("ROLE AND ROLE PROFILE ARE ALREADY CREATED")
             print("ROLE {} created. IAM group {} created".format(args.role_name, args.role_profile_name))

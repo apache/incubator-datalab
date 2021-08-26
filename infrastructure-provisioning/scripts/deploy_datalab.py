@@ -95,6 +95,7 @@ parser.add_argument('--aws_job_enabled', type=str, default='false', help='Billin
                                                                          'true (aws), false(epam)')
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 '
                                                                     'bucket')
+parser.add_argument('--aws_permissions_boundary_arn', type=str, default='', help='Permission boundary to be attached to new roles')
 parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
 parser.add_argument('--azure_datalake_enable', type=str, default='', help='Provision DataLake storage account')
