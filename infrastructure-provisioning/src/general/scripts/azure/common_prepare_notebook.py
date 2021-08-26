@@ -116,8 +116,13 @@ if __name__ == "__main__":
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
-            notebook_config['image_name'] = os.environ['notebook_image_name']
-            print('Pre-configured deeplearning image found. Using: {}'.format(notebook_config['image_name']))
+            if AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name']):
+                notebook_config['image_name'] = notebook_config['expected_image_name']
+                notebook_config['image_type'] = 'pre-configured'
+                print('Pre-configured image found. Using: {}'.format(notebook_config['image_name']))
+            else:
+                notebook_config['image_name'] = os.environ['notebook_image_name']
+                print('Pre-configured deeplearning image found. Using: {}'.format(notebook_config['image_name']))
         else:
             notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-{4}'.format(
                 notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
