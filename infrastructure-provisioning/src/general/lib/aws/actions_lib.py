@@ -557,8 +557,6 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
 def create_iam_role(role_name, role_profile, region, permissions_boundary='', service='ec2', tag=None, user_tag=None):
     conn = boto3.client('iam')
     try:
-        print('=======')
-        print(permissions_boundary)
         if region == 'cn-north-1':
             conn.create_role(
                 RoleName=role_name,
