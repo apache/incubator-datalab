@@ -58,6 +58,9 @@ if __name__ == "__main__":
             "client_id": "admin-cli",
         }
 
+       if not args.keycloak_client_secret:
+           args.keycloak_client_secret = str(uuid.uuid4())
+
         keycloak_client_create_url = '{0}/admin/realms/{1}/clients'.format(args.keycloak_auth_server_url,
                                                                            args.keycloak_realm_name)
         if args.project_name and args.endpoint_name:

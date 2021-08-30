@@ -525,7 +525,6 @@ if __name__ == "__main__":
         clear_resources()
         sys.exit(1)
 
-    ssn_conf['keycloak_client_secret'] = str(uuid.uuid4())
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                       "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
                       "--edge_public_ip {} " \
