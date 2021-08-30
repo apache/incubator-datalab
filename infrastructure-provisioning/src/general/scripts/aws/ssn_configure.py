@@ -626,12 +626,11 @@ if __name__ == "__main__":
         sys.exit(1)
 
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
-                      "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
-                      "--edge_public_ip {} " \
+                      "--keycloak_user {} --keycloak_user_password {} --edge_public_ip {} " \
         .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                 os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
-                os.environ['keycloak_user_password'], ssn_conf['keycloak_client_secret'],
-                datalab.meta_lib.get_instance_hostname(ssn_conf['tag_name'], ssn_conf['instance_name']))
+                os.environ['keycloak_user_password'], datalab.meta_lib.get_instance_hostname(ssn_conf['tag_name'],
+                                                                                             ssn_conf['instance_name']))
     try:
         subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True, check=True)
     except Exception as err:
