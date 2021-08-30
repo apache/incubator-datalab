@@ -526,7 +526,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
-                      "--keycloak_user {} --keycloak_user_password {} --edge_public_ip {} " \
+                      "--keycloak_user {} --keycloak_user_password {} --instance_public_ip {} " \
         .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                 os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                 os.environ['keycloak_user_password'], datalab.meta_lib.get_instance_hostname(ssn_conf['tag_name'],
