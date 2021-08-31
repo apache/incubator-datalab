@@ -516,6 +516,8 @@ if __name__ == "__main__":
         datalab.fab.append_result("Unable to configure UI.", str(err))
         sys.exit(1)
 
+    logging.info('[CREATE KEYCLOAK CLIENT]')
+    print('[CREATE KEYCLOAK CLIENT]')
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                       "--keycloak_user {} --keycloak_user_password {} --instance_public_ip {} " \
         .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
