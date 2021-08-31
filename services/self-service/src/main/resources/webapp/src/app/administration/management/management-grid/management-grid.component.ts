@@ -66,8 +66,9 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   filtering: boolean = false;
   collapsedFilterRow: boolean = false;
   isMaxRight: Subject<boolean> = new BehaviorSubject(false);
-  private tableWrapperWidth: number;
+  tableWrapperWidth: number;
   tableEl = {};
+  userAgentIndex: number;
 
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
@@ -110,6 +111,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   ) { }
 
   ngOnInit() {
+    this.userAgentIndex = window.navigator.userAgent.indexOf('Firefox');
     this.getEnvironmentData();
   }
 

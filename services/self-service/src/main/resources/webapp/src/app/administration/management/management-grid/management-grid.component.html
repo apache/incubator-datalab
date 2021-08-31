@@ -18,8 +18,33 @@
   -->
 <div class="managment-wrapper scrolling" #pageWrapper (scroll)="scrollTable($event)" (resize)="onResize($event)">
   <div class="ani scrolling scroll-wrapper" #wrapper (scroll)="scrollTable($event)">
+    <div 
+      class="nav-buttons" 
+      [ngStyle]="{'width.px': userAgentIndex === -1 ? tableWrapperWidth - 3 : tableWrapperWidth - 7 }"
+      [ngClass]="{'border': tableEl['offsetHeight'] < tableWrapper.offsetHeight - 48}" 
+      [hidden]="!(tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0)"
+    >
+      <div class="button-container">
+        <button 
+          mat-mini-fab aria-label="Scroll left"
+          (click)="sctollTo('left')"
+          [ngClass]="{'not-allowed': wrapper.scrollLeft === 0 }"
+        >
+          <mat-icon [ngClass]="{'highlight': wrapper.scrollLeft !== 0 }">keyboard_arrow_left</mat-icon>
+        </button>
+      </div>
+      <div class="button-container" [ngClass]="{'not-allowed': checkMaxRight()}">
+        <button 
+          mat-mini-fab aria-label="Scroll right"
+          (click)="sctollTo('right')"
+          [ngClass]="{'not-allowed': !(isMaxRight | async)}"
+        >
+          <mat-icon [ngClass]="{'highlight': (isMaxRight | async) || false}">keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+    </div>
     <div class="wrapper" #tableWrapper >
-      <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6" #table >
+      <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management" #table >
       <ng-container matColumnDef="checkbox">
         <th mat-header-cell *matHeaderCellDef class="checkbox label-header">
           <datalab-checkbox
@@ -43,6 +68,7 @@
                   && !clustersInProgress(element.resources)"
           >
             <datalab-checkbox
+              class="body-checkbox"
               [checked]="element.isSelected"
               (toggleSelection)="toggleActionForAll(element)"
             ></datalab-checkbox>
@@ -413,7 +439,7 @@
       </ng-container>
 
       <ng-container matColumnDef="placeholder">
-        <td mat-footer-cell *matFooterCellDef colspan="8">
+        <td mat-footer-cell *matFooterCellDef colspan="8" class="no-border">
           <div 
             class="info"
             *ngIf="(!allFilteredEnvironmentData) && !filtering || (allFilteredEnvironmentData?.length == 0) && !filtering"
@@ -430,32 +456,7 @@
           *matFooterCellDef 
           colspan="9" 
           class="buttons-wrap"
-        >
-          <div 
-            class="buttons" 
-            [ngStyle]="{'width.px': tableWrapperWidth }" 
-            [hidden]="!tableWrapperWidth"
-          >
-            <div class="button-container">
-              <button 
-                mat-mini-fab aria-label="Scroll left"
-                (click)="sctollTo('left')"
-                [ngClass]="{'not-allowed': wrapper.scrollLeft === 0 }"
-              >
-                <mat-icon [ngClass]="{'highlight': wrapper.scrollLeft !== 0 }">keyboard_arrow_left</mat-icon>
-              </button>
-            </div>
-            <div class="button-container" [ngClass]="{'not-allowed': checkMaxRight()}">
-              <button 
-                mat-mini-fab aria-label="Scroll right"
-                (click)="sctollTo('right')"
-                [ngClass]="{'not-allowed': !(isMaxRight | async)}"
-              >
-                <mat-icon [ngClass]="{'highlight': (isMaxRight | async) || false}">keyboard_arrow_right</mat-icon>
-              </button>
-            </div>
-          </div>
-        </td>
+        ></td>
       </ng-container>
 
       <tr 
