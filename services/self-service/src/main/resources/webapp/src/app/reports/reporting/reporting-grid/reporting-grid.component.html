@@ -18,16 +18,16 @@
   -->
 <div 
   class="billing-page-wrapper scrolling" 
-  #pageWrapper 
-  [ngClass]="{'scroll': reportData?.length < 5}" 
+  #pageWrapper  
   (scroll)="scrollTable($event)"
 >
   <div class="wrapper" #wrapper>
     <div 
       class="nav-buttons" 
+      [ngClass]="{'border': tableEl['offsetHeight'] < tableWrapper.offsetHeight - 48}"
       [ngStyle]="tableWrapper.scrollHeight === tableWrapper.clientHeight ? {'width': '100%'} : 
         {'width': userAgentIndex === -1 ? 'calc(100% - 3px)' : 'calc(100% - 8px)'}"
-      *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0 && reportData?.length"
+      *ngIf="tableWrapper.offsetWidth - tableEl['offsetWidth'] < 0"
     >
       <div class="button-container" >
         <button 
@@ -56,6 +56,7 @@
 
     <div 
       class="nav-buttons"
+      [ngClass]="{'border': tableEl['offsetHeight'] < tableWrapper.offsetHeight - 48}"
       [ngStyle]="tableWrapper.scrollHeight === tableWrapper.clientHeight 
           ? {'width': '100%'} 
           : {'width': userAgentIndex === -1 ? 'calc(100% - 3px)' : 'calc(100% - 8px)'}" 
@@ -382,7 +383,7 @@
             mat-header-cell 
             *matHeaderCellDef 
             class="filter-row-item index-105" 
-            [ngClass]="{'right-sticky': reportData?.length < 5}" 
+            [ngClass]="{'right-sticky': reportData?.length < 5, 'charges-th': reportData?.length}" 
             [ngStyle]="{'zIndex': '101 !important'}"
           >
             <div class="actions">
@@ -408,7 +409,7 @@
         </ng-container>
 
         <ng-container matColumnDef="placeholder">
-          <td mat-footer-cell *matFooterCellDef colspan="9" class="info">
+          <td mat-footer-cell *matFooterCellDef colspan="8" class="info no-border">
             <span *ngIf="!isFilterSelected; else notFound">No data available</span>
             <ng-template #notFound>
               <span>No matches found</span>

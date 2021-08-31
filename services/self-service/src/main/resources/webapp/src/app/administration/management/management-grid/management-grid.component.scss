@@ -25,26 +25,66 @@
   padding-left: 15px;
   padding-right: 15px;
   scroll-behavior: smooth;
-  overflow: auto;
 
   .scroll-wrapper {
+    height: inherit;
     overflow: auto;
     scroll-behavior: smooth;
     box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 
                 0px 6px 10px 0px rgba(0, 0, 0, 0.14),
                 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+    
+    .nav-buttons {
+      position: absolute;
+      bottom: 0;
+      z-index: 1013;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 51px;
+      background-color: #ffffff;
+
+      &.border {
+        border-top: 1px solid #e3e5e8;
+      }
+
+      & button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 25px;
+        width: 25px;
+        background-color: #fff;
+        box-shadow: none;
+
+        mat-icon {
+          color: lightgrey;
+    
+          &.highlight {
+            color: #35afd5;
+          }
+        }
+      }
+      
+      &.border {
+        border-top: 1px solid #e3e5e8;
+      }
+    }
   }
 
   .ani {
     max-height: calc(100vh - 130px);
-    position: relative;
+    background-color: #ffffff;
+    
     .wrapper {
       position: relative;
       display: block;
       width: 100%;
+      height: inherit;
       max-height: calc(100vh - 130px);
       overflow: unset;
       scroll-behavior: smooth;
+      background-color: #ffffff;
     }
   }
 }
@@ -148,7 +188,7 @@
       }
 
       &.mat-column-checkbox {
-        z-index: 12 !important;
+        z-index: 1012 !important;
         padding-left: 10px;
 
         .ar {
@@ -216,6 +256,7 @@
     .buttons-wrap {
       padding: 0;
       border-top: 1px solid rgba(0, 0, 0, 0.12);
+      border-bottom: none;
       transform: translateY(-1px);
     }
 
@@ -285,6 +326,10 @@ table.management {
   .info {
     padding: 40px;
     text-align: center;
+  }
+
+  .no-border {
+    border-bottom: none;
   }
 
   .source .resource-wrap {
