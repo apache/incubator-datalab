@@ -141,8 +141,8 @@ parser.add_argument('--ldap_service_password', type=str, default='service-user-p
                     help='Ldap password for admin user')
 parser.add_argument('--keycloak_realm_name', type=str, default='datalab', help='Keycloak Realm name')
 parser.add_argument('--keycloak_auth_server_url', type=str, default='datalab', help='Keycloak auth server URL')
-parser.add_argument('--keycloak_client_name', type=str, default='datalab', help='Keycloak client name')
-parser.add_argument('--keycloak_client_secret', type=str, default='datalab', help='Keycloak client secret')
+parser.add_argument('--keycloak_client_name', type=str, help='Keycloak client name')
+parser.add_argument('--keycloak_client_secret', type=str, help='Keycloak client secret')
 parser.add_argument('--keycloak_user', type=str, default='datalab', help='Keycloak user')
 parser.add_argument('--keycloak_user_password', type=str, default='keycloak-user-password',
                     help='Keycloak user password')
