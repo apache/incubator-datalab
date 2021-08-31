@@ -46,9 +46,11 @@ def handle_dpkg_lock(error, rerun=False):
             if rerun:
                 datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; '
                                       'if ! grep -w -E "({0})" /tmp/tee.tmp; '
-                                      'then echo "no_lock" > /tmp/dpkg.log;fi; '
+                                      'then echo "no_lock" > /tmp/dpkg.log; '
+                                      'else cat /tmp/tee.tmp > /tmp/dpkg.log;fi; '
                                       'if ! grep -w -E "({1})" /tmp/tee.tmp; '
-                                      'then echo "no_error" >> /tmp/dpkg.log;fi'.format(lock_parser,
+                                      'then echo "no_error" >> /tmp/dpkg.log; '
+                                      'else cat /tmp/tee.tmp >> /tmp/dpkg.log;fi'.format(lock_parser,
                                                                                         error_parser))
                 error = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
                 if 'no_error' not in error:
@@ -72,9 +74,11 @@ def handle_apt_lock(error, rerun=False):
             if rerun:
                 datalab.fab.conn.sudo('apt update 2>&1 | tee /tmp/tee.tmp; '
                                       'if ! grep -w -E "({0})" /tmp/tee.tmp; '
-                                      'then echo "no_lock" > /tmp/apt.log;fi; '
+                                      'then echo "no_lock" > /tmp/apt.log; '
+                                      'else cat /tmp/tee.tmp > /tmp/apt.log;fi; '
                                       'if ! grep -w -E "({1})" /tmp/tee.tmp; '
-                                      'then echo "no_error" >> /tmp/apt.log;fi'.format(lock_parser,
+                                      'then echo "no_error" >> /tmp/apt.log; '
+                                      'else cat /tmp/tee.tmp >> /tmp/apt.log;fi'.format(lock_parser,
                                                                                        error_parser))
                 error = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
                 if 'no_error' not in error:
@@ -100,9 +104,11 @@ def handle_apt_get_lock(error, rerun=False):
             if rerun:
                 datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; '
                                       'if ! grep -w -E "({2})" /tmp/tee.tmp; '
-                                      'then echo "no_lock" > /tmp/apt_get.log;fi; '
+                                      'then echo "no_lock" > /tmp/apt_get.log; '
+                                      'else cat /tmp/tee.tmp > /tmp/apt_get.log;fi; '
                                       'if ! grep -w -E "({3})" /tmp/tee.tmp; '
-                                      'then echo "no_error" >> /tmp/apt_get.log;fi'.format(command,
+                                      'then echo "no_error" >> /tmp/apt_get.log; '
+                                      'else cat /tmp/tee.tmp >> /tmp/apt_get.log;fi'.format(command,
                                                                                            requisites,
                                                                                            lock_parser,
                                                                                            error_parser))
@@ -137,9 +143,11 @@ def manage_pkg(command, environment, requisites):
 
                             datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; '
                                                   'if ! grep -w -E "({0})" /tmp/tee.tmp; '
-                                                  'then echo "no_lock" > /tmp/dpkg.log;fi; '
+                                                  'then echo "no_lock" > /tmp/dpkg.log; '
+                                                  'else cat /tmp/tee.tmp > /tmp/dpkg.log;fi;'
                                                   'if ! grep -w -E "({1})" /tmp/tee.tmp; '
-                                                  'then echo "no_error" >> /tmp/dpkg.log;fi'.format(lock_parser,
+                                                  'then echo "no_error" >> /tmp/dpkg.log; '
+                                                  'else cat /tmp/tee.tmp >> /tmp/dpkg.log;fi'.format(lock_parser,
                                                                                                     error_parser))
                             err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout.replace('\n','')
                             if 'no_lock' not in err:
@@ -147,9 +155,11 @@ def manage_pkg(command, environment, requisites):
 
                             datalab.fab.conn.sudo('apt update 2>&1 | tee /tmp/tee.tmp; '
                                                   'if ! grep -w -E "({0})" /tmp/tee.tmp; '
-                                                  'then echo "no_lock" > /tmp/apt.log;fi; '
+                                                  'then echo "no_lock" > /tmp/apt.log; '
+                                                  'else cat /tmp/tee.tmp > /tmp/apt.log;fi; '
                                                   'if ! grep -w -E "({1})" /tmp/tee.tmp; '
-                                                  'then echo "no_error" >> /tmp/apt.log;fi'.format(lock_parser,
+                                                  'then echo "no_error" >> /tmp/apt.log; '
+                                                  'else cat /tmp/tee.tmp >> /tmp/apt.log;fi'.format(lock_parser,
                                                                                                    error_parser))
                             err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
                             if 'no_lock' not in err:
@@ -158,9 +168,11 @@ def manage_pkg(command, environment, requisites):
 
                             datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; '
                                                   'if ! grep -w -E "({2})" /tmp/tee.tmp; '
-                                                  'then echo "no_lock" > /tmp/apt_get.log;fi; '
+                                                  'then echo "no_lock" > /tmp/apt_get.log; '
+                                                  'else cat /tmp/tee.tmp > /tmp/apt_get.log;fi; '
                                                   'if ! grep -w -E "({3})" /tmp/tee.tmp; '
-                                                  'then echo "no_error" >> /tmp/apt_get.log;fi'.format(command,
+                                                  'then echo "no_error" >> /tmp/apt_get.log; '
+                                                  'else cat /tmp/tee.tmp >> /tmp/apt_get.log;fi'.format(command,
                                                                                                        requisites,
                                                                                                        lock_parser,
                                                                                                        error_parser))
