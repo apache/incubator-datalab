@@ -55,10 +55,10 @@ if __name__ == "__main__":
             "username": args.keycloak_user,
             "password": args.keycloak_user_password,
             "grant_type": "password",
-            "client_id": "admin-cli",
+            "client_id": "admin-cli"
         }
 
-       if not args.keycloak_client_secret:
+        if not args.keycloak_client_secret:
            args.keycloak_client_secret = str(uuid.uuid4())
 
         keycloak_client_create_url = '{0}/admin/realms/{1}/clients'.format(args.keycloak_auth_server_url,
