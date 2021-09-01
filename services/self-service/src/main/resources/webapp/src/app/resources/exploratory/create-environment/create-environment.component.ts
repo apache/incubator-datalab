@@ -217,7 +217,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
     if (!data.notebook_image_name 
       && this.currentTemplate.image === 'docker.datalab-deeplearning' 
-      && this.selectedCloud === 'aws' || this.selectedCloud === 'azure') {
+      && (this.selectedCloud === 'aws' || this.selectedCloud === 'azure')) {
       data.notebook_image_name = this.currentTemplate.exploratory_environment_versions[0].version;
     }
 
