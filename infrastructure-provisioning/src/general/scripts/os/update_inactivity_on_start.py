@@ -44,6 +44,8 @@ if __name__ == "__main__":
     else:
         kernel = args.cluster_ip.replace('.', '-')
 
+    if os.environ['conf_cloud_provider'] == 'azure':
+        datalab.actions_lib.ensure_right_mount_paths()
     conn.sudo('''bash -c -l "date +%s > /opt/inactivity/{}_inactivity" '''.format(kernel))
 
     conn.close()
