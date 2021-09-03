@@ -32,6 +32,12 @@ import datalab.fab
 def handle_dpkg_lock(error, rerun=False):
     try:
         count = 0
+        if 'E: Could not get lock ' and 'It is held by process ' in err:
+            log = datalab.fab.conn.sudo('cat /tmp/dpkg.log | grep "E: Could not get lock"').stdout
+            lock_path = log.split('\n')[0][22:log.find('.')]
+            pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
+            datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+            datalab.fab.conn.sudo('rm -f {}'.format(lock_path))
         while 'no_lock' not in error and count < 10:
             pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'').stdout.replace( '\n', '')
             if pid != '':
@@ -53,18 +59,23 @@ def handle_dpkg_lock(error, rerun=False):
                                       'else cat /tmp/tee.tmp >> /tmp/dpkg.log;fi'.format(lock_parser,
                                                                                         error_parser))
                 error = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
-                if 'no_error' not in error:
-                    raise Exception
             else:
                 error = 'no_lock'
-
             count = count + 1
+        if 'no_error' not in error:
+            raise Exception
     except:
         sys.exit(1)
 
 def handle_apt_lock(error, rerun=False):
     try:
         count = 0
+        if 'E: Could not get lock ' and 'It is held by process ' in err:
+            log = datalab.fab.conn.sudo('cat /tmp/apt.log | grep "E: Could not get lock"').stdout
+            lock_path = log.split('\n')[0][22:log.find('.')]
+            pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
+            datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+            datalab.fab.conn.sudo('rm -f {}'.format(lock_path))
         while 'no_lock' not in error and count < 10:
             pid = datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock | grep apt | awk \'{print $2}\'').stdout.replace('\n', '')
             if pid != '':
@@ -81,18 +92,23 @@ def handle_apt_lock(error, rerun=False):
                                       'else cat /tmp/tee.tmp >> /tmp/apt.log;fi'.format(lock_parser,
                                                                                        error_parser))
                 error = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
-                if 'no_error' not in error:
-                    raise Exception
             else:
                 error = 'no_lock'
-
             count = count + 1
+        if 'no_error' not in error:
+            raise Exception
     except:
         sys.exit(1)
 
 def handle_apt_get_lock(error, rerun=False):
     try:
         count = 0
+        if 'E: Could not get lock ' and 'It is held by process ' in err:
+            log = datalab.fab.conn.sudo('cat /tmp/apt.log | grep "E: Could not get lock"').stdout
+            lock_path = log.split('\n')[0][22:log.find('.')]
+            pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
+            datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+            datalab.fab.conn.sudo('rm -f {}'.format(lock_path))
         while 'no_lock' not in error and count < 10:
             datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock')
             datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock')
@@ -113,12 +129,11 @@ def handle_apt_get_lock(error, rerun=False):
                                                                                            lock_parser,
                                                                                            error_parser))
                 error = datalab.fab.conn.sudo('cat /tmp/apt_get.log').stdout
-                if 'no_error' not in error:
-                    raise Exception
             else:
                 error = 'no_lock'
-
             count = count + 1
+        if 'no_error' not in error:
+            raise Exception
     except:
         sys.exit(1)
 
@@ -149,9 +164,9 @@ def manage_pkg(command, environment, requisites):
                                                   'then echo "no_error" >> /tmp/dpkg.log; '
                                                   'else cat /tmp/tee.tmp >> /tmp/dpkg.log;fi'.format(lock_parser,
                                                                                                     error_parser))
-                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout.replace('\n','')
+                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
                             if 'no_lock' not in err:
-                                handle_dpkg_lock(err, lock_parser, rerun=True)
+                                handle_dpkg_lock(err, rerun=True)
 
                             datalab.fab.conn.sudo('apt update 2>&1 | tee /tmp/tee.tmp; '
                                                   'if ! grep -w -E "({0})" /tmp/tee.tmp; '
@@ -163,8 +178,8 @@ def manage_pkg(command, environment, requisites):
                                                                                                    error_parser))
                             err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
                             if 'no_lock' not in err:
-                                handle_dpkg_lock(err, lock_parser)
-                                handle_apt_lock(err, lock_parser, rerun=True)
+                                handle_dpkg_lock(err)
+                                handle_apt_lock(err, rerun=True)
 
                             datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; '
                                                   'if ! grep -w -E "({2})" /tmp/tee.tmp; '
