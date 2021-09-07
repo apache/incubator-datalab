@@ -244,14 +244,13 @@ These directories contain the log files for each template and for DataLab back-e
   parameters must be specified either when running *DataLab* deployment script or in 
 */opt/datalab/conf/self-service.yml* and */opt/datalab/conf/provisioning.yml* files on SSN node.
 
-| Parameter                | Description/Value             |
-|--------------------------|-------------------------------|
-| keycloak_realm_name      |Keycloak Realm name            |
-| keycloak_auth_server_url |Keycloak auth server URL       |
-| keycloak_client_name     |Keycloak client name           |
-| keycloak_client_secret   |Keycloak client secret         |
-| keycloak_user            |Keycloak user                  |
-| keycloak_user_password   |Keycloak user password         |
+| Parameter                | Description/Value               |
+|--------------------------|---------------------------------|
+| keycloak_realm_name      |Keycloak Realm name              |
+| keycloak_auth_server_url |Keycloak auth server URL         |
+| keycloak_client_secret   |Keycloak client secret (optional)|
+| keycloak_user            |Keycloak user                    |
+| keycloak_user_password   |Keycloak user password           |
 
 ### Preparing environment for Keycloak deployment <a name="Env_for_DataLab"></a>
 Keycloak can be deployed with Nginx proxy on instance using *deploy_keycloak.py* script. Currently it only works with HTTP.
@@ -270,14 +269,14 @@ To build Keycloak node, following steps should be executed:
 ```
 sudo su
 apt-get update
-apt-get install -y python-pip
-pip install fabric==1.14.0
+apt-get install -y python3-pip
+pip3 install fabric
 ```
 - Go to *datalab* directory
 - Run *infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py* deployment script:
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py --os_user ubuntu --keyfile ~/.ssh/key.pem --keycloak_realm_name test_realm_name  --keycloak_user admin --keycloak_user_password admin_password --public_ip_address XXX.XXX.XXX.XXX
+/usr/bin/python3 infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py --os_user ubuntu --keyfile ~/.ssh/key.pem --keycloak_realm_name test_realm_name  --keycloak_user admin --keycloak_user_password admin_password --public_ip_address XXX.XXX.XXX.XXX
 ```
 
 List of parameters for Keycloak node deployment:
@@ -494,11 +493,11 @@ git clone https://github.com/apache/incubator-datalab.git -b develop
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
-apt-cache policy docker-ce
-apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
+apt-cache policy docker.io
+apt-get install -y docker.io=20.10.7-0ubuntu1~20.04.1
 usermod -a -G docker *username*
-apt-get install -y python-pip
-pip install fabric==1.14.0
+apt-get install -y python3-pip
+pip3 install fabric
 cd incubator-datalab
 ```
 - Go to *datalab* directory
@@ -510,7 +509,7 @@ for creating SSN node.
 <details><summary>In Amazon cloud <i>(click to expand)</i></summary>
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id datalab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+/usr/bin/python3 infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id datalab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
 ```
 
 List of parameters for SSN node deployment:
@@ -560,7 +559,7 @@ List of parameters for SSN node deployment:
 <details><summary>In Azure cloud <i>(click to expand)</i></summary>
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
+/usr/bin/python3 infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
 ```
 
 List of parameters for SSN node deployment:
@@ -647,7 +646,7 @@ After SSN node deployment following Azure resources will be created:
 <details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
+/usr/bin/python3 infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
 ```
 
 List of parameters for SSN node deployment:
@@ -693,7 +692,7 @@ Example of command for terminating DataLab environment:
 <details><summary>In Amazon <i>(click to expand)</i></summary>
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
+/usr/bin/python3 infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
 ```
 List of parameters for SSN node termination:
 
@@ -713,7 +712,7 @@ List of parameters for SSN node termination:
 <details><summary>In Azure <i>(click to expand)</i></summary>
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
+/usr/bin/python3 infrastructure-provisioning/scripts/deploy_datalab.py --conf_service_base_name datalab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
 ```
 List of parameters for SSN node termination:
 
@@ -733,7 +732,7 @@ List of parameters for SSN node termination:
 <details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_datalab.py --gcp_project_id project_id --conf_service_base_name datalab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
+/usr/bin/python3 infrastructure-provisioning/scripts/deploy_datalab.py --gcp_project_id project_id --conf_service_base_name datalab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
 ```
 List of parameters for SSN node termination:
 
