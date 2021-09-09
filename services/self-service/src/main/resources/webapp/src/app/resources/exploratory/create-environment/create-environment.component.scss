@@ -18,8 +18,7 @@
  */
 
 .checkbox-group {
-
-  .empty-checkbox{
+  .empty-checkbox {
     margin: 0;
   }
 
@@ -30,11 +29,11 @@
     text-align: left;
 
     &.show {
+      position: relative;
+      margin-top: 10px;
       height: 200px;
       visibility: visible;
       opacity: 1;
-      position: relative;
-      margin-top: 10px;
     }
 
     textarea {
@@ -46,7 +45,7 @@
       font-family: Consolas, monospace;
     }
 
-    .spark-config{
+    .spark-config {
       position: absolute;
       bottom: -15px;
       right: 0;
@@ -88,7 +87,7 @@
   overflow-y: auto;
 }
 
-.form-field-wrapper{
+.form-field-wrapper {
   width: 100%;
 }
 

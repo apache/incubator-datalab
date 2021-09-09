@@ -40,11 +40,11 @@
 }
 
 .config-details {
+  position: relative;
   height: 0;
   opacity: 0;
   visibility: hidden;
   text-align: left;
-  position: relative;
 
   &.show {
     height: 200px;
@@ -69,12 +69,12 @@
   }
 }
 
-.spark-url{
+.spark-url {
   max-width: 250px;
   overflow: hidden;
 }
 
-.copy-icon-wrapper{
+.copy-icon-wrapper {
   margin-top: -2px;
   margin-left: 5px;
 }

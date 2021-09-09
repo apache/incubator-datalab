@@ -19,13 +19,14 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {PipeTransform, Pipe} from '@angular/core';
+import { PipeTransform, Pipe } from '@angular/core';
 
 @Pipe({ name: 'highlight' })
 export class HighLightPipe implements PipeTransform {
   transform(text: string, search: string): string {
-    return search ? text.replace(new RegExp(search, 'i'), function(str) {
-      return `<span class="highlight">${str}</span>`; }) : text;
+    return search 
+      ? text.replace(new RegExp(search, 'i'), (str) => `<span class="highlight">${str}</span>`) 
+      : text;
   }
 }
 

@@ -17,9 +17,18 @@
  * under the License.
  */
 
-import { Component, Input, Output, EventEmitter, HostBinding,
-         ChangeDetectorRef, ElementRef, OnInit, OnDestroy,
-         ViewEncapsulation, HostListener } from '@angular/core';
+import { 
+  Component, 
+  Input, 
+  Output, 
+  EventEmitter, 
+  HostBinding,
+  ChangeDetectorRef, 
+  ElementRef, 
+  OnDestroy,
+  ViewEncapsulation, 
+  HostListener 
+} from '@angular/core';
 import { BubblesCollector, BubbleService } from './bubble.service';
 
 @Component({

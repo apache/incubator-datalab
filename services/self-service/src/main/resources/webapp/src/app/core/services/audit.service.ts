@@ -30,21 +30,27 @@ export class AuditService {
 
   public getAuditData(filterData, page, itemsPrPage) {
     let queryString = `?page-number=${page}&page-size=${itemsPrPage}`;
+
     if (filterData.projects.length) {
       queryString += `&projects=${filterData.projects.join(',')}`;
     }
+
     if (filterData.resources.length) {
       queryString += `&resource-names=${filterData.resources.join(',')}`;
     }
+
     if (filterData.resource_types.length) {
       queryString += `&resource-types=${filterData.resource_types.join(',')}`;
     }
+
     if (filterData.users.length) {
       queryString += `&users=${filterData.users.join(',')}`;
     }
+
     if (filterData.date_start) {
       queryString += `&date-start=${filterData.date_start}`;
     }
+    
     if (filterData.date_end) {
       queryString += `&date-end=${filterData.date_end}`;
     }

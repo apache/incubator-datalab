@@ -120,7 +120,6 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         boolean success = isSuccess(document);
         UserInstanceStatus status = calcStatus(action, success);
         T result = getBaseStatusDTO(status);
-
         JsonNode resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE);
         if (success) {
             debugMessage("Did {} resource for user: {}, UUID: {}", action, user, uuid);

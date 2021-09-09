@@ -20,9 +20,9 @@
 .manage-env-dialog {
   .mat-list {
     .mat-list-item {
+      position: relative;
       height: 63px;
       margin: 5px 0;
-      position: relative;
 
       .mat-list-item-content {
         padding: 0 !important;
@@ -43,20 +43,20 @@
   }
 
   .quotes {
+    position: relative;
     width: 45%;
     margin-right: 10px;
-    position: relative;
 
     .error {
       position: absolute;
       left: 0;
       top: 37px;
-      font-family: 'Open Sans', sans-serif;
+      font-family: "Open Sans", sans-serif;
       font-size: 11px;
     }
   }
 
-  .period{
+  .period {
     width: 25%;
   }
 

@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import {ApplicationRef, ChangeDetectorRef, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject, timer} from 'rxjs';
-import {take} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import {BehaviorSubject, timer} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'

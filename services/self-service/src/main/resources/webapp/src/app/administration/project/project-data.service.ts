@@ -46,17 +46,10 @@ export class ProjectDataService {
         mergeMap ((response: Project[]) => {
             if (response && this.endpointsList.length) {
               response.forEach(project => project.endpoints.forEach(endpoint => {
-                const filtredEndpoints =  this.endpointsList.filter(v => v.name === endpoint.name);
                 const idx = this.endpointsList.findIndex(v => v.name === endpoint.name);
-                // console.log('IDX ', idx);
-                // if (filtredEndpoints.length) {
                 if (idx >= 0) {
                   endpoint.endpointStatus = this.endpointsList[idx].status;
                 }
-
-                // } else {
-                //   endpoint.endpointStatus = 'N/A';
-                // }
               }));
             }
           return of(response);

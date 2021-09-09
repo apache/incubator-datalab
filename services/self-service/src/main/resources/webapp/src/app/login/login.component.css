@@ -22,49 +22,49 @@
 }
 
 .butt-azure {
+  padding: 0 15px;
+  margin-left: 10px;
   color: #fff;
   background-color: #5bc0de;
-  margin-left: 10px;
-  padding: 0 15px;
 }
 
 .butt-login.mat-raised-button {
   display: block;
-  margin: 0 auto;
   height: 38px;
+  width: 200px;
+  margin: 0 auto;
   background-color: #5bc0de;
   color: #fff;
   border-color: #46b8da;
-  width: 200px;
 }
 
 .butt-login.mat-raised-button:disabled {
   color: #35afd6;
   background-color: rgba(0, 0, 0, 0.28);
   border: 1px solid;
-  box-shadow: 0 3px 1px -2px rgba(53, 175, 213, 0.74),
-    0 2px 2px 0 rgba(53, 175, 213, 0.65), 0 1px 5px 0 rgba(53, 175, 213, 0.47);
+  box-shadow: 0 3px 1px -2px rgba(53, 175, 213, 0.74), 0 2px 2px 0 rgba(53, 175, 213, 0.65),
+    0 1px 5px 0 rgba(53, 175, 213, 0.47);
 }
 
 .login_page .logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 45px;
-  cursor: default;
   height: 250px;
   width: 360px;
+  margin-bottom: 45px;
+  cursor: default;
 }
 
 .login_page {
-  background: url(../../assets/img/login-background.png) top center;
-  background-size: cover;
   position: absolute;
   left: 0;
   top: 0;
+  display: table;
   width: 100%;
   height: 100%;
   text-align: center;
-  display: table;
+  background: url(../../assets/img/login-background.png) top center;
+  background-size: cover;
 }
 
 .login_page .content {
@@ -95,27 +95,27 @@
 .input-icon-group {
   display: flex;
   flex-direction: row;
-  background: #fff;
   margin-bottom: 20px;
+  background: #fff;
 }
 
 .input-with-icon {
   width: 100%;
-  outline: none;
-  background-color: #fff;
   height: 40px !important;
-  color: #555;
   padding: 6px 12px;
+  color: #555;
+  background-color: #fff;
   box-sizing: border-box;
   border: 1px solid #35afd5 !important;
   border-left: 1px solid #35afd5;
-  transition: all 0.35s ease-in-out;
   /* font: 300 14px/24px 'Open Sans', sans-serif !important; */
   font-style: normal;
   font-weight: 300;
   font-size: 14px;
   line-height: 24px;
-  font-family: 'Open Sans', sans-serif !important;
+  font-family: "Open Sans", sans-serif !important;
+  transition: all 0.35s ease-in-out;
+  outline: none;
 }
 
 .input-icon {
@@ -143,8 +143,8 @@
 }
 
 .validation-block {
-  text-align: left;
   display: table-caption;
+  text-align: left;
   color: red;
 }
 
@@ -156,9 +156,9 @@
 .fountainG {
   position: absolute;
   top: 0;
-  background-color: rgb(79, 163, 189);
   width: 6px;
   height: 6px;
+  background-color: rgb(79, 163, 189);
   animation-name: bounce_fountainG;
   -o-animation-name: bounce_fountainG;
   -ms-animation-name: bounce_fountainG;

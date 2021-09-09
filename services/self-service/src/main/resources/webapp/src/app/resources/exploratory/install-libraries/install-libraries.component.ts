@@ -26,10 +26,10 @@ import {debounceTime, filter, take, takeUntil} from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
-import {SortUtils, HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
-import {FilterLibsModel} from './filter-libs.model';
-import {Subject, timer} from 'rxjs';
-import {CompareUtils} from '../../../core/util/compareUtils';
+import { SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
+import { FilterLibsModel } from './filter-libs.model';
+import { Subject, timer } from 'rxjs';
+import { CompareUtils } from '../../../core/util/compareUtils';
 
 interface Library {
   name: string;
@@ -132,7 +132,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.libs_uploaded = false;
     this.uploading = true;
 
-    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name)
       .pipe(
         takeUntil(this.unsubscribe$),
       )
@@ -170,12 +170,15 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public filterList(): void {
     this.validity_format = '';
-    (this.lib.name && this.lib.name.length >= 2 && this.group ) ? this.getFilteredList() : this.filteredList = null;
+    (this.lib.name && this.lib.name.length >= 2 && this.group ) 
+      ? this.getFilteredList() 
+      : this.filteredList = null;
   }
 
   public filterGroups(groupsList): Array<string> {
     const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
-    if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1  || CURRENT_TEMPLATE.indexOf('deep learning') !== -1) {
+    if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1  
+      || CURRENT_TEMPLATE.indexOf('deep learning') !== -1) {
       const filtered = groupsList.filter(group => group !== 'r_pkg');
       return SortUtils.libGroupsSort(filtered);
     }
@@ -311,14 +314,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public isInstallingInProgress(): void {
     this.installingInProgress = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
-      if (this.installingInProgress) {
-        timer(this.INSTALLATION_IN_PROGRESS_CHECK)
-          .pipe(
-            take(1),
-            takeUntil(this.unsubscribe$)
-          )
-          .subscribe(v => this.getInstalledLibrariesList());
-      }
+    if (this.installingInProgress) {
+      timer(this.INSTALLATION_IN_PROGRESS_CHECK)
+        .pipe(
+          take(1),
+          takeUntil(this.unsubscribe$)
+        )
+        .subscribe(v => this.getInstalledLibrariesList());
+    }
   }
 
   public reinstallLibrary(item, lib): void {
@@ -376,7 +379,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
-
       this.groupsList = this.filterGroups(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
@@ -497,15 +499,23 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       Object.setPrototypeOf(this.cashedFilterForm, Object.getPrototypeOf(this.filterModel));
     }
     this.filtredNotebookLibs = this.notebookLibs.filter((lib) => {
-      const isName = this.cashedFilterForm.name ?
-        lib.name.toLowerCase().indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1
-        || lib.version.indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1 : true;
-      const isGroup = this.cashedFilterForm.group.length ? this.cashedFilterForm.group.includes(this.groupsListMap[lib.group]) : true;
+      const isName = this.cashedFilterForm.name 
+        ? lib.name.toLowerCase().indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1
+          || lib.version.indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1 
+        : true;
+      const isGroup = this.cashedFilterForm.group.length 
+        ? this.cashedFilterForm.group.includes(this.groupsListMap[lib.group]) 
+        : true;
       lib.filteredStatus = lib.status.filter(status => {
-        const isResource = this.cashedFilterForm.resource.length ? this.cashedFilterForm.resource.includes(status.resource) : true;
-        const isResourceType = this.cashedFilterForm.resource_type.length ?
-          this.cashedFilterForm.resource_type.includes(status.resourceType) : true;
-        const isStatus = this.cashedFilterForm.status.length ? this.cashedFilterForm.status.includes(status.status) : true;
+        const isResource = this.cashedFilterForm.resource.length 
+          ? this.cashedFilterForm.resource.includes(status.resource) 
+          : true;
+        const isResourceType = this.cashedFilterForm.resource_type.length 
+          ? this.cashedFilterForm.resource_type.includes(status.resourceType) 
+          : true;
+        const isStatus = this.cashedFilterForm.status.length 
+          ? this.cashedFilterForm.status.includes(status.status) 
+          : true;
         return isResource && isResourceType && isStatus;
       });
       this.checkFilters();
@@ -521,7 +531,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public openLibInfo(lib, type) {
     this.dialog.open(
-      LibInfoDialogComponent, { data: {lib, type}, width: '550px', panelClass: 'error-modalbox' });
+      LibInfoDialogComponent, { data: { lib, type }, width: '550px', panelClass: 'error-modalbox' });
   }
 
   public emitClick() {
@@ -566,9 +576,7 @@ export class ErrorLibMessageDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-
-  }
+  ) { }
 }
 
 @Component({
@@ -598,7 +606,5 @@ export class LibInfoDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-
-  }
+  ) { }
 }

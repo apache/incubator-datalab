@@ -21,17 +21,15 @@
   table {
     width: 100%;
 
-    th,
-    td {
-      border: 1px solid #edf1f5;
+    th, td {
       padding: 18px 15px;
+      border: 1px solid #edf1f5;
       text-align: left;
     }
   }
 }
 
 .billing-detail {
-
   div {
     font-size: 13px;
   }
@@ -48,17 +46,17 @@
   .resource-name,
   .usage-date-start,
   .usage-date-end {
-    overflow: hidden;
     padding-right: 10px;
+    overflow: hidden;
     white-space: nowrap;
   }
 
-  .resource-name{
+  .resource-name {
     width: 20%;
   }
 
   .usage-date-start,
-  .usage-date-end{
+  .usage-date-end {
     width: 17%;
   }
 
@@ -67,8 +65,8 @@
   }
 
   .resource-name {
-    cursor: pointer;
     width: 20%;
+    cursor: pointer;
   }
 
   .total {
@@ -86,10 +84,10 @@
 }
 
 .mat-list-item-content {
-  font-size: 14px !important;
   justify-content: space-between;
+  font-size: 14px !important;
 }
 
-mat-tooltip-component>.mat-tooltip {
+mat-tooltip-component > .mat-tooltip {
   white-space: pre;
 }

@@ -18,7 +18,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import {Observable, of} from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
@@ -38,7 +38,6 @@ export class ConfigurationService {
 
   public setServiceConfig(service: string, config: string, endpoint: string): Observable<{}> {
     const settings = {
-
       ymlString: config,
       endpointName: endpoint
     };

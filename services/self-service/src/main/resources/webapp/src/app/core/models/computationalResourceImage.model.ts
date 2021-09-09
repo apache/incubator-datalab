@@ -40,11 +40,16 @@ export class ComputationalResourceImage {
     this.limits = jsonModel.limits;
     this.shapes = new ResourceShapeTypesModel(SortUtils.shapesSort(jsonModel.computation_resources_shapes));
 
-    if (jsonModel.templates && jsonModel.templates.length > 0)
-      for (let index = 0; index < jsonModel.templates.length; index++)
-        this.application_templates.push(
-          new ComputationalResourceApplicationTemplate(jsonModel.templates[index],
-            this.shapes, this.image, this.template_name, this.description));
-
+    if (jsonModel.templates && jsonModel.templates.length > 0) {
+      for (let index = 0; index < jsonModel.templates.length; index++) {
+        this.application_templates.push(new ComputationalResourceApplicationTemplate(
+          jsonModel.templates[index],
+          this.shapes, 
+          this.image, 
+          this.template_name, 
+          this.description)
+        );
+      }
+    }
   }
 }

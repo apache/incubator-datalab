@@ -205,10 +205,7 @@ if __name__ == "__main__":
 
     # INSTALL LIVY
     if not exists(conn, '/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
-        conn.sudo('wget -P /tmp/  --user={} --password={} '
-                  '{}/repository/packages/livy.tar.gz --no-check-certificate'
-                  .format(os.environ['conf_repository_user'],
-                          os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+        conn.sudo('wget -P /tmp/ https://nexus.develop.dlabanalytics.com/repository/packages-public/livy.tar.gz --no-check-certificate')
         conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /tmp/')
         conn.sudo('mv /tmp/incubator-livy /opt/livy')
         conn.sudo('mkdir /var/log/livy')

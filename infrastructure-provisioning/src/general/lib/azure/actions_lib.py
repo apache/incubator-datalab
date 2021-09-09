@@ -1082,7 +1082,7 @@ def ensure_local_jars(os_user, jars_dir):
                 datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/{0}/hadoop-azure-datalake-{0}.jar \
                     -O {1}hadoop-azure-datalake-{0}.jar'.format('3.0.0', jars_dir))
             if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
-                datalab.fab.conn.sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
+                datalab.fab.conn.sudo('wget https://repos.spark-packages.org/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
                      -O {1}spark-tensorflow-connector-{0}.jar'.format('1.0.0-s_2.11', jars_dir))
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except Exception as err:
@@ -1139,7 +1139,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
         datalab.fab.conn.sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
               /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-        datalab.fab.conn.sudo('\cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+        datalab.fab.conn.sudo('cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
             datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
@@ -1232,6 +1232,15 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         conn.close()
 
+def ensure_right_mount_paths():
+    opt_disk = datalab.fab.conn.sudo("cat /etc/fstab | grep /opt/ | awk '{print $1}'").stdout.split('\n')[0].split('/')[2]
+    if opt_disk not in datalab.fab.conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in datalab.fab.conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
+         disk_names = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
+         for disk in disk_names:
+             if disk != '' and disk not in datalab.fab.conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in datalab.fab.conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
+                 datalab.fab.conn.sudo("umount -l /opt")
+                 datalab.fab.conn.sudo("mount /dev/{}1 /opt".format(disk))
+                 datalab.fab.conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
@@ -1248,41 +1257,45 @@ def prepare_disk(os_user):
             allow = False
             counter = 0
             remount_azure_disk()
-            disk_name = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1").stdout.replace('\n','')
-            datalab.fab.conn.sudo('umount -l /dev/{}1'.format(disk_name), warn=True)
-            while not allow:
-                if counter > 4:
-                    print("Unable to prepare disk")
-                    sys.exit(1)
-                else:
-                    out = datalab.fab.conn.sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{} 2>&1' '''.format(
-                        disk_name)).stdout
-                    if 'Syncing disks' in out:
-                        allow = True
-                    elif 'The kernel still uses the old table.' in out:
-                        if datalab.fab.conn.sudo('partprobe').stdout:
-                            datalab.fab.conn.sudo('reboot', warn=True)
-                        allow = True
-                    else:
-                        counter += 1
-                        time.sleep(5)
-            datalab.fab.conn.sudo('umount -l /dev/{}1'.format(disk_name), warn=True)
-            try:
-                datalab.fab.conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            except:
-                out = datalab.fab.conn.sudo('mount -l | grep /dev/{}1'.format(disk_name)).stdout
-                if 'type ext4' in out:
-                    pass
-                else:
-                    sys.exit(1)
-            datalab.fab.conn.sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            datalab.fab.conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(
-                disk_name))
+            disk_names = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
+            for disk in disk_names:
+                if disk != '' and disk not in datalab.fab.conn.sudo('lsblk | grep part').stdout:
+                    while not allow:
+                        if counter > 4:
+                            print("Unable to prepare disk")
+                            sys.exit(1)
+                        else:
+                            out = datalab.fab.conn.sudo(
+                                '''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{} 2>&1' '''.format(
+                                    disk)).stdout
+                            if 'Syncing disks' in out:
+                                allow = True
+                            elif 'The kernel still uses the old table.' in out:
+                                if datalab.fab.conn.sudo('partprobe').stdout:
+                                    datalab.fab.conn.sudo('reboot', warn=True)
+                                allow = True
+                            else:
+                                counter += 1
+                                time.sleep(5)
+                    datalab.fab.conn.sudo('umount -l /dev/{}1'.format(disk), warn=True)
+                    try:
+                        datalab.fab.conn.sudo('mkfs.ext4 -F /dev/{}1'.format(disk))
+                    except:
+                        out = datalab.fab.conn.sudo('mount -l | grep /dev/{}1'.format(disk)).stdout
+                        if 'type ext4' in out:
+                            pass
+                        else:
+                            sys.exit(1)
+                    datalab.fab.conn.sudo('mount /dev/{}1 /opt/'.format(disk))
+                    datalab.fab.conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk))
+
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except Exception as err:
             traceback.print_exc()
             print('Error:', str(err))
             sys.exit(1)
+    else:
+        ensure_right_mount_paths()
 
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):

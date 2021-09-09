@@ -68,7 +68,9 @@ public class ProjectCallback {
             requestId.checkAndRemove(projectResult.getRequestId());
             final String projectName = projectResult.getProjectName();
             final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
-            saveGpuForProject(projectResult, projectName);
+            if (projectResult.getEdgeInfo() != null) {
+                saveGpuForProject(projectResult, projectName);
+            }
             if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
                 projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
             } else {
@@ -76,6 +78,7 @@ public class ProjectCallback {
                 projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
             }
         } catch (Exception e) {
+            log.error(e.toString());
             log.error(e.getMessage());
             log.info("Run scheduler");
             scheduler.execute(null);
@@ -85,7 +88,6 @@ public class ProjectCallback {
 
     private void saveGpuForProject(ProjectResult projectResult, String projectName) {
         try {
-
             if (projectResult.getEdgeInfo().getGpuList() != null) {
                 List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
                 log.info("Adding edgeGpu with gpu_types: {}, for project: {}", gpuList, projectName);

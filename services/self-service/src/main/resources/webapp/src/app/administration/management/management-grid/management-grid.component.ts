@@ -30,18 +30,17 @@ import {
   AfterViewChecked,
   ApplicationRef
 } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject, Subject, timer } from 'rxjs';
 
-import { HealthStatusService } from '../../../core/services';
 import { SortUtils } from '../../../core/util';
 import { EnvironmentsDataService } from '../management-data.service';
 import { EnvironmentModel, ManagementConfigModel } from '../management.model';
-import {ProgressBarService} from '../../../core/services/progress-bar.service';
-import {DetailDialogComponent} from '../../../resources/exploratory/detail-dialog';
-import {BehaviorSubject, Subject, timer} from 'rxjs';
-import { ChangeDetectorRef } from '@angular/core';
-import {CompareUtils} from '../../../core/util/compareUtils';
+import { ProgressBarService } from '../../../core/services/progress-bar.service';
+import { DetailDialogComponent } from '../../../resources/exploratory/detail-dialog';
+import { CompareUtils } from '../../../core/util/compareUtils';
 
 export interface ManageAction {
   action: string;
@@ -67,8 +66,9 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   filtering: boolean = false;
   collapsedFilterRow: boolean = false;
   isMaxRight: Subject<boolean> = new BehaviorSubject(false);
-  private tableWrapperWidth: number;
+  tableWrapperWidth: number;
   tableEl = {};
+  userAgentIndex: number;
 
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
@@ -93,7 +93,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
     this.checkMaxRight();
   }
 
-  displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'endpoint', 'shape', 'status', 'resources', 'actions'];
+  displayedColumns: string[] = ['checkbox', 'user', 'type', 'project', 'endpoint', 'shape', 'status', 'resources', 'actions'];
   displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'endpoint-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
   public selected;
   public allActiveNotebooks: any;
@@ -102,7 +102,6 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   public isFilterChanged: boolean;
 
   constructor(
-    private healthStatusService: HealthStatusService,
     private environmentsDataService: EnvironmentsDataService,
     public toastr: ToastrService,
     public dialog: MatDialog,
@@ -112,9 +111,9 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   ) { }
 
   ngOnInit() {
+    this.userAgentIndex = window.navigator.userAgent.indexOf('Firefox');
     this.getEnvironmentData();
   }
-
 
   ngAfterViewInit() {
     this.progressBarService.startProgressBar();
@@ -134,16 +133,20 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
   getEnvironmentData() {
     this.progressBarService.startProgressBar();
-    this.environmentsDataService._data.subscribe(data => {
-      if (data) {
-        this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
-        this.getDefaultFilterConfiguration(data);
-        this.applyFilter(this.cashedFilterForm || this.filterForm);
-      }
-      this.progressBarService.stopProgressBar();
-    }, () => {
-      this.progressBarService.stopProgressBar();
-    });
+    this.environmentsDataService._data
+      .subscribe(
+        data => {
+          if (data) {
+            this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
+            this.getDefaultFilterConfiguration(data);
+            this.applyFilter(this.cashedFilterForm || this.filterForm);
+          }
+          this.progressBarService.stopProgressBar();
+        }, 
+        () => {
+          this.progressBarService.stopProgressBar();
+        }
+    );
   }
 
   buildGrid(): void {
@@ -183,7 +186,9 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
     const containsStatus = (list, selectedItems) => {
       if (list) {
-        return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
+        return list.filter((item: any) => { 
+          if (selectedItems.indexOf(item.status) !== -1) return item; 
+        });
       }
     };
 
@@ -191,16 +196,31 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
     if (config) {
       filteredData = filteredData.filter(item => {
         const isUser = config.users.length > 0 ? (config.users.indexOf(item.user) !== -1) : true;
-        const isTypeName = item.name ? item.name.toLowerCase()
-          .indexOf(config.type.toLowerCase()) !== -1 : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
-        const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-        const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
-        const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
-        const isEndpoint = config.endpoints.length > 0 ? (config.endpoints.indexOf(item.endpoint) !== -1) : true;
+        const isTypeName = item.name 
+          ? item.name.toLowerCase().indexOf(config.type.toLowerCase()) !== -1 
+          : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
+        const isStatus = config.statuses.length > 0 
+          ? (config.statuses.indexOf(item.status) !== -1) 
+          : (config.type !== 'active');
+        const isShape = config.shapes.length > 0 
+          ? (config.shapes.indexOf(item.shape) !== -1 ||
+            config.shapes.indexOf(item.gpu_type) !== -1 ||
+            config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1) 
+          : true;
+        const isProject = config.projects.length > 0 
+          ? (config.projects.indexOf(item.project) !== -1) 
+          : true;
+        const isEndpoint = config.endpoints.length > 0 
+          ? (config.endpoints.indexOf(item.endpoint) !== -1) 
+          : true;
 
         const modifiedResources = containsStatus(item.resources, config.resources);
-        let isResources = config.resources.length > 0 ? (modifiedResources && modifiedResources.length > 0) : true;
-        if (config.resources.length > 0 && modifiedResources && modifiedResources.length > 0) { item.resources = modifiedResources; }
+        let isResources = config.resources.length > 0 
+          ? (modifiedResources && modifiedResources.length > 0) 
+          : true;
+        if (config.resources.length > 0 && modifiedResources && modifiedResources.length > 0) { 
+          item.resources = modifiedResources; 
+        }
 
         if (config.resources && config.resources.length === 0 && config.type === 'active' ||
           modifiedResources && modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
@@ -214,8 +234,8 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
     this.allFilteredEnvironmentData = filteredData;
     this.allActiveNotebooks = this.allFilteredEnvironmentData
       .filter(v => v.name &&
-      (v.status === 'running' || v.status === 'stopped') &&
-      !this.clustersInProgress(v.resources || []));
+        (v.status === 'running' || v.status === 'stopped') &&
+        !this.clustersInProgress(v.resources || []));
     this.checkFilters();
   }
 
@@ -249,7 +269,8 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   }
 
   private getDefaultFilterConfiguration(data): void {
-    const users = [], projects = [], shapes = [], statuses = [], resources = [], endpoints = [];
+    const users = [], projects = [], shapes = [], statuses = [],
+      resources = [], endpoints = [], gpuTypes = [], gpuCounts = [];
 
     data && data.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1) users.push(item.user);
@@ -257,23 +278,26 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
       if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1) statuses.push(item.status.toLowerCase());
       if (item.project && projects.indexOf(item.project) === -1) projects.push(item.project);
       if (item.shape && shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+      if (item.gpu_type && gpuTypes.indexOf(item.gpu_type) === -1) gpuTypes.push(item.gpu_type);
+      if (item.gpu_count && gpuCounts.indexOf(`GPU count: ${item.gpu_count}`) === -1) gpuCounts.push(`GPU count: ${item.gpu_count}`);
       if (item.computational_resources) {
-         item.computational_resources.map((resource: any) => {
-              if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
-              resources.sort(SortUtils.statusSort);
-            });
+        item.computational_resources.map((resource: any) => {
+          if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
+          resources.sort(SortUtils.statusSort);
+        });
       }
     });
 
-    this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources, endpoints);
+    this.filterConfiguration = new ManagementConfigModel(users, '', projects, [...shapes, ...gpuTypes, ...gpuCounts], statuses, resources, endpoints);
   }
 
   public openNotebookDetails(data) {
     if (!data.exploratory_urls || !data.exploratory_urls.length) {
       return;
     }
-    this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, buckets: [], type: 'environment'},
+    this.dialog.open(DetailDialogComponent, {
+      data:
+        { notebook: data, buckets: [], type: 'environment' },
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => {});
@@ -315,12 +339,12 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
   public checkMaxRight() {
     let arg;
-      if (this.wrapper && this.table) {
-        arg = this.wrapper.nativeElement.offsetWidth +
-          this.wrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
-      }
-      
-      return this.isMaxRight.next(arg);
+    if (this.wrapper && this.table) {
+      arg = this.wrapper.nativeElement.offsetWidth +
+        this.wrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+    }
+
+    return this.isMaxRight.next(arg);
   }
 }
 
@@ -430,7 +454,7 @@ export class ReconfirmationDialogComponent {
         if (notebook.resources.length) {
           this.isClusterLength = true;
         }
-          return notebook;
+        return notebook;
       });
     }
   }

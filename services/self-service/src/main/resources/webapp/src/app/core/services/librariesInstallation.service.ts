@@ -28,9 +28,8 @@ import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 export class LibrariesInstallationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  public getGroupsList(project, exploratory, computational?): Observable<Response> {
+  public getGroupsList(project, exploratory): Observable<Response> {
     let body = `/exploratory?project=${project}&exploratory=${exploratory}`;
-    if (computational) body = '/compute';
 
     return this.applicationServiceFacade
       .buildGetGroupsList(body)

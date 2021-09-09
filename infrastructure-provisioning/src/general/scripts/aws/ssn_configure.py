@@ -31,6 +31,7 @@ import os
 import sys
 import traceback
 import subprocess
+import uuid
 from fabric import *
 
 def cleanup_aws_resources(tag_name, service_base_name):
@@ -113,6 +114,10 @@ if __name__ == "__main__":
             ssn_conf['aws_report_path'] = os.environ['aws_report_path']
         else:
             ssn_conf['aws_report_path'] = ''
+        if 'keycloak_client_name' not in os.environ:
+            os.environ['keycloak_client_name'] = '{}-ui'.format(ssn_conf['service_base_name'])
+        if 'keycloak_client_secret' not in os.environ:
+            os.environ['keycloak_client_secret'] = str(uuid.uuid4())
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
@@ -221,6 +226,13 @@ if __name__ == "__main__":
     #configuring keycloak client for ui
     try:
         logging.info('[CONFIGURE KEYCLOAK CLIENT FOR DATALAB UI]')
+        keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
+                          "--keycloak_user {} --keycloak_user_password {} --instance_public_ip {} --keycloak_client_secret {} " \
+            .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
+                    os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
+                    os.environ['keycloak_user_password'], datalab.meta_lib.get_instance_hostname(
+                ssn_conf['tag_name'], ssn_conf['instance_name']), os.environ['keycloak_client_secret'])
+        subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True, check=True)
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to configure Keycloak client for DataLab UI.", str(err))

@@ -23,7 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
-import {HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
+import { HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
@@ -63,7 +63,12 @@ export class AmiCreateDialogComponent implements OnInit {
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
-      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(10), this.checkDuplication.bind(this)]],
+      name: ['', [
+        Validators.required, 
+        Validators.pattern(PATTERNS.namePattern), 
+        Validators.maxLength(10), 
+        this.checkDuplication.bind(this)
+      ]],
       description: [''],
       exploratory_name: [this.notebook.name],
       project_name: [this.notebook.project]
@@ -71,14 +76,16 @@ export class AmiCreateDialogComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    if (control.value)
+    if (control.value) {
       return this.isDuplicate(control.value) ? { duplication: true } : null;
+    }
   }
 
   private isDuplicate(value: string) {
     for (let index = 0; index < this.imagesList.length; index++) {
-      if (this.delimitersFiltering(value) === this.delimitersFiltering(this.imagesList[index].name))
+      if (this.delimitersFiltering(value) === this.delimitersFiltering(this.imagesList[index].name)) {
         return true;
+      }
     }
     return false;
   }

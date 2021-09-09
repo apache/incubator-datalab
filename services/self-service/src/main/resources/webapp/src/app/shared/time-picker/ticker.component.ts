@@ -38,8 +38,13 @@ export interface TimeFormat {
           <button mat-mini-fab class="ticker-selected"></button>
         </mat-toolbar>
         <div *ngFor="let step of steps; let i = index" [class]="getTimeValueClass(step, i)" >
-            <button mat-mini-fab [color]="selectedTimePart === step ? color : ''"
-                    (click)="changeTimeValue(step)"> {{ step }} </button>
+          <button 
+            mat-mini-fab 
+            [color]="selectedTimePart === step ? color : ''"
+            (click)="changeTimeValue(step)"
+          > 
+            {{ step }} 
+          </button>
         </div>
       </div>
     </div>

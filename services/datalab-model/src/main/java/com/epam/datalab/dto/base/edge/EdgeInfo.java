@@ -19,17 +19,14 @@
 
 package com.epam.datalab.dto.base.edge;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.epam.datalab.dto.gcp.edge.EdgeInfoGcp;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class EdgeInfo {
     @JsonProperty("_id")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

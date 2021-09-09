@@ -33,29 +33,28 @@
       </table>
       <div class="billing-detail content-box">
         <mat-list>
-            <mat-list-item class="list-header" [ngClass]="{'pr-3': notebook.billing.report_lines.length > 6}">
-              <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : provider === 'azure' }">Name</div>
-              <div class="service">Product</div>
+          <mat-list-item class="list-header" [ngClass]="{'pr-3': notebook.billing.report_lines.length > 6}">
+            <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : provider === 'azure' }">Name</div>
+            <div class="service">Product</div>
 <!--              <div class="resource-type" *ngIf="provider === 'aws'">Type</div>-->
-              <div class="usage-date-start">Start</div>
-              <div class="usage-date-end">End</div>
-              <div class="cost-currency">Cost</div>
-            </mat-list-item>
-            <div class="scrolling-content" id="scrolling">
-              <mat-list-item *ngFor="let item of notebook.billing.report_lines">
-                <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : provider === 'azure' }"
-                     matTooltip="{{ item.resource_name }}"
-                     matTooltipPosition="above">
-                     {{ item.resource_name }}
-                </div>
-                <div class="service">{{ item.product }}</div>
+            <div class="usage-date-start">Start</div>
+            <div class="usage-date-end">End</div>
+            <div class="cost-currency">Cost</div>
+          </mat-list-item>
+          <div class="scrolling-content" id="scrolling">
+            <mat-list-item *ngFor="let item of notebook.billing.report_lines">
+              <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : provider === 'azure' }"
+                    matTooltip="{{ item.resource_name }}"
+                    matTooltipPosition="above">
+                    {{ item.resource_name }}
+              </div>
+              <div class="service">{{ item.product }}</div>
 <!--                <div class="resource-type" >{{ item.resourse_type }}</div>-->
-                <div class="usage-date-start ellipsis">{{ item.from.join('/') | localDate : 'shortDate'}}</div>
-                <div class="usage-date-end ellipsis">{{ item.to.join('/') | localDate : 'shortDate'}}</div>
-                <div class="cost-currency">{{ item.cost | localcurrency }}</div>
-              </mat-list-item>
-            </div>
-
+              <div class="usage-date-start ellipsis">{{ item.from.join('/') | localDate : 'shortDate'}}</div>
+              <div class="usage-date-end ellipsis">{{ item.to.join('/') | localDate : 'shortDate'}}</div>
+              <div class="cost-currency">{{ item.cost | localcurrency }}</div>
+            </mat-list-item>
+          </div>
         </mat-list>
         <div class="total">
           <strong>Total: </strong>{{ notebook.cost | localcurrency }}</div>

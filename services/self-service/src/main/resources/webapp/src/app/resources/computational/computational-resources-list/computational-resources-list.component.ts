@@ -88,7 +88,6 @@ export class ComputationalResourcesListComponent {
   }
 }
 
-
 @Component({
   selector: 'confirmation-dialog',
   template: `
@@ -116,6 +115,7 @@ export class ComputationalResourcesListComponent {
   </div>
   `
 })
+
 export class ConfirmationDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmationDialogComponent>,

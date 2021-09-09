@@ -27,8 +27,8 @@ import { ReportingComponent } from './reporting.component';
 import { KeysPipeModule, LineBreaksPipeModule } from '../../core/pipes';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import {LocalCurrencyModule} from '../../core/pipes/local-currency-pipe';
-import {LocalDatePipeModule} from '../../core/pipes/local-date-pipe';
+import { LocalCurrencyModule } from '../../core/pipes/local-currency-pipe';
+import { LocalDatePipeModule } from '../../core/pipes/local-date-pipe';
 
 @NgModule({
     imports: [

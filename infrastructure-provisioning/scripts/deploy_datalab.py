@@ -195,6 +195,8 @@ def build_parser():
     aws_parser.add_argument('--aws_job_enabled', type=str, default='false', choices=BOOL_CHOICES_LIST,
                             help='Billing format. (valid choices: %s)' % BOOL_CHOICES_LIST)
     aws_parser.add_argument('--aws_report_path', type=str, help='The path to billing reports directory in S3 bucket')
+    aws_parser.add_argument('--aws_permissions_boundary_arn', type=str, default='',
+                            help='Permission boundary to be attached to new roles')
 
     aws_required_args = aws_parser.add_argument_group('Required arguments')
     aws_required_args.add_argument('--aws_region', type=str, required=True, help='AWS region')
@@ -281,16 +283,22 @@ def generate_docker_command():
 
 
 def build_docker_images(args):
-    # Building base and ssn docker images
-    subprocess.run(
-        'cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
-        'infrastructure-provisioning/src/general/files/{1}/'
-        'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider,
-                                                          args.workspace_path), shell=True, check=True)
-    subprocess.run(
-        'cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
-        'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider,
-                                                        args.workspace_path), shell=True, check=True)
+    if args.conf_repository_user and args.conf_repository_pass and args.conf_repository_port and args.conf_repository_address and args.conf_download_docker_images == 'true':
+        subprocess.run( 'sudo docker login -u {0} -p {1} {2}:{3}'
+                        .format(args.conf_repository_user, args.conf_repository_pass, args.conf_repository_address, args.conf_repository_port), shell=True, check=True)
+        subprocess.run('sudo docker pull {}:{}/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image tag {}:{}/docker.datalab-base-{} docker.datalab-base'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image rm {}:{}/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker pull {}:{}/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image tag {}:{}/docker.datalab-ssn-{} docker.datalab-ssn'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+        subprocess.run('sudo docker image rm {}:{}/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
+    else:
+        # Building base and ssn docker images
+        subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --build-arg SRC_PATH="infrastructure-provisioning/src/" --file '
+              'infrastructure-provisioning/src/general/files/{1}/'
+              'base_Dockerfile -t docker.datalab-base .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
+        subprocess.run('cd {2}; sudo docker build --build-arg OS={0} --file infrastructure-provisioning/src/general/files/{1}/'
+              'ssn_Dockerfile -t docker.datalab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider, args.workspace_path), shell=True, check=True)
 
 
 def deploy_datalab(args):

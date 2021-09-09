@@ -11,7 +11,7 @@
       "template_name": "Data Science Virtual Machine - Ubuntu 18.04",
       "description": "Pre-configured with NVIDIA drivers, CUDA Toolkit, and cuDNN library for GPU workloads with the following highlights: Jupyter, JupyterLab, and JupyterHub; Deep learning with TensorFlow and PyTorch; Machine learning with xgboost, Vowpal Wabbit, and LightGBM; Julia; Azure SDKs and libraries; Azure Machine Learning SDKs and sample notebooks; R support; Spark. Uses Anaconda virtual environments, configured to keep the different framework installations separate and easy to switch between frameworks as Jupyter kernels.",
       "environment_type": "exploratory",
-      "version": "microsoft-dsvm:ubuntu-1804:1804-gen2",
+      "version": "microsoft-dsvm:ubuntu-1804:1804",
       "vendor": "Azure"
     }
   ],

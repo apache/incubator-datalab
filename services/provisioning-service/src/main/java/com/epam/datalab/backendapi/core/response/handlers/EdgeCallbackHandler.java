@@ -59,7 +59,8 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
     }
 
     protected T parseOutResponse(JsonNode resultNode, T baseStatus) {
-        if (resultNode != null && (getAction() == DockerAction.CREATE || getAction() == DockerAction.START)
+        if (resultNode != null
+                && (getAction() == DockerAction.CREATE || getAction() == DockerAction.START)
                 && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {
                 E credential = mapper.readValue(resultNode.toString(), responseType);

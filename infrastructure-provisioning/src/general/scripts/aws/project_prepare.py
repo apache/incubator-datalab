@@ -223,6 +223,8 @@ if __name__ == "__main__":
             .format(project_conf['edge_role_name'], project_conf['edge_role_profile_name'],
                          project_conf['edge_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
                          project_conf['service_base_name'], user_tag)
+        if 'aws_permissions_boundary_arn' in os.environ:
+            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
@@ -243,6 +245,8 @@ if __name__ == "__main__":
                          project_conf['notebook_dataengine_role_profile_name'],
                          project_conf['notebook_dataengine_policy_name'], os.environ['aws_region'],
                          project_conf['tag_name'], project_conf['service_base_name'], user_tag)
+        if 'aws_permissions_boundary_arn' in os.environ:
+            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:

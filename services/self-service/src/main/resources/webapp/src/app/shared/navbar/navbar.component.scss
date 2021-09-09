@@ -21,15 +21,15 @@
 // }
 
 .nav-bar {
-  min-height: 48px;
-  height: 48px;
-  background-color: #222;
-  border-color: #080808;
   position: relative;
   display: flex;
   justify-content: space-between;
   margin-bottom: 0;
   border-radius: 0;
+  min-height: 48px;
+  height: 48px;
+  background-color: #222;
+  border-color: #080808;
 
   .menu-area {
     display: flex;
@@ -52,10 +52,10 @@
 
     .statusbar {
       display: flex;
+      justify-content: center;
       width: 50px;
       height: 46px;
       text-decoration: none;
-      justify-content: center;
       color: #f9fafb;
       cursor: pointer;
 
@@ -99,14 +99,14 @@
 
     .btn-logout {
       height: 46px;
+      min-width: 280px;
       padding: 0 28px;
       background: #383838;
+      font-size: 14px;
       color: #cfdae6;
       border: 0;
       border-radius: 0;
-      font-size: 14px;
       cursor: pointer;
-      min-width: 280px;
       text-align: left;
 
       .user-name {
@@ -129,11 +129,11 @@
 
   p {
     strong {
+      display: inline-block;
+      width: 120px;
       color: #455c74;
       font-size: 14px;
       font-weight: 600;
-      width: 120px;
-      display: inline-block;
     }
 
     .helper_instruction {
@@ -145,8 +145,8 @@
     }
 
     span {
-      width: 180px;
       display: inline-block;
+      width: 180px;
       vertical-align: bottom;
     }
   }
@@ -157,13 +157,13 @@
 }
 
 a.nav-item {
-  display: block;
   position: relative;
+  display: block;
   height: 56px;
   padding: 5px 10px;
   line-height: 48px;
   font-family: "Open Sans", sans-serif;
-  transition: all .45s ease-in-out;
+  transition: all 0.45s ease-in-out;
   text-decoration: none;
   font-size: 14px;
   overflow: hidden;
@@ -184,18 +184,19 @@ a.nav-item {
     background: none !important;
     color: #36afd5 !important;
   }
-  &:not(.has-children):hover #swager-bgr{
+
+  &:not(.has-children):hover #swager-bgr {
     fill: #36afd5;
   }
 
   &:not(:last-child)::after {
-    content: ' ';
+    content: " ";
     position: absolute;
     bottom: 0;
-    left: calc(50% - 200px/2);
+    left: calc(50% - 200px / 2);
+    display: block;
     height: 1px;
     width: 200px;
-    display: block;
     background: #edf1f5;
   }
 
@@ -212,7 +213,7 @@ a.nav-item {
 
   .sub-nav-item {
     display: block;
-    transition: all .45s ease-in-out;
+    transition: all 0.45s ease-in-out;
 
     i {
       vertical-align: middle;
@@ -235,30 +236,30 @@ a.nav-item {
 .error,
 .user-name,
 .meta {
-  transition: all .35s ease-in-out;
+  transition: all 0.35s ease-in-out;
 }
 
 .hamburger {
-  border: none;
-  padding: 0;
-  background: none;
-  outline: none;
   width: 60px;
   height: 46px;
+  padding: 0;
+  border: none;
+  background: none;
+  outline: none;
   cursor: pointer;
   border-radius: 0;
-  transition: all .45s ease-in-out;
+  transition: all 0.45s ease-in-out;
 
   .line {
+    display: block;
     width: 22px;
     height: 2px;
-    display: block;
     margin: 4px auto;
     border-radius: 1px;
     background-color: #ecf0f1;
-    -webkit-transition: all .35s ease-in-out;
-    -o-transition: all .35s ease-in-out;
-    transition: all .35s ease-in-out;
+    -webkit-transition: all 0.35s ease-in-out;
+    -o-transition: all 0.35s ease-in-out;
+    transition: all 0.35s ease-in-out;
 
     &:nth-child(2) {
       -webkit-transition-delay: 0.3s;
@@ -299,7 +300,6 @@ a.nav-item {
 }
 
 mat-sidenav {
-
   mat-nav-list {
     height: 100%;
 
@@ -329,6 +329,6 @@ mat-sidenav-content {
   }
 }
 
-.blue{
+.blue {
   color: #35afd5;
 }

@@ -20,6 +20,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { HealthStatusService } from '../../../core/services';
 
@@ -42,9 +43,11 @@ export class SsnMonitorComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.healthStatusService.getSsnMonitorData().subscribe(
+    this.healthStatusService.getSsnMonitorData()
+    .subscribe(
       monitorData => this.data = monitorData,
-      () => this.toastr.error('Failed ssn data loading!', 'Oops!'));
+      () => this.toastr.error('Failed ssn data loading!', 'Oops!')
+    );
   }
 
   public isEmpty(obj) {

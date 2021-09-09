@@ -23,7 +23,8 @@
       <div class="action-select-wrapper admin-group" >
         <span class="action-button-wrapper">
           <button
-            type="button" class="butt actions-btn"
+            type="button" 
+            class="butt actions-btn"
             mat-raised-button
             [disabled]="!selected.length"
             (click)="toogleActions();$event.stopPropagation()"
@@ -34,18 +35,20 @@
           </span>
         <div class="action-menu" *ngIf="isActionsOpen">
           <span>
+            <button
+              type="button" 
+              class="butt action-menu-item"
+              [ngClass]="{'disabled': selectedRunning.length === 0  || selectedStopped.length !== 0 }"
+              mat-raised-button
+              [disabled]="selectedRunning.length === 0"
+              (click)="resourseAction('stop');$event.stopPropagation()"
+            >
+              Stop
+            </button>
+          </span>
           <button
-           type="button" class="butt action-menu-item"
-            [ngClass]="{'disabled': selectedRunning.length === 0  || selectedStopped.length !== 0 }"
-            mat-raised-button
-            [disabled]="selectedRunning.length === 0"
-            (click)="resourseAction('stop');$event.stopPropagation()"
-          >
-            Stop
-          </button>
-            </span>
-          <button
-            type="button" class="butt action-menu-item"
+            type="button" 
+            class="butt action-menu-item"
             mat-raised-button
             (click)="resourseAction('terminate');$event.stopPropagation()"
           >
@@ -53,26 +56,42 @@
           </button>
         </div>
       </div>
-      <button mat-raised-button class="butt ssn" (click)="showEndpointsDialog()">
+      <button 
+        mat-raised-button 
+        class="butt ssn" 
+        (click)="showEndpointsDialog()"
+      >
         <i class="material-icons"></i>Endpoints
       </button>
       <!-- <button mat-raised-button class="butt ssn" (click)="openSsnMonitorDialog()">
         <i class="material-icons"></i>SSN Monitor
       </button> -->
-      <button mat-raised-button class="butt env" (click)="openManageEnvironmentDialog()">
-          Manage DataLab quotas
+      <button 
+        mat-raised-button 
+        class="butt env" 
+        (click)="openManageEnvironmentDialog()"
+      >
+        Manage DataLab quotas
       </button>
       <!-- <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup">
         <i class="material-icons">backup</i>Backup
       </button> -->
     </div>
-    <button mat-raised-button class="butt" (click)="refreshGrid()">
+    <button 
+      mat-raised-button 
+      class="butt" 
+      (click)="refreshGrid()"
+    >
       <i class="material-icons refresh-icon">autorenew</i>Refresh
     </button>
   </div>
   <mat-divider></mat-divider>
-  <management-grid [currentUser]="user.toLowerCase()" [isAdmin]="healthStatus?.admin"
-    [environmentsHealthStatuses]="healthStatus?.list_resources" (refreshGrid)="buildGrid()"
-    (actionToggle)="toggleResourceAction($event)" (emitSelectedList)="selectedList($event)">
-  </management-grid>
+  <management-grid 
+    [currentUser]="user.toLowerCase()" 
+    [isAdmin]="healthStatus?.admin"
+    [environmentsHealthStatuses]="healthStatus?.list_resources" 
+    (refreshGrid)="buildGrid()"
+    (actionToggle)="toggleResourceAction($event)" 
+    (emitSelectedList)="selectedList($event)"
+  ></management-grid>
 </div>

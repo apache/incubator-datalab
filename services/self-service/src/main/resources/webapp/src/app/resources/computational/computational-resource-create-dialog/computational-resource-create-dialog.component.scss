@@ -21,12 +21,15 @@
   display: flex;
   .col {
     width: 50%;
+
     .control-group {
       position: relative;
+
       .label {
         width: 40%;
         padding-left: 10px;
       }
+
       .control {
         width: 60%;
       }
@@ -34,19 +37,22 @@
     span {
       &.error {
         position: absolute;
-        padding-left: 10px;
         right: 0;
         top: 36px;
+        padding-left: 10px;
       }
     }
+
     .alias-name {
       .danger-color {
         right: auto;
       }
     }
   }
+
   &.compress {
     flex-direction: column;
+
     .col {
       width: 100%;
     }
@@ -54,12 +60,14 @@
 }
 .checkbox-group {
   text-align: left;
+
   input[type="checkbox"] {
-    vertical-align: middle;
     margin-left: 10px;
     margin-right: 5px;
     margin-bottom: 4px;
+    vertical-align: middle;
   }
+
   .spot-details,
   .preemptible-details,
   .config-details {
@@ -74,21 +82,28 @@
       opacity: 1;
     }
   }
+
   &.preemptible {
     height: 50px;
+
     .label {
       height: 36px;
       padding-bottom: 14px;
     }
+
     .control {
       position: relative;
     }
   }
+
   .align {
     margin-left: 25px;
   }
-  .spot-details, .preemptible-details {
+
+  .spot-details,
+  .preemptible-details {
     position: relative;
+
     .error {
       bottom: 0;
     }
@@ -98,15 +113,17 @@
       text-align: right;
     }
   }
+
   .config-details {
     &.show {
+      position: relative;
       height: 240px;
       padding-top: 10px;
       text-align: right;
-      position: relative;
+
       textarea {
-        background: #f8f8f8 !important;
         height: 100%;
+        background: #f8f8f8 !important;
         resize: none;
         font-size: 14px;
         line-height: 1.5;
@@ -114,12 +131,14 @@
       }
     }
   }
+
   & > label {
+    padding-bottom: 10px;
     font-size: 15px;
     font-weight: 600;
-    padding-bottom: 10px;
     cursor: pointer;
   }
+
   span {
     &.error {
       position: absolute;
@@ -127,16 +146,19 @@
       right: 0;
     }
   }
+
   &.control-group {
     padding: 0;
+
     span.info {
-      color: #35afd5;
-      font-size: 13px;
-      text-align: justify;
       display: inline-block;
       padding-top: 5px;
       padding-bottom: 10px;
+      color: #35afd5;
+      font-size: 13px;
+      text-align: justify;
     }
+
     span {
       &.error {
         position: absolute;
@@ -144,13 +166,16 @@
         right: 0;
       }
     }
+    
     .label {
       width: 20%;
     }
+
     .control {
       width: 80%;
     }
   }
+
   .config-link {
     font-size: 13px;
     padding-top: 5px;

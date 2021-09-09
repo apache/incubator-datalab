@@ -25,31 +25,31 @@ import { MaterialModule } from '../../shared/material.module';
 import { ResourcesGridModule } from '../resources-grid';
 import { ExploratoryEnvironmentCreateModule } from '../exploratory/create-environment';
 
-import {BucketBrowserComponent} from './bucket-browser.component';
-import {FolderTreeComponent} from './folder-tree/folder-tree.component';
-import {MatTreeModule} from '@angular/material/tree';
-import {BucketDataService} from './bucket-data.service';
-import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
-import {BucketTreeComponent} from './buckets-tree/bucket-tree.component';
-import {ConvertFileSizePipeModule} from '../../core/pipes/convert-file-size';
-import {LocalDatePipeModule} from '../../core/pipes/local-date-pipe';
-import {ConvertActionPipeModule} from '../../core/pipes/convert-action-pipe';
-import {CheckboxModule} from '../../shared/checkbox';
+import { BucketBrowserComponent } from './bucket-browser.component';
+import { FolderTreeComponent } from './folder-tree/folder-tree.component';
+import { MatTreeModule } from '@angular/material/tree';
+import { BucketDataService } from './bucket-data.service';
+import { BucketConfirmationDialogComponent } from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
+import { BucketTreeComponent } from './buckets-tree/bucket-tree.component';
+import { ConvertFileSizePipeModule } from '../../core/pipes/convert-file-size';
+import { LocalDatePipeModule } from '../../core/pipes/local-date-pipe';
+import { ConvertActionPipeModule } from '../../core/pipes/convert-action-pipe';
+import { CheckboxModule } from '../../shared/checkbox';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ResourcesGridModule,
-        ExploratoryEnvironmentCreateModule,
-        MaterialModule,
-        MatTreeModule,
-        ConvertFileSizePipeModule,
-        LocalDatePipeModule,
-        ConvertActionPipeModule,
-        CheckboxModule
-    ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ResourcesGridModule,
+    ExploratoryEnvironmentCreateModule,
+    MaterialModule,
+    MatTreeModule,
+    ConvertFileSizePipeModule,
+    LocalDatePipeModule,
+    ConvertActionPipeModule,
+    CheckboxModule
+  ],
   declarations: [
     BucketBrowserComponent,
     FolderTreeComponent,

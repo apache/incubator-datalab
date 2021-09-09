@@ -20,6 +20,7 @@
 import { Component, Output, EventEmitter, ViewEncapsulation, Inject, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CheckUtils } from '../../../core/util';
 
@@ -63,12 +64,12 @@ export class ManageEnvironmentComponent implements OnInit {
       if (this.getCurrentTotalValue()) {
         if (this.getCurrentTotalValue() >= this.getCurrentUsersTotal()) {
           this.manageUsersForm.controls['total'].setErrors(null);
-          if (this.manageUsersForm.controls['total'].value > 1000000000) this.manageUsersForm.controls['total'].setErrors({max: true});
+          if (this.manageUsersForm.controls['total'].value > 1000000000) this.manageUsersForm.controls['total'].setErrors({ max: true });
           this.manageUsersForm.controls['projects']['controls'].forEach(v => {
-              v.controls['budget'].errors &&
-              'max' in v.controls['budget'].errors ? null : v.controls['budget'].setErrors(null);
-            }
-          );
+            v.controls['budget'].errors && 'max' in v.controls['budget'].errors 
+              ? null 
+              : v.controls['budget'].setErrors(null);
+          });
         } else {
           this.manageUsersForm.controls['total'].setErrors({ overrun: true });
         }
@@ -85,8 +86,8 @@ export class ManageEnvironmentComponent implements OnInit {
       value.projects = value.projects.filter((v, i) =>
         this.initialFormState.projects[i].budget !== v.budget ||
         this.initialFormState.projects[i].monthlyBudget !== v.monthlyBudget);
-        value.isTotalChanged = this.initialFormState.total !== value.total;
-        this.dialogRef.close(value);
+      value.isTotalChanged = this.initialFormState.total !== value.total;
+      this.dialogRef.close(value);
     } else {
       this.manageUsersForm.controls['total'].setErrors({ overrun: true });
     }
@@ -94,16 +95,19 @@ export class ManageEnvironmentComponent implements OnInit {
 
   public setProjectsControl() {
     this.manageUsersForm.setControl('projects',
-      this._fb.array((this.data.projectsList || []).map((x: any, index: number) => this._fb.group({
-        project: x.name,
-        budget: [x.budget.value, [ Validators.max(1000000000), this.userValidityCheck.bind(this)]],
-        monthlyBudget: x.budget.monthlyBudget,
-      }))));
+      this._fb.array((this.data.projectsList || [])
+        .map((x: any, index: number) => this._fb.group({
+          project: x.name,
+          budget: [x.budget.value, [Validators.max(1000000000), this.userValidityCheck.bind(this)]],
+          monthlyBudget: x.budget.monthlyBudget,
+        }))
+      )
+    );
   }
 
   private initForm(): void {
     this.manageUsersForm = this._fb.group({
-      total: [null, [Validators.min(0), this.totalValidityCheck.bind(this),  Validators.max(1000000000) ]],
+      total: [null, [Validators.min(0), this.totalValidityCheck.bind(this), Validators.max(1000000000)]],
       projects: this._fb.array([this._fb.group({ project: '', budget: null, status: '' })])
     });
   }
@@ -124,7 +128,9 @@ export class ManageEnvironmentComponent implements OnInit {
 
   private userValidityCheck(control) {
     if (control && control.value) {
-      if (control.parent)this.manageUsersForm.value.projects.find(v => v.project === control.parent.value.project).budget = control.value;
+      if (control.parent) {
+        this.manageUsersForm.value.projects.find(v => v.project === control.parent.value.project).budget = control.value;
+      }
       return (this.getCurrentTotalValue() && this.getCurrentTotalValue() < this.getCurrentUsersTotal()) ? { overrun: true } : null;
     }
   }

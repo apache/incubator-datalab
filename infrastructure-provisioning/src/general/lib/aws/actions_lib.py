@@ -554,7 +554,7 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_iam_role(role_name, role_profile, region, service='ec2', tag=None, user_tag=None):
+def create_iam_role(role_name, role_profile, region, permissions_boundary='', service='ec2', tag=None, user_tag=None):
     conn = boto3.client('iam')
     try:
         if region == 'cn-north-1':
@@ -563,6 +563,11 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None, us
                 AssumeRolePolicyDocument=
                 '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service +
                 '.amazonaws.com.cn"]},"Action":["sts:AssumeRole"]}]}')
+        elif permissions_boundary != '':
+            conn.create_role(
+                RoleName=role_name, PermissionsBoundary=permissions_boundary, AssumeRolePolicyDocument=
+                '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service +
+                '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
         else:
             conn.create_role(
                 RoleName=role_name, AssumeRolePolicyDocument=

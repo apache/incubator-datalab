@@ -21,7 +21,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 
-
 interface BucketNode {
   name: string;
   endpoint?: string;
@@ -64,8 +63,7 @@ export class BucketTreeComponent implements OnInit {
   private activeBucketName: string;
   public activeBacket: any;
 
-  constructor() {
-  }
+  constructor() {}
 
   ngOnInit() {
     this.activeBucketName = this.openedBucket || '';

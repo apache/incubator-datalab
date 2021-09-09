@@ -18,7 +18,13 @@
   -->
 
 <div class="dropdown-list" >
-  <button class="dropdown-toggle" type="button" #list (click)="emitEvent()" (click)="actions.toggle($event, list)">
+  <button 
+    class="dropdown-toggle" 
+    type="button" 
+    #list 
+    (click)="emitEvent()" 
+    (click)="actions.toggle($event, list)"
+  >
     <span class="title"><span [innerHTML]="label || 'None'"></span></span>
     <span class="caret-btn"><i class="material-icons">keyboard_arrow_down</i></span>
   </button>

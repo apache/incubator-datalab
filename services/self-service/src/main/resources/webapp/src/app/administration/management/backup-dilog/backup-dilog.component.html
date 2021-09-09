@@ -20,7 +20,11 @@
 <div class="backup-dialog" id="dialog-box">
   <header class="dialog-header">
     <h4 class="modal-title">Backup options</h4>
-    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+    <button 
+      type="button" 
+      class="close" 
+      (click)="dialogRef.close()"
+    >&times;</button>
   </header>
   <div class="dialog-content">
     <div id="backup-options" class="content-box" *ngIf="backupOptions">
@@ -28,7 +32,8 @@
         <mat-slide-toggle
           labelPosition="before"
           [checked]="backupOptions.configFiles[0] === 'all'"
-          (change)="onHoldChanged($event, 'configFiles')">
+          (change)="onHoldChanged($event, 'configFiles')"
+        >
           <span class="hold-label">Configuration files</span>
         </mat-slide-toggle>
       </div>
@@ -36,7 +41,8 @@
         <mat-slide-toggle
           labelPosition="before"
           [checked]="backupOptions.keys[0] === 'all'"
-          (change)="onHoldChanged($event, 'keys')">
+          (change)="onHoldChanged($event, 'keys')"
+        >
           <span class="hold-label">User keys</span>
         </mat-slide-toggle>
       </div>
@@ -44,7 +50,8 @@
         <mat-slide-toggle
           labelPosition="before"
           [checked]="backupOptions.databaseBackup"
-          (change)="onHoldChanged($event, 'databaseBackup')">
+          (change)="onHoldChanged($event, 'databaseBackup')"
+        >
           <span class="hold-label">Database</span>
         </mat-slide-toggle>
       </div>
@@ -52,7 +59,8 @@
         <mat-slide-toggle
           labelPosition="before"
           [checked]="backupOptions.certificates[0] === 'all'"
-          (change)="onHoldChanged($event, 'certificates')">
+          (change)="onHoldChanged($event, 'certificates')"
+        >
           <span class="hold-label">SSL Certificates</span>
         </mat-slide-toggle>
       </div>
@@ -60,7 +68,8 @@
         <mat-slide-toggle
           labelPosition="before"
           [checked]="backupOptions.jars[0] === 'all'"
-          (change)="onHoldChanged($event, 'jars')">
+          (change)="onHoldChanged($event, 'jars')"
+        >
           <span class="hold-label">JAR files</span>
         </mat-slide-toggle>
       </div>
@@ -68,15 +77,29 @@
         <mat-slide-toggle
           labelPosition="before"
           [checked]="backupOptions.logsBackup"
-          (change)="onHoldChanged($event, 'logsBackup')">
+          (change)="onHoldChanged($event, 'logsBackup')"
+        >
           <span class="hold-label">Log files</span>
         </mat-slide-toggle>
       </div>
       <div class="text-center m-top-30 m-bott-10">
-        <button mat-raised-button type="button" class="butt" (click)="dialogRef.close(); backupOptions.setDegault()">
+        <button 
+          mat-raised-button 
+          type="button" 
+          class="butt" 
+          (click)="dialogRef.close(); backupOptions.setDegault()"
+        >
           Cancel
         </button>
-        <button mat-raised-button type="button" (click)="applyOptions()" class="butt butt-success" [disabled]="!valid">Apply</button>
+        <button 
+          mat-raised-button 
+          type="button" 
+          class="butt butt-success" 
+          (click)="applyOptions()" 
+          [disabled]="!valid"
+        >
+          Apply
+        </button>
       </div>
     </div>
   </div>

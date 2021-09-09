@@ -86,7 +86,10 @@ if __name__ == "__main__":
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH").decode('UTF-8')
-        notebook_config['primary_disk_size'] = '32'
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            notebook_config['primary_disk_size'] = '150'
+        else:
+            notebook_config['primary_disk_size'] = '32'
         notebook_config['instance_storage_account_type'] = (lambda x: 'Standard_LRS' if x in ('deeplearning', 'tensor')
                                                             else 'Premium_LRS')(os.environ['application'])
         if os.environ['conf_os_family'] == 'debian':
@@ -109,19 +112,29 @@ if __name__ == "__main__":
                 notebook_config['service_base_name'],
                 notebook_config['endpoint_name'],
                 notebook_config['application'])
-        notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-{4}'.format(
-            notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
-            os.environ['application'], os.environ['notebook_image_name']).replace('_', '-') if (x != 'None' and x != '')
-            else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
+
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
-        if AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
-            notebook_config['image_name'] = notebook_config['notebook_image_name']
-            notebook_config['image_type'] = 'pre-configured'
-            print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            if AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name']):
+                notebook_config['image_name'] = notebook_config['expected_image_name']
+                notebook_config['image_type'] = 'pre-configured'
+                print('Pre-configured image found. Using: {}'.format(notebook_config['image_name']))
+            else:
+                notebook_config['image_name'] = os.environ['notebook_image_name']
+                print('Pre-configured deeplearning image found. Using: {}'.format(notebook_config['image_name']))
         else:
-            os.environ['notebook_image_name'] = notebook_config['image_name']
-            print('No pre-configured image found. Using default one: {}'.format(notebook_config['image_name']))
+            notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-{4}'.format(
+                notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
+                os.environ['application'], os.environ['notebook_image_name']).replace('_', '-') if (x != 'None' and x != '')
+            else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
+            if AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
+                notebook_config['image_name'] = notebook_config['notebook_image_name']
+                notebook_config['image_type'] = 'pre-configured'
+                print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
+            else:
+                os.environ['notebook_image_name'] = notebook_config['image_name']
+                print('No pre-configured image found. Using default one: {}'.format(notebook_config['image_name']))
     except Exception as err:
         print("Failed to generate variables dictionary.")
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))

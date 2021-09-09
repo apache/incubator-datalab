@@ -20,7 +20,6 @@
 form {
   textarea {
     height: 70px;
-    resize: none;
     padding-top: 8px;
     // font: 300 16px/26px 'Open Sans', sans-serif;
     font-style: normal;
@@ -28,6 +27,7 @@ form {
     font-size: 16px;
     line-height: 26px;
     font-family:'Open Sans', sans-serif;
+    resize: none;
   }
 }
 .ami-dialog{
@@ -35,8 +35,8 @@ form {
     &.name {
       padding-bottom: 30px;
       .error{
-        top: 37px;
         position: absolute;
+        top: 37px;
         right: 0;
       }
     }

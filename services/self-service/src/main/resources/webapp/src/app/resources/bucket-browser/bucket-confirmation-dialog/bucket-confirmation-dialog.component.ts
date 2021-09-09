@@ -33,13 +33,12 @@ export class BucketConfirmationDialogComponent implements OnInit {
   uploadActions = ['Replace existing object', 'Skip uploading object'];
   fileAction: string = this.uploadActions[1];
   actionForAll: boolean = false;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<BucketConfirmationDialogComponent>,
     public toastr: ToastrService
-  ) {
-
-  }
+  ) { }
 
   ngOnInit() {
     if (this.data.type === 'delete') {
@@ -52,7 +51,11 @@ export class BucketConfirmationDialogComponent implements OnInit {
   }
 
   submitResolving() {
-    const submitObj = {replaceObject: !this.uploadActions.indexOf(this.fileAction), forAll: this.actionForAll};
+    const submitObj = {
+      replaceObject: !this.uploadActions.indexOf(this.fileAction), 
+      forAll: this.actionForAll
+    };
+
     this.dialogRef.close(submitObj);
   }
 }

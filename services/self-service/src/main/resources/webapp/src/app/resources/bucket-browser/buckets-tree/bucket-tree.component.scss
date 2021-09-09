@@ -17,65 +17,65 @@
  * under the License.
  */
 
-.folder{
-  padding-left: 5px;
+.folder {
   max-width: 350px;
+  padding-left: 5px;
   white-space: nowrap;
   overflow: hidden;
 }
 
-.mat-tree{
-  font-family: 'Open Sans', sans-serif;
+.mat-tree {
+  font-family: "Open Sans", sans-serif;
 }
 
-.folder-icon{
+.folder-icon {
   color: rgb(232, 232, 232);
 }
 
-.folder-item-line{
+.folder-item-line {
   display: flex;
   align-items: center;
   cursor: pointer;
-
 }
 
 .active-item {
   color: #00bcd4;
-  i{
+
+  i {
     color: #00bcd4;
   }
 }
 
-.add-folder-form{
+.add-folder-form {
   display: flex;
   align-items: center;
 }
 
-.mat-tree-node:not(.input-node){
-  cursor: pointer;
-  transition: .3s;
-  overflow: unset;
+.mat-tree-node:not(.input-node) {
   min-height: auto;
-  button.mat-icon-button{
+  overflow: unset;
+  cursor: pointer;
+  transition: 0.3s;
+
+  button.mat-icon-button {
     width: 25px;
     height: 25px;
     line-height: 28px;
   }
 
-  &:hover{
+  &:hover {
     color: #00bcd4;
 
-    i{
+    i {
       color: #00bcd4;
     }
   }
 }
 
 .input-node {
-  overflow: unset;
   padding-top: 5px;
   padding-bottom: 7px;
-
+  overflow: unset;
 
   button.mat-icon-button {
     &.action-btn {
@@ -109,9 +109,3 @@
     background-color: #ffffff;
   }
 }
-
-
-
-
-
-

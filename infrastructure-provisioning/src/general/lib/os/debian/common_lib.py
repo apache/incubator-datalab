@@ -31,84 +31,175 @@ import subprocess
 import datalab.fab
 from datalab.logger import logging
 
+def handle_dpkg_lock(error, rerun=False):
+    try:
+        count = 0
+        if 'E: Could not get lock ' and 'It is held by process ' in err:
+            log = datalab.fab.conn.sudo('cat /tmp/dpkg.log | grep "E: Could not get lock"').stdout
+            lock_path = log.split('\n')[0][22:log.find('.')]
+            pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
+            datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+            datalab.fab.conn.sudo('rm -f {}'.format(lock_path))
+        while 'no_lock' not in error and count < 10:
+            pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | grep dpkg | awk \'{print $2}\'').stdout.replace( '\n', '')
+            if pid != '':
+                datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+                datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock-frontend')
+
+            pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock | grep dpkg | awk \'{print $2}\'').stdout.replace('\n', '')
+            if pid != '':
+                datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+                datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
+
+            if rerun:
+                datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; '
+                                      'if ! grep -w -E "({0})" /tmp/tee.tmp; '
+                                      'then echo "no_lock" > /tmp/dpkg.log; '
+                                      'else cat /tmp/tee.tmp > /tmp/dpkg.log;fi; '
+                                      'if ! grep -w -E "({1})" /tmp/tee.tmp; '
+                                      'then echo "no_error" >> /tmp/dpkg.log; '
+                                      'else cat /tmp/tee.tmp >> /tmp/dpkg.log;fi'.format(lock_parser,
+                                                                                        error_parser))
+                error = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
+            else:
+                error = 'no_lock'
+            count = count + 1
+        if 'no_error' not in error:
+            raise Exception
+    except:
+        sys.exit(1)
+
+def handle_apt_lock(error, rerun=False):
+    try:
+        count = 0
+        if 'E: Could not get lock ' and 'It is held by process ' in err:
+            log = datalab.fab.conn.sudo('cat /tmp/apt.log | grep "E: Could not get lock"').stdout
+            lock_path = log.split('\n')[0][22:log.find('.')]
+            pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
+            datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+            datalab.fab.conn.sudo('rm -f {}'.format(lock_path))
+        while 'no_lock' not in error and count < 10:
+            pid = datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock | grep apt | awk \'{print $2}\'').stdout.replace('\n', '')
+            if pid != '':
+                datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+                datalab.fab.conn.sudo('rm -f /var/lib/apt/lists/lock')
+
+            if rerun:
+                datalab.fab.conn.sudo('apt update 2>&1 | tee /tmp/tee.tmp; '
+                                      'if ! grep -w -E "({0})" /tmp/tee.tmp; '
+                                      'then echo "no_lock" > /tmp/apt.log; '
+                                      'else cat /tmp/tee.tmp > /tmp/apt.log;fi; '
+                                      'if ! grep -w -E "({1})" /tmp/tee.tmp; '
+                                      'then echo "no_error" >> /tmp/apt.log; '
+                                      'else cat /tmp/tee.tmp >> /tmp/apt.log;fi'.format(lock_parser,
+                                                                                       error_parser))
+                error = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
+            else:
+                error = 'no_lock'
+            count = count + 1
+        if 'no_error' not in error:
+            raise Exception
+    except:
+        sys.exit(1)
+
+def handle_apt_get_lock(error, rerun=False):
+    try:
+        count = 0
+        if 'E: Could not get lock ' and 'It is held by process ' in err:
+            log = datalab.fab.conn.sudo('cat /tmp/apt.log | grep "E: Could not get lock"').stdout
+            lock_path = log.split('\n')[0][22:log.find('.')]
+            pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
+            datalab.fab.conn.sudo('kill -9 {}'.format(pid))
+            datalab.fab.conn.sudo('rm -f {}'.format(lock_path))
+        while 'no_lock' not in error and count < 10:
+            datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock')
+            datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock')
+            datalab.fab.conn.sudo('lsof /var/cache/apt/archives/lock')
+            datalab.fab.conn.sudo('rm -f /var/lib/apt/lists/lock')
+            datalab.fab.conn.sudo('rm -f /var/cache/apt/archives/lock')
+            datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
+
+            if rerun:
+                datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; '
+                                      'if ! grep -w -E "({2})" /tmp/tee.tmp; '
+                                      'then echo "no_lock" > /tmp/apt_get.log; '
+                                      'else cat /tmp/tee.tmp > /tmp/apt_get.log;fi; '
+                                      'if ! grep -w -E "({3})" /tmp/tee.tmp; '
+                                      'then echo "no_error" >> /tmp/apt_get.log; '
+                                      'else cat /tmp/tee.tmp >> /tmp/apt_get.log;fi'.format(command,
+                                                                                           requisites,
+                                                                                           lock_parser,
+                                                                                           error_parser))
+                error = datalab.fab.conn.sudo('cat /tmp/apt_get.log').stdout
+            else:
+                error = 'no_lock'
+            count = count + 1
+        if 'no_error' not in error:
+            raise Exception
+    except:
+        sys.exit(1)
+
 def manage_pkg(command, environment, requisites):
     try:
         allow = False
         counter = 0
         while not allow:
             if counter > 60:
-                logging.error("Instance is broken (app manager does not work properly) please recreate it.")
-                traceback.print_exc()
+                print("Notebook is broken please recreate it.")
                 sys.exit(1)
             else:
-                logging.info('Package manager is:')
+                print('Package manager is:')
                 if environment == 'remote':
-                    if datalab.fab.conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or \
-                            datalab.fab.conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
+                    if datalab.fab.conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or datalab.fab.conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
                         try:
-                            error_parser = "frontend is locked|locked|not get lock|unavailable"
-                            datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! '
-                                                  'grep -w -E "({0})" /tmp/tee.tmp > '
-                                                  '/tmp/dpkg.log; then echo "no_error" > /tmp/dpkg.log;fi'.format(
-                                error_parser))
-                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout.replace('\n','')
-                            count = 0
-                            while 'no_error' not in err and count < 10:
-                                pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock-frontend | '
-                                                            'grep dpkg | awk \'{print $2}\'').stdout.replace('\n','')
-                                if pid != '':
-                                    datalab.fab.conn.sudo('kill -9 {}'.format(pid))
-                                    datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock-frontend')
-                                    pid = datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock | grep '
-                                                                'dpkg | awk \'{print $2}\'').stdout.replace('\n','')
-                                if pid != '':
-                                    datalab.fab.conn.sudo('kill -9 {}'.format(pid))
-                                    datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
-                                datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; if ! grep '
-                                                      '-w -E "({0})" /tmp/tee.tmp > '
-                                     '/tmp/dpkg.log; then echo "no_error" > /tmp/dpkg.log;fi'.format(error_parser))
-                                err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
-                                count = count + 1
-                            datalab.fab.conn.sudo('apt update 2>&1 | tee /tmp/tee.tmp; if ! grep '
-                                                  '-w -E "({0})" /tmp/tee.tmp > '
-                                 '/tmp/apt.log; then echo "no_error" > /tmp/apt.log;fi'.format(error_parser))
-                            err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
-                            count = 0
-                            while 'no_error' not in err and count < 10:
-                                pid = datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock | grep '
-                                                            'apt | awk \'{print $2}\'').stdout.replace('\n','')
-                                if pid != '':
-                                    datalab.fab.conn.sudo('kill -9 {}'.format(pid))
-                                    datalab.fab.conn.sudo('rm -f /var/lib/apt/lists/lock')
-                                datalab.fab.conn.sudo('apt update 2>&1 | tee /tmp/tee.tmp; if ! grep '
-                                                      '-w -E "({0})" /tmp/tee.tmp > '
-                                 '/tmp/apt.log; then echo "" > /tmp/apt.log;fi'.format(error_parser))
-                                err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
-                                count = count + 1
-                            datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep '
-                                                  '-w -E "({2})" /tmp/tee.tmp > '
-                                 '/tmp/apt-get.log; then echo "no_error" > /tmp/apt-get.log;fi'.format(command,
-                                                                                                       requisites,
-                                                                                                       error_parser))
-                            err = datalab.fab.conn.sudo('cat /tmp/apt-get.log').stdout
-                            count = 0
-                            while 'no_error' not in err and count < 10:
-                                datalab.fab.conn.sudo('lsof /var/lib/dpkg/lock')
-                                datalab.fab.conn.sudo('lsof /var/lib/apt/lists/lock')
-                                datalab.fab.conn.sudo('lsof /var/cache/apt/archives/lock')
-                                datalab.fab.conn.sudo('rm -f /var/lib/apt/lists/lock')
-                                datalab.fab.conn.sudo('rm -f /var/cache/apt/archives/lock')
-                                datalab.fab.conn.sudo('rm -f /var/lib/dpkg/lock')
-                                datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; if ! grep '
-                                                      '-w -E "({2})" /tmp/tee.tmp > '
-                                     '/tmp/apt.log; then echo "no_error" > /tmp/apt.log;fi'.format(command,
-                                                                                                   requisites,
+                            lock_parser = "frontend is locked|locked|not get lock|unavailable"
+                            error_parser = "Could not|No matching|Error:|E:|failed|Requires:"
+
+                            datalab.fab.conn.sudo('dpkg --configure -a 2>&1 | tee /tmp/tee.tmp; '
+                                                  'if ! grep -w -E "({0})" /tmp/tee.tmp; '
+                                                  'then echo "no_lock" > /tmp/dpkg.log; '
+                                                  'else cat /tmp/tee.tmp > /tmp/dpkg.log;fi;'
+                                                  'if ! grep -w -E "({1})" /tmp/tee.tmp; '
+                                                  'then echo "no_error" >> /tmp/dpkg.log; '
+                                                  'else cat /tmp/tee.tmp >> /tmp/dpkg.log;fi'.format(lock_parser,
+                                                                                                    error_parser))
+                            err = datalab.fab.conn.sudo('cat /tmp/dpkg.log').stdout
+                            if 'no_lock' not in err:
+                                handle_dpkg_lock(err, rerun=True)
+
+                            datalab.fab.conn.sudo('apt update 2>&1 | tee /tmp/tee.tmp; '
+                                                  'if ! grep -w -E "({0})" /tmp/tee.tmp; '
+                                                  'then echo "no_lock" > /tmp/apt.log; '
+                                                  'else cat /tmp/tee.tmp > /tmp/apt.log;fi; '
+                                                  'if ! grep -w -E "({1})" /tmp/tee.tmp; '
+                                                  'then echo "no_error" >> /tmp/apt.log; '
+                                                  'else cat /tmp/tee.tmp >> /tmp/apt.log;fi'.format(lock_parser,
                                                                                                    error_parser))
-                                err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
-                                count = count + 1
+                            err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
+                            if 'no_lock' not in err:
+                                handle_dpkg_lock(err)
+                                handle_apt_lock(err, rerun=True)
+
+                            datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; '
+                                                  'if ! grep -w -E "({2})" /tmp/tee.tmp; '
+                                                  'then echo "no_lock" > /tmp/apt_get.log; '
+                                                  'else cat /tmp/tee.tmp > /tmp/apt_get.log;fi; '
+                                                  'if ! grep -w -E "({3})" /tmp/tee.tmp; '
+                                                  'then echo "no_error" >> /tmp/apt_get.log; '
+                                                  'else cat /tmp/tee.tmp >> /tmp/apt_get.log;fi'.format(command,
+                                                                                                       requisites,
+                                                                                                       lock_parser,
+                                                                                                       error_parser))
+                            err = datalab.fab.conn.sudo('cat /tmp/apt_get.log').stdout
+
+                            if 'no_lock' not in err:
+                                handle_dpkg_lock(err)
+                                handle_apt_lock(err)
+                                handle_apt_get_lock(err, rerun=True)
+
                             allow = True
                         except Exception as err:
                             traceback.print_exc()

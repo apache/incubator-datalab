@@ -24,9 +24,9 @@
   max-height: -moz-calc(100vh - 130px);
   max-height: -webkit-calc(100vh - 130px);
   overflow: visible;
-  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12);
 
-  &.scroll{
+  &.scroll {
     overflow: auto;
   }
 
@@ -43,49 +43,49 @@
 
     tr {
       .th_user {
-        width: 19%;
         z-index: 9 !important;
+        width: 19%;
       }
 
       .th_action {
-        width: 11%;
         z-index: 8 !important;
+        width: 11%;
         max-width: 250px;
       }
 
       .th_date {
-        width: 14%;
         z-index: 10 !important;
-        padding-left: 0;
+        width: 14%;
         max-width: 240px;
+        padding-left: 0;
       }
 
       .th_project {
-        width: 11%;
         z-index: 7 !important;
+        width: 11%;
         max-width: 206px;
       }
 
       .th_resource {
-        width: 14%;
         z-index: 5 !important;
+        width: 14%;
         max-width: 240px;
       }
 
       .th_resource-type {
-        width: 14%;
         z-index: 6 !important;
+        width: 14%;
         max-width: 240px;
       }
 
       .th_buttons {
-        width: 6%;
         z-index: 4 !important;
+        width: 6%;
       }
 
       th {
-        padding-right: 5px;
         z-index: 2 !important;
+        padding-right: 5px;
 
         &.th_charges {
           z-index: 3 !important;
@@ -93,27 +93,26 @@
       }
 
       td {
-        font-size: 13px;
         padding-left: 20px;
+        font-size: 13px;
 
         &.info {
           z-index: 1 !important;
-          text-align: center;
           padding: 40px;
+          text-align: center;
         }
       }
 
       &.filter-row {
         th {
           padding: 5px;
-          font-size: 13px;
           z-index: 103 !important;
+          font-size: 13px;
         }
 
         .filter-field {
           font-size: 13px;
         }
-
       }
 
       &.header-row {
@@ -126,7 +125,6 @@
         }
       }
     }
-
 
     .tags {
       .label {
@@ -175,14 +173,14 @@
       padding: 5px;
 
       mat-chip {
-        min-height: 20px;
-        padding: 5px 10px;
-        font-size: 13px;
-        max-width: 110px !important;
-        white-space: nowrap;
         display: inline-block;
-        line-height: 10px;
+        min-height: 20px;
+        max-width: 110px !important;
+        padding: 5px 10px;
         margin: 2px;
+        font-size: 13px;
+        white-space: nowrap;
+        line-height: 10px;
       }
     }
 
@@ -219,8 +217,8 @@
           width: 6px;
           height: 6px;
           border: 3px solid transparent;
-          border-bottom: 3px solid rgba(0, 0, 0, .54);
-          border-left: 3px solid rgba(0, 0, 0, .54);
+          border-bottom: 3px solid rgba(0, 0, 0, 0.54);
+          border-left: 3px solid rgba(0, 0, 0, 0.54);
           cursor: pointer;
 
           &.active {
@@ -240,16 +238,16 @@
     }
   }
 
-  .table-item-wrapper{
+  .table-item-wrapper {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding-right: 10px;
-    span{
+    span {
       cursor: default;
 
-      &::after{
-        content: '';
+      &::after {
+        content: "";
         display: block;
       }
     }
@@ -260,7 +258,7 @@
     align-items: center;
     justify-content: space-between;
     padding-right: 10px;
-    span{
+    span {
       max-width: 85%;
     }
 
@@ -278,9 +276,9 @@
 
     .dropdown-multiselect {
       button {
-        font-size: 13px;
         height: 34px;
         padding: 7px 20px;
+        font-size: 13px;
       }
     }
   }
@@ -308,16 +306,15 @@
     }
   }
 
-    .navigation-butts {
-      cursor: pointer;
-      color: #35afd5;
+  .navigation-butts {
+    cursor: pointer;
+    color: #35afd5;
 
-      .not-active {
-        color: lightgray;
-      }
+    .not-active {
+      color: lightgray;
     }
   }
-
+}
 
 .audit-actions {
   text-align: right;
@@ -332,8 +329,7 @@
   position: -webkit-sticky;
   bottom: -1px;
   background: inherit;
-  border-top: 1px solid #E0E0E0;
+  border-top: 1px solid #e0e0e0;
   transform: translateY(-1px);
   border-bottom: none;
 }
-
