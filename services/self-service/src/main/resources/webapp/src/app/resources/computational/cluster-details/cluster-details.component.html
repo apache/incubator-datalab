@@ -73,7 +73,7 @@
             <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'aws'">
               {{ resource.totalInstanceCount > 0 ? resource.totalInstanceCount : resource.dataengine_instance_count}}
             </span>
-            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure'">{{resource.dataengine_instance_count}}</span>
+            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure'">{{resource?.totalInstanceCount}}</span>
             <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp'">1</span>
           </div>
         </div>
