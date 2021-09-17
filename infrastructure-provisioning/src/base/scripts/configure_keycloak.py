@@ -82,8 +82,10 @@ if __name__ == "__main__":
             "publicClient": "false",
             "secret": args.keycloak_client_secret,
             "protocol": "openid-connect",
-            "serviceAccountsEnabled": "true",
         }
+
+        if not args.project_name:
+            keycloak_client_data["serviceAccountsEnabled"] = "true"
 
         try:
             keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data, verify=False).json()
