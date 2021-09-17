@@ -82,6 +82,7 @@ if __name__ == "__main__":
             "publicClient": "false",
             "secret": args.keycloak_client_secret,
             "protocol": "openid-connect",
+            "serviceAccountsEnabled": "true",
         }
 
         try:
