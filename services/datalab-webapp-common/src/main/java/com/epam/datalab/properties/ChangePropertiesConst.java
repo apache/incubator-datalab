@@ -43,8 +43,8 @@ public interface ChangePropertiesConst {
     String SELF_SERVICE_SUPERVISORCTL_RUN_NAME = " ui ";
     String PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME = " provserv ";
     String BILLING_SERVICE_SUPERVISORCTL_RUN_NAME = " billing ";
-    String SECRET_REGEX = "^?\\s([sS]ecret(.*)|.*assword|accessKeyId|secretAccessKey):?\\s(.*)";
-    String USER_REGEX = "(^?\\Suser|username):?\\s(.*)";
+    String SECRET_REGEX = "([sS]ecret|[pP]assword|accessKeyId|secretAccessKey):\s?(.*)";
+    String USER_REGEX = "(user|username):\s?(.*)";
     String SECRET_REPLACEMENT_FORMAT = " ***********";
     String SUPERVISORCTL_RESTART_SH_COMMAND = "sudo supervisorctl restart";
     String CHANGE_CHMOD_SH_COMMAND_FORMAT = "sudo chmod %s %s";
