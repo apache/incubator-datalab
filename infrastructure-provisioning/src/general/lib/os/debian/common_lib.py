@@ -148,7 +148,7 @@ def manage_pkg(command, environment, requisites):
             else:
                 print('Package manager is:')
                 if environment == 'remote':
-                    if 'busy' in datalab.fab.conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') or 'busy' in datalab.fab.conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"'):
+                    if 'busy' in datalab.fab.conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"').stdout or 'busy' in datalab.fab.conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"').stdout:
                         counter += 1
                         time.sleep(10)
                     else:
