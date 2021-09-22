@@ -136,14 +136,14 @@ public class ChangePropertiesService {
 
 
     private void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
-//        try {
-//            String command = String.format(ChangePropertiesConst.CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
-//            log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
-//            log.info("Execute command: {}", command);
-//            Runtime.getRuntime().exec(command).waitFor();
-//        } catch (InterruptedException e) {
-//            log.error("Failed change chmod for file {} {}->{}", serviceName, fromMode, toMode);
-//        }
+        try {
+            String command = String.format(ChangePropertiesConst.CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
+            log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
+            log.info("Execute command: {}", command);
+            Runtime.getRuntime().exec(command).waitFor();
+        } catch (InterruptedException e) {
+            log.error("Failed change chmod for file {} {}->{}", serviceName, fromMode, toMode);
+        }
     }
 
     private String addLicence() {
