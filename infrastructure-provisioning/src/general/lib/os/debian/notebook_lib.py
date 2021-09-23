@@ -65,7 +65,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             datalab.fab.conn.sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
             datalab.fab.conn.sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                datalab.fab.conn.sudo('R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')"')
+                datalab.fab.conn.sudo('R -e "devtools::install_version(\'roxygen2\', version = \'{}\', repos = \'https://cloud.r-project.org\')"'.format(os.environ['notebook_roxygen2_version']))
                 datalab.fab.conn.sudo(''' bash -c 'cd /usr/local/spark/R/lib/SparkR; R -e "devtools::check()"' ''')
             except:
                 pass
