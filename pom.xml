@@ -60,7 +60,7 @@
 
             <properties>
                 <sonar.host.url>
-                    http://localhost:9000/sonar
+                    http://localhost/sonar
                 </sonar.host.url>
                 <sonar.projectKey>com.epam.datalab:datalab</sonar.projectKey>
                 <sonar.coverage.exclusions>
