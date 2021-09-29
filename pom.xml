@@ -60,7 +60,7 @@
 
             <properties>
                 <sonar.host.url>
-                    http://localhost/sonar
+                    https://jenkins2.develop.dlabanalytics.com/sonar/
                 </sonar.host.url>
                 <sonar.projectKey>com.epam.datalab:datalab</sonar.projectKey>
                 <sonar.coverage.exclusions>
