@@ -110,21 +110,21 @@ public class ChangePropertiesService {
         final String[] confWithReplacedSecretConf = {removeLicence(currentConf)};
         while (passMatcher.find()) {
             String[] secret = passMatcher.group().split(":");
-            if (!(secret[DEFAULT_VALUE_PLACE].isEmpty() ||
-                    secret[DEFAULT_VALUE_PLACE].trim().isEmpty())) {
-
+            if (!secret[DEFAULT_NAME_PLACE].isEmpty())
                 secretsAndUsers.add(secret[DEFAULT_NAME_PLACE] + ":" + secret[DEFAULT_VALUE_PLACE]);
-            }
         }
         while (userMatcher.find()) {
             String[] user = userMatcher.group().split(":");
-            if (!(user[DEFAULT_VALUE_PLACE].isEmpty() ||
-                    user[DEFAULT_VALUE_PLACE].trim().isEmpty()))
+            if (!user[DEFAULT_NAME_PLACE].isEmpty())
                 secretsAndUsers.add(user[DEFAULT_NAME_PLACE] + ":" + user[DEFAULT_VALUE_PLACE]);
-
         }
         secretsAndUsers.forEach(x -> {
             String toReplace = x.split(":")[DEFAULT_NAME_PLACE] + ":" + ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT;
+            if (x.split(":")[DEFAULT_VALUE_PLACE].length() <= 1) {
+                if (x.split(":")[DEFAULT_VALUE_PLACE].startsWith("\r")) {
+                    toReplace = toReplace + "\r";
+                }
+            }
             confWithReplacedSecretConf[0] = confWithReplacedSecretConf[0].replace(x, toReplace);
         });
         return confWithReplacedSecretConf[0];
@@ -171,6 +171,8 @@ public class ChangePropertiesService {
                     old = old.replace("$", "\\$");
                     old = old.replaceFirst("\\{", "\\{");
                     old = old.replaceFirst("}", "\\}");
+                    if (old.endsWith("\r"))
+                        old = old.substring(0, old.length() -1);
                     fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replaceFirst(poll, old);
                 }
             }
@@ -185,6 +187,8 @@ public class ChangePropertiesService {
                     old = old.replace("$", "\\$");
                     old = old.replace("{", "\\}");
                     old = old.replace("}", "\\}");
+                    if (old.endsWith("\r"))
+                        old = old.substring(0, old.length() -1);
                     fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replaceFirst(poll, old);
                 }
             }
