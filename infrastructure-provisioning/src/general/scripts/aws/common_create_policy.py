@@ -27,6 +27,7 @@ import botocore
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
@@ -51,7 +52,7 @@ if __name__ == "__main__":
             if args.region == 'cn-north-1':
                 policy = policy.replace('aws', 'aws-cn')
         except OSError:
-            print("Failed to open policy template")
+            logging.error("Failed to open policy template")
             sys.exit(1)
 
         list_policies_arn = []
@@ -73,7 +74,7 @@ if __name__ == "__main__":
                 list_policies_arn.append(response.get('Policy').get('Arn'))
             except botocore.exceptions.ClientError as cle:
                 if cle.response['Error']['Code'] == 'EntityAlreadyExists':
-                    print("Policy {}-{}-{}-strict_to_S3-Policy already exists. Reusing it.".
+                    logging.info("Policy {}-{}-{}-strict_to_S3-Policy already exists. Reusing it.".
                           format(args.service_base_name, args.username, args.endpoint_name))
                     list = iam.list_policies().get('Policies')
                     for i in list:
@@ -85,16 +86,16 @@ if __name__ == "__main__":
             try:
                 for arn in list_policies_arn:
                     iam.attach_role_policy(RoleName=args.edge_role_name, PolicyArn=arn)
-                    print('POLICY "{0}" has been attached to role "{1}"'.format(arn, args.edge_role_name))
+                    logging.info('POLICY "{0}" has been attached to role "{1}"'.format(arn, args.edge_role_name))
                     time.sleep(5)
                     iam.attach_role_policy(RoleName=args.notebook_role_name, PolicyArn=arn)
-                    print('POLICY "{0}" has been attached to role "{1}"'.format(arn, args.notebook_role_name))
+                    logging.info('POLICY "{0}" has been attached to role "{1}"'.format(arn, args.notebook_role_name))
                     time.sleep(5)
             except botocore.exceptions.ClientError as e:
-                print(e.response['Error']['Message'])
+                logging.error(e.response['Error']['Message'])
                 sys.exit(1)
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
     else:
         parser.print_help()

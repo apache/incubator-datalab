@@ -28,6 +28,7 @@ import time
 import subprocess
 from datalab.meta_lib import *
 from fabric import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -117,15 +118,15 @@ if __name__ == "__main__":
                             '/tmp/python_version')
     with open('/tmp/scala_version') as f:
         args.scala_version = str(f.read()).rstrip()
-        print(args.scala_version)
+        logging.info(args.scala_version)
     with open('/tmp/python_version') as f:
         args.python_version = str(f.read()).rstrip()
-        print(args.python_version)
+        logging.info(args.python_version)
     if r_enabled == 'true':
         s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/r_version', '/tmp/r_version')
         with open('/tmp/r_version') as g:
             args.r_version = str(g.read()).rstrip()
-            print(args.r_version)
+            logging.info(args.r_version)
     else:
         r_version = 'false'
     cluster_id = get_emr_id_by_name(args.cluster_name)

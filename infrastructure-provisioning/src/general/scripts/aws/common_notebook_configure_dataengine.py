@@ -25,12 +25,12 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
 import os
 import sys
 import traceback
 import subprocess
 from fabric import *
+from datalab.logger import logging
 
 
 def clear_resources():
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     try:
         # generating variables dictionary
         datalab.actions_lib.create_aws_config_files()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         notebook_config = dict()
         if 'exploratory_name' in os.environ:
             notebook_config['exploratory_name'] = os.environ['exploratory_name']
@@ -94,7 +94,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         params = "--cluster_name {0} --spark_version {1} --hadoop_version {2} --os_user {3} --spark_master {4}" \
                  " --keyfile {5} --notebook_ip {6} --spark_master_ip {7}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
@@ -113,7 +112,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
-        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
         params = "--hostname {0} " \
                  "--keyfile {1} " \
                  "--os_user {2} " \
@@ -136,7 +134,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Configure notebook server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

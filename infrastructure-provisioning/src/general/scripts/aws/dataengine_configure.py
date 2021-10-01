@@ -25,12 +25,12 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
 import multiprocessing
 import os
 import sys
 import traceback
 from fabric import *
+from datalab.logger import logging
 import subprocess
 
 def configure_slave(slave_number, data_engine):
@@ -38,7 +38,6 @@ def configure_slave(slave_number, data_engine):
     slave_hostname = datalab.meta_lib.get_instance_private_ip_address(data_engine['tag_name'], slave_name)
     try:
         logging.info('[CREATING DATALAB SSH USER ON SLAVE NODE]')
-        print('[CREATING DATALAB SSH USER ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             master_node_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], data_engine['key_name']),
             data_engine['initial_user'], data_engine['datalab_ssh_user'], data_engine['sudo_group'])
@@ -55,7 +54,6 @@ def configure_slave(slave_number, data_engine):
 
     try:
         logging.info('[CLEANING INSTANCE FOR SLAVE NODE]')
-        print('[CLEANING INSTANCE FOR SLAVE NODE]')
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
             .format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
@@ -70,7 +68,6 @@ def configure_slave(slave_number, data_engine):
 
     try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
-        print('[CONFIGURE PROXY ON ON SLAVE NODE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
@@ -87,7 +84,6 @@ def configure_slave(slave_number, data_engine):
 
     try:
         logging.info('[INSTALLING PREREQUISITES ON SLAVE NODE]')
-        print('[INSTALLING PREREQUISITES ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], data_engine['region'],
                    edge_instance_private_ip)
@@ -103,7 +99,6 @@ def configure_slave(slave_number, data_engine):
 
     try:
         logging.info('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
-        print('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
                  "--scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
             format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
@@ -121,7 +116,6 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
-        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": data_engine['user_keyname'], "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
@@ -145,15 +139,8 @@ def clear_resources():
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.INFO,
-                        filename=local_log_filepath)
-
     try:
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         data_engine = dict()
         if 'exploratory_name' in os.environ:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
@@ -222,7 +209,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING DATALAB SSH USER ON MASTER NODE]')
-        print('[CREATING DATALAB SSH USER ON MASTER NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             master_node_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], data_engine['key_name']),
             data_engine['initial_user'], data_engine['datalab_ssh_user'], data_engine['sudo_group'])
@@ -239,7 +225,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
-        print('[CLEANING INSTANCE FOR MASTER NODE]')
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
             .format(master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
@@ -254,7 +239,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURE PROXY ON MASTER NODE]')
-        print('[CONFIGURE PROXY ON ON MASTER NODE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
@@ -271,7 +255,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING PREREQUISITES ON MASTER NODE]')
-        print('[INSTALLING PREREQUISITES ON MASTER NODE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'], data_engine['region'],
                    edge_instance_private_ip)
@@ -286,7 +269,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING USERs KEY on MASTER NODE]')
+        logging.info('[INSTALLING USERs KEY on MASTER NODE]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": data_engine['user_keyname'], "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
@@ -303,7 +286,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURE MASTER NODE]')
-        print('[CONFIGURE MASTER NODE]')
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
                  "--scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
             format(master_node_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
@@ -337,7 +319,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         notebook_instance_ip = datalab.meta_lib.get_instance_private_ip_address('Name',
                                                                                 os.environ['notebook_instance_name'])
@@ -380,13 +361,13 @@ if __name__ == "__main__":
                                                              data_engine['exploratory_name'],
                                                              data_engine['computational_name'])
         logging.info('[SUMMARY]')
-        print('[SUMMARY]')
-        print("Service base name: {}".format(data_engine['service_base_name']))
-        print("Region: {}".format(data_engine['region']))
-        print("Cluster name: {}".format(data_engine['cluster_name']))
-        print("Master node shape: {}".format(data_engine['master_size']))
-        print("Slave node shape: {}".format(data_engine['slave_size']))
-        print("Instance count: {}".format(str(data_engine['instance_count'])))
+        logging.info('[SUMMARY]')
+        logging.info("Service base name: {}".format(data_engine['service_base_name']))
+        logging.info("Region: {}".format(data_engine['region']))
+        logging.info("Cluster name: {}".format(data_engine['cluster_name']))
+        logging.info("Master node shape: {}".format(data_engine['master_size']))
+        logging.info("Slave node shape: {}".format(data_engine['slave_size']))
+        logging.info("Instance count: {}".format(str(data_engine['instance_count'])))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": data_engine['cluster_name'],
                    "instance_id": datalab.meta_lib.get_instance_by_name(data_engine['tag_name'],
@@ -399,7 +380,7 @@ if __name__ == "__main__":
                        #{"description": "Apache Spark Master (via tunnel)",
                         #"url": spark_master_url}
                    ]}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

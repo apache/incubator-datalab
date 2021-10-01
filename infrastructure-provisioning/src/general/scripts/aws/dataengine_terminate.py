@@ -24,22 +24,22 @@
 import datalab.actions_lib
 import datalab.fab
 import json
-import logging
 import os
 import sys
 import traceback
+from datalab.logger import logging
 
 
 def terminate_data_engine(tag_name, notebook_name,
                           os_user, key_path,
                           cluster_name, remote_kernel_name):
-    print("Terminating data engine cluster")
+    logging.info("Terminating data engine cluster")
     try:
         datalab.actions_lib.remove_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
-    print("Removing Data Engine kernels from notebook")
+    logging.info("Removing Data Engine kernels from notebook")
     try:
         datalab.actions_lib.remove_dataengine_kernels(tag_name, notebook_name,
                                                       os_user, key_path, remote_kernel_name)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     datalab.actions_lib.create_aws_config_files()
     data_engine = dict()
     
@@ -82,7 +82,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE DATA ENGINE]')
-        print('[TERMINATE DATA ENGINE]')
         try:
             terminate_data_engine(data_engine['tag_name'],
                                   data_engine['notebook_name'],
@@ -101,7 +100,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": data_engine['service_base_name'],
                    "Action": "Terminate Data Engine"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

@@ -23,7 +23,6 @@
 
 import argparse
 import boto3
-import logging
 import datalab.ssn_lib
 from datalab.logger import logging
 import os

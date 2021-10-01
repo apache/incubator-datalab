@@ -21,7 +21,6 @@
 #
 # ******************************************************************************
 
-import logging
 import os
 import sys
 import traceback
@@ -29,6 +28,7 @@ import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 from fabric import *
 
 if __name__ == "__main__":
@@ -43,7 +43,6 @@ if __name__ == "__main__":
     try:
         create_aws_config_files()
         logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print('[GETTING ALL AVAILABLE PACKAGES]')
         data_engine = dict()
         try:
             data_engine['os_user'] = 'ec2-user'
@@ -65,6 +64,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to get available libraries.", str(err))
         sys.exit(1)

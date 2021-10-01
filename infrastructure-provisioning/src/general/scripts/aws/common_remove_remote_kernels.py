@@ -26,6 +26,7 @@ import sys
 from datalab.actions_lib import remove_dataengine_kernels, remove_kernels
 from datalab.fab import init_datalab_connection, find_cluster_kernels
 from fabric import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -51,5 +52,5 @@ if __name__ == "__main__":
         conn.close()
         sys.exit(0)
     except Exception as err:
-        print('Failed to remove cluster kernels.', str(err))
+        logging.error('Failed to remove cluster kernels.', str(err))
         sys.exit(1)
