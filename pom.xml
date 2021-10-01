@@ -33,7 +33,7 @@
         <tag>HEAD</tag>
     </scm>
 
-    <profiles>
+     <profiles>
         <profile>
             <id>aws</id>
             <modules>
@@ -194,15 +194,6 @@
         <finalName>${project.artifactId}-${datalab.version}</finalName>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
-                    <configuration>
-                     <release>11</release>  <!--or <release>10</release>-->
-                    </configuration>
-                </plugin>
-
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
