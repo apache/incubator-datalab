@@ -28,8 +28,8 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:https://github.com/apache/incubator-datalab.git</connection>
-        <url>scm:git:https://github.com/apache/incubator-datalab.git</url>
+        <connection>scm:git:https://github.com/MarianHladun/incubator-datalab.git</connection>
+        <url>scm:git:https://github.com/MarianHladun/incubator-datalab.git</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -194,6 +194,15 @@
         <finalName>${project.artifactId}-${datalab.version}</finalName>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                     <release>11</release>  <!--or <release>10</release>-->
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
