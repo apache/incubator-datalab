@@ -26,14 +26,14 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
 import os
 import sys
 import traceback
+from datalab.logger import logging
 
 
 def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_user, key_path):
-    print('Terminating EMR cluster and cleaning EMR config from S3 bucket')
+    logging.info('Terminating EMR cluster and cleaning EMR config from S3 bucket')
     try:
         clusters_list = datalab.meta_lib.get_emr_list(emr_name, 'Value')
         if clusters_list:
@@ -55,22 +55,15 @@ def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_use
                 datalab.actions_lib.remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path,
                                                    emr_version, computational_name)
         else:
-            print("There are no EMR clusters to terminate.")
+            logging.info("There are no EMR clusters to terminate.")
     except:
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     # generating variables dictionary
     datalab.actions_lib.create_aws_config_files()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     emr_conf = dict()
     emr_conf['service_base_name'] = (os.environ['conf_service_base_name'])
     emr_conf['emr_name'] = os.environ['emr_cluster_name']
@@ -84,7 +77,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE EMR CLUSTER]')
-        print('[TERMINATE EMR CLUSTER]')
         try:
             terminate_emr_cluster(emr_conf['emr_name'], emr_conf['bucket_name'], emr_conf['tag_name'],
                                   emr_conf['notebook_name'], os.environ['conf_os_user'], emr_conf['key_path'])

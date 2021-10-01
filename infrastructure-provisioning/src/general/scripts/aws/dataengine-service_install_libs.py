@@ -21,7 +21,6 @@
 #
 # ******************************************************************************
 
-import logging
 import multiprocessing
 import os
 import sys
@@ -31,6 +30,7 @@ from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
 from fabric import *
+from datalab.logger import logging
 
 
 def install_libs(instance, data_engine):
@@ -58,7 +58,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE-SERVICE]')
-        print('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE-SERVICE]')
         data_engine = dict()
         try:
             data_engine['os_user'] = 'ec2-user'
@@ -68,7 +67,7 @@ if __name__ == "__main__":
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
             data_engine['libs'] = os.environ['libs']
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
         try:
@@ -86,6 +85,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to install additional libraries.", str(err))
         sys.exit(1)

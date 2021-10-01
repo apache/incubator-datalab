@@ -25,16 +25,16 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
 import os
 import sys
 import traceback
 import subprocess
 from fabric import *
+from datalab.logger import logging
 
 
 def start_data_engine(cluster_name):
-    print("Start Data Engine")
+    logging.info("Start Data Engine")
     try:
         datalab.actions_lib.start_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     datalab.actions_lib.create_aws_config_files()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     data_engine = dict()
     
     try:
@@ -74,18 +74,17 @@ if __name__ == "__main__":
                                                           data_engine['computational_name'])
 
     logging.info('[START DATA ENGINE CLUSTER]')
-    print('[START DATA ENGINE CLUSTER]')
     try:
         start_data_engine("{}:{}".format(data_engine['service_base_name'],
                                          data_engine['cluster_name']))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to start Data Engine.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[UPDATE LAST ACTIVITY TIME]')
-        print('[UPDATE LAST ACTIVITY TIME]')
+        logging.info('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
         data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
         data_engine['notebook_ip'] = datalab.meta_lib.get_instance_ip_address(
@@ -109,7 +108,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": data_engine['service_base_name'],
                    "Action": "Start Data Engine"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

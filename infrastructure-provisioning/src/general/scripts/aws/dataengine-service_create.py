@@ -24,7 +24,6 @@
 import argparse
 import ast
 import boto3
-import logging
 import re
 import sys
 import time
@@ -32,6 +31,7 @@ import traceback
 from botocore.client import Config as botoConfig
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -154,7 +154,7 @@ def get_object_count(bucket, prefix):
                     file_list.append(file.get('Key'))
             count = len(file_list)
         except:
-            print("{} still not exist. Waiting...".format(prefix))
+            logging.info("{} still not exist. Waiting...".format(prefix))
             count = 0
         return count
     except Exception as err:
@@ -282,12 +282,12 @@ def parse_steps(step_string):
 def action_validate(id):
     state = get_emr_info(id, 'Status')['State']
     if state in ("TERMINATING", "TERMINATED", "TERMINATED_WITH_ERRORS"):
-        print("Cluster is alredy stopped. Bye")
+        logging.info("Cluster is alredy stopped. Bye")
         return ["False", state]
     elif state in ("RUNNING", "WAITING"):
         return ["True", state]
     else:
-        print("Cluster is still being built.")
+        logging.info("Cluster is still being built.")
         return ["True", state]
 
 
@@ -322,17 +322,17 @@ def build_emr_cluster(args):
             steps = parse_steps(cp_config)
     
         if args.dry_run:
-            print("Build parameters are:")
-            print(args)
-            print("\n")
-            print("Applications to be installed:")
-            print(names)
-            print("\n")
-            print("Cluster tags:")
-            print(tags)
-            print("\n")
-            print("Cluster Jobs:")
-            print(steps)
+            logging.info("Build parameters are:")
+            logging.info(args)
+            logging.info("\n")
+            logging.info("Applications to be installed:")
+            logging.info(names)
+            logging.info("\n")
+            logging.info("Cluster tags:")
+            logging.info(tags)
+            logging.info("\n")
+            logging.info("Cluster Jobs:")
+            logging.info(steps)
     
         if not args.dry_run:
             socket = boto3.client('emr')
@@ -397,7 +397,7 @@ def build_emr_cluster(args):
                     JobFlowRole=args.ec2_role,
                     ServiceRole=args.service_role,
                     Configurations=ast.literal_eval(args.configurations))
-            print("Cluster_id {}".format(result.get('JobFlowId')))
+            logging.info("Cluster_id {}".format(result.get('JobFlowId')))
             return result.get('JobFlowId')
     except Exception as err:
         logging.error("Failed to build EMR cluster: " +
@@ -420,7 +420,7 @@ if __name__ == "__main__":
         build_emr_cluster(args)
     else:
         if not get_role_by_name(args.service_role):
-            print("There is no default EMR service role. Creating...")
+            logging.info("There is no default EMR service role. Creating...")
             create_iam_role(args.service_role,
                             args.service_role,
                             args.region, args.permissions_boundary_arn,
@@ -428,7 +428,7 @@ if __name__ == "__main__":
             attach_policy(args.service_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole')
         if not get_role_by_name(args.ec2_role):
-            print("There is no default EMR EC2 role. Creating...")
+            logging.info("There is no default EMR EC2 role. Creating...")
             create_iam_role(args.ec2_role,
                             args.ec2_role,
                             args.region, args.permissions_boundary_arn)
@@ -449,9 +449,9 @@ if __name__ == "__main__":
             spot_instances_status = get_spot_instances_status(cluster_id)
             bool_, code, message = spot_instances_status
             if bool_:
-                print("Spot instances status: {}, Message:{}".format(code, message))
+                logging.info("Spot instances status: {}, Message:{}".format(code, message))
             else:
-                print("SPOT REQUEST WASN'T FULFILLED, BECAUSE: "
+                logging.info("SPOT REQUEST WASN'T FULFILLED, BECAUSE: "
                       "STATUS CODE IS {}, MESSAGE IS {}".format(code, message))
                 append_result("Error with Spot request. Status code: {}, Message: {}".format(code, message))
                 sys.exit(1)

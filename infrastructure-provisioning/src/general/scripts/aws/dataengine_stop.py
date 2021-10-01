@@ -24,9 +24,9 @@
 import datalab.actions_lib
 import datalab.fab
 import json
-import logging
 import os
 import sys
+from datalab.logger import logging
 
 
 def stop_data_engine(cluster_name):
@@ -38,18 +38,9 @@ def stop_data_engine(cluster_name):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'],
-                                               os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + \
-                         os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     # generating variables dictionary
     datalab.actions_lib.create_aws_config_files()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     data_engine_config = dict()
     try:
         data_engine_config['exploratory_name'] = os.environ['exploratory_name']
@@ -68,12 +59,11 @@ if __name__ == "__main__":
                                                                  data_engine_config['computational_name'])
 
     logging.info('[STOP DATA ENGINE CLUSTER]')
-    print('[STOP DATA ENGINE CLUSTER]')
     try:
         stop_data_engine("{}:{}".format(data_engine_config['service_base_name'],
                                         data_engine_config['cluster_name']))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to stop Data Engine.", str(err))
         sys.exit(1)
 
@@ -81,7 +71,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": data_engine_config['service_base_name'],
                    "Action": "Stop Data Engine"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))
