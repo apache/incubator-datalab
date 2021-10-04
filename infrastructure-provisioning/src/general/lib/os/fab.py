@@ -274,7 +274,7 @@ def configure_http_proxy_server(config):
                 replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
             conn.sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
             conn.sudo('systemctl restart squid')
-            fab.conn.sudo('touch /tmp/http_proxy_ensured')
+            conn.sudo('touch /tmp/http_proxy_ensured')
     except Exception as err:
         logging.error('Fai to install and configure squid:', str(err))
         traceback.print_exc()
