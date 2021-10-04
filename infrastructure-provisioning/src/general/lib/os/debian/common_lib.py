@@ -34,7 +34,7 @@ from datalab.logger import logging
 def handle_dpkg_lock(error, rerun=False):
     try:
         count = 0
-        if 'E: Could not get lock ' and 'It is held by process ' in err:
+        if 'E: Could not get lock ' and 'It is held by process ' in error:
             log = datalab.fab.conn.sudo('cat /tmp/dpkg.log | grep "E: Could not get lock"').stdout
             lock_path = log.split('\n')[0][22:log.find('.')]
             pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
@@ -72,7 +72,7 @@ def handle_dpkg_lock(error, rerun=False):
 def handle_apt_lock(error, rerun=False):
     try:
         count = 0
-        if 'E: Could not get lock ' and 'It is held by process ' in err:
+        if 'E: Could not get lock ' and 'It is held by process ' in error:
             log = datalab.fab.conn.sudo('cat /tmp/apt.log | grep "E: Could not get lock"').stdout
             lock_path = log.split('\n')[0][22:log.find('.')]
             pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
@@ -105,7 +105,7 @@ def handle_apt_lock(error, rerun=False):
 def handle_apt_get_lock(error, rerun=False):
     try:
         count = 0
-        if 'E: Could not get lock ' and 'It is held by process ' in err:
+        if 'E: Could not get lock ' and 'It is held by process ' in error:
             log = datalab.fab.conn.sudo('cat /tmp/apt.log | grep "E: Could not get lock"').stdout
             lock_path = log.split('\n')[0][22:log.find('.')]
             pid = log.split('\n')[0][log.find('It is held by process ') + 22:].split(' ')[0]
@@ -150,7 +150,7 @@ def manage_pkg(command, environment, requisites):
             else:
                 print('Package manager is:')
                 if environment == 'remote':
-                    if datalab.fab.conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy' or datalab.fab.conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"') == 'busy':
+                    if 'busy' in datalab.fab.conn.sudo('pgrep "^apt" -a && echo "busy" || echo "ready"').stdout or 'busy' in datalab.fab.conn.sudo('pgrep "^dpkg" -a && echo "busy" || echo "ready"').stdout:
                         counter += 1
                         time.sleep(10)
                     else:

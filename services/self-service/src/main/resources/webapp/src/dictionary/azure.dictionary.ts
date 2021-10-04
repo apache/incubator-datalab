@@ -69,7 +69,8 @@ export const NAMING_CONVENTION_AZURE = {
         'total_instance_number_min': 'min_spark_instance_count',
         'total_instance_number_max': 'max_spark_instance_count',
         'data_engine_master_instance_size': 'Node size',
-        'master_node_shape': 'dataengine_instance_shape',
+        'master_node_shape': 'master_node_shape',
+        'slave_node_shape': 'slave_node_shape',
         'total_instance_number': 'dataengine_instance_count'
     },
 };
