@@ -143,6 +143,10 @@ def build_parser():
                         help='address to access repository (used for jars download)')
     parser.add_argument('--conf_repository_port', type=str, default='',
                         help='port to access repository (used for docker images download)')
+    parser.add_argument('--conf_download_docker_images', type=str, default='',
+                        help='true if download docker images from repository')
+    parser.add_argument('--conf_download_jars', type=str, default='',
+                        help='true if download jars from repository')
     parser.add_argument('--default_endpoint_name', type=str, default='local',
                                help='Name of localhost provisioning service, that created by default')
 
