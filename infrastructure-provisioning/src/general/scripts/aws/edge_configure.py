@@ -272,7 +272,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        logging.info('[SUMMARY]')
         logging.info("Instance name: {}".format(edge_conf['instance_name']))
         logging.info("Hostname: {}".format(edge_conf['instance_hostname']))
         logging.info("Public IP: {}".format(edge_conf['edge_public_ip']))
