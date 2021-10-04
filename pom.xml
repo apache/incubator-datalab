@@ -28,12 +28,12 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:https://github.com/MarianHladun/incubator-datalab.git</connection>
-        <url>scm:git:https://github.com/MarianHladun/incubator-datalab.git</url>
+        <connection>scm:git:https://github.com/apache/incubator-datalab.git</connection>
+        <url>scm:git:https://github.com/apache/incubator-datalab.git</url>
         <tag>HEAD</tag>
     </scm>
 
-     <profiles>
+    <profiles>
         <profile>
             <id>aws</id>
             <modules>
@@ -195,14 +195,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.11</source>
-                        <target>1.8</target>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.0</version>
@@ -224,7 +216,7 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.9.0.2155</version>
+                    <version>3.7.0.1746</version>
                 </plugin>
             </plugins>
         </pluginManagement>
