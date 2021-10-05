@@ -9,7 +9,7 @@
  "language": "python",
  "display_name": "Local PySpark (Python-PYTHON_VENV_VERSION / Spark-SP_VER )",
  "env": {
-  "PYSPARK_PYTHON": "pythonPYTHON_VENV_SHORT_VERSION",
+  "PYSPARK_PYTHON": "/opt/python/pythonPYTHON_VENV_VERSION/bin/python",
   "SPARK_HOME": "/opt/spark/",
   "PYTHONPATH": "PY4J:/opt/spark/python/:",
   "PYTHONSTARTUP": "/opt/spark/python/pyspark/shell.py",

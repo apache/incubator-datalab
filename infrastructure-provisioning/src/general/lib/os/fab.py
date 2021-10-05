@@ -442,7 +442,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             conn.sudo('mkdir -p ' + pyspark_local_path_dir)
             conn.sudo('touch ' + pyspark_local_path_dir + 'kernel.json')
             conn.put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
-            conn.sudo('''bash -l -c "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json" ''')
+            conn.sudo('''bash -l -c "sed -i \"s:PY4J:$(find /opt/spark/ -name '*py4j*.zip'):g\" /tmp/pyspark_local_template.json" ''')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
             conn.sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
             conn.sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
@@ -457,8 +457,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             conn.sudo('mkdir -p ' + py3spark_local_path_dir)
             conn.sudo('touch ' + py3spark_local_path_dir + 'kernel.json')
             conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
-            conn.sudo(
-                '''bash -l -c "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json" ''')
+            conn.sudo('''bash -l -c "sed -i \"s:PY4J:$(find /opt/spark/ -name '*py4j*.zip'):g\" /tmp/py3spark_local_template.json" ''')
             conn.sudo('sed -i "s|PYTHON_VENV_PATH|' + python_venv_path + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i "s|PYTHON_VENV_VERSION|' + python_venv_version + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i "s|PYTHON_VENV_SHORT_VERSION|' + python_venv_version[:3] + '|g" /tmp/py3spark_local_template.json')
