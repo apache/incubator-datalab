@@ -11,7 +11,7 @@
  "env": {
   "PYSPARK_PYTHON": "pythonPYTHON_VENV_SHORT_VERSION",
   "SPARK_HOME": "/opt/spark/",
-  "PYTHONPATH": "PY4J:/opt/spark/python/:",
+  "PYTHONPATH": "PY4J:/opt/spark/python/:PYTHON_VENV_PATH",
   "PYTHONSTARTUP": "/opt/spark/python/pyspark/shell.py",
   "PYSPARK_SUBMIT_ARGS": "--name LocalPySpark pyspark-shell"
  }
