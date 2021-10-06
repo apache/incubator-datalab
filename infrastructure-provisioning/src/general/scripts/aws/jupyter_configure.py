@@ -164,10 +164,9 @@ if __name__ == "__main__":
                  "--hadoop_version {4} " \
                  "--os_user {5} " \
                  "--scala_version {6} " \
-                 "--r_mirror {7} " \
-                 "--ip_address {8} " \
-                 "--exploratory_name {9} " \
-                 "--edge_ip {10}".\
+                 "--ip_address {7} " \
+                 "--exploratory_name {8} " \
+                 "--edge_ip {9}".\
             format(instance_hostname,
                    keyfile_name,
                    os.environ['aws_region'],
@@ -175,7 +174,6 @@ if __name__ == "__main__":
                    os.environ['notebook_hadoop_version'],
                    notebook_config['datalab_ssh_user'],
                    os.environ['notebook_scala_version'],
-                   os.environ['notebook_r_mirror'],
                    notebook_config['ip_address'],
                    notebook_config['exploratory_name'],
                    edge_ip)

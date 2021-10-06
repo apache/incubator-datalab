@@ -82,13 +82,10 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sys.exit(1)
 
 
-def ensure_r(os_user, r_libs, region, r_mirror):
+def ensure_r(os_user, r_libs):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/r_ensured'.format(os_user)):
         try:
-            if region == 'cn-north-1':
-                r_repository = r_mirror
-            else:
-                r_repository = 'https://cloud.r-project.org'
+            r_repository = 'https://cloud.r-project.org'
             manage_pkg('-y install', 'remote', 'cmake')
             manage_pkg('-y install', 'remote', 'libcur*')
             datalab.fab.conn.sudo('echo -e "[base]\nname=CentOS-7-Base\nbaseurl=http://buildlogs.centos.org/centos/7/os/x86_64-20140704-1/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7\npriority=1\nexclude=php mysql" >> /etc/yum.repos.d/CentOS-base.repo')

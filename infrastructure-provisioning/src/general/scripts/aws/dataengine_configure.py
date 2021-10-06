@@ -100,10 +100,10 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
-                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
+                 "--scala_version {} --master_ip {} --node_type {}". \
             format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['datalab_ssh_user'],
-                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
+                   os.environ['notebook_scala_version'], master_node_hostname,
                    'slave')
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_dataengine', params), shell=True, check=True)
@@ -287,10 +287,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE MASTER NODE]')
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
-                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
+                 "--scala_version {} --master_ip {} --node_type {}".\
             format(master_node_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['datalab_ssh_user'],
-                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
+                   os.environ['notebook_scala_version'], master_node_hostname,
                    'master')
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_dataengine', params), shell=True, check=True)

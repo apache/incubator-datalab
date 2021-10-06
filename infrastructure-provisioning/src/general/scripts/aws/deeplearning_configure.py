@@ -176,12 +176,11 @@ if __name__ == "__main__":
                  "--os_user {2} --jupyter_version {3} " \
                  "--scala_version {4} --spark_version {5} " \
                  "--hadoop_version {6} --region {7} " \
-                 "--r_mirror {8} --ip_address {9} --exploratory_name {10} --edge_ip {11}" \
+                 "--ip_address {8} --exploratory_name {9} --edge_ip {10}" \
             .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
                     os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
-                    os.environ['aws_region'], os.environ['notebook_r_mirror'],
-                    notebook_config['ip_address'], notebook_config['exploratory_name'], edge_ip)
+                    os.environ['aws_region'], notebook_config['ip_address'], notebook_config['exploratory_name'], edge_ip)
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_deep_learning_node', params), shell=True, check=True)
         except:
