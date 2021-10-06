@@ -67,6 +67,9 @@ public class KeycloakServiceImpl implements KeycloakService {
     public AccessTokenResponse generateAccessToken(String refreshToken) {
         AccessTokenResponse tokenResponse = refreshToken(refreshToken);
         final String username = KeycloakUtil.parseToken(tokenResponse.getToken()).getPreferredUsername();
+        if (username.contains("auto")) {
+            throw new DatalabException("can not generate Access token for user with: auto, in username");
+        }
         securityDAO.updateUser(username, tokenResponse);
         return tokenResponse;
     }
@@ -77,11 +80,18 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     private AccessTokenResponse requestToken(Form requestForm) {
+        log.info("TEST LOG!!!: access token form : {}", requestForm);
+
         final String credentials = Base64.encodeAsString(String.join(":", conf.getResource(),
                 String.valueOf(conf.getCredentials().get("secret"))));
+        String url = conf.getAuthServerUrl() + String.format(URI, conf.getRealm());
+        String header = "Basic " + credentials;
+        log.info("TEST LOG!!!: post with: url: {}, cred: {}, header: {} : {}", url, credentials, HttpHeaders.AUTHORIZATION, header);
+
         final Response response =
-                httpClient.target(conf.getAuthServerUrl() + String.format(URI, conf.getRealm())).request()
-                        .header(HttpHeaders.AUTHORIZATION, "Basic " + credentials)
+                httpClient.target(url)
+                        .request()
+                        .header(HttpHeaders.AUTHORIZATION, header)
                         .post(Entity.form(requestForm));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
 
