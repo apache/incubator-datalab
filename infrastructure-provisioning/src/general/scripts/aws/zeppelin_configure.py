@@ -177,15 +177,15 @@ if __name__ == "__main__":
                  "--edge_hostname {8} --proxy_port {9} " \
                  "--zeppelin_version {10} --scala_version {11} " \
                  "--livy_version {12} --multiple_clusters {13} " \
-                 "--r_mirror {14} --endpoint_url {15} " \
-                 "--ip_address {16} --exploratory_name {17} --edge_ip {18}" \
+                 "--endpoint_url {14} " \
+                 "--ip_address {15} --exploratory_name {16} --edge_ip {17}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['datalab_ssh_user'],
                     os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
-                    os.environ['notebook_r_mirror'], notebook_config['endpoint_url'], notebook_config['ip_address'],
+                    notebook_config['endpoint_url'], notebook_config['ip_address'],
                     notebook_config['exploratory_name'], edge_ip)
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_zeppelin_node', params), shell=True, check=True)

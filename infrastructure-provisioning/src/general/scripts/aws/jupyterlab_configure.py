@@ -164,7 +164,6 @@ if __name__ == "__main__":
                  "--hadoop_version {} " \
                  "--os_user {} " \
                  "--scala_version {} " \
-                 "--r_mirror {} " \
                  "--ip_address {} " \
                  "--exploratory_name {}".\
             format(instance_hostname,
@@ -175,7 +174,6 @@ if __name__ == "__main__":
                    os.environ['notebook_hadoop_version'],
                    notebook_config['datalab_ssh_user'],
                    os.environ['notebook_scala_version'],
-                   os.environ['notebook_r_mirror'],
                    notebook_config['ip_address'],
                    notebook_config['exploratory_name'])
         try:

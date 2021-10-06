@@ -36,7 +36,6 @@ parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
-parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--master_ip', type=str, default='')
 parser.add_argument('--node_type', type=str, default='')
 args = parser.parse_args()
@@ -139,7 +138,7 @@ if __name__ == "__main__":
         and os.environ['notebook_r_enabled'] == 'true') \
             or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         print("Installing R")
-        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+        ensure_r(args.os_user, r_libs)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
     if os.environ['application'] == 'zeppelin':

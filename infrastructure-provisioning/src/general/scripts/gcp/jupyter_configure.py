@@ -162,13 +162,13 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} " \
                  "--region {} --spark_version {} " \
                  "--hadoop_version {} --os_user {} " \
-                 "--scala_version {} --r_mirror {} " \
+                 "--scala_version {} " \
                  "--exploratory_name {} "\
                  "--edge_ip {}".\
             format(instance_hostname, notebook_config['ssh_key_path'],
                    os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['datalab_ssh_user'],
-                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
+                   os.environ['notebook_scala_version'],
                    notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_jupyter_node', params), shell=True, check=True)

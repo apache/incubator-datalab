@@ -170,7 +170,7 @@ if __name__ == "__main__":
                  "--edge_hostname {} --proxy_port {} " \
                  "--zeppelin_version {} --scala_version {} " \
                  "--livy_version {} --multiple_clusters {} " \
-                 "--r_mirror {} --endpoint_url {} " \
+                 "--endpoint_url {} " \
                  "--exploratory_name {} " \
                  "--edge_ip {}" \
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
@@ -178,8 +178,7 @@ if __name__ == "__main__":
                     os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'], edge_instance_name,
                     '3128', os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
-                    os.environ['notebook_r_mirror'], 'null',
-                    notebook_config['exploratory_name'], edge_instance_private_ip)
+                    'null', notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_zeppelin_node', params), shell=True, check=True)
         except:
