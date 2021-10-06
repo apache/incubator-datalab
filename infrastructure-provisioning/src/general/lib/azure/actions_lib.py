@@ -1240,7 +1240,7 @@ def ensure_right_mount_paths():
              if disk != '' and disk not in datalab.fab.conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in datalab.fab.conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
                  datalab.fab.conn.sudo("umount -l /opt")
                  datalab.fab.conn.sudo("mount /dev/{}1 /opt".format(disk))
-                 datalab.fab.conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
+                 datalab.fab.conn.sudo('sed -i "/opt/ s|/dev/{}1|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
