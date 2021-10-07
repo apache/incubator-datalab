@@ -327,6 +327,10 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
+    conn.sudo("pip3 install environment_kernels")
+    conn.sudo("systemctl daemon-reload")
+    conn.sudo("systemctl restart jupyter-notebook")
+    conn.sudo("systemctl restart jupyter")
 
 def remove_unexisting_kernel(os_user):
     if not exists(conn,'/home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user)):
