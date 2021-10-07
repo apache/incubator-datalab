@@ -132,14 +132,14 @@ def build_docker_images(image_list):
                 name = image['name']
                 tag = image['tag']
                 conn.sudo('cp {0}sources/infrastructure-provisioning/src/general/files/{1}/{2}_description.json '
-                     '{0}sources/infrastructure-provisioning/src/{2}/description.json'.format(args.datalab_path, args.cloud_provider, name))
+                 '{0}sources/infrastructure-provisioning/src/{2}/description.json'.format(args.datalab_path, args.cloud_provider, name))
                 if name == 'base':
                     conn.sudo("bash -c 'cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
-                              "--build-arg SRC_PATH=\"\" --file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} "
-                              ".'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
+                          "--build-arg SRC_PATH=\"\" --file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} "
+                          ".'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
                 else:
                     conn.sudo("bash -c 'cd {4}sources/infrastructure-provisioning/src/; docker build --build-arg OS={2} "
-                              "--file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} .'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
+                          "--file general/files/{3}/{0}_Dockerfile -t docker.datalab-{0}:{1} .'".format(name, tag, args.os_family, args.cloud_provider, args.datalab_path))
             conn.sudo('rm -f {}sources/infrastructure-provisioning/src/base/azure_auth.json'.format(args.datalab_path))
             return True
     except:

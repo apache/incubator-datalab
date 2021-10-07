@@ -201,6 +201,8 @@ def build_parser():
     aws_parser.add_argument('--aws_job_enabled', type=str, default='false', choices=BOOL_CHOICES_LIST,
                             help='Billing format. (valid choices: %s)' % BOOL_CHOICES_LIST)
     aws_parser.add_argument('--aws_report_path', type=str, help='The path to billing reports directory in S3 bucket')
+    aws_parser.add_argument('--aws_permissions_boundary_arn', type=str, default='',
+                            help='Permission boundary to be attached to new roles')
 
     aws_required_args = aws_parser.add_argument_group('Required arguments')
     aws_required_args.add_argument('--aws_region', type=str, required=True, help='AWS region')

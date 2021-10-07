@@ -78,14 +78,6 @@ if __name__ == "__main__":
             ssn_conf['tag_name'], ssn_conf['instance_name']).get('Private')))(
             ssn_conf['network_type']) if x == 'true' else '')(os.environ['conf_stepcerts_enabled'])
 
-
-        if 'keycloak_client_name' not in os.environ:
-            os.environ['keycloak_client_name'] = '{}-ui'.format(ssn_conf['service_base_name'])
-        if 'keycloak_client_secret' not in os.environ:
-            os.environ['keycloak_client_secret'] = str(uuid.uuid4())
-
-        print('AWS SG ID: {}'.format(os.environ['aws_security_groups_ids']))
-
         if 'aws_vpc_id' in os.environ and os.environ['aws_vpc_id'] != '':
             ssn_conf['aws_vpc_id'] = os.environ['aws_vpc_id']
         else:
@@ -123,6 +115,14 @@ if __name__ == "__main__":
             ssn_conf['aws_report_path'] = os.environ['aws_report_path']
         else:
             ssn_conf['aws_report_path'] = ''
+
+        if 'keycloak_client_name' not in os.environ:
+            os.environ['keycloak_client_name'] = '{}-ui'.format(ssn_conf['service_base_name'])
+        if 'keycloak_client_secret' not in os.environ:
+            os.environ['keycloak_client_secret'] = str(uuid.uuid4())
+
+        print('AWS SG ID: {}'.format(os.environ['aws_security_groups_ids']))
+
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
@@ -228,14 +228,6 @@ if __name__ == "__main__":
         cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
-    #configuring keycloak client for ui
-    try:
-        logging.info('[CONFIGURE KEYCLOAK CLIENT FOR DATALAB UI]')
-    except Exception as err:
-        logging.error('Error: {0}'.format(err))
-        datalab.fab.append_result("Failed to configure Keycloak client for DataLab UI.", str(err))
-        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
-        sys.exit(1)
 
     #configuring UI
     try:
@@ -574,7 +566,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info('[CREATE KEYCLOAK CLIENT]')
-    print('[CREATE KEYCLOAK CLIENT]')
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                       "--keycloak_user {} --keycloak_user_password {} --instance_public_ip {} --keycloak_client_secret {} " \
         .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
