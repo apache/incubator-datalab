@@ -467,7 +467,6 @@ def install_pip_pkg(requisites, pip_version, lib_group, dataengine_service=False
         traceback.print_exc()
         return status
 
-<<<<<<< HEAD
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -484,8 +483,6 @@ def prepare(dataengine_service_dir, yarn_dir):
     result = os.path.exists(dataengine_service_dir + 'usr/')
     return result
 
-=======
->>>>>>> e885bad8584f96cdde5bedec83c9ef207c24ebeb
 def install_r_pkg(requisites):
     status = list()
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping|couldn't find"
@@ -793,15 +790,8 @@ def configure_data_engine_service_livy(hostname, os_user, keyfile):
         init_datalab_connection(hostname, os_user, keyfile)
         if exists(conn, '/usr/local/lib/livy'):
             conn.sudo('rm -r /usr/local/lib/livy')
-<<<<<<< HEAD
-        conn.sudo('wget -P /tmp/  --user={} --password={} '
-                  '{}/repository/packages/livy.tar.gz --no-check-certificate'
-                  .format(os.environ['conf_repository_user'],
-                          os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
-=======
         conn.sudo('wget -P /tmp/ https://nexus.develop.dlabanalytics.com/repository/packages-public/livy.tar.gz '
                   '--no-check-certificate')
->>>>>>> e885bad8584f96cdde5bedec83c9ef207c24ebeb
         conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /usr/local/lib/')
         conn.sudo('ln -s /usr/local/lib/incubator-livy /usr/local/lib/livy')
         conn.put('/root/templates/dataengine-service_livy-env.sh', '/usr/local/lib/livy/conf/livy-env.sh')
@@ -986,15 +976,10 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                     "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-<<<<<<< HEAD
-            java_home = conn.run(
-                "update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
-=======
             if os.environ['application'] == 'deeplearning' and os.environ['conf_cloud_provider'] == 'azure':
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-11.*/bin/java\'").stdout.splitlines()[0]
             else:
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
->>>>>>> e885bad8584f96cdde5bedec83c9ef207c24ebeb
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
                 java_home))
             conn.sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
