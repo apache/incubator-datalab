@@ -318,11 +318,10 @@ def ensure_python_venv(python_venv_version):
             conn.sudo('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_venv_version))
             if os.environ['application'] in ('rstudio', 'tensor-rstudio'):
                 conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} '''
-                          '''--with-zlib-dir=/usr/local/lib/ --with-ensurepip=install --enable-shared' '''.format(
-                    python_venv_version))
-                conn.sudo(
-                    '''bash -l -c 'echo "export LD_LIBRARY_PATH=/opt/python/python{}/lib" >> /etc/profile' '''.format(
-                        python_venv_version))
+                          '''--with-zlib-dir=/usr/local/lib/ --with-ensurepip=install --enable-shared' '''
+                    .format(python_venv_version))
+                conn.sudo('''bash -l -c 'echo "export LD_LIBRARY_PATH=/opt/python/python{}/lib" >> /etc/profile' '''
+                    .format(python_venv_version))
             else:
                 conn.sudo(
                     '''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} '''
@@ -336,25 +335,11 @@ def ensure_python_venv(python_venv_version):
             conn.sudo('''bash -l -c '{0} && {1} install -UI pip=={2}' '''.format(venv_command, pip_command,
                                                                                  os.environ['conf_pip_version']))
             conn.sudo('''bash -l -c '{} && {} install -UI ipython=={} ipykernel=={} NumPy=={} SciPy=={} Matplotlib=={}
-             pandas=={} Sympy=={} Pillow=={} scikit-learn=={} --no-cache-dir' '''.format(venv_command, pip_command,
-                                                                                         os.environ[
-                                                                                             'pip_packages_ipython'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packagesipykernel'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packages_numpy'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packages_scipy'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packages_matplotlib'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packages_pandas'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packages_sympy'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packages_pillow'],
-                                                                                         os.environ[
-                                                                                                                   'pip_packages_scikit-learn']))
+             pandas=={} Sympy=={} Pillow=={} scikit-learn=={} --no-cache-dir' '''
+                      .format(venv_command, pip_command, os.environ['pip_packages_ipython'], os.environ['pip_packages_ipykernel'],
+                              os.environ['pip_packages_numpy'], os.environ['pip_packages_scipy'], os.environ['pip_packages_matplotlib'],
+                              os.environ['pip_packages_pandas'], os.environ['pip_packages_sympy'], os.environ['pip_packages_pillow'],
+                              os.environ['pip_packages_scikit-learn']))
 
     except Exception as err:
         logging.error('Function ensure_python_venv error:', str(err))
