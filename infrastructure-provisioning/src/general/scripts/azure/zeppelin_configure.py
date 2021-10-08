@@ -212,7 +212,9 @@ if __name__ == "__main__":
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_zeppelin_node', params), shell=True, check=True)
             datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,
-                                                   os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
+                                                   keyfile_name)
+            datalab.actions_lib.ensure_right_mount_paths(True, notebook_config['datalab_ssh_user'], instance_hostname,
+                                                         keyfile_name)
         except:
             traceback.print_exc()
             raise Exception
@@ -295,6 +297,8 @@ if __name__ == "__main__":
                                                                      notebook_config['instance_name'])
                 datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,
                                                        keyfile_name)
+                datalab.actions_lib.ensure_right_mount_paths(True, notebook_config['datalab_ssh_user'],
+                                                             instance_hostname, keyfile_name)
                 datalab.fab.set_git_proxy(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name,
                                           'http://{}:3128'.format(edge_instance_private_hostname))
                 additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
