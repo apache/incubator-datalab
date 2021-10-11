@@ -24,6 +24,7 @@
 import argparse
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_name', type=str, default='')
@@ -32,10 +33,10 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.vpc_name != '':
         if GCPMeta().get_vpc(args.vpc_name):
-            print("REQUESTED VPC {} ALREADY EXISTS".format(args.vpc_name))
+            logging.info("REQUESTED VPC {} ALREADY EXISTS".format(args.vpc_name))
         else:
-            print("Creating VPC {}".format(args.vpc_name))
+            logging.info("Creating VPC {}".format(args.vpc_name))
             GCPActions().create_vpc(args.vpc_name)
     else:
-        print("VPC name can't be empty.")
+        logging.error("VPC name can't be empty.")
         sys.exit(1)

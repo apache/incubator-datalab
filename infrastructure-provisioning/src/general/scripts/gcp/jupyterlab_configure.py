@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -33,12 +33,6 @@ import subprocess
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
@@ -105,7 +99,6 @@ if __name__ == "__main__":
             notebook_config['sudo_group'] = 'wheel'
 
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             instance_hostname, notebook_config['ssh_key_path'], notebook_config['initial_user'],
             notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
@@ -123,7 +116,6 @@ if __name__ == "__main__":
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON JUPYTERLAB INSTANCE]')
-        print('[CONFIGURE PROXY ON JUPYTERLAB INSTANCE]')
         additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
@@ -141,7 +133,6 @@ if __name__ == "__main__":
     # updating repositories & installing python packages
     try:
         logging.info('[INSTALLING PREREQUISITES TO JUPYTERLAB NOTEBOOK INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO JUPYTERLAB NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['datalab_ssh_user'],
                    os.environ['gcp_region'], edge_instance_private_ip)
@@ -158,7 +149,6 @@ if __name__ == "__main__":
     # installing and configuring jupiter and all dependencies
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
-        print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --edge_ip {} " \
                  "--region {} --spark_version {} " \
                  "--hadoop_version {} --os_user {} " \
@@ -179,7 +169,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -197,7 +186,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['datalab_ssh_user'], instance_hostname, notebook_config['ssh_key_path'])
@@ -214,20 +202,20 @@ if __name__ == "__main__":
 
     if notebook_config['image_enabled'] == 'true':
         try:
-            print('[CREATING IMAGE]')
+            logging.info('[CREATING IMAGE]')
             primary_image_id = GCPMeta.get_image_by_name(notebook_config['expected_primary_image_name'])
             if primary_image_id == '':
-                print("Looks like it's first time we configure notebook server. Creating images.")
+                logging.info("Looks like it's first time we configure notebook server. Creating images.")
                 image_id_list = GCPActions.create_image_from_instance_disks(
                     notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
                     notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'])
                 if image_id_list and image_id_list[0] != '':
-                    print("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
+                    logging.info("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
                 else:
-                    print("Looks like another image creating operation for your template have been started a "
+                    logging.info("Looks like another image creating operation for your template have been started a "
                           "moment ago.")
                 if image_id_list and image_id_list[1] != '':
-                    print("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
+                    logging.info("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
         except Exception as err:
             datalab.fab.append_result("Failed creating image.", str(err))
             GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
@@ -236,7 +224,6 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
-        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         additional_info = {
             'instance_hostname': instance_hostname,
@@ -265,7 +252,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[CONFIGURING PROXY FOR DOCKER]')
         logging.info('[CONFIGURING PROXY FOR DOCKER]')
         params = "--hostname {} " \
                  "--keyfile {} " \
@@ -285,7 +271,6 @@ if __name__ == "__main__":
 
 
     try:
-        print('[STARTING JUPYTER CONTAINER]')
         logging.info('[STARTING JUPYTER CONTAINER]')
         params = "--hostname {} " \
                  "--keyfile {} " \
@@ -312,18 +297,17 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'])
         jupyter_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
             notebook_config['exploratory_name'])
-        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print("Instance name: {}".format(notebook_config['instance_name']))
-        print("Private IP: {}".format(ip_address))
-        print("Instance type: {}".format(notebook_config['instance_type']))
-        print("Key name: {}".format(notebook_config['key_name']))
-        print("User key name: {}".format(os.environ['project_name']))
-        print("JupyterLab URL: {}".format(jupyter_ip_url))
-        print("Ungit URL: {}".format(ungit_ip_url))
-        print("ReverseProxyNotebook".format(jupyter_notebook_acces_url))
-        print("ReverseProxyUngit".format(jupyter_ungit_acces_url))
-        print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(
+        logging.info("Instance name: {}".format(notebook_config['instance_name']))
+        logging.info("Private IP: {}".format(ip_address))
+        logging.info("Instance type: {}".format(notebook_config['instance_type']))
+        logging.info("Key name: {}".format(notebook_config['key_name']))
+        logging.info("User key name: {}".format(os.environ['project_name']))
+        logging.info("JupyterLab URL: {}".format(jupyter_ip_url))
+        logging.info("Ungit URL: {}".format(ungit_ip_url))
+        logging.info("ReverseProxyNotebook".format(jupyter_notebook_acces_url))
+        logging.info("ReverseProxyUngit".format(jupyter_ungit_acces_url))
+        logging.info('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(
             notebook_config['key_name'], notebook_config['datalab_ssh_user'], ip_address))
 
         with open("/root/result.json", 'w') as result:

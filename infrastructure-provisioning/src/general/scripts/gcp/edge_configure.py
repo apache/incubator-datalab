@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,13 +34,6 @@ import subprocess
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     def clear_resources():
         GCPActions.remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions.remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
@@ -62,7 +55,7 @@ if __name__ == "__main__":
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         edge_conf = dict()
         edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
         edge_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
@@ -155,7 +148,6 @@ if __name__ == "__main__":
             edge_conf['sudo_group'] = 'wheel'
 
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             edge_conf['instance_hostname'], "/root/keys/" + os.environ['conf_key_name'] + ".pem",
             edge_conf['initial_user'], edge_conf['datalab_ssh_user'], edge_conf['sudo_group'])
@@ -171,7 +163,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".format(
             edge_conf['instance_hostname'], edge_conf['ssh_key_path'], edge_conf['datalab_ssh_user'],
@@ -187,7 +178,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
@@ -213,7 +203,6 @@ if __name__ == "__main__":
 
 
     try:
-        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -231,7 +220,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
         edge_conf['keycloak_client_secret'] = str(uuid.uuid4())
         params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
@@ -271,9 +259,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[CONFIGRING EDGE AS NAT]')
+        logging.info('[CONFIGRING EDGE AS NAT]')
         if os.environ['edge_is_nat'] == 'true':
-            print('Installing nftables')
+            logging.info('Installing nftables')
             additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                                  "edge_ip": edge_conf['private_ip']}
             params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
@@ -298,17 +286,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print("Instance name: {}".format(edge_conf['instance_name']))
-        print("Hostname: {}".format(edge_conf['instance_hostname']))
-        print("Public IP: {}".format(edge_conf['static_ip']))
-        print("Private IP: {}".format(edge_conf['private_ip']))
-        print("Key name: {}".format(edge_conf['key_name']))
-        print("Bucket name: {}".format(edge_conf['bucket_name']))
-        print("Shared bucket name: {}".format(edge_conf['shared_bucket_name']))
-        print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
-        print("Available GPU types: {}".format(edge_conf['gpu_types']))
+        logging.info("Instance name: {}".format(edge_conf['instance_name']))
+        logging.info("Hostname: {}".format(edge_conf['instance_hostname']))
+        logging.info("Public IP: {}".format(edge_conf['static_ip']))
+        logging.info("Private IP: {}".format(edge_conf['private_ip']))
+        logging.info("Key name: {}".format(edge_conf['key_name']))
+        logging.info("Bucket name: {}".format(edge_conf['bucket_name']))
+        logging.info("Shared bucket name: {}".format(edge_conf['shared_bucket_name']))
+        logging.info("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
+        logging.info("Available GPU types: {}".format(edge_conf['gpu_types']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": edge_conf['instance_hostname'],
                    "public_ip": edge_conf['static_ip'],
@@ -325,7 +312,7 @@ if __name__ == "__main__":
                    "gpu_types": edge_conf['gpu_types'],
                    "@class": "com.epam.datalab.dto.gcp.edge.EdgeInfoGcp",
                    "Action": "Create new EDGE server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results.", str(err))

@@ -26,6 +26,7 @@ import ipaddress
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--subnet_name', type=str, default='')
@@ -105,17 +106,17 @@ if __name__ == "__main__":
             existed_subnet_list.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
         available_subnets = list(set(pre_defined_subnet_list) - set(existed_subnet_list))
         if not available_subnets:
-            print("There is no available subnet to create. Aborting...")
+            logging.info("There is no available subnet to create. Aborting...")
             sys.exit(1)
         else:
             datalab_subnet_cidr = available_subnets[0]
 
     if args.subnet_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):
-            print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
+            logging.info("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
         else:
-            print("Creating Subnet {}".format(args.subnet_name))
+            logging.info("Creating Subnet {}".format(args.subnet_name))
             GCPActions().create_subnet(args.subnet_name, datalab_subnet_cidr, args.vpc_selflink, args.region)
     else:
-        print("Subnet name can't be empty")
+        logging.info("Subnet name can't be empty")
         sys.exit(1)

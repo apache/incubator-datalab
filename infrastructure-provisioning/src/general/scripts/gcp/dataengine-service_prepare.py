@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import time
@@ -35,16 +35,10 @@ from Crypto.PublicKey import RSA
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.INFO,
-                        filename=local_log_filepath)
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         dataproc_conf = dict()
         if 'exploratory_name' in os.environ:
             dataproc_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
@@ -118,7 +112,7 @@ if __name__ == "__main__":
     edge_status = GCPMeta.get_instance_status(dataproc_conf['edge_instance_hostname'])
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print('ERROR: Edge node is unavailable! Aborting...')
+        logging.info('ERROR: Edge node is unavailable! Aborting...')
         ssn_hostname = GCPMeta.get_private_ip_address(dataproc_conf['service_base_name'] + '-ssn')
         datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
                                         os.environ['conf_os_user'],
@@ -126,7 +120,7 @@ if __name__ == "__main__":
         datalab.fab.append_result("Edge node is unavailable")
         sys.exit(1)
 
-    print("Will create exploratory environment with edge node as access point as following: ".format(
+    logging.info("Will create exploratory environment with edge node as access point as following: ".format(
         json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(dataproc_conf))
 
@@ -181,7 +175,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[Creating Dataproc Cluster]')
-        print('[Creating Dataproc Cluster]')
         params = "--region {0} --bucket {1} --params '{2}'".format(dataproc_conf['region'],
                                                                    dataproc_conf['bucket_name'],
                                                                    json.dumps(dataproc_cluster))

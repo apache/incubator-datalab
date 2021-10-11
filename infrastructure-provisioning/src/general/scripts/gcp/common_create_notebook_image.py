@@ -24,6 +24,7 @@
 import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
+from datalab.logger import logging
 import json
 import os
 import sys
@@ -63,19 +64,19 @@ if __name__ == "__main__":
                                                                        image_conf['endpoint_name'],
                                                                        image_conf['exploratory_name'])
         image_conf['zone'] = os.environ['gcp_zone']
-        print('[CREATING IMAGE]')
+        logging.info('[CREATING IMAGE]')
         primary_image_id = GCPMeta.get_image_by_name(image_conf['expected_primary_image_name'])
         if primary_image_id == '':
             image_id_list = GCPActions.create_image_from_instance_disks(
                 image_conf['expected_primary_image_name'], image_conf['expected_secondary_image_name'],
                 image_conf['instance_name'], image_conf['zone'], image_conf['image_labels'])
             if image_id_list and image_id_list[0] != '':
-                print("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
+                logging.info("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
             else:
-                print("Looks like another image creating operation for your template have been started a "
+                logging.info("Looks like another image creating operation for your template have been started a "
                       "moment ago.")
             if image_id_list and image_id_list[1] != '':
-                print("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
+                logging.info("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
 
             with open("/root/result.json", 'w') as result:
                 res = {"primary_image_name": image_conf['expected_primary_image_name'],

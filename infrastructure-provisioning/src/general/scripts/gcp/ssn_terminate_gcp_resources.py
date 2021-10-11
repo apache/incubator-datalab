@@ -26,6 +26,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
 from datalab.ssn_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--zone', type=str)
@@ -43,7 +44,7 @@ args = parser.parse_args()
 if __name__ == "__main__":
     GCPMeta = datalab.meta_lib.GCPMeta()
     GCPActions = datalab.actions_lib.GCPActions()
-    print("Terminating Dataengine-service clusters")
+    logging.info("Terminating Dataengine-service clusters")
     try:
         labels = [
             {'sbn': args.service_base_name}
@@ -52,54 +53,54 @@ if __name__ == "__main__":
         if clusters_list:
             for cluster_name in clusters_list:
                 GCPActions.delete_dataproc_cluster(cluster_name, args.region)
-                print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
+                logging.info('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
-            print("There are no Dataproc clusters to terminate.")
+            logging.info("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Terminating instances")
+    logging.info("Terminating instances")
     try:
         instances = GCPMeta.get_list_instances(args.zone, args.service_base_name)
         if 'items' in instances:
             for i in instances['items']:
                 GCPActions.remove_instance(i['name'], args.zone)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Removing images")
+    logging.info("Removing images")
     try:
         images = GCPMeta.get_list_images(args.service_base_name)
         if 'items' in images:
             for i in images['items']:
                 GCPActions.remove_image(i['name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Removing static addresses")
+    logging.info("Removing static addresses")
     try:
         static_addresses = GCPMeta.get_list_static_addresses(args.region, args.service_base_name)
         if 'items' in static_addresses:
             for i in static_addresses['items']:
                 GCPActions.remove_static_address(i['name'], args.region)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Removing firewalls")
+    logging.info("Removing firewalls")
     try:
         firewalls = GCPMeta.get_list_firewalls(args.service_base_name)
         if 'items' in firewalls:
             for i in firewalls['items']:
                 GCPActions.remove_firewall(i['name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Removing Service accounts and roles")
+    logging.info("Removing Service accounts and roles")
     try:
         list_service_accounts = GCPMeta.get_list_service_accounts()
         for service_account in list_service_accounts:
@@ -110,10 +111,10 @@ if __name__ == "__main__":
             if role.startswith(args.service_base_name):
                 GCPActions.remove_role(role)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Removing subnets")
+    logging.info("Removing subnets")
     try:
         list_subnets = GCPMeta.get_list_subnetworks(args.region, '', args.service_base_name)
         if 'items' in list_subnets:
@@ -122,26 +123,26 @@ if __name__ == "__main__":
             for i in subnets['items']:
                 GCPActions.remove_subnet(i['name'], args.region)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Removing s3 buckets")
+    logging.info("Removing s3 buckets")
     try:
         buckets = GCPMeta.get_list_buckets(args.service_base_name)
         if 'items' in buckets:
             for i in buckets['items']:
                 GCPActions.remove_bucket(i['name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Removing SSN VPC")
+    logging.info("Removing SSN VPC")
     if args.pre_defined_vpc != 'True':
         try:
             GCPActions.remove_vpc(args.vpc_name)
         except Exception as err:
-            print('Error: {0}'.format(err))
-            print("No such VPC")
+            logging.error('Error: {0}'.format(err))
+            logging.error("No such VPC")
             sys.exit(1)
     else:
-        print('VPC is predefined, VPC will not be deleted')
+        logging.info('VPC is predefined, VPC will not be deleted')

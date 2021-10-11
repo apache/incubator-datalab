@@ -25,6 +25,7 @@ import argparse
 import os
 from datalab.actions_lib import *
 from fabric import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -42,8 +43,8 @@ if __name__ == "__main__":
     if GCPActions().get_gitlab_cert(bucket_name, gitlab_certfile):
         conn.put(gitlab_certfile, gitlab_certfile)
         conn.sudo('chown root:root {}'.format(gitlab_certfile))
-        print('{} has been downloaded'.format(gitlab_certfile))
+        logging.info('{} has been downloaded'.format(gitlab_certfile))
     else:
-        print('There is no {} to download'.format(gitlab_certfile))
+        logging.info('There is no {} to download'.format(gitlab_certfile))
 
     conn.close()
