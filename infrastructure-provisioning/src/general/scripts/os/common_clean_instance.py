@@ -25,6 +25,7 @@ import argparse
 import os
 import sys
 from datalab.notebook_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -48,7 +49,7 @@ def general_clean():
         remove_os_pkg(['nodejs', 'npm'])
         conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -64,7 +65,7 @@ def clean_jupyter():
         conn.sudo('rm -f /etc/systemd/system/jupyter-notebook.service')
         conn.sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -79,7 +80,7 @@ def clean_zeppelin():
         conn.sudo('rm -f /etc/systemd/system/zeppelin-notebook.service')
         conn.sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -89,7 +90,7 @@ def clean_rstudio():
         conn.sudo('rm -f /home/{}/.Rprofile'.format(args.os_user))
         conn.sudo('rm -f /home/{}/.Renviron'.format(args.os_user))
     except Exception as err:
-        print('Error:', str(err))
+        logging.error('Error:', str(err))
         sys.exit(1)
 
 
@@ -100,7 +101,7 @@ def clean_tensor():
         conn.sudo('systemctl disable tensorboard')
         conn.sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -111,12 +112,12 @@ def clean_tensor_rstudio():
         conn.sudo('systemctl disable tensorboard')
         conn.sudo('systemctl daemon-reload')
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    print('Configure connections')
+    logging.info('Configure connections')
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
@@ -155,6 +156,6 @@ if __name__ == "__main__":
             elif args.application == ('tensor-rstudio'):
                 clean_tensor_rstudio()
     else:
-        print('Found default ami, do not make clean')
+        logging.info('Found default ami, do not make clean')
     #conn.close()
     sys.exit(0)

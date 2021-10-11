@@ -21,7 +21,7 @@
 #
 # ******************************************************************************
 
-import logging
+from datalab.logger import logging
 import multiprocessing
 import os
 import sys
@@ -44,22 +44,14 @@ def install_libs_on_slaves(slave, data_engine):
         # Run script to install additional libs
         subprocess.run("~/scripts/{}.py {}".format('install_additional_libs', params), shell=True, check=True)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     try:
         logging.info('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE]')
-        print('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE]')
         data_engine = dict()
         try:
             data_engine['os_user'] = os.environ['conf_os_user']
@@ -100,6 +92,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to install additional libraries.", str(err))
         sys.exit(1)

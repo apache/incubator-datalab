@@ -25,6 +25,7 @@ import sys
 import argparse
 from datalab.fab import *
 from datalab.notebook_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -48,13 +49,13 @@ def start_jupyterlab_container(jupyterlab_dir):
     except: sys.exit(1)
 
 if __name__ == "__main__":
-    print("Configure connections")
+    logging.info("Configure connections")
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
-    print("Starting Jupyter container")
+    logging.info("Starting Jupyter container")
     try:
         start_jupyterlab_container(jupyterlab_dir)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
     conn.close()

@@ -25,6 +25,7 @@ import argparse
 import os
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -100,7 +101,7 @@ def install_sparkamagic_kernels(args):
                 spark_master_ip, args.os_user))
         datalab.fab.conn.sudo('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user))
     except Exception as err:
-        print(err)
+        logging.error(err)
         sys.exit(1)
 
 def create_inactivity_log(master_ip, hoststring):

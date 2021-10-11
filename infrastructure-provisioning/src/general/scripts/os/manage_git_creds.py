@@ -28,6 +28,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -52,14 +53,14 @@ if __name__ == "__main__":
             conn.run('rm .gitcreds')
         git_creds = os.environ['git_creds']
     except KeyError as err:
-        print('Error: {0}'.format(err))
-        print("Parameter git_creds does not exist. Skipping.")
+        logging.error('Error: {0}'.format(err))
+        logging.error("Parameter git_creds does not exist. Skipping.")
         sys.exit(0)
 
     try:
         data = ast.literal_eval(git_creds)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to parse git credentials.", str(err))
         sys.exit(1)
 
@@ -83,7 +84,7 @@ if __name__ == "__main__":
         conn.put('new_gitcreds', '/home/{}/.gitcreds'.format(args.os_user))
 
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
 

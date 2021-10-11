@@ -29,6 +29,7 @@ from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -146,7 +147,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
                         subprocess.run('sleep 5', shell=True, check=True)
         subprocess.run('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured', shell=True, check=True)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 

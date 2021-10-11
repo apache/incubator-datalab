@@ -26,6 +26,7 @@ import json
 import sys
 from datalab.fab import *
 from datalab.meta_lib import get_instance_private_ip_address
+from datalab.logger import logging
 from fabric import *
 from jinja2 import Environment, FileSystemLoader
 from datalab.fab import *
@@ -96,15 +97,15 @@ def make_template():
 # Run script #
 ##############
 if __name__ == "__main__":
-    print("Make template")
+    logging.info("Make template")
 
     try:
         conf_file_name = make_template()
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
-    print("Configure connections")
+    logging.info("Configure connections")
     global conn
     conn = datalab.fab.init_datalab_connection(args.edge_hostname, args.os_user, args.keyfile)
     conn.put('/tmp/{}.conf'.format(conf_file_name), '/tmp/{}.conf'.format(conf_file_name))

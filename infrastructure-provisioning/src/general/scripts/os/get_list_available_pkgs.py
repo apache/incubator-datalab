@@ -28,6 +28,7 @@ import time
 import xmlrpc.client
 from datalab.fab import *
 from datalab.notebook_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -53,7 +54,7 @@ def get_available_pip_pkgs(version):
                 time.sleep(5)
                 continue
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -70,7 +71,7 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
             pip_pkgs[pkg] = "N/A"
         return pip_pkgs
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
 

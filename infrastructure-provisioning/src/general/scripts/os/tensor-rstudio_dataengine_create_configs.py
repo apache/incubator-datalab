@@ -28,6 +28,7 @@ from datalab.actions_lib import *
 from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -63,7 +64,7 @@ def configure_rstudio():
             subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True, check=True)
             subprocess.run('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured', shell=True, check=True)
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
@@ -77,7 +78,7 @@ def configure_rstudio():
                   args.os_user + '/.Rprofile', shell=True, check=True)
             subprocess.run('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user), shell=True, check=True)
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
 
 

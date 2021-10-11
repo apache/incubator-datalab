@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,16 +34,8 @@ from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     try:
         logging.info('[RECONFIGURING SPARK]')
-        print('[RECONFIGURING SPARK]')
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -54,7 +46,7 @@ if __name__ == "__main__":
                 notebook_config['tag_name'], notebook_config['notebook_name'])
             notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
         params = "--os_user {} --instance_ip {} --keyfile '{}' --resource_type notebook " \
@@ -66,7 +58,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to reconfigure Spark.", str(err))
         sys.exit(1)
 
@@ -75,8 +67,8 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": notebook_config['service_base_name'],
                    "Action": "Reconfigure Spark on Notebook"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print("Failed writing results.")
+        logging.error("Failed writing results.")
         sys.exit(0)
