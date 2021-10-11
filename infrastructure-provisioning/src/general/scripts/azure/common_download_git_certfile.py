@@ -25,6 +25,7 @@ import argparse
 import os
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -49,8 +50,8 @@ if __name__ == "__main__":
     if AzureActions().download_from_container(resource_group_name, ssn_storage_account_name, container_name, gitlab_certfile):
         conn.put(gitlab_certfile, gitlab_certfile)
         conn.sudo('chown root:root {}'.format(gitlab_certfile))
-        print('{} has been downloaded'.format(gitlab_certfile))
+        logging.info('{} has been downloaded'.format(gitlab_certfile))
     else:
-        print('There is no {} to download'.format(gitlab_certfile))
+        logging.info('There is no {} to download'.format(gitlab_certfile))
 
     conn.close()

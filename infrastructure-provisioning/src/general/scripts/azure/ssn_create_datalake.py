@@ -27,6 +27,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--datalake_name', type=str, default='')
@@ -42,14 +43,14 @@ if __name__ == "__main__":
         for datalake in AzureMeta().list_datalakes(args.resource_group_name):
             if datalake["Name"] == datalake.tags["Name"]:
                 check_datalake = True
-                print("REQUESTED DATA LAKE {} ALREADY EXISTS".format(datalake.name))
+                logging.info("REQUESTED DATA LAKE {} ALREADY EXISTS".format(datalake.name))
         if not check_datalake:
             datalake_name = id_generator().lower()
-            print("Creating DataLake {}.".format(datalake_name))
+            logging.info("Creating DataLake {}.".format(datalake_name))
             datalake = AzureActions().create_datalake_store(args.resource_group_name, datalake_name, args.region,
                                                             datalake_tags)
-            print("DATA LAKE {} has been created".format(datalake_name))
+            logging.info("DATA LAKE {} has been created".format(datalake_name))
 
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         sys.exit(1)

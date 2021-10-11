@@ -24,6 +24,7 @@
 import argparse
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')
@@ -33,10 +34,10 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.resource_group_name != '':
         if AzureMeta().get_resource_group(args.resource_group_name):
-            print("REQUESTED RESOURCE GROUP {} EXISTS".format(args.resource_group_name))
+            logging.info("REQUESTED RESOURCE GROUP {} EXISTS".format(args.resource_group_name))
         else:
-            print("Creating Resource Group {}".format(args.resource_group_name))
+            logging.info("Creating Resource Group {}".format(args.resource_group_name))
             AzureActions().create_resource_group(args.resource_group_name, args.region)
     else:
-        print("Resource group name can't be empty.")
+        logging.error("Resource group name can't be empty.")
         sys.exit(1)

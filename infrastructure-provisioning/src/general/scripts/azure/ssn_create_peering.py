@@ -26,6 +26,7 @@ import sys
 import time
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--source_resource_group_name', type=str, default='')
@@ -49,7 +50,7 @@ if __name__ == "__main__":
             args.source_virtual_network_name,
         ).id
 
-        print("Creating Virtual Network peering {} and {}".format(source_virtual_network_peering_name, destination_virtual_network_peering_name))
+        logging.info("Creating Virtual Network peering {} and {}".format(source_virtual_network_peering_name, destination_virtual_network_peering_name))
         AzureActions().create_virtual_network_peerings(
                 args.source_resource_group_name,
                 args.source_virtual_network_name,
@@ -62,5 +63,5 @@ if __name__ == "__main__":
                 source_vnet_id)
         time.sleep(250)
     except Exception as err:
-        print("Error creating vpc peering: " + str(err))
+        logging.error("Error creating vpc peering: " + str(err))
         sys.exit(1)

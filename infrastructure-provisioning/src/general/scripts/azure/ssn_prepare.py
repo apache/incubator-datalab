@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,11 +34,6 @@ from Crypto.PublicKey import RSA
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         AzureMeta = datalab.meta_lib.AzureMeta()
         AzureActions = datalab.actions_lib.AzureActions()
@@ -46,7 +41,7 @@ if __name__ == "__main__":
         ssn_conf['instance'] = 'ssn'
 
         logging.info('[DERIVING NAMES]')
-        print('[DERIVING NAMES]')
+        logging.info('[DERIVING NAMES]')
         # Verify vpc deployment
         if os.environ['conf_network_type'] == 'private' and not os.environ.get('azure_vpc_name') \
                 and not os.environ.get('azure_source_vpc_name'):
@@ -103,10 +98,8 @@ if __name__ == "__main__":
     try:
         if 'azure_resource_group_name' in os.environ:
             logging.info('Resource group predefined')
-            print('Resource group predefined')
         else:
             logging.info('[CREATING RESOURCE GROUP]')
-            print("[CREATING RESOURCE GROUP]")
             params = "--resource_group_name {} --region {}".format(ssn_conf['resource_group_name'], ssn_conf['region'])
             subprocess.run("~/scripts/{}.py {}".format('ssn_create_resource_group', params), shell=True, check=True)
     except Exception as err:
@@ -117,10 +110,8 @@ if __name__ == "__main__":
     try:
         if 'azure_vpc_name' in os.environ:
             logging.info('VPC predefined')
-            print('VPC predefined')
         else:
             logging.info('[CREATING VIRTUAL NETWORK]')
-            print("[CREATING VIRTUAL NETWORK]")
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
                 ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
             subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
@@ -137,10 +128,8 @@ if __name__ == "__main__":
     try:
         if 'azure_subnet_name' in os.environ:    
             logging.info('Subnet predefined')
-            print('Subnet predefined')
         else:
             logging.info('[CREATING SUBNET]')
-            print("[CREATING SUBNET]")
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
                 format(ssn_conf['resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
                        ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
@@ -154,14 +143,13 @@ if __name__ == "__main__":
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
         except Exception as err:
-            print("Resources hasn't been removed: {}".format(str(err)))
+            logging.info("Resources hasn't been removed: {}".format(str(err)))
             datalab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
     
     try:
         if 'azure_vpc_name' not in os.environ and os.environ['conf_network_type'] == 'private':
             logging.info('[CREATING VPC PEERING]')
-            print("[CREATING VPC PEERING]")
             params = "--source_resource_group_name {} --destination_resource_group_name {} " \
                      "--source_virtual_network_name {} --destination_virtual_network_name {}".format(
                       ssn_conf['source_resource_group_name'], ssn_conf['resource_group_name'],
@@ -175,7 +163,7 @@ if __name__ == "__main__":
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
         except Exception as err:
-            print("Resources hasn't been removed: " + str(err))
+            logging.info("Resources hasn't been removed: " + str(err))
             datalab.fab.append_result("Resources hasn't been removed.", str(err))
         datalab.fab.append_result("Failed to create VPC peering.", str(err))
         sys.exit(1)
@@ -183,10 +171,8 @@ if __name__ == "__main__":
     try:
         if 'azure_security_group_name' in os.environ:
             logging.info('Security group predefined')
-            print('Security group predefined')
         else:
             logging.info('[CREATING SECURITY GROUP]')
-            print("[CREATING SECURITY GROUP]")
             list_rules = [
                 {
                     "name": "in-1",
@@ -249,14 +235,13 @@ if __name__ == "__main__":
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
         except Exception as err:
-            print("Resources hasn't been removed: " + str(err))
+            logging.info("Resources hasn't been removed: " + str(err))
             datalab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
 
     if os.environ['azure_datalake_enable'] == 'true':
         try:
             logging.info('[CREATE DATA LAKE STORE]')
-            print('[CREATE DATA LAKE STORE]')
             params = "--datalake_name {} --datalake_tags '{}' --resource_group_name {} --region {}". \
                      format(ssn_conf['datalake_store_name'], json.dumps(ssn_conf['datalake_store_tags']),
                             ssn_conf['resource_group_name'], ssn_conf['region'])
@@ -267,7 +252,6 @@ if __name__ == "__main__":
                 raise Exception
 
             logging.info('[CREATE DATA LAKE SHARED DIRECTORY]')
-            print('[CREATE DATA LAKE SHARED DIRECTORY]')
             params = "--resource_group_name {} --datalake_name {} --directory_name {} --service_base_name {} --ad_group {}". \
                 format(ssn_conf['resource_group_name'], ssn_conf['datalake_store_name'],
                        ssn_conf['datalake_shared_directory_name'], ssn_conf['service_base_name'],
@@ -303,7 +287,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SSN INSTANCE]')
-        print('[CREATE SSN INSTANCE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
             --datalab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
@@ -321,7 +304,7 @@ if __name__ == "__main__":
         try:
             AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         except:
-            print("The instance {} hasn't been created".format(ssn_conf['instance_name']))
+            logging.info("The instance {} hasn't been created".format(ssn_conf['instance_name']))
         for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
             if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                 AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)

@@ -27,6 +27,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--container_name', type=str, default='')
@@ -42,20 +43,20 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(args.resource_group_name):
             if account_tags["Name"] == storage_account.tags["Name"]:
                 check_account = True
-                print("REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name))
+                logging.info("REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name))
         if not check_account:
             account_name = id_generator().lower()
             check = AzureMeta().check_account_availability(account_name)
             if check.name_available:
-                print("Creating storage account {}.".format(account_name))
+                logging.info("Creating storage account {}.".format(account_name))
                 storage_account = AzureActions().create_storage_account(args.resource_group_name, account_name,
                                                                         args.region, account_tags)
                 blob_container = AzureActions().create_blob_container(args.resource_group_name, account_name,
                                                                       args.container_name)
-                print("STORAGE ACCOUNT {} has been created".format(account_name))
-                print("CONTAINER {} has been created".format(args.container_name))
+                logging.info("STORAGE ACCOUNT {} has been created".format(account_name))
+                logging.info("CONTAINER {} has been created".format(args.container_name))
             else:
-                print("STORAGE ACCOUNT with name {0} could not be created. {1}".format(account_name, check.message))
+                logging.info("STORAGE ACCOUNT with name {0} could not be created. {1}".format(account_name, check.message))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)

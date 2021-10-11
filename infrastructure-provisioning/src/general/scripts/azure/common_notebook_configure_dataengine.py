@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -41,18 +41,11 @@ def clear_resources():
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     try:
         # generating variables dictionary
         AzureMeta = datalab.meta_lib.AzureMeta()
         AzureActions = datalab.actions_lib.AzureActions()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         notebook_config = dict()
         if 'exploratory_name' in os.environ:
             notebook_config['exploratory_name'] = os.environ['exploratory_name']
@@ -98,7 +91,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         params = "--cluster_name {0} --spark_version {1} --hadoop_version {2} --os_user {3} --spark_master {4}" \
                  " --keyfile {5} --notebook_ip {6} --datalake_enabled {7} --spark_master_ip {8}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
@@ -117,7 +109,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
-        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
         params = "--hostname {0} " \
                  "--keyfile {1} " \
                  "--os_user {2} " \
@@ -140,7 +131,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Configure notebook server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

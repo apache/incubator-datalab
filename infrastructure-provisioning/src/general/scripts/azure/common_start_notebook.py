@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -33,16 +33,10 @@ import subprocess
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     # generating variables dictionary
     AzureMeta = datalab.meta_lib.AzureMeta()
     AzureActions = datalab.actions_lib.AzureActions()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -50,11 +44,11 @@ if __name__ == "__main__":
 
     try:
         logging.info('[START NOTEBOOK]')
-        print('[START NOTEBOOK]')
+        logging.info('[START NOTEBOOK]')
         try:
-            print("Starting notebook")
+            logging.info("Starting notebook")
             AzureActions.start_instance(notebook_config['resource_group_name'], notebook_config['notebook_name'])
-            print("Instance {} has been started".format(notebook_config['notebook_name']))
+            logging.info("Instance {} has been started".format(notebook_config['notebook_name']))
         except:
             traceback.print_exc()
             raise Exception
@@ -64,7 +58,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
-        print('[SETUP USER GIT CREDENTIALS]')
         notebook_config['notebook_ip'] = AzureMeta.get_private_ip_address(
             notebook_config['resource_group_name'], notebook_config['notebook_name'])
         notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -82,7 +75,6 @@ if __name__ == "__main__":
     if os.environ['azure_datalake_enable'] == 'true':
         try:
             logging.info('[UPDATE STORAGE CREDENTIALS]')
-            print('[UPDATE STORAGE CREDENTIALS]')
             notebook_config['notebook_ip'] = AzureMeta.get_private_ip_address(
                 notebook_config['resource_group_name'], notebook_config['notebook_name'])
             global conn
@@ -103,7 +95,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[UPDATE LAST ACTIVITY TIME]')
-        print('[UPDATE LAST ACTIVITY TIME]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
@@ -118,15 +109,14 @@ if __name__ == "__main__":
     try:
         ip_address = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                       notebook_config['notebook_name'])
-        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print("Instance name: {}".format(notebook_config['notebook_name']))
-        print("Private IP: {}".format(ip_address))
+        logging.info("Instance name: {}".format(notebook_config['notebook_name']))
+        logging.info("Private IP: {}".format(ip_address))
         with open("/root/result.json", 'w') as result:
             res = {"ip": ip_address,
                    "notebook_name": notebook_config['notebook_name'],
                    "Action": "Start up notebook server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

@@ -24,6 +24,7 @@
 import argparse
 import sys
 from datalab.fab import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -34,15 +35,15 @@ parser.add_argument('--rstudio_pass', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    print("Configure connections")
+    logging.info("Configure connections")
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
-    print("Setting password for Rstudio user.")
+    logging.info("Setting password for Rstudio user.")
     try:
         conn.sudo('''bash -c 'echo "{0}:{1}" | chpasswd' '''.format(args.os_user, args.rstudio_pass))
         conn.close()
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         sys.exit(1)
 
