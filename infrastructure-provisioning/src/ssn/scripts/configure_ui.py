@@ -90,6 +90,7 @@ logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
 mongo_passwd = id_generator()
 keystore_passwd = id_generator()
 
+<<<<<<< HEAD
 
 def copy_ssn_libraries():
     try:
@@ -107,6 +108,8 @@ def copy_ssn_libraries():
         sys.exit(1)
 
 
+=======
+>>>>>>> 65a389ea3... [DATALAB-2409]: changed when datalab python libs are copied
 def configure_mongo(mongo_passwd, default_endpoint_name):
     try:
         if not exists(conn,"/lib/systemd/system/mongod.service"):
@@ -230,10 +233,7 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print("Copying DataLab libraries to SSN")
-    copy_ssn_libraries()
-
-    print("Installing Supervisor")
+    logging.info("Installing Supervisor")
     ensure_supervisor()
 
     print("Installing MongoDB")

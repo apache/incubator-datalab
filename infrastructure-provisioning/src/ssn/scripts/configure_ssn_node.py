@@ -204,6 +204,24 @@ def docker_build_script():
         print('Failed to configure docker_build script: ', str(err))
         sys.exit(1)
 
+
+def copy_ssn_libraries():
+    try:
+        conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
+        conn.run('mkdir -p /tmp/datalab_libs/')
+        subprocess.run(
+            'scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string),
+            shell=True, check=True)
+        conn.run('chmod a+x /tmp/datalab_libs/*')
+        conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
+        if exists(conn, '/usr/lib64'):
+            conn.sudo('mkdir -p /usr/lib64/python3.8')
+            conn.sudo('ln -fs /usr/lib/python3.8/datalab /usr/lib64/python3.8/datalab')
+    except Exception as err:
+        traceback.print_exc()
+        logging.error('Failed to copy ssn libraries: ', str(err))
+        sys.exit(1)
+
 ##############
 # Run script #
 ##############
@@ -280,5 +298,8 @@ if __name__ == "__main__":
 
     print("Configuring docker_build script")
     docker_build_script()
+
+    logging.info("Copying DataLab libraries to SSN")
+    copy_ssn_libraries()
 
     conn.close()

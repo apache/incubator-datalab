@@ -149,6 +149,10 @@ def build_parser():
                         help='true if download jars from repository')
     parser.add_argument('--default_endpoint_name', type=str, default='local',
                                help='Name of localhost provisioning service, that created by default')
+    parser.add_argument('--keycloak_client_name', type=str, default='datalab',
+                               help='Keycloak client name')
+    parser.add_argument('--keycloak_client_secret', type=str, default='datalab',
+                               help='Keycloak client secret')
 
     required_args = parser.add_argument_group('Required arguments')
     required_args.add_argument('--conf_service_base_name', type=str,
@@ -160,10 +164,6 @@ def build_parser():
     required_args.add_argument('--keycloak_auth_server_url', type=str, default='datalab',
                                help='Keycloak auth server URL', required=True)
     required_args.add_argument('--keycloak_realm_name', type=str, help='Keycloak Realm name', required=True)
-    required_args.add_argument('--keycloak_client_name', type=str, default='datalab',
-                               help='Keycloak client name')
-    required_args.add_argument('--keycloak_client_secret', type=str, default='datalab',
-                               help='Keycloak client secret')
     required_args.add_argument('--keycloak_user', type=str, default='datalab', help='Keycloak user', required=True)
     required_args.add_argument('--keycloak_user_password', type=str, default='keycloak-user-password',
                                help='Keycloak user password', required=True)
