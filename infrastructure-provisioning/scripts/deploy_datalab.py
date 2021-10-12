@@ -328,7 +328,7 @@ if __name__ == "__main__":
     parser = build_parser()
     args = parser.parse_args()
 
-    if args.aws_secret_access_key or args.aws_access_key:
+    if args.aws_secret_access_key or args.aws_access_key and args.conf_cloud_provider == 'aws':
         if not (args.aws_secret_access_key and args.aws_access_key):
             sys.exit('Please provide both arguments: --aws_secret_access_key and --aws_access_key')
 
