@@ -161,9 +161,9 @@ def build_parser():
                                help='Keycloak auth server URL', required=True)
     required_args.add_argument('--keycloak_realm_name', type=str, help='Keycloak Realm name', required=True)
     required_args.add_argument('--keycloak_client_name', type=str, default='datalab',
-                               help='Keycloak client name', required=True)
+                               help='Keycloak client name')
     required_args.add_argument('--keycloak_client_secret', type=str, default='datalab',
-                               help='Keycloak client secret', required=True)
+                               help='Keycloak client secret')
     required_args.add_argument('--keycloak_user', type=str, default='datalab', help='Keycloak user', required=True)
     required_args.add_argument('--keycloak_user_password', type=str, default='keycloak-user-password',
                                help='Keycloak user password', required=True)
