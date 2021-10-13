@@ -48,7 +48,6 @@ args = parser.parse_args()
 if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE KEYCLOAK]')
-        print(args)
         keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
             args.keycloak_auth_server_url)
         keycloak_auth_data = {
@@ -88,15 +87,13 @@ if __name__ == "__main__":
 
         try:
             keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data, verify=False).json()
-            print(keycloak_token)
             keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data,
                                             headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
                                                      "Content-Type": "application/json"}, verify=False)
-            print(keycloak_client)
 
         except Exception as err:
             append_result("Failed to configure keycloak.")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to configure keycloak.", str(err))
