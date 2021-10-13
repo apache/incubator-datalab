@@ -239,11 +239,11 @@ def build_parser():
     azure_parser.add_argument('--azure_region_info', type=str, help='Azure region info')
     azure_parser.add_argument('--azure_source_vpc_name', type=str, help='Azure VPC source Name')
     azure_parser.add_argument('--azure_source_resource_group_name', type=str, help='Azure source resource group')
+    azure_parser.add_argument('--azure_ssn_instance_size', type=str, default='Standard_DS2_v2',
+                                     help='The SSN instance shape')
 
     azure_required_args = azure_parser.add_argument_group('Required arguments')
     azure_required_args.add_argument('--azure_region', type=str, required=True, help='Azure region')
-    azure_required_args.add_argument('--azure_ssn_instance_size', type=str, default='Standard_DS2_v2', required=True,
-                                     help='The SSN instance shape')
     azure_required_args.add_argument('--azure_auth_path', type=str, required=True,
                                      help='Full path to Azure credentials JSON file')
 
