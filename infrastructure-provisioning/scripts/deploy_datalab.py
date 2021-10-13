@@ -149,9 +149,9 @@ def build_parser():
                         help='true if download jars from repository')
     parser.add_argument('--default_endpoint_name', type=str, default='local',
                                help='Name of localhost provisioning service, that created by default')
-    parser.add_argument('--keycloak_client_name', type=str, default='datalab',
+    parser.add_argument('--keycloak_client_name', type=str, default='',
                                help='Keycloak client name')
-    parser.add_argument('--keycloak_client_secret', type=str, default='datalab',
+    parser.add_argument('--keycloak_client_secret', type=str, default='',
                                help='Keycloak client secret')
     parser.add_argument('--ldap_hostname', type=str, default='localhost', help='Ldap instance hostname')
     parser.add_argument('--ldap_dn', type=str, default='dc=example,dc=com',
