@@ -153,6 +153,13 @@ def build_parser():
                                help='Keycloak client name')
     parser.add_argument('--keycloak_client_secret', type=str, default='datalab',
                                help='Keycloak client secret')
+    parser.add_argument('--ldap_hostname', type=str, default='localhost', help='Ldap instance hostname')
+    parser.add_argument('--ldap_dn', type=str, default='dc=example,dc=com',
+                        help='Ldap distinguished name')
+    parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organisation unit')
+    parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
+    parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
+                        help='Ldap password for admin user')
 
     required_args = parser.add_argument_group('Required arguments')
     required_args.add_argument('--conf_service_base_name', type=str,
