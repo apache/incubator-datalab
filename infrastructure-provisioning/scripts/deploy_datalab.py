@@ -255,12 +255,12 @@ def build_parser():
     gcp_parser.add_argument('--gcp_vpc_name', type=str, help='GCP VPC Name')
     gcp_parser.add_argument('--gcp_firewall_name', type=str,
                             help='One of more comma-separated GCP Firewall rules for SSN')
+    gcp_parser.add_argument('--gcp_ssn_instance_size', type=str, default='n1-standard-2',
+                                   help='The SSN instance shape')
 
     gcp_required_args = gcp_parser.add_argument_group('Required arguments')
     gcp_required_args.add_argument('--gcp_region', type=str, required=True, help='GCP region')
     gcp_required_args.add_argument('--gcp_zone', type=str, required=True, help='GCP zone')
-    gcp_required_args.add_argument('--gcp_ssn_instance_size', type=str, required=True, default='n1-standard-2',
-                                   help='The SSN instance shape')
     gcp_required_args.add_argument('--gcp_project_id', type=str, required=True,
                                    help='The project ID in Google Cloud Platform')
     gcp_required_args.add_argument('--gcp_service_account_path', type=str, required=True,
