@@ -27,6 +27,7 @@ import os
 import sys
 import traceback
 import subprocess
+import requests
 from fabric import *
 from datalab.logger import logging
 

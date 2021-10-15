@@ -30,6 +30,7 @@ from datalab.logger import logging
 import os
 import sys
 import traceback
+import requests
 from fabric import *
 
 

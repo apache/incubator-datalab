@@ -28,6 +28,7 @@ import os
 import sys
 import traceback
 import subprocess
+import requests
 from fabric import *
 
 if __name__ == "__main__":
