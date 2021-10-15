@@ -949,6 +949,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
                 conn.sudo('pip3 install jupyter --no-cache-dir')
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
+            elif os.environ['application'] != 'tensor':
+                conn.sudo('pip3 install environment_kernels')
             conn.run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             conn.run('mkdir -p ~/.jupyter/custom/')
             conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
