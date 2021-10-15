@@ -31,3 +31,4 @@ logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
 logging.getLogger('').addHandler(console)
+logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
