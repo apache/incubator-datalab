@@ -130,6 +130,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             sys.exit(1)
     else:
+        conn.sudo('pip3 install keyrings.alt')
         prepare_disk(args.os_user)
 
     if os.environ['conf_deeplearning_cloud_ami'] == 'false':
