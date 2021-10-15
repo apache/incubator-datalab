@@ -41,7 +41,6 @@ if __name__ == "__main__":
         ssn_conf['instance'] = 'ssn'
 
         logging.info('[DERIVING NAMES]')
-        logging.info('[DERIVING NAMES]')
         # Verify vpc deployment
         if os.environ['conf_network_type'] == 'private' and not os.environ.get('azure_vpc_name') \
                 and not os.environ.get('azure_source_vpc_name'):
