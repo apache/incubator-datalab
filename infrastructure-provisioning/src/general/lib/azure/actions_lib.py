@@ -1232,15 +1232,22 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         conn.close()
 
-def ensure_right_mount_paths():
-    opt_disk = datalab.fab.conn.sudo("cat /etc/fstab | grep /opt/ | awk '{print $1}'").stdout.split('\n')[0].split('/')[2]
-    if opt_disk not in datalab.fab.conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in datalab.fab.conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
-         disk_names = datalab.fab.conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
+def ensure_right_mount_paths(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        global conn
+        conn = datalab.fab.init_datalab_connection(hostname, os_user, keyfile)
+    else:
+        conn = datalab.fab.conn
+    opt_disk = conn.sudo("cat /etc/fstab | grep /opt/ | awk '{print $1}'").stdout.split('\n')[0].split('/')[2]
+    if opt_disk not in conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
+         disk_names = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
          for disk in disk_names:
-             if disk != '' and disk not in datalab.fab.conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in datalab.fab.conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
-                 datalab.fab.conn.sudo("umount -l /opt")
-                 datalab.fab.conn.sudo("mount /dev/{}1 /opt".format(disk))
-                 datalab.fab.conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
+             if disk != '' and disk not in conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
+                 conn.sudo("umount -l /opt")
+                 conn.sudo("mount /dev/{}1 /opt".format(disk))
+                 conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
+    if creds:
+        conn.close()
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
