@@ -58,7 +58,14 @@ export class AuditService {
     return this.applicationServiceFacade
       .getAuditList(queryString)
       .pipe(
-        map(response => response),
+        map(response => {
+          response[0].audit.forEach((item) => {
+            if(item?.info?.startsWith('Copy')) {
+              item.action = 'COPY_LINK'              
+            }
+          })
+          return response
+        }),
         catchError(ErrorUtils.handleServiceError));
   }
 
