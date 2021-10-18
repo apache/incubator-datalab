@@ -59,7 +59,7 @@ export class AuditService {
       .getAuditList(queryString)
       .pipe(
         map(response => {
-          response[0].audit.forEach((item) => {
+          response[0].audit.forEach( item => {
             if(item?.info?.startsWith('Copy')) {
               item.action = 'COPY_LINK'              
             }
