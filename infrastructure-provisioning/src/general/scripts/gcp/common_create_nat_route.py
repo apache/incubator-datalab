@@ -25,6 +25,7 @@ import argparse
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--nat_route_name', type=str)
@@ -35,9 +36,9 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     if GCPMeta().get_route(args.nat_route_name):
-        print("REQUESTED ROUTE {} ALREADY EXISTS".format(args.nat_route_name))
+        logging.info("REQUESTED ROUTE {} ALREADY EXISTS".format(args.nat_route_name))
     else:
-        print("Creating NAT ROUTE {}".format(args.nat_route_name))
+        logging.info("Creating NAT ROUTE {}".format(args.nat_route_name))
         params = {
             "destRange": "0.0.0.0/0",
             "name": args.nat_route_name,

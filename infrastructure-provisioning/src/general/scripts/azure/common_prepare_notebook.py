@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,14 +34,6 @@ from Crypto.PublicKey import RSA
 from fabric import *
 
 if __name__ == "__main__":
-    instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     # generating variables dictionary
     try:
         AzureMeta = datalab.meta_lib.AzureMeta()
@@ -54,7 +46,7 @@ if __name__ == "__main__":
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['application'] = os.environ['application'].lower()
 
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         try:
             notebook_config['exploratory_name'] = os.environ['exploratory_name']
         except:
@@ -113,16 +105,16 @@ if __name__ == "__main__":
                 notebook_config['endpoint_name'],
                 notebook_config['application'])
 
-        print('Searching pre-configured images')
+        logging.info('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
             if AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name']):
                 notebook_config['image_name'] = notebook_config['expected_image_name']
                 notebook_config['image_type'] = 'pre-configured'
-                print('Pre-configured image found. Using: {}'.format(notebook_config['image_name']))
+                logging.info('Pre-configured image found. Using: {}'.format(notebook_config['image_name']))
             else:
                 notebook_config['image_name'] = os.environ['notebook_image_name']
-                print('Pre-configured deeplearning image found. Using: {}'.format(notebook_config['image_name']))
+                logging.info('Pre-configured deeplearning image found. Using: {}'.format(notebook_config['image_name']))
         else:
             notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-{4}'.format(
                 notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
@@ -131,12 +123,12 @@ if __name__ == "__main__":
             if AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
                 notebook_config['image_name'] = notebook_config['notebook_image_name']
                 notebook_config['image_type'] = 'pre-configured'
-                print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
+                logging.info('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
             else:
                 os.environ['notebook_image_name'] = notebook_config['image_name']
-                print('No pre-configured image found. Using default one: {}'.format(notebook_config['image_name']))
+                logging.info('No pre-configured image found. Using default one: {}'.format(notebook_config['image_name']))
     except Exception as err:
-        print("Failed to generate variables dictionary.")
+        logging.error("Failed to generate variables dictionary.")
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
@@ -148,7 +140,6 @@ if __name__ == "__main__":
 
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                               os.environ['conf_service_base_name'] + '-ssn')
             datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
@@ -167,7 +158,6 @@ if __name__ == "__main__":
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
-        print('[CREATE NOTEBOOK INSTANCE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
             --datalab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
@@ -190,6 +180,6 @@ if __name__ == "__main__":
         try:
             AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         except:
-            print("The instance hasn't been created.")
+            logging.error("The instance hasn't been created.")
         datalab.fab.append_result("Failed to create instance.", str(err))
         sys.exit(1)

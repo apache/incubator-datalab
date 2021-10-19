@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,12 +34,6 @@ import uuid
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     def clear_resources():
         AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
@@ -63,7 +57,6 @@ if __name__ == "__main__":
         ssn_conf['instance'] = 'ssn'
 
         logging.info('[DERIVING NAMES]')
-        print('[DERIVING NAMES]')
 
         ssn_conf['billing_enabled'] = True
         # We need to cut service_base_name to 20 symbols do to the Azure Name length limitation
@@ -140,7 +133,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (ssn_conf['instance_host'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'],
              ssn_conf['datalab_ssh_user'],
@@ -154,7 +146,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'backoff bcrypt==3.1.7 argparse fabric==1.14.0 pymongo pyyaml " \
                  "pycryptodome azure==2.0.0' --user {} --region {}".format(ssn_conf['instance_host'],
                                                                        ssn_conf['ssh_key_path'],
@@ -169,7 +160,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURE SSN INSTANCE]')
-        print('[CONFIGURE SSN INSTANCE]')
         additional_config = {"nginx_template_dir": "/root/templates/",
                              "service_base_name": ssn_conf['service_base_name'],
                              "security_group_id": ssn_conf['security_group_name'], "vpc_id": ssn_conf['vpc_name'],
@@ -188,7 +178,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURING DOCKER AT SSN INSTANCE]')
-        print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "project", "tag": "latest"},
@@ -213,7 +202,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURE SSN INSTANCE UI]')
-        print('[CONFIGURE SSN INSTANCE UI]')
         ssn_conf['azure_auth_path'] = '/home/{}/keys/azure_auth.json'.format(ssn_conf['datalab_ssh_user'])
         ssn_conf['ldap_login'] = 'false'
 
@@ -523,7 +511,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info('[CREATE KEYCLOAK CLIENT]')
-    print('[CREATE KEYCLOAK CLIENT]')
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                       "--keycloak_user {} --keycloak_user_password {} --instance_public_ip {} --keycloak_client_secret {} " \
         .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
@@ -539,41 +526,39 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-
-        print('[SUMMARY]')
-        print("Service base name: {}".format(ssn_conf['service_base_name']))
-        print("SSN Name: {}".format(ssn_conf['instance_name']))
+        logging.info("Service base name: {}".format(ssn_conf['service_base_name']))
+        logging.info("SSN Name: {}".format(ssn_conf['instance_name']))
         if os.environ['conf_network_type'] == 'public':
-            print("SSN Public IP address: {}".format(ssn_conf['instnace_ip']))
-            print("SSN Hostname: {}".format(ssn_conf['instance_dns_name']))
+            logging.info("SSN Public IP address: {}".format(ssn_conf['instnace_ip']))
+            logging.info("SSN Hostname: {}".format(ssn_conf['instance_dns_name']))
         else:
-            print("SSN Private IP address: {}".format(ssn_conf['instnace_ip']))
-        print("Key name: {}".format(os.environ['conf_key_name']))
-        print("VPC Name: {}".format(ssn_conf['vpc_name']))
-        print("Subnet Name: {}".format(ssn_conf['subnet_name']))
-        print("Security groups Names: {}".format(ssn_conf['security_group_name']))
-        print("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
+            logging.info("SSN Private IP address: {}".format(ssn_conf['instnace_ip']))
+        logging.info("Key name: {}".format(os.environ['conf_key_name']))
+        logging.info("VPC Name: {}".format(ssn_conf['vpc_name']))
+        logging.info("Subnet Name: {}".format(ssn_conf['subnet_name']))
+        logging.info("Security groups Names: {}".format(ssn_conf['security_group_name']))
+        logging.info("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
         ssn_conf['datalake_store_full_name'] = 'None'
         if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     ssn_conf['datalake_store_full_name'] = datalake.name
-                    print("DataLake store name: {}".format(ssn_conf['datalake_store_full_name']))
-            print("DataLake shared directory name: {}".format(ssn_conf['datalake_shared_directory_name']))
-        print("Region: {}".format(ssn_conf['region']))
+                    logging.info("DataLake store name: {}".format(ssn_conf['datalake_store_full_name']))
+            logging.info("DataLake shared directory name: {}".format(ssn_conf['datalake_shared_directory_name']))
+        logging.info("Region: {}".format(ssn_conf['region']))
         jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_host'])
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_host'])
-        print("Jenkins URL: {}".format(jenkins_url))
-        print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
-        print("DataLab UI HTTP URL: http://{}".format(ssn_conf['instance_host']))
-        print("DataLab UI HTTPS URL: https://{}".format(ssn_conf['instance_host']))
+        logging.info("Jenkins URL: {}".format(jenkins_url))
+        logging.info("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        logging.info("DataLab UI HTTP URL: http://{}".format(ssn_conf['instance_host']))
+        logging.info("DataLab UI HTTPS URL: https://{}".format(ssn_conf['instance_host']))
 
         try:
             with open('jenkins_creds.txt') as f:
-                print(f.read())
+                logging.info(f.read())
         except Exception as err:
-            print('Error: {0}'.format(err))
-            print("Jenkins is either configured already or have issues in configuration routine.")
+            logging.info('Error: {0}'.format(err))
+            logging.info("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:
             if os.environ['azure_datalake_enable'] == 'false':
@@ -602,7 +587,9 @@ if __name__ == "__main__":
                        "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
-        print('Upload response file')
+        logging.info('Upload response file')
+        local_log_filepath = "/logs/{}/{}_{}.log".format(os.environ['conf_resource'], os.environ['conf_resource'],
+                                                         os.environ['request_id'])
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}". \
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'], ssn_conf['instnace_ip'])
         subprocess.run("~/scripts/{}.py {}".format('upload_response_file', params), shell=True, check=True)

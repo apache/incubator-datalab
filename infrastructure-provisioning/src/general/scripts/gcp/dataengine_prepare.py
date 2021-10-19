@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,16 +34,10 @@ from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
         data_engine['edge_user_name'] = (os.environ['edge_user_name'])
@@ -64,7 +58,6 @@ if __name__ == "__main__":
                                                                             data_engine['endpoint_name']))
         if edge_status != 'RUNNING':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = GCPMeta.get_private_ip_address(data_engine['service_base_name'] + '-ssn')
             datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
                                             os.environ['conf_os_user'],
@@ -131,12 +124,12 @@ if __name__ == "__main__":
                 data_engine['service_base_name'], data_engine['endpoint_tag'], os.environ['application'])
         data_engine['notebook_primary_image_name'] = (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
         else data_engine['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
-        print('Searching pre-configured images')
+        logging.info('Searching pre-configured images')
         data_engine['primary_image_name'] = GCPMeta.get_image_by_name(data_engine['notebook_primary_image_name'])
         if data_engine['primary_image_name'] == '':
             data_engine['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         else:
-            print('Pre-configured primary image found. Using: {}'.format(data_engine['primary_image_name'].get('name')))
+            logging.info('Pre-configured primary image found. Using: {}'.format(data_engine['primary_image_name'].get('name')))
             data_engine['primary_image_name'] = 'global/images/{}'.format(
                 data_engine['primary_image_name'].get('name'))
 
@@ -144,7 +137,7 @@ if __name__ == "__main__":
         if data_engine['secondary_image_name'] == '':
             data_engine['secondary_image_name'] = 'None'
         else:
-            print('Pre-configured secondary image found. Using: {}'.format(
+            logging.info('Pre-configured secondary image found. Using: {}'.format(
                 data_engine['secondary_image_name'].get('name')))
             data_engine['secondary_image_name'] = 'global/images/{}'.format(
                 data_engine['secondary_image_name'].get('name'))
@@ -189,7 +182,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE MASTER NODE]')
-        print('[CREATE MASTER NODE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
@@ -215,7 +207,6 @@ if __name__ == "__main__":
     try:
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
-            print('[CREATE SLAVE NODE {}]'.format(i + 1))
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} " \
                      "--instance_size {5} --ssh_key_path {6} --initial_user {7} --service_account_name {8} " \
@@ -242,7 +233,7 @@ if __name__ == "__main__":
             try:
                 GCPActions.remove_instance(slave_name, data_engine['zone'])
             except:
-                print("The slave instance {} hasn't been created.".format(slave_name))
+                logging.error("The slave instance {} hasn't been created.".format(slave_name))
         GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
         datalab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

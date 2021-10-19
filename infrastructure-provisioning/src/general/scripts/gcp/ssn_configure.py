@@ -26,7 +26,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -39,12 +39,6 @@ parser.add_argument('--ssn_unique_index', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     def clear_resources():
         GCPActions.remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
@@ -63,7 +57,6 @@ if __name__ == "__main__":
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
         logging.info('[DERIVING NAMES]')
-        print('[DERIVING NAMES]')
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
         ssn_conf['pre_defined_vpc'] = False
@@ -149,7 +142,6 @@ if __name__ == "__main__":
             ssn_conf['sudo_group'] = 'wheel'
 
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'],
             ssn_conf['datalab_ssh_user'], ssn_conf['sudo_group'])
@@ -166,7 +158,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages " \
                  "'boto3 bcrypt==3.1.7 backoff argparse fabric awscli pymongo pyyaml " \
                  "google-api-python-client google-cloud-storage pycryptodome' --user {} --region {}". \
@@ -185,7 +176,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURE SSN INSTANCE]')
-        print('[CONFIGURE SSN INSTANCE]')
         additional_config = {"nginx_template_dir": "/root/templates/",
                              "service_base_name": ssn_conf['service_base_name'],
                              "security_group_id": ssn_conf['firewall_name'], "vpc_id": ssn_conf['vpc_name'],
@@ -208,7 +198,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURING DOCKER AT SSN INSTANCE]')
-        print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "project", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
@@ -240,7 +229,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURE SSN INSTANCE UI]')
-        print('[CONFIGURE SSN INSTANCE UI]')
 
         cloud_params = [
             {
@@ -532,7 +520,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info('[CREATE KEYCLOAK CLIENT]')
-    print('[CREATE KEYCLOAK CLIENT]')
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                       "--keycloak_user {} --keycloak_user_password {} --instance_public_ip {} --keycloak_client_secret {} " \
         .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
@@ -548,29 +535,28 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        print('[SUMMARY]')
-        print("Service base name: {}".format(ssn_conf['service_base_name']))
-        print("SSN Name: {}".format(ssn_conf['instance_name']))
-        print("SSN Hostname: {}".format(ssn_conf['instance_hostname']))
-        print("Role name: {}".format(ssn_conf['role_name']))
-        print("Key name: {}".format(os.environ['conf_key_name']))
-        print("VPC Name: {}".format(ssn_conf['vpc_name']))
-        print("Subnet Name: {}".format(ssn_conf['subnet_name']))
-        print("Firewall Names: {}".format(ssn_conf['firewall_name']))
-        print("SSN instance size: {}".format(ssn_conf['instance_size']))
-        print("SSN AMI name: {}".format(ssn_conf['image_name']))
-        print("Region: {}".format(ssn_conf['region']))
+        logging.info("Service base name: {}".format(ssn_conf['service_base_name']))
+        logging.info("SSN Name: {}".format(ssn_conf['instance_name']))
+        logging.info("SSN Hostname: {}".format(ssn_conf['instance_hostname']))
+        logging.info("Role name: {}".format(ssn_conf['role_name']))
+        logging.info("Key name: {}".format(os.environ['conf_key_name']))
+        logging.info("VPC Name: {}".format(ssn_conf['vpc_name']))
+        logging.info("Subnet Name: {}".format(ssn_conf['subnet_name']))
+        logging.info("Firewall Names: {}".format(ssn_conf['firewall_name']))
+        logging.info("SSN instance size: {}".format(ssn_conf['instance_size']))
+        logging.info("SSN AMI name: {}".format(ssn_conf['image_name']))
+        logging.info("Region: {}".format(ssn_conf['region']))
         jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_hostname'])
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_hostname'])
-        print("Jenkins URL: {}".format(jenkins_url))
-        print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
-        print("DataLab UI HTTP URL: http://{}".format(ssn_conf['instance_hostname']))
-        print("DataLab UI HTTPS URL: https://{}".format(ssn_conf['instance_hostname']))
+        logging.info("Jenkins URL: {}".format(jenkins_url))
+        logging.info("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        logging.info("DataLab UI HTTP URL: http://{}".format(ssn_conf['instance_hostname']))
+        logging.info("DataLab UI HTTPS URL: https://{}".format(ssn_conf['instance_hostname']))
         try:
             with open('jenkins_creds.txt') as f:
-                print(f.read())
+                logging.info(f.read())
         except:
-            print("Jenkins is either configured already or have issues in configuration routine.")
+            logging.info("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": ssn_conf['service_base_name'],
@@ -586,7 +572,9 @@ if __name__ == "__main__":
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
-        print('Upload response file')
+        logging.info('Upload response file')
+        local_log_filepath = "/logs/{}/{}_{}.log".format(os.environ['conf_resource'], os.environ['conf_resource'],
+                                                         os.environ['request_id'])
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}". \
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'],
                    ssn_conf['instance_hostname'])

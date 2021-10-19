@@ -25,19 +25,12 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     AzureMeta = datalab.meta_lib.AzureMeta()
     AzureActions = datalab.actions_lib.AzureActions()
     edge_conf = dict()
@@ -49,7 +42,6 @@ if __name__ == "__main__":
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
 
     logging.info('[STOP EDGE]')
-    print('[STOP EDGE]')
     try:
         AzureActions.stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
@@ -60,7 +52,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
                    "Action": "Stop edge server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

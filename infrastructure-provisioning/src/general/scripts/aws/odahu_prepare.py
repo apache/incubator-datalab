@@ -21,7 +21,6 @@
 #
 # ******************************************************************************
 
-import logging
 import json
 import sys
 import requests
@@ -29,17 +28,11 @@ import subprocess
 from datalab.fab import *
 from datalab.meta_lib import *
 from datalab.actions_lib import *
+from datalab.logger import logging
 import os
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/project/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     odahu_conf = dict()
     odahu_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     odahu_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
@@ -68,12 +61,11 @@ if __name__ == "__main__":
         odahu_conf['bucket_additional_tags'] = ''
         os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(odahu_conf['project_tag'],
                                                                                        odahu_conf['endpoint_tag'])
-    print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+    logging.info('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
 
     try:
         logging.info('[CREATE STATE BUCKETS]')
-        print('[CREATE STATE BUCKETS]')
 
         odahu_conf['bucket_tags'] = 'endpoint_tag:{0};{1}:{2};project_tag:{3};{4}:{5}{6}'\
             .format(odahu_conf['endpoint_tag'], os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
@@ -88,29 +80,27 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Unable to create bucket.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE NAT GATEWAY]')
-        print('[CREATE NAT GATEWAY]')
-        print("Allocating Elastic IP")
+        logging.info("Allocating Elastic IP")
         allocation_id = allocate_elastic_ip()
         tag = {"Key": odahu_conf['tag_name'], "Value": odahu_conf['static_address_name']}
         tag_name = {"Key": "Name", "Value": odahu_conf['static_address_name']}
         create_tag(allocation_id, tag)
         create_tag(allocation_id, tag_name)
-        print("Creating NAT")
+        logging.info("Creating NAT")
         create_nat_gatway(allocation_id, odahu_conf['ssn_subnet_id'], odahu_conf['project_tag'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Unable to Unable to create NAT Gateway.", str(err))
         remove_s3(bucket_type='odahu')
         sys.exit(1)
 
     try:
-        print('[CONFIGURE REDIRECT URI]')
         logging.info('[CONFIGURE REDIRECT URI]')
         keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
             odahu_conf['keycloak_auth_server_url'])
@@ -152,7 +142,7 @@ if __name__ == "__main__":
             append_result("Failed to configure keycloak.")
             sys.exit(1)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to configure keycloak.", str(err))
         remove_s3(bucket_type='odahu')
         release_elastic_ip(allocation_id)

@@ -47,7 +47,6 @@ parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
-parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--endpoint_url', type=str, default='')
 parser.add_argument('--ip_address', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
@@ -226,7 +225,7 @@ if __name__ == "__main__":
     ensure_scala(scala_link, args.scala_version, args.os_user)
     if os.environ['notebook_r_enabled'] == 'true':
         print("Installing R")
-        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+        ensure_r(args.os_user, r_libs)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 

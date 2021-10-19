@@ -26,6 +26,7 @@ import json
 import os
 from datalab.common_lib import *
 from datalab.fab import *
+from datalab.logger import logging
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -43,39 +44,26 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
-def create_china_pip_conf_file(conn):
-    if not exists(conn,'/home/{}/pip_china_ensured'.format(args.user)):
-        conn.sudo('touch /etc/pip.conf')
-        conn.sudo('echo "[global]" >> /etc/pip.conf')
-        conn.sudo('echo "timeout = 600" >> /etc/pip.conf')
-        conn.sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        conn.sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        conn.sudo('touch /home/{}/pip_china_ensured'.format(args.user))
-
 if __name__ == "__main__":
-    print("Configure connections")
+    logging.info("Configure connections")
     global conn
     conn = init_datalab_connection(args.hostname, args.user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
-    if args.region == 'cn-north-1':
-        change_pkg_repos()
-        create_china_pip_conf_file()
-
-    print("Updating hosts file")
+    logging.info("Updating hosts file")
     update_hosts_file(args.user)
 
-    print("Updating repositories and installing requested tools.")
+    logging.info("Updating repositories and installing requested tools.")
     try:
         ensure_pkg(args.user)
     except:
         traceback.print_exc()
         sys.exit(1)
 
-    print("Installing python packages: {}".format(args.pip_packages))
+    logging.info("Installing python packages: {}".format(args.pip_packages))
     ensure_pip(args.pip_packages)
 
-    print("Installing NTPd")
+    logging.info("Installing NTPd")
     ensure_ntpd(args.user, args.edge_private_ip)
 
     conn.close()

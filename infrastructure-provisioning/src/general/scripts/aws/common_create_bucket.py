@@ -25,6 +25,7 @@ import argparse
 import sys
 from datalab.actions_lib import create_s3_bucket
 from datalab.meta_lib import get_bucket_by_name
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
@@ -38,13 +39,13 @@ if __name__ == "__main__":
         try:
             bucket = get_bucket_by_name(args.bucket_name)
             if bucket == '':
-                print("Creating bucket {0} with tags {1}.".format(args.bucket_name, args.bucket_tags))
+                logging.info("Creating bucket {0} with tags {1}.".format(args.bucket_name, args.bucket_tags))
                 bucket = create_s3_bucket(args.bucket_name, args.bucket_tags, args.region, args.bucket_name_tag)
             else:
-                print("REQUESTED BUCKET ALREADY EXISTS")
-            print("BUCKET_NAME {}".format(bucket))
+                logging.info("REQUESTED BUCKET ALREADY EXISTS")
+            logging.info("BUCKET_NAME {}".format(bucket))
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
     else:
         parser.print_help()

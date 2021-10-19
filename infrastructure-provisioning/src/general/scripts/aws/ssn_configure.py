@@ -26,7 +26,7 @@ import datalab.fab
 import datalab.meta_lib
 import datalab.ssn_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,57 +34,21 @@ import subprocess
 import uuid
 from fabric import *
 
+def cleanup_aws_resources(tag_name, service_base_name):
+    try:
+        params = "--tag_name {} --service_base_name {}".format(tag_name, service_base_name)
+        subprocess.run("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params), shell=True, check=True)
+    except:
+        traceback.print_exc()
+        raise Exception
+
 if __name__ == "__main__":
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
-    ssn_conf = dict()
-    ssn_conf['instance'] = 'ssn'
-
-    def clear_resources():
-        if ssn_conf['domain_created']:
-            datalab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                       os.environ['ssn_hosted_zone_name'],
-                                                       os.environ['ssn_subdomain'])
-        datalab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-        datalab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        datalab.actions_lib.remove_s3(ssn_conf['instance'])
-        if ssn_conf['pre_defined_sg']:
-            datalab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
-        if ssn_conf['pre_defined_subnet']:
-            datalab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                         ssn_conf['service_base_name'])
-            datalab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-        if ssn_conf['pre_defined_vpc']:
-            datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            datalab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            datalab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
-        if ssn_conf['pre_defined_vpc2']:
-            datalab.actions_lib.remove_peering('*')
-            try:
-                datalab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            datalab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            datalab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
-
+    # deriving variables for ssn node deployment
     try:
         logging.info('[DERIVING NAMES]')
-        print('[DERIVING NAMES]')
+        ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'][:20], '-', True)
-        if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and \
-                'ssn_subdomain' in os.environ:
-            ssn_conf['domain_created'] = True
-        else:
-            ssn_conf['domain_created'] = False
-        ssn_conf['pre_defined_vpc'] = False
-        ssn_conf['pre_defined_subnet'] = False
-        ssn_conf['pre_defined_sg'] = False
-        ssn_conf['billing_enabled'] = True
+                    os.environ['conf_service_base_name'][:20], '-', True)
         ssn_conf['role_name'] = '{}-ssn-role'.format(ssn_conf['service_base_name'])
         ssn_conf['role_profile_name'] = '{}-ssn-profile'.format(ssn_conf['service_base_name'])
         ssn_conf['policy_name'] = '{}-ssn-policy'.format(ssn_conf['service_base_name'])
@@ -95,159 +59,142 @@ if __name__ == "__main__":
         ssn_conf['region'] = os.environ['aws_region']
         ssn_conf['ssn_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_conf['subnet_name'] = '{}-subnet'.format(ssn_conf['service_base_name'])
+        ssn_conf['subnet_tag'] = {"Key": ssn_conf['tag_name'], "Value": ssn_conf['subnet_name']}
         ssn_conf['sg_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
         ssn_conf['network_type'] = os.environ['conf_network_type']
         ssn_conf['datalab_ssh_user'] = os.environ['conf_os_user']
+        ssn_conf['ssn_datalab_path'] = os.environ['ssn_datalab_path']
+        ssn_conf['conf_tag_resource_id'] = os.environ['conf_tag_resource_id']
+        ssn_conf['instance_hostname'] = (lambda x: datalab.meta_lib.get_instance_ip_address(
+            ssn_conf['tag_name'], ssn_conf['instance_name']).get(
+            'Private') if x == 'private' else datalab.meta_lib.get_instance_hostname(
+            ssn_conf['tag_name'], ssn_conf['instance_name']))(ssn_conf['network_type'])
+        ssn_conf['initial_user'] = (lambda x: 'ubuntu' if x == 'debian' else 'ec2-user')(os.environ['conf_os_family'])
+        ssn_conf['sudo_group'] = (lambda x: 'sudo' if x == 'debian' else 'wheel')(os.environ['conf_os_family'])
+        ssn_conf['step_cert_sans'] = (lambda x: (lambda x: ' --san {0} --san {1}'.format(
+            datalab.meta_lib.get_instance_hostname(ssn_conf['tag_name'], ssn_conf['instance_name']),
+            datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'], ssn_conf['instance_name']).get(
+                'Public')) if x == 'public' else ' --san {0}'.format(datalab.meta_lib.get_instance_ip_address(
+            ssn_conf['tag_name'], ssn_conf['instance_name']).get('Private')))(
+            ssn_conf['network_type']) if x == 'true' else '')(os.environ['conf_stepcerts_enabled'])
 
-        try:
-            if os.environ['aws_vpc_id'] == '':
-                raise KeyError
-        except KeyError:
-            ssn_conf['tag'] = {"Key": ssn_conf['tag_name'], "Value": "{}-subnet".format(ssn_conf['service_base_name'])}
-            os.environ['aws_vpc_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag_name'],
-                                                                       ssn_conf['service_base_name'])
-            ssn_conf['pre_defined_vpc'] = True
-        try:
-            if os.environ['aws_subnet_id'] == '':
-                raise KeyError
-        except KeyError:
-            ssn_conf['tag'] = {"Key": ssn_conf['tag_name'], "Value": "{}-subnet".format(ssn_conf['service_base_name'])}
-            os.environ['aws_subnet_id'] = datalab.meta_lib.get_subnet_by_tag(ssn_conf['tag'], True)
-            ssn_conf['pre_defined_subnet'] = True
-        try:
-            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_vpc2_id']:
-                raise KeyError
-        except KeyError:
-            ssn_conf['tag'] = {"Key": ssn_conf['tag2_name'], "Value": "{}-subnet".format(ssn_conf['service_base_name'])}
-            os.environ['aws_vpc2_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
-                                                                        ssn_conf['service_base_name'])
-            ssn_conf['pre_defined_vpc2'] = True
-        try:
-            if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_peering_id']:
-                raise KeyError
-        except KeyError:
-            os.environ['aws_peering_id'] = datalab.meta_lib.get_peering_by_tag(ssn_conf['tag_name'],
-                                                                               ssn_conf['service_base_name'])
-            ssn_conf['pre_defined_peering'] = True
-        try:
-            if os.environ['aws_security_groups_ids'] == '':
-                raise KeyError
-        except KeyError:
-            os.environ['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
-            ssn_conf['pre_defined_sg'] = True
-        try:
-            if os.environ['aws_account_id'] == '':
-                raise KeyError
-            if os.environ['aws_billing_bucket'] == '':
-                raise KeyError
-        except KeyError:
+        if 'aws_vpc_id' in os.environ and os.environ['aws_vpc_id'] != '':
+            ssn_conf['aws_vpc_id'] = os.environ['aws_vpc_id']
+        else:
+            ssn_conf['aws_vpc_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag_name'],
+                                                                     ssn_conf['service_base_name'])
+        if os.environ['conf_duo_vpc_enable'] == 'true' and 'aws_vpc2_id' in os.environ\
+                and os.environ['aws_vpc2_id'] != '':
+            ssn_conf['aws_vpc2_id'] = os.environ['aws_vpc2_id']
+        else:
+            ssn_conf['aws_vpc2_id'] = datalab.meta_lib.get_vpc_by_tag(ssn_conf['tag2_name'],
+                                                                      ssn_conf['service_base_name'])
+        if os.environ['conf_duo_vpc_enable'] == 'true' and not os.environ['aws_peering_id']:
+            ssn_conf['aws_peering_id'] = datalab.meta_lib.get_peering_by_tag(ssn_conf['tag_name'],
+                                                                           ssn_conf['service_base_name'])
+        elif os.environ['conf_duo_vpc_enable'] == 'true' and aws_peering_id in os.environ \
+                and os.environ['aws_peering_id'] != '':
+            ssn_conf['aws_peering_id'] = os.environ['aws_peering_id']
+        else:
+            ssn_conf['aws_peering_id'] = None
+        if 'aws_subnet_id' in os.environ and os.environ['aws_subnet_id'] != '':
+            ssn_conf['aws_subnet_id'] = os.environ['aws_subnet_id']
+        else:
+            ssn_conf['aws_subnet_id'] = datalab.meta_lib.get_subnet_by_tag(ssn_conf['subnet_tag'], True)
+        if 'aws_security_groups_ids' in os.environ and os.environ['aws_security_groups_ids'] != '':
+            ssn_conf['aws_security_groups_ids'] = os.environ['aws_security_groups_ids']
+        else:
+            ssn_conf['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
+        if 'aws_billing_bucket' in os.environ and os.environ['aws_billing_bucket'] == '':
+            ssn_conf['billing_enabled'] = True
+            ssn_conf['aws_billing_bucket'] = os.environ['aws_billing_bucket']
+        else:
             ssn_conf['billing_enabled'] = False
-        if not ssn_conf['billing_enabled']:
-            os.environ['aws_account_id'] = 'None'
-            os.environ['aws_billing_bucket'] = 'None'
-        try:
-            if not os.environ['aws_report_path']:
-                raise KeyError
-        except KeyError:
-            os.environ['aws_report_path'] = ''
+            ssn_conf['aws_billing_bucket'] = 'None'
+        if 'aws_report_path' in os.environ and os.environ['aws_report_path'] == '':
+            ssn_conf['aws_report_path'] = os.environ['aws_report_path']
+        else:
+            ssn_conf['aws_report_path'] = ''
 
         if 'keycloak_client_name' not in os.environ:
             os.environ['keycloak_client_name'] = '{}-ui'.format(ssn_conf['service_base_name'])
         if 'keycloak_client_secret' not in os.environ:
             os.environ['keycloak_client_secret'] = str(uuid.uuid4())
+
     except Exception as err:
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
-        clear_resources()
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
+        traceback.print_exc()
         sys.exit(1)
 
+    #creating datalab ssh user
     try:
-        if os.environ['conf_os_family'] == 'debian':
-            ssn_conf['initial_user'] = 'ubuntu'
-            ssn_conf['sudo_group'] = 'sudo'
-        if os.environ['conf_os_family'] == 'redhat':
-            ssn_conf['initial_user'] = 'ec2-user'
-            ssn_conf['sudo_group'] = 'wheel'
-
-        if ssn_conf['network_type'] == 'private':
-            ssn_conf['instance_hostname'] = datalab.meta_lib.get_instance_ip_address(
-                ssn_conf['tag_name'], ssn_conf['instance_name']).get('Private')
-        else:
-            ssn_conf['instance_hostname'] = datalab.meta_lib.get_instance_hostname(
-                ssn_conf['tag_name'], ssn_conf['instance_name'])
-
-        if os.environ['conf_stepcerts_enabled'] == 'true':
-            ssn_conf['step_cert_sans'] = ' --san {0} '.format(datalab.meta_lib.get_instance_ip_address(
-                ssn_conf['tag_name'], ssn_conf['instance_name']).get('Private'))
-            if ssn_conf['network_type'] == 'public':
-                ssn_conf['step_cert_sans'] += ' --san {0} --san {1}'.format(
-                    datalab.meta_lib.get_instance_hostname(ssn_conf['tag_name'], ssn_conf['instance_name']),
-                    datalab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
-                                                             ssn_conf['instance_name']).get('Public'))
-        else:
-            ssn_conf['step_cert_sans'] = ''
-
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             ssn_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
             ssn_conf['initial_user'], ssn_conf['datalab_ssh_user'], ssn_conf['sudo_group'])
-
         try:
             subprocess.run("~/scripts/{}.py {}".format('create_ssh_user', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.append_result("Failed creating ssh user 'datalab'.", str(err))
-        clear_resources()
+        logging.error('Error: {0}'.format(err))
+        datalab.fab.append_result("Failed creating ssh user", str(err))
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
+    #installing prerequisites to ssn instance
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'boto3 bcrypt==3.1.7 backoff argparse fabric==1.14.0 awscli pymongo " \
-                 "pyyaml jinja2' --user {} --region {}". \
-            format(ssn_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
-                   ssn_conf['datalab_ssh_user'], os.environ['aws_region'])
-
+        pip_packages = 'boto3=={} bcrypt=={} backoff=={} argparse=={} fabric=={} awscli=={} pymongo=={} pyyaml=={}' \
+                       ' jinja2=={}'.format(os.environ['pip_packages_boto3'], os.environ['pip_packages_bcrypt'],
+                                            os.environ['pip_packages_backoff'], os.environ['pip_packages_argparse'],
+                                            os.environ['pip_packages_fabric'], os.environ['pip_packages_awscli'],
+                                            os.environ['pip_packages_pymongo'], os.environ['pip_packages_pyyaml'],
+                                            os.environ['pip_packages_jinja2'])
+        params = "--hostname {} --keyfile {} --pip_packages '{}' --user {} --region {}".format(
+            ssn_conf['instance_hostname'], "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
+            pip_packages, ssn_conf['datalab_ssh_user'], ssn_conf['region'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('install_prerequisites', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed installing software: pip, packages.", str(err))
-        clear_resources()
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
+    #configuring ssn instance
     try:
         logging.info('[CONFIGURE SSN INSTANCE]')
-        print('[CONFIGURE SSN INSTANCE]')
-        additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name":
-            ssn_conf['service_base_name'],
-                             "security_group_id": os.environ['aws_security_groups_ids'],
-                             "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'],
+        additional_config = {"nginx_template_dir": "/root/templates/",
+                             "service_base_name": ssn_conf['service_base_name'],
+                             "security_group_id": ssn_conf['aws_security_groups_ids'],
+                             "vpc_id": ssn_conf['aws_vpc_id'], "subnet_id": ssn_conf['aws_subnet_id'],
                              "admin_key": os.environ['conf_key_name']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --datalab_path {} " \
-                 "--tag_resource_id {} --step_cert_sans '{}' ".format(
-            ssn_conf['instance_hostname'],
-            "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
-            json.dumps(additional_config), ssn_conf['datalab_ssh_user'], os.environ['ssn_datalab_path'],
-            os.environ['conf_tag_resource_id'], ssn_conf['step_cert_sans'])
-
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --datalab_path {}" \
+                 " --tag_resource_id {} --step_cert_sans '{}' ".format(
+            ssn_conf['instance_hostname'], "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
+            json.dumps(additional_config), ssn_conf['datalab_ssh_user'], ssn_conf['ssn_datalab_path'],
+            ssn_conf['conf_tag_resource_id'], ssn_conf['step_cert_sans'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_ssn_node', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.append_result("Failed configuring ssn.", str(err))
-        clear_resources()
+        logging.error('Error: {0}'.format(err))
+        datalab.fab.append_result("Failed to configure SSN node.", str(err))
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
+    #configuring docker at ssn instance
     try:
         logging.info('[CONFIGURING DOCKER AT SSN INSTANCE]')
-        print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "project", "tag": "latest"},
@@ -274,11 +221,15 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.append_result("Unable to configure docker.", str(err))
-        clear_resources()
+        logging.error('Error: {0}'.format(err))
+        datalab.fab.append_result("Failed to configure docker.", str(err))
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
+
+    #configuring UI
     try:
+        logging.info('[CONFIGURE SSN INSTANCE UI]')
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
@@ -323,11 +274,11 @@ if __name__ == "__main__":
             },
             {
                 'key': 'SUBNET_ID',
-                'value': os.environ['aws_subnet_id']
+                'value': ssn_conf['aws_subnet_id']
             },
             {
                 'key': 'REGION',
-                'value': os.environ['aws_region']
+                'value': ssn_conf['region']
             },
             {
                 'key': 'ZONE',
@@ -335,11 +286,11 @@ if __name__ == "__main__":
             },
             {
                 'key': 'TAG_RESOURCE_ID',
-                'value': os.environ['conf_tag_resource_id']
+                'value': ssn_conf['conf_tag_resource_id']
             },
             {
                 'key': 'SG_IDS',
-                'value': os.environ['aws_security_groups_ids']
+                'value': ssn_conf['aws_security_groups_ids']
             },
             {
                 'key': 'SSN_INSTANCE_SIZE',
@@ -347,31 +298,11 @@ if __name__ == "__main__":
             },
             {
                 'key': 'VPC_ID',
-                'value': os.environ['aws_vpc_id']
+                'value': ssn_conf['aws_vpc_id']
             },
             {
                 'key': 'CONF_KEY_DIR',
                 'value': os.environ['conf_key_dir']
-            },
-            {
-                'key': 'LDAP_HOST',
-                'value': os.environ['ldap_hostname']
-            },
-            {
-                'key': 'LDAP_DN',
-                'value': os.environ['ldap_dn']
-            },
-            {
-                'key': 'LDAP_OU',
-                'value': os.environ['ldap_ou']
-            },
-            {
-                'key': 'LDAP_USER_NAME',
-                'value': os.environ['ldap_service_username']
-            },
-            {
-                'key': 'LDAP_USER_PASSWORD',
-                'value': os.environ['ldap_service_password']
             },
             {
                 'key': 'AZURE_RESOURCE_GROUP_NAME',
@@ -410,33 +341,33 @@ if __name__ == "__main__":
             cloud_params.append(
                 {
                     'key': 'SUBNET2_ID',
-                    'value': os.environ['aws_subnet_id']
+                    'value': ssn_conf['aws_subnet_id']
                 })
             cloud_params.append(
                 {
                     'key': 'VPC2_ID',
-                    'value': os.environ['aws_vpc2_id']
+                    'value': ssn_conf['aws_vpc2_id']
                 })
             cloud_params.append(
                 {
                     'key': 'PEERING_ID',
-                    'value': os.environ['aws_peering_id']
+                    'value': ssn_conf['aws_peering_id']
                 })
         else:
             cloud_params.append(
                 {
                     'key': 'SUBNET2_ID',
-                    'value': os.environ['aws_subnet_id']
+                    'value': ssn_conf['aws_subnet_id']
                 })
             cloud_params.append(
                 {
                     'key': 'VPC2_ID',
-                    'value': os.environ['aws_vpc_id']
+                    'value': ssn_conf['aws_vpc_id']
                 })
             cloud_params.append(
                 {
                     'key': 'PEERING_ID',
-                    'value': ''
+                    'value': ssn_conf['aws_peering_id']
                 })
         if os.environ['conf_stepcerts_enabled'] == 'true':
             cloud_params.append(
@@ -604,9 +535,9 @@ if __name__ == "__main__":
                    os.environ['conf_billing_tag'],
                    os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'],
-                   os.environ['aws_billing_bucket'],
+                   ssn_conf['aws_billing_bucket'],
                    os.environ['aws_job_enabled'],
-                   os.environ['aws_report_path'],
+                   ssn_conf['aws_report_path'],
                    ssn_conf['billing_enabled'],
                    json.dumps(cloud_params),
                    os.environ['datalab_id'],
@@ -627,12 +558,12 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        datalab.fab.append_result("Unable to configure UI.", str(err))
-        clear_resources()
+        logging.error('Error: {0}'.format(err))
+        datalab.fab.append_result("Failed to configure Datalab UI.", str(err))
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)
 
     logging.info('[CREATE KEYCLOAK CLIENT]')
-    print('[CREATE KEYCLOAK CLIENT]')
     keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                       "--keycloak_user {} --keycloak_user_password {} --instance_public_ip {} --keycloak_client_secret {} " \
         .format(ssn_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
@@ -646,37 +577,26 @@ if __name__ == "__main__":
         #clear_resources()
         #sys.exit(1)
 
+    #ssn deployment summary
     try:
         logging.info('[SUMMARY]')
-        print('[SUMMARY]')
-        print("Service base name: {}".format(ssn_conf['service_base_name']))
-        print("SSN Name: {}".format(ssn_conf['instance_name']))
-        print("SSN Hostname: {}".format(ssn_conf['instance_hostname']))
-        print("Role name: {}".format(ssn_conf['role_name']))
-        print("Role profile name: {}".format(ssn_conf['role_profile_name']))
-        print("Policy name: {}".format(ssn_conf['policy_name']))
-        print("Key name: {}".format(os.environ['conf_key_name']))
-        print("VPC ID: {}".format(os.environ['aws_vpc_id']))
-        print("Subnet ID: {}".format(os.environ['aws_subnet_id']))
-        print("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
-        print("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
-        print("SSN AMI name: {}".format(ssn_conf['ssn_image_name']))
-        print("Region: {}".format(ssn_conf['region']))
-        ssn_conf['jenkins_url'] = "http://{}/jenkins".format(datalab.meta_lib.get_instance_hostname(
-            ssn_conf['tag_name'], ssn_conf['instance_name']))
-        ssn_conf['jenkins_url_https'] = "https://{}/jenkins".format(datalab.meta_lib.get_instance_hostname(
-            ssn_conf['tag_name'], ssn_conf['instance_name']))
-        print("Jenkins URL: {}".format(ssn_conf['jenkins_url']))
-        print("Jenkins URL HTTPS: {}".format(ssn_conf['jenkins_url_https']))
-        print("DataLab UI HTTP URL: http://{}".format(datalab.meta_lib.get_instance_hostname(
+        logging.info("Service base name: {}".format(ssn_conf['service_base_name']))
+        logging.info("SSN Name: {}".format(ssn_conf['instance_name']))
+        logging.info("SSN Hostname: {}".format(ssn_conf['instance_hostname']))
+        logging.info("Role name: {}".format(ssn_conf['role_name']))
+        logging.info("Role profile name: {}".format(ssn_conf['role_profile_name']))
+        logging.info("Policy name: {}".format(ssn_conf['policy_name']))
+        logging.info("Key name: {}".format(os.environ['conf_key_name']))
+        logging.info("VPC ID: {}".format(ssn_conf['aws_vpc_id']))
+        logging.info("Subnet ID: {}".format(ssn_conf['aws_subnet_id']))
+        logging.info("Security IDs: {}".format(ssn_conf['aws_security_groups_ids']))
+        logging.info("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
+        logging.info("SSN AMI name: {}".format(ssn_conf['ssn_image_name']))
+        logging.info("Region: {}".format(ssn_conf['region']))
+        logging.info("DataLab UI HTTP URL: http://{}".format(datalab.meta_lib.get_instance_hostname(
             ssn_conf['tag_name'], ssn_conf['instance_name'])))
-        print("DataLab UI HTTPS URL: https://{}".format(datalab.meta_lib.get_instance_hostname(
+        logging.info("DataLab UI HTTPS URL: https://{}".format(datalab.meta_lib.get_instance_hostname(
             ssn_conf['tag_name'], ssn_conf['instance_name'])))
-        try:
-            with open('jenkins_creds.txt') as f:
-                print(f.read())
-        except:
-            print("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": ssn_conf['service_base_name'],
@@ -687,27 +607,29 @@ if __name__ == "__main__":
                    "role_profile_name": ssn_conf['role_profile_name'],
                    "policy_name": ssn_conf['policy_name'],
                    "master_keyname": os.environ['conf_key_name'],
-                   "vpc_id": os.environ['aws_vpc_id'],
-                   "subnet_id": os.environ['aws_subnet_id'],
-                   "security_id": os.environ['aws_security_groups_ids'],
+                   "vpc_id": ssn_conf['aws_vpc_id'],
+                   "subnet_id": ssn_conf['aws_subnet_id'],
+                   "security_id": ssn_conf['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
-        print('Upload response file')
+        logging.info('Upload response file')
+        local_log_filepath = "/logs/{}/{}_{}.log".format(os.environ['conf_resource'], os.environ['conf_resource'],
+                                                         os.environ['request_id'])
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}". \
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['datalab_ssh_user'],
                    ssn_conf['instance_hostname'])
         subprocess.run("~/scripts/{}.py {}".format('upload_response_file', params), shell=True, check=True)
 
         logging.info('[FINALIZE]')
-        print('[FINALIZE]')
         params = ""
         if os.environ['conf_lifecycle_stage'] == 'prod':
             params += "--key_id {}".format(os.environ['aws_access_key'])
             subprocess.run("~/scripts/{}.py {}".format('ssn_finalize', params), shell=True, check=True)
     except Exception as err:
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Error with writing results.", str(err))
-        clear_resources()
+        cleanup_aws_resources(ssn_conf['tag_name'], ssn_conf['service_base_name'])
         sys.exit(1)

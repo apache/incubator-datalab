@@ -30,17 +30,11 @@ from Crypto.PublicKey import RSA
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     try:
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         edge_conf = dict()
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -95,19 +89,18 @@ if __name__ == "__main__":
         # FUSE in case of absence of user's key
         fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
         if not os.path.isfile(fname):
-            print("USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname))
+            logging.info("USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname))
             sys.exit(1)
 
-        print("Will create exploratory environment with edge node as access point as following: {}".format(json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))))
+        logging.info("Will create exploratory environment with edge node as access point as following: {}".format(json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(edge_conf))
     except Exception as err:
-        print("Failed to generate variables dictionary.")
+        logging.error("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE SUBNET]')
-        print('[CREATE SUBNET]')
         params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
             format(edge_conf['resource_group_name'], edge_conf['vpc_name'], edge_conf['region'], edge_conf['vpc_cidr'],
                    edge_conf['private_subnet_name'], edge_conf['private_subnet_prefix'])
@@ -117,22 +110,21 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         try:
             AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                          edge_conf['private_subnet_name'])
         except:
-            print("Subnet hasn't been created.")
+            logging.info("Subnet hasn't been created.")
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                               edge_conf['private_subnet_name']).address_prefix
-    print('NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr']))
+    logging.info('NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr']))
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print('[CREATE SECURITY GROUP FOR EDGE]')
         edge_list_rules = [
             {
                 "name": "in-1",
@@ -400,7 +392,7 @@ if __name__ == "__main__":
                 AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                      edge_conf['edge_security_group_name'])
             except:
-                print("Edge Security group hasn't been created.")
+                logging.info("Edge Security group hasn't been created.")
             traceback.print_exc()
             append_result("Failed creating security group for edge node.", str(err))
             raise Exception
@@ -409,7 +401,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         notebook_list_rules = [
             {
                 "name": "in-1",
@@ -500,7 +491,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
@@ -508,11 +499,10 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['notebook_security_group_name'])
         except:
-            print("Notebook Security group hasn't been created.")
+            logging.info("Notebook Security group hasn't been created.")
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
-    print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
         cluster_list_rules = [
             {
@@ -606,7 +596,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
@@ -616,12 +606,11 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['master_security_group_name'])
         except:
-            print("Master Security group hasn't been created.")
+            logging.info("Master Security group hasn't been created.")
         append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
-    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['slave_security_group_name'], edge_conf['region'],
@@ -632,7 +621,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
@@ -644,13 +633,12 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         except:
-            print("Slave Security group hasn't been created.")
+            logging.info("Slave Security group hasn't been created.")
         append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
-        print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
 
         params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
             format(edge_conf['edge_container_name'], json.dumps(edge_conf['storage_account_tags']),
@@ -661,7 +649,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         append_result("Failed to create storage account.", str(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
@@ -679,7 +667,6 @@ if __name__ == "__main__":
     if os.environ['azure_datalake_enable'] == 'true':
         try:
             logging.info('[CREATE DATA LAKE STORE DIRECTORY]')
-            print('[CREATE DATA LAKE STORE DIRECTORY]')
             params = "--resource_group_name {} --datalake_name {} --directory_name {} --ad_user {} --service_base_name {}". \
                 format(edge_conf['resource_group_name'], edge_conf['datalake_store_name'],
                        edge_conf['datalake_user_directory_name'], edge_conf['azure_ad_user_name'],
@@ -690,7 +677,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.info('Error: {0}'.format(err))
             append_result("Failed to create Data Lake Store directory.", str(err))
             AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                          edge_conf['private_subnet_name'])
@@ -708,8 +695,8 @@ if __name__ == "__main__":
                     if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                         AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
             except Exception as err:
-                print('Error: {0}'.format(err))
-                print("Data Lake Store directory hasn't been created.")
+                logging.info('Error: {0}'.format(err))
+                logging.info("Data Lake Store directory hasn't been created.")
             sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -721,7 +708,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE EDGE INSTANCE]')
-        print('[CREATE EDGE INSTANCE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
             --datalab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
@@ -738,11 +724,11 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.info('Error: {0}'.format(err))
         try:
             AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         except:
-            print("The instance hasn't been created.")
+            logging.info("The instance hasn't been created.")
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])

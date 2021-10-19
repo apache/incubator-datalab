@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,12 +34,6 @@ from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         AzureMeta = datalab.meta_lib.AzureMeta()
         AzureActions = datalab.actions_lib.AzureActions()
@@ -135,7 +129,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
             notebook_config['initial_user'], notebook_config['datalab_ssh_user'], notebook_config['sudo_group'])
@@ -153,7 +146,6 @@ if __name__ == "__main__":
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
-        print('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
         additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
@@ -171,7 +163,6 @@ if __name__ == "__main__":
     # updating repositories & installing python packages
     try:
         logging.info('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['azure_region'],
                    edge_instance_private_hostname)
@@ -188,15 +179,14 @@ if __name__ == "__main__":
     # installing and configuring R_STUDIO and all dependencies
     try:
         logging.info('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
-        print('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
         params = "--hostname {0}  --keyfile {1} " \
                  "--region {2} --rstudio_pass {3} " \
                  "--rstudio_version {4} --os_user {5} " \
-                 "--r_mirror {6} --ip_address {7} --exploratory_name {8} --edge_ip {9} " \
+                 "--ip_address {6} --exploratory_name {7} --edge_ip {8} " \
             .format(instance_hostname, keyfile_name,
                     os.environ['azure_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['datalab_ssh_user'],
-                    os.environ['notebook_r_mirror'], notebook_config['ip_address'],
+                    notebook_config['ip_address'],
                     notebook_config['exploratory_name'], edge_hostname)
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_rstudio_node', params), shell=True, check=True)
@@ -213,7 +203,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -230,7 +219,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name)
@@ -246,7 +234,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[POST CONFIGURING PROCESS]')
-        print('[POST CONFIGURING PROCESS')
         if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None', '']:
             params = "--hostname {} --keyfile {} --os_user {} --resource_group_name {} --notebook_name {}" \
                 .format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'],
@@ -263,11 +250,11 @@ if __name__ == "__main__":
 
     if notebook_config['image_enabled'] == 'true':
         try:
-            print('[CREATING IMAGE]')
+            logging.info('[CREATING IMAGE]')
             image = AzureMeta.get_image(notebook_config['resource_group_name'],
                                         notebook_config['expected_image_name'])
             if image == '':
-                print("Looks like it's first time we configure notebook server. Creating image.")
+                logging.info("Looks like it's first time we configure notebook server. Creating image.")
                 datalab.actions_lib.prepare_vm_for_image(True, notebook_config['datalab_ssh_user'], instance_hostname,
                                                          keyfile_name)
                 AzureActions.create_image_from_instance(notebook_config['resource_group_name'],
@@ -275,7 +262,7 @@ if __name__ == "__main__":
                                                         os.environ['azure_region'],
                                                         notebook_config['expected_image_name'],
                                                         json.dumps(notebook_config['image_tags']))
-                print("Image was successfully created.")
+                logging.info("Image was successfully created.")
                 subprocess.run("~/scripts/{}.py".format('common_prepare_notebook'), shell=True, check=True)
                 instance_running = False
                 while not instance_running:
@@ -301,7 +288,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
-        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         additional_info = {
             'instance_hostname': instance_hostname,
@@ -339,19 +326,18 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'])
         rstudio_ungit_access_url = "https://" + edge_instance_hostname + "/{}-ungit/".format(
             notebook_config['exploratory_name'])
-        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print("Instance name: {}".format(notebook_config['instance_name']))
-        print("Private IP: {}".format(ip_address))
-        print("Instance type: {}".format(notebook_config['instance_size']))
-        print("Key name: {}".format(notebook_config['key_name']))
-        print("User key name: {}".format(notebook_config['user_keyname']))
-        print("SG name: {}".format(notebook_config['security_group_name']))
-        print("Rstudio URL: {}".format(rstudio_ip_url))
-        print("Rstudio user: {}".format(notebook_config['datalab_ssh_user']))
-        print("Rstudio pass: {}".format(notebook_config['rstudio_pass']))
-        print("Ungit URL: {}".format(ungit_ip_url))
-        print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
+        logging.info("Instance name: {}".format(notebook_config['instance_name']))
+        logging.info("Private IP: {}".format(ip_address))
+        logging.info("Instance type: {}".format(notebook_config['instance_size']))
+        logging.info("Key name: {}".format(notebook_config['key_name']))
+        logging.info("User key name: {}".format(notebook_config['user_keyname']))
+        logging.info("SG name: {}".format(notebook_config['security_group_name']))
+        logging.info("Rstudio URL: {}".format(rstudio_ip_url))
+        logging.info("Rstudio user: {}".format(notebook_config['datalab_ssh_user']))
+        logging.info("Rstudio pass: {}".format(notebook_config['rstudio_pass']))
+        logging.info("Ungit URL: {}".format(ungit_ip_url))
+        logging.info('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
               format(notebook_config['key_name'], notebook_config['datalab_ssh_user'], ip_address))
 
         with open("/root/result.json", 'w') as result:

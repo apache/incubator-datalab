@@ -106,7 +106,6 @@ def copy_ssn_libraries():
         print('Failed to copy ssn libraries: ', str(err))
         sys.exit(1)
 
-
 def configure_mongo(mongo_passwd, default_endpoint_name):
     try:
         if not exists(conn,"/lib/systemd/system/mongod.service"):
@@ -138,6 +137,9 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
             os.environ['conf_cloud_provider'].upper()))
         conn.sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
         conn.sudo('pip3 install -U six==1.15.0 patchwork')
+        conn.sudo("ls -la " + args.datalab_path + "tmp/")
+        conn.sudo("ls -la /etc/")
+        conn.sudo("lsblk")
         conn.sudo("python3 " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
             args.datalab_path))
     except Exception as err:
@@ -230,10 +232,7 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print("Copying DataLab libraries to SSN")
-    copy_ssn_libraries()
-
-    print("Installing Supervisor")
+    logging.info("Installing Supervisor")
     ensure_supervisor()
 
     print("Installing MongoDB")

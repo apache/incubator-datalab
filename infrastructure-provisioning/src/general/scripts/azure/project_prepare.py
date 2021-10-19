@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,15 +34,8 @@ from Crypto.PublicKey import RSA
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/project/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     try:
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         AzureMeta = datalab.meta_lib.AzureMeta()
         AzureActions = datalab.actions_lib.AzureActions()
         project_conf = dict()
@@ -134,12 +127,12 @@ if __name__ == "__main__":
                 subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
                                                         project_conf['project_name']), shell=True, check=True)
             except:
-                print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
+                logging.info("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
-            print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
+            logging.error("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
             sys.exit(1)
 
-        print("Will create exploratory environment with edge node as access point as following: {}".format(json.dumps(
+        logging.info("Will create exploratory environment with edge node as access point as following: {}".format(json.dumps(
             project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(project_conf))
     except Exception as err:
@@ -149,7 +142,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SUBNET]')
-        print('[CREATE SUBNET]')
         params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
             format(project_conf['resource_group_name'], project_conf['vpc_name'], project_conf['region'],
                    project_conf['vpc_cidr'], project_conf['private_subnet_name'], project_conf['private_subnet_prefix'])
@@ -163,19 +155,19 @@ if __name__ == "__main__":
             AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                        project_conf['private_subnet_name'])
         except:
-            print("Subnet hasn't been created.")
+            logging.info("Subnet hasn't been created.")
         datalab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     project_conf['private_subnet_cidr'] = AzureMeta.get_subnet(project_conf['resource_group_name'],
                                                                project_conf['vpc_name'],
                                                                project_conf['private_subnet_name']).address_prefix
-    print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
+    logging.info('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
     try:
         if 'azure_edge_security_group_name' in os.environ:
             logging.info('Security group predefined, adding new rule with endpoint IP')
-            print('Security group predefined, adding new rule with endpoint IP')
+            logging.info('Security group predefined, adding new rule with endpoint IP')
             if project_conf['endpoint_name'] == 'local':
                 endpoint_ip = AzureMeta.get_instance_public_ip_address(project_conf['resource_group_name'],
                                                           '{}-ssn'.format(project_conf['service_base_name']))
@@ -214,7 +206,7 @@ if __name__ == "__main__":
                                            project_conf['private_subnet_name'])
         else:
             logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-            print('[CREATE SECURITY GROUP FOR EDGE]')
+            logging.info('[CREATE SECURITY GROUP FOR EDGE]')
             edge_list_rules = [
                 {
                     "name": "in-1",
@@ -493,7 +485,7 @@ if __name__ == "__main__":
                     AzureActions.remove_security_group(project_conf['resource_group_name'],
                                                        project_conf['edge_security_group_name'])
                 except:
-                    print("Edge Security group hasn't been created.")
+                    logging.info("Edge Security group hasn't been created.")
                 traceback.print_exc()
                 datalab.fab.append_result("Failed creating security group for edge node.", str(err))
                 raise Exception
@@ -503,7 +495,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         notebook_list_rules = [
             {
                 "name": "in-1",
@@ -606,11 +597,10 @@ if __name__ == "__main__":
             AzureActions.remove_security_group(project_conf['resource_group_name'],
                                                project_conf['notebook_security_group_name'])
         except:
-            print("Notebook Security group hasn't been created.")
+            logging.info("Notebook Security group hasn't been created.")
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
-    print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
         cluster_list_rules = [
             {
@@ -715,12 +705,11 @@ if __name__ == "__main__":
             AzureActions.remove_security_group(project_conf['resource_group_name'],
                                                project_conf['master_security_group_name'])
         except:
-            print("Master Security group hasn't been created.")
+            logging.info("Master Security group hasn't been created.")
         datalab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
-    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
             project_conf['resource_group_name'], project_conf['slave_security_group_name'], project_conf['region'],
@@ -744,13 +733,12 @@ if __name__ == "__main__":
             AzureActions.remove_security_group(project_conf['resource_group_name'],
                                                project_conf['slave_security_group_name'])
         except:
-            print("Slave Security group hasn't been created.")
+            logging.info("Slave Security group hasn't been created.")
         datalab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
-        print('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
         params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
             format(project_conf['shared_container_name'], json.dumps(project_conf['shared_storage_account_tags']),
                    project_conf['resource_group_name'], project_conf['region'])
@@ -775,7 +763,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
-        print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
 
         params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
             format(project_conf['edge_container_name'], json.dumps(project_conf['storage_account_tags']),
@@ -808,7 +795,7 @@ if __name__ == "__main__":
     if os.environ['azure_datalake_enable'] == 'true':
         try:
             logging.info('[CREATE DATA LAKE STORE DIRECTORY]')
-            print('[CREATE DATA LAKE STORE DIRECTORY]')
+            logging.info('[CREATE DATA LAKE STORE DIRECTORY]')
             params = "--resource_group_name {} --datalake_name {} --directory_name {} --ad_user {} " \
                      "--service_base_name {}".format(project_conf['resource_group_name'],
                                                      project_conf['datalake_store_name'],
@@ -844,7 +831,7 @@ if __name__ == "__main__":
                         AzureActions.remove_datalake_directory(datalake.name,
                                                                  project_conf['datalake_user_directory_name'])
             except:
-                print("Data Lake Store directory hasn't been created.")
+                logging.info("Data Lake Store directory hasn't been created.")
             sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -856,7 +843,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE EDGE INSTANCE]')
-        print('[CREATE EDGE INSTANCE]')
         if 'azure_edge_security_group_name' in os.environ:
             project_conf['edge_security_group_name'] = os.environ['azure_edge_security_group_name']
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
@@ -880,7 +866,7 @@ if __name__ == "__main__":
         try:
             AzureActions.remove_instance(project_conf['resource_group_name'], project_conf['instance_name'])
         except:
-            print("The instance hasn't been created.")
+            logging.info("The instance hasn't been created.")
         AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
                                    project_conf['private_subnet_name'])
         if 'azure_edge_security_group_name' not in os.environ:

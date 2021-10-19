@@ -30,6 +30,7 @@ from datalab.common_lib import *
 from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -64,7 +65,7 @@ def configure_rstudio():
                 subprocess.run("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties", shell=True, check=True)
             subprocess.run('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured', shell=True, check=True)
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
     else:
         try:
@@ -81,7 +82,7 @@ def configure_rstudio():
             if args.emr_version == "emr-5.19.0":
                 subprocess.run("sed -i '/DRFA/s/^/#/' " + spark_dir + "conf/log4j.properties", shell=True, check=True)
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
 
 

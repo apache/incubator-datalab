@@ -29,6 +29,7 @@ import sys
 from botocore import exceptions
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_id', type=str, default='')
@@ -46,6 +47,8 @@ args = parser.parse_args()
 if __name__ == "__main__":
     tag = {"Key": args.infra_tag_name, "Value": args.subnet_name}
     tag_name = {"Key": "Name", "Value": args.subnet_name}
+
+    #defining subnet cidr
     try:
         if args.user_subnets_range == '' or args.ssn:
             ec2 = boto3.resource('ec2')
@@ -64,7 +67,6 @@ if __name__ == "__main__":
                  int(addr.split("/")[0].split(".")[3]),
                  int(addr.split("/")[1]))
             sorted_subnets_cidr = sorted(subnets_cidr, key=sortkey)
-
             last_ip = first_vpc_ip
             previous_subnet_size = private_subnet_size
             for cidr in sorted_subnets_cidr:
@@ -75,7 +77,6 @@ if __name__ == "__main__":
                     previous_subnet_size = subnet_size
                 else:
                     break
-
             datalab_subnet_cidr = ''
             if previous_subnet_size < private_subnet_size:
                 while True:
@@ -107,31 +108,37 @@ if __name__ == "__main__":
                 existed_subnet_list.append(i.get('CidrBlock'))
             available_subnets = list(set(pre_defined_subnet_list) - set(existed_subnet_list))
             if not available_subnets:
-                print("There is no available subnet to create. Aborting...")
+                logging.error("There is no available subnet to create. Aborting...")
                 sys.exit(1)
             else:
                 datalab_subnet_cidr = available_subnets[0]
+
+        #checking existing subnets
         if args.ssn:
             subnet_id = get_subnet_by_cidr(datalab_subnet_cidr, args.vpc_id)
             subnet_check = get_subnet_by_tag(tag, False, args.vpc_id)
         else:
             subnet_id = get_subnet_by_cidr(datalab_subnet_cidr, args.vpc_id)
             subnet_check = get_subnet_by_tag(tag, args.vpc_id)
+
+        #creating subnet
         if not subnet_check:
             if subnet_id == '':
-                print("Creating subnet {0} in vpc {1} with tag {2}".
+                logging.info("Creating subnet {0} in vpc {1} with tag {2}".
                       format(datalab_subnet_cidr, args.vpc_id, json.dumps(tag)))
                 subnet_id = create_subnet(args.vpc_id, datalab_subnet_cidr, tag, args.zone)
                 create_tag(subnet_id, tag_name)
         else:
-            print("REQUESTED SUBNET ALREADY EXISTS. USING CIDR {}".format(subnet_check))
+            logging.info("REQUESTED SUBNET ALREADY EXISTS. USING CIDR {}".format(subnet_check))
             subnet_id = get_subnet_by_cidr(subnet_check)
-        print("SUBNET_ID: {}".format(subnet_id))
+        logging.info("SUBNET_ID: {}".format(subnet_id))
+
+        #associating subnet with route table
         if not args.ssn:
             if os.environ['edge_is_nat'] == 'true':
-                print('Subnet will be associted with route table for NAT')
+                logging.info('Subnet will be associted with route table for NAT')
             else:
-                print("Associating route_table with the subnet")
+                logging.info("Associating route_table with the subnet")
                 ec2 = boto3.resource('ec2')
                 if os.environ['conf_duo_vpc_enable'] == 'true':
                     rt = get_route_table_by_tag(args.infra_tag_value + '-secondary-tag', args.infra_tag_value)
@@ -144,15 +151,13 @@ if __name__ == "__main__":
                         create_peer_routes(os.environ['aws_peering_id'], args.infra_tag_value)
                 except exceptions.ClientError as err:
                     if 'Resource.AlreadyAssociated' in str(err):
-                        print('Other route table is already associted with this subnet. Skipping...')
+                        logging.info('Other route table is already associated with this subnet. Skipping...')
         else:
-            print("Associating route_table with the subnet")
+            logging.info("Associating route_table with the subnet")
             ec2 = boto3.resource('ec2')
             rt = get_route_table_by_tag(args.infra_tag_name, args.infra_tag_value)
             route_table = ec2.RouteTable(rt)
             route_table.associate_with_subnet(SubnetId=subnet_id)
-            with open('/tmp/ssn_subnet_id', 'w') as f:
-                f.write(subnet_id)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)

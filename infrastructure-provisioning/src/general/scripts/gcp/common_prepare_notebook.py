@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,16 +34,10 @@ from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         notebook_config = dict()
         notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
         notebook_config['edge_user_name'] = (os.environ['edge_user_name'])
@@ -59,7 +53,6 @@ if __name__ == "__main__":
                                                                             notebook_config['endpoint_tag']))
         if edge_status != 'RUNNING':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = GCPMeta.get_private_ip_address(notebook_config['service_base_name'] + '-ssn')
             datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
                                             os.environ['conf_os_user'],
@@ -118,7 +111,7 @@ if __name__ == "__main__":
             notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
             os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()) if (x != 'None' and x != '')
             else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_image_name')))
-        print('Searching pre-configured images')
+        logging.info('Searching pre-configured images')
 
         deeplearning_ami = 'false'
 
@@ -131,7 +124,7 @@ if __name__ == "__main__":
         if notebook_config['primary_image_name'] == '':
             notebook_config['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         else:
-            print('Pre-configured primary image found. Using: {}'.format(
+            logging.info('Pre-configured primary image found. Using: {}'.format(
                 notebook_config['primary_image_name'].get('name')))
             if deeplearning_ami == 'true':
                 notebook_config['primary_image_name'] = 'projects/deeplearning-platform-release/global/images/{}'.format(
@@ -150,7 +143,7 @@ if __name__ == "__main__":
         if notebook_config['secondary_image_name'] == '':
             notebook_config['secondary_image_name'] = 'None'
         else:
-            print('Pre-configured secondary image found. Using: {}'.format(
+            logging.info('Pre-configured secondary image found. Using: {}'.format(
                 notebook_config['secondary_image_name'].get('name')))
             notebook_config['secondary_image_name'] = 'global/images/{}'.format(
                 notebook_config['secondary_image_name'].get('name'))
@@ -173,11 +166,11 @@ if __name__ == "__main__":
             data = {"notebook_name": notebook_config['instance_name'], "error": ""}
             json.dump(data, f)
 
-        print('Additional tags will be added: {}'.format(os.environ['tags']))
+        logging.info('Additional tags will be added: {}'.format(os.environ['tags']))
         additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "" ).replace(
             "'}", "").lower()
 
-        print('Additional tags will be added: {}'.format(additional_tags))
+        logging.info('Additional tags will be added: {}'.format(additional_tags))
         notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                      "sbn": notebook_config['service_base_name'],
                                      "product": "datalab"
@@ -196,7 +189,6 @@ if __name__ == "__main__":
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
-        print('[CREATE NOTEBOOK INSTANCE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \

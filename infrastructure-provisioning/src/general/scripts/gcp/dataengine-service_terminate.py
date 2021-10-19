@@ -25,43 +25,36 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
 
 
 def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_user, key_path):
-    print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
+    logging.info('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
         cluster = GCPMeta.get_list_cluster_statuses([dataproc_name])
         if cluster[0]['status'] == 'running':
             computational_name = GCPMeta.get_cluster(dataproc_name).get('labels').get('computational_name')
             GCPActions.bucket_cleanup(bucket_name, dataproc_conf['project_name'], dataproc_name)
-            print('The bucket {} has been cleaned successfully'.format(bucket_name))
+            logging.info('The bucket {} has been cleaned successfully'.format(bucket_name))
             GCPActions.delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
-            print('The Dataproc cluster {} has been terminated successfully'.format(dataproc_name))
+            logging.info('The Dataproc cluster {} has been terminated successfully'.format(dataproc_name))
             GCPActions.remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user,
                                                     key_path, computational_name)
         else:
-            print("There are no Dataproc clusters to terminate.")
+            logging.info("There are no Dataproc clusters to terminate.")
     except Exception as err:
         datalab.fab.append_result("Failed to terminate Dataproc cluster.", str(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     # generating variables dictionary
     GCPMeta = datalab.meta_lib.GCPMeta()
     GCPActions = datalab.actions_lib.GCPActions()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     dataproc_conf = dict()
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
     dataproc_conf['edge_user_name'] = (os.environ['edge_user_name'])
@@ -79,7 +72,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE DATAPROC CLUSTER]')
-        print('[TERMINATE DATAPROC CLUSTER]')
         try:
             terminate_dataproc_cluster(dataproc_conf['notebook_name'], dataproc_conf['dataproc_name'],
                                        dataproc_conf['bucket_name'], os.environ['conf_os_user'],
@@ -97,7 +89,7 @@ if __name__ == "__main__":
                    "notebook_name": dataproc_conf['notebook_name'],
                    "user_own_bucket_name": dataproc_conf['bucket_name'],
                    "Action": "Terminate Dataproc cluster"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

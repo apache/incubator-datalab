@@ -24,6 +24,7 @@
 import argparse
 import sys
 import subprocess
+from datalab.logger import logging
 #from datalab.actions_lib import *
 #from datalab.common_lib import *
 #from datalab.fab import *

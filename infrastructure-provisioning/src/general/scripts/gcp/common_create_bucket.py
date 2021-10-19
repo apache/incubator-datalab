@@ -26,6 +26,7 @@ import json
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
@@ -35,9 +36,9 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.bucket_name:
         if GCPMeta().get_bucket(args.bucket_name):
-            print("REQUESTED BUCKET {} ALREADY EXISTS".format(args.bucket_name))
+            logging.info("REQUESTED BUCKET {} ALREADY EXISTS".format(args.bucket_name))
         else:
-            print("Creating Bucket {}".format(args.bucket_name))
+            logging.info("Creating Bucket {}".format(args.bucket_name))
             GCPActions().create_bucket(args.bucket_name)
             GCPActions().add_bucket_labels(args.bucket_name, json.loads(args.tags))
     else:

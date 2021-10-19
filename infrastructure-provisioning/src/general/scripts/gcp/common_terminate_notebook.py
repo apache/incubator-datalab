@@ -25,14 +25,14 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
 
 
 def terminate_nb(instance_name, bucket_name, region, zone, user_name):
-    print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
+    logging.info('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
         labels = [
             {instance_name: '*'}
@@ -41,33 +41,33 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
         if clusters_list:
             for cluster_name in clusters_list:
                 GCPActions.bucket_cleanup(bucket_name, user_name, cluster_name)
-                print('The bucket {} has been cleaned successfully'.format(bucket_name))
+                logging.info('The bucket {} has been cleaned successfully'.format(bucket_name))
                 GCPActions.delete_dataproc_cluster(cluster_name, region)
-                print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
+                logging.info('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
-            print("There are no Dataproc clusters to terminate.")
+            logging.info("There are no Dataproc clusters to terminate.")
     except Exception as err:
         datalab.fab.append_result("Failed to terminate dataproc", str(err))
         sys.exit(1)
 
-    print("Terminating data engine cluster")
+    logging.info("Terminating data engine cluster")
     try:
         clusters_list = GCPMeta.get_list_instances_by_label(zone, instance_name)
         if clusters_list.get('items'):
             for vm in clusters_list['items']:
                 try:
                     GCPActions.remove_instance(vm['name'], zone)
-                    print("Instance {} has been terminated".format(vm['name']))
+                    logging.info("Instance {} has been terminated".format(vm['name']))
                 except:
                     pass
         else:
-            print("There are no data engine clusters to terminate.")
+            logging.info("There are no data engine clusters to terminate.")
 
     except Exception as err:
         datalab.fab.append_result("Failed to terminate dataengine", str(err))
         sys.exit(1)
 
-    print("Terminating notebook")
+    logging.info("Terminating notebook")
     try:
         GCPActions.remove_instance(instance_name, zone)
     except Exception as err:
@@ -76,16 +76,10 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     # generating variables dictionary
     GCPMeta = datalab.meta_lib.GCPMeta()
     GCPActions = datalab.actions_lib.GCPActions()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
     notebook_config['edge_user_name'] = (os.environ['edge_user_name'])
@@ -100,7 +94,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
-        print('[TERMINATE NOTEBOOK]')
         try:
             terminate_nb(notebook_config['notebook_name'], notebook_config['bucket_name'],
                          notebook_config['gcp_region'], notebook_config['gcp_zone'],
@@ -116,7 +109,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Terminate notebook server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

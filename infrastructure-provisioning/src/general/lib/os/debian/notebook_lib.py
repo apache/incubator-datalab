@@ -47,9 +47,6 @@ def enable_proxy(proxy_host, proxy_port):
             datalab.fab.conn.sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
         datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_string))
         datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_https_string))
-
-        print("Renewing gpg key")
-        renew_gpg_key()
     except:
         sys.exit(1)
 
@@ -82,13 +79,10 @@ def add_marruter_key():
     except:
         sys.exit(1)
 
-def ensure_r(os_user, r_libs, region, r_mirror):
+def ensure_r(os_user, r_libs):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/r_ensured'):
         try:
-            if region == 'cn-north-1':
-                r_repository = r_mirror
-            else:
-                r_repository = 'https://cloud.r-project.org'
+            r_repository = 'https://cloud.r-project.org'
             #add_marruter_key()
             datalab.fab.conn.sudo('apt update')
             manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')

@@ -21,25 +21,18 @@
 #
 # ******************************************************************************
 
-import logging
 import json
 import sys
 from datalab.fab import *
 from datalab.meta_lib import *
 from datalab.actions_lib import *
+from datalab.logger import logging
 import os
 import base64
 import subprocess
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/project/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     odahu_conf = dict()
     odahu_conf['allowed_cidr'] = os.environ['odahu_allowed_cidr'].split(',')
     odahu_conf['project_id'] = (os.environ['gcp_project_id'])
@@ -105,7 +98,7 @@ if __name__ == "__main__":
     odahu_conf['tester_secret'] = os.environ['odahu_tester_secret']
     odahu_conf['tester-data-scientist_secret'] = os.environ['odahu_tester_data_scientist_secret']
 
-    print('Preparing parameters file')
+    logging.info('Preparing parameters file')
     try:
         subprocess.run("cp /root/templates/profile.json /tmp/", shell=True, check=True)
         with open("/tmp/profile.json", 'w') as profile:
@@ -277,13 +270,13 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # generating output information
-    print('[SUMMARY]')
     logging.info('[SUMMARY]')
-    print('Cluster name: {}'.format(odahu_conf['cluster_name']))
+    logging.info('[SUMMARY]')
+    logging.info('Cluster name: {}'.format(odahu_conf['cluster_name']))
     with open('/tmp/result.json', 'r') as f:
         output = json.load(f)
         odahu_urls = json.dumps(output['odahu_urls']['value'], sort_keys=True, indent=4)
-    print('Odahu urls: {}'.format(odahu_urls))
+    logging.info('Odahu urls: {}'.format(odahu_urls))
     res = dict()
     res['odahu_urls'] = output['odahu_urls']['value']
     res['oauth_cookie_secret'] = odahu_conf['oauth_cookie_secret']

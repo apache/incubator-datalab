@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -9,9 +7,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,31 +19,16 @@
 #
 # ******************************************************************************
 
-import argparse
-import json
-import sys
-from fabric import *
-from datalab.fab import *
+import logging
+import os
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--hostname', type=str, default='')
-parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--user', type=str, default='')
-parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
-args = parser.parse_args()
-
-##############
-# Run script #
-##############
-if __name__ == "__main__":
-    print("Configure connections")
-    try:
-        global conn
-        conn = datalab.fab.init_datalab_connection(args.hostname, args.user, args.keyfile)
-        deeper_config = json.loads(args.additional_config)
-    except:
-        sys.exit(2)
-
-    print("Installing proxy for notebooks.")
-    datalab.fab.configure_http_proxy_server(deeper_config)
-    conn.close()
+local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
+local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                    level=logging.DEBUG,
+                    filename='{}'.format(local_log_filepath),
+                    filemode='a')
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+logging.getLogger('').addHandler(console)
+logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)

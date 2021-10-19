@@ -29,6 +29,7 @@ import traceback
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -44,7 +45,7 @@ if __name__ == "__main__":
             data_instances = AzureMeta().get_list_instance_statuses(args.resource_group_name, data.get('host'))
             statuses['host'] = data_instances
         except:
-            print("Hosts JSON wasn't been provided")
+            logging.error("Hosts JSON wasn't been provided")
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:

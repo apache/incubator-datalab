@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,16 +34,10 @@ import subprocess
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/project/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['edge_unique_index'] = str(uuid.uuid4())[:5]
         project_conf['ps_unique_index'] = str(uuid.uuid4())[:5]
@@ -134,12 +128,12 @@ if __name__ == "__main__":
                 subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
                                                         project_conf['project_name']), shell=True, check=True)
             except:
-                print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
+                logging.info("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
-            print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
+            logging.info("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
             sys.exit(1)
 
-        print("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(
+        logging.info("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(
             project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(project_conf))
     except Exception as err:
@@ -148,7 +142,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SUBNET]')
-        print('[CREATE SUBNET]')
         params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {} --user_subnets_range '{}'" \
                  .format(project_conf['private_subnet_name'], project_conf['region'], project_conf['vpc_selflink'],
                          project_conf['private_subnet_prefix'], project_conf['vpc_cidr'],
@@ -164,15 +157,14 @@ if __name__ == "__main__":
         try:
             GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         except:
-            print("Subnet hasn't been created.")
+            logging.info("Subnet hasn't been created.")
         datalab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
-    print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
+    logging.info('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR EDGE NODE]')
-        print('[CREATE SERVICE ACCOUNT AND ROLE FOR EDGE NODE]')
         params = "--service_account_name {} --role_name {} --unique_index {} --service_base_name {}".format(
             project_conf['edge_service_account_name'], project_conf['edge_role_name'],
             project_conf['edge_unique_index'], project_conf['service_base_name'])
@@ -188,14 +180,13 @@ if __name__ == "__main__":
                                               project_conf['service_base_name'])
             GCPActions.remove_role(project_conf['edge_role_name'])
         except:
-            print("Service account or role hasn't been created")
+            logging.info("Service account or role hasn't been created")
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         datalab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR PRIVATE SUBNET]')
-        print('[CREATE SERVICE ACCOUNT AND ROLE FOR NOTEBOOK NODE]')
         params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} " \
                  "--service_base_name {}".format(
                   project_conf['ps_service_account_name'], project_conf['ps_role_name'], project_conf['ps_policy_path'],
@@ -212,7 +203,7 @@ if __name__ == "__main__":
                                               project_conf['service_base_name'])
             GCPActions.remove_role(project_conf['ps_role_name'])
         except:
-            print("Service account or role hasn't been created")
+            logging.info("Service account or role hasn't been created")
         GCPActions.remove_service_account(project_conf['edge_service_account_name'],
                                           project_conf['service_base_name'])
         GCPActions.remove_role(project_conf['edge_role_name'])
@@ -222,7 +213,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE FIREWALL FOR EDGE NODE]')
-        print('[CREATE FIREWALL FOR EDGE NODE]')
         firewall_rules = dict()
         firewall_rules['ingress'] = []
         firewall_rules['egress'] = []
@@ -322,7 +312,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE FIREWALL FOR PRIVATE SUBNET]')
-        print('[CREATE FIREWALL FOR PRIVATE SUBNET]')
         firewall_rules = dict()
         firewall_rules['ingress'] = []
         firewall_rules['egress'] = []
@@ -404,7 +393,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE BUCKETS]')
-        print('[CREATE BUCKETS]')
         project_conf['shared_bucket_tags'] = {
             project_conf['tag_name']: project_conf['shared_bucket_name'],
             "endpoint_tag": project_conf['endpoint_tag'],
@@ -453,7 +441,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
-        print('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
         GCPActions.set_bucket_owner(project_conf['bucket_name'], project_conf['ps_service_account_name'],
                                     project_conf['service_base_name'])
         GCPActions.set_bucket_owner(project_conf['shared_bucket_name'], project_conf['ps_service_account_name'],
@@ -478,7 +465,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING STATIC IP ADDRESS]')
-        print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(project_conf['static_address_name'], project_conf['region'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('edge_create_static_ip', params), shell=True, check=True)
@@ -490,7 +476,7 @@ if __name__ == "__main__":
         try:
             GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
         except:
-            print("Static IP address hasn't been created.")
+            logging.info("Static IP address hasn't been created.")
         GCPActions.remove_bucket(project_conf['bucket_name'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
@@ -518,7 +504,6 @@ if __name__ == "__main__":
         project_conf['static_ip'] = \
             GCPMeta.get_static_address(project_conf['region'], project_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
-        print('[CREATE EDGE INSTANCE]')
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} " \
                  "--ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} " \
                  "--static_ip {} --network_tag {} --labels '{}' --service_base_name {}".format(
@@ -554,7 +539,6 @@ if __name__ == "__main__":
     if os.environ['edge_is_nat'] == 'true':
         try:
             logging.info('[CREATE NAT ROUTE]')
-            print('[REATE NAT ROUTE]')
             nat_route_name = '{0}-{1}-{2}-nat-route'.format(project_conf['service_base_name'],
                                                                   project_conf['project_name'],
                                                                   project_conf['endpoint_name'])

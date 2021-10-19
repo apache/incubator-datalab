@@ -26,6 +26,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')
@@ -42,10 +43,10 @@ if __name__ == "__main__":
         for datalake in AzureMeta().list_datalakes(args.resource_group_name):
             if args.datalake_name == datalake.tags["Name"]:
                 if AzureMeta().verify_datalake_directory(datalake.name, args.directory_name):
-                    print("Data Lake Store Directory '{}' already exist".format(args.directory_name))
+                    logging.info("Data Lake Store Directory '{}' already exist".format(args.directory_name))
                 else:
                     AzureActions().create_datalake_directory(datalake.name, args.directory_name)
-                    print("Data Lake Store Directory '{}' has been created".format(args.directory_name))
+                    logging.info("Data Lake Store Directory '{}' has been created".format(args.directory_name))
                     if args.ad_user != '':
                        AzureActions().set_user_permissions_to_datalake_directory(
                            datalake.name, '/{}'.format(args.directory_name), args.ad_user)
@@ -57,8 +58,8 @@ if __name__ == "__main__":
                                                                 ad_group=args.ad_group)
                 datalake_exists = True
         if not datalake_exists:
-            print("Requested Data Lake Store '{}' is missing".format(datalake.name))
+            logging.info("Requested Data Lake Store '{}' is missing".format(datalake.name))
             sys.exit(1)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)

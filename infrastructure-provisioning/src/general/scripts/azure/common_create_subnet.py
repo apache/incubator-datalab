@@ -26,6 +26,7 @@ import ipaddress
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')
@@ -64,14 +65,14 @@ if __name__ == "__main__":
             datalab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
         if args.subnet_name != '':
             if AzureMeta().get_subnet(args.resource_group_name, args.vpc_name, args.subnet_name):
-                print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
+                logging.info("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
             else:
-                print("Creating Subnet {}".format(args.subnet_name))
+                logging.info("Creating Subnet {}".format(args.subnet_name))
                 AzureActions().create_subnet(args.resource_group_name, args.vpc_name, args.subnet_name,
                                              datalab_subnet_cidr)
         else:
-            print("Subnet name can't be empty")
+            logging.info("Subnet name can't be empty")
             sys.exit(1)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)

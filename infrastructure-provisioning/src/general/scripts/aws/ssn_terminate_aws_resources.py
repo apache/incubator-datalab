@@ -24,6 +24,7 @@
 import argparse
 import boto3
 import datalab.ssn_lib
+from datalab.logger import logging
 import os
 import sys
 
@@ -42,7 +43,7 @@ tag2 = args.service_base_name + '-secondary-tag'
 ##############
 
 if __name__ == "__main__":
-    print('Terminating EMR cluster')
+    logging.info('Terminating EMR cluster')
     try:
         clusters_list = datalab.meta_lib.get_emr_list(args.tag_name)
         if clusters_list:
@@ -52,21 +53,21 @@ if __name__ == "__main__":
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
                 datalab.actions_lib.terminate_emr(cluster_id)
-                print("The EMR cluster {} has been terminated successfully".format(emr_name))
+                logging.info("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
-            print("There are no EMR clusters to terminate.")
+            logging.info("There are no EMR clusters to terminate.")
     except Exception as err:
         datalab.fab.append_result("Failed to terminate EMR cluster.", str(err))
         sys.exit(1)
 
-    print("Deregistering notebook's AMI")
+    logging.info("Deregistering notebook's AMI")
     try:
         datalab.actions_lib.deregister_image()
     except Exception as err:
         datalab.fab.append_result("Failed to deregister images.", str(err))
         sys.exit(1)
 
-    print("Terminating EC2 instances")
+    logging.info("Terminating EC2 instances")
     try:
         datalab.actions_lib.remove_ec2(args.tag_name, '*')
     except Exception as err:
@@ -74,53 +75,56 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and 'ssn_subdomain' in os.environ:
-        print("Removing Route53 records")
+        logging.info("Removing Route53 records")
         datalab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
                                                    os.environ['ssn_subdomain'])
 
-    print("Removing security groups")
+    logging.info("Removing security groups")
     try:
-        datalab.actions_lib.remove_sgroups(args.de_se_sg)
-        datalab.actions_lib.remove_sgroups(args.de_sg)
-        datalab.actions_lib.remove_sgroups(args.nb_sg)
-        datalab.actions_lib.remove_sgroups(args.edge_sg)
+        try:
+            datalab.actions_lib.remove_sgroups(args.de_se_sg)
+            datalab.actions_lib.remove_sgroups(args.de_sg)
+            datalab.actions_lib.remove_sgroups(args.nb_sg)
+            datalab.actions_lib.remove_sgroups(args.edge_sg)
+        except:
+            logging.info("There are no SG for compute resources")
         try:
             datalab.actions_lib.remove_sgroups(args.tag_name)
         except:
-            print("There is no pre-defined SSN SG")
+            logging.info("There is SSN SG")
     except Exception as err:
         datalab.fab.append_result("Failed to remove security groups.", str(err))
         sys.exit(1)
 
-    print("Removing private subnet")
+    logging.info("Removing private subnet")
     try:
         datalab.actions_lib.remove_subnets('*')
     except Exception as err:
         datalab.fab.append_result("Failed to remove subnets.", str(err))
         sys.exit(1)
 
-    print("Removing peering connection")
+    logging.info("Removing peering connection")
     try:
         datalab.actions_lib.remove_peering('*')
     except Exception as err:
         datalab.fab.append_result("Failed to remove peering connections.", str(err))
         sys.exit(1)
 
-    print("Removing s3 buckets")
+    logging.info("Removing s3 buckets")
     try:
         datalab.actions_lib.remove_s3()
     except Exception as err:
         datalab.fab.append_result("Failed to remove buckets.", str(err))
         sys.exit(1)
 
-    print("Removing IAM roles, profiles and policies")
+    logging.info("Removing IAM roles, profiles and policies")
     try:
         datalab.actions_lib.remove_all_iam_resources('all')
     except Exception as err:
         datalab.fab.append_result("Failed to remove IAM roles, profiles and policies.", str(err))
         sys.exit(1)
 
-    print("Removing route tables")
+    logging.info("Removing route tables")
     try:
         datalab.actions_lib.remove_route_tables(args.tag_name)
         datalab.actions_lib.remove_route_tables(tag2)
@@ -128,45 +132,45 @@ if __name__ == "__main__":
         datalab.fab.append_result("Failed to remove route tables.", str(err))
         sys.exit(1)
 
-    print("Removing SSN subnet")
+    logging.info("Removing SSN subnet")
     try:
         datalab.actions_lib.remove_subnets(args.service_base_name + '-subnet')
     except Exception as err:
         datalab.fab.append_result("Failed to remove SSN subnet.", str(err))
         sys.exit(1)
 
-    print("Removing SSN VPC")
+    logging.info("Removing SSN VPC")
     try:
         vpc_id = datalab.meta_lib.get_vpc_by_tag(args.tag_name, args.service_base_name)
         if vpc_id != '':
             try:
                 datalab.actions_lib.remove_vpc_endpoints(vpc_id)
             except:
-                print("There is no such VPC Endpoint")
+                logging.info("There is no such VPC Endpoint")
             try:
                 datalab.actions_lib.remove_internet_gateways(vpc_id, args.tag_name, args.service_base_name)
             except:
-                print("There is no such Internet gateway")
+                logging.info("There is no such Internet gateway")
             datalab.actions_lib.remove_route_tables(args.tag_name, True)
             datalab.actions_lib.remove_vpc(vpc_id)
         else:
-            print("There is no pre-defined SSN VPC")
+            logging.info("There is no pre-defined SSN VPC")
     except Exception as err:
         datalab.fab.append_result("Failed to remove SSN VPC.", str(err))
         sys.exit(1)
 
-    print("Removing notebook VPC")
+    logging.info("Removing notebook VPC")
     try:
         vpc_id = datalab.meta_lib.get_vpc_by_tag(tag2, args.service_base_name)
         if vpc_id != '':
             try:
                 datalab.actions_lib.remove_vpc_endpoints(vpc_id)
             except:
-                print("There is no such VPC Endpoint")
+                logging.info("There is no such VPC Endpoint")
             datalab.actions_lib.remove_route_tables(tag2, True)
             datalab.actions_lib.remove_vpc(vpc_id)
         else:
-            print("There is no pre-defined notebook VPC")
+            logging.info("There is no pre-defined notebook VPC")
     except Exception as err:
         datalab.fab.append_result("Failed to remove wecondary VPC.", str(err))
         sys.exit(1)

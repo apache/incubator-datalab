@@ -26,7 +26,7 @@ import json
 import subprocess
 import time
 import yaml
-from datalab.fab import *
+#from datalab.fab import *
 from pymongo import MongoClient
 
 path = "/etc/mongod.conf"
@@ -34,7 +34,6 @@ outfile = "/etc/mongo_params.yml"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--datalab_path', type=str, default='')
-# parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
 
 
@@ -42,7 +41,7 @@ def add_2_yml_config(path, section, param, value):
     try:
         try:
             with open(path, 'r') as config_yml_r:
-                config_orig = yaml.load(config_yml_r)
+                config_orig = yaml.safe_load(config_yml_r)
         except:
             config_orig = {}
         sections = []
@@ -63,7 +62,7 @@ def add_2_yml_config(path, section, param, value):
 def read_yml_conf(path, section, param):
     try:
         with open(path, 'r') as config_yml:
-            config = yaml.load(config_yml)
+            config = yaml.safe_load(config_yml)
         result = config[section][param]
         return result
     except:

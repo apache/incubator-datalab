@@ -27,6 +27,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--elastic_ip', type=str, default='')
@@ -36,15 +37,9 @@ parser.add_argument('--infra_tag_value', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         if args.elastic_ip == 'None':
-            print("Allocating Elastic IP")
+            logging.info("Allocating Elastic IP")
             allocation_id = allocate_elastic_ip()
             tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
             tag_name = {"Key": "Name", "Value": args.infra_tag_value}
@@ -53,8 +48,8 @@ if __name__ == "__main__":
         else:
             allocation_id = get_allocation_id_by_elastic_ip(args.elastic_ip)
 
-        print("Associating Elastic IP to Edge")
+        logging.info("Associating Elastic IP to Edge")
         associate_elastic_ip(args.edge_id, allocation_id)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)

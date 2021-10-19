@@ -25,19 +25,12 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     AzureMeta = datalab.meta_lib.AzureMeta()
     AzureActions = datalab.actions_lib.AzureActions()
     edge_conf = dict()
@@ -51,7 +44,6 @@ if __name__ == "__main__":
                                                                             os.environ['azure_region'])
 
     logging.info('[START EDGE]')
-    print('[START EDGE]')
     try:
         AzureActions.start_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
@@ -63,19 +55,18 @@ if __name__ == "__main__":
                                                                      edge_conf['instance_name'])
         private_ip_address = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
                                                               edge_conf['instance_name'])
-        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print("Instance name: {}".format(edge_conf['instance_name']))
-        print("Hostname: {}".format(edge_conf['instance_dns_name']))
-        print("Public IP: {}".format(public_ip_address))
-        print("Private IP: {}".format(private_ip_address))
+        logging.info("Instance name: {}".format(edge_conf['instance_name']))
+        logging.info("Hostname: {}".format(edge_conf['instance_dns_name']))
+        logging.info("Public IP: {}".format(public_ip_address))
+        logging.info("Private IP: {}".format(private_ip_address))
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
                    "hostname": edge_conf['instance_dns_name'],
                    "public_ip": public_ip_address,
                    "ip": private_ip_address,
                    "Action": "Start up notebook server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

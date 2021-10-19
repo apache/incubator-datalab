@@ -25,6 +25,7 @@ import argparse
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--role_name', type=str, default='')
@@ -47,26 +48,26 @@ if __name__ == "__main__":
             if role_name == '':
                 tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
                 user_tag = {"Key": "user:tag", "Value": args.user_tag_value}
-                print("Creating role {0}, profile name {1}".format(args.role_name, args.role_profile_name))
+                logging.info("Creating role {0}, profile name {1}".format(args.role_name, args.role_profile_name))
                 create_iam_role(args.role_name, args.role_profile_name, args.region, args.permissions_boundary_arn, tag=tag, user_tag=user_tag)
             else:
-                print("ROLE AND ROLE PROFILE ARE ALREADY CREATED")
-            print("ROLE {} created. IAM group {} created".format(args.role_name, args.role_profile_name))
+                logging.info("ROLE AND ROLE PROFILE ARE ALREADY CREATED")
+            logging.info("ROLE {} created. IAM group {} created".format(args.role_name, args.role_profile_name))
 
-            print("ATTACHING POLICIES TO ROLE")
+            logging.info("ATTACHING POLICIES TO ROLE")
             if args.policy_file_name != '':
                 create_attach_policy(args.policy_name, args.role_name, args.policy_file_name)
             else:
                 if args.policy_arn == '':
-                    print("POLICY ARN is empty, there is nothing to attach.")
+                    logging.info("POLICY ARN is empty, there is nothing to attach.")
                     success = True
                 else:
                     policy_arn_bits = eval(args.policy_arn)
                     for bit in policy_arn_bits:
                         attach_policy(args.role_name, bit)
-            print("POLICY {} created".format(args.policy_name))
+            logging.info("POLICY {} created".format(args.policy_name))
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
     else:
         parser.print_help()
         sys.exit(2)
