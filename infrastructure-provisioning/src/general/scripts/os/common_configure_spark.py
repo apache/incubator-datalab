@@ -28,7 +28,6 @@ import sys
 import time
 from datalab.fab import *
 from datalab.notebook_lib import *
-from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -48,7 +47,7 @@ def update_spark_defaults_conf(spark_conf):
             conn.sudo('''sed -i '/^# Updated/d' {0}'''.format(conf))
             conn.sudo('''echo "# Updated by DATALAB at {0} >> {1}'''.format(timestamp, conf))
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
@@ -77,12 +76,12 @@ def add_custom_spark_properties(cluster_name):
                 conn.sudo('echo "{0}" >> /opt/{1}/spark/conf/spark-defaults.conf'.format(prop, cluster_name))
             conn.sudo('sed -i "/^\s*$/d" /opt/{0}/spark/conf/spark-defaults.conf'.format(cluster_name))
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    logging.info('Configure connections')
+    print('Configure connections')
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 

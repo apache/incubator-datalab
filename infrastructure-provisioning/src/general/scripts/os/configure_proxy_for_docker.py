@@ -25,7 +25,6 @@ import argparse
 import sys
 from fabric import *
 from datalab.fab import *
-from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -37,10 +36,10 @@ http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
 https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 
 if __name__ == "__main__":
-    logging.info("Configure connections")
+    print("Configure connections")
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
-    logging.info("Configuring proxy for docker")
+    print("Configuring proxy for docker")
     try:
         conn.sudo('mkdir -p /etc/systemd/system/docker.service.d')
         conn.sudo('touch {}'.format(http_file))
@@ -57,6 +56,6 @@ if __name__ == "__main__":
         conn.sudo('update-rc.d docker enable')
         conn.sudo('systemctl restart docker')
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
     conn.close()

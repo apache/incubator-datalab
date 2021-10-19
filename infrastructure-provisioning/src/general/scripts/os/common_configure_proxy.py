@@ -25,7 +25,6 @@ import argparse
 import json
 from datalab.notebook_lib import *
 from datalab.fab import *
-from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -41,12 +40,12 @@ args = parser.parse_args()
 # Run script #
 ##############
 if __name__ == "__main__":
-    logging.info("Configure connections")
+    print("Configure connections")
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
     deeper_config = json.loads(args.additional_config)
 
-    logging.info("Enabling proxy for notebook server for repositories access.")
+    print("Enabling proxy for notebook server for repositories access.")
     datalab.notebook_lib.enable_proxy(deeper_config['proxy_host'], deeper_config['proxy_port'])
 
     conn.close()

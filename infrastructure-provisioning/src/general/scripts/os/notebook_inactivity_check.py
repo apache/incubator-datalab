@@ -28,11 +28,18 @@ import subprocess
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
-from datalab.logger import logging
 
 if __name__ == "__main__":
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/project/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
     try:
         logging.info('[ASK INACTIVITY STATUS]')
+        print('[ASK INACTIVITY STATUS]')
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -50,7 +57,7 @@ if __name__ == "__main__":
             else:
                 notebook_config['dataengine_ip'] = '0.0.0.0'
         except Exception as err:
-            logging.error('Error: {0}'.format(err))
+            print('Error: {0}'.format(err))
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
         params = "--os_user {0} --instance_ip {1} --keyfile '{2}' --resource_type {3} --dataengine_ip {4}" \
@@ -62,6 +69,6 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         append_result("Failed to ask inactivity status.", str(err))
         sys.exit(1)

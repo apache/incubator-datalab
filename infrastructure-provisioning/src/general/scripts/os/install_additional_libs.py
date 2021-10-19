@@ -27,7 +27,6 @@ import json
 import sys
 from datalab.fab import *
 from datalab.notebook_lib import *
-from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -43,7 +42,7 @@ if __name__ == "__main__":
     global conn
     conn = datalab.fab.init_datalab_connection(args.instance_ip, args.os_user, args.keyfile)
 
-    logging.info('Installing libraries: {}'.format(args.libs))
+    print('Installing libraries: {}'.format(args.libs))
     general_status = list()
     data = ast.literal_eval(args.libs)
     pkgs = {"libraries": {}}
@@ -60,40 +59,40 @@ if __name__ == "__main__":
                 pkgs['libraries'][data[row]['group']].append(
                     [data[row]['name'], data[row]['version']])
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         append_result("Failed to parse libs list.", str(err))
         sys.exit(1)
 
     try:
-        logging.info('Installing os packages: {}'.format(pkgs['libraries']['os_pkg']))
+        print('Installing os packages: {}'.format(pkgs['libraries']['os_pkg']))
         status = install_os_pkg(pkgs['libraries']['os_pkg'])
         general_status = general_status + status
     except KeyError:
         pass
 
     try:
-        logging.info('Installing java dependencies: {}'.format(pkgs['libraries']['java']))
+        print('Installing java dependencies: {}'.format(pkgs['libraries']['java']))
         status = install_java_pkg(pkgs['libraries']['java'])
         general_status = general_status + status
     except KeyError:
         pass
 
     #try:
-        #logging.info('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
+        #print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
         #status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2', args.dataengine_service)
         #general_status = general_status + status
     #except KeyError:
         #pass
 
     try:
-        logging.info('Installing pip3 packages: {}'.format(pkgs['libraries']['pip3']))
+        print('Installing pip3 packages: {}'.format(pkgs['libraries']['pip3']))
         status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3', args.dataengine_service)
         general_status = general_status + status
     except KeyError:
         pass
 
     try:
-        logging.info('Installing other packages (only tries pip3): {}'.format(pkgs['libraries']['others']))
+        print('Installing other packages (only tries pip3): {}'.format(pkgs['libraries']['others']))
         for pkg in pkgs['libraries']['others']:
             status_pip3 = install_pip_pkg([pkg], 'pip3', 'others', args.dataengine_service)
             general_status = general_status + status_pip3
@@ -104,7 +103,7 @@ if __name__ == "__main__":
         and os.environ['notebook_r_enabled'] == 'true')\
             or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         try:
-            logging.info('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
+            print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
             general_status = general_status + status
         except KeyError:

@@ -22,7 +22,7 @@
 # ******************************************************************************
 
 import json
-from datalab.logger import logging
+import logging
 import multiprocessing
 import os
 import sys
@@ -43,14 +43,22 @@ def install_libs_on_slaves(slave, data_engine):
         # Run script to install additional libs
         subprocess.run("~/scripts/{}.py {}".format('reconfigure_spark', params), shell=True, check=True)
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
     instance_class = 'notebook'
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
     try:
         logging.info('[RECONFIGURING SPARK ON DATAENGINE]')
+        print('[RECONFIGURING SPARK ON DATAENGINE]')
         data_engine = dict()
         try:
             data_engine['os_user'] = os.environ['conf_os_user']
@@ -103,7 +111,7 @@ if __name__ == "__main__":
             raise Exception
 
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         append_result("Failed to reconfigure Spark.", str(err))
         sys.exit(1)
 
@@ -111,8 +119,8 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": data_engine['service_base_name'],
                    "Action": "Reconfigure Spark on Data Engine"}
-            logging.info(json.dumps(res))
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        logging.error("Failed writing results.")
+        print("Failed writing results.")
         sys.exit(0)

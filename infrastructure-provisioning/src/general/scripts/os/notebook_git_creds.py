@@ -21,7 +21,7 @@
 #
 # ******************************************************************************
 
-from datalab.logger import logging
+import logging
 import os
 import sys
 import traceback
@@ -33,8 +33,16 @@ from fabric import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
+        print('[SETUP USER GIT CREDENTIALS]')
         notebook_config = dict()
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['os_user'] = os.environ['conf_os_user']
@@ -53,7 +61,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        logging.error('Error: {0}'.format(err))
+        print('Error: {0}'.format(err))
         append_result("Failed to manage git credentials.", str(err))
         sys.exit(1)
 
