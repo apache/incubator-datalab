@@ -98,7 +98,7 @@ if __name__ == "__main__":
         else:
             ssn_conf['aws_peering_id'] = None
         if 'aws_subnet_id' in os.environ and os.environ['aws_subnet_id'] != '':
-            ssn_conf['aws_subnet_id'] = os.environ['aws_subnet_ids']
+            ssn_conf['aws_subnet_id'] = os.environ['aws_subnet_id']
         else:
             ssn_conf['aws_subnet_id'] = datalab.meta_lib.get_subnet_by_tag(ssn_conf['subnet_tag'], True)
         if 'aws_security_groups_ids' in os.environ and os.environ['aws_security_groups_ids'] != '':
