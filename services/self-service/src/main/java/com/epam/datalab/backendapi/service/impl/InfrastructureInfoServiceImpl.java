@@ -191,6 +191,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
         shared.put("status", endpointDTO.getStatus().toString());
         shared.put("edge_node_ip", edge.getPublicIp());
+
         if (edge instanceof EdgeInfoAws) {
             EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edge;
             shared.put("user_own_bicket_name", edgeInfoAws.getUserOwnBucketName());

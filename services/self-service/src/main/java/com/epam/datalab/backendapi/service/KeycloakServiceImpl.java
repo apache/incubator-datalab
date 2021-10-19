@@ -80,14 +80,10 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     private AccessTokenResponse requestToken(Form requestForm) {
-        log.info("TEST LOG!!!: access token form : {}", requestForm);
-
         final String credentials = Base64.encodeAsString(String.join(":", conf.getResource(),
                 String.valueOf(conf.getCredentials().get("secret"))));
         String url = conf.getAuthServerUrl() + String.format(URI, conf.getRealm());
         String header = "Basic " + credentials;
-        log.info("TEST LOG!!!: post with: url: {}, cred: {}, header: {} : {}", url, credentials, HttpHeaders.AUTHORIZATION, header);
-
         final Response response =
                 httpClient.target(url)
                         .request()

@@ -19,6 +19,8 @@
 
 package com.epam.datalab.dto.base.edge;
 
+import com.epam.datalab.dto.aws.edge.EdgeInfoAws;
+import com.epam.datalab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.datalab.dto.gcp.edge.EdgeInfoGcp;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
@@ -27,6 +29,16 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "@class"
+)
+//@JsonSubTypes({
+//        @JsonSubTypes.Type(value = EdgeInfoAws.class, name = "aws"),
+//        @JsonSubTypes.Type(value = EdgeInfoAzure.class, name = "azure"),
+//        @JsonSubTypes.Type(value = EdgeInfoGcp.class, name = "gcp")
+//})
 public class EdgeInfo {
     @JsonProperty("_id")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
