@@ -22,16 +22,15 @@ package com.epam.datalab.dto.azure.edge;
 import com.epam.datalab.dto.base.edge.EdgeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.*;
 
 @Getter
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonTypeName("azure")
 public class EdgeInfoAzure extends EdgeInfo {
     @JsonProperty("user_storage_account_name")
     private String userStorageAccountName;

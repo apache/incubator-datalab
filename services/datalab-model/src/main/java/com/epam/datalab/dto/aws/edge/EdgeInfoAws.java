@@ -22,16 +22,15 @@ package com.epam.datalab.dto.aws.edge;
 import com.epam.datalab.dto.base.edge.EdgeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.*;
 
 @Getter
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonTypeName("aws")
 public class EdgeInfoAws extends EdgeInfo {
     @JsonProperty("user_own_bicket_name")
     private String userOwnBucketName;
