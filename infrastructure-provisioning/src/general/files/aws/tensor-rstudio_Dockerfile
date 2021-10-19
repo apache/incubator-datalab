@@ -30,7 +30,6 @@ COPY general/scripts/aws/tensor-rstudio_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
-COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/

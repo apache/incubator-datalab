@@ -34,7 +34,6 @@ COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_dataengine_template.json /root/templates/
-COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/templates/os/pyspark_dataengine-service_template.json /root/templates/
 COPY general/templates/os/sparkmagic_config_template.json /root/templates/
