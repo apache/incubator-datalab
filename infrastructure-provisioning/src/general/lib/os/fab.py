@@ -837,7 +837,7 @@ def add_breeze_library_local(os_user):
                     {1}jfreechart-{0}.jar'.format('1.0.19', breeze_tmp_dir))
             conn.sudo('wget https://repo1.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar -O \
                     {1}jcommon-{0}.jar'.format('1.0.24', breeze_tmp_dir))
-            conn.sudo('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar -O \
+            conn.sudo('wget --no-check-certificate https://nexus.develop.dlabanalytics.com/repository/packages-public/spark-kernel-brunel-all-{0}.jar -O \
                     {1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir))
             conn.sudo('mv {0}* {1}'.format(breeze_tmp_dir, jars_dir))
             conn.sudo('touch /home/' + os_user + '/.ensure_dir/breeze_local_ensured')
