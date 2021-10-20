@@ -63,6 +63,9 @@ export class AuditService {
             if(item?.info?.startsWith('Copy')) {
               item.action = 'COPY_LINK'              
             }
+            if (item?.info?.startsWith('Open terminal')) {
+              item.action = 'OPEN_TERMINAL'
+            }
           })
           return response
         }),
