@@ -129,6 +129,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             sys.exit(1)
     else:
+        ensure_python3_libraries(args.os_user)
         prepare_disk(args.os_user)
 
     if os.environ['conf_deeplearning_cloud_ami'] == 'false':
