@@ -32,11 +32,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.epam.datalab.properties.ChangePropertiesConst.DEFAULT_NAME_PLACE;
-import static com.epam.datalab.properties.ChangePropertiesConst.DEFAULT_VALUE_PLACE;
 
 @Slf4j
-public class ChangePropertiesService {
+public class ChangePropertiesService implements ChangePropertiesConst {
 
     public String readFileAsString(String selfServicePropPath, String serviceName) {
         try {
@@ -52,7 +50,7 @@ public class ChangePropertiesService {
 
     public void writeFileFromString(String newPropFile, String serviceName, String servicePath) {
         try {
-            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.DEFAULT_CHMOD, ChangePropertiesConst.WRITE_CHMOD);
+            changeCHMODE(serviceName, servicePath, DEFAULT_CHMOD, WRITE_CHMOD);
             String oldFile = readFile(serviceName, servicePath);
             BufferedWriter writer = new BufferedWriter(new FileWriter(servicePath));
             log.info("Trying to overwrite {}, file for path {} :", serviceName, servicePath);
@@ -60,7 +58,7 @@ public class ChangePropertiesService {
             writer.write(checkAndReplaceSecretIfEmpty(newPropFile, oldFile));
             log.info("{} overwritten successfully", serviceName);
             writer.close();
-            changeCHMODE(serviceName, servicePath, ChangePropertiesConst.WRITE_CHMOD, ChangePropertiesConst.DEFAULT_CHMOD);
+            changeCHMODE(serviceName, servicePath, WRITE_CHMOD, DEFAULT_CHMOD);
         } catch (IOException e) {
             log.error("Failed to create writer with path {}", servicePath);
             throw new DynamicChangePropertiesException(String.format("Failed during overwriting %s", serviceName));
@@ -87,25 +85,25 @@ public class ChangePropertiesService {
             log.info("Tying to restart ui: {}, provserv: {}, billing: {}, with command: {}", ui,
                     provserv, billing, shCommand);
             Runtime.getRuntime().exec(shCommand).waitFor();
-            return RestartAnswer.builder()
-                    .billingSuccess(billing)
-                    .provservSuccess(provserv)
-                    .endpoint(restartForm.getEndpoint())
-                    .build();
+            return buildAnswer(restartForm, billing, provserv);
         } catch (IOException | InterruptedException e) {
-            log.error(e.getMessage());
-            return RestartAnswer.builder()
-                    .billingSuccess(false)
-                    .provservSuccess(false)
-                    .endpoint(restartForm.getEndpoint())
-                    .build();
+            log.error("Restart failed : {}", e.getMessage());
+            return buildAnswer(restartForm, false, false);
         }
+    }
+
+    private RestartAnswer buildAnswer(RestartForm restartForm, boolean billing, boolean provserv) {
+        return RestartAnswer.builder()
+                .billingSuccess(billing)
+                .provservSuccess(provserv)
+                .endpoint(restartForm.getEndpoint())
+                .build();
     }
 
 
     private String hideSecretsAndRemoveLicence(String currentConf) {
-        Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(currentConf);
-        Matcher userMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(currentConf);
+        Matcher passMatcher = Pattern.compile(SECRET_REGEX).matcher(currentConf);
+        Matcher userMatcher = Pattern.compile(USER_REGEX).matcher(currentConf);
         List<String> secretsAndUsers = new ArrayList<>();
         final String[] confWithReplacedSecretConf = {removeLicence(currentConf)};
         while (passMatcher.find()) {
@@ -119,7 +117,7 @@ public class ChangePropertiesService {
                 secretsAndUsers.add(user[DEFAULT_NAME_PLACE] + ":" + user[DEFAULT_VALUE_PLACE]);
         }
         secretsAndUsers.forEach(x -> {
-            String toReplace = x.split(":")[DEFAULT_NAME_PLACE] + ":" + ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT;
+            String toReplace = x.split(":")[DEFAULT_NAME_PLACE] + ":" + SECRET_REPLACEMENT_FORMAT;
             if (x.split(":")[DEFAULT_VALUE_PLACE].length() <= 1) {
                 if (x.split(":")[DEFAULT_VALUE_PLACE].startsWith("\r")) {
                     toReplace = toReplace + "\r";
@@ -131,13 +129,13 @@ public class ChangePropertiesService {
     }
 
     private String removeLicence(String conf) {
-        return conf.split(ChangePropertiesConst.LICENCE_REGEX)[conf.split(ChangePropertiesConst.LICENCE_REGEX).length - 1];
+        return conf.split(LICENCE_REGEX)[conf.split(LICENCE_REGEX).length - 1];
     }
 
 
     private void changeCHMODE(String serviceName, String path, String fromMode, String toMode) throws IOException {
         try {
-            String command = String.format(ChangePropertiesConst.CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
+            String command = String.format(CHANGE_CHMOD_SH_COMMAND_FORMAT, toMode, path);
             log.info("Trying to change chmod for file {} {}->{}", serviceName, fromMode, toMode);
             log.info("Execute command: {}", command);
             Runtime.getRuntime().exec(command).waitFor();
@@ -147,7 +145,7 @@ public class ChangePropertiesService {
     }
 
     private String addLicence() {
-        return ChangePropertiesConst.LICENCE;
+        return LICENCE;
     }
 
     private String checkAndReplaceSecretIfEmpty(String newPropFile, String oldProf) {
@@ -157,12 +155,12 @@ public class ChangePropertiesService {
 
     private String replaceOldSecret(String newPropFile, String oldProf, Map<String, Queue<String>> emptySecrets) {
         String fileWithReplacedEmptySecrets = newPropFile;
-        Matcher oldPassMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(oldProf);
-        Matcher oldUserMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(oldProf);
+        Matcher oldPassMatcher = Pattern.compile(SECRET_REGEX).matcher(oldProf);
+        Matcher oldUserMatcher = Pattern.compile(USER_REGEX).matcher(oldProf);
 
         while (oldPassMatcher.find()) {
             String[] s = oldPassMatcher.group().split(":");
-            if (emptySecrets.containsKey(s[ChangePropertiesConst.DEFAULT_NAME_PLACE])) {
+            if (emptySecrets.containsKey(s[DEFAULT_NAME_PLACE])) {
 
                 String poll = emptySecrets.get(s[DEFAULT_NAME_PLACE]).poll();
                 if (poll != null) {
@@ -172,14 +170,14 @@ public class ChangePropertiesService {
                     old = old.replaceFirst("\\{", "\\{");
                     old = old.replaceFirst("}", "\\}");
                     if (old.endsWith("\r"))
-                        old = old.substring(0, old.length() -1);
+                        old = old.substring(0, old.length() - 1);
                     fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replaceFirst(poll, old);
                 }
             }
         }
         while (oldUserMatcher.find()) {
             String[] s = oldUserMatcher.group().split(":");
-            if (emptySecrets.containsKey(s[ChangePropertiesConst.DEFAULT_NAME_PLACE])) {
+            if (emptySecrets.containsKey(s[DEFAULT_NAME_PLACE])) {
                 String poll = emptySecrets.get(s[DEFAULT_NAME_PLACE]).poll();
                 if (poll != null) {
                     poll = poll.replace("*", "\\*");
@@ -188,7 +186,7 @@ public class ChangePropertiesService {
                     old = old.replace("{", "\\}");
                     old = old.replace("}", "\\}");
                     if (old.endsWith("\r"))
-                        old = old.substring(0, old.length() -1);
+                        old = old.substring(0, old.length() - 1);
                     fileWithReplacedEmptySecrets = fileWithReplacedEmptySecrets.replaceFirst(poll, old);
                 }
             }
@@ -197,16 +195,16 @@ public class ChangePropertiesService {
     }
 
     private Map<String, Queue<String>> findEmptySecretAndNames(String newPropFile) {
-        Matcher passMatcher = Pattern.compile(ChangePropertiesConst.SECRET_REGEX).matcher(newPropFile);
-        Matcher userNameMatcher = Pattern.compile(ChangePropertiesConst.USER_REGEX).matcher(newPropFile);
+        Matcher passMatcher = Pattern.compile(SECRET_REGEX).matcher(newPropFile);
+        Matcher userNameMatcher = Pattern.compile(USER_REGEX).matcher(newPropFile);
         Map<String, Queue<String>> emptySecrets = new HashMap<>();
         while (passMatcher.find()) {
             String[] s = passMatcher.group().split(":");
-            if (s[DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
+            if (s[DEFAULT_VALUE_PLACE].equals(SECRET_REPLACEMENT_FORMAT)) {
                 if (emptySecrets.get(s[DEFAULT_NAME_PLACE]) == null) {
                     Queue<String> values = new ArrayDeque<>();
                     values.add(passMatcher.group());
-                    emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], values);
+                    emptySecrets.put(s[DEFAULT_NAME_PLACE], values);
                 } else {
                     Queue<String> values = emptySecrets.get(s[DEFAULT_NAME_PLACE]);
                     values.add(passMatcher.group());
@@ -216,11 +214,11 @@ public class ChangePropertiesService {
 
         while (userNameMatcher.find()) {
             String[] s = userNameMatcher.group().split(":");
-            if (s[DEFAULT_VALUE_PLACE].equals(ChangePropertiesConst.SECRET_REPLACEMENT_FORMAT)) {
+            if (s[DEFAULT_VALUE_PLACE].equals(SECRET_REPLACEMENT_FORMAT)) {
                 if (emptySecrets.get(s[DEFAULT_NAME_PLACE]) == null) {
                     Queue<String> values = new ArrayDeque<>();
                     values.add(userNameMatcher.group());
-                    emptySecrets.put(s[ChangePropertiesConst.DEFAULT_NAME_PLACE], values);
+                    emptySecrets.put(s[DEFAULT_NAME_PLACE], values);
                 } else {
                     Queue<String> values = emptySecrets.get(s[DEFAULT_NAME_PLACE]);
                     values.add(userNameMatcher.group());
@@ -231,10 +229,10 @@ public class ChangePropertiesService {
     }
 
     private String buildSHRestartCommand(boolean billing, boolean provserv, boolean ui) {
-        StringBuilder stringBuilder = new StringBuilder(ChangePropertiesConst.SUPERVISORCTL_RESTART_SH_COMMAND);
-        if (billing) stringBuilder.append(ChangePropertiesConst.BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
-        if (provserv) stringBuilder.append(ChangePropertiesConst.PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
-        if (ui) stringBuilder.append(ChangePropertiesConst.SELF_SERVICE_SUPERVISORCTL_RUN_NAME);
+        StringBuilder stringBuilder = new StringBuilder(SUPERVISORCTL_RESTART_SH_COMMAND);
+        if (billing) stringBuilder.append(BILLING_SERVICE_SUPERVISORCTL_RUN_NAME);
+        if (provserv) stringBuilder.append(PROVISIONING_SERVICE_SUPERVISORCTL_RUN_NAME);
+        if (ui) stringBuilder.append(SELF_SERVICE_SUPERVISORCTL_RUN_NAME);
         return stringBuilder.toString();
     }
 
