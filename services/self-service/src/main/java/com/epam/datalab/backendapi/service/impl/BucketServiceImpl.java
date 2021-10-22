@@ -78,8 +78,9 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public List<BucketDTO> getObjects(UserInfo userInfo, String bucket, String endpoint) {
+    public List<BucketDTO> getObjects(@User UserInfo userInfo, String bucket, String endpoint) {
         try {
+            log.info("Trying to get list of the objects: {}, for user: {}", bucket, userInfo);
             EndpointDTO endpointDTO = endpointService.get(endpoint);
             return provisioningService.get(String.format(BUCKET_GET_OBJECTS, endpointDTO.getUrl(), bucket), userInfo.getAccessToken(), new GenericType<List<BucketDTO>>() {
             });

@@ -35,12 +35,7 @@ import org.apache.commons.fileupload.util.Streams;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -66,6 +61,7 @@ public class BucketResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getListOfObjects(@Auth UserInfo userInfo,
                                      @PathParam("bucket") String bucket) {
+        log.info("Trying to get list of the objects: {}, for user: {}", bucket, userInfo);
         return Response.ok(bucketService.getObjects(bucket)).build();
     }
 
@@ -74,6 +70,7 @@ public class BucketResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadObject(@Auth UserInfo userInfo, @Context HttpServletRequest request) {
+        log.info("Trying to upload for user: {}", userInfo);
         upload(request);
         return Response.ok().build();
     }
@@ -83,6 +80,7 @@ public class BucketResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadFolder(@Auth UserInfo userInfo, @Valid FolderUploadDTO dto) {
+        log.info("Trying to upload folder in bucket: {}, for user: {}", dto.getBucket(), userInfo);
         bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder());
         return Response.ok().build();
     }
@@ -103,6 +101,7 @@ public class BucketResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadObject(@Auth UserInfo userInfo, BucketDeleteDTO bucketDeleteDTO) {
+        log.info("Trying to delete from bucket: {}, for user: {}", bucketDeleteDTO.getBucket(), userInfo);
         bucketService.deleteObjects(bucketDeleteDTO.getBucket(), bucketDeleteDTO.getObjects());
         return Response.ok().build();
     }
@@ -129,6 +128,7 @@ public class BucketResource {
                             fileSize = Long.parseLong(Streams.asString(stream));
                         }
                     } else {
+                        log.info("Trying to upload in bucket: {}, object: {}", bucket, object);
                         bucketService.uploadObject(bucket, object, stream, item.getContentType(), fileSize);
                     }
                 } catch (Exception e) {
