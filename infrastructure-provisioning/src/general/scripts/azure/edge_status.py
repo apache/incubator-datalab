@@ -37,7 +37,6 @@ if __name__ == "__main__":
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
 
     try:
-        logging.info('[COLLECT DATA]')
         logging.info('[COLLECTING DATA]')
         params = '--resource_group_name {} --list_resources "{}"'.format(edge_conf['resource_group_name'],
                                                                          os.environ['edge_list_resources'])

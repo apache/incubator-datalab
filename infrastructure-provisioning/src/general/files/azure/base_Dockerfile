@@ -45,6 +45,7 @@ RUN mkdir -p /response; chmod a+rwx /response && \
     mkdir -p /logs/ssn; chmod a+rwx /logs/ssn && \
     mkdir -p /logs/project; chmod a+rwx /logs/project && \
     mkdir -p /logs/edge; chmod a+rwx /logs/edge && \
+    mkdir -p /logs/status; chmod a+rwx /logs/status && \
     mkdir -p /logs/notebook; chmod a+rwx /logs/notebook && \
     mkdir -p /logs/dataengine; chmod a+rwx /logs/dataengine && \
     mkdir -p /logs/dataengine-service; chmod a+rwx /logs/dataengine-service
