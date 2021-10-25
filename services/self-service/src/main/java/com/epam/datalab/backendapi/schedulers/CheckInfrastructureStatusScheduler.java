@@ -110,7 +110,7 @@ public class CheckInfrastructureStatusScheduler implements Job {
                 .stream()
                 .filter(c -> DataEngineType.SPARK_STANDALONE == DataEngineType.fromDockerImageName(c.getImageName()))
                 .filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))
-                .filter(c -> c.getComputationalId() != null && c.getInstanceId() != null)
+//                .filter(c -> c.getComputationalId() != null && c.getInstanceId() != null)
                 .map(r -> new EnvResource()
                         .withId(r.getInstanceId())
                         .withName(r.getComputationalName())
@@ -135,7 +135,7 @@ public class CheckInfrastructureStatusScheduler implements Job {
         return userInstanceDTO.getResources().stream()
                 .filter(c -> DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(c.getImageName()))
                 .filter(c -> statusesToCheck.contains(UserInstanceStatus.of(c.getStatus())))
-                .filter(c -> c.getComputationalId() != null && c.getInstanceId() != null)
+//                .filter(c -> c.getComputationalId() != null && c.getInstanceId() != null)
                 .filter(this::noEmrCreating)
                 .map(r -> new EnvResource()
                         .withId(r.getInstanceId())
@@ -148,7 +148,7 @@ public class CheckInfrastructureStatusScheduler implements Job {
     }
 
     private boolean noEmrCreating(UserComputationalResource c) {
-        return !c.getStatus().equals(CREATING.name()) && !c.getTemplateName().contains(AWS_EMR_CLUSTER);
+        return ! (c.getStatus().equals(CREATING.name()) && c.getTemplateName().contains(AWS_EMR_CLUSTER));
     }
 
 

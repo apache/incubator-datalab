@@ -61,17 +61,9 @@ public class BucketServiceAzureImpl implements BucketService {
     @Override
     public List<BucketDTO> getObjects(String bucket) {
         try {
-            log.info("TEST LOG!!!: bucket: {}", bucket);
-
             AzureStorageAccount account = getAzureStorageAccount(bucket);
-            log.info("TEST LOG!!!: account: {}", account);
-
             BlobServiceClient blobServiceClient = getBlobServiceClient(account.getStorageAccount());
-            log.info("TEST LOG!!!: blobServiceClient: {}", blobServiceClient);
-
             BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient(account.getContainer());
-            log.info("TEST LOG!!!: blobContainerClient: {}", blobContainerClient);
-
             return blobContainerClient.listBlobs()
                     .stream()
                     .map(blob -> toBucketDTO(account.getContainer(), blob))
@@ -133,11 +125,6 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(String bucket, BlobItem blob) {
-        log.info("TEST LOG!!!: toBucketDTO: ");
-
-        log.info("TEST LOG!!!: bucket: {}", bucket);
-        log.info("TEST LOG!!!: blob: {}", blob);
-
         return BucketDTO.builder()
                 .bucket(bucket)
                 .object(blob.getName())
@@ -165,8 +152,7 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     private BlobServiceClient getBlobServiceClient(String storageAccount) {
-        final String endpoint = String.format("https://%s.blob.core.windows.net", storageAccount);
-        log.info("TEST LOG!!!: endpoint: {}", endpoint);
+        final String endpoint = String.format("https://%s.blob.core.windows.net", storageAccount);;
         return new BlobServiceClientBuilder()
                 .endpoint(endpoint)
                 .credential(new ClientSecretCredentialBuilder()
@@ -175,10 +161,6 @@ public class BucketServiceAzureImpl implements BucketService {
                         .tenantId(azureAuthFile.getTenantId())
                         .build())
                 .buildClient();
-//        return new BlobClientBuilder()
-//                .endpoint()
-//                .sasToken()
-//                .containerName()
     }
 
     private AzureStorageAccount getAzureStorageAccount(String bucket) {
