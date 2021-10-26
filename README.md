@@ -727,6 +727,20 @@ After SSN node deployment following GCP resources will be created:
 -   Bucket for for collaboration between DataLab users. Its name will be 
     \<service\_base\_name\>-\<endpoint\_name\>-shared-bucket</details>
 
+
+**Note:** Optionally Nexus repository can be used to store DataLab jars and Docker images
+<details><summary>List of parameters for repository usage during SSN deployment:<i>(click to expand)</i></summary>
+
+| Parameter                    | Description/Value                                                                     |
+|------------------------------|---------------------------------------------------------------------------------------|
+| conf\_repository\_user            | Username used to access repository                                                |
+| conf\_repository\_pass            | Password used to access repository                                                |
+| conf\_repository\_address         | URI/IP address used to access repository                                          |
+| conf\_repository\_port            | Port of docker repository                                                         |
+| conf\_download\_docker\_images    | true to download docker images from repository (previous parameters are required) |
+| conf\_download\_jars              | true to download jars from repository (previous parameters are required)          |
+
+
 ### Terminating Self-Service Node
 
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node 
