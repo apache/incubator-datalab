@@ -728,8 +728,9 @@ After SSN node deployment following GCP resources will be created:
     \<service\_base\_name\>-\<endpoint\_name\>-shared-bucket</details>
 
 
+
 **Note:** Optionally Nexus repository can be used to store DataLab jars and Docker images
-<details><summary>List of parameters for repository usage during SSN deployment:<i>(click to expand)</i></summary>
+<details><summary>List of parameters for repository usage during SSN deployment: <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                                     |
 |------------------------------|---------------------------------------------------------------------------------------|
