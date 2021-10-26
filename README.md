@@ -740,7 +740,6 @@ After SSN node deployment following GCP resources will be created:
 | conf\_download\_docker\_images    | true to download docker images from repository (previous parameters are required) |
 | conf\_download\_jars              | true to download jars from repository (previous parameters are required)          |
 
-
 ### Terminating Self-Service Node
 
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node 
