@@ -31,7 +31,7 @@ import time
 import subprocess
 import datalab.fab
 
-def handle_dpkg_lock(error, rerun=False):
+def handle_dpkg_lock(error='', rerun=False):
     try:
         count = 0
         if 'E: Could not get lock ' and 'It is held by process ' in error:
@@ -69,7 +69,7 @@ def handle_dpkg_lock(error, rerun=False):
     except:
         sys.exit(1)
 
-def handle_apt_lock(error, rerun=False):
+def handle_apt_lock(error='', rerun=False):
     try:
         count = 0
         if 'E: Could not get lock ' and 'It is held by process ' in error:
@@ -102,7 +102,7 @@ def handle_apt_lock(error, rerun=False):
     except:
         sys.exit(1)
 
-def handle_apt_get_lock(error, rerun=False):
+def handle_apt_get_lock(error='', rerun=False):
     try:
         count = 0
         if 'E: Could not get lock ' and 'It is held by process ' in error:
@@ -181,7 +181,7 @@ def manage_pkg(command, environment, requisites):
                                                                                                    error_parser))
                             err = datalab.fab.conn.sudo('cat /tmp/apt.log').stdout
                             if 'no_lock' not in err:
-                                handle_dpkg_lock(err)
+                                handle_dpkg_lock()
                                 handle_apt_lock(err, rerun=True)
 
                             datalab.fab.conn.sudo('apt-get {0} {1} 2>&1 | tee /tmp/tee.tmp; '
@@ -197,8 +197,8 @@ def manage_pkg(command, environment, requisites):
                             err = datalab.fab.conn.sudo('cat /tmp/apt_get.log').stdout
 
                             if 'no_lock' not in err:
-                                handle_dpkg_lock(err)
-                                handle_apt_lock(err)
+                                handle_dpkg_lock()
+                                handle_apt_lock()
                                 handle_apt_get_lock(err, rerun=True)
 
                             allow = True
