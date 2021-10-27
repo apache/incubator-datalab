@@ -20,7 +20,7 @@
 <div class="base-retreat configuration">
   <div class="sub-nav">
     <div class="selection">
-      <ng-template [ngIf]="endpoints?.length > 1">
+      <ng-template [ngIf]="endpoints">
         <label class="label">Selected endpoint </label>
         <div class="mat-reset">
           <div class="control selector-wrapper">
@@ -34,7 +34,6 @@
                   <mat-option 
                     *ngFor="let endpoint of endpoints" 
                     [value]="endpoint.name" 
-                    [disabled]="endpoint.status !== 'ACTIVE'"
                     (click)="setActiveEndpoint(endpoint.name)">
                     {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + ' (external endpoint)'}}{{endpoint.status !== 'ACTIVE' ? ', inactive' : ''}}
                   </mat-option>
