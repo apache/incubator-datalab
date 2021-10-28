@@ -255,9 +255,9 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
-            datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
+            datalab.fab.conn.sudo('pip3 install setuptools')
             try:
-                datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} sparkmagic --no-cache-dir' \
+                datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.15.0 ipykernel=={1} sparkmagic --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
                 datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} sparkmagic --no-cache-dir' \
