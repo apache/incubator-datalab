@@ -165,8 +165,8 @@ if __name__ == "__main__":
     # installing and configuring R_STUDIO and all dependencies
     try:
         logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {0}  --keyfile {1} --region {2} --rstudio_pass {3} --os_user {5} " \
-                 "--ip_address {6} --exploratory_name {7} --edge_ip {8}" \
+        params = "--hostname {0}  --keyfile {1} --region {2} --rstudio_pass {3} --rstudio_version {4}" \
+                 "--os_user {5} --ip_address {6} --exploratory_name {7} --edge_ip {8}" \
             .format(instance_hostname, keyfile_name,
                     os.environ['aws_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['datalab_ssh_user'],
