@@ -460,14 +460,16 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
 
   public copyPath(): void {
     const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
+    const pathToItem = `${this.pathInsideBucket}${selected.item}${selected.isFolderSelected ? '/' : ''}`;
+    
     const cloud = this.getCloud();
     const protocol = HelpUtils.getBucketProtocol(cloud);
     if (cloud !== 'azure') {
-      CopyPathUtils.copyPath(protocol + selected.object.bucket + '/' + selected.object.object);
+      CopyPathUtils.copyPath(protocol + selected.object.bucket + '/' + pathToItem);
     } else {
       const bucketName = selected.object.bucket;
       const accountName = this.bucketName.replace(selected.object.bucket, '').slice(0, -1);
-      const azureBucket = bucketName + '@' + accountName + '.blob.core.windows.net' + '/' + selected.object.object;
+      const azureBucket = bucketName + '@' + accountName + '.blob.core.windows.net' + '/' + pathToItem;
       CopyPathUtils.copyPath(protocol + azureBucket);
     }
     this.clearSelection();
