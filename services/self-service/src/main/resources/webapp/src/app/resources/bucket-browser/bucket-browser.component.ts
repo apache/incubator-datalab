@@ -462,7 +462,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
     const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
     const pathToItem = `${this.pathInsideBucket}${selected.item}${selected.isFolderSelected ? '/' : ''}`;
     
-    const cloud = 'azure';//this.getCloud();
+    const cloud = this.getCloud();
     const protocol = HelpUtils.getBucketProtocol(cloud);
     if (cloud !== 'azure') {
       CopyPathUtils.copyPath(protocol + selected.object.bucket + '/' + pathToItem);
