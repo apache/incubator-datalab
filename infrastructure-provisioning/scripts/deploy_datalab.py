@@ -299,9 +299,6 @@ def build_docker_images(args):
     if args.conf_repository_user and args.conf_repository_pass and args.conf_repository_port and args.conf_repository_address and args.conf_download_docker_images == 'true':
         subprocess.run('sudo docker login -u {0} -p {1} {2}:{3}'
                         .format(args.conf_repository_user, args.conf_repository_pass, args.conf_repository_address, args.conf_repository_port), shell=True, check=True)
-        subprocess.run('sudo docker pull {}:{}/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
-        subprocess.run('sudo docker image tag {}:{}/docker.datalab-base-{} docker.datalab-base'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
-        subprocess.run('sudo docker image rm {}:{}/docker.datalab-base-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
         subprocess.run('sudo docker pull {}:{}/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
         subprocess.run('sudo docker image tag {}:{}/docker.datalab-ssn-{} docker.datalab-ssn'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
         subprocess.run('sudo docker image rm {}:{}/docker.datalab-ssn-{}'.format(args.conf_repository_address, args.conf_repository_port, args.conf_cloud_provider), shell=True, check=True)
