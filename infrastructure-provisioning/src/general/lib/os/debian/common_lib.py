@@ -284,6 +284,21 @@ def find_java_path_local():
         traceback.print_exc()
         sys.exit(1)
 
+def ensure_openssh_version(os_user):
+    try:
+        if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/openssh_version_ensured'.format(os_user)):
+            if os.environ['conf_openssh_version'] not in datalab.fab.conn.sudo('ssh -V').stdout:
+                datalab.fab.conn.sudo('mkdir /var/lib/sshd')
+                datalab.fab.conn.sudo('chmod -R 700 /var/lib/sshd/')
+                datalab.fab.conn.sudo('chown -R root:sys /var/lib/sshd/')
+                datalab.fab.conn.sudo('wget -c https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-{0}.tar.gz '
+                                      '-O /tmp/openssh-{0}.tar.gz'.format(os.environ['conf_openssh_version']))
+                datalab.fab.conn.sudo('bash -l -c "tar -zhxvf /tmp/openssh-{0}.tar.gz -C /tmp/; cd /tmp/openssh-{0}; ./configure; make; make install"'.format(os.environ['conf_openssh_version']))
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/openssh_version_ensured'.format(os_user))
+    except Exception as err:
+        logging.error('Updating openssh to version:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
 
 def ensure_ntpd(os_user, edge_private_ip=''):
     try:
