@@ -223,7 +223,7 @@ def manage_pkg(command, environment, requisites):
         sys.exit(1)
 
 
-def ensure_pkg(os_user, requisites='linux-headers-generic python3-pip python3-dev python3-virtualenv '
+def ensure_pkg(os_user, requisites='linux-headers-$(uname -r) python3-pip python3-dev python3-virtualenv '
                                 'groff gcc vim less git wget '
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):
