@@ -1157,15 +1157,19 @@ def install_r_packages(os_user):
             conn.sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
             conn.sudo('R -e "install.packages(\'knitr\', repos = \'https://cloud.r-project.org\')"')
             conn.sudo('R -e "install.packages(\'ggplot2\', repos = \'https://cloud.r-project.org\')"')
+            conn.sudo('R -e "install.packages(\'markdown\', repos = \'https://cloud.r-project.org\')"')
             conn.sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
                       'repos = \'https://cloud.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
             conn.sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
             conn.sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
+            conn.sudo("systemctl stop zeppelin-notebook")
+            conn.sudo("systemctl daemon-reload")
+            conn.sudo("systemctl enable zeppelin-notebook")
+            conn.sudo("systemctl start zeppelin-notebook")
     except Exception as err:
         logging.error('Function install_r_packages error:', str(err))
         traceback.print_exc()
         sys.exit(1)
-
 
 def update_zeppelin_interpreters(multiple_clusters, r_enabled, interpreter_mode='remote'):
     try:

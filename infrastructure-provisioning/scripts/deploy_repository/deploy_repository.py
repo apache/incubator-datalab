@@ -1215,8 +1215,6 @@ def download_packages():
                 'https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl'.format(
                     configuration['notebook_cntk_version']),
                 'https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version),
-                'http://archive.apache.org/dist/zeppelin/zeppelin-{0}/zeppelin-{0}-bin-netinst.tgz'.format(
-                    configuration['notebook_zeppelin_version']),
                 'http://archive.cloudera.com/beta/livy/livy-server-{}.zip'.format(
                     configuration['notebook_livy_version']),
                 'https://repos.spark-packages.org/tapanalyticstoolkit/spark-tensorflow-connector/'
