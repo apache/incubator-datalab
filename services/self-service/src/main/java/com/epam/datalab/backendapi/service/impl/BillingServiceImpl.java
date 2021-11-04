@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.service.impl;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.dao.BillingDAO;
+import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.domain.*;
@@ -72,12 +73,13 @@ public class BillingServiceImpl implements BillingService {
     private final RESTService billingService;
     private final ImageExploratoryDAO imageExploratoryDao;
     private final BillingDAO billingDAO;
+    private final ExploratoryDAO exploratoryDAO;
 
     @Inject
     public BillingServiceImpl(ProjectService projectService, ProjectDAO projectDAO, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
                               @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService billingService,
-                              ImageExploratoryDAO imageExploratoryDao, BillingDAO billingDAO) {
+                              ImageExploratoryDAO imageExploratoryDao, BillingDAO billingDAO, ExploratoryDAO exploratoryDAO) {
         this.projectService = projectService;
         this.projectDAO = projectDAO;
         this.endpointService = endpointService;
@@ -86,6 +88,7 @@ public class BillingServiceImpl implements BillingService {
         this.billingService = billingService;
         this.imageExploratoryDao = imageExploratoryDao;
         this.billingDAO = billingDAO;
+        this.exploratoryDAO = exploratoryDAO;
     }
 
     @Override
@@ -156,6 +159,8 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
 
+        log.info("TEST LOG!!!: billingDataMap: {}", billingDataMap);
+
         billingDataMap.forEach((endpointDTO, billingData) -> {
             log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
             if (!billingData.isEmpty()) {
@@ -209,10 +214,18 @@ public class BillingServiceImpl implements BillingService {
         final Stream<BillingReportLine> billableSharedEndpoints = endpoints
                 .stream()
                 .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), configuration.getServiceBaseName()));
+
+        log.info("TEST LOG!!!: userInstance from service: {}", exploratoryService.findAll(projects));
+        log.info("TEST LOG!!!: userInstance from DB: {}", exploratoryDAO.fetchExploratoryFieldsForProject("proj"));
+
+
         final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll(projects)
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
                 .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount()));
+
+        log.info("TEST LOG!!!: billableUserInstances: {}", billableUserInstances.collect(Collectors.toList()));
+
         final Stream<BillingReportLine> customImages = projects
                 .stream()
                 .map(p -> imageExploratoryDao.getImagesForProject(p.getName()))
@@ -222,7 +235,7 @@ public class BillingServiceImpl implements BillingService {
         final Map<String, BillingReportLine> billableResources = Stream.of(ssnBillingDataStream, billableEdges, billableSharedEndpoints, billableUserInstances, customImages)
                 .flatMap(s -> s)
                 .collect(Collectors.toMap(BillingReportLine::getDatalabId, b -> b));
-        log.debug("Billable resources are: {}", billableResources);
+        log.info("Billable resources are: {}", billableResources);
 
         return billableResources;
     }

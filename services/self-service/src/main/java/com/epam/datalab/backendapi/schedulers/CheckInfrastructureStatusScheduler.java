@@ -51,7 +51,7 @@ import static com.epam.datalab.dto.UserInstanceStatus.*;
 public class CheckInfrastructureStatusScheduler implements Job {
 
     private static final List<UserInstanceStatus> statusesToCheck =
-            Arrays.asList(CREATING, RUNNING, STOPPING, RECONFIGURING, STOPPED, TERMINATING, TERMINATED);
+            Arrays.asList(STARTING, CREATING, RUNNING, STOPPING, RECONFIGURING, STOPPED, TERMINATING, TERMINATED);
 
     private final InfrastructureInfoService infrastructureInfoService;
     private final SecurityService securityService;
@@ -148,7 +148,8 @@ public class CheckInfrastructureStatusScheduler implements Job {
     }
 
     private boolean noEmrCreating(UserComputationalResource c) {
-        return ! (c.getStatus().equals(CREATING.name()) && c.getTemplateName().contains(AWS_EMR_CLUSTER));
+        log.info("TEST LOG!!!: status: {}, template name: {}", c.getStatus(), c.getTemplateName());
+        return !(c.getStatus().equals(CREATING.name()) && c.getTemplateName().contains(AWS_EMR_CLUSTER));
     }
 
 

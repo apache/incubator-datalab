@@ -46,6 +46,10 @@ public class EnvResourceList {
                 .add("cluster", clusterList);
     }
 
+    public boolean isEmpty(){
+        return hostList.isEmpty() && clusterList.isEmpty();
+    }
+
     @Override
     public String toString() {
         return toStringHelper(this).toString();

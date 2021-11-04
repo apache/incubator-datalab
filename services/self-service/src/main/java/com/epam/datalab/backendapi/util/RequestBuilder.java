@@ -171,7 +171,7 @@ public class RequestBuilder {
         }
 
 
-        T t = exploratoryCreate.withExploratoryName(exploratory.getName())
+        return exploratoryCreate.withExploratoryName(exploratory.getName())
                 .withNotebookImage(exploratory.getDockerImage())
                 .withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
                 .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
@@ -184,7 +184,6 @@ public class RequestBuilder {
                 .withGPUCount(exploratory.getGpuCount())
                 .withGPUType(exploratory.getGpuType())
                 .withEnabledGPU(exploratory.getEnabledGPU());
-        return t;
     }
 
     @SuppressWarnings("unchecked")

@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,8 @@ import java.util.Date;
 
 public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implements FileHandlerCallback {
     private static final Logger log = LoggerFactory.getLogger(ResourceCallbackHandler.class);
-    final ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+    final ObjectMapper mapper = new ObjectMapper()
+            .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
     private static final String STATUS_FIELD = "status";
     protected static final String RESPONSE_NODE = "response";
@@ -127,6 +129,7 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             log.error("Could not {} resource for user: {}, UUID: {}", action, user, uuid);
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
         }
+        log.info("TEST LOG!!!: resultNode: {}, result: {}", resultNode, result);
         result = parseOutResponse(resultNode, result);
         selfServicePost(result);
         return !UserInstanceStatus.FAILED.equals(status);
