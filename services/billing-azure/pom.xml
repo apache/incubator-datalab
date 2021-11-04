@@ -105,11 +105,11 @@
             <version>${org.mongodb.version}</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>2.9.5</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -121,16 +121,16 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.5</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-guava</artifactId>
             <version>2.11.0</version>
-        </dependency>
-        <dependency>
+        </dependency-->
+        <!--dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.11.0</version>
-        </dependency>
+        </dependency-->
 
     </dependencies>
 
