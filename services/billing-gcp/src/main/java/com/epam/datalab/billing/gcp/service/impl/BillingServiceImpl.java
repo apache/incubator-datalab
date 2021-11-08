@@ -43,7 +43,9 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public List<BillingData> getBillingData() {
         try {
-            return billingDAO.getBillingData();
+            List<BillingData> billingData = billingDAO.getBillingData();
+            log.info("TEST LOG BILLING: billingData: {}", billingData);
+            return billingData;
         } catch (Exception e) {
             log.error("Can not update billing due to: {}", e.getMessage(), e);
             return Collections.emptyList();
