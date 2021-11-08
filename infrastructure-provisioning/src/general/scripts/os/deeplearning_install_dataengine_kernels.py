@@ -58,10 +58,10 @@ def configure_notebook(keyfile):
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     # spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
     # conn.run('echo "spark.executor.memory {0}m" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(spark_memory, args.cluster_name))
-    if not exists(datalab.fab.conn,'/usr/local/bin/jupyter_dataengine_create_configs.py'):
-        datalab.fab.conn.put(scripts_dir + 'jupyter_dataengine_create_configs.py', '/tmp/jupyter_dataengine_create_configs.py')
-        datalab.fab.conn.sudo('cp -f /tmp/jupyter_dataengine_create_configs.py /usr/local/bin/jupyter_dataengine_create_configs.py')
-        datalab.fab.conn.sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
+    if not exists(datalab.fab.conn,'/usr/local/bin/deeplearning_dataengine_create_configs.py'):
+        datalab.fab.conn.put(scripts_dir + 'deeplearning_dataengine_create_configs.py', '/tmp/deeplearning_dataengine_create_configs.py')
+        datalab.fab.conn.sudo('cp -f /tmp/deeplearning_dataengine_create_configs.py /usr/local/bin/deeplearning_dataengine_create_configs.py')
+        datalab.fab.conn.sudo('chmod 755 /usr/local/bin/deeplearning_dataengine_create_configs.py')
     if not exists(datalab.fab.conn,'/usr/lib/python3.8/datalab/'):
         datalab.fab.conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
         datalab.fab.conn.local('cd  /usr/lib/python3.8/datalab/; tar -zcvf /tmp/datalab.tar.gz *')
