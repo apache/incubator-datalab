@@ -185,15 +185,19 @@ def ensure_matplot(os_user):
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
 def add_sbt_key():
     datalab.fab.conn.sudo(
-        'curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add')
+        'curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo -H gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import')
 
 def ensure_sbt(os_user):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'apt-transport-https')
-            datalab.fab.conn.sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
-
+            datalab.fab.conn.sudo('echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list')
+            datalab.fab.conn.sudo(
+                'echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list')
             add_sbt_key()
+            datalab.fab.conn.sudo(
+                'sudo chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg')
+
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'sbt')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/sbt_ensured')
