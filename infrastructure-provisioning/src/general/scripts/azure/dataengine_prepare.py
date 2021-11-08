@@ -98,7 +98,12 @@ if __name__ == "__main__":
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name'],
                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        data_engine['primary_disk_size'] = '32'
+        #data_engine['primary_disk_size'] = '32'
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            data_engine['primary_disk_size'] = '150'
+        else:
+            data_engine['primary_disk_size'] = '32'
+
         data_engine['image_type'] = 'default'
 
         if os.environ['conf_shared_image_enabled'] == 'false':

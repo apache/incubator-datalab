@@ -308,6 +308,31 @@ def configure_nftables(config):
         traceback.print_exc()
         sys.exit(1)
 
+def ensure_python_venv_deeplearn(python_venv_version):
+    try:
+        if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
+            conn.sudo('add-apt-repository ppa:deadsnakes/ppa -y')
+            conn.sudo('apt install python{0} -y'.format(python_venv_version[:3]))
+            conn.sudo('apt install virtualenv')
+            conn.sudo('mkdir -p /opt/python/')
+            conn.sudo('mkdir -p /opt/python/python{0}'.format(python_venv_version))
+            conn.sudo('virtualenv --python=/usr/bin/python{0} /opt/python/python{1}'.format(python_venv_version[:3],python_venv_version))
+            venv_command = 'source /opt/python/python{0}/bin/activate'.format(python_venv_version)
+            pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
+            conn.sudo('''bash -l -c '{0} && {1} install -U pip=={2}' '''.format(venv_command, pip_command, os.environ['conf_pip_version']))
+            conn.sudo('''bash -l -c '{} && {} install -U ipython=={} ipykernel=={} NumPy=={} SciPy=={} Matplotlib=={} '''
+                      '''pandas=={} Sympy=={} Pillow=={} scikit-learn=={} --no-cache-dir' '''
+                      .format(venv_command, pip_command, os.environ['pip_packages_ipython'],
+                              os.environ['pip_packages_ipykernel'],
+                              os.environ['pip_packages_numpy'], os.environ['pip_packages_scipy'],
+                              os.environ['pip_packages_matplotlib'],
+                              os.environ['pip_packages_pandas'], os.environ['pip_packages_sympy'],
+                              os.environ['pip_packages_pillow'],
+                              os.environ['pip_packages_scikit_learn']))
+    except Exception as err:
+        logging.error('Function ensure_python_venv error:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
 
 # functions for all computation resources
 def ensure_python_venv(python_venv_version):
@@ -327,6 +352,12 @@ def ensure_python_venv(python_venv_version):
                     '''bash -l -c 'cd /tmp/Python-{0} && ./configure --prefix=/opt/python/python{0} '''
                     '''--with-zlib-dir=/usr/local/lib/ --with-ensurepip=install' '''.format(
                         python_venv_version))
+            if os.environ['application'] == 'deeplearning':
+                conn.sudo('apt-get install -y build-essential checkinstall libreadline-gplv2-dev libncursesw5-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev')
+                conn.sudo('apt install -y libncurses-dev libgdbm-dev libz-dev tk-dev libsqlite3-dev libreadline-dev liblzma-dev libffi-dev libssl-dev')
+                conn.sudo('apt-get install -y uuid-dev')
+                conn.sudo('apt install -y libgdbm-dev')
+                conn.sudo('apt install virtualenv')
             conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'virtualenv /opt/python/python{0}' '''.format(python_venv_version))
@@ -1021,10 +1052,12 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             conn.sudo('mkdir -p ' + py3spark_local_path_dir)
             conn.sudo('touch ' + py3spark_local_path_dir + 'kernel.json')
             conn.put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
-            conn.sudo('''bash -l -c "sed -i \"s:PY4J:$(find /opt/spark/ -name '*py4j*.zip'):g\" /tmp/py3spark_local_template.json" ''')
+            conn.sudo(
+                '''bash -l -c "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json" ''')
             conn.sudo('sed -i "s|PYTHON_VENV_PATH|' + python_venv_path + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i "s|PYTHON_VENV_VERSION|' + python_venv_version + '|g" /tmp/py3spark_local_template.json')
-            conn.sudo('sed -i "s|PYTHON_VENV_SHORT_VERSION|' + python_venv_version[:3] + '|g" /tmp/py3spark_local_template.json')
+            conn.sudo('sed -i "s|PYTHON_VENV_SHORT_VERSION|' + python_venv_version[
+                                                               :3] + '|g" /tmp/py3spark_local_template.json')
             conn.sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
             conn.sudo(
                 'sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/pytorch/build:"|\' /tmp/py3spark_local_template.json'.format(
@@ -1155,15 +1188,10 @@ def install_r_packages(os_user):
             conn.sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
             conn.sudo('R -e "install.packages(\'knitr\', repos = \'https://cloud.r-project.org\')"')
             conn.sudo('R -e "install.packages(\'ggplot2\', repos = \'https://cloud.r-project.org\')"')
-            conn.sudo('R -e "install.packages(\'markdown\', repos = \'https://cloud.r-project.org\')"')
             conn.sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
                       'repos = \'https://cloud.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
             conn.sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
             conn.sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
-            conn.sudo("systemctl stop zeppelin-notebook")
-            conn.sudo("systemctl daemon-reload")
-            conn.sudo("systemctl enable zeppelin-notebook")
-            conn.sudo("systemctl start zeppelin-notebook")
     except Exception as err:
         logging.error('Function install_r_packages error:', str(err))
         traceback.print_exc()

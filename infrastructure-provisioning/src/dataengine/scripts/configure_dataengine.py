@@ -146,8 +146,9 @@ if __name__ == "__main__":
         ensure_python3_specific_version(python3_version, args.os_user)
 
     # INSTALL PYTHON IN VIRTUALENV
-    print("Configure Python Virtualenv")
-    ensure_python_venv(python_venv_version)
+    if os.environ['conf_deeplearning_cloud_ami'] != 'true' and os.environ['conf_cloud_provider'] != 'azure':
+        print("Configure Python Virtualenv")
+        ensure_python_venv(python_venv_version)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install Spark")
@@ -157,8 +158,8 @@ if __name__ == "__main__":
     print("Configure local Spark")
     configure_local_spark(jars_dir, templates_dir, '')
 
-    # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
-    if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
+    #INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
+    if os.environ['application'] in ('tensor', 'tensor-rstudio'):
         print("Installing TensorFlow")
         install_tensor(args.os_user, cuda_version, cuda_file_name,
                        cudnn_version, cudnn_file_name, tensorflow_version,
@@ -169,7 +170,7 @@ if __name__ == "__main__":
         install_keras(args.os_user, keras_version)
 
     # INSTALL DEEP LEARNING FRAMEWORKS
-    if os.environ['application'] == 'deeplearning':
+    if os.environ['application'] == 'deeplearning' and os.environ['conf_deeplearning_cloud_ami'] != 'true':
         print("Installing Caffe2")
         install_caffe2(args.os_user, caffe2_version, cmake_version)
         #print("Installing Torch")
