@@ -249,6 +249,7 @@ header {
 .content-desc {
     text-align: center;
     padding-top: 2.5rem;
+    padding-left: 1em;
 
     h1 {
         font-size: rem(60px);
@@ -1783,7 +1784,7 @@ footer {
         display: flex;
         justify-content: space-between;
         border-bottom: 1px solid lightgray;
-        text-aline: left;
+        text-align: left;
 
         .version{
             flex: 7;
@@ -1931,3 +1932,42 @@ footer {
     transition: 5s;
 }
 
+.table {
+    border-collapse: collapse;
+
+    &__link, 
+    &__link:visited
+    .keys__link,
+    .keys__link:visited {
+        text-decoration: none;
+        color: rgb(83, 83, 247)
+    }
+
+    &__cell {
+        text-align: left;
+        border: 1px solid #e7eaec;
+        padding: 5px 10px;
+    }
+
+    &__header {
+        background-color: rgba(83, 83, 248, 0.11);
+    }
+
+    &__row:not(:first-child):nth-child(2n+1) {
+        background-color: #e7eaec;
+    }
+
+    &__header--first-word {
+        display: block;
+    }
+}
+
+.content-desc .keys__description {
+    text-align: left;
+    margin: 0;
+    font-size: 18px; 
+}
+
+.current_version {
+    background-color: rgba(136, 243, 136, 0.315);
+}
