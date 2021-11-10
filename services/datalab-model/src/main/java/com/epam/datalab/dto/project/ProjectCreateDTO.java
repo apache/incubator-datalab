@@ -23,7 +23,9 @@ import com.epam.datalab.dto.ResourceBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 public class ProjectCreateDTO extends ResourceBaseDTO<ProjectCreateDTO> {

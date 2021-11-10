@@ -151,6 +151,7 @@ public class BillingUtils {
                 .filter(cr -> cr.getComputationalId() != null)
                 .flatMap(cr -> {
                     final String computationalId = cr.getComputationalId().toLowerCase();
+                    log.info("TEST LOG!!!: cr: {}", cr);
                     return Stream.concat(Stream.of(
                             withUserProjectEndpoint(userInstance)
                                     .resourceName(cr.getComputationalName())
@@ -244,10 +245,13 @@ public class BillingUtils {
         log.info("TEST LOG!!! getComputationalShape");
         log.info("TEST LOG!!! UserComputationalResource: {}", resource);
         log.info("TEST LOG!!! getTemplateName: {}", resource.getTemplateName());
+        log.info("TEST LOG!!! getTotalInstanceCount: {}", resource.getTotalInstanceCount());
         log.info("TEST LOG!!! getDataengineShape: {}", resource.getDataengineShape());
         log.info("TEST LOG!!! getMasterNodeShape: {}", resource.getMasterNodeShape());
+        log.info("TEST LOG!!!: DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE: {} == {}",
+                DataEngineType.fromDockerImageName(resource.getImageName()), DataEngineType.SPARK_STANDALONE);
 
-        return DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE ?
+        return DataEngineType.fromDockerImageName(resource.getImageName()) != DataEngineType.SPARK_STANDALONE ?
                 String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
                 String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), resource.getTotalInstanceCount() - 1, resource.getSlaveNodeShape());
     }

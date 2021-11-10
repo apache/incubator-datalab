@@ -46,6 +46,8 @@ import com.epam.datalab.rest.client.RESTService;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -99,6 +101,24 @@ public class BillingServiceImpl implements BillingService {
                 .peek(this::appendStatuses)
                 .filter(bd -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(bd.getStatus()))
                 .collect(Collectors.toList());
+
+        //TEST
+        List<ProjectResources> collect = billingReportLines.stream()
+                .filter(x -> x.getShape().equals("0 x null"))
+                .map(x -> new ProjectResources(x.getResourceName(), x.getProject(), x))
+                .collect(Collectors.toList());
+
+        collect.stream()
+                .peek((
+                        x -> System.out.println(exploratoryService.getUserInstance(user.getName(), x.getProject(), x.getResName()))
+                ))
+                .peek(
+                        x -> System.out.println(
+                                exploratoryService.getUserInstance(user.getName(), x.getProject(), x.getBillingReportLine().getExploratoryName()))
+
+                ).count();
+
+//TEST
         final LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLine::getUsageDateFrom)).map(BillingReportLine::getUsageDateFrom).orElse(null);
         final LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLine::getUsageDateTo)).map(BillingReportLine::getUsageDateTo).orElse(null);
         final double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
@@ -384,5 +404,13 @@ public class BillingServiceImpl implements BillingService {
                 .map(userBudget -> (totalCost * 100) / userBudget)
                 .map(Double::intValue)
                 .orElse(BigDecimal.ZERO.intValue());
+    }
+
+    @Data
+    @AllArgsConstructor
+    private class ProjectResources {
+        private String resName;
+        private String project;
+        private BillingReportLine billingReportLine;
     }
 }
