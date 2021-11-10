@@ -52,6 +52,13 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
     @JsonCreator
     public ResourcesStatusCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
+                                          @JsonProperty("uuid") String uuid, @JsonProperty("user") String user) {
+        super(selfService, user, uuid, action);
+        this.datalabHostResources = getEnvResources(null);
+    }
+
+    @JsonCreator
+    public ResourcesStatusCallbackHandler(@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
                                           @JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
                                           EnvResourceList resourceList) {
         super(selfService, user, uuid, action);

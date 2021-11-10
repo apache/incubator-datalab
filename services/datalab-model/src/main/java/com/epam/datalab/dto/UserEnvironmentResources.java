@@ -20,11 +20,13 @@
 package com.epam.datalab.dto;
 
 import com.epam.datalab.dto.status.EnvResourceList;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties
 public class UserEnvironmentResources extends ResourceSysBaseDTO<UserEnvironmentResources> {
     @JsonProperty("edge_list_resources")
     private EnvResourceList resourceList;
@@ -46,6 +48,7 @@ public class UserEnvironmentResources extends ResourceSysBaseDTO<UserEnvironment
     /**
      * Set the list of resources (hosts, clusters, storages).
      */
+    @JsonProperty("edge_list_resources")
     public UserEnvironmentResources withResourceList(EnvResourceList resourceList) {
         setResourceList(resourceList);
         return this;
