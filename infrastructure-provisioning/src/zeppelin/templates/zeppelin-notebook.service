@@ -22,6 +22,14 @@
 [Unit]
 Description=Zeppelin notebook
 
+Wants=network.target
+After=network-online.target systemd-networkd-wait-online.service
+
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+RequiresMountsFor=/opt
+
 [Service]
 Type=simple
 PIDFile=/var/run/zeppelin/zeppelin-notebook-%H.pid
@@ -30,8 +38,8 @@ ExecStop=/bin/bash /opt/zeppelin/bin/zeppelin-daemon.sh stop
 User=OS_USR
 Group=OS_USR
 WorkingDirectory=/opt/zeppelin
-Restart=on-failure
-RestartSec=10
+Restart=always
+RestartSec=30
 KillMode=process
 
 [Install]
