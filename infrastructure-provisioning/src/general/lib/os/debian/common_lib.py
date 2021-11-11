@@ -284,6 +284,18 @@ def find_java_path_local():
         traceback.print_exc()
         sys.exit(1)
 
+
+def disable_edge_scp_binary(os_user):
+    try:
+        if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/disabled_scp_binary'.format(os_user)):
+            datalab.fab.conn.sudo('mv /usr/bin/scp /usr/bin/scp_disabled')
+        datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/disabled_scp_binary'.format(os_user))
+    except Exception as err:
+        logging.error('Updating openssh to version:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
 def ensure_openssh_version(os_user):
     try:
         if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/openssh_version_ensured'.format(os_user)):
