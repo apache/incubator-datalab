@@ -176,8 +176,12 @@ def ensure_matplot(os_user):
             manage_pkg('update', 'remote', '')
             manage_pkg('-y build-dep', 'remote', 'python3-matplotlib')
             datalab.fab.conn.sudo('pip3 install matplotlib=={} --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
-            if os.environ['application'] in ('tensor', 'deeplearning'):
-                datalab.fab.conn.sudo('python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+            if os.environ['application'] == 'tensor':
+                datalab.fab.conn.sudo(
+                    'python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+            if os.environ['application'] == 'deeplearning':
+                datalab.fab.conn.sudo(
+                    'pip3 install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
             sys.exit(1)
@@ -259,9 +263,9 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
-            datalab.fab.conn.sudo('pip3 install setuptools')
+            datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:
-                datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.15.0 ipykernel=={1} sparkmagic --no-cache-dir' \
+                datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} sparkmagic --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
                 datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} sparkmagic --no-cache-dir' \
@@ -331,6 +335,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             #datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             #datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
+            #datalab.fab.conn.sudo('nvidia-smi')
+            #datalab.fab.conn.sudo('nvcc --version')
             datalab.fab.conn.run('wget https://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
                 cudnn_version, cudnn_file_name))
             datalab.fab.conn.run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
@@ -502,25 +508,34 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         manage_pkg('update', 'remote', '')
         manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
-                   'libprotobuf-dev protobuf-compiler python3-dev python3-pip')
+                    'libprotobuf-dev protobuf-compiler python3-dev python3-pip')
         datalab.fab.conn.sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
-        manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
+        manage_pkg('-y install --no-install-recommends', 'remote',
+                   'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
                    'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
-        datalab.fab.conn.sudo('pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
-        datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+        datalab.fab.conn.sudo(
+            'pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
+            'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
+        if os.environ['application'] == 'deeplearning':
+            datalab.fab.conn.sudo('apt install -y cmake')
+            datalab.fab.conn.sudo('pip3 install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html')
+        else:
+            # datalab.fab.conn.sudo('mkdir /opt/cuda-{}'.format(os.environ['notebook_cuda_version']))
+            # datalab.fab.conn.sudo('mkdir /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+            # datalab.fab.conn.sudo('mkdir /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
+            datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+            datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
+            datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
-        datalab.fab.conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install' '''.format(os_user, cmake_version))
-        datalab.fab.conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
-        datalab.fab.conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout {}' '''.format(os_user, os.environ['notebook_pytorch_branch']), warn=True)
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init --recursive' '''.format(os_user), warn=True)
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && python3 setup.py install' '''.format(os_user))
+            datalab.fab.conn.sudo('tar -zxvf /home/datalab-user/cmake-{}.tar.gz'.format(cmake_version))
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install' '''.format(os_user, cmake_version))
+            datalab.fab.conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
+            datalab.fab.conn.sudo('git clone https://github.com/pytorch/pytorch.git')
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout {}' '''.format(os_user, os.environ['notebook_pytorch_branch']), warn=True)
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init --recursive' '''.format(os_user), warn=True)
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && python3 setup.py install' '''.format(os_user))
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
