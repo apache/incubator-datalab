@@ -105,13 +105,13 @@ if __name__ == "__main__":
             ssn_conf['aws_security_groups_ids'] = os.environ['aws_security_groups_ids']
         else:
             ssn_conf['aws_security_groups_ids'] = datalab.meta_lib.get_security_group_by_name(ssn_conf['sg_name'])
-        if 'aws_billing_bucket' in os.environ and os.environ['aws_billing_bucket'] == '':
+        if 'aws_billing_bucket' in os.environ and os.environ['aws_billing_bucket'] != '':
             ssn_conf['billing_enabled'] = True
             ssn_conf['aws_billing_bucket'] = os.environ['aws_billing_bucket']
         else:
             ssn_conf['billing_enabled'] = False
             ssn_conf['aws_billing_bucket'] = 'None'
-        if 'aws_report_path' in os.environ and os.environ['aws_report_path'] == '':
+        if 'aws_report_path' in os.environ and os.environ['aws_report_path'] != '':
             ssn_conf['aws_report_path'] = os.environ['aws_report_path']
         else:
             ssn_conf['aws_report_path'] = ''
