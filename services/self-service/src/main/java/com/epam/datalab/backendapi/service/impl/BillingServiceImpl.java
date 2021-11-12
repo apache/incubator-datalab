@@ -179,8 +179,6 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
 
-        log.info("TEST LOG!!!: billingDataMap: {}", billingDataMap);
-
         billingDataMap.forEach((endpointDTO, billingData) -> {
             log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
             if (!billingData.isEmpty()) {
@@ -235,16 +233,10 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), configuration.getServiceBaseName()));
 
-        log.info("TEST LOG!!!: userInstance from service: {}", exploratoryService.findAll(projects));
-        log.info("TEST LOG!!!: userInstance from DB: {}", exploratoryDAO.fetchExploratoryFieldsForProject("proj"));
-
-
         final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll(projects)
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
                 .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount()));
-
-        log.info("TEST LOG!!!: billableUserInstances: {}", billableUserInstances.collect(Collectors.toList()));
 
         final Stream<BillingReportLine> customImages = projects
                 .stream()

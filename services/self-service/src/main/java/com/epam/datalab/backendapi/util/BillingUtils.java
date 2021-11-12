@@ -33,7 +33,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.datalab.dto.billing.BillingResourceType.*;
@@ -142,16 +141,11 @@ public class BillingUtils {
     }
 
     public static Stream<BillingReportLine> exploratoryBillingDataStream(UserInstanceDTO userInstance, Integer maxSparkInstanceCount) {
-        log.info("TEST LOG!!!: exploratoryBillingDataStream");
-        log.info("TEST LOG!!!: userInstance: {}", userInstance);
-
-
         final Stream<BillingReportLine> computationalStream = userInstance.getResources()
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
                 .flatMap(cr -> {
                     final String computationalId = cr.getComputationalId().toLowerCase();
-                    log.info("TEST LOG!!!: cr: {}", cr);
                     return Stream.concat(Stream.of(
                             withUserProjectEndpoint(userInstance)
                                     .resourceName(cr.getComputationalName())
@@ -184,9 +178,6 @@ public class BillingUtils {
                             getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
                     );
                 });
-        log.info("TEST LOG!!!: computationalStream: {}", computationalStream);
-        log.info("TEST LOG!!!: computationalStream: {}", computationalStream.collect(Collectors.toList()));
-
 
         final String exploratoryName = userInstance.getExploratoryName();
         final String exploratoryId = userInstance.getExploratoryId().toLowerCase();
@@ -209,9 +200,6 @@ public class BillingUtils {
                         .datalabId(secondaryVolumeId)
                         .resourceType(VOLUME)
                         .build());
-
-        log.info("TEST LOG!!!: exploratoryStream: {}", exploratoryStream);
-        log.info("TEST LOG!!!: exploratoryStream: {}", exploratoryStream.collect(Collectors.toList()));
 
         return Stream.concat(computationalStream, exploratoryStream);
     }
@@ -242,15 +230,6 @@ public class BillingUtils {
     }
 
     public static String getComputationalShape(UserComputationalResource resource) {
-        log.info("TEST LOG!!! getComputationalShape");
-        log.info("TEST LOG!!! UserComputationalResource: {}", resource);
-        log.info("TEST LOG!!! getTemplateName: {}", resource.getTemplateName());
-        log.info("TEST LOG!!! getTotalInstanceCount: {}", resource.getTotalInstanceCount());
-        log.info("TEST LOG!!! getDataengineShape: {}", resource.getDataengineShape());
-        log.info("TEST LOG!!! getMasterNodeShape: {}", resource.getMasterNodeShape());
-        log.info("TEST LOG!!!: DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE: {} == {}",
-                DataEngineType.fromDockerImageName(resource.getImageName()), DataEngineType.SPARK_STANDALONE);
-
         return DataEngineType.fromDockerImageName(resource.getImageName()) != DataEngineType.SPARK_STANDALONE ?
                 String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
                 String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), resource.getTotalInstanceCount() - 1, resource.getSlaveNodeShape());

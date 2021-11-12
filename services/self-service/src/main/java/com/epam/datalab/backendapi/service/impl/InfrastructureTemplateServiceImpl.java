@@ -108,15 +108,12 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 
             final Set<String> roles = userGroupDao.getUserGroups(user.getName());
 
-            List<FullComputationalTemplate> s = Arrays.stream(array)
+            return Arrays.stream(array)
                     .peek(e -> e.setImage(getSimpleImageName(e.getImage())))
                     .peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES, roles))
                     .filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage(), roles))
                     .map(comp -> fullComputationalTemplate(comp, endpointDTO.getCloudProvider(), project))
                     .collect(Collectors.toList());
-            log.info("changed: {}", s);
-
-            return s;
 
         } catch (DatalabException e) {
             log.error("Could not load list of computational templates for user: {}", user.getName(), e);

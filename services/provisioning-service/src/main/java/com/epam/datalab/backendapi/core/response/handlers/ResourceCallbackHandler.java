@@ -129,7 +129,6 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             log.error("Could not {} resource for user: {}, UUID: {}", action, user, uuid);
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
         }
-        log.info("TEST LOG!!!: resultNode: {}, result: {}", resultNode, result);
         result = parseOutResponse(resultNode, result);
         selfServicePost(result);
         return !UserInstanceStatus.FAILED.equals(status);

@@ -44,7 +44,6 @@ public class InfrastructureResourceAws extends InfrastructureService {
     @Path("/status")
     @POST
     public String status(@Auth UserInfo ui, UserEnvironmentResources dto) {
-        log.info("TEST LOG!!! UserEnvironmentResources:{}", dto);
         return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), DockerAction.STATUS);
     }
 }

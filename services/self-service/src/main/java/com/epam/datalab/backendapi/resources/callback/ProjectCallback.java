@@ -61,7 +61,6 @@ public class ProjectCallback {
 
     @POST
     public Response updateProjectStatus(ProjectResult projectResult) {
-        log.info("TEST LOG!!!: projectResult: {}", projectResult);
         requestId.checkAndRemove(projectResult.getRequestId());
         final String projectName = projectResult.getProjectName();
         final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());

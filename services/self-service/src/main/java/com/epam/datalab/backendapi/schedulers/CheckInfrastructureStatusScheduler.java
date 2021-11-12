@@ -149,7 +149,6 @@ public class CheckInfrastructureStatusScheduler implements Job {
     }
 
     private boolean noEmrCreating(UserComputationalResource c) {
-        log.info("TEST LOG!!!: status: {}, template name: {}", c.getStatus(), c.getTemplateName());
         return !(c.getStatus().equals(CREATING.name()) && c.getTemplateName().contains(AWS_EMR_CLUSTER));
     }
 
@@ -168,10 +167,6 @@ public class CheckInfrastructureStatusScheduler implements Job {
     private List<EnvResource> getEdgeInstances(String endpoint, Map.Entry<String, List<ProjectEndpointDTO>> entry) {
         return entry.getValue()
                 .stream()
-                .peek(e -> log.info("TEST LOG!!!: status: {}", e.getStatus()))
-                .peek(e -> log.info("TEST LOG!!!: e: {}", e))
-                .peek(e -> log.info("TEST LOG!!!: statusesToCheck: {}", statusesToCheck))
-
                 .filter(e -> statusesToCheck.contains(e.getStatus()))
                 .filter(e -> e.getName().equals(endpoint))
                 .filter(e -> Objects.nonNull(e.getEdgeInfo()))

@@ -57,8 +57,6 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 
     @Override
     protected ProjectResult parseOutResponse(JsonNode resultNode, ProjectResult baseStatus) {
-        log.info("TEST LOG!!!: resultNode: {} , baseStatus: {}", resultNode, baseStatus);
-
         baseStatus.setProjectName(projectName);
         baseStatus.setEndpointName(endpointName);
         if (resultNode != null &&

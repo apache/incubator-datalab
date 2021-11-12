@@ -654,10 +654,8 @@ public class RequestBuilder {
     }
 
     public UserEnvironmentResources newInfrastructureStatus(String user, CloudProvider cloudProvider, EnvResourceList resourceList) {
-        UserEnvironmentResources userEnvironmentResources = newResourceSysBaseDTO(user, cloudProvider, UserEnvironmentResources.class)
+        return newResourceSysBaseDTO(user, cloudProvider, UserEnvironmentResources.class)
                 .withResourceList(resourceList);
-        log.info("TEST LOG!!! userEnvironmentResources: {}", userEnvironmentResources);
-        return userEnvironmentResources;
     }
 
     /**

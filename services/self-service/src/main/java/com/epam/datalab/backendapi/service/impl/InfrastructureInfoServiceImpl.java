@@ -146,7 +146,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                 .build();
 
         EndpointDTO endpointDTO = endpointService.get(endpoint);
-        if (envResourceList.isEmpty()) {
+        if (isEmpty(envResourceList)) {
             log.info("EnvResources is empty: {} , didn't send request to provisioning service", envResourceList);
         } else {
             log.info("Send request to provisioning service:\n POST:{}, with EnvResources: {}", INFRASTRUCTURE_STATUS,
@@ -156,6 +156,10 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                     String.class);
             requestId.put(user.getName(), uuid);
         }
+    }
+
+    private boolean isEmpty(EnvResourceList envResourceList) {
+        return envResourceList.getClusterList().isEmpty() && envResourceList.getHostList().isEmpty();
     }
 
     private List<BillingReport> getExploratoryBillingData(List<UserInstanceDTO> exploratories) {
@@ -196,7 +200,6 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
         shared.put("status", endpointDTO.getStatus().toString());
         shared.put("edge_node_ip", edge.getPublicIp());
 
-        log.info("TEST LOG!!!: edge: {}", edge);
         if (edge instanceof EdgeInfoAws) {
             EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edge;
             shared.put("user_own_bicket_name", edgeInfoAws.getUserOwnBucketName());
