@@ -60,8 +60,8 @@ if __name__ == "__main__":
         traceback.print_exc()
         sys.exit(1)
 
-    logging.info("Disable scp on nodes")
-    disable_edge_scp_binary(args.user)
+    #logging.info("Disable scp on nodes")
+    #disable_edge_scp_binary(args.user)
 
     #logging.info("Updating openssh to version")
     #ensure_openssh_version(args.user)
