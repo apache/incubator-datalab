@@ -225,8 +225,14 @@ def ensure_jre_jdk(os_user):
         try:
             manage_pkg('-y install', 'remote', 'default-jre')
             manage_pkg('-y install', 'remote', 'default-jdk')
-            manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
-            manage_pkg('-y install', 'remote', 'openjdk-8-jre')
+            if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'gcp':
+                datalab.fab.conn.sudo('wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -')
+                datalab.fab.conn.sudo('add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/')
+                datalab.fab.conn.sudo('apt-get update')
+                datalab.fab.conn.sudo('apt-get install adoptopenjdk-8-hotspot -y')
+            else:
+                manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
+                manage_pkg('-y install', 'remote', 'openjdk-8-jre')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
@@ -407,6 +413,8 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
+        if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
+            datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
         datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
