@@ -97,7 +97,7 @@ if __name__ == "__main__":
                                                                      image_conf['instance_name'])
                 datalab.actions_lib.remount_azure_disk(True, image_conf['datalab_ssh_user'], instance_hostname,
                                                        keyfile_name)
-                datalab.actions_lib.ensure_right_mount_paths(True, notebook_config['datalab_ssh_user'], instance_hostname,
+                datalab.actions_lib.ensure_right_mount_paths(True, image_conf['datalab_ssh_user'], instance_hostname,
                                                        keyfile_name)
                 datalab.fab.set_git_proxy(image_conf['datalab_ssh_user'], instance_hostname, keyfile_name,
                                           'http://{}:3128'.format(edge_instance_hostname))
