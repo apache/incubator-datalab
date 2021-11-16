@@ -101,24 +101,7 @@ public class BillingServiceImpl implements BillingService {
                 .peek(this::appendStatuses)
                 .filter(bd -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(bd.getStatus()))
                 .collect(Collectors.toList());
-
-        //TEST
-        List<ProjectResources> collect = billingReportLines.stream()
-                .filter(x -> x.getShape().equals("0 x null"))
-                .map(x -> new ProjectResources(x.getResourceName(), x.getProject(), x))
-                .collect(Collectors.toList());
-
-        collect.stream()
-                .peek((
-                        x -> System.out.println(exploratoryService.getUserInstance(user.getName(), x.getProject(), x.getResName()))
-                ))
-                .peek(
-                        x -> System.out.println(
-                                exploratoryService.getUserInstance(user.getName(), x.getProject(), x.getBillingReportLine().getExploratoryName()))
-
-                ).count();
-
-//TEST
+        
         final LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLine::getUsageDateFrom)).map(BillingReportLine::getUsageDateFrom).orElse(null);
         final LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLine::getUsageDateTo)).map(BillingReportLine::getUsageDateTo).orElse(null);
         final double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
