@@ -738,13 +738,14 @@ def get_list_instance_statuses(instance_ids):
     for h in instance_ids:
         host = {}
         try:
-            response = client.describe_instances(InstanceIds=[h.get('id')]).get('Reservations')
-            for i in response:
-                inst = i.get('Instances')
-                for j in inst:
-                    host['id'] = j.get('InstanceId')
-                    host['status'] = j.get('State').get('Name')
-                    data.append(host)
+            if 'id' in h:
+                response = client.describe_instances(InstanceIds=[h.get('id')]).get('Reservations')
+                for i in response:
+                    inst = i.get('Instances')
+                    for j in inst:
+                        host['id'] = j.get('InstanceId')
+                        host['status'] = j.get('State').get('Name')
+                        data.append(host)
         except Exception as err:
             host['id'] = i.get('id')
             host['status'] = 'terminated'
