@@ -77,6 +77,8 @@ def configure_slave(slave_number, data_engine):
             .format(slave_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_clean_instance', params), shell=True, check=True)
+            datalab.actions_lib.ensure_right_mount_paths(True, data_engine['datalab_ssh_user'], slave_hostname,
+                                                         keyfile_name)
         except:
             traceback.print_exc()
             raise Exception
@@ -255,6 +257,8 @@ if __name__ == "__main__":
         params = '--hostname {} --keyfile {} --os_user {} --application {}' \
             .format(master_node_hostname, keyfile_name, data_engine['datalab_ssh_user'], os.environ['application'])
         try:
+            datalab.actions_lib.ensure_right_mount_paths(True, data_engine['datalab_ssh_user'], master_node_hostname,
+                                                         keyfile_name)
             subprocess.run("~/scripts/{}.py {}".format('common_clean_instance', params), shell=True, check=True)
         except:
             traceback.print_exc()
