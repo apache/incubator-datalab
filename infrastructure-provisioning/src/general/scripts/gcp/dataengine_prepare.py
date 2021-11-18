@@ -106,7 +106,10 @@ if __name__ == "__main__":
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
 
-        data_engine['primary_disk_size'] = '30'
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            data_engine['primary_disk_size'] = '150'
+        else:
+            data_engine['primary_disk_size'] = '30'
         data_engine['secondary_disk_size'] = os.environ['notebook_disk_size']
 
         data_engine['shared_image_enabled'] = os.environ['conf_shared_image_enabled']

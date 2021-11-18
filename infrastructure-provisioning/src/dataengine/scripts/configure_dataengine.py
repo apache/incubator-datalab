@@ -146,7 +146,10 @@ if __name__ == "__main__":
         ensure_python3_specific_version(python3_version, args.os_user)
 
     # INSTALL PYTHON IN VIRTUALENV
-    if os.environ['conf_deeplearning_cloud_ami'] != 'true':
+    if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'azure' and \
+            os.environ['application'] == 'deeplearning':
+        print('Python Virtualenv already configured')
+    else:
         print("Configure Python Virtualenv")
         ensure_python_venv(python_venv_version)
 

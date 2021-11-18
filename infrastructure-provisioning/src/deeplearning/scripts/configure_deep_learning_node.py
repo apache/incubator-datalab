@@ -143,11 +143,13 @@ if __name__ == "__main__":
         print("Install Python 3 modules")
         ensure_python3_libraries(args.os_user)
 
-        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] != 'gcp':
-            # INSTALL AND CONFIGURE JUPYTER NOTEBOOK
+        # INSTALL AND CONFIGURE JUPYTER NOTEBOOK
+        if os.environ['conf_cloud_provider'] != 'gcp':
             print("Configure Jupyter")
             configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version,
                               args.exploratory_name)
+        else:
+            configure_jupyterlab_at_gcp_image(args.os_user, args.exploratory_name)
 
         print("Configure Python Virtualenv")
         ensure_python_venv_deeplearn(python_venv_version)
@@ -163,8 +165,9 @@ if __name__ == "__main__":
         install_keras(args.os_user, keras_version)
         print("Installing Caffe2")
         install_caffe2(args.os_user, caffe2_version, cmake_version)
-        print("Install CNTK Python library")
-        install_cntk(args.os_user, cntk_version)
+        if os.environ['conf_cloud_provider'] != 'gcp':
+            print("Install CNTK Python library")
+            install_cntk(args.os_user, cntk_version)
         print("Installing MXNET")
         install_mxnet(args.os_user, mxnet_version)
 
