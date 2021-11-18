@@ -123,27 +123,27 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             subprocess.run('sudo systemctl start livy-server-' + str(livy_port), shell=True, check=True)
         else:
             template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
-            p_versions = ["2", "3.8"]
-            for p_version in p_versions:
-                fr = open(template_file, 'r+')
-                text = fr.read()
-                text = text.replace('CLUSTERNAME', cluster_name)
-                text = text.replace('PYTHONVERSION', p_version)
-                text = text.replace('SPARK_HOME', cluster_dir + 'spark/')
-                text = text.replace('PYTHONVER_SHORT', p_version[:1])
-                text = text.replace('MASTER', str(spark_master))
-                tmp_file = "/tmp/dataengine_spark_py" + p_version + "_interpreter.json"
-                fw = open(tmp_file, 'w')
-                fw.write(text)
-                fw.close()
-                for _ in range(5):
-                    try:
-                        subprocess.run("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
-                              "@/tmp/dataengine_spark_py" + p_version +
-                              "_interpreter.json http://localhost:8080/api/interpreter/setting", shell=True, check=True)
-                        break
-                    except:
-                        subprocess.run('sleep 5', shell=True, check=True)
+            p_version = os.environ['notebook_python_venv_version']
+            fr = open(template_file, 'r+')
+            text = fr.read()
+            text = text.replace('CLUSTERNAME', cluster_name)
+            text = text.replace('PYTHONVERSION', p_version[:3])
+            text = text.replace('PYTHONVER_FULL', p_version)
+            text = text.replace('SPARK_HOME', cluster_dir + 'spark/')
+            text = text.replace('PYTHONVER_SHORT', p_version[:1])
+            text = text.replace('MASTER', str(spark_master))
+            tmp_file = "/tmp/dataengine_spark_py" + p_version + "_interpreter.json"
+            fw = open(tmp_file, 'w')
+            fw.write(text)
+            fw.close()
+            for _ in range(5):
+                try:
+                    subprocess.run("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
+                            "@/tmp/dataengine_spark_py" + p_version +
+                            "_interpreter.json http://localhost:8080/api/interpreter/setting", shell=True, check=True)
+                    break
+                except:
+                    subprocess.run('sleep 5', shell=True, check=True)
         subprocess.run('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured', shell=True, check=True)
     except Exception as err:
         print('Error: {0}'.format(err))
