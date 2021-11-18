@@ -84,11 +84,13 @@ def install_sparkamagic_kernels(args):
         datalab.fab.conn.sudo('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user))
         datalab.fab.conn.sudo('bash -l -c "spark-submit --version" ').stdout.rstrip()
-        scala_version = datalab.fab.conn.sudo('''bash -l -c '"spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}' ''').stdout.rstrip("\n\r")
+        scala_version = datalab.fab.conn.sudo('''bash -l -c "spark-submit --version 2>&1 | grep -o -P 'Scala version \K.{0,7}'" ''').stdout.rstrip("\n\r")
         spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(scala_version, args.spark_version,
                                                                          args.cluster_name)
         datalab.fab.conn.sudo('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
             spark_kernel_name, args.os_user))
+        if os.environ['conf_cloud_provider'] in ('gcp', 'aws') and os.environ['application'] == 'deeplearning':
+            datalab.fab.conn.sudo('apt install r-base -y')
         r_version = datalab.fab.conn.sudo(''' bash -l -c 'R --version | grep -o -P "R version \K.{0,5}"' ''').stdout.rstrip("\n\r")
         sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(r_version, args.spark_version,
                                                                             args.cluster_name)

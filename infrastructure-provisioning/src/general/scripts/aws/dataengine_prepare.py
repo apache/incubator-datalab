@@ -96,7 +96,10 @@ if __name__ == "__main__":
                                                                              data_engine['cluster_name'])}
         data_engine['cluster_nodes_billing_tag'] = {"Key": os.environ['conf_billing_tag_key'],
                                                     "Value": os.environ['conf_billing_tag_value']}
-        data_engine['primary_disk_size'] = '30'
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            data_engine['primary_disk_size'] = '150'
+        else:
+            data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
         if os.environ['conf_shared_image_enabled'] == 'false':

@@ -225,11 +225,19 @@ def ensure_jre_jdk(os_user):
         try:
             manage_pkg('-y install', 'remote', 'default-jre')
             manage_pkg('-y install', 'remote', 'default-jdk')
-            manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
-            manage_pkg('-y install', 'remote', 'openjdk-8-jre')
+            if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'gcp':
+                datalab.fab.conn.sudo(
+                    'wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -')
+                datalab.fab.conn.sudo('add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/')
+                datalab.fab.conn.sudo('apt-get update')
+                datalab.fab.conn.sudo('apt-get install adoptopenjdk-8-hotspot -y')
+            else:
+                manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
+                manage_pkg('-y install', 'remote', 'openjdk-8-jre')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
+
 
 
 def ensure_additional_python_libs(os_user):
@@ -263,7 +271,12 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
-            datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': # чекнути чи добавилось
+                datalab.fab.conn.sudo('pip3 install --upgrade --user pyqt5==5.12')
+                datalab.fab.conn.sudo('pip3 install --upgrade --user pyqtwebengine==5.12')
+                datalab.fab.conn.sudo('pip3 install setuptools')
+            else:
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:
                 datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} sparkmagic --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -407,10 +420,11 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
+        if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
+            datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
         datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
-
 
 def install_os_pkg(requisites):
     status = list()
