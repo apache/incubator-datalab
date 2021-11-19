@@ -271,7 +271,7 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
-            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': # чекнути чи добавилось
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': 
                 datalab.fab.conn.sudo('pip3 install --upgrade --user pyqt5==5.12')
                 datalab.fab.conn.sudo('pip3 install --upgrade --user pyqtwebengine==5.12')
                 datalab.fab.conn.sudo('pip3 install setuptools')
