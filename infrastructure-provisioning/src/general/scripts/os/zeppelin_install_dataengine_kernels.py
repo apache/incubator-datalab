@@ -93,7 +93,7 @@ if __name__ == "__main__":
     conn.sudo('/usr/bin/python3 /usr/local/bin/zeppelin_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} \
          --notebook_ip {} --livy_version {} --multiple_clusters {} --region {} --datalake_enabled {} '
-         '--r_enabled {} --spark_configurations "{}"'.
+         '--r_enabled {} --spark_configurations "{}" --python_version {}'.
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
                 args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters'], region,
-                args.datalake_enabled, r_enabled, os.environ['spark_configurations']))
+                args.datalake_enabled, r_enabled, os.environ['spark_configurations'], os.environ['notebook_python_venv_version']))
