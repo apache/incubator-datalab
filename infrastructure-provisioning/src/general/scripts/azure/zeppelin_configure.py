@@ -277,9 +277,14 @@ if __name__ == "__main__":
                 subprocess.run("~/scripts/{}.py".format('common_prepare_notebook'), shell=True, check=True)
                 instance_running = False
                 while not instance_running:
-                    if AzureMeta.get_instance_status(notebook_config['resource_group_name'],
-                                                     notebook_config['instance_name']) == 'running':
-                        instance_running = True
+                    if AzureMeta.get_instance_status(
+                            notebook_config['resource_group_name'], notebook_config['instance_name']) == 'running':
+                        if not AzureMeta.get_instance_vmagent_status(
+                                notebook_config['resource_group_name'], notebook_config['instance_name']):
+                            AzureActions.restart_instance(
+                                notebook_config['resource_group_name'], notebook_config['instance_name'])
+                        else:
+                            instance_running = True
                 instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                                      notebook_config['instance_name'])
                 datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,

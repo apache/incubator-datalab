@@ -178,6 +178,26 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_instance_vmagent_status(self, resource_group_name, instance_name):
+        try:
+            result = False
+            display_status = self.compute_client.virtual_machines.instance_view(resource_group_name, instance_name)['vmAgent']['statuses'][0]['displayStatus']
+            print('===========1')
+            print(display_status)
+            if 'Not Ready' not in display_status:
+                result = True
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to view instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to view instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_instances_name_by_tag(self, resource_group_name, tag, value):
         try:
             list = []
