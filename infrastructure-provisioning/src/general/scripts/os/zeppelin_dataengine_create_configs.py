@@ -56,7 +56,7 @@ spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/
              "-bin-hadoop" + hadoop_version + ".tgz"
 
 
-def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user, multiple_clusters, spark_master, python_version):
+def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user, multiple_clusters, spark_master, python_version, notebook_ip):
     try:
         port_number_found = False
         zeppelin_restarted = False
@@ -127,6 +127,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             fr = open(template_file, 'r+')
             text = fr.read()
             text = text.replace('CLUSTERNAME', cluster_name)
+            text = text.replace('HOST_IP', notebook_ip)
             text = text.replace('PYTHONVERSION', python_version[:3])
             text = text.replace('PYTHONVER_FULL', python_version)
             text = text.replace('SPARK_HOME', cluster_dir + 'spark/')
@@ -175,5 +176,5 @@ if __name__ == "__main__":
     if args.multiple_clusters == 'true':
         install_remote_livy(args)
     configure_zeppelin_dataengine_interpreter(args.cluster_name, cluster_dir, args.os_user,
-                                              args.multiple_clusters, args.spark_master, args.python_version)
+                                              args.multiple_clusters, args.spark_master, args.python_version, args.notebook_ip)
     update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)

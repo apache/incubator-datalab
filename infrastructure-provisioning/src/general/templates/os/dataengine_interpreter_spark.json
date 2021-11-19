@@ -37,6 +37,13 @@
         "description": "Spark master uri. ex) spark://masterhost:7077",
         "type": "string"
       },
+    "spark.driver.host":{
+        "envName": "spark.driver.host",
+        "propertyName": "spark.driver.host",
+        "value": "HOST_IP",
+        "description": "driver host ip (zeppelin)",
+        "type": "string"
+      },
     "zeppelin.spark.concurrentSQL": {
         "envName": "ZEPPELIN_SPARK_CONCURRENTSQL",
         "propertyName": "zeppelin.spark.concurrentSQL",
