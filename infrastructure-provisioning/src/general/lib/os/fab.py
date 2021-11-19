@@ -788,7 +788,7 @@ def get_spark_memory(creds=False, os_user='', hostname='', keyfile=''):
         else:
             mem = conn.sudo('free -m | grep Mem | tr -s " " ":" | cut -f 2 -d ":"').stdout.replace('\n', '')
             instance_memory = int(mem)
-        spark_memory = round(instance_memory * 90 / 100)
+        spark_memory = round(instance_memory * 85 / 100)
         return spark_memory
     except Exception as err:
         logging.error('Function install_inactivity_checker error:', str(err))
