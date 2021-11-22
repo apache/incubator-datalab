@@ -929,12 +929,6 @@ def dataengine_dir_prepare(cluster_dir):
         sys.exit(1)
 
 
-# def ensure_dataengine_tensorflow_jars(jars_dir):
-#     subprocess.run('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
-#                    '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar'
-#                    ' -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir), shell=True, check=True)
-
-
 def prepare(dataengine_service_dir, yarn_dir):
     try:
         subprocess.run('mkdir -p ' + dataengine_service_dir, shell=True, check=True)
