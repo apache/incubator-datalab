@@ -225,7 +225,7 @@ def ensure_jre_jdk(os_user):
         try:
             manage_pkg('-y install', 'remote', 'default-jre')
             manage_pkg('-y install', 'remote', 'default-jdk')
-            if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'gcp':
+            if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
                 datalab.fab.conn.sudo(
                     'wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -')
                 datalab.fab.conn.sudo('add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/')
