@@ -24,10 +24,15 @@ import os
 import subprocess
 
 #quick fix for spark configuration, when python script is launched on notebook instance without environment variables and log directories
-if 'conf_resource' not in os.environ and 'request_id' not in os.environ:
-    os.environ['conf_resource'] = 'undefined_conf_resource'
+try:
+    request_id = os.environ['request_id']
+except:
     os.environ['request_id'] = 'undefined_request_id'
     subprocess.run("sudo mkdir -p /logs/undefined_conf_resource/", shell=True, check=True)
+try:
+    conf_resource = os.environ['conf_resource']
+except:
+    os.environ['conf_resource'] = 'undefined_conf_resource'
 
 local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
 local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
