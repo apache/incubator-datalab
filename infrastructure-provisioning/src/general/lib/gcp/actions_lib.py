@@ -1412,8 +1412,8 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             datalab.fab.conn.sudo('''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''
                                   .format(memory_type, spark_memory))
         if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
-            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'gcp':
+            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh'
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
             java_home = '/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64/jre'
         else:
             java_home = datalab.fab.conn.run(
