@@ -978,7 +978,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
             elif os.environ['application'] != 'tensor':
                 conn.sudo('pip3 install environment_kernels')
-            if os.environ['conf_cloud_provider'] == 'aws':
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['application'] == 'deeplearning':
                 conn.sudo('chown -R {0} /home/{0}/.local'.format(os_user))
                 conn.sudo('chgrp -R {0} /home/{0}/.local'.format(os_user))
             conn.run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
