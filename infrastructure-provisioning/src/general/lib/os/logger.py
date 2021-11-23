@@ -33,7 +33,7 @@ try:
 except:
     os.environ['conf_resource'] = 'undefined_conf_resource'
 
-subprocess.run("sudo mkdir -p /logs/{}/".format(os.environ['conf_resource']), shell=True, check=True)
+subprocess.run("sudo mkdir -p /logs/{}/".format(os.environ['conf_resource']), shell=True)
 
 local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
 local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
