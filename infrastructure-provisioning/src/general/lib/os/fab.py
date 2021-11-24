@@ -929,12 +929,6 @@ def dataengine_dir_prepare(cluster_dir):
         sys.exit(1)
 
 
-def ensure_dataengine_tensorflow_jars(jars_dir):
-    subprocess.run('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
-                   '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar'
-                   ' -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir), shell=True, check=True)
-
-
 def prepare(dataengine_service_dir, yarn_dir):
     try:
         subprocess.run('mkdir -p ' + dataengine_service_dir, shell=True, check=True)
@@ -984,9 +978,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
             elif os.environ['application'] != 'tensor':
                 conn.sudo('pip3 install environment_kernels')
-            if os.environ['conf_cloud_provider'] == 'aws':
-                conn.sudo('chown -R {0} /home/{0}/.local'.format(os_user))
-                conn.sudo('chgrp -R {0} /home/{0}/.local'.format(os_user))
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['application'] == 'deeplearning': #should be checked if for other applications any files have owner root:root in datalab-user homefolder and where it is changed to root:root on deeplearning
+                conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             conn.run('mkdir -p ~/.jupyter/custom/')
             conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
