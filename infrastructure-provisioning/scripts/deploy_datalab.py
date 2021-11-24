@@ -135,7 +135,7 @@ def build_parser():
         multiple emails, e.g. u1@example.com,u2@example.com.''')
     parser.add_argument('--conf_repository_user', type=str, default='',
                         help='user to access repository (used for jars download)')
-    parser.add_argument('--conf_release_tag', type=str, default='2.5',
+    parser.add_argument('--conf_release_tag', type=str, default='2.5.1',
                         help='tag used for jars download')
     parser.add_argument('--conf_repository_pass', type=str, default='',
                         help='password to access repository (used for jars download)')
