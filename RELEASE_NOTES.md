@@ -25,7 +25,7 @@
 
 ## Known issues in v2.5.1
 **GCP:**
-- Superset creation fails during configuration???;
+- Superset creation fails during configuration;
 - SSO is not available for Superset.
 
 **Microsoft Azure:**
@@ -38,9 +38,9 @@
 ## Known issues caused by cloud provider limitations in v2.5.1
 
 **Microsoft Azure:**
-- Resource name length should not exceed 80 chars;
+- Resource name length should not exceed 80 chars.
 
 **GCP:**
-- Resource name length should not exceed 64 chars;
+- Resource name length should not exceed 64 chars.
 
 **NOTE:** the DataLab has not been tested for RedHat Enterprise Linux.
