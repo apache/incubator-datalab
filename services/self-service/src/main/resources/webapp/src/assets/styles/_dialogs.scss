@@ -159,10 +159,6 @@ mat-dialog-container {
         transition: all 0.45s ease-in-out;
         line-height: 19px;
 
-        &.spark-url {
-          line-height: 16px;
-        }
-
         &:hover {
           color: #5faec7;
         }
