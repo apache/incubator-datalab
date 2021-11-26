@@ -509,13 +509,6 @@ def ensure_dataengine_tensorflow_jars(jars_dir):
          -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir), shell=True, check=True)
 
 
-def prepare(dataengine_service_dir, yarn_dir):
-    subprocess.run('mkdir -p ' + dataengine_service_dir, shell=True, check=True)
-    subprocess.run('mkdir -p ' + yarn_dir, shell=True, check=True)
-    subprocess.run('sudo mkdir -p /opt/python/', shell=True, check=True)
-    result = os.path.exists(dataengine_service_dir + 'usr/')
-    return result
-
 def install_r_pkg(requisites):
     status = list()
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping|couldn't find"
