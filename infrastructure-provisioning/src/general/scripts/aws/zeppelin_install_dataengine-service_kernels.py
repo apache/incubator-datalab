@@ -40,7 +40,6 @@ parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
-parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 args = parser.parse_args()
 
@@ -91,10 +90,9 @@ if __name__ == "__main__":
              "--scala_version {11} " \
              "--livy_version {12} " \
              "--multiple_clusters {13} " \
-             "--pip_mirror {14} " \
-             "--numpy_version {15} " \
-             "--application {16} " \
-             "--r_enabled {17}" \
+             "--numpy_version {14} " \
+             "--application {15} " \
+             "--r_enabled {16}" \
         .format(args.bucket,
                 args.cluster_name,
                 args.emr_version,
@@ -109,7 +107,6 @@ if __name__ == "__main__":
                 args.scala_version,
                 livy_version,
                 os.environ['notebook_multiple_clusters'],
-                args.pip_mirror,
                 numpy_version,
                 args.application,
                 r_enabled)
