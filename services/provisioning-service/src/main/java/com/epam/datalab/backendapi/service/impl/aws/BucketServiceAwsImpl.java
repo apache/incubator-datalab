@@ -143,7 +143,7 @@ public class BucketServiceAwsImpl implements BucketService {
                 .bucket(bucket)
                 .object(s3Object.key())
                 .size(String.valueOf(s3Object.size()))
-                .lastModifiedDate(String.valueOf(s3Object.lastModified().toEpochMilli()))
+                .lastModifiedDate(s3Object.lastModified().toEpochMilli())
                 .build();
     }
 }

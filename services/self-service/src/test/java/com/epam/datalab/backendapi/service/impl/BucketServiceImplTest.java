@@ -69,7 +69,7 @@ public class BucketServiceImplTest extends TestBase {
     private static final String BUCKET = "bucket";
     private static final String OBJECT = "object";
     private static final String SIZE = "size";
-    private static final String DATE = String.valueOf(Instant.now().toEpochMilli());
+    private static final long DATE = Instant.now().toEpochMilli();
     private static final String FOLDER = "folder/";
 
     @Mock
