@@ -129,7 +129,7 @@ public class BucketServiceAzureImpl implements BucketService {
                 .bucket(bucket)
                 .object(blob.getName())
                 .size(String.valueOf(blob.getProperties().getContentLength()))
-                .lastModifiedDate(blob.getProperties().getLastModified().toEpochSecond())
+                .lastModifiedDate(String.valueOf(blob.getProperties().getLastModified().toEpochSecond()*1000))
                 .build();
     }
 

@@ -122,7 +122,7 @@ public class BucketServiceGcpImpl implements BucketService {
                 .bucket(blobInfo.getBucket())
                 .object(blobInfo.getName())
                 .size(String.valueOf(blobInfo.getSize()))
-                .lastModifiedDate(blobInfo.getUpdateTime())
+                .lastModifiedDate(String.valueOf(blobInfo.getUpdateTime()))
                 .build();
     }
 }
