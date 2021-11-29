@@ -1455,6 +1455,7 @@ def install_emr_spark(args):
             print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     subprocess.run('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/' + args.emr_version + '/' + args.cluster_name + '/', shell=True, check=True)
+    subprocess.run('sudo cp -R /opt/spark/R/lib/SparkR /opt/' + args.emr_version + '/' + args.cluster_name + '/spark/R/lib/', shell=True, check=True)
 
 
 def jars(args, emr_dir):
