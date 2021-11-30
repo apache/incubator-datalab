@@ -85,7 +85,7 @@
                     target="_blank"
                     (contextmenu)="false"
                   >
-                    &nbsp;{{item.url}}
+                    &nbsp;{{item.url | truncateTextPipe: urlMaxLength}}
                   </a>
                   <span 
                     (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" 
@@ -129,7 +129,7 @@
                       target="_blank"
                       (contextmenu)="false"
                     >
-                      &nbsp;{{item.url}}
+                      &nbsp;{{item.url | truncateTextPipe: urlMaxLength}}
                     </a>
                     <span 
                       (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" 
