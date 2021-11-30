@@ -532,7 +532,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
             'pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
             'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
         if os.environ['application'] == 'deeplearning':
-            datalab.fab.conn.sudo('apt install -y cmake')
+            manage_pkg('-y install', 'remote', 'cmake')
             datalab.fab.conn.sudo('pip3 install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html')
         else:
             # datalab.fab.conn.sudo('mkdir /opt/cuda-{}'.format(os.environ['notebook_cuda_version']))
