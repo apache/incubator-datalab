@@ -50,6 +50,7 @@ export class DetailDialogComponent implements OnInit {
   public odahu: any;
   public configurationForm: FormGroup;
   @ViewChild('configurationNode') configuration;
+  urlMaxLength: number = 38;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

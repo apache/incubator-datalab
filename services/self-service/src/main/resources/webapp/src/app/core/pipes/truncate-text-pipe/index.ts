@@ -19,27 +19,12 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MaterialModule } from '../../../shared/material.module';
-import { DetailDialogComponent } from './detail-dialog.component';
-import { DirectivesModule } from '../../../core/directives';
-import {LongDatePipeModule} from '../../../core/pipes/long-date-pipe';
-import { TruncateTextPipeModule } from '../../../core/pipes/truncate-text-pipe';
-
-export * from './detail-dialog.component';
+import { TruncateTextPipe } from './truncate-text.pipe';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MaterialModule,
-        DirectivesModule,
-        LongDatePipeModule,
-        TruncateTextPipeModule
-    ],
-  declarations: [DetailDialogComponent],
-  entryComponents: [DetailDialogComponent],
-  exports: [DetailDialogComponent]
+  imports: [CommonModule],
+  declarations: [TruncateTextPipe],
+  exports: [TruncateTextPipe]
 })
-export class DetailDialogModule {}
+
+export class TruncateTextPipeModule { }
