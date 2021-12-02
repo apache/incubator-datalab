@@ -1,0 +1,36 @@
+# *****************************************************************************
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# ******************************************************************************
+
+[Unit]
+Description=ungit
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ungit --port=8085 --no-b --ungitBindIp=0.0.0.0 --rootPath=/NOTEBOOK_NAME-ungit
+User=OS_USR
+Group=OS_USR
+WorkingDirectory=/home/OS_USR/
+PIDFile=/var/run/ungit.pid
+Environment="HTTPS_PROXY=PROXY_HOST"
+Environment="HTTP_PROXY=PROXY_HOST"
+
+[Install]
+WantedBy=multi-user.target
