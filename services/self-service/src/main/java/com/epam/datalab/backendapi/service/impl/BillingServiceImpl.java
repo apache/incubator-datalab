@@ -100,6 +100,7 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .peek(this::appendStatuses)
                 .filter(bd -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(bd.getStatus()))
+                .peek(bd -> { if (bd.getShape() != null && bd.getShape().contains("null")) bd.setShape(null);})
                 .collect(Collectors.toList());
         
         final LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLine::getUsageDateFrom)).map(BillingReportLine::getUsageDateFrom).orElse(null);
