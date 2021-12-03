@@ -107,7 +107,7 @@
           <div class="detail-info" *ngIf="!notebook.error_message">
             <p>Edge Node IP Address {{notebook.node_ip}}</p>
             <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since
-              {{notebook.time ? (notebook.time | longDate: 'EEEE, d MMM, y, h:mm:ss a zzzz' ) : "not specified."}}
+              {{notebook.time ? (notebook.time | longDate) : "not specified."}}
             </p>
             <p *ngIf="notebook.url?.length">Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
