@@ -55,7 +55,7 @@ def configure_notebook(args):
     conn.sudo('chmod 755 /usr/local/bin/create_configs.py')
     conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
     conn.run('mkdir -p /home/{}/datalab_libs/'.format(args.os_user))
-    conn.local('scp -i {0} /usr/lib/python3.8/datalab/*.py {1}@{2}:/home/{1}/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
+    conn.local('rsync -e "ssh -i {0}" /usr/lib/python3.8/datalab/*.py {1}@{2}:/home/{1}/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
     conn.run('chmod a+x /home/{}/datalab_libs/*'.format(args.os_user))
     conn.sudo('mv /home/{}/datalab_libs/* /usr/lib/python3.8/datalab/'.format(args.os_user))
     conn.sudo('rm -rf /home/{}/datalab_libs/'.format(args.os_user))

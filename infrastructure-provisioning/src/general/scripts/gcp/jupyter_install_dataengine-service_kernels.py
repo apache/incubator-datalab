@@ -63,7 +63,7 @@ def configure_notebook(args):
     datalab.fab.conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
     datalab.fab.conn.run('mkdir -p /tmp/datalab_libs/')
     host_string = args.os_user + "@" + args.notebook_ip
-    datalab.fab.conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string))
+    datalab.fab.conn.local('rsync -e "ssh -i {}" /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string))
     datalab.fab.conn.run('chmod a+x /tmp/datalab_libs/*')
     datalab.fab.conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists(datalab.fab.conn, '/usr/lib64'):

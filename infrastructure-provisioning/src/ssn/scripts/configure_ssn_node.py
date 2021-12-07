@@ -63,7 +63,7 @@ def cp_key(keyfile, host_string, os_user):
         key_name=keyfile.split("/")
         conn.sudo('mkdir -p /home/' + os_user + '/keys')
         conn.sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/keys')
-        conn.local('scp -r -q -i {0} {0} {1}:/home/{3}/keys/{2}'.format(keyfile, host_string, key_name[-1], os_user))
+        conn.local('rsync -r -q -e "ssh -i {0}" {0} {1}:/home/{3}/keys/{2}'.format(keyfile, host_string, key_name[-1], os_user))
         conn.sudo('chmod 600 /home/' + os_user + '/keys/*.pem')
     except Exception as err:
         traceback.print_exc()
@@ -210,7 +210,7 @@ def copy_ssn_libraries():
         conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
         conn.run('mkdir -p /tmp/datalab_libs/')
         subprocess.run(
-            'scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string),
+            'rsync -e "ssh -i {}" /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string),
             shell=True, check=True)
         conn.run('chmod a+x /tmp/datalab_libs/*')
         conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
