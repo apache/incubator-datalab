@@ -52,8 +52,8 @@ def modify_conf_file(args):
     for os_var in os.environ:
         if "'" not in os.environ[os_var] and os_var != 'aws_access_key' and os_var != 'aws_secret_access_key':
             variables_list[os_var] = os.environ[os_var]
-    conn.local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, host_string, args.datalab_path))
-    conn.local('scp -i {} /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(args.keyfile,
+    conn.local('rsync -r -e "ssh -i {}" /project_tree/* {}:{}sources/'.format(args.keyfile, host_string, args.datalab_path))
+    conn.local('rsync -e "ssh -i {}" /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(args.keyfile,
                                                                                                  host_string))
     conn.sudo("python3 /tmp/configure_conf_file.py --datalab_dir {} --variables_list '{}'".format(
         args.datalab_path, json.dumps(variables_list)))
@@ -92,7 +92,7 @@ def login_in_gcr(os_user, gcr_creds, odahu_image, datalab_path, cloud_provider):
                 host_string = '{}@{}'.format(args.os_user, args.hostname)
                 with open('/tmp/config', 'w') as f:
                     f.write(base64.b64decode(gcr_creds))
-                conn.local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, host_string, os_user))
+                conn.local('rsync -e "ssh -i {}" /tmp/config {}:/tmp/config'.format(args.keyfile, host_string, os_user))
                 conn.sudo('mkdir /home/{}/.docker'.format(os_user))
                 conn.sudo('cp /tmp/config /home/{}/.docker/config.json'.format(os_user))
                 conn.sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/{}/odahu_Dockerfile'
@@ -110,7 +110,7 @@ def build_docker_images(image_list):
     try:
         host_string = '{}@{}'.format(args.os_user, args.hostname)
         if os.environ['conf_cloud_provider'] == 'azure':
-            conn.local('scp -i {} /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
+            conn.local('rsync -e "ssh -i {}" /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
                        'azure_auth.json'.format(args.keyfile, host_string, args.datalab_path))
             conn.sudo('cp {0}sources/infrastructure-provisioning/src/base/azure_auth.json '
                       '/home/{1}/keys/azure_auth.json'.format(args.datalab_path, args.os_user))

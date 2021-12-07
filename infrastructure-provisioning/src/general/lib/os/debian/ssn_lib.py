@@ -270,7 +270,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                datalab.fab.conn.local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                datalab.fab.conn.local('rsync -e "ssh -i {}" /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
                                                                                                          host_string))
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \
