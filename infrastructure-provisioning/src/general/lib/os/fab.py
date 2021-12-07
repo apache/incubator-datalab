@@ -682,7 +682,10 @@ def install_ungit(os_user, notebook_name, edge_ip):
     if not exists(conn, '/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             manage_npm_pkg('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
-            conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
+            if os.environ['conf_deeplearning_cloud_ami'] =='true' and os.environ['conf_cloud_provider'] =='azure' and os.environ['application'] =='deeplearning':
+                conn.put('/root/templates/ungit.service.18_04', '/tmp/ungit.service')
+            else:
+                conn.put('/root/templates/ungit.service', '/tmp/ungit.service')
             conn.sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             http_proxy = conn.run('''bash -l -c 'echo $http_proxy' ''').stdout.replace('\n', '')
             conn.sudo("sed -i 's|PROXY_HOST|{}|g' /tmp/ungit.service".format(http_proxy))
