@@ -285,11 +285,11 @@ def find_java_path_local():
         sys.exit(1)
 
 
-def disable_edge_scp_binary(os_user):
+def remove_scp_binary(os_user):
     try:
-        if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/disabled_scp_binary'.format(os_user)):
-            datalab.fab.conn.sudo('mv /usr/bin/scp /usr/bin/scp_disabled')
-        datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/disabled_scp_binary'.format(os_user))
+        if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/remove_scp_binary'.format(os_user)):
+            datalab.fab.conn.sudo('rm /usr/bin/scp')
+        datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/remove_scp_binary'.format(os_user))
     except Exception as err:
         logging.error('Updating openssh to version:', str(err))
         traceback.print_exc()
