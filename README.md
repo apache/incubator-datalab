@@ -2162,6 +2162,7 @@ user creation, filling initial data into Mongo, Node.js installation
 
   * Download MongoDB from [https://www.mongodb.com/download-center](https://www.mongodb.com/download-center)
   * Install database based on MongoDB instructions
+  * Download and install MongoDB Database Tools [https://www.mongodb.com/try/download/database-tools](https://www.mongodb.com/try/download/database-tools)
   * Start DB server and create accounts
 ```
 use admin
@@ -2190,7 +2191,7 @@ db.createUser(
 mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings.json
 ```
 
-  * Load collections form file datalab/infrastructure-provisioning/src/ssn/files/mongo_roles.json
+  * Load collections form file datalab/infrastructure-provisioning/src/ssn/files/(aws|azure)/mongo_roles.json
 
 ```
 mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
