@@ -2162,6 +2162,7 @@ user creation, filling initial data into Mongo, Node.js installation
 
   * Download MongoDB from [https://www.mongodb.com/download-center](https://www.mongodb.com/download-center)
   * Install database based on MongoDB instructions
+  * Download and install MongoDB Database Tools [https://www.mongodb.com/try/download/database-tools](https://www.mongodb.com/try/download/database-tools)
   * Start DB server and create accounts
 ```
 use admin
@@ -2190,7 +2191,7 @@ db.createUser(
 mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings.json
 ```
 
-  * Load collections form file datalab/infrastructure-provisioning/src/ssn/files/mongo_roles.json
+  * Load collections form file datalab/infrastructure-provisioning/src/ssn/files/(aws|azure)/mongo_roles.json
 
 ```
 mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
@@ -2236,7 +2237,7 @@ mklink ssn.yml ..\\..\\infrastructure-provisioning\\src\\ssn\\templates\\ssn.yml
 
 ### Install Node.js
 
-  * Download Node.js from [https://nodejs.org/en](https://nodejs.org/en)
+  * Download Node.js LTS from [https://nodejs.org/en](https://nodejs.org/en)
   * Install Node.js
   * Make sure that the installation folder of Node.js has been added  to the system environment variable **PATH**
   * Install latest packages
@@ -2252,13 +2253,7 @@ npm install npm@latest -g
 ```
 npm install
 ```
-  * Replace CLOUD_PROVIDER options with aws|azure in dictionary file<br> datalab/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts
 
-```
-import { NAMING_CONVENTION } from './(aws|azure).dictionary';
-
-export * from './(aws|azure).dictionary';
-```
   * Build web application
 
 ```
@@ -2283,7 +2278,7 @@ Please find below set of commands to create certificate, depending on OS.
 
 #### Create Unix/Ubuntu server certificate
 
-Pay attention that the last command has to be executed with administrative permissions.
+Pay attention that the last command has to be executed with administrative permissions. Use keytool bundled with JRE. 
 ```
 keytool -genkeypair -alias ssn -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore ~/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"
 keytool -exportcert -alias ssn -storepass KEYSTORE_PASSWORD -file ~/keys/ssn.crt -keystore ~/keys/ssn.keystore.jks
@@ -2292,7 +2287,7 @@ sudo keytool -importcert -trustcacerts -alias ssn -file ~/keys/ssn.crt -noprompt
 #### Create Windows server certificate
 
 Pay attention that the last command has to be executed with administrative permissions.
-To achieve this the command line (cmd) should be ran with administrative permissions.  
+To achieve this the command line (cmd) should be ran with administrative permissions. Path to <DRIVE_LETTER>:\home\%USERNAME%\keys should exist.  
 ```
 "%JRE_HOME%\bin\keytool" -genkeypair -alias ssn -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\ssn.keystore.jks -keysize 2048 -dname "CN=localhost"
 "%JRE_HOME%\bin\keytool" -exportcert -alias ssn -storepass KEYSTORE_PASSWORD -file <DRIVE_LETTER>:\home\%USERNAME%\keys\ssn.crt -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\ssn.keystore.jks
@@ -2310,7 +2305,7 @@ Where the ```<DRIVE_LETTER>``` must be the drive letter where you run the DataLa
  Open infrastructure-provisioning/src/ssn/templates/ssn.yml 
  
  * (23) KEYS_DIR -> path to keys dir with backslash
- * (30) CLOUD_TYPE -> CLOUD_PROVIDER to gcp
+ * (30) CLOUD_TYPE -> CLOUD_PROVIDER to aws
  * (34) DEV_MODE -> false to true
  * (40-42) change user, pass, db to created in prev step
  
@@ -2364,7 +2359,7 @@ Run application flow is following:
     * Create Application with name provisining-service-application
         * Main class: 
         ``` com.epam.datalab.backendapi.ProvisioningServiceApplication```
-        * VM options:  ```-Ddocker.dir=[PATH_TO_PROJECT_DIR]\infrastructure-provisioning\src\general\files\gcp```
+        * VM options:  ```-Ddocker.dir=[PATH_TO_PROJECT_DIR]\infrastructure-provisioning\src\general\files\aws```
         * Program arguments : ```server
                               [PATH_TO_PROJECT_DIR]\services\provisioning-service\provisioning.yml```
         * Working directory:```[PATH_TO_PROJECT_DIR]```
