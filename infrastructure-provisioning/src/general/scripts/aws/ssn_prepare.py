@@ -257,19 +257,23 @@ if __name__ == "__main__":
 
     #creating roles
     try:
-        logging.info('[CREATE ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
-                 "--infra_tag_name {} --infra_tag_value {} --user_tag_value {}". \
-            format(ssn_conf['role_name'], ssn_conf['role_profile_name'], ssn_conf['policy_name'],
-                   ssn_conf['policy_path'], ssn_conf['region'], ssn_conf['tag_name'],
-                   ssn_conf['service_base_name'], ssn_conf['user_tag'])
-        if 'aws_permissions_boundary_arn' in os.environ:
-            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
-        try:
-            subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
-        except:
-            traceback.print_exc()
-            raise Exception
+        if 'aws_ssn_instance_role' in os.environ and os.environ['aws_ssn_instance_role'] != '':
+            ssn_conf['role_name'] = os.environ['aws_ssn_instance_role']
+            ssn_conf['role_profile_name'] = os.environ['aws_ssn_instance_role']
+        else:
+            logging.info('[CREATE ROLES]')
+            params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
+                     "--infra_tag_name {} --infra_tag_value {} --user_tag_value {}". \
+                format(ssn_conf['role_name'], ssn_conf['role_profile_name'], ssn_conf['policy_name'],
+                       ssn_conf['policy_path'], ssn_conf['region'], ssn_conf['tag_name'],
+                       ssn_conf['service_base_name'], ssn_conf['user_tag'])
+            if 'aws_permissions_boundary_arn' in os.environ:
+                params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
+            try:
+                subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
+            except:
+                traceback.print_exc()
+                raise Exception
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to create roles", str(err))
