@@ -210,6 +210,8 @@ def build_parser():
     aws_parser.add_argument('--aws_report_path', type=str, help='The path to billing reports directory in S3 bucket')
     aws_parser.add_argument('--aws_permissions_boundary_arn', type=str, default='',
                             help='Permission boundary to be attached to new roles')
+    aws_parser.add_argument('--aws_ssn_instance_role', type=str, default='',
+                            help='Role to be attached to SSN instance')
 
     aws_required_args = aws_parser.add_argument_group('Required arguments')
     aws_required_args.add_argument('--aws_region', type=str, required=True, help='AWS region')
