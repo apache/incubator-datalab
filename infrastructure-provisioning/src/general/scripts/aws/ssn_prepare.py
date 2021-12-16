@@ -261,9 +261,6 @@ if __name__ == "__main__":
             logging.info('[USING PREDEFINED ROLE]')
             ssn_conf['role_name'] = os.environ['aws_ssn_instance_role']
             ssn_conf['role_profile_name'] = os.environ['aws_ssn_instance_role']
-            print(ssn_conf)
-            print(os.environ)
-            raise Exception
         else:
             logging.info('[CREATE ROLES]')
             params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
@@ -271,8 +268,6 @@ if __name__ == "__main__":
                 format(ssn_conf['role_name'], ssn_conf['role_profile_name'], ssn_conf['policy_name'],
                        ssn_conf['policy_path'], ssn_conf['region'], ssn_conf['tag_name'],
                        ssn_conf['service_base_name'], ssn_conf['user_tag'])
-            print(ssn_conf)
-            print(os.environ)
             raise Exception
             if 'aws_permissions_boundary_arn' in os.environ:
                 params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
