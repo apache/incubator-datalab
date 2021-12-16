@@ -102,8 +102,6 @@
   {
     "_id": "nbCreateJupyterLab",
     "description": "Create Notebook JupyterLab",
-    "type": "NOTEBOOK",
-    "cloud": "AZURE",
     "exploratories": [
       "docker.datalab-jupyterlab"
     ],
