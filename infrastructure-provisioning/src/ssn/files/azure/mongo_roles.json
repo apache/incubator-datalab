@@ -100,6 +100,16 @@
     ]
   },
   {
+    "_id": "nbCreateJupyterLab",
+    "description": "Create Notebook JupyterLab",
+    "exploratories": [
+      "docker.datalab-jupyterlab"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
     "exploratories": [
