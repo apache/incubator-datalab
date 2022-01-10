@@ -28,7 +28,7 @@ export class ComputationalResourceModel {
 
   constructor(private userResourceService: UserResourceService) { }
 
-  public createComputationalResource(parameters, image, env, spot, provider, gpu?): Observable<{}> {
+  public createComputationalResource(parameters, image, env, provider, gpu?): Observable<{}> {
     const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
 
     if (provider === 'aws' && image.image === 'docker.datalab-dataengine-service') {
@@ -41,7 +41,7 @@ export class ComputationalResourceModel {
         notebook_name: env.name,
         image: image.image,
         template_name: image.template_name,
-        emr_slave_instance_spot: spot,
+        emr_slave_instance_spot: parameters.emr_slave_instance_spot,
         emr_slave_instance_spot_pct_price: parameters.instance_price,
         config: config,
         project: env.project,
