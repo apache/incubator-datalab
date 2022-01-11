@@ -1646,15 +1646,17 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             datalab.fab.conn.sudo('mkdir -p {0}'.format(jars_dir))
             datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
-                    {1}hadoop-aws-{0}.jar'.format('3.3.1', jars_dir))
+                    {1}hadoop-aws-{0}.jar'.format('3.2.0', jars_dir))
             datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
-                    {1}aws-java-sdk-{0}.jar'.format('1.11.1034', jars_dir))
-            # datalab.fab.conn.sudo('wget https://maven.twttr.com/com/
-            # /gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
+                    {1}aws-java-sdk-{0}.jar'.format('1.11.874', jars_dir))
+            datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/{0}/aws-java-sdk-bundle-{0}.jar -O \
+                    {1}aws-java-sdk-bundle-{0}.jar'.format('1.11.874', jars_dir))
+            # datalab.fab.conn.sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
             #         {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)
+
 
 
 def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
@@ -1960,78 +1962,27 @@ def prepare_disk(os_user):
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
-            # Downloading Spark without Hadoop
-            datalab.fab.conn.sudo(
-                'wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
-                .format(spark_version))
-            datalab.fab.conn.sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
-            datalab.fab.conn.sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
-            datalab.fab.conn.sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
-            # Downloading Hadoop
-            hadoop_version = '3.3.1'
-            datalab.fab.conn.sudo(
-                'wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
-                .format(hadoop_version))
-            datalab.fab.conn.sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
-            datalab.fab.conn.sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
-            datalab.fab.conn.sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
-            # Configuring Hadoop and Spark
-            if not exists(datalab.fab.conn, '/opt/spark/conf/spark-env.sh'):
-                datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-            java_path = datalab.fab.conn.sudo('dirname $(dirname $(readlink -f $(which javac)))').stdout
-            datalab.fab.conn.sudo(
-                'echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
-            datalab.fab.conn.sudo(
-                """echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
-            datalab.fab.conn.sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
-            datalab.fab.conn.sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
-            spark_dist_classpath = datalab.fab.conn.sudo('/opt/hadoop/bin/hadoop classpath').stdout
-            datalab.fab.conn.sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
-                spark_dist_classpath))
-            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
+ #           spark_version = '3.2.0'
+ #           hadoop_version = '3.2'
+            datalab.fab.conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            datalab.fab.conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            datalab.fab.conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            datalab.fab.conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
         except Exception as err:
             print('Error:', str(err))
             sys.exit(1)
 
 
-def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
-    try:
-        # Downloading Spark without Hadoop
-        subprocess.run(
-            'wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/{1}/spark-{0}-bin-without-hadoop.tgz'
-            .format(spark_version, cluster_name), shell=True, check=True)
-        subprocess.run(
-            'tar -zxvf /tmp/' + cluster_name + '/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version),
-            shell=True, check=True)
-        subprocess.run('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir), shell=True,
-                       check=True)
-        subprocess.run('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir), shell=True, check=True)
-        # Downloading Hadoop
-        hadoop_version = '3.3.1'
-        subprocess.run(
-            'wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/{1}/hadoop-{0}.tar.gz'
-            .format(hadoop_version, cluster_name), shell=True, check=True)
-        subprocess.run('tar -zxvf /tmp/' + cluster_name + '/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version),
-                       shell=True, check=True)
-        subprocess.run('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir), shell=True, check=True)
-        subprocess.run('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir), shell=True, check=True)
-        # Configuring Hadoop and Spark
-        java_path = datalab.fab.conn.sudo('dirname $(dirname $(readlink -f $(which javac)))').stdout
-        subprocess.run('echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir),
-                       shell=True, check=True)
-        subprocess.run(
-            """echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(
-                cluster_dir), shell=True, check=True)
-        subprocess.run('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir),
-                       shell=True, check=True)
-        subprocess.run('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir),
-                       shell=True, check=True)
-        spark_dist_classpath = subprocess.run('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture_output=True,
-                                              shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
-        subprocess.run('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
-            spark_dist_classpath, cluster_dir), shell=True, check=True)
-    except:
-        sys.exit(1)
+def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user,
+                             datalake_enabled):
+    subprocess.run('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' +
+          hadoop_version + '.tgz', shell=True, check=True)
+    subprocess.run('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version +
+          '.tgz -C /opt/' + cluster_name, shell=True, check=True)
+    subprocess.run('mv /opt/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' +
+          cluster_dir + 'spark/', shell=True, check=True)
+    subprocess.run('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/', shell=True, check=True)
 
 
 def find_des_jars(all_jars, des_path):
