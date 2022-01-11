@@ -27,6 +27,7 @@ import { ProjectDataService } from '../project-data.service';
 import { Project, Endpoint } from '../project.component';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
+import { EndpointService } from '../../../core/services';
 
 @Component({
   selector: 'project-list',
@@ -38,6 +39,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['name', 'groups', 'endpoints', 'actions'];
   dataSource: Project[] | any = [];
   projectList: Project[];
+  isEndpointAvailable: boolean;
 
   @Input() isProjectAdmin: boolean;
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
@@ -48,6 +50,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     public toastr: ToastrService,
     private projectDataService: ProjectDataService,
     private progressBarService: ProgressBarService,
+    private endpointService: EndpointService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ProjectListComponent>,
     public dialog: MatDialog,
@@ -55,6 +58,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getProjectList();
+    this.getEndpointList();
   }
 
   ngOnDestroy() {
@@ -80,6 +84,18 @@ export class ProjectListComponent implements OnInit, OnDestroy {
         () => this.progressBarService.stopProgressBar()
       )
     );
+  }
+
+  private getEndpointList() {
+    this.endpointService.getEndpointsData().subscribe(
+      (response: Endpoint[] | []) => {
+        this.isEndpointAvailable = this.checkIsEndpointAvailable(response);
+      }
+    )
+  }
+
+  private checkIsEndpointAvailable(data: Endpoint[] | []): boolean {
+    return  data.length ? true : false;
   }
 
   public showActiveInstances(): void {
