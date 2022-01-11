@@ -1658,7 +1658,6 @@ def ensure_local_jars(os_user, jars_dir):
             sys.exit(1)
 
 
-
 def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     try:
         # Checking if spark.jars parameter was generated previously
