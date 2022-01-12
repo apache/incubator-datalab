@@ -35,7 +35,6 @@ export class EndpointService {
     return this.applicationServiceFacade
       .buildGetEndpointsData()
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 

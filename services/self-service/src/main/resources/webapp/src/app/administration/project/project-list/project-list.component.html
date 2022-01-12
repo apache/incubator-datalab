@@ -93,7 +93,7 @@
                 Stop edge node
               </a>
             </li>
-            <li class="project-seting-item " *ngIf="element.areTerminatedNode" (click)="openEdgeDialog('recreate', element)">
+            <li class="project-seting-item " *ngIf="element.areTerminatedNode && isEndpointAvailable" (click)="openEdgeDialog('recreate', element)">
               <i class="material-icons">refresh</i>
               <a class="action">
                 Recreate edge node
