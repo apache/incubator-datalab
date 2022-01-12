@@ -1646,9 +1646,11 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             datalab.fab.conn.sudo('mkdir -p {0}'.format(jars_dir))
             datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
-                    {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
+                    {1}hadoop-aws-{0}.jar'.format('3.2.0', jars_dir))
             datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
-                    {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
+                    {1}aws-java-sdk-{0}.jar'.format('1.11.874', jars_dir))
+            datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/{0}/aws-java-sdk-bundle-{0}.jar -O \
+                    {1}aws-java-sdk-bundle-{0}.jar'.format('1.11.874', jars_dir))
             # datalab.fab.conn.sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
             #         {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
@@ -1677,8 +1679,6 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             endpoint_url))
         datalab.fab.conn.sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
              '/tmp/notebook_spark-defaults_local.conf')
-        if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
-            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
         datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if os.environ['application'] == 'zeppelin':
@@ -1961,6 +1961,8 @@ def prepare_disk(os_user):
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
+ #           spark_version = '3.2.0'
+ #           hadoop_version = '3.2'
             datalab.fab.conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
             datalab.fab.conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
             datalab.fab.conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
