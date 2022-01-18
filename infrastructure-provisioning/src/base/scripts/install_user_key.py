@@ -51,7 +51,6 @@ def copy_key(config):
         else:
             key = config.get('user_key')
         conn.sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
-        conn.sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(args.user))
     except:
         print('No user key')
 
