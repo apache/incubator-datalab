@@ -1560,7 +1560,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             subprocess.run('sudo echo "[global]" >> /etc/pip.conf', shell=True, check=True)
             subprocess.run('sudo echo "timeout = 600" >> /etc/pip.conf', shell=True, check=True)
         subprocess.run('sudo -i virtualenv /opt/python/python' + python_version, shell=True, check=True)
-        venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
+        venv_command = '/bin/bash source /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         if region == 'cn-north-1':
             try:
@@ -1592,7 +1592,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 subprocess.run('sudo rm -rf /opt/python/python{}/'.format(python_version), shell=True, check=True)
                 sys.exit(1)
         else:
-            print(subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3', shell=True, check=True))
+            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3', shell=True, check=True)
             subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0', shell=True, check=True)
             subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir', shell=True, check=True)
             subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={}'.format(numpy_version), shell=True, check=True)
