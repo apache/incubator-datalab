@@ -1560,7 +1560,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             subprocess.run('sudo echo "[global]" >> /etc/pip.conf', shell=True, check=True)
             subprocess.run('sudo echo "timeout = 600" >> /etc/pip.conf', shell=True, check=True)
         subprocess.run('sudo -i virtualenv /opt/python/python' + python_version, shell=True, check=True)
-        venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
+        venv_command = '/bin/bash source /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         if region == 'cn-north-1':
             try:
