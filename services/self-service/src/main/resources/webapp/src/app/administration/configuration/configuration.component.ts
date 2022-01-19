@@ -350,6 +350,10 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.getServicesConfig(this.activeEndpoint);
     this.activeTab.index = 0;
   }
+
+  get isEndpointsMoreTheOne() {
+    return this.endpoints.length > 1;
+  }
 }
 
 @Component({

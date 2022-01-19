@@ -36,3 +36,15 @@
     height: 38px;
   }
 }
+
+.disabled-select {
+  background-color: rgba(0, 0, 0, 0.12);
+  color: rgb(87, 114, 137);
+  opacity: 0.6;
+}
+
+.caret:disabled{
+  background-color: rgba(0, 0, 0, 0.12) !important;
+  color: rgb(87, 114, 137);
+  opacity: 0.6;
+}

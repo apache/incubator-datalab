@@ -33,7 +33,7 @@ import { BucketBrowserComponent } from './bucket-browser/bucket-browser.componen
   styleUrls: ['./resources.component.scss']
 })
 
-export class ResourcesComponent implements OnInit, AfterViewInit {
+export class ResourcesComponent implements OnInit {
   public exploratoryEnvironments = [];
   public healthStatus: any;
   projects = [];
@@ -51,10 +51,6 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.projects = this.resourcesGrid.activeProjectsList;
-  }
-
-  ngAfterViewInit() {
-
   }
 
   public createEnvironment(): void {
@@ -112,6 +108,7 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
   }
 
   public getEnvironments(environment) {
+    console.log('environment', environment)
     this.exploratoryEnvironments = environment;
     this.projects = environment.map(env => env.project);
   }
@@ -125,5 +122,9 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
       },
       error => this.toastr.error(error.message, 'Oops!')
     );
+  }
+
+  get isProjectsMoreThanOne () {
+    return this.projects.length > 1;
   }
 }
