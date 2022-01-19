@@ -23,14 +23,19 @@
       <ng-template [ngIf]="endpoints">
         <label class="label">Selected endpoint </label>
         <div class="mat-reset">
-          <div class="control selector-wrapper">
+          <div class="control selector-wrapper" [ngClass]="{ 'disabled-select' : !isEndpointsMoreTheOne}">
             <mat-form-field [ngClass]="{ 'not-active' : services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged }">
               <mat-label>Select endpoint</mat-label>
                 <mat-select 
+                  [disabled]="true"
                   disableOptionCentering 
                   [(value)]="activeEndpoint" 
                   panelClass="top-select scrolling" 
-                  [disabled]="services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged">
+                  [disabled]="services['provisioning'].isConfigChanged 
+                    || services['self-service'].isConfigChanged 
+                    || services['billing'].isConfigChanged 
+                    || !isEndpointsMoreTheOne"
+                  >
                   <mat-option 
                     *ngFor="let endpoint of endpoints" 
                     [value]="endpoint.name" 
@@ -38,7 +43,7 @@
                     {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + ' (external endpoint)'}}{{endpoint.status !== 'ACTIVE' ? ', inactive' : ''}}
                   </mat-option>
                 </mat-select>
-              <button class="caret">
+              <button class="caret" [disabled]="!isEndpointsMoreTheOne">
                 <i class="material-icons">keyboard_arrow_down</i>
               </button>
             </mat-form-field>

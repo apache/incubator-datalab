@@ -36,7 +36,9 @@
         </button>
       </span>
       <div class="mat-reset">
-        <div class="control selector-wrapper" *ngIf="projects?.length">
+        <div class="control selector-wrapper" *ngIf="projects?.length" 
+        [ngClass]="{'disabled-select': !isProjectsMoreThanOne}"
+        >
           <mat-form-field>
             <mat-label>Select project</mat-label>
 
@@ -44,6 +46,7 @@
               disableOptionCentering
               [(value)]="resourcesGrid.activeProject" 
               panelClass="top-select scrolling"
+              [disabled]="!isProjectsMoreThanOne"
             >
               <mat-option 
                 *ngIf="projects?.length > 1" 
@@ -60,7 +63,7 @@
               </mat-option>
               <mat-option *ngIf="!projects?.length" class="multiple-select ml-10" disabled>Projects list is empty</mat-option>
             </mat-select>
-            <button class="caret">
+            <button class="caret" [disabled]="!isProjectsMoreThanOne">
               <i class="material-icons">keyboard_arrow_down</i>
             </button>
           </mat-form-field>
