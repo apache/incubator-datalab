@@ -108,7 +108,6 @@ export class ResourcesComponent implements OnInit {
   }
 
   public getEnvironments(environment) {
-    console.log('environment', environment)
     this.exploratoryEnvironments = environment;
     this.projects = environment.map(env => env.project);
   }
