@@ -99,6 +99,7 @@ public class BillingServiceImpl implements BillingService {
         List<BillingReportLine> billingReportLines = billingDAO.aggregateBillingData(filter)
                 .stream()
                 .peek(this::appendStatuses)
+                .peek(this::appendShapes)
                 .filter(bd -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(bd.getStatus()))
                 .peek(bd -> { if (bd.getShape() != null && bd.getShape().contains("null")) bd.setShape(null);})
                 .collect(Collectors.toList());
@@ -337,6 +338,21 @@ public class BillingServiceImpl implements BillingService {
                             .filter(cr -> cr.getComputationalName().equals(br.getResourceName()))
                             .findAny())
                     .ifPresent(cr -> br.setStatus(UserInstanceStatus.of(cr.getStatus())));
+        }
+    }
+
+    private void appendShapes(BillingReportLine br) {
+        BillingResourceType resourceType = br.getResourceType();
+        if (BillingResourceType.COMPUTATIONAL == resourceType) {
+            String shape = "Master: 1 x %s Slave: %s x %s";
+            exploratoryService.getUserInstance(br.getUser(), br.getProject(), br.getExploratoryName(), true)
+                    .flatMap(ui -> ui.getResources()
+                            .stream()
+                            .filter(cr -> cr.getComputationalName().equals(br.getResourceName()))
+                            .findAny())
+                    .ifPresent(cr -> br.setShape(
+                            String.format(shape, cr.getMasterNodeShape(), cr.getTotalInstanceCount() - 1, cr.getSlaveNodeShape())
+                    ));
         }
     }
 
