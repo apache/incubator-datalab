@@ -29,6 +29,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,14 +43,14 @@ public class IsoLocalDateTimeSerDeTest {
     }
 
     @Test
-    public void shoudProperlySerializeLocalDateTimeToJson() throws JsonProcessingException {
+    public void shouldProperlySerializeLocalDateTimeToJson() throws JsonProcessingException {
         String actual = objectMapper.writeValueAsString(new SampleClass());
         assertEquals("{\"localDateTime\":{\"$date\":\"2018-04-10T15:30:45\"}}", actual);
     }
 
     @Test
-    public void shoudProperlyDeserializeLocalDateTimeFromJson() throws IOException {
-        LocalDateTime now = LocalDateTime.now();
+    public void shouldProperlyDeserializeLocalDateTimeFromJson() throws IOException {
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
         long l = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         SampleClass actual = objectMapper
                 .readValue("{\"localDateTime\":{\"$date\":" + l + "}}", SampleClass.class);
