@@ -341,17 +341,22 @@ public class BillingServiceImpl implements BillingService {
         }
     }
 
+    /**
+     * Appends shapes for computational resources
+     * @param br Billing report info for certain resource
+     */
     private void appendShapes(BillingReportLine br) {
         BillingResourceType resourceType = br.getResourceType();
         if (BillingResourceType.COMPUTATIONAL == resourceType) {
             String shape = "Master: 1 x %s Slave: %s x %s";
+            int numberOfMasterNodes = 1;
             exploratoryService.getUserInstance(br.getUser(), br.getProject(), br.getExploratoryName(), true)
                     .flatMap(ui -> ui.getResources()
                             .stream()
                             .filter(cr -> cr.getComputationalName().equals(br.getResourceName()))
                             .findAny())
                     .ifPresent(cr -> br.setShape(
-                            String.format(shape, cr.getMasterNodeShape(), cr.getTotalInstanceCount() - 1, cr.getSlaveNodeShape())
+                            String.format(shape, cr.getMasterNodeShape(), cr.getTotalInstanceCount() - numberOfMasterNodes, cr.getSlaveNodeShape())
                     ));
         }
     }
