@@ -129,7 +129,7 @@ Currently by means of DataLab, Data Scientists can select between any of the fol
 -   RStudio
 -   RStudio with TensorFlow (implemented on AWS)
 -   Jupyter with TensorFlow
--   Deep Learning (Jupyter + MXNet, Caffe2, TensorFlow, CNTK, Theano, PyTorch and Keras)
+-   Deep Learning based on Cloud native image
 -   JupyterLab
 -   Superset (implemented on GCP)
 
