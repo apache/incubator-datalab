@@ -156,6 +156,9 @@ export class ResourcesGridComponent implements OnInit {
       .subscribe(
         (result: any) => {
           this.environments = ExploratoryModel.loadEnvironments(result);
+          if (this.environments?.length === 1) {
+            this.selectActiveProject(this.environments[0].project)
+          }
           this.getEnvironments.emit(this.environments);
           this.getBuckets();
           this.getDefaultFilterConfiguration();
