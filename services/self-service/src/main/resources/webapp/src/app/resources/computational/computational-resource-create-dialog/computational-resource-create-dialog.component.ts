@@ -366,6 +366,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         });
       }
     }
+
+    console.log('form1', this.resourceForm);
+    console.log('resourceForm.value.shape_slave2', this.resourceForm.value.shape_slave);
+    console.log('selectedImage?.image3', this.selectedImage?.image);
+    console.log('resourceForm.value.version4', this.resourceForm.value.version);
+    console.log('limits.min_emr_spot_instance_bid_pct5', this.selectedImage.limits.min_emr_spot_instance_bid_pct);
+    
   }
 
   public clearGpuType(type) {
