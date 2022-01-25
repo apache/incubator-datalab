@@ -558,7 +558,7 @@ String get = getDownloadReport();
                 .user(USER).project(PROJECT).endpoint(ENDPOINT).resourceName(EXPLORATORY_NAME).resourceType(BillingResourceType.VOLUME).build();
 
         BillingReportLine compute = BillingReportLine.builder().datalabId(COMPUTE_ID).usageDate(USAGE_DATE).application(ENDPOINT).user(USER).project(PROJECT)
-                .endpoint(ENDPOINT).resourceName(COMPUTE_NAME).resourceType(BillingResourceType.COMPUTATIONAL).shape("3 x " + SHAPE).exploratoryName(EXPLORATORY_NAME).build();
+                .endpoint(ENDPOINT).resourceName(COMPUTE_NAME).resourceType(BillingResourceType.COMPUTATIONAL).shape("Master: " + SHAPE+"Slave: 2 x "+SHAPE).exploratoryName(EXPLORATORY_NAME).build();
         BillingReportLine computePrimaryVolume = BillingReportLine.builder().datalabId(COMPUTE_VOLUME_PRIMARY_ID).usageDate(USAGE_DATE).application(ENDPOINT).user(USER)
                 .project(PROJECT).endpoint(ENDPOINT).resourceName(COMPUTE_NAME).resourceType(BillingResourceType.VOLUME).build();
         BillingReportLine computeSecondaryVolume = BillingReportLine.builder().datalabId(COMPUTE_VOLUME_SECONDARY_ID).usageDate(USAGE_DATE).application(ENDPOINT).user(USER)
@@ -687,16 +687,17 @@ String get = getDownloadReport();
     private String getDownloadReport() {
 	    StringBuilder sb = new StringBuilder();
 	    sb.append("\"Service base name: ").append(SERVICE_BASE_NAME).append(". Available reporting period from: ").append("Jan 1, 2020")
-			    .append(" to: ").append("May 1, 2020").append("\"\r\n");
+			    .append(" to: ").append("May 1, 2020").append("\"").append(System.lineSeparator());
 
 	    sb.append(new StringJoiner(",").add("DataLab ID").add("User").add("Project").add("DataLab Resource Type").add("Status").add("Shape").add("Product")
 			    .add("Cost\r\n").toString());
 
-	    sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + "\r\n"));
-	    sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + "\r\n"));
-	    sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + "\r\n"));
+	    sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + System.lineSeparator()));
+	    sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
+	    sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
 
-	    sb.append(",,,,,,,Total: 4.0 currency\r\n");
+	    sb.append(",,,,,,,Total: 4.0 currency");
+        sb.append(System.lineSeparator());
 
         return sb.toString();
     }
@@ -738,8 +739,9 @@ String get = getDownloadReport();
         resource.setComputationalId(COMPUTE_ID);
         resource.setComputationalName(COMPUTE_NAME);
         resource.setImageName(DataEngineType.SPARK_STANDALONE.getName());
-        resource.setDataengineInstanceCount(3);
-        resource.setDataengineShape(SHAPE);
+        resource.setTotalInstanceCount(3);
+        resource.setMasterNodeShape(SHAPE);
+        resource.setSlaveNodeShape(SHAPE);
         resource.setStatus("creating");
 
         return resource;
