@@ -90,7 +90,7 @@ public class SystemInfoServiceImplTest {
         assertEquals(OS_FAMILY, systemInfo.getOsInfo().getFamily());
         assertEquals(PROCESSOR_MODEL, systemInfo.getProcessorInfo().getModel());
         assertEquals(AVAILABLE_MEMORY, systemInfo.getMemoryInfo().getAvailableMemory());
-        assertEquals(2, systemInfo.getDisksInfo().size());
+        assertEquals(1, systemInfo.getDisksInfo().size());
 
         verify(si).getOperatingSystem();
         verify(si).getHardware();
