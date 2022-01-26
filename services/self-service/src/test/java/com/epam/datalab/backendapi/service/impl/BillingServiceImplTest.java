@@ -118,7 +118,7 @@ public class BillingServiceImplTest extends TestBase {
     private static final String COMPUTE_SLAVE_2_VOLUME_PRIMARY_ID = COMPUTE_ID + "-s2" + "-volume-primary";
     private static final String COMPUTE_SLAVE_2_VOLUME_SECONDARY_ID = COMPUTE_ID + "-s2" + "-volume-secondary";
     private static final String IMAGE_ID = SERVICE_BASE_NAME + "-" + PROJECT + "-" + ENDPOINT + "-" + IMAGE_APPLICATION + "-" + IMAGE_NAME;
-	private static final Integer BILLING_PORT = 8088;
+    private static final Integer BILLING_PORT = 8088;
 
     @Mock
     private SelfServiceApplicationConfiguration configuration;
@@ -178,8 +178,7 @@ public class BillingServiceImplTest extends TestBase {
         when(exploratoryService.getUserInstance(anyString(), anyString(), anyString())).thenReturn(Optional.of(getUserInstanceDTO()));
         when(exploratoryService.getUserInstance(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(Optional.of(getUserInstanceDTOWithCompute()));
 
-	    String actualBillingReport = billingService.downloadReport(getUserInfo(), new ExportBillingFilter(), "en-US");
-String get = getDownloadReport();
+        String actualBillingReport = billingService.downloadReport(getUserInfo(), new ExportBillingFilter(), "en-US");
         char[] chars1 = getDownloadReport().toCharArray();
         char[] chars2 = actualBillingReport.toCharArray();
         for (int i = 0; i < getDownloadReport().length(); i++) {
@@ -187,9 +186,9 @@ String get = getDownloadReport();
                 System.out.println(chars1[i] + " = " + chars2[i] + "  i = " + i);
         }
 
-	    assertEquals("reports should be equal", getDownloadReport(), actualBillingReport);
-	    verify(billingDAO).aggregateBillingData(new ExportBillingFilter());
-	    verify(projectService).get(PROJECT);
+        assertEquals("reports should be equal", getDownloadReport(), actualBillingReport);
+        verify(billingDAO).aggregateBillingData(new ExportBillingFilter());
+        verify(projectService).get(PROJECT);
         verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME);
         verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME, Boolean.TRUE);
         verifyNoMoreInteractions(billingDAO);
@@ -219,9 +218,9 @@ String get = getDownloadReport();
 
     @Test
     public void updateGCPRemoteBillingData() {
-	    when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
-	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
-	    when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
+        when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
+        when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+        when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
         when(endpointService.getEndpoints()).thenReturn(getGCPEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenReturn(getBillingData());
         when(projectService.getProjects()).thenReturn(getProjectDTOs());
@@ -243,9 +242,9 @@ String get = getDownloadReport();
 
     @Test
     public void updateAWSRemoteBillingData() {
-	    when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
-	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
-	    when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
+        when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
+        when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+        when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
         when(endpointService.getEndpoints()).thenReturn(getAWSEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenReturn(getBillingData());
         when(projectService.getProjects()).thenReturn(getProjectDTOs());
@@ -267,9 +266,9 @@ String get = getDownloadReport();
 
     @Test
     public void updateAzureRemoteBillingData() {
-	    when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
-	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
-	    when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
+        when(configuration.getServiceBaseName()).thenReturn(SERVICE_BASE_NAME);
+        when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+        when(configuration.getMaxSparkInstanceCount()).thenReturn(2);
         when(endpointService.getEndpoints()).thenReturn(getAzureEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenReturn(getBillingData());
         when(projectService.getProjects()).thenReturn(getProjectDTOs());
@@ -297,8 +296,8 @@ String get = getDownloadReport();
 
     @Test
     public void updateRemoteBillingDataWithException2() {
-	    when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
-	    when(endpointService.getEndpoints()).thenReturn(getAWSEndpointDTO());
+        when(configuration.getBillingPort()).thenReturn(BILLING_PORT);
+        when(endpointService.getEndpoints()).thenReturn(getAWSEndpointDTO());
         when(provisioningService.get(anyString(), anyString(), any(GenericType.class))).thenThrow(new DatalabException("Exception message"));
 
         billingService.updateRemoteBillingData(getUserInfo());
@@ -558,7 +557,7 @@ String get = getDownloadReport();
                 .user(USER).project(PROJECT).endpoint(ENDPOINT).resourceName(EXPLORATORY_NAME).resourceType(BillingResourceType.VOLUME).build();
 
         BillingReportLine compute = BillingReportLine.builder().datalabId(COMPUTE_ID).usageDate(USAGE_DATE).application(ENDPOINT).user(USER).project(PROJECT)
-                .endpoint(ENDPOINT).resourceName(COMPUTE_NAME).resourceType(BillingResourceType.COMPUTATIONAL).shape("Master: " + SHAPE+"Slave: 2 x "+SHAPE).exploratoryName(EXPLORATORY_NAME).build();
+                .endpoint(ENDPOINT).resourceName(COMPUTE_NAME).resourceType(BillingResourceType.COMPUTATIONAL).shape("Master: " + SHAPE + "Slave: 2 x " + SHAPE).exploratoryName(EXPLORATORY_NAME).build();
         BillingReportLine computePrimaryVolume = BillingReportLine.builder().datalabId(COMPUTE_VOLUME_PRIMARY_ID).usageDate(USAGE_DATE).application(ENDPOINT).user(USER)
                 .project(PROJECT).endpoint(ENDPOINT).resourceName(COMPUTE_NAME).resourceType(BillingResourceType.VOLUME).build();
         BillingReportLine computeSecondaryVolume = BillingReportLine.builder().datalabId(COMPUTE_VOLUME_SECONDARY_ID).usageDate(USAGE_DATE).application(ENDPOINT).user(USER)
@@ -685,18 +684,18 @@ String get = getDownloadReport();
     }
 
     private String getDownloadReport() {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("\"Service base name: ").append(SERVICE_BASE_NAME).append(". Available reporting period from: ").append("Jan 1, 2020")
-			    .append(" to: ").append("May 1, 2020").append("\"").append(System.lineSeparator());
+        StringBuilder sb = new StringBuilder();
+        sb.append("\"Service base name: ").append(SERVICE_BASE_NAME).append(". Available reporting period from: ").append("Jan 1, 2020")
+                .append(" to: ").append("May 1, 2020").append("\"").append(System.lineSeparator());
 
-	    sb.append(new StringJoiner(",").add("DataLab ID").add("User").add("Project").add("DataLab Resource Type").add("Status").add("Shape").add("Product")
-			    .add("Cost\r\n").toString());
+        sb.append(new StringJoiner(",").add("DataLab ID").add("User").add("Project").add("DataLab Resource Type").add("Status").add("Shape").add("Product")
+                .add("Cost" + System.lineSeparator()));
 
-	    sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + System.lineSeparator()));
-	    sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
-	    sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
+        sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + System.lineSeparator()));
+        sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
+        sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
 
-	    sb.append(",,,,,,,Total: 4.0 currency");
+        sb.append(",,,,,,,Total: 4.0 currency");
         sb.append(System.lineSeparator());
 
         return sb.toString();
