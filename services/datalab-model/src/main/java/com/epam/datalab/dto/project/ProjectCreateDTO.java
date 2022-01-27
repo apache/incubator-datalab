@@ -25,7 +25,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Data
 @Builder
 public class ProjectCreateDTO extends ResourceBaseDTO<ProjectCreateDTO> {
