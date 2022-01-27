@@ -50,7 +50,7 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 
     @JsonProperty
     private final ComputationalBase<?> dto;
-    private ComputationalConfigure computationalConfigure;
+    private final ComputationalConfigure computationalConfigure;
 
     @JsonCreator
     public ComputationalCallbackHandler(@JacksonInject ComputationalConfigure computationalConfigure,

@@ -23,8 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends ResourceBaseDTO<T> {
-    @SuppressWarnings("unchecked")
-    private final T self = (T) this;
     @JsonProperty("conf_service_base_name")
     private String serviceBaseName;
     @JsonProperty("conf_os_family")
@@ -42,7 +40,7 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
 
     public T withServiceBaseName(String serviceBaseName) {
         setServiceBaseName(serviceBaseName);
-        return self;
+        return (T) this;
     }
 
     public String getConfOsFamily() {
@@ -55,7 +53,7 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
 
     public T withConfOsFamily(String confOsFamily) {
         setConfOsFamily(confOsFamily);
-        return self;
+        return (T) this;
     }
 
 
@@ -69,7 +67,7 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
 
     public T withConfKeyDir(String confKeyDir) {
         setConfKeyDir(confKeyDir);
-        return self;
+        return (T) this;
     }
 
     @Override

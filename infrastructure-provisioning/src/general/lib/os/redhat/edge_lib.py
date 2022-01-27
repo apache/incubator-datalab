@@ -29,37 +29,6 @@ from patchwork.files import exists
 from patchwork import files
 
 
-def configure_http_proxy_server(config):
-    try:
-        if not exists(conn,'/tmp/http_proxy_ensured'):
-            manage_pkg('-y install', 'remote', 'squid')
-            template_file = config['template_file']
-            proxy_subnet = config['exploratory_subnet']
-            conn.put(template_file, '/tmp/squid.conf')
-            conn.sudo('\cp /tmp/squid.conf /etc/squid/squid.conf')
-            conn.sudo('sed -i "s|PROXY_SUBNET|{}|g" /etc/squid/squid.conf'.format(proxy_subnet))
-            conn.sudo('sed -i "s|EDGE_USER_NAME|{}|g" /etc/squid/squid.conf'.format(config['project_name']))
-            conn.sudo('sed -i "s|LDAP_HOST|{}|g" /etc/squid/squid.conf'.format(config['ldap_host']))
-            conn.sudo('sed -i "s|LDAP_DN|{}|g" /etc/squid/squid.conf'.format(config['ldap_dn']))
-            conn.sudo('sed -i "s|LDAP_SERVICE_USERNAME|{}|g" /etc/squid/squid.conf'.format(config['ldap_user']))
-            conn.sudo('sed -i "s|LDAP_SERVICE_PASSWORD|{}|g" /etc/squid/squid.conf'.format(config['ldap_password']))
-            conn.sudo('sed -i "s|LDAP_AUTH_PATH|{}|g" /etc/squid/squid.conf'.format('/usr/lib64/squid/basic_ldap_auth'))
-            replace_string = ''
-            for cidr in config['vpc_cidrs']:
-                replace_string += 'acl AWS_VPC_CIDR dst {}\\n'.format(cidr)
-            conn.sudo('sed -i "s|VPC_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
-            replace_string = ''
-            for cidr in config['allowed_ip_cidr']:
-                replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
-            conn.sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
-            conn.sudo('systemctl restart squid')
-            conn.sudo('chkconfig squid on')
-            conn.sudo('touch /tmp/http_proxy_ensured')
-    except Exception as err:
-        print("Failed to install and configure squid: " + str(err))
-        sys.exit(1)
-
-
 def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id,
                       keycloak_client_secret, user, hostname, step_cert_sans):
     try:

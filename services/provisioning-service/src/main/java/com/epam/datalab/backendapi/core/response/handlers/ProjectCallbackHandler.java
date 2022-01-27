@@ -57,11 +57,10 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 
     @Override
     protected ProjectResult parseOutResponse(JsonNode resultNode, ProjectResult baseStatus) {
-
         baseStatus.setProjectName(projectName);
         baseStatus.setEndpointName(endpointName);
         if (resultNode != null &&
-                Arrays.asList(DockerAction.CREATE, DockerAction.RECREATE, DockerAction.START).contains(getAction()) &&
+                Arrays.asList(DockerAction.CREATE, DockerAction.RECREATE).contains(getAction()) &&
                 UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {
                 final EdgeInfo projectEdgeInfo = mapper.readValue(resultNode.toString(), clazz);

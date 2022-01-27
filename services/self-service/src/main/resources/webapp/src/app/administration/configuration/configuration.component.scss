@@ -17,44 +17,44 @@
  * under the License.
  */
 
-.configuration-wrapper{
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
-  padding-top: 0;
+.configuration-wrapper {
   height: calc(100vh - 130px);
+  padding-top: 0;
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 
+              0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+              0px 1px 18px 0px rgba(0, 0, 0, 0.12);
 
-  .sub-nav{
+  .sub-nav {
     justify-content: flex-end;
     padding: 0 30px;
   }
 
-  h4{
+  h4 {
     padding: 10px 30px;
-    color: rgba(0,0,0,.87);
-    font-family: 'Open Sans', sans-serif;
+    color: rgba(0, 0, 0, 0.87);
+    font-family: "Open Sans", sans-serif;
   }
 
-  .editor-wrap{
+  .editor-wrap {
     height: calc(100% - 60px);
-    box-shadow: 0 2px 24px 0 rgba(73,93,112,0.3);
     margin: 0 30px;
+    box-shadow: 0 2px 24px 0 rgba(73, 93, 112, 0.3);
   }
 
-  .main-wrapper{
+  .main-wrapper {
     padding: 10px 30px;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
 
-    .section{
-
-      &-title{
+    .section {
+      &-title {
         font-size: 15px;
       }
 
       &-content {
-
         .list-menu {
+          left: 0;
           width: 100%;
           max-height: 450px;
-          left: 0;
           padding: 10px 0;
           margin: 0;
           overflow-y: auto;
@@ -66,15 +66,15 @@
             margin: 0;
           }
 
-          .list-item{
-            padding: 5px 10px;
+          .list-item {
             display: flex;
+            padding: 5px 10px;
 
-            span{
+            span {
               cursor: pointer;
             }
 
-            .checkbox-wrap{
+            .checkbox-wrap {
               display: flex;
               align-items: center;
               margin-right: 5px;
@@ -86,10 +86,11 @@
     }
   }
 }
-.sub-nav{
+
+.sub-nav {
   justify-content: space-between;
 
-  .label{
+  .label {
     display: flex;
     align-items: center;
     margin-right: 10px;
@@ -100,10 +101,9 @@
     font-family: "Open Sans", sans-serif;
   }
 
-  .butt{
+  .butt {
     margin-left: 10px;
   }
-
 }
 
 .mat-option-disabled {

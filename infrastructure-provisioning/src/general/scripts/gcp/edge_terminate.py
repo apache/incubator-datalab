@@ -25,14 +25,14 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
 
 
 def terminate_edge_node(user_name, service_base_name, region, zone, project_name, endpoint_name):
-    print("Terminating Dataengine-service clusters")
+    logging.info("Terminating Dataengine-service clusters")
     try:
         labels = [
             {'sbn': service_base_name},
@@ -42,14 +42,14 @@ def terminate_edge_node(user_name, service_base_name, region, zone, project_name
         if clusters_list:
             for cluster_name in clusters_list:
                 GCPActions.delete_dataproc_cluster(cluster_name, region)
-                print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
+                logging.info('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
-            print("There are no Dataproc clusters to terminate.")
+            logging.info("There are no Dataproc clusters to terminate.")
     except Exception as err:
         datalab.fab.append_result("Failed to terminate dataproc", str(err))
         sys.exit(1)
 
-    print("Terminating EDGE and notebook instances")
+    logging.info("Terminating EDGE and notebook instances")
     base = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
     keys = ['edge', 'ps', 'static-ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
@@ -63,7 +63,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone, project_name
         datalab.fab.append_result("Failed to terminate instances", str(err))
         sys.exit(1)
 
-    print("Removing static addresses")
+    logging.info("Removing static addresses")
     try:
         static_addresses = GCPMeta.get_list_static_addresses(region, base)
         if 'items' in static_addresses:
@@ -74,7 +74,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone, project_name
         datalab.fab.append_result("Failed to remove static IPs", str(err))
         sys.exit(1)
 
-    print("Removing storage bucket")
+    logging.info("Removing storage bucket")
     try:
         buckets = GCPMeta.get_list_buckets(base)
         if 'items' in buckets:
@@ -85,7 +85,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone, project_name
         datalab.fab.append_result("Failed to remove buckets", str(err))
         sys.exit(1)
 
-    print("Removing firewalls")
+    logging.info("Removing firewalls")
     try:
         firewalls = GCPMeta.get_list_firewalls(base)
         if 'items' in firewalls:
@@ -96,7 +96,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone, project_name
         datalab.fab.append_result("Failed to remove security groups", str(err))
         sys.exit(1)
 
-    print("Removing Service accounts and roles")
+    logging.info("Removing Service accounts and roles")
     try:
         list_service_accounts = GCPMeta.get_list_service_accounts()
         for service_account in (set(targets) & set(list_service_accounts)):
@@ -110,7 +110,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone, project_name
         datalab.fab.append_result("Failed to remove service accounts and roles", str(err))
         sys.exit(1)
 
-    print("Removing subnets")
+    logging.info("Removing subnets")
     try:
         list_subnets = GCPMeta.get_list_subnetworks(region, '', base)
         if 'items' in list_subnets:
@@ -126,17 +126,10 @@ def terminate_edge_node(user_name, service_base_name, region, zone, project_name
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     # generating variables dictionary
     GCPMeta = datalab.meta_lib.GCPMeta()
     GCPActions = datalab.actions_lib.GCPActions()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
     edge_conf['edge_user_name'] = (os.environ['edge_user_name'])
@@ -147,7 +140,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE EDGE]')
-        print('[TERMINATE EDGE]')
         try:
             terminate_edge_node(edge_conf['edge_user_name'], edge_conf['service_base_name'],
                                 edge_conf['region'], edge_conf['zone'], edge_conf['project_name'],
@@ -164,7 +156,7 @@ if __name__ == "__main__":
             res = {"service_base_name": edge_conf['service_base_name'],
                    "user_name": edge_conf['edge_user_name'],
                    "Action": "Terminate edge node"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

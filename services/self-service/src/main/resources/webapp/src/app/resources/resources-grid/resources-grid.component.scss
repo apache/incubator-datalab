@@ -23,16 +23,16 @@
   width: 100%;
 }
 
-.resources-wrapper{
+.resources-wrapper {
   height: calc(100vh - 105px);
-  overflow: hidden;
-  margin:  -15px;
+  margin: -15px;
   padding: 15px;
-  .table-wrapper{
-    overflow: auto;
+  overflow: hidden;
+  .table-wrapper {
     height: calc(100vh - 115px);
-    margin:  0 -15px -15px -15px;
+    margin: 0 -15px -15px -15px;
     padding: 0 15px 15px 15px;
+    overflow: auto;
   }
 }
 
@@ -42,13 +42,13 @@ table.resources {
 
   .header-row {
     position: sticky;
-    background-clip:padding-box;
     z-index: 1;
+    background-clip: padding-box;
     th {
       padding: 5px;
       padding-left: 20px;
 
-      .mat-icon-button{
+      .mat-icon-button {
         line-height: 45px;
       }
     }
@@ -61,7 +61,7 @@ table.resources {
     }
   }
 
-  .filter-field{
+  .filter-field {
     font-size: 13px;
     padding-left: 10px;
   }
@@ -75,20 +75,19 @@ table.resources {
       height: initial;
 
       td {
-        padding: 5px;
-        padding-left: 20px;
         display: flex;
         align-items: center;
+        padding: 5px 5px 5px 20px;
 
         &.name-col {
           padding-left: 21px;
           overflow: hidden;
-          span{
+          span {
             cursor: pointer;
           }
         }
 
-        &.shape-col{
+        &.shape-col {
           align-items: start;
           flex-direction: column;
           justify-content: center;
@@ -112,12 +111,11 @@ table.resources {
   }
 
   .filter-row {
-    background-clip:padding-box;
+    background-clip: padding-box;
 
     th {
       padding: 5px;
       background-clip: padding-box;
-
 
       &:last-child {
         padding-right: 6px;
@@ -132,20 +130,20 @@ table.resources {
     background-color: inherit;
   }
 
-  .project-name{
+  .project-name {
     font-weight: 600;
     color: #577289;
     padding-left: 21px;
   }
 
-
-  .status-col,
-  .shape-col {
+  .status-col {
     width: 11%;
   }
-  .shape-col{
+
+  .shape-col {
+    width: 13%;
     color: #577289;
-    .label{
+    .label {
       color: $table-header-color;
     }
   }
@@ -154,19 +152,19 @@ table.resources {
     width: 13%;
 
     mat-chip {
+      display: inline-block;
       min-height: 20px;
+      max-width: 110px !important;
+      margin: 2px;
       padding: 5px 10px;
       font-size: 13px;
-      max-width: 110px !important;
       white-space: nowrap;
-      display: inline-block;
       line-height: 10px;
-      margin: 2px;
     }
   }
 
   .resources-col {
-    width: 30%;
+    width: 28%;
   }
 
   .cost-col {
@@ -174,12 +172,12 @@ table.resources {
     justify-content: space-between;
   }
 
-  .label-header{
-    &.cost-col{
+  .label-header {
+    &.cost-col {
       z-index: 6 !important;
     }
 
-    &.status-col{
+    &.status-col {
       z-index: 10 !important;
     }
 
@@ -202,24 +200,26 @@ table.resources {
 
   .actions-col {
     padding-right: 24px;
+    z-index: 5 !important;
     text-align: right;
     background-color: inherit;
-    z-index: 5 !important;
-    .label{
+
+    .label {
       padding-right: 5px;
     }
   }
+
   tr.detail-row {
     height: 0;
   }
-  
+
   .element-diagram {
-    min-width: 80px;
-    border: 2px solid black;
-    padding: 8px;
-    font-weight: lighter;
-    margin: 8px 0;
     height: 104px;
+    min-width: 80px;
+    padding: 8px;
+    margin: 8px 0;
+    border: 2px solid black;
+    font-weight: lighter;
   }
 
   .element-symbol {
@@ -236,14 +236,10 @@ table.resources {
     opacity: 0.5;
   }
 
-
-
   .dashboard_table {
     width: 100%;
     table-layout: fixed;
   }
-
-
 
   .dashboard_table tr {
     vertical-align: top;
@@ -251,8 +247,8 @@ table.resources {
 
   .dashboard_table tr th span {
     width: 50px;
-    text-align: center;
     height: 100%;
+    text-align: center;
     line-height: 40px;
   }
 
@@ -279,8 +275,8 @@ table.resources {
     cursor: pointer;
     overflow: hidden;
     text-overflow: ellipsis;
-    &::after{
-      content: '';
+    &::after {
+      content: "";
       display: block;
     }
   }
@@ -306,15 +302,15 @@ table.resources {
   }
 
   .dashboard_table th {
+    padding-left: 12px;
     background: #a1b7d1;
     color: #fff;
     font-weight: 600;
     line-height: 40px;
     text-transform: uppercase;
-    padding-left: 12px;
     font-size: 13px;
   }
-  
+
   &.data-grid .status-col .status {
     text-transform: capitalize;
   }
@@ -331,10 +327,10 @@ table.resources {
 
   .currency_details {
     display: flex;
+    padding-left: 10px;
     color: #35afd5;
     cursor: pointer;
     transition: all 0.45s ease-in-out;
-    padding-left: 10px;
   }
 
   .currency_details:hover {
@@ -356,39 +352,38 @@ table.resources {
     text-align: center;
   }
 
-  .content-row{
+  .content-row {
     background-clip: padding-box;
   }
 
-  .not-allow{
+  .not-allow {
     cursor: not-allowed !important;
   }
 }
 
 .data-grid .list-menu {
   left: auto;
-  margin-left: 0;
   right: 15px;
-  padding: 10px 15px;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-  0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  border: none;
   min-width: 190px;
   max-height: calc(100vh / 2 - 70px);
+  margin-left: 0;
+  padding: 10px 15px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border: none;
 }
 
 .settings:not(.label-header) {
   position: relative;
-  text-align: right;
   width: 6%;
   padding-right: 15px !important;
   justify-content: flex-end;
+  text-align: right;
 
   .actions {
-    background-image: url(../../../assets/svg/settings_icon.svg);
+    display: inline-block;
     width: 16px;
     height: 16px;
-    display: inline-block;
+    background-image: url(../../../assets/svg/settings_icon.svg);
     text-align: center;
     cursor: pointer;
   }
@@ -400,16 +395,16 @@ table.resources {
   }
 }
 
-
 .data-grid .list-menu li {
+  margin: 5px -5px;
+  padding-bottom: 5px;
   font-size: 13px;
   border-bottom: 1px solid #edf1f5;
-  padding-bottom: 5px;
   cursor: pointer;
-  margin: 5px -5px;
   color: #577289;
   transition: all 0.45s ease-in-out;
-  div{
+
+  div {
     padding: 8px 15px;
   }
 }
@@ -421,8 +416,8 @@ table.resources {
 }
 
 .data-grid .list-menu li i {
-  font-size: 18px;
   padding-right: 5px;
+  font-size: 18px;
   vertical-align: bottom;
 }
 
@@ -456,18 +451,16 @@ table.resources {
   }
 }
 
-
-
 .info {
   padding: 40px;
   text-align: center;
 }
 
-.odahu-icon{
+.odahu-icon {
   vertical-align: middle;
   margin-left: 10px;
 }
 
-.content-row{
+.content-row {
   background-clip: padding-box;
 }

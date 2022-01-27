@@ -26,6 +26,7 @@ import os
 import sys
 from datalab.fab import *
 from datalab.notebook_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -37,11 +38,11 @@ args = parser.parse_args()
 # Run script #
 ##############
 if __name__ == "__main__":
-    print("Configure connections")
+    logging.info("Configure connections")
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
-    print('Installing GPU drivers')
+    logging.info('Installing GPU drivers')
     install_nvidia_drivers(args.os_user)
 
     conn.close()

@@ -17,10 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, Output, EventEmitter, HostBinding,
-         ChangeDetectorRef, ElementRef, OnInit, OnDestroy,
-         ViewEncapsulation, HostListener } from '@angular/core';
-
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'inform-message',
@@ -32,10 +29,7 @@ import { Component, Input, Output, EventEmitter, HostBinding,
 export class InformMessageComponent implements OnInit {
   @Input() message: string;
 
-  constructor() {}
+  constructor() { }
 
-  ngOnInit(): void {
-  }
-
-
+  ngOnInit(): void { }
 }

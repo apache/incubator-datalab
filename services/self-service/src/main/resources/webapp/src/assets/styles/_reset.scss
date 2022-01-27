@@ -48,7 +48,7 @@ ul {
 }
 
 a {
-  text-decoration: none
+  text-decoration: none;
 }
 
 table {
@@ -56,23 +56,22 @@ table {
   border-spacing: 0;
 }
 
-[hidden],
-.hidden {
+[hidden], .hidden {
   display: none !important;
 }
 
 ::-moz-selection,
 ::selection {
   color: #fff;
-  background: #3399ff
+  background: #3399ff;
 }
 
 :focus {
-  outline: none
+  outline: none;
 }
 
 ::-moz-focus-inner {
-  border: 0
+  border: 0;
 }
 
 ::-webkit-file-upload-button {
@@ -98,7 +97,6 @@ table {
 }
 
 input {
-
   &::-ms-clear,
   &::-ms-reveal {
     display: none;

@@ -18,8 +18,8 @@
  */
 
 import { Pipe, PipeTransform } from '@angular/core';
-import {LocalizationService} from '../../services/localization.service';
-import {formatDate} from '@angular/common';
+import { LocalizationService } from '../../services/localization.service';
+import { formatDate } from '@angular/common';
 
 @Pipe({ name: 'longDate' })
 
@@ -27,8 +27,8 @@ export class LongDatePipe implements PipeTransform {
   constructor(private localizationService: LocalizationService) { }
 
   transform(value: any, format: string = 'full') {
-    if (!value) { return ; }
+    if (!value) { return; }
 
-    return formatDate(value, format, (this.localizationService.locale  === 'en') ? 'en' : 'en-GB');
+    return formatDate(value, format, (this.localizationService.locale === 'en') ? 'en' : 'en-GB');
   }
 }

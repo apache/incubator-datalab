@@ -21,7 +21,7 @@
 
   <header class="dialog-header">
     <h4 class="modal-title">
-        <span>{{ data.type.toUpperCase() | convertaction}} </span>
+      <span>{{ data.type.toUpperCase() | convertaction}} </span>
     </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
@@ -42,11 +42,15 @@
               <div class="object">
                 <span *ngIf="object['children']"><i class="material-icons folder-icon" >folder</i></span>
                 <span *ngIf="!object['children']"><i class="material-icons folder-icon file-icon" >description</i></span>
-                <div class="ellipsis"
-                     matTooltip="{{object['item']}}"
-                     matTooltipPosition="above"
-                     matTooltipShowDelay="1000"
-                     [matTooltipClass]="'full-size-tooltip'">{{object['item']}}</div>
+                <div 
+                  class="ellipsis"
+                  matTooltip="{{object['item']}}"
+                  matTooltipPosition="above"
+                  matTooltipShowDelay="1000"
+                  [matTooltipClass]="'full-size-tooltip'"
+                >
+                  {{object['item']}}
+                </div>
               </div>
               <div  class="size">{{object['children'] ? '-' : object['object'].size | convertFileSize}}</div>
             </mat-list-item>
@@ -67,30 +71,51 @@
       <div *ngIf="data.type === 'resolve_conflicts'">
         <p>
           <span
-          class="strong upload-item-name ellipsis"
-          matTooltip="{{data.items}}"
-          matTooltipPosition="above"
-          matTooltipShowDelay="1000"
-          [matTooltipClass]="'full-size-tooltip'"
-        >{{data.items}}</span> already exists in selected folder. How would you like to resolve this conflict?</p>
+            class="strong upload-item-name ellipsis"
+            matTooltip="{{data.items}}"
+            matTooltipPosition="above"
+            matTooltipShowDelay="1000"
+            [matTooltipClass]="'full-size-tooltip'"
+          >
+            {{data.items}}
+          </span> already exists in selected folder. How would you like to resolve this conflict?
+        </p>
+
         <mat-radio-group
           aria-labelledby="upload-radio-group-label"
           class="upload-radio-group"
-          [(ngModel)]="fileAction">
-          <mat-radio-button class="upload-radio-button" *ngFor="let action of uploadActions" [value]="action">
+          [(ngModel)]="fileAction"
+        >
+          <mat-radio-button 
+            class="upload-radio-button" 
+            *ngFor="let action of uploadActions" 
+            [value]="action"
+          >
             {{action}}
           </mat-radio-button>
         </mat-radio-group>
+
         <div class="repeat-for-all" >
-          <div class="empty-checkbox" [ngClass]="{'checked': actionForAll}" (click)="toggleActionForAll();$event.stopPropagation()" >
+          <div 
+            class="empty-checkbox" 
+            [ngClass]="{'checked': actionForAll}" 
+            (click)="toggleActionForAll();$event.stopPropagation()" 
+          >
             <span class="checked-checkbox" *ngIf="actionForAll"></span>
           </div>
-          <span class="repeat-message" (click)="toggleActionForAll();$event.stopPropagation()">Repeat for all remaining conflicts</span>
+          <span 
+            class="repeat-message" 
+            (click)="toggleActionForAll();$event.stopPropagation()"
+          >
+            Repeat for all remaining conflicts
+          </span>
         </div>
       </div>
 
       <div *ngIf="data.type === 'cancel'">
-        <p class="upload-message"><span>Cancel uploading file </span> <span class="strong ellipsis upload-item-name">{{data.items.name}}.</span></p>
+        <p class="upload-message">
+          <span>Cancel uploading file </span> <span class="strong ellipsis upload-item-name">{{data.items.name}}.</span>
+        </p>
         <div class="text-center m-top-20">
           <span class="strong">Do you want to proceed?</span>
         </div>
@@ -105,15 +130,42 @@
       </div>
 
       <div class="text-center m-top-20" *ngIf="data.type === 'delete' || data.type === 'cancel' || data.type === 'upload_limitation'">
-        <button  mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">No</button>
-        <button mat-raised-button type="button" class="butt butt-success action" (click)="dialogRef.close(true)">Yes</button>
+        <button  
+          mat-raised-button 
+          type="button" 
+          class="butt action" 
+          (click)="dialogRef.close()"
+        >
+          No
+        </button>
+        <button 
+          mat-raised-button 
+          type="button" 
+          class="butt butt-success action" 
+          (click)="dialogRef.close(true)"
+        >
+          Yes
+        </button>
       </div>
 
       <div class="text-center m-top-20" *ngIf="data.type === 'resolve_conflicts'">
-        <button  mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
-        <button mat-raised-button type="button" class="butt butt-success action" (click)="submitResolving()">Continue</button>
+        <button  
+          mat-raised-button 
+          type="button" 
+          class="butt action" 
+          (click)="dialogRef.close()"
+        >
+          Cancel
+        </button>
+        <button 
+          mat-raised-button 
+          type="button" 
+          class="butt butt-success action" 
+          (click)="submitResolving()"
+        >
+          Continue
+        </button>
       </div>
-
     </div>
   </div>
 </div>

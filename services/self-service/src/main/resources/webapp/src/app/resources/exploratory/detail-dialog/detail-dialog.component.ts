@@ -20,15 +20,15 @@
 import { Component, ViewChild, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
-import {DateUtils, CheckUtils, HelpUtils} from '../../../core/util';
+import { DateUtils, CheckUtils, HelpUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
-import {CopyPathUtils} from '../../../core/util/copyPathUtils';
-import {AuditService} from '../../../core/services/audit.service';
-import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
+import { CopyPathUtils } from '../../../core/util/copyPathUtils';
+import { AuditService } from '../../../core/services/audit.service';
+import { BucketBrowserComponent } from '../../bucket-browser/bucket-browser.component';
 
 @Component({
   selector: 'detail-dialog',
@@ -50,7 +50,6 @@ export class DetailDialogComponent implements OnInit {
   public odahu: any;
   public configurationForm: FormGroup;
   @ViewChild('configurationNode') configuration;
-
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -80,11 +79,12 @@ export class DetailDialogComponent implements OnInit {
       this.upTimeInHours = (this.notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
       this.initFormModel();
       this.getClusterConfiguration();
-    if (this.notebook.edgeNodeStatus === 'terminated' ||
-      this.notebook.edgeNodeStatus === 'terminating' ||
-      this.notebook.edgeNodeStatus === 'failed') {
-      this.isBucketAllowed = false;
-    }
+
+      if (this.notebook.edgeNodeStatus === 'terminated' ||
+        this.notebook.edgeNodeStatus === 'terminating' ||
+        this.notebook.edgeNodeStatus === 'failed') {
+        this.isBucketAllowed = false;
+      }
     }
   }
 
@@ -98,12 +98,12 @@ export class DetailDialogComponent implements OnInit {
       .getExploratorySparkConfiguration(this.notebook.project, this.notebook.name)
       .subscribe(
         (result: any) => this.config = result,
-        error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
+        error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!')
+      );
   }
 
   public selectConfiguration() {
     if (this.configuration.nativeElement.checked) {
-
       this.configurationForm.controls['configuration_parameters']
         .setValue(JSON.stringify(this.config.length ? this.config : CLUSTER_CONFIGURATION.SPARK, undefined, 2));
       document.querySelector('#config').scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -115,16 +115,19 @@ export class DetailDialogComponent implements OnInit {
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
       .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.project, this.notebook.name)
-      .subscribe(() => {
-        this.dialogRef.close();
-      },
-        error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
+      .subscribe(
+        () => {
+          this.dialogRef.close();
+        },
+        error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!')
+      );
   }
 
   public resetDialog() {
     this.initFormModel();
-
-    if (this.configuration) this.configuration.nativeElement['checked'] = false;
+    if (this.configuration) {
+      this.configuration.nativeElement['checked'] = false;
+    }
   }
 
   private initFormModel(): void {
@@ -147,14 +150,20 @@ export class DetailDialogComponent implements OnInit {
     bucketName = this.isBucketAllowed ? bucketName : this.data.buckets[0].children[0].name;
     // bucketName = 'ofuks-1304-pr2-local-bucket';
     this.dialog.open(BucketBrowserComponent, { data:
-        {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},
-      panelClass: 'modal-fullscreen' })
-    .afterClosed().subscribe();
+      { 
+        bucket: bucketName, 
+        endpoint: endpoint, 
+        bucketStatus: this.bucketStatus, 
+        buckets: this.data.buckets
+      },
+      panelClass: 'modal-fullscreen' }
+    ).afterClosed().subscribe();
   }
 
   public showCopyIcon(element) {
     this.isCopyIconVissible[element] = true;
   }
+  
   public hideCopyIcon() {
     for (const key in this.isCopyIconVissible) {
       this.isCopyIconVissible[key] = false;

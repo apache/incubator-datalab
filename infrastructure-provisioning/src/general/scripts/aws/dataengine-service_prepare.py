@@ -26,13 +26,13 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
 import os
 import sys
 import time
 import traceback
 import subprocess
 from fabric import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
@@ -63,7 +63,6 @@ if __name__ == "__main__":
                                       emr_conf['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = datalab.meta_lib.get_instance_hostname(
                 emr_conf['service_base_name'] + '-tag',
                 emr_conf['service_base_name'] + '-ssn')
@@ -72,7 +71,7 @@ if __name__ == "__main__":
                                             os.environ['conf_os_user'], ssn_hostname)
             datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         if 'computational_name' in os.environ:
             emr_conf['computational_name'] = os.environ['computational_name']
         else:
@@ -151,7 +150,7 @@ if __name__ == "__main__":
         datalab.fab.append_result("Failed to generate variables dictionary", str(err))
         sys.exit(1)
 
-    print("Will create exploratory environment with edge node as access point as following: {}".format(
+    logging.info("Will create exploratory environment with edge node as access point as following: {}".format(
         json.dumps(emr_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(emr_conf))
 
@@ -172,7 +171,6 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     logging.info('[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]')
-    print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
     try:
         group_id = datalab.meta_lib.check_security_group(emr_conf['edge_security_group_name'])
         cluster_sg_ingress = [
@@ -260,7 +258,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[Creating EMR Cluster]')
-        print('[Creating EMR Cluster]')
         params = "--name {0} " \
                  "--applications '{1}' " \
                  "--master_instance_type {2} " \
@@ -307,6 +304,8 @@ if __name__ == "__main__":
                     emr_conf['service_base_name'],
                     emr_conf['additional_emr_sg_name'],
                     emr_conf['configurations'])
+        if 'aws_permissions_boundary_arn' in os.environ:
+            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)
         except:

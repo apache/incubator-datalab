@@ -26,6 +26,7 @@ import os
 from datalab.actions_lib import *
 from fabric import *
 from datalab.fab import replace_multi_symbols
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
@@ -48,8 +49,8 @@ if __name__ == "__main__":
     if datalab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
         conn.put(gitlab_certfile, gitlab_certfile)
         conn.sudo('chown root:root {}'.format(gitlab_certfile))
-        print('{} has been downloaded'.format(gitlab_certfile))
+        logging.info('{} has been downloaded'.format(gitlab_certfile))
     else:
-        print('There is no {} to download'.format(gitlab_certfile))
+        logging.info('There is no {} to download'.format(gitlab_certfile))
 
     conn.close()

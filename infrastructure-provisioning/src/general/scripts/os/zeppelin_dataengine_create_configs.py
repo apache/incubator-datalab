@@ -45,6 +45,7 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--datalake_enabled', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
 parser.add_argument('--spark_configurations', type=str, default='')
+parser.add_argument('--python_version', type=str, default='')
 args = parser.parse_args()
 
 cluster_dir = '/opt/' + args.cluster_name + '/'
@@ -55,7 +56,7 @@ spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/
              "-bin-hadoop" + hadoop_version + ".tgz"
 
 
-def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user, multiple_clusters, spark_master):
+def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user, multiple_clusters, spark_master, python_version, notebook_ip):
     try:
         port_number_found = False
         zeppelin_restarted = False
@@ -123,27 +124,27 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user
             subprocess.run('sudo systemctl start livy-server-' + str(livy_port), shell=True, check=True)
         else:
             template_file = "/tmp/{}/dataengine_interpreter.json".format(args.cluster_name)
-            p_versions = ["2", "3.8"]
-            for p_version in p_versions:
-                fr = open(template_file, 'r+')
-                text = fr.read()
-                text = text.replace('CLUSTERNAME', cluster_name)
-                text = text.replace('PYTHONVERSION', p_version)
-                text = text.replace('SPARK_HOME', cluster_dir + 'spark/')
-                text = text.replace('PYTHONVER_SHORT', p_version[:1])
-                text = text.replace('MASTER', str(spark_master))
-                tmp_file = "/tmp/dataengine_spark_py" + p_version + "_interpreter.json"
-                fw = open(tmp_file, 'w')
-                fw.write(text)
-                fw.close()
-                for _ in range(5):
-                    try:
-                        subprocess.run("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
-                              "@/tmp/dataengine_spark_py" + p_version +
-                              "_interpreter.json http://localhost:8080/api/interpreter/setting", shell=True, check=True)
-                        break
-                    except:
-                        subprocess.run('sleep 5', shell=True, check=True)
+            fr = open(template_file, 'r+')
+            text = fr.read()
+            text = text.replace('CLUSTERNAME', cluster_name)
+            text = text.replace('HOST_IP', notebook_ip)
+            text = text.replace('PYTHONVERSION', python_version[:3])
+            text = text.replace('PYTHONVER_FULL', python_version)
+            text = text.replace('SPARK_HOME', cluster_dir + 'spark/')
+            text = text.replace('PYTHONVER_SHORT', python_version[:1])
+            text = text.replace('MASTER', str(spark_master))
+            tmp_file = "/tmp/dataengine_spark_py" + python_version + "_interpreter.json"
+            fw = open(tmp_file, 'w')
+            fw.write(text)
+            fw.close()
+            for _ in range(5):
+                try:
+                    subprocess.run("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
+                            "@/tmp/dataengine_spark_py" + python_version +
+                            "_interpreter.json http://localhost:8080/api/interpreter/setting", shell=True, check=True)
+                    break
+                except:
+                    subprocess.run('sleep 5', shell=True, check=True)
         subprocess.run('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured', shell=True, check=True)
     except Exception as err:
         print('Error: {0}'.format(err))
@@ -175,5 +176,5 @@ if __name__ == "__main__":
     if args.multiple_clusters == 'true':
         install_remote_livy(args)
     configure_zeppelin_dataengine_interpreter(args.cluster_name, cluster_dir, args.os_user,
-                                              args.multiple_clusters, args.spark_master)
+                                              args.multiple_clusters, args.spark_master, args.python_version, args.notebook_ip)
     update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)

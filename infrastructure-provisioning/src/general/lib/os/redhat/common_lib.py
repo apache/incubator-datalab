@@ -89,13 +89,6 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
         sys.exit(1)
 
 
-def change_pkg_repos():
-    if not exists(datalab.fab.conn,'/tmp/pkg_china_ensured'):
-        datalab.fab.conn.put('/root/files/sources.list', '/tmp/sources.list')
-        datalab.fab.conn.sudo('mv /tmp/sources.list  /etc/yum.repos.d/CentOS-Base-aliyun.repo')
-        datalab.fab.conn.sudo('touch /tmp/pkg_china_ensured')
-
-
 def find_java_path_remote():
     java_path = datalab.fab.conn.sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'").stdout.replace('\n','')
     return java_path
@@ -141,30 +134,4 @@ def ensure_step(user):
             datalab.fab.conn.sudo('mv /tmp/step_0.13.3/bin/step /usr/bin/')
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
-        sys.exit(1)
-
-def install_certbot(os_family):
-    try:
-        print('Installing Certbot')
-        print('Redhat is not supported yet. Skipping....')
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed Certbot install: ' + str(err))
-        sys.exit(1)
-
-def run_certbot(domain_name, email=''):
-    try:
-        print('Running  Certbot')
-        print('Redhat is not supported yet. Skipping....')
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to run Certbot: ' + str(err))
-        sys.exit(1)
-
-def configure_nginx_LE(domain_name):
-    try:
-        print('Redhat is not supported yet. Skipping....')
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to run Certbot: ' + str(err))
         sys.exit(1)

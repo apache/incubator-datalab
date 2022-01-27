@@ -62,12 +62,11 @@ export class InstallLibrariesModel {
       group: group,
       start_with: query
     };
-    if (this.computational_name)
+    if (this.computational_name) {
       lib_query.computational_name = this.computational_name;
+    }
 
-    return this.librariesInstallationService.getAvailableLibrariesList(
-      lib_query
-    );
+    return this.librariesInstallationService.getAvailableLibrariesList(lib_query);
   }
 
   public getDependencies(query: string): Observable<{}> {
@@ -86,9 +85,13 @@ export class InstallLibrariesModel {
       exploratory_name: this.notebook.name,
       libs: retry ? retry : this.selectedLibs
     };
-    if (this.computational_name)
+    if (this.computational_name) {
       lib_list.computational_name = this.computational_name;
-    if (item) lib_list.computational_name = item;
+    }
+
+    if (item) {
+      lib_list.computational_name = item;
+    } 
 
     return this.librariesInstallationService.installLibraries(lib_list);
   }

@@ -24,6 +24,7 @@
 import argparse
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_name', type=str, default='')
@@ -35,10 +36,10 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.vpc_name != '':
         if AzureMeta().get_vpc(args.resource_group_name, args.vpc_name):
-            print("REQUESTED VIRTUAL NETWORK {} EXISTS".format(args.vpc_name))
+            logging.info("REQUESTED VIRTUAL NETWORK {} EXISTS".format(args.vpc_name))
         else:
-            print("Creating Virtual Network {}".format(args.vpc_name))
+            logging.info("Creating Virtual Network {}".format(args.vpc_name))
             AzureActions().create_vpc(args.resource_group_name, args.vpc_name, args.region, args.vpc_cidr)
     else:
-        print("VPC name can't be empty.")
+        logging.error("VPC name can't be empty.")
         sys.exit(1)

@@ -26,16 +26,16 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
 import os
 import requests
 import sys
 import traceback
+from datalab.logger import logging
 
 
 def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, endpoint_name,
                         service_base_name):
-    print('Terminating EMR cluster')
+    logging.info('Terminating EMR cluster')
     try:
         clusters_list = datalab.meta_lib.get_emr_list(tag_name)
         if clusters_list:
@@ -46,28 +46,28 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
                 emr_name = cluster.get('Name')
                 if '{}'.format(tag_value[:-1]) in emr_name:
                     datalab.actions_lib.terminate_emr(cluster_id)
-                    print("The EMR cluster {} has been terminated successfully".format(emr_name))
+                    logging.info("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
-            print("There are no EMR clusters to terminate.")
+            logging.info("There are no EMR clusters to terminate.")
     except Exception as err:
         datalab.fab.append_result("Failed to terminate EMR cluster.", str(err))
         sys.exit(1)
 
-    print("Terminating EDGE and notebook instances")
+    logging.info("Terminating EDGE and notebook instances")
     try:
         datalab.actions_lib.remove_ec2(tag_name, tag_value)
     except Exception as err:
         datalab.fab.append_result("Failed to terminate instances.", str(err))
         sys.exit(1)
 
-    print("Removing s3 bucket")
+    logging.info("Removing s3 bucket")
     try:
         datalab.actions_lib.remove_s3('edge', project_name)
     except Exception as err:
         datalab.fab.append_result("Failed to remove buckets.", str(err))
         sys.exit(1)
 
-    print("Removing IAM roles and profiles")
+    logging.info("Removing IAM roles and profiles")
     try:
         datalab.actions_lib.remove_all_iam_resources('notebook', project_name, endpoint_name)
         datalab.actions_lib.remove_all_iam_resources('edge', project_name, endpoint_name)
@@ -75,14 +75,14 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
         datalab.fab.append_result("Failed to remove IAM roles and profiles.", str(err))
         sys.exit(1)
 
-    print("Deregistering project specific notebook's AMI")
+    logging.info("Deregistering project specific notebook's AMI")
     try:
         datalab.actions_lib.deregister_image('{}-{}-{}-*'.format(service_base_name, project_name, endpoint_name))
     except Exception as err:
         datalab.fab.append_result("Failed to deregister images.", str(err))
         sys.exit(1)
 
-    print("Removing security groups")
+    logging.info("Removing security groups")
     try:
         datalab.actions_lib.remove_sgroups(emr_sg)
         datalab.actions_lib.remove_sgroups(de_sg)
@@ -92,14 +92,14 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
         datalab.fab.append_result("Failed to remove Security Groups.", str(err))
         sys.exit(1)
 
-    print("Removing private subnet")
+    logging.info("Removing private subnet")
     try:
         datalab.actions_lib.remove_subnets(tag_value)
     except Exception as err:
         datalab.fab.append_result("Failed to remove subnets.", str(err))
         sys.exit(1)
 
-    print("Removing project route tables")
+    logging.info("Removing project route tables")
     try:
         datalab.actions_lib.remove_route_tables("Name", False, '{}-{}-{}-nat-rt'.format(service_base_name, project_name, endpoint_name))
     except Exception as err:
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     datalab.actions_lib.create_aws_config_files()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     project_conf = dict()
     project_conf['service_base_name'] = (os.environ['conf_service_base_name'])
     project_conf['project_name'] = os.environ['project_name']
@@ -142,7 +142,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE PROJECT]')
-        print('[TERMINATE PROJECT]')
         try:
             terminate_edge_node(project_conf['tag_name'], project_conf['project_name'], project_conf['tag_value'],
                                 project_conf['nb_sg'], project_conf['edge_sg'], project_conf['de_sg'],
@@ -151,22 +150,21 @@ if __name__ == "__main__":
             traceback.print_exc()
             datalab.fab.append_result("Failed to terminate project.", str(err))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 
     try:
         endpoint_id = datalab.meta_lib.get_instance_by_name(project_conf['tag_name'],
                                                             project_conf['endpoint_instance_name'])
-        print("Endpoint id: " + endpoint_id)
+        logging.info("Endpoint id: " + endpoint_id)
         ec2 = boto3.client('ec2')
         ec2.delete_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag'}, {'Key': 'endpoint_tag'}])
     except Exception as err:
-        print("Failed to remove Project tag from Enpoint", str(err))
+        logging.error("Failed to remove Project tag from Enpoint", str(err))
 #        traceback.print_exc()
 #        sys.exit(1)
 
     try:
-        print('[KEYCLOAK PROJECT CLIENT DELETE]')
         logging.info('[KEYCLOAK PROJECT CLIENT DELETE]')
         keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
             os.environ['keycloak_auth_server_url'])
@@ -202,14 +200,14 @@ if __name__ == "__main__":
             headers={"Authorization": "Bearer {}".format(keycloak_token.get("access_token")),
                      "Content-Type": "application/json"})
     except Exception as err:
-        print("Failed to remove project client from Keycloak", str(err))
+        logging.error("Failed to remove project client from Keycloak", str(err))
 
     try:
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": project_conf['service_base_name'],
                    "project_name": project_conf['project_name'],
                    "Action": "Terminate edge node"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

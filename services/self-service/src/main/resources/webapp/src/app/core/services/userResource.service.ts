@@ -108,7 +108,12 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public suspendComputationalResource(projectName: string, notebookName: string, computationalResourceName: string, provider: string): Observable<{}> {
+  public suspendComputationalResource(
+    projectName: string, 
+    notebookName: string, 
+    computationalResourceName: string, 
+    provider: string
+  ): Observable<{}> {
     const body = JSON.stringify('/' + projectName + '/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
       .buildDeleteComputationalResourcesRequest(body, provider)
@@ -117,7 +122,13 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public toggleStopStartAction(project: string, notebook: string, resource: string, action, provider: string): Observable<{}> {
+  public toggleStopStartAction(
+    project: string, 
+    notebook: string, 
+    resource: string, 
+    action, 
+    provider: string
+  ): Observable<{}> {
     const url = `/${project}/${notebook}/${resource}/${action}`;
     if (action === 'stop') {
       return this.applicationServiceFacade

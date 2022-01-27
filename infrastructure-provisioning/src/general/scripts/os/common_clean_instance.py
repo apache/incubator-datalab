@@ -114,6 +114,26 @@ def clean_tensor_rstudio():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+def clean_deeplearning():
+    try:
+        conn.sudo('systemctl stop ungit')
+        conn.sudo('systemctl stop inactive.timer')
+        conn.sudo('rm -f /etc/systemd/system/inactive.service')
+        conn.sudo('rm -f /etc/systemd/system/inactive.timer')
+        conn.sudo('rm -rf /opt/inactivity')
+        conn.sudo('npm -g uninstall ungit')
+        conn.sudo('rm -f /etc/systemd/system/ungit.service')
+        conn.sudo('systemctl daemon-reload')
+        remove_os_pkg(['nodejs', 'npm'])
+        conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+        # conn.sudo('systemctl stop tensorboard')
+        # conn.sudo('systemctl disable tensorboard')
+        # conn.sudo('systemctl daemon-reload')
+        clean_jupyter()
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     print('Configure connections')
@@ -121,6 +141,8 @@ if __name__ == "__main__":
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
     if os.environ['conf_cloud_provider'] == 'azure':
+        from datalab.actions_lib import ensure_right_mount_paths
+        ensure_right_mount_paths()
         de_master_name = '{}-{}-{}-de-{}-m'.format(
             os.environ['conf_service_base_name'],
             os.environ['project_name'],
@@ -139,19 +161,23 @@ if __name__ == "__main__":
         default_ami_id = get_ami_id(
             os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
 
+
     if de_ami_id != default_ami_id:
         if args.application in os.environ['dataengine_image_notebooks'].split(','):
-            general_clean()
-            if args.application == 'jupyter':
-                clean_jupyter()
-            elif args.application == 'zeppelin':
-                clean_zeppelin()
-            elif args.application == 'rstudio':
-                clean_rstudio()
-            elif args.application in ('tensor', 'deeplearning'):
-                clean_tensor()
-            elif args.application == ('tensor-rstudio'):
-                clean_tensor_rstudio()
+            if args.application == 'deeplearning':
+                clean_deeplearning()
+            else:
+                general_clean()
+                if args.application == 'jupyter':
+                    clean_jupyter()
+                elif args.application == 'zeppelin':
+                    clean_zeppelin()
+                elif args.application == 'rstudio':
+                    clean_rstudio()
+                elif args.application == 'tensor':
+                    clean_tensor()
+                elif args.application == 'tensor-rstudio':
+                    clean_tensor_rstudio()
     else:
         print('Found default ami, do not make clean')
     #conn.close()

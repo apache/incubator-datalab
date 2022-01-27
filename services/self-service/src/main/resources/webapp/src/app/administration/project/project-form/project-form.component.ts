@@ -20,6 +20,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
+import {MatDialog} from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 
@@ -29,7 +30,6 @@ import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import {ConfirmationDialogComponent} from '../../../shared/modal-dialog/confirmation-dialog';
-import {MatDialog} from '@angular/material/dialog';
 
 export interface GenerateKey { privateKey: string; publicKey: string; }
 
@@ -83,15 +83,20 @@ export class ProjectFormComponent implements OnInit {
   }
 
   private updateProject(data: any) {
-    this.projectService.updateProject(data).subscribe(() => {
-      this.toastr.success('Project updated successfully!', 'Success!');
-      this.update.emit();
-    }, error => this.toastr.error(error.message || 'Project update failed!', 'Oops!'));
+    this.projectService.updateProject(data)
+      .subscribe(
+        () => {
+          this.toastr.success('Project updated successfully!', 'Success!');
+          this.update.emit();
+        }, 
+        error => this.toastr.error(error.message || 'Project update failed!', 'Oops!')
+      );
   }
 
   public confirm(data) {
     if (this.item) {
       const deletedGroups = this.item.groups.filter((v) => !(this.projectForm.value.groups.includes(v)));
+      
       if (deletedGroups.length) {
         this.dialog.open(ConfirmationDialogComponent, {
           data: {notebook: deletedGroups, type: 5, manageAction: true}, panelClass: 'modal-md'

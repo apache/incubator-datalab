@@ -52,20 +52,16 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
 
     public Map<String, String> getPropertiesWithExternal(String endpoint, UserInfo userInfo, String url) {
         Map<String, String> properties = new HashMap<>();
-        if (endpoint.equals(LOCAL_ENDPOINT_NAME)) {
-            properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
-            properties.put(PROVISIONING_SERVICE, getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE));
-            properties.put(BILLING_SERVICE, getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE));
-
-        } else {
+        properties.put(SELF_SERVICE, getProperties(SELF_SERVICE_PROP_PATH, SELF_SERVICE));
+        properties.put(PROVISIONING_SERVICE, getProperties(PROVISIONING_SERVICE_PROP_PATH, PROVISIONING_SERVICE));
+        properties.put(BILLING_SERVICE, getProperties(BILLING_SERVICE_PROP_PATH, BILLING_SERVICE));
+        if (!endpoint.equals(LOCAL_ENDPOINT_NAME)) {
             log.info("Trying to read properties, for external endpoint : {} , for user: {}",
                     endpoint, userInfo.getSimpleName());
             String provPath = url + "/provisioning-service";
-            properties.put(PROVISIONING_SERVICE,
-                    provService.get(provPath, userInfo.getAccessToken(), String.class));
             String billPath = url + "/billing";
-            properties.put(BILLING_SERVICE,
-                    provService.get(billPath, userInfo.getAccessToken(), String.class));
+            properties.put(PROVISIONING_SERVICE, provService.get(provPath, userInfo.getAccessToken(), String.class));
+            properties.put(BILLING_SERVICE, provService.get(billPath, userInfo.getAccessToken(), String.class));
         }
         return properties;
     }
@@ -75,6 +71,7 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
         log.info("Trying to write {}, for external endpoint : {} , for user: {}",
                 name, ymlDTO.getEndpointName(), userInfo.getSimpleName());
         if (ymlDTO.getEndpointName().equals(LOCAL_ENDPOINT_NAME)
+                || ymlDTO.getEndpointName().isEmpty()
                 || name.equals(SELF_SERVICE)
                 || name.equals(GKE_SELF_SERVICE)) {
             changePropertiesService.writeFileFromString(ymlDTO.getYmlString(), name, path);
@@ -86,7 +83,7 @@ public class ExternalChangeProperties implements ChangePropertiesConst {
 
 
     public RestartAnswer restartForExternal(RestartForm restartForm, UserInfo userInfo, String url) {
-        if (restartForm.getEndpoint().equals(LOCAL_ENDPOINT_NAME)) {
+        if (restartForm.getEndpoint().equals(LOCAL_ENDPOINT_NAME) || restartForm.getEndpoint().isEmpty()) {
             return changePropertiesService.restart(restartForm);
         } else {
             log.info("External request for endpoint {}, for user {}", restartForm.getEndpoint(), userInfo.getSimpleName());

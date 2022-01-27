@@ -1,5 +1,5 @@
 {
-  "name": "CLUSTERNAME_pyPYTHONVER_SHORT",
+  "name": "CLUSTERNAME",
   "group": "spark",
   "properties": {
     "zeppelin.spark.useHiveContext": {
@@ -37,6 +37,13 @@
         "description": "Spark master uri. ex) spark://masterhost:7077",
         "type": "string"
       },
+    "spark.driver.host":{
+        "envName": "spark.driver.host",
+        "propertyName": "spark.driver.host",
+        "value": "HOST_IP",
+        "description": "driver host ip (zeppelin)",
+        "type": "string"
+      },
     "zeppelin.spark.concurrentSQL": {
         "envName": "ZEPPELIN_SPARK_CONCURRENTSQL",
         "propertyName": "zeppelin.spark.concurrentSQL",
@@ -58,10 +65,17 @@
         "description": "",
         "type": "checkbox"
       },
-    "zeppelin.pyspark.python": {
+    "PYSPARK_PYTHON": {
         "envName": "ZEPPELIN_PYSPARK_PYTHON",
-        "propertyName": "zeppelin.pyspark.python",
-        "value": "pythonPYTHONVERSION",
+        "propertyName": "PYSPARK_PYTHON",
+        "value": "/opt/python/pythonPYTHONVER_FULL/bin/pythonPYTHONVERSION",
+        "description": "",
+        "type": "string"
+      },
+    "PYSPARK_DRIVER_PYTHON": {
+        "envName": "ZEPPELIN_PYSPARK_DRIVER_PYTHON",
+        "propertyName": "PYSPARK_DRIVER_PYTHON",
+        "value": "/opt/python/pythonPYTHONVER_FULL/bin/pythonPYTHONVERSION",
         "description": "",
         "type": "string"
       },

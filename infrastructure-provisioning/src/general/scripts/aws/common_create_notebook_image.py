@@ -27,6 +27,7 @@ import datalab.meta_lib
 import json
 import os
 import sys
+from datalab.logger import logging
 
 if __name__ == "__main__":
     try:
@@ -66,7 +67,7 @@ if __name__ == "__main__":
                                                                       instance_name=image_conf['instance_name'],
                                                                       image_name=image_conf['full_image_name'],
                                                                       tags=json.dumps(image_conf['tags']))
-            print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
+            logging.info("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
 
             with open("/root/result.json", 'w') as result:
                 res = {"notebook_image_name": image_conf['image_name'],

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, Output, OnInit, Inject, EventEmitter  } from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter  } from '@angular/core';
 
 import { CLOCK_TYPE, TimeFormat } from './ticker.component';
 type TimeFormatAlias = TimeFormat;

@@ -202,8 +202,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .forEach(e -> stop(userInfo, e.getName(), projectName, null));
 
         exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName,
-                endpointDTOs
-                        .stream()
+                endpointDTOs.stream()
                         .map(ProjectEndpointDTO::getName)
                         .collect(Collectors.toList()))
                 .forEach(e -> exploratoryService.stop(userInfo, e.getUser(), projectName, e.getExploratoryName(), null));
@@ -282,7 +281,7 @@ public class ProjectServiceImpl implements ProjectService {
     private void createProjectOnCloud(UserInfo user, ProjectDTO project) {
         try {
             project.getEndpoints().forEach(e -> createEndpoint(user, project, e.getName(), project.getName(),
-                            String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
+                    String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
         } catch (Exception e) {
             log.error("Can not create project due to: {}", e.getMessage(), e);
             projectDAO.updateStatus(project.getName(), ProjectDTO.Status.FAILED);

@@ -61,8 +61,7 @@
           </div>
         </div>
         <div class="row-wrap">
-          <div class="col"
-              *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp'; else inst">
+          <div class="col" *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp'; else inst">
             <p>Master instance number:</p>
           </div>
           <ng-template #inst>
@@ -71,13 +70,14 @@
             </div>
           </ng-template>
           <div class="col">
-            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'aws'">{{ resource.totalInstanceCount > 0 ? resource.totalInstanceCount : resource.dataengine_instance_count}}</span>
-            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure'">{{resource.dataengine_instance_count}}</span>
+            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'aws'">
+              {{ resource.totalInstanceCount > 0 ? resource.totalInstanceCount : resource.dataengine_instance_count}}
+            </span>
+            <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure'">{{resource?.totalInstanceCount}}</span>
             <span *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp'">1</span>
           </div>
         </div>
-        <div class="row-wrap"
-          *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp'">
+        <div class="row-wrap" *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp'">
           <div class="col">
             <p>Slave instance number:</p>
           </div>
@@ -123,14 +123,15 @@
         </ng-template>
         <div *ngIf="resource.status === 'running'">
           <div class="row-wrap">
-            <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{resource.up_time ? (resource.up_time | longDate) : "not specified."
-              }}
+            <p class="time_info">
+              Up time {{upTimeInHours}} hour(s) since {{resource.up_time ? (resource.up_time | longDate) : "not specified."}}
             </p>
           </div>
           <div class="m-top-10">
             <p *ngFor="let item of resource.computational_url" class="ellipsis flex" (mouseleave)="hideCopyIcon()">
               <span class="strong spark-url-desc">{{ item.description }}:</span>&nbsp;
-              <a (click)="logAction(resource, environment, 'follow')"
+              <a 
+                (click)="logAction(resource, environment, 'follow')"
                  href="{{item.url}}"
                  target="_blank"
                  matTooltip="{{item.url}}"
@@ -138,11 +139,15 @@
                  (mouseover)="showCopyIcon(item.description)"
                  class="spark-url ellipsis"
                  (contextmenu)="false"
-              >{{ item.url }}</a>
+              >
+                {{ item.url }}
+              </a>
               <span
                 (click)="logAction(resource, environment, 'copy');$event.stopPropagation()"
                 *ngIf="isCopyIconVissible[item.description]"
-                [matTooltip]="isCopied ? 'Copy ' + item.description + (item.description.indexOf('url')  === -1 ? ' url' : ''): 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper"
+                [matTooltip]="isCopied ? 'Copy ' + item.description + (item.description.indexOf('url')  === -1 ? ' url' : ''): 'Copied'" 
+                matTooltipPosition="above" 
+                class="copy-icon-wrapper"
               >
                 <span  class="link-icon" (click)="copyLink(item.url)" >
                   <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
@@ -151,53 +156,59 @@
             </p>
           </div>
         </div>
-          <div class="checkbox-group" 
-            *ngIf="resource.image === 'docker.datalab-dataengine'
-                && resource.status === 'running'
-                && environment.image !== 'docker.datalab-zeppelin'
-                && environment.image !== 'docker.datalab-superset'
-                && environment.image !== 'docker.datalab-jupyterlab'"
+        <div 
+          class="checkbox-group" 
+          *ngIf="resource.image === 'docker.datalab-dataengine'
+              && resource.status === 'running'
+              && environment.image !== 'docker.datalab-zeppelin'
+              && environment.image !== 'docker.datalab-superset'
+              && environment.image !== 'docker.datalab-jupyterlab'"
+        >
+          <label>
+            <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
+          </label>
+          <div class="checkbox-group">
+            <form [formGroup]="configurationForm" novalidate>
+              <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
+                <textarea 
+                  formControlName="configuration_parameters" 
+                  placeholder="Cluster configuration template, JSON"
+                  data-gramm_editor="false"
+                ></textarea>
+                <span class="danger_color"
+                  *ngIf="!configurationForm.controls.configuration_parameters.valid 
+                      && configurationForm.controls['configuration_parameters'].dirty">
+                      Configuration parameters is not in a valid format
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div *ngIf="environment.image === 'docker.datalab-zeppelin' && resource.status === 'running'">
+          <small>Spark default configuration for Apache Zeppelin can not be changed from DataLab UI. 
+            Currently it can be done directly through Apache Zeppelin interpreter menu.
+              For more details please refer for Apache Zeppelin 
+              <a href="https://zeppelin.apache.org/docs/0.9.0/usage/interpreter/overview.html" target="_blank">official
+                  documentation</a>.
+          </small>
+        </div>
+        <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked'] || false">
+          <button 
+            mat-raised-button type="button" 
+            (click)="dialogRef.close()" 
+            class="butt action"
           >
-            <label>
-              <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
-            </label>
-            <div class="checkbox-group">
-              <form [formGroup]="configurationForm" novalidate>
-                <div class="config-details"
-                    [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
-                  <textarea 
-                    formControlName="configuration_parameters" 
-                    placeholder="Cluster configuration template, JSON"
-                    data-gramm_editor="false">
-                  </textarea>
-                  <span class="danger_color"
-                    *ngIf="!configurationForm.controls.configuration_parameters.valid 
-                        && configurationForm.controls['configuration_parameters'].dirty">
-                        Configuration parameters is not in a valid format
-                  </span>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div *ngIf="environment.image === 'docker.datalab-zeppelin' && resource.status === 'running'">
-            <small>Spark default configuration for Apache Zeppelin can not be changed from DataLab UI. 
-              Currently it can be done directly through Apache Zeppelin interpreter menu.
-                For more details please refer for Apache Zeppelin 
-                <a href="https://zeppelin.apache.org/docs/0.9.0/usage/interpreter/overview.html" target="_blank">official
-                    documentation</a>.
-            </small>
-          </div>
-          <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked'] || false">
-            <button mat-raised-button type="button" 
-                    (click)="dialogRef.close()" 
-                    class="butt action">Cancel
-            </button>
-            <button mat-raised-button type="submit" 
-                    [disabled]="!configurationForm.valid"
-                    class="butt butt-success action"
-                    [ngClass]="{'not-allowed': !configurationForm.valid}"
-                    (click)="editClusterConfiguration(configurationForm.value)">Update
-            </button>
+            Cancel
+          </button>
+          <button 
+            mat-raised-button type="submit" 
+            [disabled]="!configurationForm.valid"
+            class="butt butt-success action"
+            [ngClass]="{'not-allowed': !configurationForm.valid}"
+            (click)="editClusterConfiguration(configurationForm.value)"
+          >
+            Update
+          </button>
         </div>
       </div>
 

@@ -25,12 +25,12 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
 import os
 import sys
 import traceback
 import subprocess
 from fabric import *
+from datalab.logger import logging
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -50,7 +50,6 @@ if __name__ == "__main__":
                 data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = datalab.meta_lib.get_instance_hostname(data_engine['service_base_name'] + '-tag',
                                                                   data_engine['service_base_name'] + '-ssn')
             datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
@@ -58,7 +57,7 @@ if __name__ == "__main__":
                                             ssn_hostname)
             datalab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         if 'exploratory_name' in os.environ:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
         else:
@@ -97,7 +96,10 @@ if __name__ == "__main__":
                                                                              data_engine['cluster_name'])}
         data_engine['cluster_nodes_billing_tag'] = {"Key": os.environ['conf_billing_tag_key'],
                                                     "Value": os.environ['conf_billing_tag_value']}
-        data_engine['primary_disk_size'] = '30'
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            data_engine['primary_disk_size'] = '150'
+        else:
+            data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
         if os.environ['conf_shared_image_enabled'] == 'false':
@@ -116,16 +118,16 @@ if __name__ == "__main__":
                                                    data_engine['endpoint_name']) if (
                     x != 'None' and x != '')
             else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
-        print('Searching pre-configured images')
+        logging.info('Searching pre-configured images')
         data_engine['ami_id'] = datalab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(
             os.environ['conf_os_family'])])
         image_id = datalab.meta_lib.get_ami_id_by_name(data_engine['notebook_image_name'], 'available')
         if image_id != '' and os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
             data_engine['ami_id'] = image_id
-            print('Pre-configured image found. Using: {}'.format(data_engine['ami_id']))
+            logging.info('Pre-configured image found. Using: {}'.format(data_engine['ami_id']))
         else:
             os.environ['notebook_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
-            print('No pre-configured image found. Using default one: {}'.format(data_engine['ami_id']))
+            logging.info('No pre-configured image found. Using default one: {}'.format(data_engine['ami_id']))
 
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
@@ -141,11 +143,10 @@ if __name__ == "__main__":
     except KeyError:
         os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(data_engine['project_name'],
                                                                                        data_engine['endpoint_name'])
-    print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+    logging.info('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
     try:
         logging.info('[CREATE MASTER NODE]')
-        print('[CREATE MASTER NODE]')
         data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "master"}
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
                  "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --primary_disk_size {} " \
@@ -174,7 +175,6 @@ if __name__ == "__main__":
     try:
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
-            print('[CREATE SLAVE NODE {}]'.format(i + 1))
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "slave"}
             params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
@@ -206,6 +206,6 @@ if __name__ == "__main__":
             try:
                 datalab.actions_lib.remove_ec2(data_engine['tag_name'], slave_name)
             except:
-                print("The slave instance {} hasn't been created.".format(slave_name))
+                logging.error("The slave instance {} hasn't been created.".format(slave_name))
         datalab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

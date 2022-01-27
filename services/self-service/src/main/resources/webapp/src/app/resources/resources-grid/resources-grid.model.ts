@@ -93,7 +93,9 @@ export class ExploratoryModel {
             el.endpoint,
             el.tags,
             value.shared[el.endpoint].status,
-            !!el.computational_resources.filter(resource => resource.status !== 'terminated' && resource.status !== 'failed').length
+            !!el.computational_resources.filter(resource => resource.status !== 'terminated' && resource.status !== 'failed').length,
+            el.gpu_type,
+            el.gpu_count
           );
         });
 

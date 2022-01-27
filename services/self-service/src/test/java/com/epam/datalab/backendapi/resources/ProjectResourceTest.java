@@ -288,7 +288,7 @@ public class ProjectResourceTest extends TestBase {
     }
 
     private ProjectActionFormDTO getProjectActionDTO() {
-        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList(ENDPOINT_NAME));
+        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList(ENDPOINT_NAME),"RUNNING");
     }
 
     private UpdateProjectDTO prepareUpdateProjectDTO() {
@@ -296,7 +296,7 @@ public class ProjectResourceTest extends TestBase {
     }
 
     private ProjectActionFormDTO prepareProjectActionFormDTO() {
-        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList(ENDPOINT_NAME));
+        return new ProjectActionFormDTO(PROJECT_NAME, Collections.singletonList(ENDPOINT_NAME),"RUNNING");
     }
 
     private List<UpdateProjectBudgetDTO> prepareUpdateProjectBudgetDTOs() {

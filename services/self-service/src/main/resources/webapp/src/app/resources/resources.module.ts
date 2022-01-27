@@ -27,23 +27,23 @@ import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateModule } from './exploratory/create-environment';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialogComponent } from './manage-ungit/manage-ungit.component';
-import {MatTreeModule} from '@angular/material/tree';
-import {BucketDataService} from './bucket-browser/bucket-data.service';
-import {ConvertFileSizePipeModule} from '../core/pipes/convert-file-size';
-import {BucketBrowserModule} from './bucket-browser/bucket-browser.module';
+import { MatTreeModule } from '@angular/material/tree';
+import { BucketDataService } from './bucket-browser/bucket-data.service';
+import { ConvertFileSizePipeModule } from '../core/pipes/convert-file-size';
+import { BucketBrowserModule } from './bucket-browser/bucket-browser.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ResourcesGridModule,
-        ExploratoryEnvironmentCreateModule,
-        MaterialModule,
-        MatTreeModule,
-        ConvertFileSizePipeModule,
-        BucketBrowserModule
-    ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ResourcesGridModule,
+    ExploratoryEnvironmentCreateModule,
+    MaterialModule,
+    MatTreeModule,
+    ConvertFileSizePipeModule,
+    BucketBrowserModule
+  ],
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,

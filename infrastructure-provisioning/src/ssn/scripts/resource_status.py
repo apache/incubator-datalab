@@ -37,7 +37,7 @@ args = parser.parse_args()
 def read_yml_conf(path, section, param):
     try:
         with open(path, 'r') as config_yml:
-            config = yaml.load(config_yml)
+            config = yaml.safe_load(config_yml)
         result = config[section][param]
         return result
     except:

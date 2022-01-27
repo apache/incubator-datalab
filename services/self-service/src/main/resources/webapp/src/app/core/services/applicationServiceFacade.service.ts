@@ -725,7 +725,6 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
       '/api/infrastructure_provision/exploratory_environment/scheduler');
 
-
     // Computational Resources
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,
       '/infrastructure_provision/computational_resources');
@@ -786,7 +785,6 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.AUDIT, '/api/audit');
 
     // configuration
-
     this.requestRegistry.Add(ApplicationServiceFacade.CONFIG, '/api/config/multiple');
   }
 
@@ -807,5 +805,4 @@ export class ApplicationServiceFacade {
       return this.http.get(body ? (url + body) : url, opt);
     }
   }
-
 }

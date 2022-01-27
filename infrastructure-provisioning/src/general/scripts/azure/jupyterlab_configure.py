@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -33,12 +33,6 @@ import subprocess
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         AzureMeta = datalab.meta_lib.AzureMeta()
         AzureActions = datalab.actions_lib.AzureActions()
@@ -134,7 +128,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
              notebook_config['datalab_ssh_user'], sudo_group)
@@ -152,7 +145,6 @@ if __name__ == "__main__":
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
-        print('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
         additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
@@ -170,7 +162,6 @@ if __name__ == "__main__":
     # updating repositories & installing python packages
     try:
         logging.info('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['azure_region'],
                    edge_instance_private_hostname)
@@ -187,21 +178,22 @@ if __name__ == "__main__":
     # installing and configuring jupiter and all dependencies
     try:
         logging.info('[CONFIGURE JUPYTERLAB NOTEBOOK INSTANCE]')
-        print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         params = "--hostname {0} --keyfile {1} " \
                  "--region {2} --spark_version {3} " \
                  "--hadoop_version {4} --os_user {5} " \
-                 "--scala_version {6} --r_mirror {7} " \
-                 "--ip_address {8} --exploratory_name {9} --edge_ip {10}".\
+                 "--scala_version {6} " \
+                 "--ip_address {7} --exploratory_name {8} --edge_ip {9}".\
             format(instance_hostname, keyfile_name,
                    os.environ['azure_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['datalab_ssh_user'],
-                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
+                   os.environ['notebook_scala_version'],
                    notebook_config['ip_address'], notebook_config['exploratory_name'], edge_hostname)
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_jupyterlab_node', params), shell=True, check=True)
             datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,
-                                                   os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
+                                                   keyfile_name)
+            datalab.actions_lib.ensure_right_mount_paths(True, notebook_config['datalab_ssh_user'], instance_hostname,
+                                                         keyfile_name)
         except:
             traceback.print_exc()
             raise Exception
@@ -210,7 +202,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -227,7 +218,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name)
@@ -244,10 +234,10 @@ if __name__ == "__main__":
 
     if notebook_config['image_enabled'] == 'true':
         try:
-            print('[CREATING IMAGE]')
+            logging.info('[CREATING IMAGE]')
             image = AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name'])
             if image == '':
-                print("Looks like it's first time we configure notebook server. Creating image.")
+                logging.info("Looks like it's first time we configure notebook server. Creating image.")
                 datalab.actions_lib.prepare_vm_for_image(True, notebook_config['datalab_ssh_user'], instance_hostname,
                                                          keyfile_name)
                 AzureActions.create_image_from_instance(notebook_config['resource_group_name'],
@@ -255,7 +245,7 @@ if __name__ == "__main__":
                                                         os.environ['azure_region'],
                                                         notebook_config['expected_image_name'],
                                                         json.dumps(notebook_config['image_tags']))
-                print("Image was successfully created.")
+                logging.info("Image was successfully created.")
                 subprocess.run("~/scripts/{}.py".format('common_prepare_notebook'), shell=True, check=True)
                 instance_running = False
                 while not instance_running:
@@ -266,6 +256,8 @@ if __name__ == "__main__":
                                                                      notebook_config['instance_name'])
                 datalab.actions_lib.remount_azure_disk(True, notebook_config['datalab_ssh_user'], instance_hostname,
                                                        keyfile_name)
+                datalab.actions_lib.ensure_right_mount_paths(True, notebook_config['datalab_ssh_user'],
+                                                             instance_hostname, keyfile_name)
                 datalab.fab.set_git_proxy(notebook_config['datalab_ssh_user'], instance_hostname, keyfile_name,
                                           'http://{}:3128'.format(edge_instance_private_hostname))
                 additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
@@ -279,7 +271,6 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
-        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         additional_info = {
             'instance_hostname': instance_hostname,
@@ -308,7 +299,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[CONFIGURING PROXY FOR DOCKER]')
         logging.info('[CONFIGURING PROXY FOR DOCKER]')
         params = "--hostname {} " \
                  "--keyfile {} " \
@@ -328,7 +318,6 @@ if __name__ == "__main__":
 
 
     try:
-        print('[STARTING JUPYTER CONTAINER]')
         logging.info('[STARTING JUPYTER CONTAINER]')
         params = "--hostname {} " \
                  "--keyfile {} " \
@@ -356,17 +345,16 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'])
         jupyter_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
             notebook_config['exploratory_name'])
-        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print("Instance name: {}".format(notebook_config['instance_name']))
-        print("Private IP: {}".format(ip_address))
-        print("Instance type: {}".format(notebook_config['instance_size']))
-        print("Key name: {}".format(notebook_config['key_name']))
-        print("User key name: {}".format(notebook_config['user_keyname']))
-        print("SG name: {}".format(notebook_config['security_group_name']))
-        print("Jupyter URL: {}".format(jupyter_ip_url))
-        print("Ungit URL: {}".format(ungit_ip_url))
-        print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
+        logging.info("Instance name: {}".format(notebook_config['instance_name']))
+        logging.info("Private IP: {}".format(ip_address))
+        logging.info("Instance type: {}".format(notebook_config['instance_size']))
+        logging.info("Key name: {}".format(notebook_config['key_name']))
+        logging.info("User key name: {}".format(notebook_config['user_keyname']))
+        logging.info("SG name: {}".format(notebook_config['security_group_name']))
+        logging.info("Jupyter URL: {}".format(jupyter_ip_url))
+        logging.info("Ungit URL: {}".format(ungit_ip_url))
+        logging.info('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
               format(notebook_config['key_name'], notebook_config['datalab_ssh_user'], ip_address))
 
         with open("/root/result.json", 'w') as result:

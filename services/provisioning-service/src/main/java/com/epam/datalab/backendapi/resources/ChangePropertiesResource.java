@@ -45,7 +45,6 @@ import static com.epam.datalab.backendapi.core.response.folderlistener.WatchItem
 public class ChangePropertiesResource implements ChangePropertiesConst {
 
     private final ChangePropertiesService changePropertiesService;
-    private final List<WatchItem.ItemStatus> inProgressStatuses = Arrays.asList(INPROGRESS, WAIT_FOR_FILE);
 
     @Inject
     public ChangePropertiesResource(ChangePropertiesService changePropertiesService) {

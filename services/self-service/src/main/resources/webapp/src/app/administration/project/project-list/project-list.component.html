@@ -18,107 +18,106 @@
   -->
 <div class="table-wrapper scrolling">
   <table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6 selection">
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef class="name"> Project name </th>
-    <td mat-cell *matCellDef="let element" class="name project-name"> {{element.name}} </td>
-  </ng-container>
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef class="name"> Project name </th>
+      <td mat-cell *matCellDef="let element" class="name project-name"> {{element.name}} </td>
+    </ng-container>
 
-  <ng-container matColumnDef="groups">
-    <th mat-header-cell *matHeaderCellDef class="groups"> Group </th>
-    <td mat-cell *matCellDef="let element" class="groups">
-      <div class="mat-chip-list-wrap scrolling">
-        <mat-chip-list>
-          <mat-chip *ngFor="let group of element.groups"
-                    [matTooltip]="group"
-                    matTooltipPosition="above"
-                    class="ellipsis"
-          >
-            {{ group }}
-          </mat-chip>
-        </mat-chip-list>
-      </div>
-    </td>
-  </ng-container>
+    <ng-container matColumnDef="groups">
+      <th mat-header-cell *matHeaderCellDef class="groups"> Group </th>
+      <td mat-cell *matCellDef="let element" class="groups">
+        <div class="mat-chip-list-wrap scrolling">
+          <mat-chip-list>
+            <mat-chip 
+              *ngFor="let group of element.groups"
+              [matTooltip]="group"
+              matTooltipPosition="above"
+              class="ellipsis"
+            >
+              {{ group }}
+            </mat-chip>
+          </mat-chip-list>
+        </div>
+      </td>
+    </ng-container>
 
-  <ng-container matColumnDef="endpoints">
-    <th mat-header-cell *matHeaderCellDef class="endpoints">
-      <span class="label-endpoint"> Endpoint </span>
-      <span class="label-endpoint-status"> Endpoint status </span>
-      <span class="label-status">Edge node status </span>
-    </th>
-    <td mat-cell *matCellDef="let element" class="source endpoints">
-      <div *ngIf="!element.endpoints?.length; else list">
-        <span *ngIf="!element.endpoints.length" class="no-details">no details</span>
-      </div>
-      <ng-template #list>
-        <div *ngFor="let endpoint of element.endpoints" class="resource-wrap">
-          <div class="resource-name">
-            <a class="project-endpoint-name">
-              {{ endpoint.name }}
-            </a>
-          </div>
-          <div class="resource-status">
-            <span [ngClass]="{'active' : endpoint.endpointStatus === 'ACTIVE', 'failed': endpoint.endpointStatus === 'INACTIVE'}">
-              {{ (endpoint.endpointStatus | titlecase) || 'N/A'}}
+    <ng-container matColumnDef="endpoints">
+      <th mat-header-cell *matHeaderCellDef class="endpoints">
+        <span class="label-endpoint"> Endpoint </span>
+        <span class="label-endpoint-status"> Endpoint status </span>
+        <span class="label-status">Edge node status </span>
+      </th>
+      <td mat-cell *matCellDef="let element" class="source endpoints">
+        <div *ngIf="!element.endpoints?.length; else list">
+          <span *ngIf="!element.endpoints.length" class="no-details">no details</span>
+        </div>
+        <ng-template #list>
+          <div *ngFor="let endpoint of element.endpoints" class="resource-wrap">
+            <div class="resource-name">
+              <a class="project-endpoint-name">
+                {{ endpoint.name }}
+              </a>
+            </div>
+            <div class="resource-status">
+              <span [ngClass]="{'active' : endpoint.endpointStatus === 'ACTIVE', 'failed': endpoint.endpointStatus === 'INACTIVE'}">
+                {{ (endpoint.endpointStatus | titlecase) || 'N/A'}}
+              </span>
+            </div>
+            
+            <span class="status resource-status" [ngClass]="endpoint?.status.toLowerCase() || ''">
+              {{ endpoint?.status.toLowerCase() }}
             </span>
           </div>
+        </ng-template>
+      </td>
+    </ng-container>
 
-          <span class="status resource-status"
-            [ngClass]="endpoint?.status.toLowerCase() || ''">{{ endpoint?.status.toLowerCase() }}</span>
-        </div>
-      </ng-template>
-    </td>
-  </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef class="project-actions">
+        <span class="label"> Actions </span>
+      </th>
+      <td mat-cell *matCellDef="let element" class="settings">
+        <span #settings (click)="actions.toggle($event, settings)" class="actions"></span>
+        <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+          <ul class="list-unstyled actions-list">
+            <div class="active-items"></div>
+            <li class="project-seting-item" *ngIf="element.areStoppedNode" (click)="openEdgeDialog('start', element)">
+              <i class="material-icons">play_circle_outline</i>
+              <a class="action">
+                Start edge node
+              </a>
+            </li>
+            <li class="project-seting-item" *ngIf="element.areRunningNode" (click)="openEdgeDialog('stop', element )">
+              <i class="material-icons">pause_circle_outline</i>
+              <a class="action" >
+                Stop edge node
+              </a>
+            </li>
+            <!-- <li class="project-seting-item " *ngIf="element.areTerminatedNode" (click)="openEdgeDialog('recreate', element)">
+              <i class="material-icons">refresh</i>
+              <a class="action">
+                Recreate edge node
+              </a>
+            </li> -->
+            <li class="project-seting-item " *ngIf="element.areStoppedNode || element.areRunningNode" (click)="openEdgeDialog('terminate', element)">
+              <i class="material-icons">phonelink_off</i>
+              <a class="action">
+                Terminate edge node
+              </a>
+            </li>
+            <li class="project-seting-item" (click)="editProject(element)" *ngIf="!isProjectAdmin">
+              <i class="material-icons">mode_edit</i>
+              <a >
+                Edit project
+              </a>
+            </li>
+          </ul>
+        </bubble-up>
+      </td>
+      <td class="settings"></td>
+    </ng-container>
 
-  <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef class="project-actions">
-      <span class="label"> Actions </span>
-    </th>
-    <td mat-cell *matCellDef="let element" class="settings">
-      <span #settings (click)="actions.toggle($event, settings)" class="actions"></span>
-      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
-        <ul class="list-unstyled actions-list">
-          <div class="active-items"></div>
-          <li class="project-seting-item" *ngIf="element.areStoppedNode" (click)="openEdgeDialog('start', element)">
-            <i class="material-icons">play_circle_outline</i>
-            <a class="action">
-              Start edge node
-            </a>
-          </li>
-          <li class="project-seting-item" *ngIf="element.areRunningNode" (click)="openEdgeDialog('stop', element )">
-            <i class="material-icons">pause_circle_outline</i>
-            <a class="action" >
-              Stop edge node
-            </a>
-          </li>
-          <!-- <li class="project-seting-item " *ngIf="element.areTerminatedNode" (click)="openEdgeDialog('recreate', element)">
-            <i class="material-icons">refresh</i>
-            <a class="action">
-              Recreate edge node
-            </a>
-          </li> -->
-          <li class="project-seting-item " *ngIf="element.areStoppedNode || element.areRunningNode" (click)="openEdgeDialog('terminate', element)">
-            <i class="material-icons">phonelink_off</i>
-            <a class="action">
-              Terminate edge node
-            </a>
-          </li>
-          <li class="project-seting-item" (click)="editProject(element)" *ngIf="!isProjectAdmin">
-            <i class="material-icons">mode_edit</i>
-            <a >
-              Edit project
-            </a>
-          </li>
-        </ul>
-      </bubble-up>
-    </td>
-    <td class="settings">
-
-    </td>
-
-  </ng-container>
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
 </div>

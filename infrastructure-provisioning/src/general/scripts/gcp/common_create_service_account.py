@@ -25,6 +25,7 @@ import argparse
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_account_name', type=str, default='')
@@ -39,16 +40,16 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.service_account_name != '':
         if GCPMeta().get_service_account(args.service_account_name, args.service_base_name):
-            print("REQUESTED SERVICE ACCOUNT {} ALREADY EXISTS".format(args.service_account_name))
+            logging.info("REQUESTED SERVICE ACCOUNT {} ALREADY EXISTS".format(args.service_account_name))
         else:
-            print("Creating Service account {}".format(args.service_account_name))
+            logging.info("Creating Service account {}".format(args.service_account_name))
             GCPActions().create_service_account(args.service_account_name, args.service_base_name, args.unique_index)
             if GCPMeta().get_role(args.role_name):
                 if GCPMeta().get_role_status(args.role_name) == True:
-                    print('Restoring deleted role')
+                    logging.info('Restoring deleted role')
                     GCPActions().undelete_role(args.role_name)
                 else:
-                    print("REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name))
+                    logging.info("REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name))
             else:
                 if args.policy_path == '':
                     permissions = []
@@ -56,12 +57,12 @@ if __name__ == "__main__":
                     with open(args.policy_path, 'r') as f:
                         json_file = f.read()
                     permissions = json.loads(json_file)
-                print("Creating Role {}".format(args.role_name))
+                logging.info("Creating Role {}".format(args.role_name))
                 GCPActions().create_role(args.role_name, permissions)
-            print("Assigning custom role to Service account.")
+            logging.info("Assigning custom role to Service account.")
             GCPActions().set_role_to_service_account(args.service_account_name, args.role_name, args.service_base_name)
             if args.roles_path != '':
-                print("Assigning predefined roles to Service account.")
+                logging.info("Assigning predefined roles to Service account.")
                 with open(args.roles_path, 'r') as f:
                     json_file = f.read()
                 predefined_roles = json.loads(json_file)

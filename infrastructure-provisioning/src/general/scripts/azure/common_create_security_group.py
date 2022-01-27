@@ -26,6 +26,7 @@ import json
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')
@@ -39,17 +40,17 @@ args = parser.parse_args()
 if __name__ == "__main__":
     try:
         if AzureMeta().get_security_group(args.resource_group_name, args.security_group_name):
-            print("REQUESTED SECURITY GROUP {} ALREADY EXISTS. Updating rules".format(args.security_group_name))
+            logging.info("REQUESTED SECURITY GROUP {} ALREADY EXISTS. Updating rules".format(args.security_group_name))
             security_group = AzureActions().create_security_group(args.resource_group_name, args.security_group_name,
                                                                   args.region, json.loads(args.tags),
                                                                   json.loads(args.list_rules), True)
         else:
-            print("Creating security group {}.".format(args.security_group_name))
+            logging.info("Creating security group {}.".format(args.security_group_name))
             security_group = AzureActions().create_security_group(args.resource_group_name, args.security_group_name,
                                                                   args.region, json.loads(args.tags),
                                                                   json.loads(args.list_rules))
-            print("SECURITY GROUP {} has been created".format(args.security_group_name))
+            logging.info("SECURITY GROUP {} has been created".format(args.security_group_name))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
 

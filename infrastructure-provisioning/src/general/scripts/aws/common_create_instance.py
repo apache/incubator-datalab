@@ -26,6 +26,7 @@ import json
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--node_name', type=str, default='')
@@ -50,16 +51,16 @@ if __name__ == "__main__":
         try:
             instance_id = get_instance_by_name(args.infra_tag_name, args.node_name)
             if instance_id == '':
-                print("Creating instance {0} of type {1} in subnet {2} with tag {3}.".
+                logging.info("Creating instance {0} of type {1} in subnet {2} with tag {3}.".
                       format(args.node_name, args.instance_type, args.subnet_id, json.dumps(instance_tag)))
                 instance_id = create_instance(args, instance_tag, args.primary_disk_size)
             else:
-                print("REQUESTED INSTANCE ALREADY EXISTS AND RUNNING")
-            print("Instance_id {}".format(instance_id))
-            print("Public_hostname {}".format(get_instance_attr(instance_id, 'public_dns_name')))
-            print("Private_hostname {}".format(get_instance_attr(instance_id, 'private_dns_name')))
+                logging.info("REQUESTED INSTANCE ALREADY EXISTS AND RUNNING")
+            logging.info("Instance_id {}".format(instance_id))
+            logging.info("Public_hostname {}".format(get_instance_attr(instance_id, 'public_dns_name')))
+            logging.info("Private_hostname {}".format(get_instance_attr(instance_id, 'private_dns_name')))
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
             sys.exit(1)
     else:
         parser.print_help()

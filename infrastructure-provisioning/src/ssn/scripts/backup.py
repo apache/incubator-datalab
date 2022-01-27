@@ -141,7 +141,7 @@ def backup_database():
         print('Backup db: {}'.format(args.db))
         if args.db:
             ssn_conf = open('{0}{1}ssn.yml'.format(args.datalab_path, conf_folder)).read()
-            data = yaml.load('mongo{}'.format(ssn_conf.split('mongo')[-1]))
+            data = yaml.safe_load('mongo{}'.format(ssn_conf.split('mongo')[-1]))
             with settings(hide('running')):
                 subprocess.run("mongodump --host {0} --port {1} --username {2} --password '{3}' --db={4} --archive={5}mongo.db" \
                     .format(data['mongo']['host'], data['mongo']['port'], data['mongo']['username'],

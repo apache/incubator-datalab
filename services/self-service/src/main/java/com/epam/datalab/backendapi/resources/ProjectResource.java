@@ -163,6 +163,7 @@ public class ProjectResource {
                 .build();
     }
 
+
     @Operation(summary = "Get project info", tags = "project")
     @ApiResponse(responseCode = "200", description = "Return information about project",
             content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =

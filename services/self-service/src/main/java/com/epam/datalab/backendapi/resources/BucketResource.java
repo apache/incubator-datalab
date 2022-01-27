@@ -76,6 +76,7 @@ public class BucketResource {
     public Response getListOfObjects(@Auth UserInfo userInfo,
                                      @PathParam("bucket") String bucket,
                                      @PathParam("endpoint") String endpoint) {
+        log.info("Trying to get list of the objects: {}, for user: {}", bucket, userInfo);
         return Response.ok(bucketService.getObjects(userInfo, bucket, endpoint)).build();
     }
 

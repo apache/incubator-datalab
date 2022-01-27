@@ -17,9 +17,12 @@
  * under the License.
  */
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+}
+
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-size: 15px;
   overflow-x: hidden;
   font-weight: 300;
@@ -29,28 +32,54 @@ body.modal-open {
   overflow: hidden;
 }
 
-.alignleft, .al {float: left}
-.alignright, .ar {float: right; left: 26px; z-index: 1010}
-.aligncenter, .ac {margin-left: auto;margin-right: auto}
+.alignleft, .al {
+  float: left;
+}
 
-.mt-5 {margin-top: 5px}
+.alignright, .ar {
+  float: right;
+  left: 26px;
+  z-index: 1010;
+}
 
+.aligncenter, .ac {
+  margin-left: auto;
+  margin-right: auto;
+}
 
-.pr-3{padding-right: 3px}
+.mt-5 {
+  margin-top: 5px;
+}
 
-.pb-50 {padding-bottom: 50px;}
-.pb-25 {padding-bottom: 25px;}
-.pb-10 {padding-bottom: 10px;}
+.pr-3 {
+  padding-right: 3px;
+}
 
-.full-width{width: 100%;}
+.pb-50 {
+  padding-bottom: 50px;
+}
+.pb-25 {
+  padding-bottom: 25px;
+}
+.pb-10 {
+  padding-bottom: 10px;
+}
 
-.txt-r {text-align: right }
-.txt-l {text-align: left }
+.full-width {
+  width: 100%;
+}
 
-input[type='text']:not(.mat-input-element),
-input[type='number']:not(.mat-input-element),
-input[type='email']:not(.mat-input-element),
-input[type='password']:not(.mat-input-element),
+.txt-r {
+  text-align: right;
+}
+.txt-l {
+  text-align: left;
+}
+
+input[type="text"]:not(.mat-input-element),
+input[type="number"]:not(.mat-input-element),
+input[type="email"]:not(.mat-input-element),
+input[type="password"]:not(.mat-input-element),
 textarea {
   width: 100%;
   height: 36px;
@@ -60,39 +89,41 @@ textarea {
   background: rgba(247, 247, 247, 0.87);
   transition: border 0.1s ease-out;
   outline: none;
-  font: 300 16px/26px 'Open Sans', sans-serif;
+  font: 300 16px/26px "Open Sans", sans-serif;
 }
 
-input[type='text']:not(.mat-input-element):focus,
-input[type='number']:not(.mat-input-element):focus,
-input[type='email']:not(.mat-input-element):focus,
-input[type='password']:not(.mat-input-element):focus,
+input[type="text"]:not(.mat-input-element):focus,
+input[type="number"]:not(.mat-input-element):focus,
+input[type="email"]:not(.mat-input-element):focus,
+input[type="password"]:not(.mat-input-element):focus,
 textarea:focus {
   border: none;
   background: #fff;
   transition: border 0.2s ease-in;
-  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-}
-input[type='text']:not(.mat-input-element):disabled {
-  opacity: .4;
-  cursor: not-allowed;
-  color: rgba(0,0,0,.38);
-  background-color: rgba(0,0,0,.12);
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
-input[type='text']:not(.mat-input-element)::placeholder,
-input[type='number']:not(.mat-input-element)::placeholder,
-input[type='email']:not(.mat-input-element)::placeholder,
-input[type='password']:not(.mat-input-element)::placeholder,
+input[type="text"]:not(.mat-input-element):disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: rgba(0, 0, 0, 0.38);
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+input[type="text"]:not(.mat-input-element)::placeholder,
+input[type="number"]:not(.mat-input-element)::placeholder,
+input[type="email"]:not(.mat-input-element)::placeholder,
+input[type="password"]:not(.mat-input-element)::placeholder,
 textarea::placeholder {
   color: #718ba6;
 }
 
-.control-group, .row-wrap {
+.control-group,
+.row-wrap {
+  position: relative;
   display: flex;
   flex-flow: row wrap;
   padding-bottom: 20px;
-  position: relative;
 }
 
 .row-wrap {
@@ -104,13 +135,13 @@ textarea::placeholder {
 }
 
 .control-group .label {
+  align-self: center;
   width: 35%;
   color: #718ba6;
   font-size: 15px;
   font-weight: 600;
-  align-self: center;
   text-align: left;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 .control-group .control {
@@ -118,14 +149,28 @@ textarea::placeholder {
 }
 
 button {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
-.info_color {color: #5bc0de}
-.primary_color {color: #337ab7}
-.success_color {color: #5cb85c}
-.warning_color {color: #f0ad4e}
-.danger_color {color: #d9534f}
+.info_color {
+  color: #5bc0de;
+}
+
+.primary_color {
+  color: #337ab7;
+}
+
+.success_color {
+  color: #5cb85c;
+}
+
+.warning_color {
+  color: #f0ad4e;
+}
+
+.danger_color {
+  color: #d9534f;
+}
 
 .list-header {
   width: 100%;
@@ -144,10 +189,11 @@ button {
       }
     }
   }
+
   .capt {
+    margin-right: 0px;
     font-size: 13px;
     color: #35afd5;
-    margin-right: 0px;
     font-style: normal;
   }
 }
@@ -156,14 +202,16 @@ button {
   color: #35afd5;
   overflow: hidden;
   cursor: pointer;
-  transition: all .45s ease-in-out;
+  transition: all 0.45s ease-in-out;
+
   &:hover {
     color: #3392b0;
   }
+
   .material-icons {
+    padding-right: 5px;
     font-size: 20px;
     vertical-align: top;
-    padding-right: 5px;
     overflow: hidden;
   }
 }
@@ -177,21 +225,21 @@ button {
   line-height: 26px;
 }
 
-input[type=file],
-input[type=file]::-webkit-file-upload-button {
-    cursor: pointer;
+input[type="file"],
+input[type="file"]::-webkit-file-upload-button {
+  cursor: pointer;
 }
 
-.refresh-icon{
+.refresh-icon {
   color: #35afd5;
 }
 
 .buttons {
   position: absolute;
+  bottom: 9px;
+  z-index: 102;
   display: flex;
   justify-content: space-around;
-  z-index: 102;
-  bottom: 9px;
   width: 100%;
 
   .mat-mini-fab {
@@ -199,26 +247,23 @@ input[type=file]::-webkit-file-upload-button {
     width: 25px;
 
     .mat-button-wrapper {
-      padding: 0;
-      line-height: unset;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding-top: 2px;
+      padding: 2px 0 0;
+      line-height: unset;
     }
   }
 }
 
-.shadow-none{
+.shadow-none {
   box-shadow: none !important;
 }
 
-.right-sticky{
+.right-sticky {
   right: -15px !important;
 }
 
-.cursor-pointer{
+.cursor-pointer {
   cursor: pointer;
 }
-
-

@@ -27,6 +27,7 @@ import sys
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--address_name', type=str, default='')
@@ -34,17 +35,12 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         if GCPMeta().get_static_address(args.region, args.address_name):
-            print("REQUESTED STATIC ADDRESS {} ALREADY EXISTS".format(args.address_name))
+            logging.info("REQUESTED STATIC ADDRESS {} ALREADY EXISTS".format(args.address_name))
         else:
-            print("Creating Elastic IP")
+            logging.info("Creating Elastic IP")
             GCPActions().create_static_address(args.address_name, args.region)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)

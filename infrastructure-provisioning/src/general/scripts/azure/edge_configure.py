@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,13 +34,6 @@ import subprocess
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/edge/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     def clear_resources():
         AzureActions.remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions.remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -61,7 +54,7 @@ if __name__ == "__main__":
                     AzureActions.remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
 
     try:
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         AzureMeta = datalab.meta_lib.AzureMeta()
         AzureActions = datalab.actions_lib.AzureActions()
         edge_conf = dict()
@@ -151,7 +144,6 @@ if __name__ == "__main__":
             edge_conf['sudo_group'] = 'wheel'
 
         logging.info('[CREATING DATALAB SSH USER]')
-        print('[CREATING DATALAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
             edge_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
             edge_conf['initial_user'], edge_conf['datalab_ssh_user'], edge_conf['sudo_group'])
@@ -167,7 +159,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".format(
             edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['datalab_ssh_user'],
@@ -183,7 +174,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
@@ -209,7 +199,6 @@ if __name__ == "__main__":
 
 
     try:
-        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -227,7 +216,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
         edge_conf['keycloak_client_secret'] = str(uuid.uuid4())
         params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
@@ -247,7 +235,7 @@ if __name__ == "__main__":
             edge_conf['edge_hostname'] = "''"
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                           "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
-                          "--edge_public_ip {} --project_name {} --endpoint_name {} --hostname {} ".format(
+                          "--instance_public_ip {} --project_name {} --endpoint_name {} --hostname {} ".format(
                            edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                            os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                            os.environ['keycloak_user_password'],
@@ -270,25 +258,24 @@ if __name__ == "__main__":
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 edge_conf['user_storage_account_name'] = storage_account.name
 
-        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print("Instance name: {}".format(edge_conf['instance_name']))
-        print("Hostname: {}".format(edge_conf['instance_dns_name']))
-        print("Public IP: {}".format(edge_conf['edge_public_ip']))
-        print("Private IP: {}".format(edge_conf['edge_private_ip']))
-        print("Key name: {}".format(edge_conf['key_name']))
-        print("User storage account name: {}".format(edge_conf['user_storage_account_name']))
-        print("User container name: {}".format(edge_conf['user_container_name']))
+        logging.info("Instance name: {}".format(edge_conf['instance_name']))
+        logging.info("Hostname: {}".format(edge_conf['instance_dns_name']))
+        logging.info("Public IP: {}".format(edge_conf['edge_public_ip']))
+        logging.info("Private IP: {}".format(edge_conf['edge_private_ip']))
+        logging.info("Key name: {}".format(edge_conf['key_name']))
+        logging.info("User storage account name: {}".format(edge_conf['user_storage_account_name']))
+        logging.info("User container name: {}".format(edge_conf['user_container_name']))
         if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta.list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     edge_conf['datalake_id'] = datalake.name
-            print("Data Lake name: {}".format(edge_conf['datalake_id']))
-            print("Data Lake tag name: {}".format(edge_conf['datalake_store_name']))
-            print("Data Lake Store user directory name: {}".format(edge_conf['datalake_user_directory_name']))
-        print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
-        print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
-        print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
+            logging.info("Data Lake name: {}".format(edge_conf['datalake_id']))
+            logging.info("Data Lake tag name: {}".format(edge_conf['datalake_store_name']))
+            logging.info("Data Lake Store user directory name: {}".format(edge_conf['datalake_user_directory_name']))
+        logging.info("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
+        logging.info("Edge SG: {}".format(edge_conf['edge_security_group_name']))
+        logging.info("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
         with open("/root/result.json", 'w') as result:
             if os.environ['azure_datalake_enable'] == 'false':
                 res = {"hostname": edge_conf['instance_dns_name'],
@@ -334,7 +321,7 @@ if __name__ == "__main__":
                        "project_name": edge_conf['project_name'],
                        "@class": "com.epam.datalab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results.", str(err))

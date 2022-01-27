@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Project} from '../../administration/project/project.component';
+import { Project } from '../../administration/project/project.component';
 import {
   Component,
   EventEmitter,
@@ -28,7 +28,7 @@ import {
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
-import {ProjectService, UserResourceService, OdahuDeploymentService} from '../../core/services';
+import { ProjectService, UserResourceService, OdahuDeploymentService } from '../../core/services';
 import { ExploratoryModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
@@ -42,13 +42,12 @@ import { CostDetailsDialogComponent } from '../exploratory/cost-details-dialog';
 import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmation-dialog';
 import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {ComputationModel} from '../computational/computational-resource.model';
-import {NotebookModel} from '../exploratory/notebook.model';
-import {AuditService} from '../../core/services/audit.service';
-import {CompareUtils} from '../../core/util/compareUtils';
-import {timer} from 'rxjs';
-import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
+import { ProgressBarService } from '../../core/services/progress-bar.service';
+import { ComputationModel } from '../computational/computational-resource.model';
+import { NotebookModel } from '../exploratory/notebook.model';
+import { AuditService } from '../../core/services/audit.service';
+import { CompareUtils } from '../../core/util/compareUtils';
+import { OdahuActionDialogComponent } from '../../shared/modal-dialog/odahu-action-dialog';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -113,7 +112,6 @@ export class ResourcesGridComponent implements OnInit {
   public filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
   public filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
 
-
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
     { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
@@ -156,15 +154,18 @@ export class ResourcesGridComponent implements OnInit {
   public buildGrid(): void {
     this.progressBarService.startProgressBar();
     this.userResourceService.getUserProvisionedResources()
-      .subscribe((result: any) => {
-        this.environments = ExploratoryModel.loadEnvironments(result);
-        this.getEnvironments.emit(this.environments);
-        this.getBuckets();
-        this.getDefaultFilterConfiguration();
-        (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
-        this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
-        this.progressBarService.stopProgressBar();
-        }, () => this.progressBarService.stopProgressBar());
+      .subscribe(
+        (result: any) => {
+          this.environments = ExploratoryModel.loadEnvironments(result);
+          this.getEnvironments.emit(this.environments);
+          this.getBuckets();
+          this.getDefaultFilterConfiguration();
+          (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
+          this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
+          this.progressBarService.stopProgressBar();
+        }, 
+        () => this.progressBarService.stopProgressBar()
+      );
   }
 
   public toggleFilterRow(): void {
@@ -194,12 +195,11 @@ export class ResourcesGridComponent implements OnInit {
 
   public containsNotebook(notebook_name: string, envoirmentNames: Array<string>): boolean {
     if (notebook_name && envoirmentNames.length ) {
-        return envoirmentNames
-          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item));
-      }
+      return envoirmentNames
+        .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item));
+    }
       return false;
-   }
-
+  }
 
   public isResourcesInProgress(notebook): boolean {
     const env = this.getResourceByName(notebook.name, notebook.project);
@@ -228,14 +228,19 @@ export class ResourcesGridComponent implements OnInit {
 
   public printDetailEnvironmentModal(data): void {
     this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser, buckets: this.bucketsList, type: 'resource'},
+      { 
+        notebook: data, 
+        bucketStatus: this.healthStatus.bucketBrowser, 
+        buckets: this.bucketsList, 
+        type: 'resource'
+      },
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
   public printDetailOdahuModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: {odahu: data}, panelClass: 'modal-lg' })
+    this.dialog.open(DetailDialogComponent, { data: { odahu: data }, panelClass: 'modal-lg' })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
@@ -247,7 +252,13 @@ export class ResourcesGridComponent implements OnInit {
   public exploratoryAction(data, action: string): void {
     const resource = this.getResourceByName(data.name, data.project);
     if (action === 'deploy') {
-      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: 
+        { 
+          notebook: resource, 
+          full_list: this.environments 
+        }, 
+        panelClass: 'modal-xxl' 
+      })
         .afterClosed().subscribe((res) => {
         res && this.buildGrid();
       });
@@ -267,7 +278,13 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'terminate') {
       const compute =  data.resources.filter(cluster => cluster.status === 'running' || cluster.status === 'stopped');
       this.dialog.open(ConfirmationDialogComponent, { data:
-          { notebook: data, compute, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
+        { 
+          notebook: data, 
+          compute, 
+          type: ConfirmationDialogType.TerminateExploratory 
+        }, 
+        panelClass: 'modal-sm' 
+      })
         .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'install') {
       this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
@@ -288,7 +305,11 @@ export class ResourcesGridComponent implements OnInit {
         project.endpoints.forEach((endpoint: ProjectEndpoint) => {
           if (endpoint.status === 'ACTIVE') {
             const currEndpoint: SharedEndpoint = project.projectEndpoints[endpoint.name];
-            const edgeItem: BucketList = {name: `${project.project} (${endpoint.name})`, children: [], cloud: endpoint.cloudProvider};
+            const edgeItem: BucketList = {
+              name: `${project.project} (${endpoint.name})`, 
+              children: [], 
+              cloud: endpoint.cloudProvider
+            };
             let projectBucket: string = currEndpoint.user_own_bicket_name
               || currEndpoint.user_own_bucket_name;
             if (currEndpoint.user_container_name) {
@@ -314,10 +335,10 @@ export class ResourcesGridComponent implements OnInit {
     this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
   }
 
-
   // PRIVATE
   private getResourceByName(notebook_name: string, project_name: string) {
-    return this.getEnvironmentsListCopy().filter(environments => environments.project === project_name)
+    return this.getEnvironmentsListCopy()
+      .filter(environments => environments.project === project_name)
       .map(env => env.exploratory.find(({ name }) => name === notebook_name))
       .filter(name => !!name)[0];
   }
@@ -328,10 +349,13 @@ export class ResourcesGridComponent implements OnInit {
 
   private getDefaultFilterConfiguration(): void {
     const data = this.environments;
-    const shapes = [], statuses = [], resources = [];
+    const shapes = [], statuses = [], resources = [],
+          gpuTypes = [], gpuCounts = [];
 
     data.filter(elem => elem.exploratory.map((item: any) => {
       if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+      if(item.gpu_type && gpuTypes.indexOf(item.gpu_type) === -1) gpuTypes.push(item.gpu_type);
+      if(item.gpu_count && gpuCounts.indexOf(`GPU count: ${item.gpu_count}`) === -1) gpuCounts.push(`GPU count: ${item.gpu_count}`);
       if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
       statuses.sort(SortUtils.statusSort);
 
@@ -341,7 +365,7 @@ export class ResourcesGridComponent implements OnInit {
       });
     }));
 
-    this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '', '');
+    this.filterConfiguration = new FilterConfigurationModel('', statuses, [...shapes, ...gpuTypes, ...gpuCounts], resources, '', '');
   }
 
   public applyFilter_btnClick(config: FilterConfigurationModel): void {
@@ -357,6 +381,7 @@ export class ResourcesGridComponent implements OnInit {
     if (filteredData.some((v) => v.exploratory.length)) {
       this.filtering = true;
     }
+
     if (config) {
       this.activeProject = config.project;
       filteredData = filteredData
@@ -367,7 +392,10 @@ export class ResourcesGridComponent implements OnInit {
 
             const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
             const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-            const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+            const isShape = config.shapes.length > 0 ? 
+                  (config.shapes.indexOf(item.shape) !== -1 ||
+                  config.shapes.indexOf(item.gpu_type) !== -1 ||
+                  config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1 ) : true;
 
             const modifiedResources = containsStatus(item.resources, config.resources);
             let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
@@ -438,14 +466,17 @@ export class ResourcesGridComponent implements OnInit {
 
   private getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
-      .subscribe((result: FilterConfigurationModel) => {
-        if (result) {
-          this.isActiveFilter(result);
-          this.filterForm = this.loadUserPreferences(result.type ? this.filterActiveInstances() : this.aliveStatuses(result));
-        }
-        this.applyFilter_btnClick(result || this.filterForm);
-        this.checkFilters();
-      }, () => this.applyFilter_btnClick(null));
+      .subscribe(
+        (result: FilterConfigurationModel) => {
+          if (result) {
+            this.isActiveFilter(result);
+            this.filterForm = this.loadUserPreferences(result.type ? this.filterActiveInstances() : this.aliveStatuses(result));
+          }
+          this.applyFilter_btnClick(result || this.filterForm);
+          this.checkFilters();
+        }, 
+        () => this.applyFilter_btnClick(null)
+      );
   }
 
   private loadUserPreferences(config): FilterConfigurationModel {
@@ -482,5 +513,13 @@ export class ResourcesGridComponent implements OnInit {
   public onFilterNameUpdate(targetElement: any) {
     this.filterForm.name = targetElement;
     this.checkFilters();
+  }
+
+  public checkLibStatus(element) {
+    let installingLib = [];
+    if(element.libs) {
+      installingLib = element.libs.filter(lib => lib.status === 'installing'); 
+    }
+    return !!installingLib.length;
   }
 }

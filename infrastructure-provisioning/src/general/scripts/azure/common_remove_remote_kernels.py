@@ -25,6 +25,7 @@ import argparse
 import sys
 from datalab.actions_lib import *
 from datalab.fab import find_cluster_kernels
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -37,7 +38,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    print('Configure connections')
+    logging.info('Configure connections')
     global conn
     conn = datalab.fab.init_datalab_connection(args.hostname, args.os_user, args.keyfile)
 
@@ -47,6 +48,6 @@ if __name__ == "__main__":
             AzureActions().remove_dataengine_kernels(args.resource_group_name, args.notebook_name,
                                                      args.os_user, args.keyfile, cluster)
     except Exception as err:
-        print('Failed to remove cluster kernels.', str(err))
+        logging.error('Failed to remove cluster kernels.', str(err))
         sys.exit(1)
     conn.close()

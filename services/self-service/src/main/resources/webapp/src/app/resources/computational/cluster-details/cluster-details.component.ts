@@ -26,8 +26,8 @@ import { DateUtils, CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
-import {AuditService} from '../../../core/services/audit.service';
-import {CopyPathUtils} from '../../../core/util/copyPathUtils';
+import { AuditService } from '../../../core/services/audit.service';
+import { CopyPathUtils } from '../../../core/util/copyPathUtils';
 
 @Component({
   selector: 'datalab-cluster-details',
@@ -68,21 +68,22 @@ export class DetailComputationalResourcesComponent implements OnInit {
     this.resource = resource;
     this.environment = environment;
 
-
     this.upTimeInHours = (this.resource.up_time) ? DateUtils.diffBetweenDatesInHours(this.resource.up_time) : 0;
     this.initFormModel();
 
-    if (this.resource.image === 'docker.datalab-dataengine') this.getClusterConfiguration();
+    if (this.resource.image === 'docker.datalab-dataengine') {
+      this.getClusterConfiguration();
+    }
   }
 
   public isEllipsisActive($event): void {
-    if ($event.target.offsetWidth < $event.target.scrollWidth)
+    if ($event.target.offsetWidth < $event.target.scrollWidth) {
       this.tooltip = true;
+    }
   }
 
   public selectConfiguration() {
     if (this.configuration.nativeElement.checked) {
-
       this.configurationForm.controls['configuration_parameters']
         .setValue(JSON.stringify(this.config.length ? this.config : CLUSTER_CONFIGURATION.SPARK, undefined, 2));
     } else {
@@ -93,8 +94,10 @@ export class DetailComputationalResourcesComponent implements OnInit {
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
       .getClusterConfiguration(this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER)
-      .subscribe((result: any) => this.config = result,
-        error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
+      .subscribe(
+        (result: any) => this.config = result,
+        error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!')
+      );
   }
 
   public editClusterConfiguration(data): void {
@@ -106,10 +109,12 @@ export class DetailComputationalResourcesComponent implements OnInit {
         this.resource.computational_name,
         this.PROVIDER
       )
-      .subscribe(result => {
-        this.dialogRef.close();
-      },
-        error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
+      .subscribe(
+        result => {
+          this.dialogRef.close();
+        },
+        error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!')
+      );
   }
 
   private initFormModel(): void {
@@ -134,8 +139,12 @@ export class DetailComputationalResourcesComponent implements OnInit {
     };
 
     this.auditService.sendDataToAudit(
-      {resource_name: resource.computational_name, info: JSON.stringify(clusterInfo), type: 'COMPUTE'}
-      ).subscribe();
+      { 
+        resource_name: resource.computational_name, 
+        info: JSON.stringify(clusterInfo), 
+        type: 'COMPUTE'
+      }
+    ).subscribe();
   }
 
   public copyLink(url: string) {
@@ -145,6 +154,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
   public showCopyIcon(element) {
     this.isCopyIconVissible[element] = true;
   }
+  
   public hideCopyIcon() {
     for (const key in this.isCopyIconVissible) {
       this.isCopyIconVissible[key] = false;

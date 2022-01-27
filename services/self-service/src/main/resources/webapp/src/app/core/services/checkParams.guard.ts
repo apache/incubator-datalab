@@ -23,16 +23,12 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ApplicationSecurityService } from './applicationSecurity.service';
-import { AppRoutingService } from './appRouting.service';
 
 @Injectable()
 export class CheckParamsGuard implements CanActivate {
   result: any;
 
-  constructor(
-    private applicationSecurityService: ApplicationSecurityService,
-    private appRoutingService: AppRoutingService
-  ) { }
+  constructor(private applicationSecurityService: ApplicationSecurityService) { }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> | Promise<boolean> | boolean {
     return this.applicationSecurityService.isLoggedIn().pipe(

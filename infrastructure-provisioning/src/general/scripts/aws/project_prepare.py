@@ -26,25 +26,18 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
 import os
 import sys
 import time
 import traceback
 import subprocess
 from fabric import *
+from datalab.logger import logging
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/project/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     try:
         datalab.actions_lib.create_aws_config_files()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
@@ -141,12 +134,12 @@ if __name__ == "__main__":
                 subprocess.run('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
                                                         project_conf['project_name']), shell=True, check=True)
             except:
-                print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
+                logging.error("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
         except KeyError:
-            print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
+            logging.error("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
             sys.exit(1)
 
-        print("Will create exploratory environment with edge node as access point as following: {}".
+        logging.info("Will create exploratory environment with edge node as access point as following: {}".
               format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(project_conf))
 
@@ -159,7 +152,7 @@ if __name__ == "__main__":
             project_conf['bucket_additional_tags'] = ''
             os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
                                                                                            project_conf['endpoint_tag'])
-        print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+        logging.info('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
@@ -169,13 +162,13 @@ if __name__ == "__main__":
         try:
             endpoint_id = datalab.meta_lib.get_instance_by_name(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
                 project_conf['service_base_name'], project_conf['endpoint_name']))
-            print("Endpoint id: " + endpoint_id)
+            logging.info("Endpoint id: " + endpoint_id)
             ec2 = boto3.client('ec2')
             ec2.create_tags(Resources=[endpoint_id], Tags=[
                 {'Key': 'project_tag', 'Value': project_conf['project_tag']},
                 {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
         except Exception as err:
-            print("Failed to attach Project tag to Endpoint", str(err))
+            logging.error("Failed to attach Project tag to Endpoint", str(err))
             traceback.print_exc()
             sys.exit(1)
 
@@ -189,7 +182,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SUBNET]')
-        print('[CREATE SUBNET]')
         params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --prefix {} " \
                  "--user_subnets_range '{}' --subnet_name {} --zone {}".format(
                   project_conf['vpc2_id'], project_conf['tag_name'], project_conf['service_base_name'],
@@ -210,12 +202,11 @@ if __name__ == "__main__":
                                                 project_conf['endpoint_name'])}
     project_conf['private_subnet_cidr'] = datalab.meta_lib.get_subnet_by_tag(tag)
     subnet_id = datalab.meta_lib.get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
-    print('Subnet id: {}'.format(subnet_id))
-    print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
+    logging.info('Subnet id: {}'.format(subnet_id))
+    logging.info('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
     try:
         logging.info('[CREATE EDGE ROLES]')
-        print('[CREATE EDGE ROLES]')
         user_tag = "{0}:{0}-{1}-{2}-edge-role".format(project_conf['service_base_name'], project_conf['project_name'],
                                                       project_conf['endpoint_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
@@ -223,6 +214,8 @@ if __name__ == "__main__":
             .format(project_conf['edge_role_name'], project_conf['edge_role_profile_name'],
                          project_conf['edge_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
                          project_conf['service_base_name'], user_tag)
+        if 'aws_permissions_boundary_arn' in os.environ:
+            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
@@ -234,7 +227,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        print('[CREATE BACKEND (NOTEBOOK) ROLES]')
         user_tag = "{0}:{0}-{1}-{2}-nb-de-role".format(project_conf['service_base_name'], project_conf['project_name'],
                                                        project_conf['endpoint_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
@@ -243,6 +235,8 @@ if __name__ == "__main__":
                          project_conf['notebook_dataengine_role_profile_name'],
                          project_conf['notebook_dataengine_policy_name'], os.environ['aws_region'],
                          project_conf['tag_name'], project_conf['service_base_name'], user_tag)
+        if 'aws_permissions_boundary_arn' in os.environ:
+            params = '{} --permissions_boundary_arn {}'.format(params, os.environ['aws_permissions_boundary_arn'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_role_policy', params), shell=True, check=True)
         except:
@@ -259,7 +253,6 @@ if __name__ == "__main__":
     except KeyError:
         try:
             logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-            print('[CREATE SECURITY GROUPS FOR EDGE]')
             edge_sg_ingress = datalab.meta_lib.format_sg([
                 {
                     "IpProtocol": "-1",
@@ -425,7 +418,7 @@ if __name__ == "__main__":
                 datalab.fab.append_result("Failed creating security group for edge node.", str(err))
                 raise Exception
 
-            print('Waiting for changes to propagate')
+            logging.info('Waiting for changes to propagate')
             time.sleep(10)
         except:
             datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
@@ -434,7 +427,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         rules_list = []
         sg_list = project_conf['sg_ids'].replace(" ", "").split(',')
         if os.environ['aws_security_groups_ids'] == '':
@@ -505,7 +497,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
 
-        print('Waiting for changes to propagate')
+        logging.info('Waiting for changes to propagate')
         time.sleep(10)
     except Exception as err:
         datalab.fab.append_result("Failed creating security group for private subnet.", str(err))
@@ -516,7 +508,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
-    print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
                  "--infra_tag_value {} --force {}".format(project_conf['dataengine_master_security_group_name'],
@@ -538,7 +529,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
-    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
                  "--infra_tag_value {} --force {}".format(project_conf['dataengine_slave_security_group_name'],
@@ -562,7 +552,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE BUCKETS]')
-        print('[CREATE BUCKETS]')
         project_conf['shared_bucket_tags'] = 'endpoint_tag:{0};{1}:{2};{3}:{4}{5}'.format(
             project_conf['endpoint_tag'], os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
             project_conf['tag_name'], project_conf['shared_bucket_name'],
@@ -598,7 +587,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING BUCKET POLICY FOR PROJECT INSTANCES]')
-        print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         params = '--bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
                  '--notebook_role_name {} --service_base_name {} --region {} ' \
                  '--user_predefined_s3_policies "{}" --endpoint_name {}'.format(
@@ -627,7 +615,6 @@ if __name__ == "__main__":
         else:
             edge_group_id = os.environ['aws_security_groups_ids']
         logging.info('[CREATE EDGE INSTANCE]')
-        print('[CREATE EDGE INSTANCE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
                  "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
             .format(project_conf['edge_instance_name'], project_conf['ami_id'], project_conf['instance_size'],
@@ -660,7 +647,6 @@ if __name__ == "__main__":
     if project_conf['network_type'] == 'public':
         try:
             logging.info('[ASSOCIATING ELASTIC IP]')
-            print('[ASSOCIATING ELASTIC IP]')
             project_conf['edge_id'] = datalab.meta_lib.get_instance_by_name(project_conf['tag_name'],
                                                                             project_conf['edge_instance_name'])
             try:
@@ -683,7 +669,7 @@ if __name__ == "__main__":
                 project_conf['allocation_id'] = datalab.meta_lib.get_allocation_id_by_elastic_ip(
                     project_conf['edge_public_ip'])
             except:
-                print("No Elastic IPs to release!")
+                logging.error("No Elastic IPs to release!")
             datalab.actions_lib.remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
             datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
             datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
@@ -695,7 +681,7 @@ if __name__ == "__main__":
 
     if os.environ['edge_is_nat'] == 'true':
         try:
-            print('[CONFIGURING ROUTE TABLE FOR NAT]')
+            logging.info('[CONFIGURING ROUTE TABLE FOR NAT]')
             project_conf['nat_rt_name'] = '{0}-{1}-{2}-nat-rt'.format(project_conf['service_base_name'],
                                                                               project_conf['project_name'],
                                                                               project_conf['endpoint_name'])
@@ -714,7 +700,7 @@ if __name__ == "__main__":
                 project_conf['allocation_id'] = datalab.meta_lib.get_allocation_id_by_elastic_ip(
                     project_conf['edge_public_ip'])
             except:
-                print("No Elastic IPs to release!")
+                logging.error("No Elastic IPs to release!")
             datalab.actions_lib.remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
             datalab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
             datalab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])

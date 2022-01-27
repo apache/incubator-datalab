@@ -47,9 +47,6 @@ def enable_proxy(proxy_host, proxy_port):
             datalab.fab.conn.sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
         datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_string))
         datalab.fab.conn.sudo('''bash -c "echo 'Acquire::http::Proxy \\"{}\\";' >> /etc/apt/apt.conf" '''.format(proxy_https_string))
-
-        print("Renewing gpg key")
-        renew_gpg_key()
     except:
         sys.exit(1)
 
@@ -65,7 +62,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             datalab.fab.conn.sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
             datalab.fab.conn.sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                datalab.fab.conn.sudo('R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')"')
+                datalab.fab.conn.sudo('R -e "devtools::install_version(\'roxygen2\', version = \'{}\', repos = \'https://cloud.r-project.org\')"'.format(os.environ['notebook_roxygen2_version']))
                 datalab.fab.conn.sudo(''' bash -c 'cd /usr/local/spark/R/lib/SparkR; R -e "devtools::check()"' ''')
             except:
                 pass
@@ -82,13 +79,10 @@ def add_marruter_key():
     except:
         sys.exit(1)
 
-def ensure_r(os_user, r_libs, region, r_mirror):
+def ensure_r(os_user, r_libs):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/r_ensured'):
         try:
-            if region == 'cn-north-1':
-                r_repository = r_mirror
-            else:
-                r_repository = 'https://cloud.r-project.org'
+            r_repository = 'https://cloud.r-project.org'
             #add_marruter_key()
             datalab.fab.conn.sudo('apt update')
             manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
@@ -182,8 +176,12 @@ def ensure_matplot(os_user):
             manage_pkg('update', 'remote', '')
             manage_pkg('-y build-dep', 'remote', 'python3-matplotlib')
             datalab.fab.conn.sudo('pip3 install matplotlib=={} --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
-            if os.environ['application'] in ('tensor', 'deeplearning'):
-                datalab.fab.conn.sudo('python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+            if os.environ['application'] == 'tensor':
+                datalab.fab.conn.sudo(
+                    'python3.8 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+            if os.environ['application'] == 'deeplearning':
+                datalab.fab.conn.sudo(
+                    'pip3 install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
             sys.exit(1)
@@ -191,15 +189,19 @@ def ensure_matplot(os_user):
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
 def add_sbt_key():
     datalab.fab.conn.sudo(
-        'curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add')
+        'curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo -H gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import')
 
 def ensure_sbt(os_user):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'apt-transport-https')
-            datalab.fab.conn.sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
-
+            datalab.fab.conn.sudo('echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list')
+            datalab.fab.conn.sudo(
+                'echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list')
             add_sbt_key()
+            datalab.fab.conn.sudo(
+                'sudo chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg')
+
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'sbt')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/sbt_ensured')
@@ -223,11 +225,19 @@ def ensure_jre_jdk(os_user):
         try:
             manage_pkg('-y install', 'remote', 'default-jre')
             manage_pkg('-y install', 'remote', 'default-jdk')
-            manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
-            manage_pkg('-y install', 'remote', 'openjdk-8-jre')
+            if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
+                datalab.fab.conn.sudo(
+                    'wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -')
+                datalab.fab.conn.sudo('add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/')
+                datalab.fab.conn.sudo('apt-get update')
+                datalab.fab.conn.sudo('apt-get install adoptopenjdk-8-hotspot -y')
+            else:
+                manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
+                manage_pkg('-y install', 'remote', 'openjdk-8-jre')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
+
 
 
 def ensure_additional_python_libs(os_user):
@@ -261,7 +271,12 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
-            datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': 
+                datalab.fab.conn.sudo('pip3 install --upgrade --user pyqt5==5.12')
+                datalab.fab.conn.sudo('pip3 install --upgrade --user pyqtwebengine==5.12')
+                datalab.fab.conn.sudo('pip3 install setuptools')
+            else:
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:
                 datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} sparkmagic --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -333,6 +348,8 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             #datalab.fab.conn.sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             #datalab.fab.conn.sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
+            #datalab.fab.conn.sudo('nvidia-smi')
+            #datalab.fab.conn.sudo('nvcc --version')
             datalab.fab.conn.run('wget https://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
                 cudnn_version, cudnn_file_name))
             datalab.fab.conn.run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
@@ -403,10 +420,11 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
+        if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
+            datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
         datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
-
 
 def install_os_pkg(requisites):
     status = list()
@@ -504,25 +522,34 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         manage_pkg('update', 'remote', '')
         manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
-                   'libprotobuf-dev protobuf-compiler python3-dev python3-pip')
+                    'libprotobuf-dev protobuf-compiler python3-dev python3-pip')
         datalab.fab.conn.sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
-        manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
+        manage_pkg('-y install --no-install-recommends', 'remote',
+                   'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
                    'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
-        datalab.fab.conn.sudo('pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
-        datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
-        datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
+        datalab.fab.conn.sudo(
+            'pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
+            'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
+        if os.environ['application'] == 'deeplearning':
+            datalab.fab.conn.sudo('apt install -y cmake')
+            datalab.fab.conn.sudo('pip3 install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html')
+        else:
+            # datalab.fab.conn.sudo('mkdir /opt/cuda-{}'.format(os.environ['notebook_cuda_version']))
+            # datalab.fab.conn.sudo('mkdir /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+            # datalab.fab.conn.sudo('mkdir /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
+            datalab.fab.conn.sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+            datalab.fab.conn.sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
+            datalab.fab.conn.sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
-        datalab.fab.conn.sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install' '''.format(os_user, cmake_version))
-        datalab.fab.conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
-        datalab.fab.conn.sudo('git clone https://github.com/pytorch/pytorch.git')
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout {}' '''.format(os_user, os.environ['notebook_pytorch_branch']), warn=True)
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init --recursive' '''.format(os_user), warn=True)
-        datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && python3 setup.py install' '''.format(os_user))
+            datalab.fab.conn.sudo('tar -zxvf /home/datalab-user/cmake-{}.tar.gz'.format(cmake_version))
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/cmake-{}/ && ./bootstrap --prefix=/usr/local && make && make install' '''.format(os_user, cmake_version))
+            datalab.fab.conn.sudo('ln -s /usr/local/bin/cmake /bin/cmake{}'.format(cmake_version))
+            datalab.fab.conn.sudo('git clone https://github.com/pytorch/pytorch.git')
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init' '''.format(os_user))
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git checkout {}' '''.format(os_user, os.environ['notebook_pytorch_branch']), warn=True)
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && git submodule update --init --recursive' '''.format(os_user), warn=True)
+            datalab.fab.conn.sudo('''bash -c 'cd /home/{}/pytorch/ && python3 setup.py install' '''.format(os_user))
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

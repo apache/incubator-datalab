@@ -33,6 +33,7 @@ from datalab.ssn_lib import *
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -105,7 +106,6 @@ def copy_ssn_libraries():
         print('Failed to copy ssn libraries: ', str(err))
         sys.exit(1)
 
-
 def configure_mongo(mongo_passwd, default_endpoint_name):
     try:
         if not exists(conn,"/lib/systemd/system/mongod.service"):
@@ -137,6 +137,9 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
             os.environ['conf_cloud_provider'].upper()))
         conn.sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
         conn.sudo('pip3 install -U six==1.15.0 patchwork')
+        conn.sudo("ls -la " + args.datalab_path + "tmp/")
+        conn.sudo("ls -la /etc/")
+        conn.sudo("lsblk")
         conn.sudo("python3 " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
             args.datalab_path))
     except Exception as err:
@@ -153,22 +156,23 @@ def build_ui():
         if args.cloud_provider == 'azure' and os.environ['azure_datalake_enable'] == 'true':
             conn.sudo('sed -i "s|\'use_ldap\': true|{}|g" ' + args.datalab_path + 'sources/services/self-service/src/main/resources/webapp/src/dictionary/azure.dictionary.ts'.format(
                     '\'use_ldap\': false'))
-
+        conn.sudo('rm -rf {}sources/services/self-service/src/main/resources/webapp/node_modules'.format(
+            args.datalab_path))
         conn.sudo('bash -c "cd {}sources/services/self-service/src/main/resources/webapp/ && echo "N" | npm install"'.format(args.datalab_path))
         manage_npm_pkg('bash -c "cd {}sources/services/self-service/src/main/resources/webapp/ && npm run build.prod"'.format(args.datalab_path))
         conn.sudo('sudo chown -R {} {}/*'.format(args.os_user, args.datalab_path))
 
         # Building Back-end
-        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ:
+        if 'conf_repository_user' in os.environ and 'conf_repository_pass' in os.environ and 'conf_repository_address' in os.environ and os.environ['conf_download_jars'] == 'true':
             conn.sudo(
-                'wget -P {0}sources/services/provisioning-service/target/  --user={1} --password={2} {3}/repository/packages/{4}/provisioning-service-{4}.jar --no-check-certificate'
+                'wget -P {0}sources/services/provisioning-service/target/  --user={1} --password={2} https://{3}/repository/packages/{4}/provisioning-service-{4}.jar --no-check-certificate'
                      .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'], os.environ['conf_repository_address'], os.environ['conf_release_tag']))
             conn.sudo(
-                'wget -P {0}sources/services/self-service/target/  --user={1} --password={2} {3}/repository/packages/{4}/self-service-{4}.jar --no-check-certificate'
+                'wget -P {0}sources/services/self-service/target/  --user={1} --password={2} https://{3}/repository/packages/{4}/self-service-{4}.jar --no-check-certificate'
                 .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
                         os.environ['conf_repository_address'], os.environ['conf_release_tag']))
             conn.sudo(
-                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} {3}/repository/packages/{5}/billing-{4}-{5}.jar --no-check-certificate'
+                'wget -P {0}sources/services/billing-{4}/target/  --user={1} --password={2} https://{3}/repository/packages/{5}/billing-{4}-{5}.jar --no-check-certificate'
                 .format(args.datalab_path, os.environ['conf_repository_user'], os.environ['conf_repository_pass'],
                         os.environ['conf_repository_address'], args.cloud_provider, os.environ['conf_release_tag']))
         else:
@@ -228,10 +232,7 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print("Copying DataLab libraries to SSN")
-    copy_ssn_libraries()
-
-    print("Installing Supervisor")
+    logging.info("Installing Supervisor")
     ensure_supervisor()
 
     print("Installing MongoDB")

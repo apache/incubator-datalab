@@ -24,7 +24,6 @@
 import argparse
 import json
 import sys
-from datalab.edge_lib import configure_nftables
 from fabric import *
 from datalab.fab import *
 
@@ -48,5 +47,5 @@ if __name__ == "__main__":
         sys.exit(2)
 
     print("Configuring nftables on edge node.")
-    configure_nftables(deeper_config)
+    datalab.fab.configure_nftables(deeper_config)
     conn.close()

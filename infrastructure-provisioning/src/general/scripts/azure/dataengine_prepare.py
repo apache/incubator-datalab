@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -34,12 +34,6 @@ from Crypto.PublicKey import RSA
 from fabric import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.INFO,
-                        filename=local_log_filepath)
     try:
         AzureMeta = datalab.meta_lib.AzureMeta()
         AzureActions = datalab.actions_lib.AzureActions()
@@ -49,7 +43,7 @@ if __name__ == "__main__":
         data_engine['endpoint_name'] = os.environ['endpoint_name']
         data_engine['project_tag'] = data_engine['project_name']
         data_engine['endpoint_tag'] = data_engine['endpoint_name']
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         if 'exploratory_name' in os.environ:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
         else:
@@ -104,7 +98,12 @@ if __name__ == "__main__":
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name'],
                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        data_engine['primary_disk_size'] = '32'
+        # data_engine['primary_disk_size'] = '32'
+        if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
+            data_engine['primary_disk_size'] = '150'
+        else:
+            data_engine['primary_disk_size'] = '32'
+
         data_engine['image_type'] = 'default'
 
         if os.environ['conf_shared_image_enabled'] == 'false':
@@ -119,15 +118,15 @@ if __name__ == "__main__":
         data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
                     else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
 
-        print('Searching pre-configured images')
+        logging.info('Searching pre-configured images')
         if AzureMeta.get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']) and \
                         os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
             data_engine['image_name'] = data_engine['notebook_image_name']
             data_engine['image_type'] = 'pre-configured'
-            print('Pre-configured image found. Using: {}'.format(data_engine['notebook_image_name']))
+            logging.info('Pre-configured image found. Using: {}'.format(data_engine['notebook_image_name']))
         else:
             data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
-            print('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
+            logging.info('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary", str(err))
         sys.exit(1)
@@ -139,7 +138,6 @@ if __name__ == "__main__":
                                                                               data_engine['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
                                                             data_engine['service_base_name'] + '-ssn')
             datalab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_datalab_path'],
@@ -160,7 +158,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE MASTER NODE]')
-        print('[CREATE MASTER NODE]')
 
         if 'NC' in data_engine['master_size']:
             data_engine['instance_storage_account_type'] = 'Standard_LRS'
@@ -186,14 +183,13 @@ if __name__ == "__main__":
         try:
             AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         except:
-            print("The instance hasn't been created.")
+            logging.info("The instance hasn't been created.")
         datalab.fab.append_result("Failed to create master instance.", str(err))
         sys.exit(1)
 
     try:
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
-            print('[CREATE SLAVE NODE {}]'.format(i + 1))
 
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             slave_nif_name = slave_name + '-nif'
@@ -222,7 +218,7 @@ if __name__ == "__main__":
             try:
                 AzureActions.remove_instance(data_engine['resource_group_name'], slave_name)
             except:
-                print("The slave instance {} hasn't been created.".format(slave_name))
+                logging.info("The slave instance {} hasn't been created.".format(slave_name))
         AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         datalab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

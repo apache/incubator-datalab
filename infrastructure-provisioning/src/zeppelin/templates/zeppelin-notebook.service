@@ -30,6 +30,9 @@ ExecStop=/bin/bash /opt/zeppelin/bin/zeppelin-daemon.sh stop
 User=OS_USR
 Group=OS_USR
 WorkingDirectory=/opt/zeppelin
+Restart=on-failure
+RestartSec=10
+KillMode=process
 
 [Install]
 WantedBy=multi-user.target

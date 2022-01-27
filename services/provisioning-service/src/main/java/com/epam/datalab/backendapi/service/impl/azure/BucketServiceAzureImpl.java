@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletOutputStream;
@@ -151,7 +152,7 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     private BlobServiceClient getBlobServiceClient(String storageAccount) {
-        final String endpoint = String.format("https://%s.blob.core.windows.net", storageAccount);
+        final String endpoint = String.format("https://%s.blob.core.windows.net", storageAccount);;
         return new BlobServiceClientBuilder()
                 .endpoint(endpoint)
                 .credential(new ClientSecretCredentialBuilder()
@@ -169,6 +170,7 @@ public class BucketServiceAzureImpl implements BucketService {
 
     @Getter
     @AllArgsConstructor
+    @ToString
     private static class AzureStorageAccount {
         private final String storageAccount;
         private final String container;

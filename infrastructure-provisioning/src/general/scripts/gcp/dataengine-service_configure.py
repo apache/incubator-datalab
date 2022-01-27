@@ -26,7 +26,7 @@ import datalab.fab
 import datalab.meta_lib
 import datalab.notebook_lib
 import json
-import logging
+from datalab.logger import logging
 import multiprocessing
 import os
 import sys
@@ -40,7 +40,6 @@ def configure_dataengine_service(instance, dataproc_conf):
     # configuring proxy on Data Engine service
     try:
         logging.info('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
-        print('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
         additional_config = {"proxy_host": dataproc_conf['edge_instance_name'], "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(dataproc_conf['instance_ip'], dataproc_conf['cluster_name'], dataproc_conf['key_path'],
@@ -57,7 +56,6 @@ def configure_dataengine_service(instance, dataproc_conf):
 
     try:
         logging.info('[CONFIGURE DATAENGINE SERVICE]')
-        print('[CONFIGURE DATAENGINE SERVICE]')
         try:
             global conn
             conn = datalab.fab.init_datalab_connection(dataproc_conf['instance_ip'], dataproc_conf['datalab_ssh_user'], dataproc_conf['key_path'])
@@ -77,7 +75,6 @@ def configure_dataengine_service(instance, dataproc_conf):
         sys.exit(1)
 
     try:
-        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         slaves = []
         for idx, instance in enumerate(dataproc_conf['cluster_core_instances']):
@@ -119,16 +116,10 @@ def configure_dataengine_service(instance, dataproc_conf):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.INFO,
-                        filename=local_log_filepath)
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         dataproc_conf = dict()
         if 'exploratory_name' in os.environ:
             dataproc_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
@@ -216,21 +207,20 @@ if __name__ == "__main__":
         dataproc_master_access_url = "https://" + dataproc_conf['edge_instance_hostname'] + "/{}/".format(
             dataproc_conf['exploratory_name'] + '_' + dataproc_conf['computational_name'])
         logging.info('[SUMMARY]')
-        print('[SUMMARY]')
-        print("Service base name: {}".format(dataproc_conf['service_base_name']))
-        print("Cluster name: {}".format(dataproc_conf['cluster_name']))
-        print("Key name: {}".format(dataproc_conf['key_name']))
-        print("Region: {}".format(dataproc_conf['region']))
-        print("Zone: {}".format(dataproc_conf['zone']))
-        print("Subnet: {}".format(dataproc_conf['subnet']))
-        print("Dataproc version: {}".format(dataproc_conf['release_label']))
-        print("Dataproc master node shape: {}".format(os.environ['dataproc_master_instance_type']))
-        print("Dataproc slave node shape: {}".format(os.environ['dataproc_slave_instance_type']))
-        print("Master count: {}".format(os.environ['dataproc_master_count']))
-        print("Slave count: {}".format(os.environ['dataproc_slave_count']))
-        print("Preemptible count: {}".format(os.environ['dataproc_preemptible_count']))
-        print("Notebook hostname: {}".format(os.environ['notebook_instance_name']))
-        print("Bucket name: {}".format(dataproc_conf['bucket_name']))
+        logging.info("Service base name: {}".format(dataproc_conf['service_base_name']))
+        logging.info("Cluster name: {}".format(dataproc_conf['cluster_name']))
+        logging.info("Key name: {}".format(dataproc_conf['key_name']))
+        logging.info("Region: {}".format(dataproc_conf['region']))
+        logging.info("Zone: {}".format(dataproc_conf['zone']))
+        logging.info("Subnet: {}".format(dataproc_conf['subnet']))
+        logging.info("Dataproc version: {}".format(dataproc_conf['release_label']))
+        logging.info("Dataproc master node shape: {}".format(os.environ['dataproc_master_instance_type']))
+        logging.info("Dataproc slave node shape: {}".format(os.environ['dataproc_slave_instance_type']))
+        logging.info("Master count: {}".format(os.environ['dataproc_master_count']))
+        logging.info("Slave count: {}".format(os.environ['dataproc_slave_count']))
+        logging.info("Preemptible count: {}".format(os.environ['dataproc_preemptible_count']))
+        logging.info("Notebook hostname: {}".format(os.environ['notebook_instance_name']))
+        logging.info("Bucket name: {}".format(dataproc_conf['bucket_name']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": dataproc_conf['cluster_name'],
                    "key_name": dataproc_conf['key_name'],
@@ -242,7 +232,7 @@ if __name__ == "__main__":
                         "url": dataproc_master_access_url}
                    ]
                    }
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

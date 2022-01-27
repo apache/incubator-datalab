@@ -30,6 +30,8 @@ ExecStop=/bin/bash -c "for i in $(ps aux | grep 'tensorboard' | grep -v grep | a
 User=OS_USR
 Group=OS_USR
 WorkingDirectory=/home/OS_USR
+Restart=on-failure
+RestartSec=30s
 
 [Install]
 WantedBy=multi-user.target

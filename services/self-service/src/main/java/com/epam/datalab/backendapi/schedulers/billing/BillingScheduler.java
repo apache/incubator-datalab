@@ -46,7 +46,7 @@ public class BillingScheduler implements Job {
         try {
             billingService.updateRemoteBillingData(securityService.getServiceAccountInfo("admin"));
         } catch (Exception e) {
-            log.error("Something went wrong {}", e.getMessage(), e);
+            log.error("Something wents wrong {}", e.getMessage(), e);
         }
     }
 }

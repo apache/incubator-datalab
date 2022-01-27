@@ -26,7 +26,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -38,11 +38,6 @@ parser.add_argument('--ssn_unique_index', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
     try:
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
@@ -52,7 +47,6 @@ if __name__ == "__main__":
         ssn_conf['pre_defined_subnet'] = False
         ssn_conf['pre_defined_firewall'] = False
         logging.info('[DERIVING NAMES]')
-        print('[DERIVING NAMES]')
         ssn_conf['ssn_unique_index'] = args.ssn_unique_index
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
@@ -95,7 +89,6 @@ if __name__ == "__main__":
     except KeyError:
         try:
             logging.info('[CREATE VPC]')
-            print('[CREATE VPC]')
             params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
                 subprocess.run("~/scripts/{}.py {}".format('ssn_create_vpc', params), shell=True, check=True)
@@ -109,7 +102,7 @@ if __name__ == "__main__":
                 try:
                     GCPActions.remove_vpc(ssn_conf['vpc_name'])
                 except:
-                    print("VPC hasn't been created.")
+                    logging.error("VPC hasn't been created.")
             sys.exit(1)
 
     try:
@@ -122,7 +115,6 @@ if __name__ == "__main__":
     except KeyError:
         try:
             logging.info('[CREATE SUBNET]')
-            print('[CREATE SUBNET]')
             params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {} --ssn {}".\
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
                        ssn_conf['vpc_cidr'], True)
@@ -138,7 +130,7 @@ if __name__ == "__main__":
                 try:
                     GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
                 except:
-                    print("Subnet hasn't been created.")
+                    logging.error("Subnet hasn't been created.")
             if not ssn_conf['pre_defined_vpc']:
                 GCPActions.remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
@@ -153,7 +145,6 @@ if __name__ == "__main__":
     except KeyError:
         try:
             logging.info('[CREATE FIREWALL]')
-            print('[CREATE FIREWALL]')
             if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0':
                 ssn_conf['allowed_ip_cidr'] = ssn_conf['allowed_ip_cidr'].split(', ')
             else:
@@ -208,7 +199,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE]')
-        print('[CREATE SERVICE ACCOUNT AND ROLE]')
         params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} " \
                  "--service_base_name {}".format( ssn_conf['service_account_name'], ssn_conf['role_name'],
                                                   ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'],
@@ -224,7 +214,7 @@ if __name__ == "__main__":
             GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
             GCPActions.remove_role(ssn_conf['role_name'])
         except:
-            print("Service account hasn't been created")
+            logging.error("Service account hasn't been created")
         if not ssn_conf['pre_defined_firewall']:
             GCPActions.remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
             GCPActions.remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
@@ -236,7 +226,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING STATIC IP ADDRESS]')
-        print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(ssn_conf['static_address_name'], ssn_conf['region'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('ssn_create_static_ip', params), shell=True, check=True)
@@ -248,7 +237,7 @@ if __name__ == "__main__":
         try:
             GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
-            print("Static IP address hasn't been created.")
+            logging.error("Static IP address hasn't been created.")
         GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions.remove_role(ssn_conf['role_name'])
         GCPActions.remove_bucket(ssn_conf['ssn_bucket_name'])
@@ -273,7 +262,6 @@ if __name__ == "__main__":
         ssn_conf['static_ip'] = GCPMeta.get_static_address(ssn_conf['region'],
                                                            ssn_conf['static_address_name'])['address']
         logging.info('[CREATE SSN INSTANCE]')
-        print('[CREATE SSN INSTANCE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5}"\
                  " --ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9}"\
                  " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' " \

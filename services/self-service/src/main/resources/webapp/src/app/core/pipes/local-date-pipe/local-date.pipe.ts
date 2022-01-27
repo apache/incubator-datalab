@@ -18,8 +18,8 @@
  */
 
 import { Pipe, PipeTransform } from '@angular/core';
-import {LocalizationService} from '../../services/localization.service';
-import {formatDate} from '@angular/common';
+import { LocalizationService } from '../../services/localization.service';
+import { formatDate } from '@angular/common';
 
 @Pipe({ name: 'localDate' })
 
@@ -27,7 +27,7 @@ export class LocalDatePipe implements PipeTransform {
   constructor(private localizationService: LocalizationService) { }
 
   transform(value: any, format: string = 'shortDate') {
-    if (!value) { return ; }
+    if (!value) { return; }
 
     return formatDate(value, format, this.localizationService.locale);
   }

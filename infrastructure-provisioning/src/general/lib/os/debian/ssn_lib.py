@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -355,9 +355,11 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                          -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
                         os_user, keystore_passwd))
                     datalab.fab.conn.sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/datalab.crt \
-                         -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
+                         -keystore /home/{0}/keys/ssn.keystore.jks -rfc'.format(os_user, keystore_passwd))
                     datalab.fab.conn.sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/datalab.crt -noprompt \
                          -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                    datalab.fab.conn.sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/datalab.key \
+                        -out /etc/ssl/certs/datalab.crt -subj "/C=US/ST=US/L=US/O=datalab/CN={0}"'.format(hostname))
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)

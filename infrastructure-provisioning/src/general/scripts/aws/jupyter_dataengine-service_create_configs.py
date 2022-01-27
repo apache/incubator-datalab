@@ -24,6 +24,7 @@
 import argparse
 import sys
 import subprocess
+from datalab.logger import logging
 #from datalab.actions_lib import *
 #from datalab.common_lib import *
 #from datalab.fab import *
@@ -149,7 +150,7 @@ def add_breeze_library_emr(args):
           breeze_tmp_dir + 'jfreechart-1.0.19.jar', shell=True, check=True)
     subprocess.run('wget https://repo1.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
           breeze_tmp_dir + 'jcommon-1.0.24.jar', shell=True, check=True)
-    subprocess.run('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+    subprocess.run('wget --no-check-certificate https://nexus.develop.dlabanalytics.com/repository/packages-public/spark-kernel-brunel-all-2.3.jar -O ' +
           breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar', shell=True, check=True)
     subprocess.run('sudo mv ' + breeze_tmp_dir + '* ' + new_jars_directory_path, shell=True, check=True)
     subprocess.run(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.emr_version +

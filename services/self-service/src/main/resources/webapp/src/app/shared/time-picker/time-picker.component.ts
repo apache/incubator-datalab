@@ -29,13 +29,21 @@ type TimeFormatAlias = TimeFormat;
   template: `
     <div class="time-picker">
       <mat-form-field class="time-select">
-        <input matInput
-               placeholder="{{ label }}"
-               [value]="(selectedTime | localDate : 'shortTime') || null"
-               (input)="checkEmpty($event.target['value'])"
-               [disabled]="disable"
+        <input 
+          matInput
+          placeholder="{{ label }}"
+          [value]="(selectedTime | localDate : 'shortTime') || null"
+          (input)="checkEmpty($event.target['value'])"
+          [disabled]="disable"
         />
-        <mat-icon matSuffix [ngClass]="{'not-allowed': disable}" (click)="openDatePickerDialog($event)" disabled="disable">access_time</mat-icon>
+        <mat-icon 
+          matSuffix 
+          [ngClass]="{'not-allowed': disable}" 
+          (click)="openDatePickerDialog($event)" 
+          disabled="disable"
+        >
+          access_time
+        </mat-icon>
       </mat-form-field>
     </div>`,
   styleUrls: ['./time-picker.component.scss']

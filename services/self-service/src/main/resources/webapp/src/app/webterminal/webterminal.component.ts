@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ElementRef, ViewEncapsulation, ViewContainerRef, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewEncapsulation, ViewChild, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import Guacamole from 'guacamole-common-js';
@@ -28,7 +28,6 @@ import { environment } from '../../environments/environment';
 const API_URL = environment.apiUrl;
 
 import { StorageService } from '../core/services';
-import { FileUtils } from '../core/util';
 
 @Component({
   selector: 'datalab-webterminal',

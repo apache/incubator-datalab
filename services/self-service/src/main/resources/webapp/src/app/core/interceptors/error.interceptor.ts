@@ -60,7 +60,8 @@ import { HTTP_STATUS_CODES } from '../util';
           this.jwtService.destroyTokens();
           return throwError(error);
         }
-      }));
+      })
+    );
   }
 
   private addToken(request: HttpRequest<any>, token: string) {

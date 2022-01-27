@@ -22,15 +22,15 @@
 }
 
 .caret {
+  position: absolute;
+  top: 0px;
+  right: 0;
   width: 40px;
+  height: 36px;
   color: #4ab8dc;
+  background-color: #fff;
   border: none;
   border-left: 1px solid #ececec;
-  background-color: #fff;
-  position: absolute;
-  right: 0;
-  top: 0px;
-  height: 36px;
   line-height: 1;
   cursor: pointer;
 
@@ -40,8 +40,8 @@
 }
 
 .content-box {
-  padding: 20px 30px 35px;
   height: 85vh;
+  padding: 20px 30px 35px;
   overflow-y: auto;
 }
 
@@ -54,13 +54,13 @@
   margin-top: 10px;
 
   .inner-step {
-    height: 70px;
-    padding: 5px;
+    position: relative;
     display: flex;
     justify-content: center;
     flex-direction: column;
+    height: 70px;
+    padding: 5px;
     text-align: center;
-    position: relative;
 
     input {
       width: 490px;
@@ -88,7 +88,7 @@
   }
 }
 
-.mat-horizontal-content-container{
+.mat-horizontal-content-container {
   overflow: visible !important;
 }
 
@@ -98,11 +98,11 @@
   width: 490px;
   height: 32px;
   padding-left: 0;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-size: 15px;
   font-weight: 300;
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
-  multi-level-select-dropdown{
+  multi-level-select-dropdown {
     width: 100%;
   }
   mat-form-field {
@@ -120,7 +120,7 @@
   .dropdown-multiselect {
     width: 100% !important;
 
-    >button {
+    > button {
       padding: 6px 22px;
     }
   }
@@ -131,11 +131,11 @@
 }
 
 .scrolling-content {
+  display: block;
   max-height: 450px;
+  padding: 15px 5px;
   overflow-x: hidden;
   overflow-y: auto;
-  display: block;
-  padding: 15px 5px;
 
   &.stepper-opened {
     height: 250px;
@@ -143,7 +143,6 @@
 }
 
 .roles {
-
   .selector-wrapper-edit {
     position: relative;
     display: flex;
@@ -157,7 +156,7 @@
       width: 100%;
 
       .dropdown-multiselect {
-        >button {
+        > button {
           padding: 8px 22px 5px;
         }
       }
@@ -165,7 +164,7 @@
 
     .caret {
       &:hover {
-        box-shadow: 0 3px 1px -10px rgba(0, 0, 0, 0.2), 0 2px 1px 0 rgba(0, 0, 0, 0.17), 0 1px 5px 0 rgba(0, 0, 0, 0.12)
+        box-shadow: 0 3px 1px -10px rgba(0, 0, 0, 0.2), 0 2px 1px 0 rgba(0, 0, 0, 0.17), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
       }
     }
   }
@@ -181,28 +180,27 @@
 }
 
 .users-list {
+  position: relative;
   padding: 5px 10px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-size: 15px;
   font-weight: 300;
   color: #577289;
-  position: relative;
 
   i {
-    color: #FF5722;
+    color: #ff5722;
     font-size: 18px;
     cursor: pointer;
   }
 
   .list-selected {
     width: 100%;
-    margin-top: 50px;
     height: inherit;
     min-height: 0;
+    margin-top: 50px;
     overflow: hidden;
   }
 }
-
 
 .expanded-panel {
   display: flex;
@@ -217,9 +215,9 @@
 
     input {
       height: 36px;
+      width: 170px;
       padding: 0;
       padding-left: 10px;
-      width: 170px;
     }
 
     .caret {
@@ -228,10 +226,9 @@
   }
 }
 
-
 mat-expansion-panel-header {
   &.mat-expansion-panel-header {
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     font-size: 15px;
     font-weight: 300;
     color: #577289;
@@ -244,7 +241,7 @@ mat-expansion-panel-header {
   }
 
   .mat-step-label {
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     font-size: 16px;
     font-weight: 300;
   }
@@ -274,19 +271,19 @@ mat-expansion-panel-header {
   }
 }
 
-.mat-chip-list{
+.mat-chip-list {
   pointer-events: auto;
 }
 
 .mat-chip:not(.mat-basic-chip) {
-  transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1);
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
   padding: 7px 25px 7px 10px;
+  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 24px;
   cursor: default;
-  display: inline-block;
-  position: relative;  ;
   white-space: nowrap;
-  max-width: 100%;
   overflow: hidden;
 }
 
@@ -351,7 +348,7 @@ table {
     max-width: 200px;
     padding-right: 10px;
     overflow: hidden;
-    span{
+    span {
       cursor: default;
     }
   }
@@ -361,32 +358,32 @@ table {
   }
 
   .actions {
-    color: #607d8b;
     width: 10%;
+    color: #607d8b;
     text-align: center;
 
-    .actions-wrapper{
-      height: 41px;
+    .actions-wrapper {
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      height: 41px;
     }
 
     span {
-      transition: all .35s ease-in-out;
+      transition: all 0.35s ease-in-out;
       cursor: pointer;
 
-      &.action-disabled{
+      &.action-disabled {
         cursor: not-allowed;
       }
 
       .mat-icon {
         font-size: 18px;
         padding-top: 12px;
-        &.big-icon{
+        &.big-icon {
           font-size: 25px;
           padding-top: 10px;
-          transition: .25s;
+          transition: 0.25s;
         }
       }
 

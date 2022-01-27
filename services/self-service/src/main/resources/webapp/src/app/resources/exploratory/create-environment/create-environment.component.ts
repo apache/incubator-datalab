@@ -24,11 +24,11 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
-import {CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils} from '../../../core/util';
+import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
-import {tap} from 'rxjs/operators';
-import {timer} from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'create-environment',
@@ -50,6 +50,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   images: Array<any>;
   selectedImage: any;
   maxNotebookLength: number = 14;
+  maxCustomTagLength: number = 63;
   public areShapes: boolean;
   public selectedCloud: string = '';
   public gpuCount: Array<number>;
@@ -139,7 +140,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
     this.userResourceService.getExploratoryTemplates(project, endpoint)
       .pipe(tap(results => {
-
         results.sort((a, b) =>
           (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ?
             1 : -1);
@@ -148,7 +148,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         this.templates = templates;
         }
       );
-
   }
 
   public getShapes(template) {
@@ -216,10 +215,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       template_name: this.currentTemplate.exploratory_environment_versions[0].template_name
     };
 
-    
     if (!data.notebook_image_name 
       && this.currentTemplate.image === 'docker.datalab-deeplearning' 
-      && this.selectedCloud === 'aws' || this.selectedCloud === 'azure') {
+      && (this.selectedCloud === 'aws' || this.selectedCloud === 'azure')) {
       data.notebook_image_name = this.currentTemplate.exploratory_environment_versions[0].version;
     }
 
@@ -307,7 +305,10 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         this.checkDuplication.bind(this)
       ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
-      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]],
+      custom_tag: ['', [
+        Validators.pattern(PATTERNS.namePattern),
+        Validators.maxLength(this.maxCustomTagLength)
+      ]],
       gpu_type: [null],
       gpu_count: [null],
       gpu_enabled: [false]
@@ -317,17 +318,19 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   private getImagesList() {
     this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value,
       this.createExploratoryForm.controls['endpoint'].value)
-      .subscribe((res: any) => {
-        this.images = res.filter(el => el.status === 'CREATED');
-        
-        if(this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
+      .subscribe(
+        (res: any) => {
+          this.images = res.filter(el => el.status === 'CREATED');
+          
+          if(this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
             this.currentTemplate.exploratory_environment_images = this.currentTemplate.exploratory_environment_images.map(image => {
               return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description}
             });
             this.images.push(...this.currentTemplate.exploratory_environment_images);
           }
-      },
-        error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
+        },
+        error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!')
+      );
   }
 
   private checkDuplication(control) {

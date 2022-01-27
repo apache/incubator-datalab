@@ -36,7 +36,7 @@ parser.add_argument('--keycloak_realm_name', type=str, default='')
 parser.add_argument('--keycloak_user', type=str, default='')
 parser.add_argument('--keycloak_user_password', type=str, default='')
 parser.add_argument('--keycloak_client_secret', type=str, default='')
-parser.add_argument('--edge_public_ip', type=str, default='')
+parser.add_argument('--instance_public_ip', type=str, default='')
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--endpoint_name', type=str, default='')
@@ -47,7 +47,6 @@ args = parser.parse_args()
 ##############
 if __name__ == "__main__":
     try:
-        print('[CONFIGURE KEYCLOAK]')
         logging.info('[CONFIGURE KEYCLOAK]')
         keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
             args.keycloak_auth_server_url)
@@ -55,19 +54,24 @@ if __name__ == "__main__":
             "username": args.keycloak_user,
             "password": args.keycloak_user_password,
             "grant_type": "password",
-            "client_id": "admin-cli",
+            "client_id": "admin-cli"
         }
+
+        if not args.keycloak_client_secret:
+           args.keycloak_client_secret = str(uuid.uuid4())
 
         keycloak_client_create_url = '{0}/admin/realms/{1}/clients'.format(args.keycloak_auth_server_url,
                                                                            args.keycloak_realm_name)
-        keycloak_client_name = "{0}-{1}-{2}".format(args.service_base_name, args.project_name, args.endpoint_name)
+        if args.project_name and args.endpoint_name:
+            keycloak_client_name = "{0}-{1}-{2}".format(args.service_base_name, args.project_name, args.endpoint_name)
+        else:
+            keycloak_client_name = "{0}-ui".format(args.service_base_name)
         keycloak_client_id = str(uuid.uuid4())
         if args.hostname == '':
-            keycloak_redirectUris = 'https://{0}/*,http://{0}/*'.format(args.edge_public_ip).lower().split(',')
-            print(keycloak_redirectUris)
+            keycloak_redirectUris = 'https://{0}/*,http://{0}/*'.format(args.instance_public_ip).lower().split(',')
         else:
             keycloak_redirectUris = 'https://{0}/*,http://{0}/*,https://{1}/*,http://{1}/*'.format(
-                args.edge_public_ip, args.hostname).lower().split(',')
+                args.instance_public_ip, args.hostname).lower().split(',')
         keycloak_client_data = {
             "clientId": keycloak_client_name,
             "id": keycloak_client_id,
@@ -78,9 +82,11 @@ if __name__ == "__main__":
             "protocol": "openid-connect",
         }
 
+        if not args.project_name:
+            keycloak_client_data["serviceAccountsEnabled"] = "true"
+
         try:
             keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data, verify=False).json()
-
             keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data,
                                             headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
                                                      "Content-Type": "application/json"}, verify=False)
@@ -89,5 +95,5 @@ if __name__ == "__main__":
             append_result("Failed to configure keycloak.")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         append_result("Failed to configure keycloak.", str(err))

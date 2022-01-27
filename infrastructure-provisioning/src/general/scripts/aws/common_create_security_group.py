@@ -26,6 +26,7 @@ import json
 import sys
 from datalab.actions_lib import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', type=str, default='')
@@ -46,7 +47,7 @@ if __name__ == "__main__":
         rules = json.loads(args.security_group_rules)
         egress = json.loads(args.egress)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         sys.exit(1)
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     nb_sg_id = get_security_group_by_name(args.nb_sg_name + '-sg')
@@ -54,29 +55,26 @@ if __name__ == "__main__":
         try:
             security_group_id = get_security_group_by_name(args.name)
             if security_group_id == '':
-                print("Creating security group {0} for vpc {1} with tag {2}.".format(args.name, args.vpc_id,
+                logging.info("Creating security group {0} for vpc {1} with tag {2}.".format(args.name, args.vpc_id,
                                                                                      json.dumps(tag)))
                 security_group_id = create_security_group(args.name, args.vpc_id, rules, egress, tag)
                 if nb_sg_id != '' and args.resource == 'edge':
-                    print("Updating Notebook security group {}".format(nb_sg_id))
+                    logging.info("Updating Notebook security group {}".format(nb_sg_id))
                     rule = {'IpProtocol': '-1', 'FromPort': -1, 'ToPort': -1,
                             'UserIdGroupPairs': [{'GroupId': security_group_id}]}
                     add_inbound_sg_rule(nb_sg_id, rule)
                     add_outbound_sg_rule(nb_sg_id, rule)
             else:
                 if nb_sg_id != '' and args.resource == 'edge':
-                    print("Updating Notebook security group {}".format(nb_sg_id))
+                    logging.info("Updating Notebook security group {}".format(nb_sg_id))
                     rule = {'IpProtocol': '-1', 'FromPort': -1, 'ToPort': -1,
                             'UserIdGroupPairs': [{'GroupId': security_group_id}]}
                     add_inbound_sg_rule(nb_sg_id, rule)
                     add_outbound_sg_rule(nb_sg_id, rule)
-                print("REQUESTED SECURITY GROUP WITH NAME {} ALREADY EXISTS".format(args.name))
-            print("SECURITY_GROUP_ID: {}".format(security_group_id))
-            if args.ssn:
-                with open('/tmp/ssn_sg_id', 'w') as f:
-                    f.write(security_group_id)
+                logging.info("REQUESTED SECURITY GROUP WITH NAME {} ALREADY EXISTS".format(args.name))
+            logging.info("SECURITY_GROUP_ID: {}".format(security_group_id))
         except Exception as err:
-            print('Error: {0}'.format(err))
+            logging.error('Error: {0}'.format(err))
     else:
         parser.print_help()
         sys.exit(2)

@@ -18,10 +18,10 @@
  */
 
 import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
-import {ErrorUtils} from '../util';
-import {ApplicationServiceFacade} from './applicationServiceFacade.service';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { ErrorUtils } from '../util';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 
 export class TodoItemNode {
   children: TodoItemNode[];
@@ -41,8 +41,7 @@ export class TodoItemFlatNode {
   providedIn: 'root'
 })
 export class BucketBrowserService {
-  constructor(private applicationServiceFacade: ApplicationServiceFacade) {
-  }
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public getBucketData(bucket, endpoint): Observable<{}> {
     const url = `/${bucket}/endpoint/${endpoint}`;

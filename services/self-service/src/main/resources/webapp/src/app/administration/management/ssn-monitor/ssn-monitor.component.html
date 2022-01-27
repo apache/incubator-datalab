@@ -107,7 +107,14 @@
           </mat-tab>
         </mat-tab-group>
         <div class="text-center">
-          <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+          <button 
+            type="button" 
+            class="butt" 
+            mat-raised-button 
+            (click)="dialogRef.close()"
+          >
+            Close
+          </button>
         </div>
       </div>
       <div class="info message" *ngIf="isEmpty(data)">

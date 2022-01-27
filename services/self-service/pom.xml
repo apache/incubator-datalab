@@ -38,8 +38,8 @@
 
     <repositories>
         <repository>
-            <id>michaelklishin</id>
-            <url>https://dl.bintray.com/michaelklishin/maven/</url>
+            <id>maven-public</id>
+            <url>https://nexus.develop.dlabanalytics.com/repository/maven-public/</url>
         </repository>
     </repositories>
 

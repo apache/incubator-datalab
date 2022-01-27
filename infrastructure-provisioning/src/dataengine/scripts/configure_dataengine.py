@@ -36,7 +36,6 @@ parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
-parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--master_ip', type=str, default='')
 parser.add_argument('--node_type', type=str, default='')
 args = parser.parse_args()
@@ -139,7 +138,7 @@ if __name__ == "__main__":
         and os.environ['notebook_r_enabled'] == 'true') \
             or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         print("Installing R")
-        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+        ensure_r(args.os_user, r_libs)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
     if os.environ['application'] == 'zeppelin':
@@ -147,8 +146,12 @@ if __name__ == "__main__":
         ensure_python3_specific_version(python3_version, args.os_user)
 
     # INSTALL PYTHON IN VIRTUALENV
-    print("Configure Python Virtualenv")
-    ensure_python_venv(python_venv_version)
+    if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['conf_cloud_provider'] == 'azure' and \
+            os.environ['application'] == 'deeplearning':
+        print('Python Virtualenv already configured')
+    else:
+        print("Configure Python Virtualenv")
+        ensure_python_venv(python_venv_version)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install Spark")
@@ -158,8 +161,8 @@ if __name__ == "__main__":
     print("Configure local Spark")
     configure_local_spark(jars_dir, templates_dir, '')
 
-    # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
-    if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
+    #INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
+    if os.environ['application'] in ('tensor', 'tensor-rstudio'):
         print("Installing TensorFlow")
         install_tensor(args.os_user, cuda_version, cuda_file_name,
                        cudnn_version, cudnn_file_name, tensorflow_version,
@@ -170,7 +173,7 @@ if __name__ == "__main__":
         install_keras(args.os_user, keras_version)
 
     # INSTALL DEEP LEARNING FRAMEWORKS
-    if os.environ['application'] == 'deeplearning':
+    if os.environ['application'] == 'deeplearning' and os.environ['conf_deeplearning_cloud_ami'] != 'true':
         print("Installing Caffe2")
         install_caffe2(args.os_user, caffe2_version, cmake_version)
         #print("Installing Torch")
@@ -205,10 +208,7 @@ if __name__ == "__main__":
 
     # INSTALL LIVY
     if not exists(conn, '/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
-        conn.sudo('wget -P /tmp/  --user={} --password={} '
-                  '{}/repository/packages/livy.tar.gz --no-check-certificate'
-                  .format(os.environ['conf_repository_user'],
-                          os.environ['conf_repository_pass'], os.environ['conf_repository_address']))
+        conn.sudo('wget -P /tmp/ https://nexus.develop.dlabanalytics.com/repository/packages-public/livy.tar.gz --no-check-certificate')
         conn.sudo('tar -xzvf /tmp/livy.tar.gz -C /tmp/')
         conn.sudo('mv /tmp/incubator-livy /opt/livy')
         conn.sudo('mkdir /var/log/livy')

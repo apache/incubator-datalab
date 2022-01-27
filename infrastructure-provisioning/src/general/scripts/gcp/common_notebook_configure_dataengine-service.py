@@ -25,7 +25,7 @@ import datalab.fab
 import datalab.actions_lib
 import datalab.meta_lib
 import json
-import logging
+from datalab.logger import logging
 import os
 import sys
 import traceback
@@ -41,17 +41,10 @@ def clear_resources():
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     # generating variables dictionary
     GCPMeta = datalab.meta_lib.GCPMeta()
     GCPActions = datalab.actions_lib.GCPActions()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -97,15 +90,13 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} " \
                  "--edge_user_name {} --project_name {} --os_user {}  --edge_hostname {} --proxy_port {} " \
-                 "--scala_version {} --application {} --pip_mirror {}" \
+                 "--scala_version {} --application {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['dataproc_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
                     notebook_config['edge_user_name'], notebook_config['project_name'], os.environ['conf_os_user'],
-                    edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],
-                    os.environ['conf_pypi_mirror'])
+                    edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'])
         try:
             subprocess.run("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params), shell=True, check=True)
             GCPActions.update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['cluster_labels'])
@@ -119,7 +110,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
-        print('[UPDATING SPARK CONFIGURATION FILES ON NOTEBOOK]')
         params = "--hostname {0} " \
                  "--keyfile {1} " \
                  "--os_user {2} " \
@@ -141,7 +131,7 @@ if __name__ == "__main__":
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],
                    "Action": "Configure notebook server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))

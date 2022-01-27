@@ -29,6 +29,7 @@ import traceback
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
+from datalab.logger import logging
 from fabric import *
 
 parser = argparse.ArgumentParser()
@@ -54,13 +55,13 @@ if __name__ == "__main__":
             data_instances = GCPMeta().get_list_instance_statuses(id_hosts)
             statuses['host'] = data_instances
         except:
-            print("Hosts JSON wasn't been provided")
+            logging.error("Hosts JSON wasn't been provided")
         try:
             id_clusters = get_id_resourses(data.get('cluster'))
             data_clusters = GCPMeta().get_list_cluster_statuses(id_clusters, full_check=False)
             statuses['cluster'] = data_clusters
         except:
-            print("Clusters JSON wasn't been provided")
+            logging.error("Clusters JSON wasn't been provided")
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:

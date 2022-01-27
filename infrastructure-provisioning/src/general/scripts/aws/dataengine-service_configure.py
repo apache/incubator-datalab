@@ -26,13 +26,13 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
 import multiprocessing
 import os
 import sys
 import traceback
 from datalab.common_lib import manage_pkg
 from fabric import *
+from datalab.logger import logging
 import subprocess
 
 parser = argparse.ArgumentParser()
@@ -44,7 +44,6 @@ def configure_dataengine_service(instance, emr_conf):
     emr_conf['instance_ip'] = instance.get('PrivateIpAddress')
     try:
         logging.info('[CREATING DATALAB SSH USER ON DATAENGINE SERVICE]')
-        print('[CREATING DATALAB SSH USER ON DATAENGINE SERVICE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (emr_conf['instance_ip'], emr_conf['key_path'], emr_conf['initial_user'],
              emr_conf['os_user'], emr_conf['sudo_group'])
@@ -61,7 +60,6 @@ def configure_dataengine_service(instance, emr_conf):
     # configuring proxy on Data Engine service
     try:
         logging.info('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
-        print('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
         additional_config = {"proxy_host": emr_conf['edge_instance_hostname'], "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(emr_conf['instance_ip'], emr_conf['cluster_name'], emr_conf['key_path'],
@@ -78,7 +76,6 @@ def configure_dataengine_service(instance, emr_conf):
 
     try:
         logging.info('[CONFIGURE DATAENGINE SERVICE]')
-        print('[CONFIGURE DATAENGINE SERVICE]')
         try:
             datalab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
                                                           emr_conf['key_path'], True)
@@ -97,7 +94,6 @@ def configure_dataengine_service(instance, emr_conf):
 
 
     try:
-        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         cluster_master_instances = emr_conf['cluster_master_instances']
         slaves = []
@@ -138,7 +134,6 @@ def configure_dataengine_service(instance, emr_conf):
         sys.exit(1)
 
     try:
-        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": emr_conf['user_keyname'], "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
@@ -164,7 +159,7 @@ if __name__ == "__main__":
 
     try:
         datalab.actions_lib.create_aws_config_files()
-        print('Generating infrastructure names and tags')
+        logging.info('Generating infrastructure names and tags')
         emr_conf = dict()
         if 'exploratory_name' in os.environ:
             emr_conf['exploratory_name'] = os.environ['exploratory_name']
@@ -257,18 +252,17 @@ if __name__ == "__main__":
                                                           emr_conf['exploratory_name'],
                                                           emr_conf['computational_name'])
         logging.info('[SUMMARY]')
-        print('[SUMMARY]')
-        print("Service base name: {}".format(emr_conf['service_base_name']))
-        print("Cluster name: {}".format(emr_conf['cluster_name']))
-        print("Cluster id: {}".format(datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])))
-        print("Key name: {}".format(emr_conf['key_name']))
-        print("Region: {}".format(emr_conf['region']))
-        print("EMR version: {}".format(emr_conf['release_label']))
-        print("EMR master node shape: {}".format(emr_conf['master_instance_type']))
-        print("EMR slave node shape: {}".format(emr_conf['slave_instance_type']))
-        print("Instance count: {}".format(emr_conf['instance_count']))
-        print("Notebook IP address: {}".format(emr_conf['notebook_ip']))
-        print("Bucket name: {}".format(emr_conf['bucket_name']))
+        logging.info("Service base name: {}".format(emr_conf['service_base_name']))
+        logging.info("Cluster name: {}".format(emr_conf['cluster_name']))
+        logging.info("Cluster id: {}".format(datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])))
+        logging.info("Key name: {}".format(emr_conf['key_name']))
+        logging.info("Region: {}".format(emr_conf['region']))
+        logging.info("EMR version: {}".format(emr_conf['release_label']))
+        logging.info("EMR master node shape: {}".format(emr_conf['master_instance_type']))
+        logging.info("EMR slave node shape: {}".format(emr_conf['slave_instance_type']))
+        logging.info("Instance count: {}".format(emr_conf['instance_count']))
+        logging.info("Notebook IP address: {}".format(emr_conf['notebook_ip']))
+        logging.info("Bucket name: {}".format(emr_conf['bucket_name']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": emr_conf['cluster_name'],
                    "instance_id": datalab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name']),

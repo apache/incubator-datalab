@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.service.impl;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.dao.BillingDAO;
+import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.datalab.backendapi.dao.ProjectDAO;
 import com.epam.datalab.backendapi.domain.*;
@@ -45,6 +46,8 @@ import com.epam.datalab.rest.client.RESTService;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -72,12 +75,13 @@ public class BillingServiceImpl implements BillingService {
     private final RESTService billingService;
     private final ImageExploratoryDAO imageExploratoryDao;
     private final BillingDAO billingDAO;
+    private final ExploratoryDAO exploratoryDAO;
 
     @Inject
     public BillingServiceImpl(ProjectService projectService, ProjectDAO projectDAO, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
                               @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService billingService,
-                              ImageExploratoryDAO imageExploratoryDao, BillingDAO billingDAO) {
+                              ImageExploratoryDAO imageExploratoryDao, BillingDAO billingDAO, ExploratoryDAO exploratoryDAO) {
         this.projectService = projectService;
         this.projectDAO = projectDAO;
         this.endpointService = endpointService;
@@ -86,6 +90,7 @@ public class BillingServiceImpl implements BillingService {
         this.billingService = billingService;
         this.imageExploratoryDao = imageExploratoryDao;
         this.billingDAO = billingDAO;
+        this.exploratoryDAO = exploratoryDAO;
     }
 
     @Override
@@ -96,6 +101,7 @@ public class BillingServiceImpl implements BillingService {
                 .peek(this::appendStatuses)
                 .filter(bd -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(bd.getStatus()))
                 .collect(Collectors.toList());
+        
         final LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLine::getUsageDateFrom)).map(BillingReportLine::getUsageDateFrom).orElse(null);
         final LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLine::getUsageDateTo)).map(BillingReportLine::getUsageDateTo).orElse(null);
         final double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
@@ -209,10 +215,12 @@ public class BillingServiceImpl implements BillingService {
         final Stream<BillingReportLine> billableSharedEndpoints = endpoints
                 .stream()
                 .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), configuration.getServiceBaseName()));
+
         final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll(projects)
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
                 .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount()));
+
         final Stream<BillingReportLine> customImages = projects
                 .stream()
                 .map(p -> imageExploratoryDao.getImagesForProject(p.getName()))
@@ -222,7 +230,7 @@ public class BillingServiceImpl implements BillingService {
         final Map<String, BillingReportLine> billableResources = Stream.of(ssnBillingDataStream, billableEdges, billableSharedEndpoints, billableUserInstances, customImages)
                 .flatMap(s -> s)
                 .collect(Collectors.toMap(BillingReportLine::getDatalabId, b -> b));
-        log.debug("Billable resources are: {}", billableResources);
+        log.info("Billable resources are: {}", billableResources);
 
         return billableResources;
     }
@@ -371,5 +379,13 @@ public class BillingServiceImpl implements BillingService {
                 .map(userBudget -> (totalCost * 100) / userBudget)
                 .map(Double::intValue)
                 .orElse(BigDecimal.ZERO.intValue());
+    }
+
+    @Data
+    @AllArgsConstructor
+    private class ProjectResources {
+        private String resName;
+        private String project;
+        private BillingReportLine billingReportLine;
     }
 }

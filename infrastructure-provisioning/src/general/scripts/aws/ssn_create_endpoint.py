@@ -29,6 +29,7 @@ import time
 from datalab.actions_lib import *
 from datalab.meta_lib import *
 from datalab.ssn_lib import *
+from datalab.logger import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_id', type=str, default='')
@@ -41,12 +42,13 @@ if __name__ == "__main__":
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     waiter = time.sleep(10)
     if args.vpc_id:
-        print("Creating Endpoint in vpc {}, region {} with tag {}.".format(args.vpc_id, args.region, json.dumps(tag)))
+        logging.info("Creating Endpoint in vpc {}, region {} with tag {}."
+                     .format(args.vpc_id, args.region, json.dumps(tag)))
         ec2 = boto3.client('ec2')
         route_table = []
         endpoint = ''
         service_name = 'com.amazonaws.{}.s3'.format(args.region)
-        print('Vars are: {}, {}, {}'.format(args.vpc_id, service_name, json.dumps(tag)))
+        logging.info('Vars are: {}, {}, {}'.format(args.vpc_id, service_name, json.dumps(tag)))
         try:
             route_table = get_route_tables(args.vpc_id, json.dumps(tag))
             if not route_table:
@@ -59,12 +61,12 @@ if __name__ == "__main__":
                         waiter
                     else:
                         break
-                print('Created Route-Table with ID: {}'.format(route_table))
+                logging.info('Created Route-Table with ID: {}'.format(route_table))
                 create_tag(route_table, json.dumps(tag))
                 create_tag(route_table, json.dumps({"Key": "Name", "Value": "{}-rt".format(args.infra_tag_value)}))
             endpoints = get_vpc_endpoints(args.vpc_id)
             if not endpoints:
-                print('Creating EP')
+                logging.info('Creating EP')
                 endpoint = ec2.create_vpc_endpoint(
                     VpcId=args.vpc_id,
                     ServiceName=service_name,
@@ -72,7 +74,8 @@ if __name__ == "__main__":
                 )
                 endpoint = endpoint['VpcEndpoint']['VpcEndpointId']
             else:
-                print('For current VPC {} endpoint already exists. ID: {}. Route table list will be modified'.format(args.vpc_id, endpoints[0].get('VpcEndpointId')))
+                logging.info('For current VPC {} endpoint already exists. ID: {}. Route table list will be modified'
+                             .format(args.vpc_id, endpoints[0].get('VpcEndpointId')))
                 endpoint_id = endpoints[0].get('VpcEndpointId')
                 result = ec2.modify_vpc_endpoint(
                     VpcEndpointId=endpoint_id,
@@ -80,10 +83,10 @@ if __name__ == "__main__":
                 )
                 if result:
                     endpoint = endpoint_id
-            print("ENDPOINT: {}".format(endpoint))
+            logging.info("ENDPOINT: {}".format(endpoint))
         except botocore.exceptions.ClientError as err:
-            print(err.response['Error']['Message'])
-            print('Failed to create endpoint. Removing RT')
+            logging.error(err.response['Error']['Message'])
+            logging.info('Failed to create endpoint. Removing RT')
             ec2.delete_route_table(
                 RouteTableId=route_table[0]
             )

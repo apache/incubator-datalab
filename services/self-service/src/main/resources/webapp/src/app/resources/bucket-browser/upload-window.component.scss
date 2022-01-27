@@ -17,20 +17,20 @@
  * under the License.
  */
 
-.upload-window{
+.upload-window {
+  height: 15vh;
   margin-top: 2vh;
-  border: 2px solid rgba(0,0,0,.12);
+  border: 2px solid rgba(0, 0, 0, 0.12);
   border-radius: 5px;
   background-color: white;
-  height: 15vh;
   color: black;
 
-  .upload-header{
+  .upload-header {
+    position: relative;
+    height: 30px;
     padding-left: 8px;
     background: #f6fafe;
-    height: 30px;
     line-height: 30px;
-    position: relative;
 
     .modal-title {
       font-weight: 500;
@@ -39,7 +39,7 @@
       background: #f6fafe;
     }
 
-    .close{
+    .close {
       position: absolute;
       top: 0;
       right: 0;
@@ -54,60 +54,63 @@
       cursor: pointer;
       transition: all 0.45s ease-in-out;
 
-      &:hover{
+      &:hover {
         color: #36afd5;
       }
     }
-
   }
 
-  .upload-files{
+  .upload-files {
+    width: 100%;
     padding: 5px 0;
     height: calc(100% - 30px);
     overflow: auto;
     overflow-y: overlay;
-    width: 100%;
-    .file{
-      padding: 2px;
-      display: flex;
-      font-size: 12px;
-      position: relative;
 
-      &.upload-table-header{
+    .file {
+      position: relative;
+      display: flex;
+      padding: 2px;
+      font-size: 12px;
+
+      &.upload-table-header {
         font-size: 11px;
       }
 
-      .name{
-        width: 33.3%;
-        padding-left: 5px;
+      .name {
         position: relative;
         display: flex;
+        width: 33.3%;
+        padding-left: 5px;
 
-        span{
+        span {
           position: absolute;
           max-width: calc(100% + 30px);
         }
       }
 
-      .second-block{
-        width: 66.7%;
+      .second-block {
         display: flex;
+        width: 66.7%;
         padding: 0 14px 0 17px;
-        .upload-path{
+
+        .upload-path {
+          display: flex;
           width: 60%;
           padding-left: 24px;
           padding-right: 1%;
-          display: flex;
         }
 
-        .size{
+        .size {
           width: 15%;
         }
-        .state{
-          width: 22%;
+
+        .state {
           display: flex;
           align-items: center;
-          .mat-raised-button{
+          width: 22%;
+
+          .mat-raised-button {
             width: 60px;
             padding: 5px;
             border-radius: 0;
@@ -119,24 +122,26 @@
             line-height: 8px;
           }
         }
-        .remove{
+
+        .remove {
+          position: absolute;
+          right: 20px;
           display: flex;
           align-items: center;
           width: 5%;
-          position: absolute;
-          right: 20px;
-          .close{
-            color: #577289;
-            font-size: 12px;
-            cursor: pointer;
+
+          .close {
             position: absolute;
             top: 3px;
             right: 0;
             height: 18px;
             width: 14px;
+            color: #577289;
+            font-size: 12px;
+            cursor: pointer;
             transition: all 0.45s ease-in-out;
 
-            &:hover{
+            &:hover {
               color: #f1696e;
             }
           }
@@ -146,14 +151,11 @@
   }
 }
 
-
-
-
-
 @media only screen and (max-height: 920px) {
   .bucket-wrapper {
     height: 55vh;
-    &.added-upload{
+
+    &.added-upload {
       height: 38vh;
     }
   }
@@ -162,7 +164,8 @@
 @media only screen and (max-height: 840px) {
   .bucket-wrapper {
     height: 53vh;
-    &.added-upload{
+
+    &.added-upload {
       height: 36vh;
     }
   }
@@ -171,7 +174,8 @@
 @media only screen and (max-height: 760px) {
   .bucket-wrapper {
     height: 51vh;
-    &.added-upload{
+
+    &.added-upload {
       height: 34vh;
     }
   }
@@ -180,7 +184,8 @@
 @media only screen and (max-height: 700px) {
   .bucket-wrapper {
     height: 49vh;
-    &.added-upload{
+
+    &.added-upload {
       height: 32vh;
     }
   }
@@ -189,7 +194,8 @@
 @media only screen and (max-height: 650px) {
   .bucket-wrapper {
     height: 47vh;
-    &.added-upload{
+    
+    &.added-upload {
       height: 30vh;
     }
   }

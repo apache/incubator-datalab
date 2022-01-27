@@ -26,14 +26,14 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import logging
 import os
 import sys
 from fabric import *
+from datalab.logger import logging
 
 
 def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
-    print('Terminating EMR cluster and cleaning EMR config from S3 bucket')
+    logging.info('Terminating EMR cluster and cleaning EMR config from S3 bucket')
     try:
         clusters_list = datalab.meta_lib.get_emr_list(nb_tag_value, 'Value')
         if clusters_list:
@@ -48,18 +48,18 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
                     if tag.get('Key') == 'ComputationalName':
                         computational_name = tag.get('Value')
                 datalab.actions_lib.s3_cleanup(bucket_name, emr_name, os.environ['project_name'])
-                print("The bucket {} has been cleaned successfully".format(bucket_name))
+                logging.info("The bucket {} has been cleaned successfully".format(bucket_name))
                 datalab.actions_lib.terminate_emr(cluster_id)
-                print("The EMR cluster {} has been terminated successfully".format(emr_name))
+                logging.info("The EMR cluster {} has been terminated successfully".format(emr_name))
                 datalab.actions_lib.remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version,
                                                    computational_name)
-                print("{} kernels have been removed from notebook successfully".format(emr_name))
+                logging.info("{} kernels have been removed from notebook successfully".format(emr_name))
         else:
-            print("There are no EMR clusters to terminate.")
+            logging.info("There are no EMR clusters to terminate.")
     except:
         sys.exit(1)
 
-    print("Stopping data engine cluster")
+    logging.info("Stopping data engine cluster")
     try:
         cluster_list = []
         master_ids = []
@@ -76,7 +76,7 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
     except:
         sys.exit(1)
 
-    print("Stopping notebook")
+    logging.info("Stopping notebook")
     try:
         datalab.actions_lib.stop_ec2(tag_name, nb_tag_value)
     except:
@@ -84,16 +84,9 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     # generating variables dictionary
     datalab.actions_lib.create_aws_config_files()
-    print('Generating infrastructure names and tags')
+    logging.info('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -107,12 +100,11 @@ if __name__ == "__main__":
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
     logging.info('[STOP NOTEBOOK]')
-    print('[STOP NOTEBOOK]')
     try:
         stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['tag_name'],
                       os.environ['conf_os_user'], notebook_config['key_path'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        logging.error('Error: {0}'.format(err))
         datalab.fab.append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 
@@ -123,7 +115,7 @@ if __name__ == "__main__":
                    "Tag_name": notebook_config['tag_name'],
                    "user_own_bucket_name": notebook_config['bucket_name'],
                    "Action": "Stop notebook server"}
-            print(json.dumps(res))
+            logging.info(json.dumps(res))
             result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Error with writing results", str(err))
