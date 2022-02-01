@@ -101,6 +101,9 @@ if __name__ == "__main__":
         if os.environ['gcp_os_login_enabled'] != 'FALSE':
             data_engine['gcp_os_login_enabled'] = 'TRUE'
 
+        if os.environ['gcp_block_project_ssh_keys'] != 'FALSE':
+            data_engine['gcp_block_project_ssh_keys'] = 'TRUE'
+
         data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
                                                               data_engine['project_name'],
                                                               data_engine['endpoint_name'],
@@ -193,14 +196,15 @@ if __name__ == "__main__":
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
                  "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} --network_tag {16} --cluster_name {17} " \
-                 "--labels '{18}' --service_base_name {19} --os_login_enabled {20}". \
+                 "--labels '{18}' --service_base_name {19} --os_login_enabled {20} --block_project_ssh_keys {21}". \
             format(data_engine['master_node_name'], data_engine['region'], data_engine['zone'], data_engine['vpc_name'],
                    data_engine['subnet_name'], data_engine['master_size'], data_engine['ssh_key_path'], initial_user,
                    data_engine['dataengine_service_account_name'], data_engine['primary_image_name'],
                    data_engine['secondary_image_name'], 'dataengine', data_engine['primary_disk_size'],
                    data_engine['secondary_disk_size'], data_engine['gpu_master_accelerator_type'],
                    data_engine['gpu_master_accelerator_count'], data_engine['network_tag'], data_engine['cluster_name'],
-                   json.dumps(data_engine['master_labels']), data_engine['service_base_name'], data_engine['gcp_os_login_enabled'])
+                   json.dumps(data_engine['master_labels']), data_engine['service_base_name'],
+                   data_engine['gcp_os_login_enabled'], data_engine['gcp_block_project_ssh_keys'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
@@ -219,7 +223,7 @@ if __name__ == "__main__":
                      "--instance_size {5} --ssh_key_path {6} --initial_user {7} --service_account_name {8} " \
                      "--image_name {9} --secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
                      "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} --network_tag {16} --cluster_name {17} " \
-                     "--labels '{18}' --service_base_name {19} --os_login_enabled {20}". \
+                     "--labels '{18}' --service_base_name {19} --os_login_enabled {20} --block_project_ssh_keys {21}". \
                 format(slave_name, data_engine['region'], data_engine['zone'],
                        data_engine['vpc_name'], data_engine['subnet_name'], data_engine['slave_size'],
                        data_engine['ssh_key_path'], initial_user, data_engine['dataengine_service_account_name'],
@@ -228,7 +232,7 @@ if __name__ == "__main__":
                        data_engine['secondary_disk_size'], data_engine['gpu_slave_accelerator_type'],
                        data_engine['gpu_slave_accelerator_count'], data_engine['network_tag'],
                        data_engine['cluster_name'], json.dumps(data_engine['slave_labels']),
-                       data_engine['service_base_name'], data_engine['gcp_os_login_enabled'])
+                       data_engine['service_base_name'], data_engine['gcp_os_login_enabled'], data_engine['gcp_block_project_ssh_keys'])
             try:
                 subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
             except:
