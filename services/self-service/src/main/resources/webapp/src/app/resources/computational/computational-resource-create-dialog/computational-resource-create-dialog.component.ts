@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
-import {FormGroup, FormBuilder, Validators} from '@angular/forms';
+import {FormGroup, FormBuilder, Validators, FormControl, ValidatorFn} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -97,12 +97,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectSpotInstances(): void {
-    if (this.isSelected.spotInstances) {
+    if (!this.instanceSpot) {
       this.spotInstance = true;
-      this.resourceForm.controls['instance_price'].setValue(50);
+      this.resourceForm.controls['emr_slave_instance_spot'].patchValue(true);
+      this.resourceForm.controls['instance_price'].enable();
+      this.resourceForm.controls['instance_price'].patchValue(50);
     } else {
       this.spotInstance = false;
-      this.resourceForm.controls['instance_price'].setValue(0);
+      this.resourceForm.controls['emr_slave_instance_spot'].patchValue(false);
+      this.resourceForm.controls['instance_price'].disable();
     }
   }
 
@@ -141,11 +144,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public createComputationalResource(data) {
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance,
-      this.spotInstance, this.PROVIDER.toLowerCase(), this.isSelected.gpu)
+      this.PROVIDER.toLowerCase(), this.isSelected.gpu)
       .subscribe(
         (response: any) => {
           if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
-        }, 
+        },
         error => this.toastr.error(error.message, 'Oops!')
       );
   }
@@ -155,6 +158,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       template_name: ['', [Validators.required]],
       version: [''],
       shape_master: ['', Validators.required],
+      emr_slave_instance_spot: '',
       shape_slave: [''],
       cluster_alias_name: ['', [
         Validators.required, Validators.pattern(PATTERNS.namePattern),
@@ -165,7 +169,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       preemptible_instance_number: [0,
         Validators.compose([Validators.pattern(PATTERNS.integerRegex),
         this.validPreemptibleRange.bind(this)])],
-      instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
+      instance_price: [0, [this.validInstanceSpotRange()]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag],
       master_GPU_type: [''],
@@ -196,7 +200,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
         this.isSelected.spotInstances = true;
-        this.selectSpotInstances();
+        this.resourceForm.controls['emr_slave_instance_spot'].setValue(true);
+        this.resourceForm.controls['instance_price'].setValue(50);
       }
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
@@ -239,17 +244,20 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  private validInstanceSpotRange(control) {
-    if (this.isSelected.spotInstances) {
-      return this.isSelected.spotInstances
-        ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
-        : control.value;
-    }
+  private validInstanceSpotRange(): ValidatorFn {
+    return (control: FormControl) => {
+      if (!this.isSelected.spotInstances) {
+        return null;
+      }
+      return control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice
+        ? null
+        : { valid: false };
+    };
   }
 
   private validConfiguration(control) {
     if (this.isSelected.configuration) {
-      return this.isSelected.configuration 
+      return this.isSelected.configuration
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
     }
@@ -372,5 +380,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.resourceForm.controls['slave_GPU_type'].setValue('');
       this.resourceForm.controls['slave_GPU_count'].setValue('');
     }
+  }
+
+  get instanceSpot() {
+    return this.resourceForm.controls['emr_slave_instance_spot'].value;
   }
 }
