@@ -105,6 +105,8 @@
         <module>services/billing-azure</module>
         <module>services/billing-gcp</module>
         <module>services/billing-aws</module>
+        <module>services/self-service/src/main/resources/webapp</module>
+        <module>infrastructure-provisioning</module>
     </modules>
 
     <properties>
