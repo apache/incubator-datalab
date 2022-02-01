@@ -263,6 +263,8 @@ def build_parser():
                             help='TRUE if os login enabled for gcp instances')
     gcp_parser.add_argument('--gcp_block_project_ssh_keys', type=str, default='FALSE',
                             help='TRUE to block project ssh keys for gcp instances')
+    gcp_parser.add_argument('--gcp_bucket_enable_versioning', type=str, default='false',
+                            help='TRUE to enable versioning for gcp storage buckets')
 
     gcp_required_args = gcp_parser.add_argument_group('Required arguments')
     gcp_required_args.add_argument('--gcp_region', type=str, required=True, help='GCP region')

@@ -210,9 +210,15 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
 
-    def create_bucket(self, bucket_name):
+    def create_bucket(self, bucket_name, versioning_enabled='false'):
         try:
-            bucket = self.storage_client.create_bucket(bucket_name)
+            bucket_params = {
+                "name": bucket_name,
+                "versioning": {
+                    "enabled": "{}".format(versioning_enabled)
+              }
+            }
+            bucket = self.storage_client.create_bucket(project=self.project, body=bucket_params)
             print('Bucket {} created.'.format(bucket.name))
         except Exception as err:
             logging.info(
