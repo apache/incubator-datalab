@@ -320,7 +320,8 @@ class GCPActions:
                         initial_user, image_name, secondary_image_name, service_account_name, instance_class,
                         network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
-                        gpu_accelerator_type='None', gpu_accelerator_count='1', os_login_enabled='FALSE', block_project_ssh_keys='FALSE'):
+                        gpu_accelerator_type='None', gpu_accelerator_count='1',
+                        os_login_enabled='FALSE', block_project_ssh_keys='FALSE'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
