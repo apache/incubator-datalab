@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
-import {FormGroup, FormBuilder, Validators} from '@angular/forms';
+import {FormGroup, FormBuilder, Validators, FormControl, ValidatorFn} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -100,11 +100,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (!this.instanceSpot) {
       this.spotInstance = true;
       this.resourceForm.controls['emr_slave_instance_spot'].patchValue(true);
+      this.resourceForm.controls['instance_price'].enable();
       this.resourceForm.controls['instance_price'].patchValue(50);
     } else {
       this.spotInstance = false;
       this.resourceForm.controls['emr_slave_instance_spot'].patchValue(false);
-      this.resourceForm.controls['instance_price'].patchValue(0);
+      this.resourceForm.controls['instance_price'].disable();
     }
   }
 
@@ -168,7 +169,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       preemptible_instance_number: [0,
         Validators.compose([Validators.pattern(PATTERNS.integerRegex),
         this.validPreemptibleRange.bind(this)])],
-      instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
+      instance_price: [0, [this.validInstanceSpotRange()]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag],
       master_GPU_type: [''],
@@ -243,12 +244,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  private validInstanceSpotRange(control) {
-    if (this.isSelected.spotInstances) {
-      return this.isSelected.spotInstances
-        ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
-        : control.value;
-    }
+  private validInstanceSpotRange(): ValidatorFn {
+    return (control: FormControl) => {
+      console.log( this.maxSpotPrice, this.minSpotPrice);
+      if (!this.isSelected.spotInstances) {
+        return null;
+      }
+      return control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice
+        ? null
+        : { valid: false };
+    };
   }
 
   private validConfiguration(control) {
@@ -368,11 +373,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
 
     console.log('form1', this.resourceForm);
-    console.log('resourceForm.value.shape_slave2', this.resourceForm.value.shape_slave);
-    console.log('selectedImage?.image3', this.selectedImage?.image);
-    console.log('resourceForm.value.version4', this.resourceForm.value.version);
-    console.log('limits.min_emr_spot_instance_bid_pct5', this.selectedImage.limits.min_emr_spot_instance_bid_pct);
-    
   }
 
   public clearGpuType(type) {
@@ -386,6 +386,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   get instanceSpot() {
-    return this.resourceForm.controls['emr_slave_instance_spot'].value
+    return this.resourceForm.controls['emr_slave_instance_spot'].value;
   }
 }
