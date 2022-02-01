@@ -251,6 +251,9 @@ if __name__ == "__main__":
             GCPActions.remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
+    if os.environ['gcp_os_login_enabled'] != 'FALSE':
+        ssn_conf['gcp_os_login_enabled'] = 'TRUE'
+
     if os.environ['conf_os_family'] == 'debian':
         ssn_conf['initial_user'] = 'ubuntu'
         ssn_conf['sudo_group'] = 'sudo'
@@ -265,12 +268,12 @@ if __name__ == "__main__":
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5}"\
                  " --ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9}"\
                  " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' " \
-                 "--primary_disk_size {14} --service_base_name {15}".\
+                 "--primary_disk_size {14} --service_base_name {15} --os_login_enabled {16}".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'],
                    ssn_conf['initial_user'], ssn_conf['service_account_name'], ssn_conf['image_name'], 'ssn',
                    ssn_conf['static_ip'], ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20',
-                   ssn_conf['service_base_name'])
+                   ssn_conf['service_base_name'], ssn_conf['gcp_os_login_enabled'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:

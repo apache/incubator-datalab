@@ -500,18 +500,21 @@ if __name__ == "__main__":
         project_conf['initial_user'] = 'ec2-user'
         project_conf['sudo_group'] = 'wheel'
 
+    if os.environ['gcp_os_login_enabled'] != 'FALSE':
+        project_conf['gcp_os_login_enabled'] = 'TRUE'
+
     try:
         project_conf['static_ip'] = \
             GCPMeta.get_static_address(project_conf['region'], project_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} " \
                  "--ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} " \
-                 "--static_ip {} --network_tag {} --labels '{}' --service_base_name {}".format(
+                 "--static_ip {} --network_tag {} --labels '{}' --service_base_name {} --os_login_enabled {}".format(
                   project_conf['instance_name'], project_conf['region'], project_conf['zone'], project_conf['vpc_name'],
                   project_conf['subnet_name'], project_conf['instance_size'], project_conf['ssh_key_path'],
                   project_conf['initial_user'], project_conf['edge_service_account_name'], project_conf['image_name'],
                   'edge', project_conf['static_ip'], project_conf['network_tag'],
-                  json.dumps(project_conf['instance_labels']), project_conf['service_base_name'])
+                  json.dumps(project_conf['instance_labels']), project_conf['service_base_name'], project_conf['gcp_os_login_enabled'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:

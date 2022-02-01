@@ -259,6 +259,8 @@ def build_parser():
                             help='One of more comma-separated GCP Firewall rules for SSN')
     gcp_parser.add_argument('--gcp_ssn_instance_size', type=str, default='n1-standard-2',
                                    help='The SSN instance shape')
+    gcp_parser.add_argument('--gcp_os_login_enabled', type=str, default='FALSE',
+                            help='TRUE if os login enabled for gcp instances')
 
     gcp_required_args = gcp_parser.add_argument_group('Required arguments')
     gcp_required_args.add_argument('--gcp_region', type=str, required=True, help='GCP region')
