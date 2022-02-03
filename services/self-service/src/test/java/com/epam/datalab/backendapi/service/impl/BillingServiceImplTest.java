@@ -66,15 +66,12 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BillingServiceImplTest extends TestBase {
@@ -154,7 +151,7 @@ public class BillingServiceImplTest extends TestBase {
         verify(billingDAO).aggregateBillingData(new BillingFilter());
         verify(projectService).get(PROJECT);
         verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME);
-        verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME, Boolean.TRUE);
+        verify(exploratoryService,times(2)).getUserInstance(USER, PROJECT, EXPLORATORY_NAME, Boolean.TRUE);
         verifyNoMoreInteractions(billingDAO);
     }
 
@@ -190,7 +187,7 @@ public class BillingServiceImplTest extends TestBase {
         verify(billingDAO).aggregateBillingData(new ExportBillingFilter());
         verify(projectService).get(PROJECT);
         verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME);
-        verify(exploratoryService).getUserInstance(USER, PROJECT, EXPLORATORY_NAME, Boolean.TRUE);
+        verify(exploratoryService,times(2)).getUserInstance(USER, PROJECT, EXPLORATORY_NAME, Boolean.TRUE);
         verifyNoMoreInteractions(billingDAO);
     }
 
@@ -654,7 +651,7 @@ public class BillingServiceImplTest extends TestBase {
                 .currency(CURRENCY).datalabId(EXPLORATORY_ID).product(PRODUCT).shape(SHAPE).user(USER).resourceType(BillingResourceType.EXPLORATORY).project(PROJECT)
                 .resourceName(EXPLORATORY_NAME).status(UserInstanceStatus.FAILED).build();
         BillingReportLine line3 = BillingReportLine.builder().usageDateFrom(LocalDate.parse("2020-03-01")).usageDateTo(LocalDate.parse("2020-04-01")).cost(1.0)
-                .currency(CURRENCY).datalabId(COMPUTE_ID).product(PRODUCT).shape(SHAPE).user(USER).resourceType(BillingResourceType.COMPUTATIONAL).project(PROJECT)
+                .currency(CURRENCY).datalabId(COMPUTE_ID).product(PRODUCT).shape("Master: " + 1 + " x " + SHAPE + " Slave: " + 2 + " x " + SHAPE).user(USER).resourceType(BillingResourceType.COMPUTATIONAL).project(PROJECT)
                 .resourceName(COMPUTE_NAME).exploratoryName(EXPLORATORY_NAME).status(UserInstanceStatus.CREATING).build();
         List<BillingReportLine> billingReportLines = Arrays.asList(line1, line2, line3);
 
@@ -693,7 +690,7 @@ public class BillingServiceImplTest extends TestBase {
 
         sb.append(new StringJoiner(",").add(EDGE_ID_1).add(USER).add(PROJECT).add("Edge").add("running").add(SHAPE).add(PRODUCT).add(1.999 + System.lineSeparator()));
         sb.append(new StringJoiner(",").add(EXPLORATORY_ID).add(USER).add(PROJECT).add("Exploratory").add("failed").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
-        sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add(SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
+        sb.append(new StringJoiner(",").add(COMPUTE_ID).add(USER).add(PROJECT).add("Computational").add("creating").add("Master: " + 1 + " x " + SHAPE + " Slave: " + 2 + " x " + SHAPE).add(PRODUCT).add(1.0 + System.lineSeparator()));
 
         sb.append(",,,,,,,Total: 4.0 currency");
         sb.append(System.lineSeparator());
