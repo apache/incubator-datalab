@@ -31,6 +31,7 @@ from datalab.logger import logging
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
 parser.add_argument('--tags', type=str, default='')
+parser.add_argument('--versioning_enabled', type=str, default='false')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -39,7 +40,7 @@ if __name__ == "__main__":
             logging.info("REQUESTED BUCKET {} ALREADY EXISTS".format(args.bucket_name))
         else:
             logging.info("Creating Bucket {}".format(args.bucket_name))
-            GCPActions().create_bucket(args.bucket_name)
+            GCPActions().create_bucket(args.bucket_name, args.versioning_enabled)
             GCPActions().add_bucket_labels(args.bucket_name, json.loads(args.tags))
     else:
         parser.print_help()

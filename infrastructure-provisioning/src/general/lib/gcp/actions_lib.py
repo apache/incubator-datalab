@@ -210,9 +210,15 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
 
-    def create_bucket(self, bucket_name):
+    def create_bucket(self, bucket_name, versioning_enabled='false'):
         try:
-            bucket = self.storage_client.create_bucket(bucket_name)
+            bucket_params = {
+                "name": bucket_name,
+                "versioning": {
+                    "enabled": "{}".format(versioning_enabled)
+              }
+            }
+            bucket = self.storage_client.create_bucket(project=self.project, body=bucket_params)
             print('Bucket {} created.'.format(bucket.name))
         except Exception as err:
             logging.info(
@@ -320,7 +326,8 @@ class GCPActions:
                         initial_user, image_name, secondary_image_name, service_account_name, instance_class,
                         network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
-                        gpu_accelerator_type='None', gpu_accelerator_count='1'):
+                        gpu_accelerator_type='None', gpu_accelerator_count='1',
+                        os_login_enabled='FALSE', block_project_ssh_keys='FALSE'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
@@ -424,6 +431,14 @@ class GCPActions:
                     {
                         "key": "ssh-keys",
                         "value": "{}:{}".format(initial_user, ssh_key)
+                    },
+                    {
+                        "key": "enable-oslogin",
+                        "value": "{}".format(os_login_enabled)
+                    },
+                    {
+                        "key": "block-project-ssh-keys",
+                        "value": "{}".format(block_project_ssh_keys)
                     }
                 ]
                 },
