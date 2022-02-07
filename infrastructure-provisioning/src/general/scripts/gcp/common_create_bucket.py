@@ -41,8 +41,8 @@ if __name__ == "__main__":
             logging.info("REQUESTED BUCKET {} ALREADY EXISTS".format(args.bucket_name))
         else:
             logging.info("Creating Bucket {}".format(args.bucket_name))
-            GCPActions().create_bucket(args.bucket_name, args.versioning_enabled, args.cmek_resource_name)
-            GCPActions().add_bucket_labels(args.bucket_name, json.loads(args.tags))
+            GCPActions().create_bucket(args.bucket_name)
+            GCPActions().add_bucket_labels_vers_cmek(args.bucket_name, json.loads(args.tags), args.versioning_enabled, args.cmek_resource_name)
     else:
         parser.print_help()
         sys.exit(2)

@@ -210,17 +210,9 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
 
-    def create_bucket(self, bucket_name, versioning_enabled='false', cmek_resource_name=''):
+    def create_bucket(self, bucket_name):
         try:
-            bucket_params = {
-                "name": bucket_name,
-                "versioning": {
-                    "enabled": "{}".format(versioning_enabled)
-                }
-            }
-            if cmek_resource_name != '':
-                bucket_params["encryption"] = {"defaultKmsKeyName": cmek_resource_name}
-            bucket = self.storage_client.create_bucket(project=self.project, body=bucket_params)
+            bucket = self.storage_client.create_bucket(bucket_name)
             print('Bucket {} created.'.format(bucket.name))
         except Exception as err:
             logging.info(
@@ -230,12 +222,15 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def add_bucket_labels(self, bucket_name, tags):
+    def add_bucket_labels_vers_cmek(self, bucket_name, tags, versioning_enabled='false', cmek_resource_name=''):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
             labels = bucket.labels
             labels.update(tags)
             bucket.labels = labels
+            bucket.versioning = {"enabled": versioning_enabled}
+            if cmek_resource_name != '':
+                bucket.encryption = {"defaultKmsKeyName": cmek_resource_name}
             bucket.patch()
             print('Updated labels on {}.'.format(bucket_name))
         except Exception as err:
