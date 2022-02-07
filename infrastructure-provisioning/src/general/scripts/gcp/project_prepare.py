@@ -503,11 +503,8 @@ if __name__ == "__main__":
         project_conf['initial_user'] = 'ec2-user'
         project_conf['sudo_group'] = 'wheel'
 
-    if os.environ['gcp_os_login_enabled'] != 'FALSE':
-        project_conf['gcp_os_login_enabled'] = 'TRUE'
-
-    if os.environ['gcp_block_project_ssh_keys'] != 'FALSE':
-        project_conf['gcp_block_project_ssh_keys'] = 'TRUE'
+    project_conf['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
+    project_conf['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
 
     try:
         project_conf['static_ip'] = \

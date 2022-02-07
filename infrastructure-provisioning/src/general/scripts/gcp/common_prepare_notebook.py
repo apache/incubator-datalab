@@ -148,12 +148,8 @@ if __name__ == "__main__":
             notebook_config['secondary_image_name'] = 'global/images/{}'.format(
                 notebook_config['secondary_image_name'].get('name'))
 
-        if os.environ['gcp_os_login_enabled'] != 'FALSE':
-            notebook_config['gcp_os_login_enabled'] = 'TRUE'
-
-        if os.environ['gcp_block_project_ssh_keys'] != 'FALSE':
-            notebook_config['gcp_block_project_ssh_keys'] = 'TRUE'
-
+        notebook_config['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
+        notebook_config['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
         notebook_config['gpu_accelerator_type'] = 'None'
         notebook_config['gpu_accelerator_count'] = 'None'
 
