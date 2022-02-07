@@ -98,12 +98,8 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
 
-        if os.environ['gcp_os_login_enabled'] != 'FALSE':
-            data_engine['gcp_os_login_enabled'] = 'TRUE'
-
-        if os.environ['gcp_block_project_ssh_keys'] != 'FALSE':
-            data_engine['gcp_block_project_ssh_keys'] = 'TRUE'
-
+        data_engine['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
+        data_engine['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
         data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
                                                               data_engine['project_name'],
                                                               data_engine['endpoint_name'],
