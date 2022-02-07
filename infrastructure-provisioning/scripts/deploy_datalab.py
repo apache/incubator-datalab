@@ -265,6 +265,9 @@ def build_parser():
                             help='"TRUE" to block project ssh keys for gcp instances')
     gcp_parser.add_argument('--gcp_bucket_enable_versioning', type=str, default='false',
                             help='"true" to enable versioning for gcp storage buckets')
+    gcp_parser.add_argument('--gcp_cmek_resource_name', type=str, default='',
+                            help='customer managed encryption key resource name '
+                            'e.g. projects/{project_name}/locations/{us}/keyRings/{keyring_name}/cryptoKeys/{key_name}')
 
     gcp_required_args = gcp_parser.add_argument_group('Required arguments')
     gcp_required_args.add_argument('--gcp_region', type=str, required=True, help='GCP region')

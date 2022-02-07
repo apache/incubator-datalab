@@ -122,6 +122,7 @@ if __name__ == "__main__":
             project_conf['user_subnets_range'] = ''
 
         project_conf['gcp_bucket_enable_versioning'] = os.environ['gcp_bucket_enable_versioning']
+        project_conf['gcp_cmek_resource_name'] = os.environ['gcp_cmek_resource_name']
         # FUSE in case of absence of user's key
         try:
             project_conf['user_key'] = os.environ['key']
@@ -403,6 +404,10 @@ if __name__ == "__main__":
         params = "--bucket_name {} --tags '{}' --versioning_enabled {}".format(project_conf['shared_bucket_name'],
                                                        json.dumps(project_conf['shared_bucket_tags']),
                                                        project_conf['gcp_bucket_enable_versioning'])
+
+        if project_conf['gcp_cmek_resource_name'] != '':
+            params = '{} --cmek_resource_name {}'.format(params, project_conf['gcp_cmek_resource_name'])
+
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:
@@ -419,6 +424,9 @@ if __name__ == "__main__":
         params = "--bucket_name {} --tags '{}' --versioning_enabled {}".format(project_conf['bucket_name'],
                                                        json.dumps(project_conf['bucket_tags']),
                                                        project_conf['gcp_bucket_enable_versioning'])
+
+        if project_conf['gcp_cmek_resource_name'] != '':
+            params = '{} --cmek_resource_name {}'.format(params, project_conf['gcp_cmek_resource_name'])
 
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
