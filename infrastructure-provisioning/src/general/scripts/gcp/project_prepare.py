@@ -121,8 +121,7 @@ if __name__ == "__main__":
         else:
             project_conf['user_subnets_range'] = ''
 
-        if os.environ['gcp_bucket_enable_versioning'] != 'false':
-            project_conf['gcp_bucket_enable_versioning'] = 'true'
+        project_conf['gcp_bucket_enable_versioning'] = os.environ['gcp_bucket_enable_versioning']
         # FUSE in case of absence of user's key
         try:
             project_conf['user_key'] = os.environ['key']

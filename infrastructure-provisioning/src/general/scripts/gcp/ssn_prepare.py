@@ -71,12 +71,8 @@ if __name__ == "__main__":
                                        "sbn": ssn_conf['service_base_name'],
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
-
-        if os.environ['gcp_os_login_enabled'] != 'FALSE':
-            ssn_conf['gcp_os_login_enabled'] = 'TRUE'
-
-        if os.environ['gcp_block_project_ssh_keys'] != 'FALSE':
-            ssn_conf['gcp_block_project_ssh_keys'] = 'TRUE'
+        ssn_conf['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
+        ssn_conf['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
 
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
