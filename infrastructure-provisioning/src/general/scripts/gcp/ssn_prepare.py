@@ -71,6 +71,13 @@ if __name__ == "__main__":
                                        "sbn": ssn_conf['service_base_name'],
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
+
+        if os.environ['gcp_os_login_enabled'] != 'FALSE':
+            ssn_conf['gcp_os_login_enabled'] = 'TRUE'
+
+        if os.environ['gcp_block_project_ssh_keys'] != 'FALSE':
+            ssn_conf['gcp_block_project_ssh_keys'] = 'TRUE'
+
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
@@ -250,12 +257,6 @@ if __name__ == "__main__":
         if not ssn_conf['pre_defined_vpc']:
             GCPActions.remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
-
-    if os.environ['gcp_os_login_enabled'] != 'FALSE':
-        ssn_conf['gcp_os_login_enabled'] = 'TRUE'
-
-    if os.environ['gcp_block_project_ssh_keys'] != 'FALSE':
-        ssn_conf['gcp_block_project_ssh_keys'] = 'TRUE'
 
     if os.environ['conf_os_family'] == 'debian':
         ssn_conf['initial_user'] = 'ubuntu'
