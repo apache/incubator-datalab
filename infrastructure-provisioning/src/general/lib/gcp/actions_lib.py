@@ -210,14 +210,16 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
 
-    def create_bucket(self, bucket_name, versioning_enabled='false'):
+    def create_bucket(self, bucket_name, versioning_enabled='false', cmek_resource_name=''):
         try:
             bucket_params = {
                 "name": bucket_name,
                 "versioning": {
                     "enabled": "{}".format(versioning_enabled)
-              }
+                }
             }
+            if cmek_resource_name != '':
+                bucket_params["encryption"] = {"defaultKmsKeyName": cmek_resource_name}
             bucket = self.storage_client.create_bucket(project=self.project, body=bucket_params)
             print('Bucket {} created.'.format(bucket.name))
         except Exception as err:
