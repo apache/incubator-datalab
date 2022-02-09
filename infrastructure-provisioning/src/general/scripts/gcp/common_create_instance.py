@@ -52,6 +52,7 @@ parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--os_login_enabled', type=str, default='FALSE')
 parser.add_argument('--block_project_ssh_keys', type=str, default='FALSE')
+parser.add_argument('--rsa_encrypted_csek', type=str, default='')
 args = parser.parse_args()
 
 
@@ -67,7 +68,8 @@ if __name__ == "__main__":
                                          args.secondary_image_name, args.service_account_name, args.instance_class,
                                          args.network_tag, json.loads(args.labels), args.static_ip,
                                          args.primary_disk_size, args.secondary_disk_size, args.gpu_accelerator_type,
-                                         args.gpu_accelerator_count, args.os_login_enabled, args.block_project_ssh_keys)
+                                         args.gpu_accelerator_count, args.os_login_enabled, args.block_project_ssh_keys,
+                                         args.rsa_encrypted_csek)
     else:
         parser.print_help()
         sys.exit(2)

@@ -268,6 +268,9 @@ def build_parser():
     gcp_parser.add_argument('--gcp_cmek_resource_name', type=str, default='',
                             help='customer managed encryption key resource name '
                             'e.g. projects/{project_name}/locations/{us}/keyRings/{keyring_name}/cryptoKeys/{key_name}')
+    gcp_parser.add_argument('--gcp_wrapped_csek', type=str, default='',
+                            help='customer supplied encryption key for disk/image encryption in RFC 4648 base64 '
+                                 'encoded, RSA-wrapped 2048-bit format as rsaEncryptedKey')
 
     gcp_required_args = gcp_parser.add_argument_group('Required arguments')
     gcp_required_args.add_argument('--gcp_region', type=str, required=True, help='GCP region')

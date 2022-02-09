@@ -274,7 +274,7 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_disk(self, instance_name, zone, size, secondary_image_name):
+    def create_disk(self, instance_name, zone, size, secondary_image_name, rsa_encrypted_csek=''):
         try:
             if secondary_image_name == 'None':
                 params = {"sizeGb": size, "name": instance_name + '-secondary',
@@ -283,6 +283,8 @@ class GCPActions:
                 params = {"sizeGb": size, "name": instance_name + '-secondary',
                           "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone),
                           "sourceImage": secondary_image_name}
+            if rsa_encrypted_csek:
+                params['diskEncryptionKey'] = {"rsaEncryptedKey": rsa_encrypted_csek}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
             datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
@@ -324,7 +326,7 @@ class GCPActions:
                         network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None', gpu_accelerator_count='1',
-                        os_login_enabled='FALSE', block_project_ssh_keys='FALSE'):
+                        os_login_enabled='FALSE', block_project_ssh_keys='FALSE', rsa_encrypted_csek=''):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
@@ -341,7 +343,7 @@ class GCPActions:
                 "natIP": static_ip
             }]
         if instance_class == 'notebook':
-            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name)
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name, rsa_encrypted_csek)
             disks = [
                 {
                     "name": instance_name,
@@ -371,7 +373,7 @@ class GCPActions:
                 }
             ]
         elif instance_class == 'dataengine':
-            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name)
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name, rsa_encrypted_csek)
             disks = [{
                 "name": instance_name,
                 "tag_name": cluster_name + '-volume-primary',
@@ -411,6 +413,15 @@ class GCPActions:
                 "boot": 'true',
                 "mode": "READ_WRITE"
             }]
+
+        if service_base_name in image_name and rsa_encrypted_csek:
+            for disk in disks:
+                disk["initializeParams"]["sourceImageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+                disk["diskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+        elif rsa_encrypted_csek:
+            for disk in disks:
+                disk["diskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+
         instance_params = {
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
@@ -804,14 +815,21 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, labels):
+    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, labels,
+                                         rsa_encrypted_csek=''):
         primary_disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
         secondary_disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
         labels.update({"name": primary_image_name})
         primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": labels}
+        if rsa_encrypted_csek:
+            primary_params["imageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+            primary_params["sourceDiskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
         primary_request = self.service.images().insert(project=self.project, body=primary_params)
         labels.update({"name": secondary_image_name})
         secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": labels}
+        if rsa_encrypted_csek:
+            secondary_params["imageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+            secondary_params["sourceDiskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
         secondary_request = self.service.images().insert(project=self.project, body=secondary_params)
         id_list=[]
         try:

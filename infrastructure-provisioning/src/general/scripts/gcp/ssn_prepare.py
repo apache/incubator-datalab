@@ -74,6 +74,11 @@ if __name__ == "__main__":
         ssn_conf['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
         ssn_conf['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
 
+        if "gcp_wrapped_csek" in os.environ:
+            ssn_conf['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+        else:
+            ssn_conf['gcp_wrapped_csek'] = ''
+
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
@@ -269,13 +274,13 @@ if __name__ == "__main__":
                  " --ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9}"\
                  " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' " \
                  "--primary_disk_size {14} --service_base_name {15} --os_login_enabled {16} " \
-                 "--block_project_ssh_keys {17}".\
+                 "--block_project_ssh_keys {17} --rsa_encrypted_csek '{18}'".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'],
                    ssn_conf['initial_user'], ssn_conf['service_account_name'], ssn_conf['image_name'], 'ssn',
                    ssn_conf['static_ip'], ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20',
                    ssn_conf['service_base_name'], ssn_conf['gcp_os_login_enabled'],
-                   ssn_conf['gcp_block_project_ssh_keys'])
+                   ssn_conf['gcp_block_project_ssh_keys'], ssn_conf['gcp_wrapped_csek'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_instance', params), shell=True, check=True)
         except:
