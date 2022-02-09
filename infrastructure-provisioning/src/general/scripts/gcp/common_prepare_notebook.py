@@ -150,7 +150,12 @@ if __name__ == "__main__":
 
         notebook_config['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
         notebook_config['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
-        notebook_config['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+
+        if "gcp_wrapped_csek" in os.environ:
+            notebook_config['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+        else:
+            notebook_config['gcp_wrapped_csek'] = ''
+
         notebook_config['gpu_accelerator_type'] = 'None'
         notebook_config['gpu_accelerator_count'] = 'None'
 

@@ -100,7 +100,10 @@ if __name__ == "__main__":
 
         data_engine['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
         data_engine['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
-        data_engine['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+        if "gcp_wrapped_csek" in os.environ:
+            data_engine['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+        else:
+            data_engine['gcp_wrapped_csek'] = ''
         data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
                                                               data_engine['project_name'],
                                                               data_engine['endpoint_name'],

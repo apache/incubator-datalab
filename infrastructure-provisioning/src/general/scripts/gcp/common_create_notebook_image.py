@@ -64,6 +64,11 @@ if __name__ == "__main__":
                                                                   image_conf['endpoint_name'],
                                                                   image_conf['exploratory_name'])
 
+        if "gcp_wrapped_csek" in os.environ:
+            image_conf['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+        else:
+            image_conf['gcp_wrapped_csek'] = ''
+
         image_conf['zone'] = os.environ['gcp_zone']
         logging.info('[CREATING IMAGE]')
         primary_image_id = GCPMeta.get_image_by_name(image_conf['expected_primary_image_name'])
@@ -71,7 +76,7 @@ if __name__ == "__main__":
             image_id_list = GCPActions.create_image_from_instance_disks(
                 image_conf['expected_primary_image_name'], image_conf['expected_secondary_image_name'],
                 image_conf['instance_name'], image_conf['zone'], image_conf['image_labels'],
-                os.environ['gcp_wrapped_csek'])
+                image_conf['gcp_wrapped_csek'])
             if image_id_list and image_id_list[0] != '':
                 logging.info("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
             else:

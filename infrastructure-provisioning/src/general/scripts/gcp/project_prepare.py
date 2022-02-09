@@ -513,7 +513,10 @@ if __name__ == "__main__":
 
     project_conf['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
     project_conf['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
-    project_conf['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+    if "gcp_wrapped_csek" in os.environ:
+        project_conf['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+    else:
+        project_conf['gcp_wrapped_csek'] = ''
 
     try:
         project_conf['static_ip'] = \

@@ -73,7 +73,11 @@ if __name__ == "__main__":
         ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
         ssn_conf['gcp_os_login_enabled'] = os.environ['gcp_os_login_enabled']
         ssn_conf['gcp_block_project_ssh_keys'] = os.environ['gcp_block_project_ssh_keys']
-        ssn_conf['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+
+        if "gcp_wrapped_csek" in os.environ:
+            ssn_conf['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+        else:
+            ssn_conf['gcp_wrapped_csek'] = ''
 
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary.", str(err))
