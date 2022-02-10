@@ -279,12 +279,16 @@ class GCPActions:
             if secondary_image_name == 'None':
                 params = {"sizeGb": size, "name": instance_name + '-secondary',
                           "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
+                if rsa_encrypted_csek:
+                    params['diskEncryptionKey'] = {"rsaEncryptedKey": rsa_encrypted_csek}
+
             else:
                 params = {"sizeGb": size, "name": instance_name + '-secondary',
                           "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone),
                           "sourceImage": secondary_image_name}
-            if rsa_encrypted_csek:
-                params['diskEncryptionKey'] = {"rsaEncryptedKey": rsa_encrypted_csek}
+                if rsa_encrypted_csek:
+                    params["sourceImageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+                    params['diskEncryptionKey'] = {"rsaEncryptedKey": rsa_encrypted_csek}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
             datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
@@ -320,10 +324,9 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_name, service_base_name, cluster_name, region, zone, vpc_name, subnet_name, instance_size,
-                        ssh_key_path,
-                        initial_user, image_name, secondary_image_name, service_account_name, instance_class,
-                        network_tag, labels, static_ip='',
+    def create_instance(self, instance_name, service_base_name, cluster_name, region, zone, vpc_name, subnet_name,
+                        instance_size, ssh_key_path, initial_user, image_name, secondary_image_name,
+                        service_account_name, instance_class, network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None', gpu_accelerator_count='1',
                         os_login_enabled='FALSE', block_project_ssh_keys='FALSE', rsa_encrypted_csek=''):
@@ -416,7 +419,8 @@ class GCPActions:
 
         if service_base_name in image_name and rsa_encrypted_csek:
             for disk in disks:
-                disk["initializeParams"]["sourceImageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+                if "initializeParams" in disk:
+                    disk["initializeParams"]["sourceImageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
                 disk["diskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
         elif rsa_encrypted_csek:
             for disk in disks:
@@ -560,8 +564,18 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def start_instance(self, instance_name, zone):
-        request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
+    def start_instance(self, instance_name, zone, rsa_encrypted_csek=''):
+        if rsa_encrypted_csek:
+            params = dict()
+            params['disks'] = list()
+            instance_data = datalab.meta_lib.GCPMeta().get_instance(instance_name)
+            for disk in instance_data['disks']:
+                params["disks"].append(
+                    {"diskEncryptionKey": {"rsaEncryptedKey": rsa_encrypted_csek}, "source": disk['source']})
+            request = self.service.instances().startWithEncryptionKey(project=self.project, zone=zone,
+                                                                      instance=instance_name, body=params)
+        else:
+            request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
             datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
@@ -831,12 +845,12 @@ class GCPActions:
             secondary_params["imageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
             secondary_params["sourceDiskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
         secondary_request = self.service.images().insert(project=self.project, body=secondary_params)
-        id_list=[]
+        id_list = []
         try:
             GCPActions().stop_instance(instance_name, zone)
             primary_image_check = datalab.meta_lib.GCPMeta().get_image_by_name(primary_image_name)
             if primary_image_check != '':
-                GCPActions().start_instance(instance_name, zone)
+                GCPActions().start_instance(instance_name, zone, rsa_encrypted_csek)
                 return ''
             primary_result = primary_request.execute()
             secondary_result = secondary_request.execute()
@@ -846,7 +860,7 @@ class GCPActions:
             datalab.meta_lib.GCPMeta().wait_for_operation(secondary_result['name'])
             print('Image {} has been created.'.format(secondary_image_name))
             id_list.append(secondary_result.get('id'))
-            GCPActions().start_instance(instance_name, zone)
+            GCPActions().start_instance(instance_name, zone, rsa_encrypted_csek)
             return id_list
         except Exception as err:
             logging.info(
