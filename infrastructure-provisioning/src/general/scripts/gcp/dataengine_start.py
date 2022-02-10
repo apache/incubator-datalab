@@ -39,7 +39,7 @@ def start_data_engine(zone, cluster_name):
         instances = GCPMeta.get_list_instances(zone, cluster_name)
         if 'items' in instances:
             for i in instances['items']:
-                GCPActions.start_instance(i['name'], zone)
+                GCPActions.start_instance(i['name'], zone, data_engine['gcp_wrapped_csek'])
     except Exception as err:
         datalab.fab.append_result("Failed to start dataengine", str(err))
         sys.exit(1)
@@ -68,6 +68,10 @@ if __name__ == "__main__":
                                                           data_engine['project_name'],
                                                           data_engine['endpoint_name'],
                                                           data_engine['computational_name'])
+    if "gcp_wrapped_csek" in os.environ:
+        data_engine['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+    else:
+        data_engine['gcp_wrapped_csek'] = ''
     try:
         logging.info('[STARTING DATA ENGINE]')
         try:

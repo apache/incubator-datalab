@@ -122,7 +122,10 @@ if __name__ == "__main__":
             project_conf['user_subnets_range'] = ''
 
         project_conf['gcp_bucket_enable_versioning'] = os.environ['gcp_bucket_enable_versioning']
-        project_conf['gcp_cmek_resource_name'] = os.environ['gcp_cmek_resource_name']
+        if 'gcp_cmek_resource_name' in os.environ:
+            project_conf['gcp_cmek_resource_name'] = os.environ['gcp_cmek_resource_name']
+        else:
+            project_conf['gcp_cmek_resource_name'] = ''
         # FUSE in case of absence of user's key
         try:
             project_conf['user_key'] = os.environ['key']
