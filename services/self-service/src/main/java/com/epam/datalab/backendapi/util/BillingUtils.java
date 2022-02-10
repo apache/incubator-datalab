@@ -60,6 +60,11 @@ public class BillingUtils {
     private static final String IMAGE_STANDARD_FORMAT1 = "%s-%s-%s-%s-notebook-image";
     private static final String IMAGE_STANDARD_FORMAT2 = "%s-%s-%s-notebook-image";
     private static final String IMAGE_CUSTOM_FORMAT = "%s-%s-%s-%s-%s";
+    // GCP specific
+    private static final String IMAGE_VOLUME_PRIMARY_GCP = "%s-%s-%s-%s-primary-image";
+    private static final String IMAGE_VOLUME_SECONDARY_GCP = "%s-%s-%s-%s-secondary-image";
+    private static final String IMAGE_CUSTOM_VOLUME_PRIMARY_GCP = "%s-%s-%s-%s-primary-image-%s";
+    private static final String IMAGE_CUSTOM_VOLUME_SECONDARY_GCP = "%s-%s-%s-%s-secondary-image-%s";
 
     private static final String SHARED_RESOURCE = "Shared resource";
     private static final String IMAGE_NAME = "Image";
@@ -206,8 +211,13 @@ public class BillingUtils {
 
     public static Stream<BillingReportLine> customImageBillingDataStream(ImageInfoRecord image, String sbn) {
         String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
+        String imageIdGCP1 = String.format(IMAGE_CUSTOM_VOLUME_PRIMARY_GCP, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
+        String imageIdGCP2 = String.format(IMAGE_CUSTOM_VOLUME_SECONDARY_GCP, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
         return Stream.of(
-                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageId).user(image.getUser()).resourceType(IMAGE).build()
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageId).user(image.getUser()).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageIdGCP1).user(image.getUser()).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageIdGCP2).user(image.getUser()).resourceType(IMAGE).build()
+
         );
     }
 
@@ -256,6 +266,22 @@ public class BillingUtils {
                     .builder()
                     .resourceName(IMAGE_NAME)
                     .datalabId(String.format(IMAGE_STANDARD_FORMAT1, sbn, project, endpoint, notebook).toLowerCase())
+                    .project(project)
+                    .user(SHARED_RESOURCE)
+                    .resourceType(IMAGE)
+                    .build());
+            list.add(BillingReportLine
+                    .builder()
+                    .resourceName(IMAGE_NAME)
+                    .datalabId(String.format(IMAGE_VOLUME_PRIMARY_GCP, sbn, project, endpoint, notebook).toLowerCase())
+                    .project(project)
+                    .user(SHARED_RESOURCE)
+                    .resourceType(IMAGE)
+                    .build());
+            list.add(BillingReportLine
+                    .builder()
+                    .resourceName(IMAGE_NAME)
+                    .datalabId(String.format(IMAGE_VOLUME_SECONDARY_GCP, sbn, project, endpoint, notebook).toLowerCase())
                     .project(project)
                     .user(SHARED_RESOURCE)
                     .resourceType(IMAGE)
