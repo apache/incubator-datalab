@@ -42,6 +42,7 @@ import {
 } from '@angular/animations';
 import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
+import{ sideBarNamesConfig } from './navbar.config'
 
 interface Quota {
   projectQuotas: {};
@@ -92,6 +93,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isExpanded: boolean = true;
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
+  sideBarNames!: Record<string, string>;
 
   constructor(
     public toastr: ToastrService,
@@ -105,6 +107,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.sideBarNames = sideBarNamesConfig;
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;
