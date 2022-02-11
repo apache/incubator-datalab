@@ -86,11 +86,36 @@
             [routerLinkActive]="['active']"
             [routerLinkActiveOptions]="{exact:true}"
           >
-            <span *ngIf="isExpanded; else resources">List of Resources</span>
+            <span *ngIf="isExpanded; else resources">{{sideBarNames.resourses}}</span>
             <ng-template #resources><i class="material-icons">dashboard</i></ng-template>
           </a>
+          <a class="nav-item has-children" *ngIf="healthStatus?.billingEnabled || healthStatus?.auditEnabled">
+            <span *ngIf="isExpanded">{{sideBarNames.reports}}</span>
+            <a 
+              *ngIf="healthStatus?.auditEnabled" 
+              class="sub-nav-item" 
+              [routerLink]="['/audit']" 
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLinkActive]="['active']" 
+              [routerLinkActiveOptions]="{exact:true}"
+            >
+              <span *ngIf="isExpanded; else audit">{{sideBarNames.audit}}</span>
+              <ng-template #audit><i class="material-icons">library_books</i></ng-template>
+            </a>
+            <a 
+              *ngIf="healthStatus?.billingEnabled" 
+              class="sub-nav-item" 
+              [routerLink]="['/billing_report']"
+              [routerLinkActive]="['active']" 
+              [routerLinkActiveOptions]="{exact:true}" 
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+            >
+              <span *ngIf="isExpanded; else billing">{{sideBarNames.billing}}</span>
+              <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
+            </a>
+          </a>
           <a class="nav-item has-children" *ngIf="healthStatus?.admin || healthStatus?.projectAdmin">
-            <span *ngIf="isExpanded">Administration</span>
+            <span *ngIf="isExpanded">{{sideBarNames.administration}}</span>
 
             <a 
               class="sub-nav-item" 
@@ -99,7 +124,7 @@
               [routerLinkActive]="['active']" 
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else roles">Roles</span>
+              <span *ngIf="isExpanded; else roles">{{sideBarNames.users}}</span>
               <ng-template #roles><i class="material-icons">account_box</i></ng-template>
             </a>
             <a 
@@ -109,7 +134,7 @@
               [routerLinkActive]="['active']" 
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else projects">Projects</span>
+              <span *ngIf="isExpanded; else projects">{{sideBarNames.projects}}</span>
               <ng-template #projects><i class="material-icons">dns</i></ng-template>
             </a>
             <!--            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/odahu']"-->
@@ -124,7 +149,7 @@
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else env">Environment Management</span>
+              <span *ngIf="isExpanded; else env">{{sideBarNames.resources}}</span>
               <ng-template #env><i class="material-icons">settings</i></ng-template>
             </a>
             <a 
@@ -135,35 +160,11 @@
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else env">Configuration</span>
+              <span *ngIf="isExpanded; else env">{{sideBarNames.configuration}}</span>
               <ng-template #env><i class="material-icons">build_circle</i></ng-template>
             </a>
           </a>
-          <a class="nav-item has-children" *ngIf="healthStatus?.billingEnabled || healthStatus?.auditEnabled">
-            <span *ngIf="isExpanded">Reports</span>
-            <a 
-              *ngIf="healthStatus?.auditEnabled" 
-              class="sub-nav-item" 
-              [routerLink]="['/audit']" 
-              [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLinkActive]="['active']" 
-              [routerLinkActiveOptions]="{exact:true}"
-            >
-              <span *ngIf="isExpanded; else audit">Audit</span>
-              <ng-template #audit><i class="material-icons">library_books</i></ng-template>
-            </a>
-            <a 
-              *ngIf="healthStatus?.billingEnabled" 
-              class="sub-nav-item" 
-              [routerLink]="['/billing_report']"
-              [routerLinkActive]="['active']" 
-              [routerLinkActiveOptions]="{exact:true}" 
-              [style.margin-left.px]="isExpanded ? '30' : '0'"
-            >
-              <span *ngIf="isExpanded; else billing">Billing</span>
-              <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
-            </a>
-          </a>
+          
         </div>
         <!--        <div>-->
         <!--          <a class="nav-item" [routerLink]="['/swagger']" [routerLinkActive]="['active']"-->
