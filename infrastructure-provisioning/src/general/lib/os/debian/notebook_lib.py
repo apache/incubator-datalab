@@ -395,7 +395,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sys.exit(1)
 
 
-def ensure_pytorch(os_user, libs):
+def ensure_venv_libs(os_user, libs):
     if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/venv_libs_ensured'):
         datalab.fab.conn.install_venv_pip_pkg(libs)
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/venv_libs_ensured')
