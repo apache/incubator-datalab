@@ -142,6 +142,9 @@ if __name__ == "__main__":
     # INSTALL OPTIONAL PACKAGES
     print("Installing additional Python packages")
     ensure_additional_python_libs(args.os_user)
+    if os.environ['conf_cloud_provider'] == 'aws':
+        print('Installing Pytorch')
+        ensure_pytorch(args.os_user)
     print("Install Matplotlib")
     ensure_matplot(args.os_user)
     
