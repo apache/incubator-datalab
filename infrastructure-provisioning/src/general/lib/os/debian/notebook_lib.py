@@ -398,11 +398,12 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
 def ensure_pytorch(os_user, gpu=True):
     if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/pytorch_ensured'):
         if gpu:
-            install_venv_pip_pkg('torch==1.10.2+cu113 torchvision==0.11.3+cu113 torchaudio==0.10.2+cu113'
-                                 ' -f https://download.pytorch.org/whl/cu113/torch_stable.html')
+            datalab.fab.conn.install_venv_pip_pkg('torch==1.10.2+cu113 torchvision==0.11.3+cu113 '
+                                                  'torchaudio==0.10.2+cu113 -f '
+                                                  'https://download.pytorch.org/whl/cu113/torch_stable.html')
         else:
-            datalab.fab.conn.sudo('pip3 install torch==1.10.2+cpu torchvision==0.11.3+cpu torchaudio==0.10.2+cpu -f '
-                                  'https://download.pytorch.org/whl/cpu/torch_stable.html --no-cache-dir')
+            datalab.fab.conn.install_venv_pip_pkg('torch==1.10.2+cpu torchvision==0.11.3+cpu torchaudio==0.10.2+cpu -f '
+                                                  'https://download.pytorch.org/whl/cpu/torch_stable.html')
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/pytorch_ensured')
 
 
