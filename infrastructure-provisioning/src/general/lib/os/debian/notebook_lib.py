@@ -248,6 +248,7 @@ def ensure_additional_python_libs(os_user):
                 datalab.fab.conn.sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 datalab.fab.conn.sudo('pip3 install opencv-python h5py --no-cache-dir')
+                #datalab.fab.conn.sudo('pip3 install python3-opencv scikit-learn --no-cache-dir')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -293,14 +294,22 @@ def ensure_python3_libraries(os_user):
 def install_nvidia_drivers(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nvidia_ensured'.format(os_user)):
         try:
+            if os.environ['conf_cloud_provider'] == 'aws':
+                cuda_version = '11.3.0'
+                cuda_file_name = "cuda-repo-ubuntu2004-11-3-local_11.3.0-465.19.01-1_amd64.deb"
+                cuda_key = '/var/cuda-repo-ubuntu2004-11-3-local/7fa2af80.pub'
+            else:
+                cuda_version = '11.4.0'
+                cuda_file_name = 'cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb'
+                cuda_key = '/var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub'
             # install nvidia drivers
             datalab.fab.conn.sudo(
                 'wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin')
             datalab.fab.conn.sudo('mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600')
             datalab.fab.conn.sudo(
-                'wget https://developer.download.nvidia.com/compute/cuda/11.4.0/local_installers/cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb')
-            datalab.fab.conn.sudo('dpkg -i cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb')
-            datalab.fab.conn.sudo('apt-key add /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub')
+                'wget https://developer.download.nvidia.com/compute/cuda/{}/local_installers/{}'.format(cuda_version, cuda_file_name))
+            datalab.fab.conn.sudo('dpkg -i {}'.format(cuda_file_name))
+            datalab.fab.conn.sudo('apt-key add {}'.format(cuda_key))
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'cuda')
             #clean space on disk
@@ -384,6 +393,24 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
         except Exception as err:
             print('Failed to install_tensor: ', str(err))
             sys.exit(1)
+
+
+def ensure_venv_libs(os_user, libs):
+    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/venv_libs_ensured'):
+        datalab.fab.install_venv_pip_pkg(libs)
+        datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/venv_libs_ensured')
+
+
+def ensure_pytorch(os_user, gpu=True):
+    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/pytorch_ensured'):
+        if gpu:
+            datalab.fab.install_venv_pip_pkg('torch==1.10.2+cu113 torchvision==0.11.3+cu113 '
+                                                  'torchaudio==0.10.2+cu113 -f '
+                                                  'https://download.pytorch.org/whl/cu113/torch_stable.html')
+        else:
+            datalab.fab.install_venv_pip_pkg('torch==1.10.2+cpu torchvision==0.11.3+cpu torchaudio==0.10.2+cpu -f '
+                                                  'https://download.pytorch.org/whl/cpu/torch_stable.html')
+        datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/pytorch_ensured')
 
 
 def install_maven(os_user):

@@ -69,7 +69,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-
+venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python'
 
 ##############
 # Run script #
@@ -142,9 +142,15 @@ if __name__ == "__main__":
     # INSTALL OPTIONAL PACKAGES
     print("Installing additional Python packages")
     ensure_additional_python_libs(args.os_user)
+    if os.environ['conf_cloud_provider'] == 'aws':
+        print('Installing Pytorch')
+        ensure_pytorch(args.os_user)
     print("Install Matplotlib")
     ensure_matplot(args.os_user)
-    
+
+    print("Install python venv required libs")
+    ensure_venv_libs(args.os_user, venv_libs)
+
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)

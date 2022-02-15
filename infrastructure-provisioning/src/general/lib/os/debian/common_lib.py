@@ -223,10 +223,9 @@ def manage_pkg(command, environment, requisites):
         sys.exit(1)
 
 
-def ensure_pkg(os_user, requisites='linux-headers-$(uname -r) python3-pip python3-dev python3-virtualenv '
-                                'groff gcc vim less git wget '
-                                'libssl-dev unattended-upgrades nmap '
-                                'libffi-dev unzip libxml2-dev haveged'):
+def ensure_pkg(os_user, requisites='linux-headers-$(uname -r) python3-pip python3-opencv python3-dev '
+                                   'python3-virtualenv groff gcc vim less git wget libssl-dev unattended-upgrades '
+                                   'nmap libffi-dev unzip libxml2-dev haveged'):
     try:
         if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/pkg_upgraded'.format(os_user)):
             count = 0
