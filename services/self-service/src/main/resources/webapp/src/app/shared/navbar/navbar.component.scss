@@ -129,7 +129,6 @@
 
   p {
     strong {
-      display: inline-block;
       width: 120px;
       color: #455c74;
       font-size: 14px;
@@ -145,7 +144,6 @@
     }
 
     span {
-      display: inline-block;
       width: 180px;
       vertical-align: bottom;
     }
@@ -331,4 +329,69 @@ mat-sidenav-content {
 
 .blue {
   color: #35afd5;
+}
+.account-icon {
+  margin-right: 20px;
+  color: white;
+  font-size: 34px;
+  cursor: pointer;
+}
+
+.about-btn {
+  background-color: transparent;
+  color: white;
+  border: none;
+  outline: none;
+}
+
+.help-link {
+  color: white;
+  font-size: 16px;
+
+  &--wrapper {
+    margin-right: 20px;
+  }
+}
+
+.about-btn--wrapper {
+  margin-right: 20px;
+}
+
+.user-info-popup{
+  &__conponent.bubble-up {
+    width: 300px;
+    height: 180px;
+    top: 48px !important;
+    box-shadow: none;
+    border: 1px solid #36afd5;
+  }
+}
+
+.user-info-popup--wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 15px 5px;
+}
+
+.account-icon--buble {
+  color: #36afd5;
+  font-size: 40px;
+}
+
+.logout-btn {
+  padding: 5px 10px;
+  color: white;
+  background-color: #36afd5;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.list-menu.bubble-up {
+  width: 300px;
+  top: 48px !important;
 }

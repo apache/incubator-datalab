@@ -42,7 +42,7 @@ import {
 } from '@angular/animations';
 import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-import{ sideBarNamesConfig } from './navbar.config'
+import{ sideBarNamesConfig, UserInfo } from './navbar.config'
 
 interface Quota {
   projectQuotas: {};
@@ -94,6 +94,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
   sideBarNames!: Record<string, string>;
+  userData!: UserInfo;
 
   constructor(
     public toastr: ToastrService,
@@ -124,6 +125,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.checkVersionData();
       }
     });
+    this.userData = this.getUserData();
   }
 
   ngOnDestroy(): void {
@@ -194,10 +196,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
         } else {
           this.storage.setBillingQuoteUsed('');
         }
-
+        
         if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
         checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.totalQuotaUsed, exceedProjects, informProjects);
       });
+    }
+  }
+  
+  private getUserData(): UserInfo {
+    const token = localStorage.getItem('JWT_TOKEN')
+    const [_, tokenInfo] = token.split('.');
+    const {name, email} = JSON.parse(atob(tokenInfo));
+    
+    return {
+      name: name || 'Jhon Doe',
+      email: email || 'Email not found'
     }
   }
 
