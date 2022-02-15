@@ -1073,15 +1073,15 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             #            jupyter_conf_file))
             #conn.put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
             #conn.sudo("chmod 644 /tmp/jupyter-notebook.service")
-            if os.environ['application'] == 'tensor': # ?????
-                conn.sudo(
-                    "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-            elif os.environ['application'] == 'deeplearning' and os.environ['conf_deeplearning_cloud_ami'] == 'false':
-                conn.sudo(
-                    "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
-                    "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
-            conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
-            conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+            #if os.environ['application'] == 'tensor': # ?????
+            #    conn.sudo(
+            #        "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+            #elif os.environ['application'] == 'deeplearning' and os.environ['conf_deeplearning_cloud_ami'] == 'false':
+            #    conn.sudo(
+            #        "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
+            #        "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+            #conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+            #conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             if os.environ['application'] == 'deeplearning' and os.environ['conf_cloud_provider'] == 'azure':
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-11.*/bin/java\'").stdout.splitlines()[0]
             else:
@@ -1099,8 +1099,8 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
                 except Exception as err:
                     logging.error('Error:', str(err))
             conn.sudo("systemctl daemon-reload")
-            conn.sudo("systemctl enable jupyter-notebook")
-            conn.sudo("systemctl start jupyter-notebook")
+            conn.sudo("systemctl enable jupyterlab-notebook")
+            conn.sudo("systemctl start jupyterlab-notebook")
             conn.sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except Exception as err:
             logging.error('Function configure_jupyter error:', str(err))
@@ -1111,7 +1111,7 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             conn.sudo(
                 'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(
                     exploratory_name, jupyter_conf_file))
-            conn.sudo("systemctl restart jupyter-notebook")
+            conn.sudo("systemctl restart jupyterlab-notebook")
         except Exception as err:
             logging.error('Function configure_jupyter error:', str(err))
             traceback.print_exc()
