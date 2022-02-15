@@ -63,7 +63,7 @@ local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
-#jupyterlab_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyterlab_notebook_config.py'
+jupyterlab_conf_file = '/home/' + args.os_user + '/.jupyter/jupyter_notebook_config.py'
 
 #
 gitlab_certfile = os.environ['conf_gitlab_certfile']
@@ -71,7 +71,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python'
+venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python' # python3-opencv
 jupyterlab_pip = 'jupyterlab'
 
 ##############
@@ -113,8 +113,8 @@ if __name__ == "__main__":
     install_keras(args.os_user, keras_version)
 
     # INSTALL JUPYTER NOTEBOOK
-    print("Install Jupyter")
-    configure_jupyterlab(args.os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, args.exploratory_name)
+    #print("Install Jupyter")
+    #configure_jupyterlab(args.os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, args.exploratory_name)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     print("Install python venv required libs")
     ensure_venv_libs(args.os_user, venv_libs)
 
-    print("Install python venv required libs")
+    print("Install jupyterlab")
     ensure_venv_libs(args.os_user, 'jupyterlab')
 
     #POST INSTALLATION PROCESS
