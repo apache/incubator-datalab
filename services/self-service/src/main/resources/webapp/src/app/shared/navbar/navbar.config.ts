@@ -28,3 +28,8 @@ export const sideBarNamesConfig: Record<string, string> = {
     resources: 'Resources',
     configuration: 'Configuration'
 }
+
+export interface UserInfo {
+    email: string;
+    name: string;
+}
