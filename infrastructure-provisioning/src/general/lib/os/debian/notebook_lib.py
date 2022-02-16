@@ -314,6 +314,7 @@ def install_nvidia_drivers(os_user):
             manage_pkg('-y install', 'remote', 'cuda')
             #clean space on disk
             manage_pkg('clean', 'remote', 'all')
+            datalab.fab.conn.sudo('rm {}'.format(cuda_file_name))
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nvidia_ensured'.format(os_user))
         except Exception as err:
             print('Failed to install_nvidia_drivers: ', str(err))
