@@ -163,7 +163,7 @@ public class LibraryServiceImpl implements LibraryService {
         if (isTemplateGroup(templateName, Stream.of(JUPYTER, ZEPPELIN))) {
             groups.addAll(Arrays.asList(GROUP_R_PKG, GROUP_JAVA));
         }
-        if (isTemplateGroup(templateName, Stream.of(DEEP_LEARNING, TENSOR, TENSOR_GCP,
+        if (isTemplateGroup(templateName, Stream.of(DEEP_LEARNING, TENSOR, TENSOR_GCP, TENSOR_JUPYTERLAB,
                 DEEP_LEARNING_GCP, DEEP_LEARNING_AWS, DEEP_LEARNING_AZURE))) {
             groups.add(GROUP_JAVA);
         }
