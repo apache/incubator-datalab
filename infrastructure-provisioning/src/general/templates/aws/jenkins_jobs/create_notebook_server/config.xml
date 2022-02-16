@@ -41,6 +41,7 @@ under the License.
               <string>zeppelin</string>
               <string>tensor</string>
               <string>tensor-rstudio</string>
+              <string>tensor-jupyterlab</string>
               <string>deeplearning</string>
               <string>jupyterlab</string>
             </a>

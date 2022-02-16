@@ -26,7 +26,7 @@ ARG OS
 
 COPY tensor-jupyterlab/ /root/
 COPY general/scripts/os/* /root/scripts/
-COPY general/scripts/aws/tensor_* /root/scripts/
+COPY general/scripts/aws/tensor-jupyterlab_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py
 COPY general/templates/os/${OS}/jupyterlab-notebook.service /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
