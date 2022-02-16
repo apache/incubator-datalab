@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     # installing and configuring TensorFlow and all dependencies
     try:
-        logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
+        logging.info('[CONFIGURE TENSORFLOW  JUPYTERLAB NOTEBOOK INSTANCE]')
         params = "--hostname {0} --keyfile {1} " \
                  "--region {2} --os_user {3} " \
                  "--ip_address {4} --exploratory_name {5} --edge_ip {6}" \
@@ -164,13 +164,13 @@ if __name__ == "__main__":
                          os.environ['aws_region'], notebook_config['datalab_ssh_user'],
                          notebook_config['ip_address'], notebook_config['exploratory_name'], edge_ip)
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_tensor_node', params), shell=True, check=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_tensor-jupyterlab_node', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
         datalab.fab.append_result("Failed to configure TensorFlow.", str(err))
-        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        #datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
