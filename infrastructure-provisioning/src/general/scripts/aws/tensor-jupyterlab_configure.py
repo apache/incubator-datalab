@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     # installing and configuring TensorFlow and all dependencies
     try:
-        logging.info('[CONFIGURE TENSORFLOW  JUPYTERLAB NOTEBOOK INSTANCE]')
+        logging.info('[CONFIGURE JUPYTERLAB TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {0} --keyfile {1} " \
                  "--region {2} --os_user {3} " \
                  "--ip_address {4} --exploratory_name {5} --edge_ip {6}" \
@@ -170,7 +170,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         datalab.fab.append_result("Failed to configure TensorFlow.", str(err))
-        #datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
