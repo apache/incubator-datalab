@@ -1048,8 +1048,8 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
     if not exists(conn, '/home/' + os_user + '/.ensure_dir/jupyterlab_ensured'):
         try:
             # conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
-            conn.sudo('source /opt/python/python3.7.9/bin/activate')
-            #conn.sudo('pip3 install jupyterlab --no-cache-dir')  # create external var with version
+            # conn.sudo('source /opt/python/python3.7.9/bin/activate')
+            conn.sudo('pip3 install jupyterlab --no-cache-dir')  # create external var with version
             conn.sudo('rm -rf {}'.format(jupyterlab_conf_file))
             conn.run('jupyter lab --generate-config')
             #conn.run('mkdir -p ~/.jupyter/custom/')
@@ -1082,8 +1082,8 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-11.*/bin/java\'").stdout.splitlines()[0]
             else:
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
-            conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
-                java_home))
+            #conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
+            #    java_home))
             conn.sudo('cp /tmp/jupyterlab-notebook.service /etc/systemd/system/jupyterlab-notebook.service')
             conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.sudo('mkdir -p /mnt/var')
@@ -1108,7 +1108,7 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             sys.exit(1)
 
 
-def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path,
+]def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path,
                                  python_venv_version):
     if not exists(conn, '/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
         try:

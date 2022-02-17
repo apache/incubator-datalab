@@ -71,7 +71,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python jupyterlab==3.2.9 tensorflow==2.5.0' # tflite==2.4.0 python3-opencv
+venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow==2.5.0' # tflite==2.4.0 python3-opencv
 jupyterlab_pip = 'jupyterlab'
 
 ##############
@@ -113,6 +113,9 @@ if __name__ == "__main__":
     install_keras(args.os_user, keras_version)
 
     # INSTALL JUPYTER NOTEBOOK
+    print("Configure jupyterlab with tensorflow,tflite")
+    configure_jupyterlab(args.os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, args.exploratory_name)
+
     #print("Install Jupyter")
     #configure_jupyterlab(args.os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, args.exploratory_name)
 
@@ -155,8 +158,6 @@ if __name__ == "__main__":
     ensure_venv_libs(args.os_user, venv_libs)
     ensure_venv_libs(args.os_user, '--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
 
-    print("Configure jupyterlab with tensorflow,tflite")
-    configure_jupyterlab(args.os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, args.exploratory_name)
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
