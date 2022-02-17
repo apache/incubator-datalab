@@ -1051,10 +1051,6 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             conn.sudo('source /opt/python/python3.7.9/bin/activate')
             #conn.sudo('pip3 install jupyterlab --no-cache-dir')  # create external var with version
             conn.sudo('rm -rf {}'.format(jupyterlab_conf_file))
-            #elif os.environ['application'] != 'tensor':
-            #    conn.sudo('pip3 install environment_kernels')
-            #if os.environ['conf_cloud_provider'] == 'aws' and os.environ['application'] == 'deeplearning': #should be checked if for other applications any files have owner root:root in datalab-user homefolder and where it is changed to root:root on deeplearning
-            #    conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.run('jupyter lab --generate-config')
             #conn.run('mkdir -p ~/.jupyter/custom/')
             #conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
@@ -1088,22 +1084,16 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
             conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
                 java_home))
-            conn.sudo('\cp /tmp/jupyterlab-notebook.service /etc/systemd/system/jupyterlab-notebook.service')
+            conn.sudo('cp /tmp/jupyterlab-notebook.service /etc/systemd/system/jupyterlab-notebook.service')
             conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.sudo('mkdir -p /mnt/var')
             conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'deeplearning':
-                try:
-                    conn.sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
-                    conn.sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
-                except Exception as err:
-                    logging.error('Error:', str(err))
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyterlab-notebook")
             conn.sudo("systemctl start jupyterlab-notebook")
             conn.sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except Exception as err:
-            logging.error('Function configure_jupyter error:', str(err))
+            logging.error('Function configure_jupyterlab error:', str(err))
             traceback.print_exc()
             sys.exit(1)
     else:

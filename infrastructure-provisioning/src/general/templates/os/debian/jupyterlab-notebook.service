@@ -25,7 +25,7 @@ Description=Jupyterlab notebook
 [Service]
 Type=simple
 PIDFile=/var/run/jupyterlab-notebook.pid
-ExecStart=/bin/bash -c "/usr/local/bin/jupyter lab
+ExecStart=/bin/bash -c ". /opt/python/python3.7.12/bin/activate && jupyter lab"
 ExecStop=/bin/bash -c "for i in $(ps aux | grep jupyter | grep -v grep | awk '{print $2}'); do kill -9 $i; done"
 User=OS_USR
 Group=OS_USR
