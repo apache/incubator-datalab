@@ -1108,7 +1108,7 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             sys.exit(1)
 
 
-]def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path,
+def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path,
                                  python_venv_version):
     if not exists(conn, '/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
         try:
