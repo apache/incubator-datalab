@@ -95,6 +95,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
   sideBarNames!: Record<string, string>;
   userData!: UserInfo;
+  commitMaxLength: number = 22;
 
   constructor(
     public toastr: ToastrService,
