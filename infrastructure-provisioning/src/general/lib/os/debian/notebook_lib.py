@@ -400,18 +400,6 @@ def ensure_venv_libs(os_user, libs):
         datalab.fab.install_venv_pip_pkg(libs)
         datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/venv_libs_ensured')
 
-
-def ensure_venv_juplab(os_user, libs):
-    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/venv_juplab_ensured'):
-        datalab.fab.install_venv_pip_pkg(libs, '3.2.9')
-        datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/venv_libs_ensured')
-
-def ensure_venv_tensorlite(os_user, libs):
-    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/venv_juplab_ensured'):
-        datalab.fab.install_venv_pip_pkg(libs, '2.5.0')
-        datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/venv_libs_ensured')
-
-
 def ensure_pytorch(os_user, gpu=True):
     if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/pytorch_ensured'):
         if gpu:

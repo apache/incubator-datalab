@@ -71,7 +71,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python' # python3-opencv
+venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python jupyterlab==3.2.9 tensorflow==2.5.0 tflite==2.5.0' # python3-opencv
 jupyterlab_pip = 'jupyterlab'
 
 ##############
@@ -103,10 +103,10 @@ if __name__ == "__main__":
     ensure_python_venv(python_venv_version)
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
-    print("Install TensorFlow")
-    install_tensor(args.os_user, cuda_version, cuda_file_name,
-                   cudnn_version, cudnn_file_name, tensorflow_version,
-                   templates_dir, nvidia_version)
+    #print("Install TensorFlow")
+    #install_tensor(args.os_user, cuda_version, cuda_file_name,
+    #               cudnn_version, cudnn_file_name, tensorflow_version,
+    #               templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
@@ -153,12 +153,6 @@ if __name__ == "__main__":
 
     print("Install python venv required libs")
     ensure_venv_libs(args.os_user, venv_libs)
-
-    print("Install jupyterlab")
-    ensure_venv_juplab(args.os_user, 'jupyterlab')
-
-    print("Install tensorflow lite")
-    ensure_venv_tensorlite(args.os_user, 'tflite')
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
