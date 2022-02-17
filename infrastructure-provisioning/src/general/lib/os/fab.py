@@ -1060,7 +1060,8 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyterlab_conf_file))
             conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyterlab_conf_file))
             conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyterlab_conf_file))
-            conn.put(templates_dir + 'jupyterlab-notebook.service', '/tmp/jupyter-notebook.service')
+            #conn.put(templates_dir + 'jupyterlab-notebook.service', '/tmp/jupyter-notebook.service')
+            conn.sudo('cp /root/templates/jupyterlab-notebook.service /tmp/jupyter-notebook.service')
             #if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
             #    conn.sudo(
             #        '''echo "c.NotebookApp.kernel_spec_manager_class = 'environment_kernels.EnvironmentKernelSpecManager'" >> {}'''.format(
