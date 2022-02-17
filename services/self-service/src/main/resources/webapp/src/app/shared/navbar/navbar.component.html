@@ -59,7 +59,7 @@
         <p>
           <strong>Revision: </strong>
           <span class="ellipsis commit" matTooltip="{{ metadata?.commit }}"
-            matTooltipPosition="above">{{ metadata?.commit }}</span>
+            matTooltipPosition="above">{{ metadata?.commit | truncateTextPipe: commitMaxLength }}</span>
         </p>
         <p>
           <a class="helper_instruction" [attr.href]="metadata?.release_notes" target="_blank">
