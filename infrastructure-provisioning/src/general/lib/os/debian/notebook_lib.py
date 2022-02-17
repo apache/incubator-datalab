@@ -271,7 +271,8 @@ def ensure_python3_libraries(os_user):
             #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
-            manage_pkg('-y install', 'remote', 'libbz2-dev')
+            manage_pkg('-y install', 'remote', 'libbz2-dev libsqlite3-dev tk-dev libncursesw5-dev libreadline-dev '
+                                               'liblzma-dev uuid-dev lzma-dev libgdbm-dev')  #necessary for python build
             datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
             if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': 
                 datalab.fab.conn.sudo('pip3 install --upgrade --user pyqt5==5.12')

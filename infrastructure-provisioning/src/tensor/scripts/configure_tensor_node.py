@@ -69,7 +69,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python'
+venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow==2.5.0 tflite==2.5.0'
 
 ##############
 # Run script #
