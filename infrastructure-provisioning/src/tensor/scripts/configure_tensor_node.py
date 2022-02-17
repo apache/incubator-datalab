@@ -69,7 +69,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow==2.5.0 tflite==2.5.0'
+venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow==2.5.0'
 
 ##############
 # Run script #
@@ -150,6 +150,7 @@ if __name__ == "__main__":
 
     print("Install python venv required libs")
     ensure_venv_libs(args.os_user, venv_libs)
+    ensure_venv_libs(args.os_user, '--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
