@@ -155,7 +155,10 @@ if __name__ == "__main__":
     ensure_venv_libs(args.os_user, venv_libs)
 
     print("Install jupyterlab")
-    ensure_venv_libs(args.os_user, 'jupyterlab')
+    ensure_venv_juplab(args.os_user, 'jupyterlab')
+
+    print("Install tensorflow lite")
+    ensure_venv_tensorlite(args.os_user, 'tflite')
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")

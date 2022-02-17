@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     # updating repositories & installing python packages
     try:
-        logging.info('[INSTALLING PREREQUISITES TO TENSOR NOTEBOOK INSTANCE]')
+        logging.info('[INSTALLING PREREQUISITES TO JUPYTERLAB TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['aws_region'],
                    edge_instance_private_ip)
