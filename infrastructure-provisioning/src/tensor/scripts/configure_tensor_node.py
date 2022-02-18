@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     print("Install python venv required libs")
     ensure_venv_libs(args.os_user, venv_libs)
-    ensure_venv_libs(args.os_user, '--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
+    datalab.fab.install_venv_pip_pkg(args.os_user, '--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
