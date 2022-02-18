@@ -1115,7 +1115,7 @@ def remove_unexisting_kernel(os_user):
     if not exists(conn, '/home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user)):
         try:
             conn.sudo('jupyter-kernelspec remove -f python3')
-            conn.sudo('jupyter kernelspec uninstall python3', warn=True)
+            conn.sudo('jupyter kernelspec uninstall -y python3', warn=True)
             conn.sudo('touch /home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user))
         except Exception as err:
             logging.error('Function remove_unexisting_kernel error:', str(err))
