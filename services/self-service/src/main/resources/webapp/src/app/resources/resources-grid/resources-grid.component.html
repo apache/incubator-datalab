@@ -261,7 +261,7 @@
                         <span>Terminate</span>
                       </div>
                     </li>
-                    <li
+                    <!-- <li
                       *ngIf="element.status === 'running' && element.image !== 'docker.datalab-superset' && element.image !== 'docker.datalab-jupyterlab'"
                       matTooltip="Only one compute can be associated with analytical tool at a time"
                       matTooltipPosition="above" 
@@ -276,7 +276,7 @@
                         <i class="material-icons">memory</i>
                         <span>Add compute</span>
                       </div>
-                    </li>
+                    </li> -->
                     <li 
                       (click)="exploratoryAction(element, 'schedule')" 
                       *ngIf="element.status.toLowerCase() === 'running'
