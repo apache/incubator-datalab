@@ -1090,9 +1090,9 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyterlab-notebook")
             conn.sudo("systemctl start jupyterlab-notebook")
-            conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
-            conn.sudo('mkdir -p /mnt/var')
-            conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            #conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
+            #conn.sudo('mkdir -p /mnt/var')
+            #conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
             conn.sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except Exception as err:
             logging.error('Function configure_jupyterlab error:', str(err))
@@ -1186,6 +1186,7 @@ def remove_unexisting_kernel(os_user):
     if not exists(conn, '/home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user)):
         try:
             conn.sudo('jupyter-kernelspec remove -f python3')
+            conn.sudo('jupyter kernelspec uninstall -y python3')
             conn.sudo('touch /home/{}/.ensure_dir/unexisting_kernel_removed'.format(os_user))
         except Exception as err:
             logging.error('Function remove_unexisting_kernel error:', str(err))

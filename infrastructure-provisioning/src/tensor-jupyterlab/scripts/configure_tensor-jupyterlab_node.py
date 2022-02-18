@@ -156,12 +156,15 @@ if __name__ == "__main__":
 
     print("Install python venv required libs")
     ensure_venv_libs(args.os_user, venv_libs)
-    datalab.fab.install_venv_pip_pkg(args.os_user, '--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
+    datalab.fab.install_venv_pip_pkg('--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
     #ensure_venv_libs(args.os_user, '--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
 
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    print("Removing unexisting kernels")
+    remove_unexisting_kernel(args.os_user)
 
     conn.close()
