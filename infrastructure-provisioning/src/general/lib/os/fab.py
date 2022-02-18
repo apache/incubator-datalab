@@ -1060,8 +1060,8 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyterlab_conf_file))
             conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyterlab_conf_file))
             conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyterlab_conf_file))
-            #conn.put(templates_dir + 'jupyterlab-notebook.service', '/tmp/jupyter-notebook.service')
-            conn.sudo('cp /root/templates/jupyterlab-notebook.service /tmp/jupyter-notebook.service')
+            conn.put(templates_dir + 'jupyterlab-notebook.service', '/tmp/jupyterlab-notebook.service')
+            #conn.sudo('cp /root/templates/jupyterlab-notebook.service /tmp/jupyter-notebook.service')
             #if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
             #    conn.sudo(
             #        '''echo "c.NotebookApp.kernel_spec_manager_class = 'environment_kernels.EnvironmentKernelSpecManager'" >> {}'''.format(
@@ -1087,12 +1087,12 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             #conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
             #    java_home))
             conn.sudo('cp /tmp/jupyterlab-notebook.service /etc/systemd/system/jupyterlab-notebook.service')
-            conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
-            conn.sudo('mkdir -p /mnt/var')
-            conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyterlab-notebook")
             conn.sudo("systemctl start jupyterlab-notebook")
+            conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
+            conn.sudo('mkdir -p /mnt/var')
+            conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
             conn.sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except Exception as err:
             logging.error('Function configure_jupyterlab error:', str(err))
