@@ -71,7 +71,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python' # python3-opencv
+venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow==2.5.0' # tflite==2.4.0 python3-opencv
 jupyterlab_pip = 'jupyterlab'
 
 ##############
@@ -103,16 +103,19 @@ if __name__ == "__main__":
     ensure_python_venv(python_venv_version)
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
-    print("Install TensorFlow")
-    install_tensor(args.os_user, cuda_version, cuda_file_name,
-                   cudnn_version, cudnn_file_name, tensorflow_version,
-                   templates_dir, nvidia_version)
+    #print("Install TensorFlow")
+    #install_tensor(args.os_user, cuda_version, cuda_file_name,
+    #               cudnn_version, cudnn_file_name, tensorflow_version,
+    #               templates_dir, nvidia_version)
     print("Install Theano")
     install_theano(args.os_user, theano_version)
     print("Installing Keras")
     install_keras(args.os_user, keras_version)
 
     # INSTALL JUPYTER NOTEBOOK
+    print("Configure jupyterlab with tensorflow,tflite")
+    configure_jupyterlab(args.os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, args.exploratory_name)
+
     #print("Install Jupyter")
     #configure_jupyterlab(args.os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, args.exploratory_name)
 
@@ -153,12 +156,15 @@ if __name__ == "__main__":
 
     print("Install python venv required libs")
     ensure_venv_libs(args.os_user, venv_libs)
+    datalab.fab.install_venv_pip_pkg('--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
+    #ensure_venv_libs(args.os_user, '--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
 
-    print("Install jupyterlab")
-    ensure_venv_libs(args.os_user, 'jupyterlab')
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+
+    print("Removing unexisting kernels")
+    remove_unexisting_kernel(args.os_user)
 
     conn.close()

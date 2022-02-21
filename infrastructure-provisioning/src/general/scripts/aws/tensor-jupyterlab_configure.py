@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     # updating repositories & installing python packages
     try:
-        logging.info('[INSTALLING PREREQUISITES TO TENSOR NOTEBOOK INSTANCE]')
+        logging.info('[INSTALLING PREREQUISITES TO JUPYTERLAB TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
             format(instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'], os.environ['aws_region'],
                    edge_instance_private_ip)
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     # installing and configuring TensorFlow and all dependencies
     try:
-        logging.info('[CONFIGURE TENSORFLOW  JUPYTERLAB NOTEBOOK INSTANCE]')
+        logging.info('[CONFIGURE JUPYTERLAB TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {0} --keyfile {1} " \
                  "--region {2} --os_user {3} " \
                  "--ip_address {4} --exploratory_name {5} --edge_ip {6}" \
@@ -170,7 +170,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         datalab.fab.append_result("Failed to configure TensorFlow.", str(err))
-        #datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -318,12 +318,12 @@ if __name__ == "__main__":
                    "notebook_image_name": notebook_config['notebook_image_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [
-                       {"description": "Jupyter",
+                       {"description": "Jupyterlab",
                         "url": jupyter_notebook_access_url},
-                       {"description": "TensorBoard",
-                        "url": tensorboard_access_url},
                        {"description": "Ungit",
                         "url": jupyter_ungit_access_url}#,
+                       # {"description": "TensorBoard",
+                       #  "url": tensorboard_access_url},
                        #{"description": "Jupyter (via tunnel)",
                        # "url": jupyter_ip_url},
                        #{"description": "TensorBoard (via tunnel)",
