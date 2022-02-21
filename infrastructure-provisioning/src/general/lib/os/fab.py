@@ -1047,41 +1047,15 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
 def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, exploratory_name):
     if not exists(conn, '/home/' + os_user + '/.ensure_dir/jupyterlab_ensured'):
         try:
-            # conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
             conn.sudo('source /opt/python/python3.7.9/bin/activate')
-            #conn.sudo('pip3 install jupyterlab --no-cache-dir')  # create external var with version
             conn.sudo('rm -rf {}'.format(jupyterlab_conf_file))
-            #elif os.environ['application'] != 'tensor':
-            #    conn.sudo('pip3 install environment_kernels')
-            #if os.environ['conf_cloud_provider'] == 'aws' and os.environ['application'] == 'deeplearning': #should be checked if for other applications any files have owner root:root in datalab-user homefolder and where it is changed to root:root on deeplearning
-            #    conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.run('jupyter lab --generate-config')
-            #conn.run('mkdir -p ~/.jupyter/custom/')
-            #conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             conn.sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyterlab_conf_file))
             conn.sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyterlab_conf_file))
             conn.sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyterlab_conf_file))
             conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyterlab_conf_file))
             conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyterlab_conf_file))
             conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyterlab_conf_file))
-            #if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
-            #    conn.sudo(
-            #        '''echo "c.NotebookApp.kernel_spec_manager_class = 'environment_kernels.EnvironmentKernelSpecManager'" >> {}'''.format(
-            #            jupyter_conf_file))
-            #    conn.sudo(
-            #        '''echo "c.EnvironmentKernelSpecManager.conda_env_dirs=['/home/ubuntu/anaconda3/envs']" >> {}'''.format(
-            #            jupyter_conf_file))
-            #conn.put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
-            #conn.sudo("chmod 644 /tmp/jupyter-notebook.service")
-            #if os.environ['application'] == 'tensor': # ?????
-            #    conn.sudo(
-            #        "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-            #elif os.environ['application'] == 'deeplearning' and os.environ['conf_deeplearning_cloud_ami'] == 'false':
-            #    conn.sudo(
-            #        "sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
-            #        "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
-            #conn.sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
-            #conn.sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             if os.environ['application'] == 'deeplearning' and os.environ['conf_cloud_provider'] == 'azure':
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-11.*/bin/java\'").stdout.splitlines()[0]
             else:
@@ -1092,28 +1066,22 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
             conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.sudo('mkdir -p /mnt/var')
             conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'deeplearning':
-                try:
-                    conn.sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
-                    conn.sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
-                except Exception as err:
-                    logging.error('Error:', str(err))
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyterlab-notebook")
             conn.sudo("systemctl start jupyterlab-notebook")
-            conn.sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
+            conn.sudo('touch /home/{}/.ensure_dir/jupyterlab_ensured'.format(os_user))
         except Exception as err:
-            logging.error('Function configure_jupyter error:', str(err))
+            logging.error('Function configure_jupyterlab error:', str(err))
             traceback.print_exc()
             sys.exit(1)
     else:
         try:
             conn.sudo(
                 'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(
-                    exploratory_name, jupyter_conf_file))
+                    exploratory_name, jupyterlab_conf_file))
             conn.sudo("systemctl restart jupyterlab-notebook")
         except Exception as err:
-            logging.error('Function configure_jupyter error:', str(err))
+            logging.error('Function configure_jupyterlab error:', str(err))
             traceback.print_exc()
             sys.exit(1)
 
