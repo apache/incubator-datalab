@@ -1061,25 +1061,12 @@ def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterla
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-11.*/bin/java\'").stdout.splitlines()[0]
             else:
                 java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
-            conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
-                java_home))
-            conn.sudo('\cp /tmp/jupyterlab-notebook.service /etc/systemd/system/jupyterlab-notebook.service')
-            conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
-            conn.sudo('mkdir -p /mnt/var')
-            conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            conn.sudo("systemctl daemon-reload")
-            conn.sudo("systemctl enable jupyterlab-notebook")
-            conn.sudo("systemctl start jupyterlab-notebook")
-            conn.sudo('touch /home/{}/.ensure_dir/jupyterlab_ensured'.format(os_user))
-            #conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
+            # conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
             #    java_home))
             conn.sudo('cp /tmp/jupyterlab-notebook.service /etc/systemd/system/jupyterlab-notebook.service')
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyterlab-notebook")
             conn.sudo("systemctl start jupyterlab-notebook")
-            #conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
-            #conn.sudo('mkdir -p /mnt/var')
-            #conn.sudo('chown {0}:{0} /mnt/var'.format(os_user))
             conn.sudo('touch /home/{}/.ensure_dir/jupyterlab_ensured'.format(os_user))
         except Exception as err:
             logging.error('Function configure_jupyterlab error:', str(err))
