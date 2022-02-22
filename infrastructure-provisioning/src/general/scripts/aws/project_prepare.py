@@ -62,6 +62,9 @@ if __name__ == "__main__":
                                                                       project_conf['project_name'],
                                                                       project_conf['endpoint_name'])
         project_conf['bucket_name'] = project_conf['bucket_name_tag'].lower().replace('_', '-')
+        #
+        project_conf['bucket_versioning_enabled'] = os.environ['aws_bucket_versioning_enabled']
+        #
         project_conf['shared_bucket_name_tag'] = '{0}-{1}-shared-bucket'.format(
             project_conf['service_base_name'], project_conf['endpoint_tag'])
         project_conf['shared_bucket_name'] = project_conf['shared_bucket_name_tag'].lower().replace('_', '-')
@@ -556,9 +559,9 @@ if __name__ == "__main__":
             project_conf['endpoint_tag'], os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
             project_conf['tag_name'], project_conf['shared_bucket_name'],
             project_conf['bucket_additional_tags']).replace(';', ',')
-        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}". \
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {} --bucket_versioning_enabled {}". \
             format(project_conf['shared_bucket_name'], project_conf['shared_bucket_tags'], project_conf['region'],
-                   project_conf['shared_bucket_name_tag'])
+                   project_conf['shared_bucket_name_tag'], project_conf['bucket_versioning_enabled'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:
@@ -568,9 +571,9 @@ if __name__ == "__main__":
             project_conf['endpoint_tag'], os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
             project_conf['project_tag'], project_conf['tag_name'], project_conf['bucket_name'],
             project_conf['bucket_additional_tags']).replace(';', ',')
-        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}" \
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {} --bucket_versioning_enabled {}" \
                  .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'],
-                         project_conf['bucket_name_tag'])
+                         project_conf['bucket_name_tag'], project_conf['bucket_versioning_enabled'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('common_create_bucket', params), shell=True, check=True)
         except:

@@ -12,7 +12,8 @@
         "s3:ListBucket",
         "s3:GetBucketLocation",
         "s3:PutBucketPolicy",
-        "s3:PutEncryptionConfiguration"
+        "s3:PutEncryptionConfiguration",
+        "s3:PutBucketVersioning"
       ],
       "Resource": [
         "arn:aws:s3:::SSN_BUCK",
@@ -35,7 +36,8 @@
           "s3:Put*",
           "s3:ListBucket",
           "s3:ListBucketMultipartUploads",
-          "s3:AbortMultipartUpload"
+          "s3:AbortMultipartUpload",
+          "s3:PutBucketVersioning"
       ],
       "Resource": [
         "arn:aws:s3:::BUCKET_NAME/*",

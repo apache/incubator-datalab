@@ -212,6 +212,8 @@ def build_parser():
                             help='Permission boundary to be attached to new roles')
     aws_parser.add_argument('--aws_ssn_instance_role', type=str, default='',
                             help='Role to be attached to SSN instance')
+    aws_parser.add_argument('--aws_bucket_versioning_enabled', type=str, default='true', choices=BOOL_CHOICES_LIST,
+                            help='Versioning for S3 bucket (valid choices: %s)' % BOOL_CHOICES_LIST)
 
     aws_required_args = aws_parser.add_argument_group('Required arguments')
     aws_required_args.add_argument('--aws_region', type=str, required=True, help='AWS region')

@@ -65,15 +65,16 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         return False
 
 
-def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
+def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag, bucket_versioning_enabled):
     try:
         s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         if region == "us-east-1":
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
-            bucket_versioning = s3.BucketVersioning(bucket_name)
-            bucket_versioning.enable()
+            if bucket_versioning_enabled == "true":
+                bucket_versioning = s3.BucketVersioning(bucket_name)
+                bucket_versioning.enable()
         boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_encryption(
             Bucket=bucket_name, ServerSideEncryptionConfiguration={
                 'Rules': [
