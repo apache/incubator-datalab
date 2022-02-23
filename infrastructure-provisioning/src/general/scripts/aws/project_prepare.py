@@ -62,9 +62,7 @@ if __name__ == "__main__":
                                                                       project_conf['project_name'],
                                                                       project_conf['endpoint_name'])
         project_conf['bucket_name'] = project_conf['bucket_name_tag'].lower().replace('_', '-')
-
         project_conf['bucket_versioning_enabled'] = os.environ['conf_bucket_versioning_enabled']
-        #
         project_conf['shared_bucket_name_tag'] = '{0}-{1}-shared-bucket'.format(
             project_conf['service_base_name'], project_conf['endpoint_tag'])
         project_conf['shared_bucket_name'] = project_conf['shared_bucket_name_tag'].lower().replace('_', '-')
