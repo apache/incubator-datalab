@@ -315,12 +315,14 @@
                 </div>
               </li>
 
-              <div *ngIf="element.name === 'edge node' && element.status === 'stopped'">
-                <li (click)="toggleResourceAction(element, 'run')">
+              <div *ngIf="element.status === 'stopped'">
+                <li (click)="toggleResourceAction(element, 'start')">
                   <i class="material-icons">play_circle_outline</i>
                   <span>Start</span>
                 </li>
               </div>
+              <li>{{element.name}}</li>
+              <li>{{element.status}}</li>
             </ul>
           </bubble-up>
         </td>
