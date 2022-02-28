@@ -35,15 +35,16 @@ if sys.argv[1] == 'all':
         'edge',
         'project',
         'jupyter',
+        'jupyter-gpu',
         'jupyterlab',
         'rstudio',
         'zeppelin',
-            'tensor',
-            'tensor-rstudio',
-            'deeplearning',
-            'dataengine',
-            'dataengine-service',
-            'superset'
+        'tensor',
+        'tensor-rstudio',
+        'deeplearning',
+        'dataengine',
+        'dataengine-service',
+        'superset'
             ]
 else:
     node = sys.argv[1:]
