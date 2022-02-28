@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.service;
 
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.annotation.Info;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryCreatePopUp;
 import com.epam.datalab.dto.UserInstanceDTO;
@@ -35,6 +36,8 @@ import java.util.Set;
 public interface ExploratoryService {
 
     String start(UserInfo userInfo, String exploratoryName, String project, String auditInfo);
+
+    String startAsAdmin(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, @Info String auditInfo);
 
     String stop(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String auditInfo);
 

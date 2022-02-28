@@ -20,9 +20,7 @@
 package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.annotation.Project;
-import com.epam.datalab.backendapi.annotation.ProjectAdmin;
-import com.epam.datalab.backendapi.annotation.User;
+import com.epam.datalab.backendapi.annotation.*;
 import com.epam.datalab.backendapi.dao.EnvDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.UserSettingsDAO;
@@ -45,10 +43,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
+import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
 import static com.epam.datalab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
 import static com.epam.datalab.backendapi.resources.dto.UserDTO.Status.NOT_ACTIVE;
 import static com.epam.datalab.dto.UserInstanceStatus.*;
 import static com.epam.datalab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
+import static com.epam.datalab.rest.contracts.ExploratoryAPI.EXPLORATORY_START;
 
 @Singleton
 @Slf4j
@@ -104,6 +105,13 @@ public class EnvironmentServiceImpl implements EnvironmentService {
                 .map(projectDTO -> getProjectEnv(projectDTO, expList))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+    }
+
+    @ProjectAdmin
+    @Override
+    public void startExploratory(@User UserInfo userInfo, String user, @Project String project, String exploratoryName) {
+        exploratoryService.startAsAdmin(userInfo, user, project, exploratoryName, null);
+       // exploratoryService.start(securityService.getServiceAccountInfo(user),exploratoryName,project,null);
     }
 
     @Override
