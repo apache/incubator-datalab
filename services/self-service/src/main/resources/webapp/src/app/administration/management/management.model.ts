@@ -114,3 +114,24 @@ export class ManagementConfigModel {
     this.endpoints = [];
   }
 }
+
+export interface ModalData {
+  action: ActionsType;
+  resource_name?: any; 
+  user?: any, 
+  type: string;
+  notebooks?: any
+}
+
+export enum ModalDataType {
+  cluster = 'cluster',
+  notebook = 'notebook',
+}
+
+export enum ActionsType {
+  stop = 'stop',
+  terminate = 'terminate',
+  start = 'start',
+  run = 'run',
+  recreate = 'recreate'
+}
