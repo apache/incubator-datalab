@@ -65,6 +65,7 @@ local_spark_path = '/opt/spark/'
 toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.5.0-incubating-rc1/toree-pip/toree-0.5.0.tar.gz'
 r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
+venv_libs = 'numpy scipy pandas scikit-learn git transformers==4.4.2 gensim==4.0.1 tokenizers==0.10.1 python-levenshtein==0.12.2'
 
 
 ##############
@@ -147,6 +148,13 @@ if __name__ == "__main__":
     ensure_sbt(args.os_user)
     print("Install Breeze")
     add_breeze_library_local(args.os_user)
+    if os.environ['conf_cloud_provider'] == 'gcp':
+        print('Installing Pytorch')
+        ensure_pytorch(args.os_user)
+
+    # INSTALL PIP PACKAGES
+    print("Install python venv required libs")
+    ensure_venv_libs(args.os_user, venv_libs)
 
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")

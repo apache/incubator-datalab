@@ -402,6 +402,8 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.datalab-jupyter-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.datalab-jupyter-gpu-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.datalab-rstudio-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.datalab-zeppelin-{}'

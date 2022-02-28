@@ -24,7 +24,7 @@ FROM docker.datalab-base:latest
 
 ARG OS
 
-COPY jupyter/ /root/
+COPY jupyter-gpu/ /root/
 COPY general/scripts/os/* /root/scripts/
 COPY general/scripts/gcp/jupyter-gpu_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py

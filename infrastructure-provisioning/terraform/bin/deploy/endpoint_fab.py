@@ -640,7 +640,7 @@ def pull_docker_images():
             list_images = {
                 'aws': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
                         'deeplearning', 'jupyterlab', 'dataengine-service', 'dataengine'],
-                'gcp': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
+                'gcp': ['base', 'edge', 'project', 'jupyter', 'jupyter-gpu', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
                         'deeplearning', 'superset', 'jupyterlab', 'dataengine-service', 'dataengine'],
                 'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
                           'dataengine']

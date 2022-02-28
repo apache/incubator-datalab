@@ -78,6 +78,7 @@ public class CommandExecutorMock implements ICommandExecutor {
             List<String> list = Lists.newArrayList(
                     "docker.datalab-deeplearning:latest",
                     "docker.datalab-jupyter:latest",
+                    "docker.datalab-jupyter-gpu:latest",
                     "docker.datalab-jupyterlab:latest",
                     "docker.datalab-superset:latest",
                     "docker.datalab-rstudio:latest",

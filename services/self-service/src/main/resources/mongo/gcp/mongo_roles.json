@@ -108,6 +108,18 @@
     ]
   },
   {
+    "_id": "nbCreateJupyterGpu",
+    "description": "Create Notebook Jupyter Gpu",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
+    "exploratories": [
+      "docker.datalab-jupyter-gpu"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateJupyterLab",
     "description": "Create Notebook JupyterLab",
     "type": "NOTEBOOK",
@@ -282,6 +294,18 @@
     "cloud": "GCP",
     "computational_shapes": [
       "n1-highcpu-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_a2-highgpu-1g_fetching",
+    "description": "Use a2-highgpu-1g instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
+    "computational_shapes": [
+      "a2-highgpu-1g"
     ],
     "groups": [
       "$anyuser"
