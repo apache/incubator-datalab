@@ -2,8 +2,6 @@
   {
     "_id": "nbShapes_a2-highgpu-1g_fetching",
     "description": "Use a2-highgpu-1g instance shape for notebook",
-    "type": "NOTEBOOK_SHAPE",
-    "cloud": "GCP",
     "exploratory_shapes": [
       "a2-highgpu-1g"
     ],

@@ -5,7 +5,7 @@
       {"Size": "S", "Description": "a2-highgpu-1g", "Type": "a2-highgpu-1g","Ram": "85 GB","Cpu": "12"}
     ],
     "For testing" : [
-      {"Size": "S", "Description": "a2-highgpu-1g", "Type": "a2-highgpu-1g","Ram": "85 GB","Cpu": "12"}
+      {"Size": "S", "Description": "n1-standard-2", "Type": "n1-standard-2","Ram": "7.50 GB","Cpu": "2"}
     ],
     "Memory optimized" : [
       {"Size": "S", "Description": "n1-highmem-4", "Type": "n1-highmem-4","Ram": "26 GB","Cpu": "4"},
