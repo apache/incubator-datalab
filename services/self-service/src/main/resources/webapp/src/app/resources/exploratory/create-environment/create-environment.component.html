@@ -29,10 +29,10 @@
           <label class="label">Select project</label>
           <div class="control selector-wrapper">
             <mat-form-field>
-              <mat-select 
-                formControlName="project" 
-                disableOptionCentering 
-                panelClass="create-resources-dialog scrolling" 
+              <mat-select
+                formControlName="project"
+                disableOptionCentering
+                panelClass="create-resources-dialog scrolling"
                 placeholder="Select project"
               >
                 <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
@@ -53,15 +53,15 @@
           <label class="label">Select endpoint</label>
           <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !endpoints.length }">
             <mat-form-field>
-              <mat-select 
-                formControlName="endpoint" 
-                disableOptionCentering 
+              <mat-select
+                formControlName="endpoint"
+                disableOptionCentering
                 [disabled]="!endpoints.length"
-                panelClass="create-resources-dialog scrolling" 
+                panelClass="create-resources-dialog scrolling"
                 placeholder="Select endpoint"
               >
-                <mat-option 
-                  *ngFor="let endpoint of endpoints" 
+                <mat-option
+                  *ngFor="let endpoint of endpoints"
                   [value]="endpoint"
                   (click)="getTemplates(createExploratoryForm?.controls['project'].value, endpoint)"
                 >
@@ -80,7 +80,7 @@
 
         <div class="control-group">
           <label class="label">Select template</label>
-          <div 
+          <div
             class="control selector-wrapper"
             [matTooltip]="'Notebook creations are not available. Please, check your permissions.'"
             matTooltipPosition="above"
@@ -89,16 +89,16 @@
           >
             <span class="form-field-wrapper"  [ngClass]="{ 'not-active' : !templates.length  || (templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)}">
               <mat-form-field>
-                <mat-select 
-                  formControlName="version" 
-                  disableOptionCentering 
+                <mat-select
+                  formControlName="version"
+                  disableOptionCentering
                   [disabled]="!templates.length || (templates.length === 0 && this.createExploratoryForm.controls.endpoint.value)"
-                  panelClass="create-resources-dialog scrolling" 
+                  panelClass="create-resources-dialog scrolling"
                   placeholder="Select template"
                 >
-                  <mat-option 
+                  <mat-option
                     *ngFor="let template of templates"
-                    [value]="template.exploratory_environment_versions[0].version" 
+                    [value]="template.exploratory_environment_versions[0].version"
                     (click)="getShapes(template)"
                   >
                     {{ template.exploratory_environment_versions[0].template_name }}
@@ -115,8 +115,8 @@
           </div>
         </div>
 
-        <div 
-          class="image-description control-group" 
+        <div
+          class="image-description control-group"
           *ngIf="selectedCloud !== 'gcp' && currentTemplate?.image === 'docker.datalab-deeplearning'"
         >
           <label class="label"></label>
@@ -132,16 +132,16 @@
             <mat-form-field>
               <mat-label>Select image</mat-label>
               <mat-select formControlName="notebook_image_name" panelClass="create-resources-dialog scrolling" disableOptionCentering>
-                <mat-option 
-                  *ngIf="currentTemplate?.image !== 'docker.datalab-deeplearning'" 
-                  [value]="null" 
+                <mat-option
+                  *ngIf="currentTemplate?.image !== 'docker.datalab-deeplearning'"
+                  [value]="null"
                   (click)="setImage(null)"
                 >
                   None
                 </mat-option>
-                <mat-option 
-                  *ngFor="let image of images" 
-                  [value]="image?.name" 
+                <mat-option
+                  *ngFor="let image of images"
+                  [value]="image?.name"
                   (click)="setImage(image)"
                 >
                   {{ image?.status ? image?.name + ' (custom image)' : image?.name }}
@@ -157,8 +157,8 @@
           </div>
         </div>
 
-        <div 
-          class="image-description control-group" 
+        <div
+          class="image-description control-group"
           *ngIf="selectedImage?.description"
         >
           <label class="label"></label>
@@ -171,19 +171,19 @@
         <div class="control-group name-control">
           <label class="label">Name</label>
           <div class="control">
-            <input 
+            <input
               [class.danger_field]=" !createExploratoryForm?.controls['name'].valid
                 && createExploratoryForm?.controls['name'].dirty
-                && createExploratoryForm?.controls['name'].hasError('duplication')" 
+                && createExploratoryForm?.controls['name'].hasError('duplication')"
               type="text"
-              class="form-control" 
-              placeholder="Enter Name" 
+              class="form-control"
+              placeholder="Enter Name"
               formControlName="name"
             />
             <span class="error" *ngIf="createExploratoryForm?.controls['name'].hasError('duplication')">This name already exists in current project.</span>
-            <span 
-              class="error" 
-              *ngIf="createExploratoryForm?.controls['name'].hasError('maxlength') 
+            <span
+              class="error"
+              *ngIf="createExploratoryForm?.controls['name'].hasError('maxlength')
                 && !createExploratoryForm?.controls['name'].hasError('pattern')"
             >
               Name cannot be longer than {{maxNotebookLength}} characters.
@@ -196,7 +196,7 @@
 
         <div class="control-group">
           <label class="label">Instance size</label>
-          <div 
+          <div
             class="control selector-wrapper"
             [matTooltip]="'Instance size are not available. Please, check your permissions.'"
             matTooltipPosition="above"
@@ -206,11 +206,11 @@
             <span class="form-field-wrapper" [ngClass]="{ 'not-active': !currentTemplate || !areShapes && currentTemplate}">
               <mat-form-field>
                 <mat-label>Select instance size</mat-label>
-                <mat-select 
-                  formControlName="shape" 
-                  disableOptionCentering 
+                <mat-select
+                  formControlName="shape"
+                  disableOptionCentering
                   [disabled]="!currentTemplate || !areShapes && currentTemplate"
-                  panelClass="create-resources-shapes scrolling" 
+                  panelClass="create-resources-shapes scrolling"
                   placeholder="Instance size"
                 >
                   <mat-optgroup *ngFor="let item of (shapes | keys)" [label]="item.key | underscoreless">
@@ -227,7 +227,7 @@
           </div>
         </div>
 
-        <div 
+        <div
           class="control-group m-bott-10"
           [ngClass]="{'m-bott-20': createExploratoryForm?.controls['custom_tag'].hasError('pattern')}"
         >
@@ -235,14 +235,14 @@
           <div class="control">
             <input type="text" class="form-control" placeholder="Enter custom tag" formControlName="custom_tag">
           </div>
-          <span 
+          <span
             class="error"
             *ngIf="createExploratoryForm?.controls['custom_tag'].hasError('maxlength') &&
                   !createExploratoryForm?.controls['custom_tag'].hasError('pattern')"
           >
             Custom tag name cannot be longer than {{maxCustomTagLength}} characters.
           </span>
-          <span 
+          <span
             class="error"
             *ngIf="createExploratoryForm?.controls['custom_tag'].hasError('pattern')"
           >
@@ -250,15 +250,16 @@
         </div>
 
         <div *ngIf="currentTemplate">
-          <ng-template 
-            [ngIf]="selectedCloud === 'gcp' 
-              && (currentTemplate?.image === 'docker.datalab-jupyter' 
+          <ng-template
+            [ngIf]="selectedCloud === 'gcp'
+              && (currentTemplate?.image === 'docker.datalab-jupyter'
+              || currentTemplate?.image === 'docker.datalab-jupyter-gpu'
               || currentTemplate?.image === 'docker.datalab-deeplearning'
               || currentTemplate?.image === 'docker.datalab-tensor')"
           >
             <div class="checkbox-group">
-              <div 
-                class="d-flex cursor-pointer label m-bott-20" 
+              <div
+                class="d-flex cursor-pointer label m-bott-20"
                 *ngIf="currentTemplate?.image === 'docker.datalab-jupyter'"
                 (click)="addGpuFields()"
               >
@@ -267,14 +268,15 @@
                 </div>
                 <span class=" pl-5">GPU</span>
               </div>
-              <ng-template 
-                [ngIf]="this.additionalParams.gpu || 
+              <ng-template
+                [ngIf]="this.additionalParams.gpu ||
                   currentTemplate?.image === 'docker.datalab-deeplearning' ||
+                  currentTemplate?.image === 'docker.datalab-jupyter-gpu' ||
                   currentTemplate?.image === 'docker.datalab-tensor'"
               >
                 <div class="control-group">
                   <label class="label">GPU type</label>
-                  <div 
+                  <div
                     class="control selector-wrapper"
                     [matTooltip]="'Please, select instance size.'"
                     matTooltipPosition="above"
@@ -284,11 +286,11 @@
                     <span class="form-field-wrapper" [ngClass]="{ 'not-active': !createExploratoryForm.controls['shape'].value}">
                       <mat-form-field>
                         <mat-label>Select GPU type</mat-label>
-                        <mat-select 
-                          formControlName="gpu_type" 
-                          disableOptionCentering 
+                        <mat-select
+                          formControlName="gpu_type"
+                          disableOptionCentering
                           [disabled]="!createExploratoryForm.controls['shape'].value"
-                          panelClass="create-resources-dialog" 
+                          panelClass="create-resources-dialog"
                           placeholder="GPU type"
                         >
                           <mat-option *ngFor="let list_item of gpuTypes; index as i" [value]="list_item" (click)="setCount('', list_item)">
@@ -307,7 +309,7 @@
                 </div>
                 <div class="control-group">
                   <label class="label">GPU count</label>
-                  <div 
+                  <div
                     class="control selector-wrapper"
                     [matTooltip]="'Please, select GPU type.'"
                     matTooltipPosition="above"
@@ -317,9 +319,9 @@
                     <span class="form-field-wrapper" [ngClass]="{ 'not-active': !createExploratoryForm.controls['gpu_type'].value}">
                       <mat-form-field>
                         <mat-label>Select GPU count</mat-label>
-                        <mat-select 
-                          formControlName="gpu_count" 
-                          disableOptionCentering 
+                        <mat-select
+                          formControlName="gpu_count"
+                          disableOptionCentering
                           [disabled]="!createExploratoryForm.controls['gpu_type'].value"
                           panelClass="create-resources-dialog"
                           placeholder="GPU count"
@@ -338,10 +340,10 @@
               </ng-template>
             </div>
           </ng-template>
-          <div 
+          <div
             class="checkbox-group"
-            *ngIf="currentTemplate?.image !== 'docker.datalab-zeppelin' 
-              && currentTemplate?.image !== 'docker.datalab-superset' 
+            *ngIf="currentTemplate?.image !== 'docker.datalab-zeppelin'
+              && currentTemplate?.image !== 'docker.datalab-superset'
               && currentTemplate?.image !== 'docker.datalab-jupyterlab'"
           >
             <div class="d-flex cursor-pointer label m-bott-20" (click)="selectConfiguration()">
@@ -351,15 +353,15 @@
               <span class=" pl-5">Spark configurations</span>
             </div>
             <div class="config-details" [ngClass]="{ show: this.additionalParams.configurationNode}">
-              <textarea 
-                formControlName="cluster_config" 
+              <textarea
+                formControlName="cluster_config"
                 placeholder="Cluster configuration template, JSON"
-                data-gramm_editor="false" 
+                data-gramm_editor="false"
                 id="config"
               ></textarea>
-              <span 
+              <span
                 class="error spark-config"
-                *ngIf="!createExploratoryForm?.controls.cluster_config.valid 
+                *ngIf="!createExploratoryForm?.controls.cluster_config.valid
                   && createExploratoryForm?.controls['cluster_config'].dirty"
               >
                 Configuration parameters is not in a valid format.
@@ -376,17 +378,17 @@
         </div>
 
         <div class="text-center m-top-30"  id="buttons">
-          <button 
-            mat-raised-button 
-            type="button" 
-            class="butt action" 
+          <button
+            mat-raised-button
+            type="button"
+            class="butt action"
             (click)="dialogRef.close()"
           >
             Cancel
           </button>
-          <button 
-            mat-raised-button 
-            type="button" 
+          <button
+            mat-raised-button
+            type="button"
             class="butt butt-success action"
             [disabled]="!createExploratoryForm?.valid"
             (click)="createExploratoryEnvironment(createExploratoryForm.value)"
