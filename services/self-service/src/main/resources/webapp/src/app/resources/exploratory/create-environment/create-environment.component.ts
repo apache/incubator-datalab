@@ -109,7 +109,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public setEndpoints(project) {
     const controls = ['endpoint', 'version', 'shape', 'gpu_type', 'gpu_count'];
     this.resetSelections(controls);
-    
+
     this.endpoints = project.endpoints
       .filter(e => e.status === 'RUNNING')
       .map(e => e.name);
@@ -171,15 +171,16 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.createExploratoryForm.controls['notebook_image_name'].setValidators([Validators.required]);
       this.createExploratoryForm.controls['notebook_image_name'].updateValueAndValidity();
     }
-    
-    if (this.selectedCloud === 'gcp' && 
+
+    if (this.selectedCloud === 'gcp' &&
         (template?.image === 'docker.datalab-jupyter' ||
+        template?.image === 'docker.datalab-jupyter-gpu' ||
         template?.image === 'docker.datalab-deeplearning' ||
         template?.image === 'docker.datalab-tensor')) {
-          
+
       this.gpuTypes = template?.computationGPU ? HelpUtils.sortGpuTypes(template.computationGPU) : [];
 
-      if(template?.image === 'docker.datalab-tensor' || template?.image === 'docker.datalab-deeplearning') {
+      if(template?.image === 'docker.datalab-tensor' || template?.image === 'docker.datalab-tensor-gpu' || template?.image === 'docker.datalab-deeplearning') {
         this.addGpuFields();
       }
     }
@@ -189,6 +190,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
     if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
       && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deeplearning') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('jupyter-gpu') === -1
       && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deep learning') === -1
       && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('data science') === -1
     ) {
@@ -215,8 +217,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       template_name: this.currentTemplate.exploratory_environment_versions[0].template_name
     };
 
-    if (!data.notebook_image_name 
-      && this.currentTemplate.image === 'docker.datalab-deeplearning' 
+    if (!data.notebook_image_name
+      && this.currentTemplate.image === 'docker.datalab-deeplearning'
       && (this.selectedCloud === 'aws' || this.selectedCloud === 'azure')) {
       data.notebook_image_name = this.currentTemplate.exploratory_environment_versions[0].version;
     }
@@ -321,7 +323,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       .subscribe(
         (res: any) => {
           this.images = res.filter(el => el.status === 'CREATED');
-          
+
           if(this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
             this.currentTemplate.exploratory_environment_images = this.currentTemplate.exploratory_environment_images.map(image => {
               return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description}
