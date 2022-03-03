@@ -91,9 +91,9 @@ if __name__ == "__main__":
     ensure_jre_jdk(args.os_user)
     print("Install Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
-    if os.environ['notebook_r_enabled'] == 'true':
-        print("Installing R")
-        ensure_r(args.os_user, r_libs)
+    # if os.environ['notebook_r_enabled'] == 'true':
+    #     print("Installing R")
+    #     ensure_r(args.os_user, r_libs)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
@@ -123,9 +123,9 @@ if __name__ == "__main__":
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path, python_venv_version)
     print("Install Toree-Scala kernel for Jupyter")
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, local_spark_scala_version, spark_version)
-    if os.environ['notebook_r_enabled'] == 'true':
-        print("Install R kernel for Jupyter")
-        ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
+    # if os.environ['notebook_r_enabled'] == 'true':
+    #     print("Install R kernel for Jupyter")
+    #     ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
 
     # INSTALL UNGIT
     print("Install nodejs")
