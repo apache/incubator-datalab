@@ -65,7 +65,7 @@ local_spark_path = '/opt/spark/'
 toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.5.0-incubating-rc1/toree-pip/toree-0.5.0.tar.gz'
 r_libs = ['R6', 'pbdZMQ={}'.format(os.environ['notebook_pbdzmq_version']), 'RCurl', 'reshape2', 'caTools={}'.format(os.environ['notebook_catools_version']), 'rJava', 'ggplot2']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
-venv_libs = 'numpy scipy pandas scikit-learn git transformers==4.4.2 gensim==4.0.1 tokenizers==0.10.1 python-levenshtein==0.12.2'
+venv_libs = 'numpy scipy pandas scikit-learn python-git transformers==4.4.2 gensim==4.0.1 tokenizers==0.10.1 python-levenshtein==0.12.2'
 
 
 ##############
@@ -91,9 +91,6 @@ if __name__ == "__main__":
     ensure_jre_jdk(args.os_user)
     print("Install Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
-    if os.environ['notebook_r_enabled'] == 'true':
-        print("Installing R")
-        ensure_r(args.os_user, r_libs)
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
@@ -123,9 +120,6 @@ if __name__ == "__main__":
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path, python_venv_version)
     print("Install Toree-Scala kernel for Jupyter")
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, local_spark_scala_version, spark_version)
-    if os.environ['notebook_r_enabled'] == 'true':
-        print("Install R kernel for Jupyter")
-        ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
 
     # INSTALL UNGIT
     print("Install nodejs")
