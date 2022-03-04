@@ -26,14 +26,11 @@ const MAX_SYMBOLS_COUNT = 255;
 })
 export class TruncateTextPipe implements PipeTransform {
     transform(text: string, limit: number = MAX_SYMBOLS_COUNT): string {
-        text = text.trim();
-
-        if (text) {
-            if (text.length > limit) {
-                return `${text.substr(0, limit)}...`
-            }
-
-            return text
+        if (!text) {
+            return ''
         }
+        return text.length > limit 
+            ? `${text.substring(0, limit)}...`
+            : text
     }
 }
