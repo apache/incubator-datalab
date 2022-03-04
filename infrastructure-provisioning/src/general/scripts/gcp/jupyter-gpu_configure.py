@@ -206,6 +206,23 @@ if __name__ == "__main__":
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
+    # installing gpu
+    try:
+        logging.info('[INSTALLING GPU DRIVERS]')
+        params = "--hostname {} --keyfile {} --os_user {}".format(
+            instance_hostname, notebook_config['ssh_key_path'], notebook_config['datalab_ssh_user'])
+        try:
+            subprocess.run("~/scripts/{}.py {}".format('common_install_gpu', params), shell=True, check=True)
+        except:
+            datalab.fab.append_result("Failed installing gpu drivers")
+            raise Exception
+
+    except Exception as err:
+        datalab.fab.append_result("Failed to install GPU drivers.", str(err))
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
+
     if notebook_config['image_enabled'] == 'true':
         try:
             logging.info('[CREATING IMAGE]')
@@ -230,21 +247,6 @@ if __name__ == "__main__":
             GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
             sys.exit(1)
 
-    if os.environ['gpu_enabled'] == 'True':
-        try:
-            logging.info('[INSTALLING GPU DRIVERS]')
-            params = "--hostname {} --keyfile {} --os_user {}".format(
-                instance_hostname, notebook_config['ssh_key_path'], notebook_config['datalab_ssh_user'])
-            try:
-                subprocess.run("~/scripts/{}.py {}".format('common_install_gpu', params), shell=True, check=True)
-            except:
-                datalab.fab.append_result("Failed installing gpu drivers")
-                raise Exception
-
-        except Exception as err:
-            datalab.fab.append_result("Failed to install GPU drivers.", str(err))
-            GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
-            sys.exit(1)
 
     try:
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
