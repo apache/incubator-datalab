@@ -274,7 +274,7 @@
                   currentTemplate?.image === 'docker.datalab-jupyter-gpu' ||
                   currentTemplate?.image === 'docker.datalab-tensor'"
               >
-                <div class="control-group">
+                <div *ngIf="currentTemplate?.image !== 'docker.datalab-jupyter-gpu'" class="control-group">
                   <label class="label">GPU type</label>
                   <div
                     class="control selector-wrapper"
