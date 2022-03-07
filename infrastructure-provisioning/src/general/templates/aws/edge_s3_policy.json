@@ -23,6 +23,7 @@
     {
       "Effect": "Allow",
       "Action": [
+        "s3:HeadObject",
         "s3:GetObject"
       ],
       "Resource": "arn:aws:s3:::SSN_BUCK/*"
@@ -30,12 +31,13 @@
     {
       "Effect": "Allow",
       "Action": [
-          "s3:Get*",
-          "s3:Delete*",
-          "s3:Put*",
-          "s3:ListBucket",
-          "s3:ListBucketMultipartUploads",
-          "s3:AbortMultipartUpload"
+        "s3:HeadObject",
+        "s3:Get*",
+        "s3:Delete*",
+        "s3:Put*",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:AbortMultipartUpload"
       ],
       "Resource": [
         "arn:aws:s3:::BUCKET_NAME/*",
