@@ -110,8 +110,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     @ProjectAdmin
     @Override
     public void startExploratory(@User UserInfo userInfo, String user, @Project String project, String exploratoryName) {
-        exploratoryService.startAsAdmin(userInfo, user, project, exploratoryName, null);
-       // exploratoryService.start(securityService.getServiceAccountInfo(user),exploratoryName,project,null);
+        exploratoryService.start(securityService.getServiceAccountInfo(user),exploratoryName,project,null);
     }
 
     @Override

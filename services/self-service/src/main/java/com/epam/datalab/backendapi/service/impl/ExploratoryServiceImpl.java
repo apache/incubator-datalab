@@ -98,13 +98,6 @@ public class ExploratoryServiceImpl implements ExploratoryService {
         return action(userInfo, userInfo.getName(), project, exploratoryName, EXPLORATORY_START, STARTING);
     }
 
-    @BudgetLimited
-    @Audit(action = START, type = NOTEBOOK)
-    @Override
-    public String startAsAdmin(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
-        return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_START, STARTING);
-    }
-
     @Audit(action = STOP, type = NOTEBOOK)
     @Override
     public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {

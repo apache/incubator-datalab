@@ -37,8 +37,6 @@ public interface ExploratoryService {
 
     String start(UserInfo userInfo, String exploratoryName, String project, String auditInfo);
 
-    String startAsAdmin(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, @Info String auditInfo);
-
     String stop(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String auditInfo);
 
     String terminate(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String auditInfo);
