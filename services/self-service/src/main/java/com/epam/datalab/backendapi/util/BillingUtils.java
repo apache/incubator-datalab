@@ -39,7 +39,7 @@ import static com.epam.datalab.dto.billing.BillingResourceType.*;
 
 @Slf4j
 public class BillingUtils {
-    private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "jupyter-gpu","deeplearning"};
+    private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "jupyter-gpu", "jupyter-gpu-conda", "deeplearning"};
     private static final String[] BILLING_FILTERED_REPORT_HEADERS = {"DataLab ID", "Project", "DataLab Resource Type", "Status", "Shape", "Product", "Cost"};
     private static final String[] COMPLETE_REPORT_REPORT_HEADERS = {"DataLab ID", "User", "Project", "DataLab Resource Type", "Status", "Shape", "Product", "Cost"};
 
