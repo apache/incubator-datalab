@@ -163,7 +163,7 @@ if __name__ == "__main__":
         #    notebook_config['gpu_accelerator_type'] == 'nvidia-tesla-a100'
         #    notebook_config['gpu_accelerator_count'] == '1'
 
-        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning', 'jupyter-gpu') or os.environ[
+        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning', 'jupyter-gpu', 'jupyter-gpu-conda') or os.environ[
             'gpu_enabled'] == 'True':
             if os.environ['gpuType'] != '':
                 notebook_config['gpu_accelerator_type'] = os.environ['gpuType']
