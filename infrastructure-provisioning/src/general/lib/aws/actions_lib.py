@@ -72,9 +72,11 @@ def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag, bucket_v
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
-            if bucket_versioning_enabled == "true":
-                bucket_versioning = s3.BucketVersioning(bucket_name)
-                bucket_versioning.enable()
+
+        if bucket_versioning_enabled == "true":
+            bucket_versioning = s3.BucketVersioning(bucket_name)
+            bucket_versioning.enable()
+
         boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_encryption(
             Bucket=bucket_name, ServerSideEncryptionConfiguration={
                 'Rules': [
@@ -85,6 +87,17 @@ def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag, bucket_v
                     },
                 ]
             })
+
+        # Config for Public Access Block in s3
+        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_public_access_block(
+            Bucket=bucket_name,
+            PublicAccessBlockConfiguration={
+                'BlockPublicAcls': True,
+                'IgnorePublicAcls': True,
+                'BlockPublicPolicy': True,
+                'RestrictPublicBuckets': True
+            })
+
         tags = list()
         tags.append({'Key': os.environ['conf_tag_resource_id'],
                      'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
