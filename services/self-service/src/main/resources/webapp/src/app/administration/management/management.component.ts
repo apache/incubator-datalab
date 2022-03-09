@@ -55,8 +55,7 @@ export class ManagementComponent implements OnInit {
   public dialogRef: any;
   public selected: any[] = [];
   public isActionsOpen: boolean = false;
-  public selectedRunning: any[];
-  public selectedStopped: any[];
+  public selectedRunning: boolean;
 
   @ViewChild(ManagementGridComponent, { static: true }) managementGrid;
 
@@ -215,8 +214,7 @@ export class ManagementComponent implements OnInit {
       this.isActionsOpen = false;
     }
 
-    this.selectedRunning = this.selected.filter(item => item.status === 'running');
-    this.selectedStopped = this.selected.filter(item => item.status === 'stopped');
+    this.selectedRunning = this.selected.every(item => item.status === 'running');
   }
 
   public toogleActions() {
@@ -296,6 +294,10 @@ export class ManagementComponent implements OnInit {
     config = {...config, type: ModalDataType.notebook}
     if(action === ActionsType.stop) {
       notebooks = notebooks.filter(note => note.status !== 'stopped');
+      return {...config, notebooks}
+    }
+    if(action === ActionsType.start) {
+      notebooks = notebooks.filter(note => note.status === 'stopped');
       return {...config, notebooks}
     }
     return {...config, notebooks}

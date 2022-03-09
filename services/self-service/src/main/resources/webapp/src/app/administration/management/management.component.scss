@@ -37,3 +37,9 @@
     }
   }
 }
+
+.action-menu-item:disabled {
+  color: rgba(180, 179, 179, 0.87) !important;
+  background-color: rgb(224, 224, 224);
+  opacity: 1;
+}
