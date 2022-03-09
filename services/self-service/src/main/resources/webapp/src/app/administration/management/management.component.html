@@ -34,13 +34,21 @@
           </button>
           </span>
         <div class="action-menu" *ngIf="isActionsOpen">
+          <button
+            type="button" 
+            class="butt action-menu-item"
+            mat-raised-button
+            (click)="resourseAction('start');$event.stopPropagation()"
+          >
+            Run
+          </button>
           <span>
             <button
               type="button" 
               class="butt action-menu-item"
-              [ngClass]="{'disabled': selectedRunning.length === 0  || selectedStopped.length !== 0 }"
+              [ngClass]="{'disabled': !selectedRunning }"
               mat-raised-button
-              [disabled]="selectedRunning.length === 0"
+              [disabled]="!selectedRunning"
               (click)="resourseAction('stop');$event.stopPropagation()"
             >
               Stop
