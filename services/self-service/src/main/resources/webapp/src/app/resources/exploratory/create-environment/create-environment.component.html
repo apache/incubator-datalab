@@ -254,6 +254,7 @@
             [ngIf]="selectedCloud === 'gcp'
               && (currentTemplate?.image === 'docker.datalab-jupyter'
               || currentTemplate?.image === 'docker.datalab-jupyter-gpu'
+              || currentTemplate?.image === 'docker.datalab-jupyter-gpu-conda'
               || currentTemplate?.image === 'docker.datalab-deeplearning'
               || currentTemplate?.image === 'docker.datalab-tensor')"
           >
@@ -272,9 +273,11 @@
                 [ngIf]="this.additionalParams.gpu ||
                   currentTemplate?.image === 'docker.datalab-deeplearning' ||
                   currentTemplate?.image === 'docker.datalab-jupyter-gpu' ||
+                  currentTemplate?.image === 'docker.datalab-jupyter-gpu-conda' ||
                   currentTemplate?.image === 'docker.datalab-tensor'"
               >
-                <div *ngIf="currentTemplate?.image !== 'docker.datalab-jupyter-gpu'" class="control-group">
+                <!---<div *ngIf="currentTemplate?.image !== 'docker.datalab-jupyter-gpu'" class="control-group"> --->
+                <div class="control-group">
                   <label class="label">GPU type</label>
                   <div
                     class="control selector-wrapper"
