@@ -1,7 +1,7 @@
 {
   "exploratory_environment_shapes" :
   {
-    "GPU optimized" : [
+    "GPU" : [
       {"Size": "S", "Description": "a2-highgpu-1g", "Type": "a2-highgpu-1g","Ram": "85 GB","Cpu": "12"}
     ]
   },
