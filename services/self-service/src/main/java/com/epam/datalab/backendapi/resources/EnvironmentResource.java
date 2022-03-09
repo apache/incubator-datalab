@@ -59,6 +59,18 @@ public class EnvironmentResource {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("start/{projectName}/{exploratoryName}")
+    public Response startNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
+                                  @PathParam("projectName") String projectName,
+                                  @PathParam("exploratoryName") String exploratoryName) {
+        log.info("Admin {} is starting notebook {} of user {}", userInfo.getName(), exploratoryName, user);
+        environmentService.startExploratory(userInfo, user, projectName, exploratoryName);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("stop/{projectName}/{exploratoryName}")
     public Response stopNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
                                  @PathParam("projectName") String projectName,

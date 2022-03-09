@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.service;
 
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.annotation.Info;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryCreatePopUp;
 import com.epam.datalab.dto.UserInstanceDTO;

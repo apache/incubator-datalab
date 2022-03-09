@@ -39,6 +39,7 @@ import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
 import {EndpointsComponent, EndpointTestResultDialogComponent} from './endpoints/endpoints.component';
 import { ProjectModule } from '../project';
 import {CheckboxModule} from '../../shared/checkbox';
+import { ConvertActionTypePipeModule } from '../../core/pipes/convert-action-type-pipe';
 
 export * from './management.component';
 
@@ -54,6 +55,7 @@ export * from './management.component';
         FormControlsModule,
         DirectivesModule,
         MaterialModule,
+        ConvertActionTypePipeModule,
         CheckboxModule
     ],
   declarations: [
