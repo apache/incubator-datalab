@@ -33,6 +33,7 @@ parser.add_argument('--bucket_name', type=str, default='')
 parser.add_argument('--tags', type=str, default='')
 parser.add_argument('--versioning_enabled', type=str, default='false')
 parser.add_argument('--cmek_resource_name', type=str, default='')
+parser.add_argument('--lifecycle_rules', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -42,7 +43,8 @@ if __name__ == "__main__":
         else:
             logging.info("Creating Bucket {}".format(args.bucket_name))
             GCPActions().create_bucket(args.bucket_name)
-            GCPActions().add_bucket_labels_vers_cmek(args.bucket_name, json.loads(args.tags), args.versioning_enabled, args.cmek_resource_name)
+            GCPActions().add_bucket_labels_vers_cmek(args.bucket_name, json.loads(args.tags), args.versioning_enabled,
+                                                     args.cmek_resource_name, json.loads(args.lifecycle_rules))
     else:
         parser.print_help()
         sys.exit(2)
