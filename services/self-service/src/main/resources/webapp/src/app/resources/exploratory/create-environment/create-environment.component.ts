@@ -29,6 +29,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import { tap } from 'rxjs/operators';
 import { timer } from 'rxjs';
+import { TemplateName } from '../../../core/models';
 
 @Component({
   selector: 'create-environment',
@@ -51,6 +52,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   selectedImage: any;
   maxNotebookLength: number = 14;
   maxCustomTagLength: number = 63;
+  templateName = TemplateName;
   public areShapes: boolean;
   public selectedCloud: string = '';
   public gpuCount: Array<number>;
@@ -263,7 +265,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       });
 
     } else {
-      controls.forEach(control => {
+        controls.forEach(control => {
         this.createExploratoryForm.controls[control].setValidators([Validators.required]);
         this.createExploratoryForm.controls[control].updateValueAndValidity();
       });
@@ -274,10 +276,15 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public setInstanceSize() {
-    const controls = ['gpu_type', 'gpu_count'];
-    controls.forEach(control => {
-      this.createExploratoryForm.controls[control].setValue(null);
-    });
+    const {image, computationGPU} = this.currentTemplate
+    if(image === this.templateName.jupyterJpu) {
+      this.createExploratoryForm.get('gpu_count').setValue(computationGPU[0])
+    } else {
+        const controls = ['gpu_type', 'gpu_count'];
+        controls.forEach(control => {
+        this.createExploratoryForm.controls[control].setValue(null);
+      });
+    }
   }
 
   public setCount(type: any, gpuType: any): void {
