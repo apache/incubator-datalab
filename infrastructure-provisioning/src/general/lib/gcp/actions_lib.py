@@ -233,7 +233,7 @@ class GCPActions:
             if cmek_resource_name != '':
                 bucket.encryption = {"defaultKmsKeyName": cmek_resource_name}
             if lifecycle_rules != '':
-                bucket.lifecycle = lifecycle_rules
+                bucket.lifecycle_rules = ast.literal_eval(lifecycle_rules)
             bucket.patch()
             print('Updated labels on {}.'.format(bucket_name))
         except Exception as err:
