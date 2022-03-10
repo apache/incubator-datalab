@@ -30,6 +30,7 @@ public enum NotebookTemplate {
     ZEPPELIN("Apache Zeppelin 0.9.1"),
     DEEP_LEARNING("Deep Learning  2.4"),
     TENSOR("Jupyter with TensorFlow 2.5.0"),
+    TENSOR_JUPYTERLAB("Jupyterlab with TensorFlow 2.5.0"),
     TENSOR_RSTUDIO("RStudio with TensorFlow 2.3.2"),
     RSTUDIO("RStudio 2021.09.1-372"),
     TENSOR_GCP("Jupyter with TensorFlow 2.1.0"),

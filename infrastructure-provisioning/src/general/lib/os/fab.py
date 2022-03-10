@@ -1039,6 +1039,47 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sys.exit(1)
 
 
+# jupyterlab
+def configure_jupyterlab(os_user, jupyterlab_conf_file, templates_dir, jupyterlab_version, exploratory_name):
+    if not exists(conn, '/home/' + os_user + '/.ensure_dir/jupyterlab_ensured'):
+        try:
+            conn.sudo('pip3 install jupyterlab --no-cache-dir')  # create external var with version
+            conn.sudo('rm -rf {}'.format(jupyterlab_conf_file))
+            conn.run('jupyter lab --generate-config')
+            conn.sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyterlab_conf_file))
+            conn.sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyterlab_conf_file))
+            conn.sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyterlab_conf_file))
+            conn.sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyterlab_conf_file))
+            conn.sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyterlab_conf_file))
+            conn.sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyterlab_conf_file))
+            conn.put(templates_dir + 'jupyterlab-notebook.service', '/tmp/jupyterlab-notebook.service')
+            if os.environ['application'] == 'deeplearning' and os.environ['conf_cloud_provider'] == 'azure':
+                java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-11.*/bin/java\'").stdout.splitlines()[0]
+            else:
+                java_home = conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0]
+            # conn.sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyterlab-notebook.service'.format(
+            #    java_home))
+            conn.sudo('cp /tmp/jupyterlab-notebook.service /etc/systemd/system/jupyterlab-notebook.service')
+            conn.sudo("systemctl daemon-reload")
+            conn.sudo("systemctl enable jupyterlab-notebook")
+            conn.sudo("systemctl start jupyterlab-notebook")
+            conn.sudo('touch /home/{}/.ensure_dir/jupyterlab_ensured'.format(os_user))
+        except Exception as err:
+            logging.error('Function configure_jupyterlab error:', str(err))
+            traceback.print_exc()
+            sys.exit(1)
+    else:
+        try:
+            conn.sudo(
+                'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(
+                    exploratory_name, jupyterlab_conf_file))
+            conn.sudo("systemctl restart jupyterlab-notebook")
+        except Exception as err:
+            logging.error('Function configure_jupyterlab error:', str(err))
+            traceback.print_exc()
+            sys.exit(1)
+
+
 def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path,
                                  python_venv_version):
     if not exists(conn, '/home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured'):
