@@ -126,6 +126,12 @@ if __name__ == "__main__":
             project_conf['gcp_cmek_resource_name'] = os.environ['gcp_cmek_resource_name']
         else:
             project_conf['gcp_cmek_resource_name'] = ''
+
+        if 'gcp_storage_lifecycle_rules' in os.environ:
+            project_conf['gcp_storage_lifecycle_rules'] = os.environ['gcp_storage_lifecycle_rules']
+        else:
+            project_conf['gcp_storage_lifecycle_rules'] = ''
+
         # FUSE in case of absence of user's key
         try:
             project_conf['user_key'] = os.environ['key']
@@ -404,9 +410,9 @@ if __name__ == "__main__":
             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
             "sbn": project_conf['service_base_name'],
             "name": project_conf['shared_bucket_name']}
-        params = "--bucket_name {} --tags '{}' --versioning_enabled {}".format(project_conf['shared_bucket_name'],
-                                                       json.dumps(project_conf['shared_bucket_tags']),
-                                                       project_conf['gcp_bucket_enable_versioning'])
+        params = "--bucket_name {} --tags '{}' --versioning_enabled {} --lifecycle_rules '{}'".format(
+            project_conf['shared_bucket_name'], json.dumps(project_conf['shared_bucket_tags']),
+            project_conf['gcp_bucket_enable_versioning'], json.dumps(project_conf['gcp_storage_lifecycle_rules']))
 
         if project_conf['gcp_cmek_resource_name'] != '':
             params = '{} --cmek_resource_name {}'.format(params, project_conf['gcp_cmek_resource_name'])
@@ -424,9 +430,9 @@ if __name__ == "__main__":
             "sbn": project_conf['service_base_name'],
             "project_tag": project_conf['project_tag'],
             "name": project_conf['bucket_name']}
-        params = "--bucket_name {} --tags '{}' --versioning_enabled {}".format(project_conf['bucket_name'],
-                                                       json.dumps(project_conf['bucket_tags']),
-                                                       project_conf['gcp_bucket_enable_versioning'])
+        params = "--bucket_name {} --tags '{}' --versioning_enabled {} --lifecycle_rules '{}'".format(
+            project_conf['bucket_name'], json.dumps(project_conf['bucket_tags']),
+            project_conf['gcp_bucket_enable_versioning'], json.dumps(project_conf['gcp_storage_lifecycle_rules']))
 
         if project_conf['gcp_cmek_resource_name'] != '':
             params = '{} --cmek_resource_name {}'.format(params, project_conf['gcp_cmek_resource_name'])
