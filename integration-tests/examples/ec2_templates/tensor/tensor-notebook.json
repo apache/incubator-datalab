@@ -1,0 +1,7 @@
+{
+  "image": "docker.datalab-tensor",
+  "name": "set the name",
+  "shape": "p2.xlarge",
+  "version": "tensorflow_gpu-1.3.0",
+  "template_name": "TensorFlow 1.3.0"
+}

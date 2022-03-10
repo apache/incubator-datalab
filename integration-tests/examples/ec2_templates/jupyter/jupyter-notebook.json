@@ -1,0 +1,7 @@
+{
+  "image": "docker.datalab-jupyter",
+  "name": "set the name",
+  "shape": "t2.medium",
+  "version": "jupyter_notebook-5.7.4",
+  "template_name": "Jupyter notebook 5.7.4"
+}

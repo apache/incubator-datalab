@@ -1,0 +1,7 @@
+{
+  "image": "docker.datalab-zeppelin",
+  "name": "set the name",
+  "shape": "n1-standard-2",
+  "version": "zeppelin-0.9.0",
+  "template_name": "Apache Zeppelin 0.9.0"
+}

@@ -1,0 +1,12 @@
+{
+  "image": "docker.datalab-dataengine-service",
+  "name": "set the name",
+  "dataproc_master_count": "1",
+  "dataproc_slave_count": "2",
+  "dataproc_preemptible_count": "0",
+  "dataproc_master_instance_type": "n1-standard-2",
+  "dataproc_slave_instance_type": "n1-standard-2",
+  "dataproc_version": "1.2",
+  "notebook_name": "set notebook name",
+  "template_name": "Dataproc cluster"
+}

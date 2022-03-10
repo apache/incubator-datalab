@@ -1,0 +1,7 @@
+{
+  "image": "docker.datalab-rstudio",
+  "name": "set the name",
+  "shape": "n1-standard-2",
+  "version": "RStudio-1.1.463",
+  "template_name": "RStudio 1.1.463"
+}

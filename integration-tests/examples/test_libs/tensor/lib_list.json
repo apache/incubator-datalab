@@ -1,0 +1,14 @@
+[
+  {
+    "group": "os_pkg",
+    "start_with": "py"
+  },
+  {
+    "group": "others",
+    "start_with": "gh"
+  },
+  {
+    "group": "pip3",
+    "start_with": "sp"
+  }
+]

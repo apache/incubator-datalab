@@ -1,0 +1,7 @@
+{
+  "image": "docker.datalab-deeplearning",
+  "name": "set the name",
+  "shape": "p2.xlarge",
+  "version": "deeplearning-2.2",
+  "template_name": "Deep Learning 2.2"
+}
