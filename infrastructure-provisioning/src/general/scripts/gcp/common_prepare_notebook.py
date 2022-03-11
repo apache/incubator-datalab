@@ -159,17 +159,17 @@ if __name__ == "__main__":
         notebook_config['gpu_accelerator_type'] = 'None'
         notebook_config['gpu_accelerator_count'] = 'None'
 
-        # if os.environ['application'] == 'jupyter-gpu':
-        #    notebook_config['gpu_accelerator_type'] == 'nvidia-tesla-a100'
-        #    notebook_config['gpu_accelerator_count'] == '1'
 
-        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning', 'jupyter-gpu', 'jupyter-gpu-conda') or os.environ[
-            'gpu_enabled'] == 'True':
+        if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning') or os.environ['gpu_enabled'] == 'True':
             if os.environ['gpuType'] != '':
                 notebook_config['gpu_accelerator_type'] = os.environ['gpuType']
                 notebook_config['gpu_accelerator_count'] = os.environ['gpuCount']
             else:
                 notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
+
+        if os.environ['application'] in ('jupyter-gpu', 'jupyter-gpu-conda'):
+            notebook_config['gpu_accelerator_type'] = os.environ['gcp_jupyter_gpu_type']
+            notebook_config['gpu_accelerator_count'] = '1'
 
         notebook_config['network_tag'] = '{0}-{1}-{2}-ps'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
