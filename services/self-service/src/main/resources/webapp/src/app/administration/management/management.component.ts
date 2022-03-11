@@ -42,6 +42,7 @@ import { ProjectService } from '../../core/services';
 import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../shared/modal-dialog/confirmation-dialog';
 import { ManagementGridComponent, ReconfirmationDialogComponent } from './management-grid/management-grid.component';
 import { FolderTreeComponent } from '../../resources/bucket-browser/folder-tree/folder-tree.component';
+import { StatusTypes } from '../../core/models';
 
 @Component({
   selector: 'environments-management',
@@ -56,6 +57,8 @@ export class ManagementComponent implements OnInit {
   public selected: any[] = [];
   public isActionsOpen: boolean = false;
   public selectedRunning: boolean;
+  public selectedStopped: boolean;
+  public resourseStaus = StatusTypes;
 
   @ViewChild(ManagementGridComponent, { static: true }) managementGrid;
 
@@ -214,7 +217,8 @@ export class ManagementComponent implements OnInit {
       this.isActionsOpen = false;
     }
 
-    this.selectedRunning = this.selected.every(item => item.status === 'running');
+    this.selectedRunning = this.selected.every(item => item.status === this.resourseStaus.running);
+    this.selectedStopped = this.selected.every(item => item.status === this.resourseStaus.stopped);
   }
 
   public toogleActions() {
@@ -293,11 +297,11 @@ export class ManagementComponent implements OnInit {
   private getModalConfig(config: ModalData, action: ActionsType, notebooks: EnvironmentModel[]): ModalData {
     config = {...config, type: ModalDataType.notebook}
     if(action === ActionsType.stop) {
-      notebooks = notebooks.filter(note => note.status !== 'stopped');
+      notebooks = notebooks.filter(note => note.status !== this.resourseStaus.stopped);
       return {...config, notebooks}
     }
     if(action === ActionsType.start) {
-      notebooks = notebooks.filter(note => note.status === 'stopped');
+      notebooks = notebooks.filter(note => note.status === this.resourseStaus.stopped);
       return {...config, notebooks}
     }
     return {...config, notebooks}
