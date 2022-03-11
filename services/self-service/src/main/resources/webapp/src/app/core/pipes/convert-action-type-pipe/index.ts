@@ -17,12 +17,14 @@
  * under the License.
  */
 
-export * from './resourceShapeTypes.model';
-export * from './resourceShape.model';
-export * from './exploratoryEnvironmentVersion.model';
-export * from './computationalResourceImage.model';
-export * from './computationalResourceApplicationTemplate.model';
-export * from './computationalResourceApplication.model';
-export * from './imageType.enum';
-export * from './statusTypes.enum';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ConvertActionTypePipe } from './convert-action-type.pipe';
 
+@NgModule({
+  imports: [CommonModule],
+  declarations: [ConvertActionTypePipe],
+  exports: [ConvertActionTypePipe]
+})
+
+export class ConvertActionTypePipeModule { }

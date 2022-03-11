@@ -150,6 +150,16 @@
     ]
   },
   {
+    "_id": "nbCreateTensorJupyterlab",
+    "description": "Create Notebook Jupyterlab with TensorFlow",
+    "exploratories": [
+      "docker.datalab-tensor-jupyterlab"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateTensorRstudio",
     "description": "Create Notebook RStudio with TensorFlow",
     "exploratories": [

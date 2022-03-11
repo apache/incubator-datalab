@@ -73,6 +73,7 @@ public class CheckInfrastructureStatusScheduler implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
+        log.info("Trying to update infrastructure statuses");
         UserInfo serviceUser = securityService.getServiceAccountInfo("admin");
 
         List<String> activeEndpoints = endpointService.getEndpointsWithStatus(EndpointDTO.EndpointStatus.ACTIVE)

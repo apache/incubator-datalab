@@ -222,7 +222,8 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def add_bucket_labels_vers_cmek(self, bucket_name, tags, versioning_enabled='false', cmek_resource_name=''):
+    def add_bucket_labels_vers_cmek(self, bucket_name, tags, versioning_enabled='false', cmek_resource_name='',
+                                    lifecycle_rules=''):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
             labels = bucket.labels
@@ -231,6 +232,8 @@ class GCPActions:
             bucket.versioning = {"enabled": versioning_enabled}
             if cmek_resource_name != '':
                 bucket.encryption = {"defaultKmsKeyName": cmek_resource_name}
+            if lifecycle_rules != '':
+                bucket.lifecycle_rules = ast.literal_eval(lifecycle_rules)
             bucket.patch()
             print('Updated labels on {}.'.format(bucket_name))
         except Exception as err:

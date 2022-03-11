@@ -17,12 +17,32 @@
  * under the License.
  */
 
-export * from './resourceShapeTypes.model';
-export * from './resourceShape.model';
-export * from './exploratoryEnvironmentVersion.model';
-export * from './computationalResourceImage.model';
-export * from './computationalResourceApplicationTemplate.model';
-export * from './computationalResourceApplication.model';
-export * from './imageType.enum';
-export * from './statusTypes.enum';
+import { Pipe, PipeTransform } from '@angular/core';
+import { ActionsType } from '../../../administration/management/management.model';
 
+const actionTypes = {
+    stopped: 'Stopped',
+    terminated: ' Terminated',
+    started: 'Started'
+}
+
+@Pipe({ name: 'convertactiontype' })
+
+export class ConvertActionTypePipe implements PipeTransform {
+  transform(value: string,): string {
+    if(value === ActionsType.stop) {
+        return actionTypes.stopped
+    }
+
+    if(value === ActionsType.start) {
+        return actionTypes.started
+    }
+
+    if(value === ActionsType.terminate) {
+        return actionTypes.terminated
+    }
+    else {
+        return 'Unknown type'
+    }
+  }
+}
