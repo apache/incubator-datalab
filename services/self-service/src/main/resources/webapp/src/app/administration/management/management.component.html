@@ -37,7 +37,9 @@
           <button
             type="button" 
             class="butt action-menu-item"
+            [ngClass]="{'disabled': !selectedStopped }"
             mat-raised-button
+            [disabled]="!selectedStopped"
             (click)="resourseAction('start');$event.stopPropagation()"
           >
             Run
