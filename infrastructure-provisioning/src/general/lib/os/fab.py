@@ -379,6 +379,24 @@ def ensure_python_venv(python_venv_version):
         traceback.print_exc()
         sys.exit(1)
 
+def ensure_anaconda():
+    try:
+        if not exists(conn, '/opt/anaconda3'):
+            conn.sudo('wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh -O /tmp/anaconda.sh')
+            conn.sudo('bash /tmp/anaconda.sh -b -p /opt/anaconda3')
+            conn.sudo(''' bash -l -c "echo 'export PATH=/opt/anaconda3/bin/:$PATH' >> /home/datalab-user/.bashrc" ''')
+            conn.sudo('bash -l -c "source /home/datalab-user/.bashrc"')
+            conn.sudo('chown -R datalab-user /opt/anaconda3')
+            conn.run('conda create -y -p /opt/anaconda3/envs/jupyter-gpu-conda numpy scipy pandas scikit-learn git pip')
+            conn.run('conda activate jupyter-gpu-conda && pip install transformers==4.4.2 gensim==4.0.1 tokenizers==0.10.1 python-levenshtein==0.12.2')
+            conn.run("bash -l -c 'pip install -U torch==1.10.0+cu111 torchvision==0.11.3+cu111 torchaudio==0.10.2+cu111 -f https://download.pytorch.org/whl/cu111/torch_stable.html --no-cache-dir'")
+            conn.run('conda activate jupyter-gpu-conda && conda install -y ipykernel -c anaconda')
+            conn.run('conda activate jupyter-gpu-conda && python -m ipykernel install --user --name=jupyter-gpu-conda')
+            conn.sudo('systemctl restart jupyter-notebook')
+    except Exception as err:
+        logging.error('Function ensure_anaconda error:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
 
 def install_venv_pip_pkg(pkg_name, pkg_version=''):
     try:

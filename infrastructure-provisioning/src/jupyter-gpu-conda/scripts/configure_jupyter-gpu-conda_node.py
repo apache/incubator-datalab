@@ -120,6 +120,8 @@ if __name__ == "__main__":
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version, python_venv_path, python_venv_version)
     print("Install Toree-Scala kernel for Jupyter")
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, local_spark_scala_version, spark_version)
+    print("Install Anaconda and add kernel for Jupyter")
+    ensure_anaconda()
 
     # INSTALL UNGIT
     print("Install nodejs")
