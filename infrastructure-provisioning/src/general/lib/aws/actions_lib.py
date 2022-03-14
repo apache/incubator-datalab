@@ -98,6 +98,32 @@ def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag, bucket_v
                 'RestrictPublicBuckets': True
             })
 
+        # Configuring bucket policy to ensure encryption in transit
+        bucket_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Deny",
+                    "Principal": {"AWS": "*"},
+                    "Action": "s3:*",
+                    "Resource": [
+                        f"arn:aws:s3:::{bucket_name}",
+                        f"arn:aws:s3:::{bucket_name}/*"
+                    ],
+                    "Condition": {
+                        "Bool": {"aws:SecureTransport": "false"}
+                    }
+                }]
+        }
+
+        # Convert the policy from Json dict to string
+        bucket_policy = json.dumps(bucket_policy)
+
+        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_policy(
+            Bucket=bucket_name,
+            Policy=bucket_policy
+        )
+
         tags = list()
         tags.append({'Key': os.environ['conf_tag_resource_id'],
                      'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
