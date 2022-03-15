@@ -20,17 +20,15 @@
 # ******************************************************************************
 
 from azure.common.client_factory import get_client_from_auth_file
-from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.storage.blob import BlockBlobService
+from azure.storage.blob import BlobServiceClient
 from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.datalake.store import core, lib
-from azure.graphrbac import GraphRbacManagementClient
-from azure.common.credentials import ServicePrincipalCredentials
-import azure.common.exceptions as AzureExceptions
+from azure.identity import ClientSecretCredential
+from azure.core.exceptions import ResourceNotFoundError
 import logging
 import traceback
 import sys
@@ -40,14 +38,46 @@ import json
 
 class AzureMeta:
     def __init__(self):
-
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
-        self.compute_client = get_client_from_auth_file(ComputeManagementClient)
-        self.resource_client = get_client_from_auth_file(ResourceManagementClient)
-        self.network_client = get_client_from_auth_file(NetworkManagementClient)
-        self.storage_client = get_client_from_auth_file(StorageManagementClient)
-        self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
-        #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        with open('/root/azure_auth.json') as json_file:
+            json_dict = json.load(json_file)
+
+        credential = ClientSecretCredential(
+            tenant_id=json_dict["tenantId"],
+            client_id=json_dict["clientId"],
+            client_secret=json_dict["clientSecret"],
+            authority=json_dict["activeDirectoryEndpointUrl"]
+        )
+
+        self.compute_client = ComputeManagementClient(
+            credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.resource_client = ResourceManagementClient(
+            credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.network_client = NetworkManagementClient(
+            credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.storage_client = StorageManagementClient(
+            credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.datalake_client = DataLakeStoreAccountManagementClient(
+            credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"]
+        )
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
@@ -58,7 +88,7 @@ class AzureMeta:
         try:
             result = self.resource_client.resource_groups.get(resource_group_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -73,7 +103,7 @@ class AzureMeta:
         try:
             result = self.network_client.virtual_networks.get(resource_group_name, vpc_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -88,7 +118,7 @@ class AzureMeta:
         try:
             result = self.network_client.subnets.get(resource_group_name, vpc_name, subnet_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -106,7 +136,7 @@ class AzureMeta:
                 network_security_group_name
             )
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -122,7 +152,7 @@ class AzureMeta:
             result = self.network_client.security_rules.get(resource_group_name, network_security_group_name,
                                                             rule_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -137,7 +167,7 @@ class AzureMeta:
         try:
             result = self.network_client.security_rules.list(resource_group_name, sg_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -152,7 +182,7 @@ class AzureMeta:
         try:
             result = self.network_client.subnets.list(resource_group_name, vpc_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -167,7 +197,7 @@ class AzureMeta:
         try:
             result = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -200,7 +230,7 @@ class AzureMeta:
                 datalake_name
             )
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -213,9 +243,9 @@ class AzureMeta:
 
     def list_datalakes(self, resource_group_name):
         try:
-            result = self.datalake_client.account.list_by_resource_group(resource_group_name)
+            result = self.datalake_client.accounts.list_by_resource_group(resource_group_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -246,7 +276,7 @@ class AzureMeta:
                 account_name
             )
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -261,7 +291,7 @@ class AzureMeta:
         try:
             result = self.storage_client.storage_accounts.list_by_resource_group(resource_group_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -274,7 +304,9 @@ class AzureMeta:
 
     def check_account_availability(self, account_name):
         try:
-            result = self.storage_client.storage_accounts.check_name_availability(account_name)
+            result = self.storage_client.storage_accounts.check_name_availability(
+                { "name": account_name }
+            )
             return result
         except Exception as err:
             logging.info(
@@ -303,7 +335,7 @@ class AzureMeta:
         try:
             result = []
             secret_key = list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
             content = block_blob_service.list_blobs(container_name)
             for blob in content:
                 result.append(blob.name)
@@ -323,7 +355,7 @@ class AzureMeta:
                 ip_name
             )
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -338,7 +370,7 @@ class AzureMeta:
         try:
             result = self.network_client.public_ip_addresses.list(resource_group_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -404,7 +436,7 @@ class AzureMeta:
         try:
             result = self.network_client.network_interfaces.get(resource_group_name, network_interface_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -419,7 +451,7 @@ class AzureMeta:
         try:
             result = self.network_client.network_interfaces.list(resource_group_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -449,7 +481,7 @@ class AzureMeta:
         try:
             result = self.compute_client.disks.get(resource_group_name, disk_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -464,7 +496,7 @@ class AzureMeta:
         try:
             result = self.compute_client.disks.list_by_resource_group(resource_group_name)
             return result
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
@@ -523,7 +555,7 @@ class AzureMeta:
     def get_image(self, resource_group_name, image_name):
         try:
             return self.compute_client.images.get(resource_group_name, image_name)
-        except AzureExceptions.CloudError as err:
+        except ResourceNotFoundError as err:
             if err.status_code == 404:
                 return ''
         except Exception as err:
