@@ -266,7 +266,9 @@
                         && element.image !== 'docker.datalab-superset' 
                         && element.image !== 'docker.datalab-jupyterlab' 
                         && element.image !== 'docker.datalab-tensor-jupyterlab'
-                        && element.image !== 'docker.datalab-tensor'"
+                        && element.image !== 'docker.datalab-tensor'
+                        && element.image !== 'docker.datalab-jupyter-gpu'
+                        && element.image !== 'docker.datalab-jupyter-gpu-conda'"
                       matTooltip="Only one compute can be associated with analytical tool at a time"
                       matTooltipPosition="above" 
                       [matTooltipDisabled]="!element.activeCompute"
