@@ -34,15 +34,14 @@ import traceback
 import urllib3
 import urllib.request
 import subprocess
-from azure.common.client_factory import get_client_from_auth_file
 from azure.datalake.store import core, lib
-from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.compute import ComputeManagementClient
-from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.storage.blob import BlockBlobService
+from azure.storage.blob import BlobServiceClient
+from azure.identity import ClientSecretCredential
+from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -51,11 +50,45 @@ from patchwork import files
 class AzureActions:
     def __init__(self):
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
-        self.compute_client = get_client_from_auth_file(ComputeManagementClient)
-        self.resource_client = get_client_from_auth_file(ResourceManagementClient)
-        self.network_client = get_client_from_auth_file(NetworkManagementClient)
-        self.storage_client = get_client_from_auth_file(StorageManagementClient)
-        self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
+        with open('/root/azure_auth.json') as json_file:
+            json_dict = json.load(json_file)
+
+        self.credential = ClientSecretCredential(
+            tenant_id=json_dict["tenantId"],
+            client_id=json_dict["clientId"],
+            client_secret=json_dict["clientSecret"],
+            authority=json_dict["activeDirectoryEndpointUrl"]
+        )
+
+        self.compute_client = ComputeManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.resource_client = ResourceManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.network_client = NetworkManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.storage_client = StorageManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.datalake_client = DataLakeStoreAccountManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"]
+        )
         #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
@@ -85,7 +118,7 @@ class AzureActions:
 
     def remove_resource_group(self, resource_group_name, region):
         try:
-            result = self.resource_client.resource_groups.delete(
+            result = self.resource_client.resource_groups.begin_delete(
                 resource_group_name,
                 {
                     'location': region
@@ -102,7 +135,7 @@ class AzureActions:
 
     def create_vpc(self, resource_group_name, vpc_name, region, vpc_cidr):
         try:
-            result = self.network_client.virtual_networks.create_or_update(
+            result = self.network_client.virtual_networks.begin_create_or_update(
                 resource_group_name,
                 vpc_name,
                 {
@@ -131,7 +164,7 @@ class AzureActions:
                                         vnet_id
                                         ):
         try:
-            result = self.network_client.virtual_network_peerings.create_or_update(
+            result = self.network_client.virtual_network_peerings.begin_create_or_update(
                 resource_group_name,
                 virtual_network_name,
                 virtual_network_peering_name,
@@ -154,7 +187,7 @@ class AzureActions:
 
     def remove_vpc(self, resource_group_name, vpc_name):
         try:
-            result = self.network_client.virtual_networks.delete(
+            result = self.network_client.virtual_networks.begin_delete(
                 resource_group_name,
                 vpc_name
             )
@@ -169,7 +202,7 @@ class AzureActions:
 
     def create_subnet(self, resource_group_name, vpc_name, subnet_name, subnet_cidr):
         try:
-            result = self.network_client.subnets.create_or_update(
+            result = self.network_client.subnets.begin_create_or_update(
                 resource_group_name,
                 vpc_name,
                 subnet_name,
@@ -188,7 +221,7 @@ class AzureActions:
 
     def remove_subnet(self, resource_group_name, vpc_name, subnet_name):
         try:
-            result = self.network_client.subnets.delete(
+            result = self.network_client.subnets.begin_delete(
                 resource_group_name,
                 vpc_name,
                 subnet_name
@@ -206,7 +239,7 @@ class AzureActions:
         try:
             result = ''
             if not preexisting_sg:
-                result = self.network_client.network_security_groups.create_or_update(
+                result = self.network_client.network_security_groups.begin_create_or_update(
                     resource_group_name,
                     network_security_group_name,
                     {
@@ -215,7 +248,7 @@ class AzureActions:
                     }
                 ).wait()
             for rule in list_rules:
-                self.network_client.security_rules.create_or_update(
+                self.network_client.security_rules.begin_create_or_update(
                     resource_group_name,
                     network_security_group_name,
                     security_rule_name=rule['name'],
@@ -233,7 +266,7 @@ class AzureActions:
 
     def remove_security_rules(self, network_security_group, resource_group, security_rule):
         try:
-            result = self.network_client.security_rules.delete(
+            result = self.network_client.security_rules.begin_delete(
                 network_security_group_name = network_security_group,
                 resource_group_name = resource_group,
                 security_rule_name = security_rule).wait()
@@ -248,7 +281,7 @@ class AzureActions:
 
     def remove_security_group(self, resource_group_name, network_security_group_name):
         try:
-            result = self.network_client.network_security_groups.delete(
+            result = self.network_client.network_security_groups.begin_delete(
                 resource_group_name,
                 network_security_group_name
             )
@@ -263,7 +296,7 @@ class AzureActions:
 
     def create_datalake_store(self, resource_group_name, datalake_name, region, tags):
         try:
-            result = self.datalake_client.account.create(
+            result = self.datalake_client.accounts.create(
                 resource_group_name,
                 datalake_name,
                 {
@@ -286,7 +319,7 @@ class AzureActions:
 
     def delete_datalake_store(self, resource_group_name, datalake_name):
         try:
-            result = self.datalake_client.account.delete(
+            result = self.datalake_client.accounts.delete(
                 resource_group_name,
                 datalake_name
             ).wait()
@@ -301,7 +334,7 @@ class AzureActions:
 
     def create_datalake_directory(self, datalake_name, dir_name):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.mkdir(dir_name)
             return result
         except Exception as err:
@@ -314,7 +347,7 @@ class AzureActions:
 
     def chown_datalake_directory(self, datalake_name, dir_name, ad_user='', ad_group=''):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             if ad_user and ad_group:
                 result = datalake_client.chown(dir_name, owner=ad_user, group=ad_group)
             elif ad_user and not ad_group:
@@ -333,7 +366,7 @@ class AzureActions:
 
     def chmod_datalake_directory(self, datalake_name, dir_name, mod):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.chmod(dir_name, mod)
             return result
         except Exception as err:
@@ -348,7 +381,7 @@ class AzureActions:
     def set_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user, mod='rwx'):
         try:
             acl_specification = 'user:{}:{}'.format(ad_user, mod)
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.modify_acl_entries(path=dir_name, acl_spec=acl_specification)
             return result
         except Exception as err:
@@ -363,7 +396,7 @@ class AzureActions:
     def unset_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user):
         try:
             acl_specification = 'user:{}'.format(ad_user)
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.remove_acl_entries(path=dir_name, acl_spec=acl_specification)
             return result
         except Exception as err:
@@ -377,8 +410,8 @@ class AzureActions:
 
     def remove_datalake_directory(self, datalake_name, dir_name):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
-            result = datalake_client.rm(dir_name, recursive=True)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
+            result = datalake_client.remove(dir_name, recursive=True)
             return result
         except Exception as err:
             logging.info(
@@ -390,7 +423,7 @@ class AzureActions:
 
     def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
-            result = self.storage_client.storage_accounts.create(
+            result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
                 {
@@ -399,7 +432,9 @@ class AzureActions:
                     "location":  region,
                     "tags": tags,
                     "access_tier": "Hot",
+                    "minimumTlsVersion": "TLS1_2",
                     "encryption": {
+                        "key_source": "Microsoft.Storage",
                         "services": {"blob": {"enabled": True}}
                     }
                 }
@@ -431,7 +466,7 @@ class AzureActions:
     def create_blob_container(self, resource_group_name, account_name, container_name):
         try:
             secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
             result = block_blob_service.create_container(container_name)
             return result
         except Exception as err:
@@ -445,7 +480,7 @@ class AzureActions:
     def upload_to_container(self, resource_group_name, account_name, container_name, files):
         try:
             secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
             for filename in files:
                 block_blob_service.create_blob_from_path(container_name, filename, filename)
             return ''
@@ -460,7 +495,7 @@ class AzureActions:
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
             secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
             return ''
@@ -476,7 +511,7 @@ class AzureActions:
 
     def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name, tags):
         try:
-            self.network_client.public_ip_addresses.create_or_update(
+            self.network_client.public_ip_addresses.begin_create_or_update(
                 resource_group_name,
                 ip_name,
                 {
@@ -500,7 +535,7 @@ class AzureActions:
 
     def delete_static_public_ip(self, resource_group_name, ip_name):
         try:
-            result = self.network_client.public_ip_addresses.delete(
+            result = self.network_client.public_ip_addresses.begin_delete(
                 resource_group_name,
                 ip_name
             ).wait()
@@ -621,206 +656,209 @@ class AzureActions:
                         }
                     }
                 elif create_option == 'attach':
-                    parameters = {
-                        'location': region,
-                        'tags': tags,
-                        'hardware_profile': {
-                            'vm_size': instance_size
-                        },
-                        'storage_profile': {
-                            'os_disk': {
-                                'os_type': 'Linux',
-                                'name': '{}-{}-{}-edge-volume-primary'.format(service_base_name, project_name,
-                                                                              os.environ['endpoint_name'].lower()),
-                                'create_option': create_option,
-                                'disk_size_gb': int(primary_disk_size),
-                                'tags': tags,
-                                'managed_disk': {
-                                    'id': disk_id,
-                                    'storage_account_type': instance_storage_account_type
-                                }
-                            }
-                        },
-                        'network_profile': {
-                            'network_interfaces': [
-                                {
-                                    'id': network_interface_resource_id
-                                }
-                            ]
-                        }
-                    }
-            elif instance_type == 'notebook':
-                if image_type == 'default':
-                    storage_profile = {
-                        'image_reference': {
-                            'publisher': publisher,
-                            'offer': offer,
-                            'sku': sku,
-                            'version': 'latest'
-                        },
-                        'os_disk': {
-                            'os_type': 'Linux',
-                            'name': '{}-volume-primary'.format(instance_name),
-                            'create_option': 'fromImage',
-                            'disk_size_gb': int(primary_disk_size),
-                            'tags': tags,
-                            'managed_disk': {
-                                'storage_account_type': instance_storage_account_type
-                            }
-                        },
-                        'data_disks': [
-                            {
-                                'lun': 1,
-                                'name': '{}-volume-secondary'.format(instance_name),
-                                'create_option': 'empty',
-                                'disk_size_gb': 32,
-                                'tags': {
-                                    'Name': '{}-volume-secondary'.format(instance_name)
-                                },
-                                'managed_disk': {
-                                    'storage_account_type': instance_storage_account_type
-                                }
-                            }
-                        ]
-                    }
-                elif image_type == 'pre-configured':
-                    storage_profile = {
-                        'image_reference': {
-                            'id': image_id
-                        },
-                        'os_disk': {
-                            'os_type': 'Linux',
-                            'name': '{}-volume-primary'.format(instance_name),
-                            'create_option': 'fromImage',
-                            'disk_size_gb': int(primary_disk_size),
-                            'tags': tags,
-                            'managed_disk': {
-                                'storage_account_type': instance_storage_account_type
-                            }
-                        }
-                    }
-                parameters = {
-                    'location': region,
+        parameters = {
+            'location': region,
+            'tags': tags,
+            'hardware_profile': {
+                'vm_size': instance_size
+            },
+            'storage_profile': {
+                'os_disk': {
+                    'os_type': 'Linux',
+                    'name': '{}-{}-{}-edge-volume-primary'.format(service_base_name, project_name,
+                                                                  os.environ['endpoint_name'].lower()),
+                    'create_option': create_option,
+                    'disk_size_gb': int(primary_disk_size),
                     'tags': tags,
-                    'hardware_profile': {
-                        'vm_size': instance_size
-                    },
-                    'storage_profile': storage_profile,
-                    'os_profile': {
-                        'computer_name': instance_name.replace('_', '-'),
-                        'admin_username': datalab_ssh_user_name,
-                        'linux_configuration': {
-                            'disable_password_authentication': True,
-                            'ssh': {
-                                'public_keys': [{
-                                    'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
-                                    'key_data': public_key
-                                }]
-                            }
-                        }
-                    },
-                    'network_profile': {
-                        'network_interfaces': [
-                            {
-                                'id': network_interface_resource_id
-                            }
-                        ]
+                    'managed_disk': {
+                        'id': disk_id,
+                        'storage_account_type': instance_storage_account_type
                     }
                 }
-            elif instance_type == 'dataengine':
-                if image_type == 'pre-configured':
-                    storage_profile = {
-                        'image_reference': {
-                            'id': image_id
-                        },
-                        'os_disk': {
-                            'os_type': 'Linux',
-                            'name': '{}-volume-primary'.format(instance_name),
-                            'create_option': 'fromImage',
-                            'disk_size_gb': int(primary_disk_size),
-                            'tags': tags,
-                            'managed_disk': {
-                                'storage_account_type': instance_storage_account_type
-                            }
-                        }
+            },
+            'network_profile': {
+                'network_interfaces': [
+                    {
+                        'id': network_interface_resource_id
                     }
-                elif image_type == 'default':
-                    storage_profile = {
-                        'image_reference': {
-                            'publisher': publisher,
-                            'offer': offer,
-                            'sku': sku,
-                            'version': 'latest'
-                        },
-                        'os_disk': {
-                            'os_type': 'Linux',
-                            'name': '{}-volume-primary'.format(instance_name),
-                            'create_option': 'fromImage',
-                            'disk_size_gb': int(primary_disk_size),
-                            'tags': tags,
-                            'managed_disk': {
-                                'storage_account_type': instance_storage_account_type
-                            }
-                        }
-                    }
-                parameters = {
-                    'location': region,
-                    'tags': tags,
-                    'hardware_profile': {
-                        'vm_size': instance_size
-                    },
-                    'storage_profile': storage_profile,
-                    'os_profile': {
-                        'computer_name': instance_name.replace('_', '-'),
-                        'admin_username': datalab_ssh_user_name,
-                        'linux_configuration': {
-                            'disable_password_authentication': True,
-                            'ssh': {
-                                'public_keys': [{
-                                    'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
-                                    'key_data': public_key
-                                }]
-                            }
-                        }
-                    },
-                    'network_profile': {
-                        'network_interfaces': [
-                            {
-                                'id': network_interface_resource_id
-                            }
-                        ]
-                    }
+                ]
+            }
+        }
+
+elif instance_type == 'notebook':
+if image_type == 'default':
+    storage_profile = {
+        'image_reference': {
+            'publisher': publisher,
+            'offer': offer,
+            'sku': sku,
+            'version': 'latest'
+        },
+        'os_disk': {
+            'os_type': 'Linux',
+            'name': '{}-volume-primary'.format(instance_name),
+            'create_option': 'fromImage',
+            'disk_size_gb': int(primary_disk_size),
+            'tags': tags,
+            'managed_disk': {
+                'storage_account_type': instance_storage_account_type
+            }
+        },
+        'data_disks': [
+            {
+                'lun': 1,
+                'name': '{}-volume-secondary'.format(instance_name),
+                'create_option': 'empty',
+                'disk_size_gb': 32,
+                'tags': {
+                    'Name': '{}-volume-secondary'.format(instance_name)
+                },
+                'managed_disk': {
+                    'storage_account_type': instance_storage_account_type
                 }
-            else:
-                parameters = {}
-            result = self.compute_client.virtual_machines.create_or_update(
-                resource_group_name, instance_name, parameters
-            ).wait()
-            AzureActions().tag_disks(resource_group_name, instance_name)
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to create instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create instance",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
+            }
+        ]
+    }
+elif image_type == 'pre-configured':
+    storage_profile = {
+        'image_reference': {
+            'id': image_id
+        },
+        'os_disk': {
+            'os_type': 'Linux',
+            'name': '{}-volume-primary'.format(instance_name),
+            'create_option': 'fromImage',
+            'disk_size_gb': int(primary_disk_size),
+            'tags': tags,
+            'managed_disk': {
+                'storage_account_type': instance_storage_account_type
+            }
+        }
+    }
+parameters = {
+    'location': region,
+    'tags': tags,
+    'hardware_profile': {
+        'vm_size': instance_size
+    },
+    'storage_profile': storage_profile,
+    'os_profile': {
+        'computer_name': instance_name.replace('_', '-'),
+        'admin_username': datalab_ssh_user_name,
+        'linux_configuration': {
+            'disable_password_authentication': True,
+            'ssh': {
+                'public_keys': [{
+                    'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
+                    'key_data': public_key
+                }]
+            }
+        }
+    },
+    'network_profile': {
+        'network_interfaces': [
+            {
+                'id': network_interface_resource_id
+            }
+        ]
+    }
+}
+elif instance_type == 'dataengine':
+if image_type == 'pre-configured':
+    storage_profile = {
+        'image_reference': {
+            'id': image_id
+        },
+        'os_disk': {
+            'os_type': 'Linux',
+            'name': '{}-volume-primary'.format(instance_name),
+            'create_option': 'fromImage',
+            'disk_size_gb': int(primary_disk_size),
+            'tags': tags,
+            'managed_disk': {
+                'storage_account_type': instance_storage_account_type
+            }
+        }
+    }
+elif image_type == 'default':
+    storage_profile = {
+        'image_reference': {
+            'publisher': publisher,
+            'offer': offer,
+            'sku': sku,
+            'version': 'latest'
+        },
+        'os_disk': {
+            'os_type': 'Linux',
+            'name': '{}-volume-primary'.format(instance_name),
+            'create_option': 'fromImage',
+            'disk_size_gb': int(primary_disk_size),
+            'tags': tags,
+            'managed_disk': {
+                'storage_account_type': instance_storage_account_type
+            }
+        }
+    }
+parameters = {
+    'location': region,
+    'tags': tags,
+    'hardware_profile': {
+        'vm_size': instance_size
+    },
+    'storage_profile': storage_profile,
+    'os_profile': {
+        'computer_name': instance_name.replace('_', '-'),
+        'admin_username': datalab_ssh_user_name,
+        'linux_configuration': {
+            'disable_password_authentication': True,
+            'ssh': {
+                'public_keys': [{
+                    'path': '/home/{}/.ssh/authorized_keys'.format(datalab_ssh_user_name),
+                    'key_data': public_key
+                }]
+            }
+        }
+    },
+    'network_profile': {
+        'network_interfaces': [
+            {
+                'id': network_interface_resource_id
+            }
+        ]
+    }
+}
+else:
+parameters = {}
+result = self.compute_client.virtual_machines.begin_create_or_update(
+    resource_group_name, instance_name, parameters
+).wait()
+AzureActions().tag_disks(resource_group_name, instance_name)
+return result
+except Exception as err:
+logging.info(
+    "Unable to create instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+append_result(str({"error": "Unable to create instance",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                       file=sys.stdout)}))
+traceback.print_exc(file=sys.stdout)
 
-    def tag_disks(self, resource_group_name, instance_name):
-        postfix_list = ['-volume-primary', '-volume-secondary', '-volume-tertiary']
-        disk_list = datalab.meta_lib.AzureMeta().get_vm_disks(resource_group_name, instance_name)
-        for inx, disk in enumerate(disk_list):
-            tags_copy = disk.tags.copy()
-            tags_copy['Name'] = tags_copy['Name'] + postfix_list[inx]
-            disk.tags = tags_copy
-            self.compute_client.disks.create_or_update(resource_group_name, disk.name, disk)
 
-    def stop_instance(self, resource_group_name, instance_name):
-        try:
-            result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
-            return result
-        except Exception as err:
-            logging.info(
+def tag_disks(self, resource_group_name, instance_name):
+    postfix_list = ['-volume-primary', '-volume-secondary', '-volume-tertiary']
+    disk_list = datalab.meta_lib.AzureMeta().get_vm_disks(resource_group_name, instance_name)
+    for inx, disk in enumerate(disk_list):
+        tags_copy = disk.tags.copy()
+        tags_copy['Name'] = tags_copy['Name'] + postfix_list[inx]
+        disk.tags = tags_copy
+        self.compute_client.disks.begin_create_or_update(resource_group_name, disk.name, disk)
+
+
+def stop_instance(self, resource_group_name, instance_name):
+    try:
+        result = self.compute_client.virtual_machines.begin_deallocate(resource_group_name, instance_name).wait()
+        return result
+    except Exception as err:
+        logging.info(
                 "Unable to stop instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to stop instance",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
@@ -829,7 +867,7 @@ class AzureActions:
 
     def start_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.start(resource_group_name, instance_name).wait()
+            result = self.compute_client.virtual_machines.begin_start(resource_group_name, instance_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -843,7 +881,7 @@ class AzureActions:
         try:
             instance_parameters = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
             instance_parameters.tags = tags
-            result = self.compute_client.virtual_machines.create_or_update(resource_group_name, instance_name,
+            result = self.compute_client.virtual_machines.begin_create_or_update(resource_group_name, instance_name,
                                                                            instance_parameters)
             return result
         except Exception as err:
@@ -856,7 +894,7 @@ class AzureActions:
 
     def remove_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name).wait()
+            result = self.compute_client.virtual_machines.begin_delete(resource_group_name, instance_name).wait()
             print("Instance {} has been removed".format(instance_name))
             # Removing instance disks
             disk_names = []
@@ -872,55 +910,59 @@ class AzureActions:
             for j in datalab.meta_lib.AzureMeta().get_network_interface(resource_group_name,
                                                                 network_interface_name).ip_configurations:
                 self.delete_network_if(resource_group_name, network_interface_name)
-                print("Network interface {} has been removed".format(network_interface_name))
-                if j.public_ip_address:
-                    static_ip_name = j.public_ip_address.id.split('/')[-1]
-                    self.delete_static_public_ip(resource_group_name, static_ip_name)
-                    print("Static IP address {} has been removed".format(static_ip_name))
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to remove instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to remove instance",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
+            print("Network interface {} has been removed".format(network_interface_name))
+            if j.public_ip_address:
+                static_ip_name = j.public_ip_address.id.split('/')[-1]
+                self.delete_static_public_ip(resource_group_name, static_ip_name)
+                print("Static IP address {} has been removed".format(static_ip_name))
+        return result
 
-    def remove_disk(self, resource_group_name, disk_name):
-        try:
-            result = self.compute_client.disks.delete(resource_group_name, disk_name).wait()
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to remove disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to remove disk",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
+except Exception as err:
+logging.info(
+    "Unable to remove instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+append_result(str({"error": "Unable to remove instance",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                       file=sys.stdout)}))
+traceback.print_exc(file=sys.stdout)
 
-    @backoff.on_exception(backoff.expo,
-                          TypeError,
-                          max_tries=5)
-    def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
-                          tags, public_ip_name="None"):
-        try:
-            subnet_cidr = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
-            private_ip = datalab.meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr)
-            subnet_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
-            security_group_id = datalab.meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
-            if public_ip_name == "None":
-                ip_params = [{
-                    "name": interface_name,
-                    "private_ip_allocation_method": "Static",
-                    "private_ip_address": private_ip,
-                    "private_ip_address_version": "IPv4",
-                    "subnet": {
-                        "id": subnet_id
-                    }
-                }]
-            else:
-                public_ip_id = datalab.meta_lib.AzureMeta().get_static_ip(resource_group_name, public_ip_name).id
-                ip_params = [{
+
+def remove_disk(self, resource_group_name, disk_name):
+    try:
+        result = self.compute_client.disks.begin_delete(resource_group_name, disk_name).wait()
+        return result
+    except Exception as err:
+        logging.info(
+            "Unable to remove disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove disk",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+@backoff.on_exception(backoff.expo,
+                      TypeError,
+                      max_tries=5)
+def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
+                      tags, public_ip_name="None"):
+    try:
+        subnet_cidr = \
+        datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
+        private_ip = datalab.meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr)
+        subnet_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
+        security_group_id = datalab.meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
+        if public_ip_name == "None":
+            ip_params = [{
+                "name": interface_name,
+                "private_ip_allocation_method": "Static",
+                "private_ip_address": private_ip,
+                "private_ip_address_version": "IPv4",
+                "subnet": {
+                    "id": subnet_id
+                }
+            }]
+        else:
+            public_ip_id = datalab.meta_lib.AzureMeta().get_static_ip(resource_group_name, public_ip_name).id
+            ip_params = [{
                     "name": interface_name,
                     "private_ip_allocation_method": "Static",
                     "private_ip_address": private_ip,
@@ -932,7 +974,7 @@ class AzureActions:
                         "id": subnet_id
                     }
                 }]
-            result = self.network_client.network_interfaces.create_or_update(
+            result = self.network_client.network_interfaces.begin_create_or_update(
                 resource_group_name,
                 interface_name,
                 {
@@ -959,7 +1001,7 @@ class AzureActions:
 
     def delete_network_if(self, resource_group_name, interface_name):
         try:
-            result = self.network_client.network_interfaces.delete(resource_group_name, interface_name).wait()
+            result = self.network_client.network_interfaces.begin_delete(resource_group_name, interface_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -971,56 +1013,59 @@ class AzureActions:
 
     def remove_dataengine_kernels(self, resource_group_name, notebook_name, os_user, key_path, cluster_name):
         try:
-            private = datalab.meta_lib.AzureMeta().get_private_ip_address(resource_group_name, notebook_name)
-            global conn
-            conn = datalab.fab.init_datalab_connection(private, os_user, key_path)
-            conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
-            if exists(conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
-                if os.environ['notebook_multiple_clusters'] == 'true':
-                    try:
-                        livy_port = conn.sudo("cat /opt/" + cluster_name +
-                                         "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
-                        process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                              "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
-                        conn.sudo('kill -9 ' + process_number)
-                        conn.sudo('systemctl disable livy-server-' + livy_port)
-                    except:
-                        print("Wasn't able to find Livy server for this dataengine!")
-                conn.sudo(
-                    'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-                conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
-                zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
-                opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-                req = opener.open(urllib.request.Request(zeppelin_url))
-                r_text = req.read()
-                interpreter_json = json.loads(r_text)
-                interpreter_prefix = cluster_name
-                for interpreter in interpreter_json['body']:
-                    if interpreter_prefix in interpreter['name']:
-                        print("Interpreter with ID: {0} and name: {1} will be removed from zeppelin!".
-                              format(interpreter['id'], interpreter['name']))
-                        request = urllib.request.Request(zeppelin_url + interpreter['id'], data=''.encode())
-                        request.get_method = lambda: 'DELETE'
-                        url = opener.open(request)
-                        print(url.read())
-                conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-                conn.sudo('systemctl daemon-reload')
-                conn.sudo("service zeppelin-notebook stop")
-                conn.sudo("service zeppelin-notebook start")
-                zeppelin_restarted = False
-                while not zeppelin_restarted:
-                    conn.sudo('sleep 5')
-                    result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
-                    result = result[:1]
-                    if result == '1':
-                        zeppelin_restarted = True
-                conn.sudo('sleep 5')
-                conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
-            if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-                datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
-            conn.sudo('rm -rf  /opt/' + cluster_name + '/')
-            print("Notebook's {} kernels were removed".format(private))
-        except Exception as err:
+
+
+private = datalab.meta_lib.AzureMeta().get_private_ip_address(resource_group_name, notebook_name)
+global conn
+conn = datalab.fab.init_datalab_connection(private, os_user, key_path)
+conn.sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+if exists(conn, '/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+    if os.environ['notebook_multiple_clusters'] == 'true':
+        try:
+            livy_port = conn.sudo("cat /opt/" + cluster_name +
+                                  "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace(
+                '\n', '')
+            process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                       "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n', '')
+            conn.sudo('kill -9 ' + process_number)
+            conn.sudo('systemctl disable livy-server-' + livy_port)
+        except:
+            print("Wasn't able to find Livy server for this dataengine!")
+    conn.sudo(
+        'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+    conn.sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+    zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    req = opener.open(urllib.request.Request(zeppelin_url))
+    r_text = req.read()
+    interpreter_json = json.loads(r_text)
+    interpreter_prefix = cluster_name
+    for interpreter in interpreter_json['body']:
+        if interpreter_prefix in interpreter['name']:
+            print("Interpreter with ID: {0} and name: {1} will be removed from zeppelin!".
+                  format(interpreter['id'], interpreter['name']))
+            request = urllib.request.Request(zeppelin_url + interpreter['id'], data=''.encode())
+            request.get_method = lambda: 'DELETE'
+            url = opener.open(request)
+            print(url.read())
+    conn.sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+    conn.sudo('systemctl daemon-reload')
+    conn.sudo("service zeppelin-notebook stop")
+    conn.sudo("service zeppelin-notebook start")
+    zeppelin_restarted = False
+    while not zeppelin_restarted:
+        conn.sudo('sleep 5')
+        result = conn.sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?').stdout
+        result = result[:1]
+        if result == '1':
+            zeppelin_restarted = True
+    conn.sudo('sleep 5')
+    conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+if exists(conn, '/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+    datalab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
+conn.sudo('rm -rf  /opt/' + cluster_name + '/')
+print("Notebook's {} kernels were removed".format(private))
+except Exception as err:
             logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
             append_result(str({"error": "Unable to remove kernels on Notebook",
@@ -1030,10 +1075,10 @@ class AzureActions:
     def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
         try:
             instance_id = datalab.meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
-            self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            self.compute_client.virtual_machines.begin_deallocate(resource_group_name, instance_name).wait()
             self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
             if not datalab.meta_lib.AzureMeta().get_image(resource_group_name, image_name):
-                self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
+                self.compute_client.images.begin_create_or_update(resource_group_name, image_name, parameters={
                     "location": region,
                     "tags": json.loads(tags),
                     "source_virtual_machine": {
@@ -1051,7 +1096,7 @@ class AzureActions:
 
     def remove_image(self, resource_group_name, image_name):
         try:
-            return self.compute_client.images.delete(resource_group_name, image_name)
+            return self.compute_client.images.begin_delete(resource_group_name, image_name)
         except Exception as err:
             logging.info(
                 "Unable to remove image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -1121,56 +1166,61 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             datalab.fab.conn.put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
         else:
             datalab.fab.conn.put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
-        datalab.fab.conn.sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-        datalab.fab.conn.sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
-        datalab.fab.conn.sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
-        datalab.fab.conn.sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
-        if os.environ['azure_datalake_enable'] == 'true':
-            client_id = os.environ['azure_application_id']
-            refresh_token = os.environ['azure_user_refresh_token']
-            datalab.fab.conn.sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
-            datalab.fab.conn.sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
-        if os.environ['azure_datalake_enable'] == 'false':
-            datalab.fab.conn.sudo('rm -f /opt/spark/conf/core-site.xml')
-            datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
-        else:
-            datalab.fab.conn.sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
-            datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
-        datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-        datalab.fab.conn.sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-              /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-        datalab.fab.conn.sudo('cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-        if memory_type == 'driver':
-            spark_memory = datalab.fab.get_spark_memory()
-            datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            datalab.fab.conn.sudo('''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
-                                                                                              spark_memory))
-        if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
-            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
-        datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
-        if 'spark_configurations' in os.environ:
-            datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
-            spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
-            new_spark_defaults = list()
-            spark_defaults = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
-            current_spark_properties = spark_defaults.split('\n')
-            for param in current_spark_properties:
-                if param.split(' ')[0] != '#':
-                    for config in spark_configurations:
-                        if config['Classification'] == 'spark-defaults':
-                            for property in config['Properties']:
-                                if property == param.split(' ')[0]:
-                                    param = property + ' ' + config['Properties'][property]
-                                else:
-                                    new_spark_defaults.append(property + ' ' + config['Properties'][property])
-                    new_spark_defaults.append(param)
-            new_spark_defaults = set(new_spark_defaults)
-            datalab.fab.conn.sudo('''bash -c 'echo "{}" > /opt/spark/conf/spark-defaults.conf' '''.format(datalab_header))
-            for prop in new_spark_defaults:
-                prop = prop.rstrip()
-                datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
-            datalab.fab.conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
+
+
+datalab.fab.conn.sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+datalab.fab.conn.sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+datalab.fab.conn.sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+datalab.fab.conn.sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+if os.environ['azure_datalake_enable'] == 'true':
+    client_id = os.environ['azure_application_id']
+    refresh_token = os.environ['azure_user_refresh_token']
+    datalab.fab.conn.sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
+    datalab.fab.conn.sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
+if os.environ['azure_datalake_enable'] == 'false':
+    datalab.fab.conn.sudo('rm -f /opt/spark/conf/core-site.xml')
+    datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+else:
+    datalab.fab.conn.sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
+    datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
+datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+datalab.fab.conn.sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+      /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+datalab.fab.conn.sudo('cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+if memory_type == 'driver':
+    spark_memory = datalab.fab.get_spark_memory()
+    datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
+    datalab.fab.conn.sudo(
+        '''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
+                                                                                                    spark_memory))
+if not exists(datalab.fab.conn, '/opt/spark/conf/spark-env.sh'):
+    datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+java_home = datalab.fab.conn.run(
+    "update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace(
+    '\n', '')
+datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
+if 'spark_configurations' in os.environ:
+    datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
+    spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
+    new_spark_defaults = list()
+    spark_defaults = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf').stdout
+    current_spark_properties = spark_defaults.split('\n')
+    for param in current_spark_properties:
+        if param.split(' ')[0] != '#':
+            for config in spark_configurations:
+                if config['Classification'] == 'spark-defaults':
+                    for property in config['Properties']:
+                        if property == param.split(' ')[0]:
+                            param = property + ' ' + config['Properties'][property]
+                        else:
+                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
+            new_spark_defaults.append(param)
+    new_spark_defaults = set(new_spark_defaults)
+    datalab.fab.conn.sudo('''bash -c 'echo "{}" > /opt/spark/conf/spark-defaults.conf' '''.format(datalab_header))
+    for prop in new_spark_defaults:
+        prop = prop.rstrip()
+        datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
+    datalab.fab.conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
                 datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))
     except Exception as err:
@@ -1232,6 +1282,7 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         conn.close()
 
+
 def ensure_right_mount_paths(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         global conn
@@ -1239,15 +1290,18 @@ def ensure_right_mount_paths(creds=False, os_user='', hostname='', keyfile=''):
     else:
         conn = datalab.fab.conn
     opt_disk = conn.sudo("cat /etc/fstab | grep /opt/ | awk '{print $1}'").stdout.split('\n')[0].split('/')[2]
-    if opt_disk not in conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
-         disk_names = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
-         for disk in disk_names:
-             if disk != '' and disk not in conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
-                 conn.sudo("umount -l /opt")
-                 conn.sudo("mount /dev/{}1 /opt".format(disk))
-                 conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
+    if opt_disk not in conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in conn.sudo(
+            "fdisk -l | grep 'BIOS boot'").stdout:
+        disk_names = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
+        for disk in disk_names:
+            if disk != '' and disk not in conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in conn.sudo(
+                    "fdisk -l | grep 'BIOS boot'").stdout:
+                conn.sudo("umount -l /opt")
+                conn.sudo("mount /dev/{}1 /opt".format(disk))
+                conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
     if creds:
         conn.close()
+
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
@@ -1259,7 +1313,7 @@ def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
 
 
 def prepare_disk(os_user):
-    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
             allow = False
             counter = 0
