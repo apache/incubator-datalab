@@ -121,7 +121,7 @@ if __name__ == "__main__":
         else:
             project_conf['user_subnets_range'] = ''
 
-        project_conf['gcp_bucket_enable_versioning'] = os.environ['gcp_bucket_enable_versioning']
+        project_conf['gcp_bucket_enable_versioning'] = os.environ['conf_bucket_versioning_enabled']
         if 'gcp_cmek_resource_name' in os.environ:
             project_conf['gcp_cmek_resource_name'] = os.environ['gcp_cmek_resource_name']
         else:
