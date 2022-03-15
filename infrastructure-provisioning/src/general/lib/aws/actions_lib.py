@@ -65,13 +65,18 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         return False
 
 
-def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
+def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag, bucket_versioning_enabled):
     try:
         s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         if region == "us-east-1":
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
+
+        if bucket_versioning_enabled == "true":
+            bucket_versioning = s3.BucketVersioning(bucket_name)
+            bucket_versioning.enable()
+
         boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_encryption(
             Bucket=bucket_name, ServerSideEncryptionConfiguration={
                 'Rules': [
@@ -82,6 +87,43 @@ def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
                     },
                 ]
             })
+
+        # Config for Public Access Block in s3
+        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_public_access_block(
+            Bucket=bucket_name,
+            PublicAccessBlockConfiguration={
+                'BlockPublicAcls': True,
+                'IgnorePublicAcls': True,
+                'BlockPublicPolicy': True,
+                'RestrictPublicBuckets': True
+            })
+
+        # Configuring bucket policy to ensure encryption in transit
+        bucket_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Deny",
+                    "Principal": {"AWS": "*"},
+                    "Action": "s3:*",
+                    "Resource": [
+                        f"arn:aws:s3:::{bucket_name}",
+                        f"arn:aws:s3:::{bucket_name}/*"
+                    ],
+                    "Condition": {
+                        "Bool": {"aws:SecureTransport": "false"}
+                    }
+                }]
+        }
+
+        # Convert the policy from Json dict to string
+        bucket_policy = json.dumps(bucket_policy)
+
+        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_policy(
+            Bucket=bucket_name,
+            Policy=bucket_policy
+        )
+
         tags = list()
         tags.append({'Key': os.environ['conf_tag_resource_id'],
                      'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
