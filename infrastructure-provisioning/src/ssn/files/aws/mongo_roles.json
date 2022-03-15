@@ -210,16 +210,6 @@
     ]
   },
   {
-    "_id": "compShapes_c4.large_fetching",
-    "description": "Use c4.large instance shape for cluster",
-    "computational_shapes": [
-      "c4.large"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
     "_id": "compShapes_r4.2xlarge_fetching",
     "description": "Use r4.2xlarge instance shape for cluster",
     "computational_shapes": [

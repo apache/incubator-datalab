@@ -19,6 +19,7 @@
 #
 # ******************************************************************************
 
+from azure.common.client_factory import get_client_from_auth_file
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
@@ -41,7 +42,7 @@ class AzureMeta:
         with open('/root/azure_auth.json') as json_file:
             json_dict = json.load(json_file)
 
-        self.credential = ClientSecretCredential(
+        credential = ClientSecretCredential(
             tenant_id=json_dict["tenantId"],
             client_id=json_dict["clientId"],
             client_secret=json_dict["clientSecret"],
@@ -49,31 +50,31 @@ class AzureMeta:
         )
 
         self.compute_client = ComputeManagementClient(
-            self.credential,
+            credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"],
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.resource_client = ResourceManagementClient(
-            self.credential,
+            credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"],
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.network_client = NetworkManagementClient(
-            self.credential,
+            credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"],
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.storage_client = StorageManagementClient(
-            self.credential,
+            credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"],
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.datalake_client = DataLakeStoreAccountManagementClient(
-            self.credential,
+            credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
         )
@@ -156,8 +157,7 @@ class AzureMeta:
                 return ''
         except Exception as err:
             logging.info(
-                "Unable to get Security Group rule: " + str(err) + "\n Traceback: " + traceback.print_exc(
-                    file=sys.stdout))
+                "Unable to get Security Group rule: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get Security Group rule",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -172,8 +172,7 @@ class AzureMeta:
                 return ''
         except Exception as err:
             logging.info(
-                "Unable to get list of security group rules: " + str(err) + "\n Traceback: " + traceback.print_exc(
-                    file=sys.stdout))
+                "Unable to get list of security group rules: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get list of rules",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -209,48 +208,46 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-        def get_instances_name_by_tag(self, resource_group_name, tag, value):
-            try:
-                list = []
-                for vm in self.compute_client.virtual_machines.list(resource_group_name):
-                    if vm.tags.get(tag) == value:
-                        list.append(vm.name)
-                return list
-            except Exception as err:
-                logging.info(
-                    "Unable to get instances by tag name: " + str(err) + "\n Traceback: " + traceback.print_exc(
-                        file=sys.stdout))
-                append_result(str({"error": "Unable to get instances",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+    def get_instances_name_by_tag(self, resource_group_name, tag, value):
+        try:
+            list = []
+            for vm in self.compute_client.virtual_machines.list(resource_group_name):
+                if vm.tags.get(tag) == value:
+                    list.append(vm.name)
+            return list
+        except Exception as err:
+            logging.info(
+                "Unable to get instances by tag name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instances",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
-        def get_datalake(self, resource_group_name, datalake_name):
-            try:
-                result = self.datalake_client.account.get(
-                    resource_group_name,
-                    datalake_name
-                )
-                return result
-            except ResourceNotFoundError as err:
-                if err.status_code == 404:
-                    return ''
-            except Exception as err:
-                logging.info(
-                    "Unable to get Data Lake account: " + str(err) + "\n Traceback: " + traceback.print_exc(
-                        file=sys.stdout))
-                append_result(str({"error": "Unable to get Data Lake account",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+    def get_datalake(self, resource_group_name, datalake_name):
+        try:
+            result = self.datalake_client.account.get(
+                resource_group_name,
+                datalake_name
+            )
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get Data Lake account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Data Lake account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
-        def list_datalakes(self, resource_group_name):
-            try:
-                result = self.datalake_client.accounts.list_by_resource_group(resource_group_name)
-                return result
-            except ResourceNotFoundError as err:
-                if err.status_code == 404:
-                    return ''
+    def list_datalakes(self, resource_group_name):
+        try:
+            result = self.datalake_client.accounts.list_by_resource_group(resource_group_name)
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
         except Exception as err:
             logging.info(
                 "Unable to list Data Lake accounts: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -351,59 +348,56 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_static_ip(self, resource_group_name, ip_name):
+        try:
+            result = self.network_client.public_ip_addresses.get(
+                resource_group_name,
+                ip_name
+            )
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
-def get_static_ip(self, resource_group_name, ip_name):
-    try:
-        result = self.network_client.public_ip_addresses.get(
-            resource_group_name,
-            ip_name
-        )
-        return result
-    except ResourceNotFoundError as err:
-        if err.status_code == 404:
-            return ''
-    except Exception as err:
-        logging.info(
-            "Unable to get static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to get static IP address",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
+    def list_static_ips(self, resource_group_name):
+        try:
+            result = self.network_client.public_ip_addresses.list(resource_group_name)
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list static IP addresses: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list static IP addresses",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
-
-def list_static_ips(self, resource_group_name):
-    try:
-        result = self.network_client.public_ip_addresses.list(resource_group_name)
-        return result
-    except ResourceNotFoundError as err:
-        if err.status_code == 404:
-            return ''
-    except Exception as err:
-        logging.info(
-            "Unable to list static IP addresses: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to list static IP addresses",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
-
-
-def check_free_ip(self, resource_group_name, vpc_name, ip_address):
-    try:
-        result = self.network_client.virtual_networks.check_ip_address_availability(
-            resource_group_name,
-            vpc_name,
-            ip_address
-        )
-        if not result.available:
-            return self.check_free_ip(resource_group_name, vpc_name, result.available_ip_addresses[0])
-        if result.available:
-            return ip_address
-    except Exception as err:
-        logging.info(
-            "Unable to check private ip: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to check private ip",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
+    def check_free_ip(self, resource_group_name, vpc_name, ip_address):
+        try:
+            result = self.network_client.virtual_networks.check_ip_address_availability(
+                resource_group_name,
+                vpc_name,
+                ip_address
+            )
+            if not result.available:
+                return self.check_free_ip(resource_group_name, vpc_name, result.available_ip_addresses[0])
+            if result.available:
+                return ip_address
+        except Exception as err:
+            logging.info(
+                "Unable to check private ip: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to check private ip",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
     def get_instance_public_ip_address(self, resource_group_name, instance_name):
@@ -454,69 +448,64 @@ def check_free_ip(self, resource_group_name, vpc_name, ip_address):
             traceback.print_exc(file=sys.stdout)
 
     def list_network_interfaces(self, resource_group_name):
-
-
-    try:
-        result = self.network_client.network_interfaces.list(resource_group_name)
-        return result
-    except ResourceNotFoundError as err:
-        if err.status_code == 404:
-            return ''
-    except Exception as err:
-        logging.info(
-            "Unable to list Network interfaces: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable list Network interfaces",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
-
-
-def get_network_peering_status(self, resource_group_name,
-                               virtual_network_name,
-                               virtual_network_peering_name):
-    try:
-        result = self.network_client.virtual_network_peerings.get(resource_group_name,
-                                                                  virtual_network_name,
-                                                                  virtual_network_peering_name)
-        return result.peering_state
-    except Exception as err:
-        logging.info(
-            "Unable to get peering status: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to get peering status", "error_message": str(
-            err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
-
-
-def get_disk(self, resource_group_name, disk_name):
-    try:
-        result = self.compute_client.disks.get(resource_group_name, disk_name)
-        return result
-    except ResourceNotFoundError as err:
-        if err.status_code == 404:
-            return ''
-    except Exception as err:
-        logging.info(
-            "Unable to get instance Disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to get instance Disk",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
-
-
-def list_disks(self, resource_group_name):
-    try:
-        result = self.compute_client.disks.list_by_resource_group(resource_group_name)
-        return result
-    except ResourceNotFoundError as err:
-        if err.status_code == 404:
-            return ''
+        try:
+            result = self.network_client.network_interfaces.list(resource_group_name)
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
         except Exception as err:
-        logging.info(
-            "Unable to list instance Disks: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to list instance Disks",
-                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                               file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to list Network interfaces: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable list Network interfaces",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_network_peering_status(self, resource_group_name,
+                                   virtual_network_name,
+                                   virtual_network_peering_name):
+        try:
+            result = self.network_client.virtual_network_peerings.get(resource_group_name,
+                                                                        virtual_network_name,
+                                                                        virtual_network_peering_name)
+            return result.peering_state
+        except Exception as err:
+            logging.info(
+                "Unable to get peering status: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get peering status", "error_message": str(
+                err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_disk(self, resource_group_name, disk_name):
+        try:
+            result = self.compute_client.disks.get(resource_group_name, disk_name)
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get instance Disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance Disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def list_disks(self, resource_group_name):
+        try:
+            result = self.compute_client.disks.list_by_resource_group(resource_group_name)
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list instance Disks: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list instance Disks",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_list_instance_statuses(self, resource_group_name, instance_name_list):
         data = []
@@ -542,8 +531,7 @@ def list_disks(self, resource_group_name):
 
     def get_instance_status(self, resource_group_name, instance_name):
         try:
-            request = self.compute_client.virtual_machines.get(resource_group_name, instance_name,
-                                                               expand='instanceView')
+            request = self.compute_client.virtual_machines.get(resource_group_name, instance_name, expand='instanceView')
             try:
                 status = request.instance_view.statuses[1].display_status.split(' ')[1].replace("deallocat", "stopp")
             except:
