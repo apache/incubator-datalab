@@ -27,7 +27,7 @@ import lombok.Getter;
 public enum NotebookTemplate {
     JUPYTER("Jupyter notebook 6.1.6"),
     JUPYTER_GPU("Jupyter notebook 6.1.6 with GPU"),
-    JUPYTER_GPU_CONDA("Jupyter notebook 6.1.6 with GPU and Anaconda"),
+    JUPYTER_CONDA("Jupyter notebook 6.1.6 with GPU and Anaconda"),
     JUPYTER_LAB("JupyterLab 0.35.6"),
     ZEPPELIN("Apache Zeppelin 0.9.1"),
     DEEP_LEARNING("Deep Learning  2.4"),

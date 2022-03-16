@@ -54,7 +54,7 @@ def run(ctx):
 
     try:
         params = "--uuid {}".format(notebook_config['uuid'])
-        subprocess.run("~/scripts/{}.py {}".format('jupyter-gpu-conda_configure', params), shell=True, check=True)
+        subprocess.run("~/scripts/{}.py {}".format('jupyter-conda_configure', params), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))

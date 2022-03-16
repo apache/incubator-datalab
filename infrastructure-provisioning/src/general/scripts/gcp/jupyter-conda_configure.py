@@ -165,7 +165,7 @@ if __name__ == "__main__":
                    os.environ['notebook_scala_version'],
                    notebook_config['exploratory_name'], edge_instance_private_ip)
         try:
-            subprocess.run("~/scripts/{}.py {}".format('configure_jupyter-gpu-conda_node', params), shell=True, check=True)
+            subprocess.run("~/scripts/{}.py {}".format('configure_jupyter-conda_node', params), shell=True, check=True)
         except:
             traceback.print_exc()
             raise Exception

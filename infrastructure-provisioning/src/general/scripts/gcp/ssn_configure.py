@@ -203,7 +203,7 @@ if __name__ == "__main__":
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "jupyter-gpu", "tag": "latest"},
-                             {"name": "jupyter-gpu-conda", "tag": "latest"},
+                             {"name": "jupyter-conda", "tag": "latest"},
                              {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},

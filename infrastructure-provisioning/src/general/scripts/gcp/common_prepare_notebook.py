@@ -167,7 +167,7 @@ if __name__ == "__main__":
             else:
                 notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
 
-        if os.environ['application'] in ('jupyter-gpu', 'jupyter-gpu-conda'):
+        if os.environ['application'] in ('jupyter-gpu', 'jupyter-conda'):
             notebook_config['gpu_accelerator_type'] = os.environ['gcp_jupyter_gpu_type']
             notebook_config['gpu_accelerator_count'] = '1'
 
