@@ -883,10 +883,10 @@ if __name__ == "__main__":
                 AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
             if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
-       # if os.environ['azure_datalake_enable'] == 'true':
-       #    for datalake in AzureMeta.list_datalakes(project_conf['resource_group_name']):
-       #         if project_conf['datalake_store_name'] == datalake.tags["Name"]:
-       #             AzureActions.remove_datalake_directory(datalake.name,
-       #                                                    project_conf['datalake_user_directory_name'])
-       # datalab.fab.append_result("Failed to create instance. Exception:" + str(err))
-       # sys.exit(1)
+        if os.environ['azure_datalake_enable'] == 'true':
+           for datalake in AzureMeta.list_datalakes(project_conf['resource_group_name']):
+                if project_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    AzureActions.remove_datalake_directory(datalake.name,
+                                                           project_conf['datalake_user_directory_name'])
+        datalab.fab.append_result("Failed to create instance. Exception:" + str(err))
+        sys.exit(1)
