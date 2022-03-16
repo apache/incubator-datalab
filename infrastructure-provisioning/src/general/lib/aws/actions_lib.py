@@ -1582,7 +1582,8 @@ def create_aws_config_files(generate_full_config=False):
         sys.exit(1)
 
 
-def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
+def installing_python(region, bucket, user_name, cluster_name, application='', numpy_version='1.14.3',
+                      matplotlib_version='3.3.4', pip_mirror=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with open('/tmp/python_version') as f:
         python_version = f.read()
@@ -1591,7 +1592,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         subprocess.run('wget https://www.python.org/ftp/python/' + python_version +
               '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz', shell=True, check=True)
         subprocess.run('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/', shell=True, check=True)
-        subprocess.run('cd /tmp/Python-{0}; ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version), shell=True, check=True)
+        subprocess.run('cd /tmp/Python-{0}; ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ '
+                       '--with-ensurepip=install'.format(python_version), shell=True, check=True)
         subprocess.run('cd /tmp/Python-{0}; sudo make altinstall'.format(python_version), shell=True, check=True)
         subprocess.run('cd /tmp/; sudo rm -rf Python-' + python_version + '/', shell=True, check=True)
         if region == 'cn-north-1':
@@ -1602,8 +1604,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             subprocess.run('sudo echo "[global]" >> /etc/pip.conf', shell=True, check=True)
             subprocess.run('sudo echo "timeout = 600" >> /etc/pip.conf', shell=True, check=True)
         subprocess.run('sudo -i virtualenv /opt/python/python' + python_version, shell=True, check=True)
-        venv_command = '/bin/bash source /opt/python/python' + python_version + '/bin/activate'
-        pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
+        venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
+        pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
         if region == 'cn-north-1':
             try:
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command +
@@ -1616,7 +1618,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={0}'.format(numpy_version), shell=True, check=True)
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 SciPy '
-                      'Matplotlib=={1} pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, os.environ['notebook_matplotlib_version']), shell=True, check=True)
+                      'Matplotlib=={1} pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, matplotlib_version), shell=True, check=True)
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     subprocess.run(venv_command + ' && sudo -i ' + pip_command +
@@ -1634,24 +1636,23 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 subprocess.run('sudo rm -rf /opt/python/python{}/'.format(python_version), shell=True, check=True)
                 sys.exit(1)
         else:
-            print(subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3', shell=True, check=True))
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0', shell=True, check=True)
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir', shell=True, check=True)
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={}'.format(numpy_version), shell=True, check=True)
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 SciPy Matplotlib=={} pandas Sympy Pillow sklearn '
-                  '--no-cache-dir'.format(os.environ['notebook_matplotlib_version']), shell=True, check=True)
+            for lib in ['-U pip==9.0.3', 'pyzmq==17.0.0',
+                        'ipython ipykernel boto boto3 pybind11 pythran cython NumPy=={0} Matplotlib=={1} '
+                        '--no-cache-dir'.format(numpy_version, matplotlib_version),
+                        'SciPy pandas Sympy Pillow', 'sklearn --no-cache-dir']:
+                subprocess.run('bash -c "{0} && sudo -i {1} install {2}"'
+                               .format(venv_command, pip_command, lib), shell=True, check=True)
             # Need to refactor when we add GPU cluster
             if application == 'deeplearning':
-                subprocess.run(venv_command + ' && sudo -i ' + pip_command +
-                      ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir', shell=True, check=True)
+                subprocess.run('bash -c "{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano '
+                               '--no-cache-dir"'.format(venv_command, pip_command), shell=True, check=True)
                 python_without_dots = python_version.replace('.', '')
-                subprocess.run(venv_command + ' && sudo -i ' + pip_command +
-                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl '
-                      '--no-cache-dir'.format(python_without_dots[:2]), shell=True, check=True)
+                subprocess.run('bash -c "{0} && sudo -i {1} install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}'
+                               '-cp{0}m-linux_x86_64.whl --no-cache-dir"'
+                               .format(venv_command, pip_command, python_without_dots[:2]), shell=True, check=True)
         subprocess.run('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]), shell=True, check=True)
-        subprocess.run('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version,
-                                                                                             python_version[0:3]), shell=True, check=True)
+        subprocess.run('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'
+                       .format(python_version, python_version[0:3]), shell=True, check=True)
 
 
 def spark_defaults(args):

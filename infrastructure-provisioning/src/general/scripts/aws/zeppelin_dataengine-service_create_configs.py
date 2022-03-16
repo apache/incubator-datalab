@@ -37,6 +37,7 @@ parser.add_argument('--emr_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
+parser.add_argument('--matplotlib_version', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--excluded_lines', type=str, default='')
 parser.add_argument('--project_name', type=str, default='')
@@ -92,7 +93,8 @@ if __name__ == "__main__":
         configuring_notebook(args.emr_version)
         if args.multiple_clusters == 'true':
             install_remote_livy(args)
-        installing_python(args.region, args.bucket, args.project_name, args.cluster_name, args.application, args.numpy_version)
+        installing_python(args.region, args.bucket, args.project_name, args.cluster_name, args.application,
+                          args.numpy_version, args.matplotlib_version)
         configure_zeppelin_emr_interpreter(args.emr_version, args.cluster_name, args.region, spark_dir, args.os_user,
                                            yarn_dir, args.bucket, args.project_name, endpoint_url, args.multiple_clusters)
         update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)
