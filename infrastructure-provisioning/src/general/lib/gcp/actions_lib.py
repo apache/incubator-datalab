@@ -1340,7 +1340,7 @@ class GCPActions:
         except:
             sys.exit(1)
 
-    def install_python(self, bucket, user_name, cluster_name, application, numpy_version='1.14.3'):
+    def install_python(self, bucket, user_name, cluster_name, application, numpy_version):
         try:
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
             with open('/tmp/python_version') as f:
@@ -1355,11 +1355,9 @@ class GCPActions:
                 subprocess.run('sudo -i virtualenv /opt/python/python{}'.format(python_version), shell=True, check=True)
                 venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
-                subprocess.run('bash -c "{0} && sudo -i {1} install -U pip==9.0.3"'.format(venv_command, pip_command), shell=True, check=True)
-                subprocess.run('bash -c "{0} && sudo -i {1} install pyzmq==17.0.0"'.format(venv_command, pip_command), shell=True, check=True)
-                for lib in ['ipython', 'ipykernel', 'NumPy=={}'.format(numpy_version), 'boto', 'boto3', 'pybind11',
-                            'pythran', 'cython', 'SciPy', 'Matplotlib', 'pandas', 'Sympy', 'Pillow', 'sklearn']:
-                    subprocess.run('bash -c "{0} && sudo -i {1} install {2} --no-cache-dir"'
+                for lib in ['-U pip==9.0.3', 'pyzmq==17.0.0', 'ipython ipykernel boto boto3 pybind11 pythran cython NumPy=={} Matplotlib --no-cache-dir'.format(numpy_version),
+                            'SciPy pandas Sympy Pillow --no-cache-dir', 'sklearn --no-cache-dir']:
+                    subprocess.run('bash -c "{0} && sudo -i {1} install {2}"'
                                    .format(venv_command, pip_command, lib), shell=True, check=True)
                 if application == 'deeplearning':
                     subprocess.run('bash -c "{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano --no-cache-dir"'.format(venv_command, pip_command), shell=True, check=True)
@@ -1410,7 +1408,7 @@ def get_cluster_python_version(region, bucket, user_name, cluster_name):
 
 def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
     try:
-        GCPActions().install_python(bucket, user_name, cluster_name, application)
+        GCPActions().install_python(bucket, user_name, cluster_name, application, numpy_version)
     except:
         sys.exit(1)
 

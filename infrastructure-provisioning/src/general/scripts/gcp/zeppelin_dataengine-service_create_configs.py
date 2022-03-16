@@ -36,6 +36,7 @@ parser.add_argument('--dry_run', type=str, default='false')
 parser.add_argument('--dataproc_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
+parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
@@ -80,7 +81,11 @@ if __name__ == "__main__":
         configuring_notebook(args.dataproc_version)
         if args.multiple_clusters == 'true':
             install_remote_livy(args)
-        installing_python(args.region, args.bucket, args.user_name, args.cluster_name, args.application, args.pip_mirror)
-        datalab.actions_lib.GCPActions().configure_zeppelin_dataproc_interpreter(args.dataproc_version, args.cluster_name, spark_dir, args.os_user,
-                                                                         yarn_dir, args.bucket, args.user_name, args.multiple_clusters)
+        installing_python(args.region, args.bucket, args.user_name, args.cluster_name, args.application,
+                          args.pip_mirror, args.numpy_version)
+        datalab.actions_lib.GCPActions().configure_zeppelin_dataproc_interpreter(args.dataproc_version,
+                                                                                 args.cluster_name, spark_dir,
+                                                                                 args.os_user, yarn_dir,
+                                                                                 args.bucket, args.user_name,
+                                                                                 args.multiple_clusters)
         update_zeppelin_interpreters(args.multiple_clusters, args.r_enabled)
