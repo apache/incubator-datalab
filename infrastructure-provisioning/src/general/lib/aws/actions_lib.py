@@ -1582,7 +1582,8 @@ def create_aws_config_files(generate_full_config=False):
         sys.exit(1)
 
 
-def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
+def installing_python(region, bucket, user_name, cluster_name, application='', numpy_version='1.14.3',
+                      matplotlib_version='3.3.4', pip_mirror=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with open('/tmp/python_version') as f:
         python_version = f.read()
@@ -1617,7 +1618,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={0}'.format(numpy_version), shell=True, check=True)
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 SciPy '
-                      'Matplotlib=={1} pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, os.environ['notebook_matplotlib_version']), shell=True, check=True)
+                      'Matplotlib=={1} pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, matplotlib_version), shell=True, check=True)
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     subprocess.run(venv_command + ' && sudo -i ' + pip_command +
@@ -1636,8 +1637,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 sys.exit(1)
         else:
             for lib in ['-U pip==9.0.3', 'pyzmq==17.0.0',
-                        'ipython ipykernel boto boto3 pybind11 pythran cython NumPy=={} Matplotlib=={} --no-cache-dir'
-                                .format(numpy_version, os.environ['notebook_matplotlib_version']),
+                        'ipython ipykernel boto boto3 pybind11 pythran cython NumPy=={0} Matplotlib=={1} '
+                        '--no-cache-dir'.format(numpy_version, matplotlib_version),
                         'SciPy pandas Sympy Pillow', 'sklearn --no-cache-dir']:
                 subprocess.run('bash -c "{0} && sudo -i {1} install {2}"'
                                .format(venv_command, pip_command, lib), shell=True, check=True)
