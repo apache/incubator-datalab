@@ -85,15 +85,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
         datalab.fab.append_result("Failed to remove storage accounts", str(err))
         sys.exit(1)
 
-    logging.info("Removing Data Lake Store")
-    try:
-        for datalake in AzureMeta.list_datalakes(resource_group_name):
-            if "SBN" in datalake.tags and service_base_name == datalake.tags["SBN"]:
-                AzureActions.delete_datalake_store(resource_group_name, datalake.name)
-                logging.info("Data Lake Store {} has been terminated".format(datalake.name))
-    except Exception as err:
-        datalab.fab.append_result("Failed to remove Data Lake", str(err))
-        sys.exit(1)
+   # logging.info("Removing Data Lake Store")
+   # try:
+   #     for datalake in AzureMeta.list_datalakes(resource_group_name):
+   #         if "SBN" in datalake.tags and service_base_name == datalake.tags["SBN"]:
+   #             AzureActions.delete_datalake_store(resource_group_name, datalake.name)
+   #             logging.info("Data Lake Store {} has been terminated".format(datalake.name))
+   # except Exception as err:
+   #     datalab.fab.append_result("Failed to remove Data Lake", str(err))
+   #     sys.exit(1)
 
     logging.info("Removing images")
     try:

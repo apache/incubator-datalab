@@ -263,9 +263,9 @@ if __name__ == "__main__":
         except Exception as err:
             traceback.print_exc()
             datalab.fab.append_result("Failed to create Data Lake Store.", str(err))
-            for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
-                if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+           # for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
+           #     if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
+           #         AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
             if 'azure_security_group_name' not in os.environ:
                 AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
             if 'azure_subnet_name' not in os.environ:
@@ -304,9 +304,9 @@ if __name__ == "__main__":
             AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         except:
             logging.info("The instance {} hasn't been created".format(ssn_conf['instance_name']))
-        for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+       # for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
+       #     if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
+       #         AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
         if 'azure_security_group_name' not in os.environ:
             AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
         if 'azure_subnet_name' not in os.environ:
