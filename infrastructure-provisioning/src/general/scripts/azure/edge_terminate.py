@@ -97,18 +97,18 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
         datalab.fab.append_result("Failed to remove storage accounts", str(err))
         sys.exit(1)
 
-    logging.info("Deleting Data Lake Store directory")
-    try:
-        for datalake in AzureMeta.list_datalakes(resource_group_name):
-            try:
-                if service_base_name == datalake.tags["SBN"]:
-                    AzureActions.remove_datalake_directory(datalake.name, project_tag + '-folder')
-                    logging.info("Data Lake Store directory {} has been deleted".format(project_tag + '-folder'))
-            except:
-                pass
-    except Exception as err:
-        datalab.fab.append_result("Failed to remove Data Lake", str(err))
-        sys.exit(1)
+   # logging.info("Deleting Data Lake Store directory")
+   # try:
+   #     for datalake in AzureMeta.list_datalakes(resource_group_name):
+   #         try:
+   #             if service_base_name == datalake.tags["SBN"]:
+   #                 AzureActions.remove_datalake_directory(datalake.name, project_tag + '-folder')
+   #                 logging.info("Data Lake Store directory {} has been deleted".format(project_tag + '-folder'))
+   #         except:
+   #             pass
+   # except Exception as err:
+   #     datalab.fab.append_result("Failed to remove Data Lake", str(err))
+   #     sys.exit(1)
 
     logging.info("Removing security groups")
     try:
