@@ -160,11 +160,11 @@ public class LibraryServiceImpl implements LibraryService {
         final String templateName = userInstanceDTO.getTemplateName();
         List<LibraryGroups> groups = new ArrayList<>(Arrays.asList(GROUP_PIP3, GROUP_OTHERS, GROUP_OS_PKG));
 
-        if (isTemplateGroup(templateName, Stream.of(JUPYTER, ZEPPELIN, JUPYTER_GPU, JUPYTER_CONDA))) {
+        if (isTemplateGroup(templateName, Stream.of(JUPYTER, ZEPPELIN))) {
             groups.addAll(Arrays.asList(GROUP_R_PKG, GROUP_JAVA));
         }
         if (isTemplateGroup(templateName, Stream.of(DEEP_LEARNING, TENSOR, TENSOR_GCP,
-                DEEP_LEARNING_GCP, DEEP_LEARNING_AWS, DEEP_LEARNING_AZURE))) {
+                DEEP_LEARNING_GCP, DEEP_LEARNING_AWS, DEEP_LEARNING_AZURE, JUPYTER_GPU, JUPYTER_CONDA))) {
             groups.add(GROUP_JAVA);
         }
         if (isTemplateGroup(templateName, Stream.of(RSTUDIO, TENSOR_RSTUDIO))) {
