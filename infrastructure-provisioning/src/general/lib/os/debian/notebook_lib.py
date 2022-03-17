@@ -408,7 +408,7 @@ def ensure_pytorch(os_user, gpu=True):
     if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/pytorch_ensured'):
         if gpu:
             if os.environ['application'] in ('jupyter-gpu', 'jupyter-conda'):
-                datalab.fab.install_venv_pip_pkg('torch==1.10.0+cu111 torchvision==0.10.0+cu111 '
+                datalab.fab.install_venv_pip_pkg('torch==1.10.0+cu111 torchvision==0.11.0+cu111 '
                                                  'torchaudio==0.10.0+cu111 -f '
                                                  'https://download.pytorch.org/whl/cu111/torch_stable.html')
             else:
