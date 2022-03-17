@@ -1143,7 +1143,7 @@ def remove_s3(bucket_type='all', scientist=''):
         for s3bucket in bucket_list:
             if s3bucket:
                 bucket = s3.Bucket(s3bucket)
-                bucket.objects.all().delete()
+                bucket.object_versions.delete()
                 print("The S3 bucket {} has been cleaned".format(s3bucket))
                 client.delete_bucket(Bucket=s3bucket)
                 print("The S3 bucket {} has been deleted successfully".format(s3bucket))
