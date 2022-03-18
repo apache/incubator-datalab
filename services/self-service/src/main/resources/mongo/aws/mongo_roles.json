@@ -228,6 +228,18 @@
     ]
   },
   {
+    "_id": "compShapes_c4.large_fetching",
+    "description": "Use c4.large instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
+    "computational_shapes": [
+      "c4.large"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_c4.xlarge_fetching",
     "description": "Use c4.xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
