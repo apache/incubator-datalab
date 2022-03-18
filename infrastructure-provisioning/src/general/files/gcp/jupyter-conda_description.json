@@ -11,7 +11,7 @@
       "template_name": "Jupyter notebook 6.1.6 with GPU and Anaconda",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_conda",
+      "version": "jupyter_notebook_conda",
       "vendor": "GCP"
     }
   ]
