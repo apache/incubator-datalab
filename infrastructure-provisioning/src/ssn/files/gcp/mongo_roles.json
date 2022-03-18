@@ -110,7 +110,7 @@
     ]
   },
   {
-    "_id": "nbCreateJupyterGpuConda",
+    "_id": "nbCreateJupyterConda",
     "description": "Create Notebook Jupyter Gpu with Anaconda",
     "exploratories": [
       "docker.datalab-jupyter-conda"
