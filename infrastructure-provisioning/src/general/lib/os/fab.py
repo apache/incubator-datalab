@@ -969,13 +969,13 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
     if not exists(conn, '/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
             if os.environ['conf_deeplearning_cloud_ami'] == 'false' or os.environ['application'] != 'deeplearning':
-                conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
-                conn.sudo('pip3 install jupyter --no-cache-dir')
+                conn.sudo('-i pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
+                conn.sudo('-i pip3 install jupyter --no-cache-dir')
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
             elif os.environ['application'] != 'tensor':
-                conn.sudo('pip3 install environment_kernels')
-            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['application'] == 'deeplearning': #should be checked if for other applications any files have owner root:root in datalab-user homefolder and where it is changed to root:root on deeplearning
-                conn.sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
+                conn.sudo('-i pip3 install environment_kernels')
+            #if os.environ['conf_cloud_provider'] == 'aws' and os.environ['application'] == 'deeplearning': #should be checked if for other applications any files have owner root:root in datalab-user homefolder and where it is changed to root:root on deeplearning
+            #    conn.sudo( pip3 install flask'chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             conn.run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             conn.run('mkdir -p ~/.jupyter/custom/')
             conn.run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
