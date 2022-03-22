@@ -330,6 +330,7 @@ mat-sidenav-content {
 .blue {
   color: #35afd5;
 }
+
 .account-icon {
   margin-right: 20px;
   color: white;
@@ -337,7 +338,8 @@ mat-sidenav-content {
   cursor: pointer;
 }
 
-.about-btn {
+.statusbar.about-btn--wrapper > span.about-btn {
+  font-size: 16px;
   background-color: transparent;
   color: white;
   border: none;
@@ -346,7 +348,7 @@ mat-sidenav-content {
 
 .help-link {
   color: white;
-  font-size: 18px;
+  font-size: 16px;
 
   &--wrapper {
     margin-right: 20px;
