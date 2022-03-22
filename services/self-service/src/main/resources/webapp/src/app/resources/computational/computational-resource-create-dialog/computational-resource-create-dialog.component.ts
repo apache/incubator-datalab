@@ -350,7 +350,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private checkTemplateList(templates) {
     templates.forEach(template => {
-      if(template.image === 'docker.datalab-tensor') {
+      if(template.image === 'docker.datalab-tensor-jupyterlab') {
         this.filterShapeList(template.computation_resources_shapes)
       }
     });
