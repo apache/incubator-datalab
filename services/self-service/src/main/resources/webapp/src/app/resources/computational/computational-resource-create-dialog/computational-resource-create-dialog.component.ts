@@ -20,6 +20,7 @@
 import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
 import {FormGroup, FormBuilder, Validators} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
@@ -145,7 +146,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       .subscribe(
         (response: any) => {
           if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
-        }, 
+        },
         error => this.toastr.error(error.message, 'Oops!')
       );
   }
@@ -249,7 +250,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private validConfiguration(control) {
     if (this.isSelected.configuration) {
-      return this.isSelected.configuration 
+      return this.isSelected.configuration
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
     }
@@ -266,15 +267,23 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getTemplates(project, endpoint, provider) {
-    this.userResourceService.getComputationalTemplates(project, endpoint, provider).subscribe(
+    this.userResourceService.getComputationalTemplates(project, endpoint, provider)
+    .pipe(
+      tap(responce => {
+        const templateList = responce.templates;
+        this.checkTemplateList(templateList);
+      })
+    )
+    .subscribe(
       clusterTypes => {
         this.clusterTypes = clusterTypes.templates;
         this.userComputations = clusterTypes.user_computations;
         this.projectComputations = clusterTypes.project_computations;
 
         this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes =
-          SortUtils.shapesSort(cluster.computation_resources_shapes));
+        SortUtils.shapesSort(cluster.computation_resources_shapes));
         this.selectedImage = this.clusterTypes[0];
+
         if (this.selectedImage) {
           this._ref.detectChanges();
           this.filterShapes();
@@ -329,6 +338,24 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       }
     }
     return filtered;
+  }
+
+  private checkTemplateList(templates) {
+    templates.forEach(template => {
+      if(template.image === 'docker.datalab-tensor-jupyterlab') {
+        this.filterShapeList(template.computation_resources_shapes)
+      }
+    });
+  }
+
+  private filterShapeList(shapeList) {
+    Object.keys(shapeList).forEach(shape => {
+      shapeList[shape] = shapeList[shape].filter(
+        shape => {
+          return shape.Type === 'r3.xlarge' || shape.Type ==='c4.large';
+        })
+    })
+
   }
 
   private containsComputationalResource(conputational_resource_name: string, existNames: Array<string>): boolean {
