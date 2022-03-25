@@ -36,7 +36,6 @@ if sys.argv[1] == 'all':
         'project',
         'jupyter',
         'jupyter-gpu',
-        'jupyter-conda',
         'jupyterlab',
         'rstudio',
         'zeppelin',

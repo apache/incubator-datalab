@@ -176,8 +176,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
     if (this.selectedCloud === 'gcp' &&
         (template?.image === 'docker.datalab-jupyter' ||
-/**        template?.image === 'docker.datalab-jupyter-gpu' || */
-/**        template?.image === 'docker.datalab-jupyter-conda' || */
         template?.image === 'docker.datalab-deeplearning' ||
         template?.image === 'docker.datalab-tensor')) {
 
@@ -193,8 +191,6 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
     if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
       && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deeplearning') === -1
-/**      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('jupyter-gpu') === -1
-      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('jupyter-conda') === -1 */
       && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deep learning') === -1
       && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('data science') === -1
     ) {

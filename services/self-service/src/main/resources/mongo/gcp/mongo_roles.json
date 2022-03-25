@@ -132,18 +132,6 @@
     ]
   },
   {
-    "_id": "nbCreateJupyterConda",
-    "description": "Create Notebook Jupyter Gpu with Anaconda",
-    "type": "NOTEBOOK",
-    "cloud": "GCP",
-    "exploratories": [
-      "docker.datalab-jupyter-conda"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
     "_id": "nbCreateJupyterLab",
     "description": "Create Notebook JupyterLab",
     "type": "NOTEBOOK",
