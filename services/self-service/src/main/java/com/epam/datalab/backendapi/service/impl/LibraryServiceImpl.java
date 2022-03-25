@@ -164,7 +164,8 @@ public class LibraryServiceImpl implements LibraryService {
             groups.addAll(Arrays.asList(GROUP_R_PKG, GROUP_JAVA));
         }
         if (isTemplateGroup(templateName, Stream.of(DEEP_LEARNING, TENSOR, TENSOR_GCP,
-                DEEP_LEARNING_GCP, DEEP_LEARNING_AWS, DEEP_LEARNING_AZURE, JUPYTER_GPU, JUPYTER_GPU_CONDA))) {
+                DEEP_LEARNING_GCP, DEEP_LEARNING_AWS, DEEP_LEARNING_AZURE, JUPYTER_GPU, JUPYTER_CONDA))) {
+
             groups.add(GROUP_JAVA);
         }
         if (isTemplateGroup(templateName, Stream.of(RSTUDIO, TENSOR_RSTUDIO))) {

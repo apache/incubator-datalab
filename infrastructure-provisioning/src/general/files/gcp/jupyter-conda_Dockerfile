@@ -24,9 +24,9 @@ FROM docker.datalab-base:latest
 
 ARG OS
 
-COPY jupyter-gpu-conda/ /root/
+COPY jupyter-conda/ /root/
 COPY general/scripts/os/* /root/scripts/
-COPY general/scripts/gcp/jupyter-gpu-conda_* /root/scripts/
+COPY general/scripts/gcp/jupyter-conda_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py
 COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
