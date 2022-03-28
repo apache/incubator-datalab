@@ -989,7 +989,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
         try:
             if os.environ['conf_deeplearning_cloud_ami'] == 'false' or os.environ['application'] != 'deeplearning':
                 conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
-                conn.sudo('pip3 install jupyter --no-cache-dir')
+                conn.sudo('pip3 install jupyter MarkupSafe==2.0.1 --no-cache-dir')
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
             elif os.environ['application'] != 'tensor':
                 conn.sudo('pip3 install environment_kernels')
