@@ -53,6 +53,8 @@ class AzureMeta:
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
                                             client_id=json.dumps(self.sp_creds['clientId']).replace('"', ''),
                                             resource='https://datalake.azure.net/')
+        logger = logging.getLogger('azure')
+        logger.setLevel(logging.ERROR)
 
     def get_resource_group(self, resource_group_name):
         try:
