@@ -35,6 +35,8 @@ import sys
 import os
 import json
 
+logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
+logger.setLevel(logging.WARNING)
 
 class AzureMeta:
     def __init__(self):
