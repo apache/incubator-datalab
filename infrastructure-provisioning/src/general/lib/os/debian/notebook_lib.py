@@ -273,24 +273,39 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
             manage_pkg('-y install', 'remote', 'libbz2-dev libsqlite3-dev tk-dev libncursesw5-dev libreadline-dev '
                                                'liblzma-dev uuid-dev lzma-dev libgdbm-dev')  #necessary for python build
-            datalab.fab.conn.sudo('-i pip3 install -U keyrings.alt backoff')
-            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': 
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true':
+                datalab.fab.conn.sudo('-i pip3 install -U keyrings.alt backoff')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqt5==5.12')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqtwebengine==5.12')
                 datalab.fab.conn.sudo('-i pip3 install setuptools')
+                try:
+                    datalab.fab.conn.sudo(
+                        '-i pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
+                        .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                os.environ['notebook_nbconvert_version']))
+                except:
+                    datalab.fab.conn.sudo(
+                        '-i pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
+                        .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                os.environ['notebook_nbconvert_version']))
+                datalab.fab.conn.sudo(
+                    '-i pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+                datalab.fab.conn.sudo('-i pip3 install boto3 --no-cache-dir')
+                datalab.fab.conn.sudo('-i pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
             else:
-                datalab.fab.conn.sudo('-i pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
-            try:
-                datalab.fab.conn.sudo('-i pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
-                             os.environ['notebook_nbconvert_version']))
-            except:
-                datalab.fab.conn.sudo('-i pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
-                             os.environ['notebook_nbconvert_version']))
-            datalab.fab.conn.sudo('-i pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            datalab.fab.conn.sudo('-i pip3 install boto3 --no-cache-dir')
-            datalab.fab.conn.sudo('-i pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
+                datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
+                try:
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
+                         .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                 os.environ['notebook_nbconvert_version']))
+                except:
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
+                         .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                 os.environ['notebook_nbconvert_version']))
+                datalab.fab.conn.sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+                datalab.fab.conn.sudo('pip3 install boto3 --no-cache-dir')
+                datalab.fab.conn.sudo('pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
             sys.exit(1)
