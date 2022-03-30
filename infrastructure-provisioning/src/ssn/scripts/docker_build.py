@@ -42,8 +42,7 @@ if sys.argv[1] == 'all':
         'tensor-rstudio',
         'deeplearning',
         'dataengine',
-        'dataengine-service',
-        'superset']
+        'dataengine-service']
 else:
     node = sys.argv[1:]
 
@@ -62,7 +61,7 @@ def image_build(src_path, node):
                 subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True, check=True)
         else:
             cloud_provider = 'gcp'
-            node.extend(['jupyter-gpu'])
+            node.extend(['jupyter-gpu', 'superset'])
         subprocess.run('cd {2}; docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.datalab-base:latest .'.format(
                     os_family, cloud_provider, src_path), shell=True, check=True)
         try:
