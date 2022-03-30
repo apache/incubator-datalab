@@ -25,4 +25,5 @@ export * from './computationalResourceApplicationTemplate.model';
 export * from './computationalResourceApplication.model';
 export * from './imageType.enum';
 export * from './templates-name';
+export * from './statusTypes.enum';
 

@@ -44,6 +44,7 @@ if sys.argv[1] == 'all':
         'deeplearning',
         'dataengine',
         'dataengine-service',
+        'tensor-jupyterlab',
         'superset'
             ]
 else:
