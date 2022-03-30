@@ -31,7 +31,9 @@ RUN apt-get update && \
 
 # Install any python dependencies
 RUN python3 -m pip install -UI qtconsole==5.1.1 pip==21.1.2 && \
-    python3 -m pip install backoff patchwork fabric fabvenv argparse requests ujson jupyter pycryptodome azure==2.0.0 azure-mgmt-authorization pyyaml
+    python3 -m pip install backoff patchwork fabric fabvenv argparse requests ujson jupyter pycryptodome azure-common pyyaml && \
+    python3 -m pip install azure-mgmt-storage azure-mgmt-compute azure-mgmt-core azure-mgmt-network azure-storage-blob azure-mgmt-resource && \
+    python3 -m pip install azure-storage-file-datalake azure-datalake-store azure-identity azure-mgmt-datalake-store
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \

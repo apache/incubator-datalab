@@ -387,7 +387,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
                    'stopped': data.action==='stop', 'terminated': data.action === 'terminate'
                     }"
               >
-                {{data.action  === 'stop' ? 'Stopped' : 'Terminated'}}
+                {{data.action | convertactiontype}}
               </div>
             </div>
             <div class="clusters-list-item" *ngFor="let cluster of notebook?.resources">

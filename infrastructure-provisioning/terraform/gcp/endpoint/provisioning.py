@@ -412,6 +412,8 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.datalab-tensor-rstudio-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.datalab-tensor-jupyterlab-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.datalab-deeplearning-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.datalab-dataengine-service-{}'
@@ -435,6 +437,9 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.datalab-tensor-rstudio-{} '
                       'docker.datalab-tensor-rstudio'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.datalab-tensor-jupyterlab-{} '
+                      'docker.datalab-tensor-jupyterlab'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.datalab-deeplearning-{} '
                       'docker.datalab-deeplearning'
@@ -460,6 +465,8 @@ def pull_docker_images():
             conn.sudo('docker rmi {}:{}/docker.datalab-tensor-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.datalab-tensor-rstudio-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.datalab-tensor-jupyterlab-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.datalab-deeplearning-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))

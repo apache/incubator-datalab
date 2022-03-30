@@ -46,7 +46,6 @@ if sys.argv[1] == 'all':
         'dataengine-service',
         'tensor-jupyterlab',
         'superset'
-            ]
 else:
     node = sys.argv[1:]
 

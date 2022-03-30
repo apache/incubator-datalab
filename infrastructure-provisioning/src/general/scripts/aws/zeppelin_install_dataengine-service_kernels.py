@@ -75,6 +75,7 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
+    matplotlib_version = os.environ['notebook_matplotlib_version']
     command = "/usr/bin/python3 /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
              "--bucket {0} " \
              "--cluster_name {1} " \
@@ -91,8 +92,9 @@ if __name__ == "__main__":
              "--livy_version {12} " \
              "--multiple_clusters {13} " \
              "--numpy_version {14} " \
-             "--application {15} " \
-             "--r_enabled {16}" \
+             "--matplotlib_version {15} " \
+             "--application {16} " \
+             "--r_enabled {17}" \
         .format(args.bucket,
                 args.cluster_name,
                 args.emr_version,
@@ -108,6 +110,7 @@ if __name__ == "__main__":
                 livy_version,
                 os.environ['notebook_multiple_clusters'],
                 numpy_version,
+                matplotlib_version,
                 args.application,
                 r_enabled)
     conn.sudo(command)

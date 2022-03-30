@@ -31,6 +31,8 @@ public interface EnvironmentService {
 
     List<UserResourceInfo> getAllEnv(UserInfo user);
 
+    void startExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
+
     void stopAll();
 
     void stopEnvironmentWithServiceAccount(String user);

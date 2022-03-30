@@ -66,7 +66,7 @@ cudnn_file_name = os.environ['notebook_cudnn_file_name']
 if os.environ['conf_cloud_provider'] == 'azure':
     os.environ['notebook_python_venv_version'] = '3.7.12'
 python_venv_version = os.environ['notebook_python_venv_version']
-python_venv_path = '/opt/python/python{}/'.format(python_venv_version)
+python_venv_path = '/opt/python/python{0}/bin/python{1}'.format(python_venv_version, python_venv_version[:3])
 
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \

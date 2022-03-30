@@ -180,6 +180,18 @@
     ]
   },
   {
+    "_id": "nbCreateTensorJupyterlab",
+    "description": "Create Notebook Jupyterlab with TensorFlow",
+    "type": "NOTEBOOK",
+    "cloud": "AWS",
+    "exploratories": [
+      "docker.datalab-tensor-jupyterlab"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateTensorRstudio",
     "description": "Create Notebook RStudio with TensorFlow",
     "type": "NOTEBOOK",
@@ -210,6 +222,18 @@
     "cloud": "AWS",
     "computationals": [
       "docker.datalab-dataengine-service"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.large_fetching",
+    "description": "Use c4.large instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
+    "computational_shapes": [
+      "c4.large"
     ],
     "groups": [
       "$anyuser"

@@ -114,6 +114,8 @@ def build_parser():
                         help='Column name in report file that contains cost tag')
     parser.add_argument('--resource_id', type=str, default='line_item_resource_id',
                         help='Column name in report file that contains datalab resource id tag')
+    parser.add_argument('--conf_bucket_versioning_enabled', type=str, default='true', choices=BOOL_CHOICES_LIST,
+                            help='Versioning for S3 bucket (valid choices: %s)' % BOOL_CHOICES_LIST)
 
     parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description',
                         help='Column name in report file that contains tags')
@@ -263,11 +265,11 @@ def build_parser():
                             help='"TRUE" to enable os login for gcp instances')
     gcp_parser.add_argument('--gcp_block_project_ssh_keys', type=str, default='FALSE',
                             help='"TRUE" to block project ssh keys for gcp instances')
-    gcp_parser.add_argument('--gcp_bucket_enable_versioning', type=str, default='false',
-                            help='"true" to enable versioning for gcp storage buckets')
     gcp_parser.add_argument('--gcp_cmek_resource_name', type=str, default='',
                             help='customer managed encryption key resource name '
                             'e.g. projects/{project_name}/locations/{us}/keyRings/{keyring_name}/cryptoKeys/{key_name}')
+    gcp_parser.add_argument('--gcp_storage_lifecycle_rules', type=str, default='',
+                            help='storage bucket lifecycle rules')
     gcp_parser.add_argument('--gcp_wrapped_csek', type=str, default='',
                             help='customer supplied encryption key for disk/image encryption in RFC 4648 base64 '
                                  'encoded, RSA-wrapped 2048-bit format as rsaEncryptedKey')

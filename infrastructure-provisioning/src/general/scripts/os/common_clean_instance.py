@@ -67,6 +67,20 @@ def clean_jupyter():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+def clean_jupyterlab():
+    try:
+        conn.sudo('systemctl stop jupyterlab-notebook')
+        conn.sudo('pip3 uninstall -y jupyterlab')
+        #conn.sudo('rm -rf /usr/local/share/jupyter/')
+        conn.sudo('rm -rf /home/{}/.jupyter/'.format(args.os_user))
+        conn.sudo('rm -rf /home/{}/.ipython/'.format(args.os_user))
+        conn.sudo('rm -rf /home/{}/.ipynb_checkpoints/'.format(args.os_user))
+        conn.sudo('rm -rf /home/{}/.local/share/jupyter/'.format(args.os_user))
+        conn.sudo('rm -f /etc/systemd/system/jupyterlab-notebook.service')
+        conn.sudo('systemctl daemon-reload')
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
 
 def clean_zeppelin():
     try:
@@ -107,6 +121,16 @@ def clean_tensor():
 def clean_tensor_rstudio():
     try:
         clean_rstudio()
+        conn.sudo('systemctl stop tensorboard')
+        conn.sudo('systemctl disable tensorboard')
+        conn.sudo('systemctl daemon-reload')
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
+
+def clean_tensor_jupyterlab():
+    try:
+        clean_jupyterlab()
         conn.sudo('systemctl stop tensorboard')
         conn.sudo('systemctl disable tensorboard')
         conn.sudo('systemctl daemon-reload')
@@ -178,6 +202,8 @@ if __name__ == "__main__":
                     clean_tensor()
                 elif args.application == 'tensor-rstudio':
                     clean_tensor_rstudio()
+                elif args.application == 'tensor-jupyterlab':
+                    clean_tensor_jupyterlab()
     else:
         print('Found default ami, do not make clean')
     #conn.close()

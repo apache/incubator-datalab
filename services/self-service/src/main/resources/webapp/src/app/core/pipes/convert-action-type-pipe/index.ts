@@ -1,4 +1,4 @@
-/*!
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,33 +17,14 @@
  * under the License.
  */
 
-.sub-nav {
-  justify-content: flex-end;
-  .admin-group {
-    margin-right: 10px;
-  }
-  button {
-    margin-right: 10px;
-    &:last-child {
-      margin-right: 0;
-    }
-    &.env {
-      display: flex;
-      justify-content: center;
-      width: 210px;
-    }
-    &.ssn {
-      width: inherit;
-    }
-  }
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ConvertActionTypePipe } from './convert-action-type.pipe';
 
-.action-menu-item:disabled {
-  color: rgba(180, 179, 179, 0.87) !important;
-  background-color: white;
-  opacity: 1;
-}
+@NgModule({
+  imports: [CommonModule],
+  declarations: [ConvertActionTypePipe],
+  exports: [ConvertActionTypePipe]
+})
 
-.action-menu {
-  z-index: 999;
-}
+export class ConvertActionTypePipeModule { }

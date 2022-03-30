@@ -84,7 +84,8 @@ public class CommandExecutorMock implements ICommandExecutor {
                     "docker.datalab-rstudio:latest",
                     "docker.datalab-tensor:latest",
                     "docker.datalab-zeppelin:latest",
-                    "docker.datalab-tensor-rstudio:latest");
+                    "docker.datalab-tensor-rstudio:latest",
+                    "docker.datalab-tensor-jupyterlab:latest");
 
             list.addAll(getComputationalDockerImage());
 

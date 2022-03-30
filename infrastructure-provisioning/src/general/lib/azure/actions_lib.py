@@ -34,34 +34,71 @@ import traceback
 import urllib3
 import urllib.request
 import subprocess
-from azure.common.client_factory import get_client_from_auth_file
 from azure.datalake.store import core, lib
-from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.compute import ComputeManagementClient
-from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.storage.blob import BlockBlobService
+from azure.storage.blob import BlobServiceClient
+from azure.identity import ClientSecretCredential
+from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
+logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
+logger.setLevel(logging.WARNING)
 
 class AzureActions:
     def __init__(self):
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
-        self.compute_client = get_client_from_auth_file(ComputeManagementClient)
-        self.resource_client = get_client_from_auth_file(ResourceManagementClient)
-        self.network_client = get_client_from_auth_file(NetworkManagementClient)
-        self.storage_client = get_client_from_auth_file(StorageManagementClient)
-        self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
+        with open('/root/azure_auth.json') as json_file:
+            json_dict = json.load(json_file)
+
+        self.credential = ClientSecretCredential(
+            tenant_id=json_dict["tenantId"],
+            client_id=json_dict["clientId"],
+            client_secret=json_dict["clientSecret"],
+            authority=json_dict["activeDirectoryEndpointUrl"]
+        )
+
+        self.compute_client = ComputeManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.resource_client = ResourceManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.network_client = NetworkManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.storage_client = StorageManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"],
+            credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
+        )
+        self.datalake_client = DataLakeStoreAccountManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"]
+        )
         #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
                                             client_id=json.dumps(self.sp_creds['clientId']).replace('"', ''),
                                             resource='https://datalake.azure.net/')
+        logger = logging.getLogger('azure')
+        logger.setLevel(logging.ERROR)
 
     def create_resource_group(self, resource_group_name, region):
         try:
@@ -85,7 +122,7 @@ class AzureActions:
 
     def remove_resource_group(self, resource_group_name, region):
         try:
-            result = self.resource_client.resource_groups.delete(
+            result = self.resource_client.resource_groups.begin_delete(
                 resource_group_name,
                 {
                     'location': region
@@ -102,7 +139,7 @@ class AzureActions:
 
     def create_vpc(self, resource_group_name, vpc_name, region, vpc_cidr):
         try:
-            result = self.network_client.virtual_networks.create_or_update(
+            result = self.network_client.virtual_networks.begin_create_or_update(
                 resource_group_name,
                 vpc_name,
                 {
@@ -154,7 +191,7 @@ class AzureActions:
 
     def remove_vpc(self, resource_group_name, vpc_name):
         try:
-            result = self.network_client.virtual_networks.delete(
+            result = self.network_client.virtual_networks.begin_delete(
                 resource_group_name,
                 vpc_name
             )
@@ -169,7 +206,7 @@ class AzureActions:
 
     def create_subnet(self, resource_group_name, vpc_name, subnet_name, subnet_cidr):
         try:
-            result = self.network_client.subnets.create_or_update(
+            result = self.network_client.subnets.begin_create_or_update(
                 resource_group_name,
                 vpc_name,
                 subnet_name,
@@ -188,7 +225,7 @@ class AzureActions:
 
     def remove_subnet(self, resource_group_name, vpc_name, subnet_name):
         try:
-            result = self.network_client.subnets.delete(
+            result = self.network_client.subnets.begin_delete(
                 resource_group_name,
                 vpc_name,
                 subnet_name
@@ -206,7 +243,7 @@ class AzureActions:
         try:
             result = ''
             if not preexisting_sg:
-                result = self.network_client.network_security_groups.create_or_update(
+                result = self.network_client.network_security_groups.begin_create_or_update(
                     resource_group_name,
                     network_security_group_name,
                     {
@@ -215,7 +252,7 @@ class AzureActions:
                     }
                 ).wait()
             for rule in list_rules:
-                self.network_client.security_rules.create_or_update(
+                self.network_client.security_rules.begin_create_or_update(
                     resource_group_name,
                     network_security_group_name,
                     security_rule_name=rule['name'],
@@ -233,7 +270,7 @@ class AzureActions:
 
     def remove_security_rules(self, network_security_group, resource_group, security_rule):
         try:
-            result = self.network_client.security_rules.delete(
+            result = self.network_client.security_rules.begin_delete(
                 network_security_group_name = network_security_group,
                 resource_group_name = resource_group,
                 security_rule_name = security_rule).wait()
@@ -248,7 +285,7 @@ class AzureActions:
 
     def remove_security_group(self, resource_group_name, network_security_group_name):
         try:
-            result = self.network_client.network_security_groups.delete(
+            result = self.network_client.network_security_groups.begin_delete(
                 resource_group_name,
                 network_security_group_name
             )
@@ -263,7 +300,7 @@ class AzureActions:
 
     def create_datalake_store(self, resource_group_name, datalake_name, region, tags):
         try:
-            result = self.datalake_client.account.create(
+            result = self.datalake_client.accounts.create(
                 resource_group_name,
                 datalake_name,
                 {
@@ -286,7 +323,7 @@ class AzureActions:
 
     def delete_datalake_store(self, resource_group_name, datalake_name):
         try:
-            result = self.datalake_client.account.delete(
+            result = self.datalake_client.accounts.delete(
                 resource_group_name,
                 datalake_name
             ).wait()
@@ -301,7 +338,7 @@ class AzureActions:
 
     def create_datalake_directory(self, datalake_name, dir_name):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.mkdir(dir_name)
             return result
         except Exception as err:
@@ -314,7 +351,7 @@ class AzureActions:
 
     def chown_datalake_directory(self, datalake_name, dir_name, ad_user='', ad_group=''):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             if ad_user and ad_group:
                 result = datalake_client.chown(dir_name, owner=ad_user, group=ad_group)
             elif ad_user and not ad_group:
@@ -333,7 +370,7 @@ class AzureActions:
 
     def chmod_datalake_directory(self, datalake_name, dir_name, mod):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.chmod(dir_name, mod)
             return result
         except Exception as err:
@@ -348,7 +385,7 @@ class AzureActions:
     def set_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user, mod='rwx'):
         try:
             acl_specification = 'user:{}:{}'.format(ad_user, mod)
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.modify_acl_entries(path=dir_name, acl_spec=acl_specification)
             return result
         except Exception as err:
@@ -363,7 +400,7 @@ class AzureActions:
     def unset_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user):
         try:
             acl_specification = 'user:{}'.format(ad_user)
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
             result = datalake_client.remove_acl_entries(path=dir_name, acl_spec=acl_specification)
             return result
         except Exception as err:
@@ -377,8 +414,8 @@ class AzureActions:
 
     def remove_datalake_directory(self, datalake_name, dir_name):
         try:
-            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
-            result = datalake_client.rm(dir_name, recursive=True)
+            datalake_client = core.AzureDLFileSystem(store_name=datalake_name, token=self.dl_filesystem_creds)
+            result = datalake_client.remove(dir_name, recursive=True)
             return result
         except Exception as err:
             logging.info(
@@ -390,7 +427,7 @@ class AzureActions:
 
     def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
-            result = self.storage_client.storage_accounts.create(
+            result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
                 {
@@ -399,7 +436,9 @@ class AzureActions:
                     "location":  region,
                     "tags": tags,
                     "access_tier": "Hot",
+                    "minimumTlsVersion": "TLS1_2",
                     "encryption": {
+                        "key_source": "Microsoft.Storage",
                         "services": {"blob": {"enabled": True}}
                     }
                 }
@@ -431,7 +470,7 @@ class AzureActions:
     def create_blob_container(self, resource_group_name, account_name, container_name):
         try:
             secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
             result = block_blob_service.create_container(container_name)
             return result
         except Exception as err:
@@ -445,7 +484,7 @@ class AzureActions:
     def upload_to_container(self, resource_group_name, account_name, container_name, files):
         try:
             secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
             for filename in files:
                 block_blob_service.create_blob_from_path(container_name, filename, filename)
             return ''
@@ -460,7 +499,7 @@ class AzureActions:
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
             secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
             return ''
@@ -476,7 +515,7 @@ class AzureActions:
 
     def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name, tags):
         try:
-            self.network_client.public_ip_addresses.create_or_update(
+            self.network_client.public_ip_addresses.begin_create_or_update(
                 resource_group_name,
                 ip_name,
                 {
@@ -500,7 +539,7 @@ class AzureActions:
 
     def delete_static_public_ip(self, resource_group_name, ip_name):
         try:
-            result = self.network_client.public_ip_addresses.delete(
+            result = self.network_client.public_ip_addresses.begin_delete(
                 resource_group_name,
                 ip_name
             ).wait()
@@ -793,7 +832,7 @@ class AzureActions:
                 }
             else:
                 parameters = {}
-            result = self.compute_client.virtual_machines.create_or_update(
+            result = self.compute_client.virtual_machines.begin_create_or_update(
                 resource_group_name, instance_name, parameters
             ).wait()
             AzureActions().tag_disks(resource_group_name, instance_name)
@@ -813,11 +852,11 @@ class AzureActions:
             tags_copy = disk.tags.copy()
             tags_copy['Name'] = tags_copy['Name'] + postfix_list[inx]
             disk.tags = tags_copy
-            self.compute_client.disks.create_or_update(resource_group_name, disk.name, disk)
+            self.compute_client.disks.begin_create_or_update(resource_group_name, disk.name, disk)
 
     def stop_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            result = self.compute_client.virtual_machines.begin_deallocate(resource_group_name, instance_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -829,7 +868,7 @@ class AzureActions:
 
     def start_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.start(resource_group_name, instance_name).wait()
+            result = self.compute_client.virtual_machines.begin_start(resource_group_name, instance_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -843,7 +882,7 @@ class AzureActions:
         try:
             instance_parameters = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
             instance_parameters.tags = tags
-            result = self.compute_client.virtual_machines.create_or_update(resource_group_name, instance_name,
+            result = self.compute_client.virtual_machines.begin_create_or_update(resource_group_name, instance_name,
                                                                            instance_parameters)
             return result
         except Exception as err:
@@ -856,7 +895,7 @@ class AzureActions:
 
     def remove_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name).wait()
+            result = self.compute_client.virtual_machines.begin_delete(resource_group_name, instance_name).wait()
             print("Instance {} has been removed".format(instance_name))
             # Removing instance disks
             disk_names = []
@@ -888,7 +927,7 @@ class AzureActions:
 
     def remove_disk(self, resource_group_name, disk_name):
         try:
-            result = self.compute_client.disks.delete(resource_group_name, disk_name).wait()
+            result = self.compute_client.disks.begin_delete(resource_group_name, disk_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -932,7 +971,7 @@ class AzureActions:
                         "id": subnet_id
                     }
                 }]
-            result = self.network_client.network_interfaces.create_or_update(
+            result = self.network_client.network_interfaces.begin_create_or_update(
                 resource_group_name,
                 interface_name,
                 {
@@ -959,7 +998,7 @@ class AzureActions:
 
     def delete_network_if(self, resource_group_name, interface_name):
         try:
-            result = self.network_client.network_interfaces.delete(resource_group_name, interface_name).wait()
+            result = self.network_client.network_interfaces.begin_delete(resource_group_name, interface_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -1030,10 +1069,10 @@ class AzureActions:
     def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
         try:
             instance_id = datalab.meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
-            self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            self.compute_client.virtual_machines.begin_deallocate(resource_group_name, instance_name).wait()
             self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
             if not datalab.meta_lib.AzureMeta().get_image(resource_group_name, image_name):
-                self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
+                self.compute_client.images.begin_create_or_update(resource_group_name, image_name, parameters={
                     "location": region,
                     "tags": json.loads(tags),
                     "source_virtual_machine": {
@@ -1051,7 +1090,7 @@ class AzureActions:
 
     def remove_image(self, resource_group_name, image_name):
         try:
-            return self.compute_client.images.delete(resource_group_name, image_name)
+            return self.compute_client.images.begin_delete(resource_group_name, image_name)
         except Exception as err:
             logging.info(
                 "Unable to remove image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))

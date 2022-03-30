@@ -1,4 +1,4 @@
-/*!
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,33 +17,12 @@
  * under the License.
  */
 
-.sub-nav {
-  justify-content: flex-end;
-  .admin-group {
-    margin-right: 10px;
-  }
-  button {
-    margin-right: 10px;
-    &:last-child {
-      margin-right: 0;
-    }
-    &.env {
-      display: flex;
-      justify-content: center;
-      width: 210px;
-    }
-    &.ssn {
-      width: inherit;
-    }
-  }
-}
-
-.action-menu-item:disabled {
-  color: rgba(180, 179, 179, 0.87) !important;
-  background-color: white;
-  opacity: 1;
-}
-
-.action-menu {
-  z-index: 999;
+export enum StatusTypes {
+    creating = 'creating', 
+    running = 'running',
+    stopping = 'stopping',
+    stopped = 'stopped',
+    terminating = 'terminating',
+    terminated = 'terminated',
+    failed = 'failed'
 }

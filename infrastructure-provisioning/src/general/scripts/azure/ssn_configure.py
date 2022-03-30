@@ -36,9 +36,9 @@ from fabric import *
 if __name__ == "__main__":
     def clear_resources():
         AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
-        for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+        # for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
+        #    if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
+        #        AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
         if 'azure_security_group_name' not in os.environ:
             AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
         if 'azure_subnet_name' not in os.environ:
@@ -483,9 +483,9 @@ if __name__ == "__main__":
             ssn_conf['tenant_id'] = json.dumps(AzureMeta.sp_creds['tenantId']).replace('"', '')
             ssn_conf['subscription_id'] = json.dumps(AzureMeta.sp_creds['subscriptionId']).replace('"', '')
             ssn_conf['datalake_application_id'] = os.environ['azure_application_id']
-            for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
-                if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    datalake_store_name = datalake.name
+           # for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
+           #     if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
+           #         datalake_store_name = datalake.name
         params = "--hostname {} --keyfile {} --datalab_path {} --os_user {} --os_family {} --request_id {} \
                  --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
                  --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \

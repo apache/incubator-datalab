@@ -1,4 +1,4 @@
-/*!
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,33 +17,32 @@
  * under the License.
  */
 
-.sub-nav {
-  justify-content: flex-end;
-  .admin-group {
-    margin-right: 10px;
-  }
-  button {
-    margin-right: 10px;
-    &:last-child {
-      margin-right: 0;
-    }
-    &.env {
-      display: flex;
-      justify-content: center;
-      width: 210px;
-    }
-    &.ssn {
-      width: inherit;
-    }
-  }
+import { Pipe, PipeTransform } from '@angular/core';
+import { ActionsType } from '../../../administration/management/management.model';
+
+const actionTypes = {
+    stopped: 'Stopped',
+    terminated: ' Terminated',
+    started: 'Started'
 }
 
-.action-menu-item:disabled {
-  color: rgba(180, 179, 179, 0.87) !important;
-  background-color: white;
-  opacity: 1;
-}
+@Pipe({ name: 'convertactiontype' })
 
-.action-menu {
-  z-index: 999;
+export class ConvertActionTypePipe implements PipeTransform {
+  transform(value: string,): string {
+    if(value === ActionsType.stop) {
+        return actionTypes.stopped
+    }
+
+    if(value === ActionsType.start) {
+        return actionTypes.started
+    }
+
+    if(value === ActionsType.terminate) {
+        return actionTypes.terminated
+    }
+    else {
+        return 'Unknown type'
+    }
+  }
 }
