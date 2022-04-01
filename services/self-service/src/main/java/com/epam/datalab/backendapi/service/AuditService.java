@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.service;
 import com.epam.datalab.backendapi.domain.AuditCreateDTO;
 import com.epam.datalab.backendapi.domain.AuditDTO;
 import com.epam.datalab.backendapi.domain.AuditPaginationDTO;
+import com.epam.datalab.model.StringList;
 
 import java.util.List;
 
@@ -31,4 +32,7 @@ public interface AuditService {
     void save(String user, AuditCreateDTO audit);
 
     List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd, int pageNumber, int pageSize);
+
+    String downloadAuditReport(StringList users, StringList projects, StringList resourceNames, StringList resourceTypes, String dateStart, String dateEnd, int pageNumber, int pageSize);
+
 }

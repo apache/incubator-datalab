@@ -20,12 +20,13 @@
 package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.backendapi.dao.AuditDAO;
-import com.epam.datalab.backendapi.domain.AuditCreateDTO;
-import com.epam.datalab.backendapi.domain.AuditDTO;
-import com.epam.datalab.backendapi.domain.AuditPaginationDTO;
+import com.epam.datalab.backendapi.domain.*;
 import com.epam.datalab.backendapi.service.AuditService;
+import com.epam.datalab.backendapi.util.AuditUtils;
+import com.epam.datalab.model.StringList;
 import com.google.inject.Inject;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.FOLLOW_LINK;
@@ -59,5 +60,18 @@ public class AuditServiceImpl implements AuditService {
     public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes,
                                              String dateStart, String dateEnd, int pageNumber, int pageSize) {
         return auditDAO.getAudit(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize);
+    }
+
+    public String downloadAuditReport(StringList users, StringList projects, StringList resourceNames, StringList resourceTypes, String dateStart, String dateEnd, int pageNumber, int pageSize) {
+
+        List<AuditReportLine> auditReportLines = auditDAO.aggregateAuditReport(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize);
+        final LocalDate dateFrom = LocalDate.parse(dateStart);
+        final LocalDate dateTo = LocalDate.parse(dateEnd);
+        //Locale can be added as parameter in method
+        StringBuilder reportHead = new StringBuilder(AuditUtils.getFirstLine(dateFrom, dateTo, "en-GB"));
+        reportHead.append(AuditUtils.getHeader());
+        auditReportLines.forEach(r -> reportHead.append(AuditUtils.printLine(r)));
+
+        return reportHead.toString();
     }
 }

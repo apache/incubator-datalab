@@ -33,6 +33,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -65,6 +66,23 @@ public class AuditResource {
                              @QueryParam("page-size") int pageSize) {
         return Response
                 .ok(auditService.getAudit(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize))
+                .build();
+    }
+
+    @POST
+    @Path("/report/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadAuditReport(@Auth UserInfo userInfo,
+                                          @QueryParam("users") StringList users,
+                                          @QueryParam("projects") StringList projects,
+                                          @QueryParam("resource-names") StringList resourceNames,
+                                          @QueryParam("resource-types") StringList resourceTypes,
+                                          @QueryParam("date-start") String dateStart,
+                                          @QueryParam("date-end") String dateEnd,
+                                          @QueryParam("page-number") int pageNumber,
+                                          @QueryParam("page-size") int pageSize) {
+        return Response.ok(auditService.downloadAuditReport(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"audit-report.csv\"")
                 .build();
     }
 }
