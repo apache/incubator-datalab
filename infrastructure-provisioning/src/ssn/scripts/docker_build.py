@@ -42,10 +42,7 @@ if sys.argv[1] == 'all':
         'tensor-rstudio',
         'deeplearning',
         'dataengine',
-        'dataengine-service',
-        'tensor-jupyterlab',
-        'superset'
-        ]
+        'dataengine-service']
 else:
     node = sys.argv[1:]
 
@@ -57,12 +54,14 @@ def image_build(src_path, node):
             os_family = 'redhat'
         if subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'aws':
             cloud_provider = 'aws'
+            node.extend(['tensor-jupyterlab'])
         elif subprocess.run("uname -r | awk -F '-' '{print $3}'", capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r") == 'azure':
             cloud_provider = 'azure'
             if not path.exists('{}base/azure_auth.json'.format(src_path)):
                 subprocess.run('cp /home/datalab-user/keys/azure_auth.json {}base/azure_auth.json'.format(src_path), shell=True, check=True)
         else:
             cloud_provider = 'gcp'
+            node.extend(['jupyter-gpu', 'superset'])
         subprocess.run('cd {2}; docker build --build-arg OS={0} --build-arg SRC_PATH= --file general/files/{1}/base_Dockerfile -t docker.datalab-base:latest .'.format(
                     os_family, cloud_provider, src_path), shell=True, check=True)
         try:
