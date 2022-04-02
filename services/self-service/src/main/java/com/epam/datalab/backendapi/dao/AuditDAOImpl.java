@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.dao;
 import com.epam.datalab.backendapi.domain.AuditDTO;
 import com.epam.datalab.backendapi.domain.AuditPaginationDTO;
 import com.epam.datalab.backendapi.domain.AuditReportLine;
+import com.epam.datalab.backendapi.resources.dto.AuditFilter;
 import com.epam.datalab.exceptions.DatalabException;
 import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.Filters;
@@ -87,16 +88,14 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
                 .map(this::toAuditPaginationDTO)
                 .collect(Collectors.toList());
     }
-
-    public List<AuditReportLine> aggregateAuditReport(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd,
-                                                      int pageNumber, int pageSize) {
-        List<Bson> facets = getFacets(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize);
+//https://localhost:8443/api/audit/report/download?page-number=1&page-size=50&users=test&date-start=2022-03-18&date-end=2022-03-20&noCache=1647821813097
+    public List<AuditReportLine> aggregateAuditReport(AuditFilter filter) {
+        List<Bson> facets = getFacets(filter.getUsers(), filter.getProjects(), filter.getResourceNames(), filter.getResourceTypes(), filter.getDateStart(), filter.getDateEnd(), filter.getPageNumber(), filter.getPageSize());
         List<Document> auditDocuments  = new ArrayList<>();
         StreamSupport.stream(aggregate(AUDIT_COLLECTION, facets).spliterator(), false)
                 .peek(System.out::println)
                 .map(document -> (ArrayList<Document>)document.get(AUDIT_FACET))
                 .forEach(auditDocuments::addAll);
-
         return auditDocuments.stream()
                 .map(this::toAuditReport)
                 .collect(Collectors.toList());

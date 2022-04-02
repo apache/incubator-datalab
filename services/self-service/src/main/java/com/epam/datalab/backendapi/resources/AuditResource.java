@@ -21,12 +21,15 @@ package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.domain.AuditCreateDTO;
+import com.epam.datalab.backendapi.resources.dto.AuditFilter;
+import com.epam.datalab.backendapi.resources.dto.ExportBillingFilter;
 import com.epam.datalab.backendapi.service.AuditService;
 import com.epam.datalab.model.StringList;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -72,16 +75,8 @@ public class AuditResource {
     @POST
     @Path("/report/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadAuditReport(@Auth UserInfo userInfo,
-                                          @QueryParam("users") StringList users,
-                                          @QueryParam("projects") StringList projects,
-                                          @QueryParam("resource-names") StringList resourceNames,
-                                          @QueryParam("resource-types") StringList resourceTypes,
-                                          @QueryParam("date-start") String dateStart,
-                                          @QueryParam("date-end") String dateEnd,
-                                          @QueryParam("page-number") int pageNumber,
-                                          @QueryParam("page-size") int pageSize) {
-        return Response.ok(auditService.downloadAuditReport(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize))
+    public Response downloadAuditReport(@Auth UserInfo userInfo, AuditFilter filter) {
+        return Response.ok(auditService.downloadAuditReport(filter))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"audit-report.csv\"")
                 .build();
     }
