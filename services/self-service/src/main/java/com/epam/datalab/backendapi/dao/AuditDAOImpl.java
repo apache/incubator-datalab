@@ -88,7 +88,7 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
                 .map(this::toAuditPaginationDTO)
                 .collect(Collectors.toList());
     }
-//https://localhost:8443/api/audit/report/download?page-number=1&page-size=50&users=test&date-start=2022-03-18&date-end=2022-03-20&noCache=1647821813097
+
     public List<AuditReportLine> aggregateAuditReport(AuditFilter filter) {
         List<Bson> facets = getFacets(filter.getUsers(), filter.getProjects(), filter.getResourceNames(), filter.getResourceTypes(), filter.getDateStart(), filter.getDateEnd(), filter.getPageNumber(), filter.getPageSize());
         List<Document> auditDocuments  = new ArrayList<>();
