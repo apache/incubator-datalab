@@ -24,7 +24,6 @@ import com.epam.datalab.backendapi.domain.*;
 import com.epam.datalab.backendapi.resources.dto.AuditFilter;
 import com.epam.datalab.backendapi.service.AuditService;
 import com.epam.datalab.backendapi.util.AuditUtils;
-import com.epam.datalab.model.StringList;
 import com.google.inject.Inject;
 
 import java.time.LocalDate;
@@ -64,7 +63,6 @@ public class AuditServiceImpl implements AuditService {
     }
 
     public String downloadAuditReport(AuditFilter filter) {
-
         List<AuditReportLine> auditReportLines = auditDAO.aggregateAuditReport(filter);
         final LocalDate dateFrom = LocalDate.parse(filter.getDateStart());
         final LocalDate dateTo = LocalDate.parse(filter.getDateEnd());
