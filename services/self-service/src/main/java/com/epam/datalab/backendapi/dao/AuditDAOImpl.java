@@ -93,7 +93,6 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         List<Bson> facets = getFacets(filter.getUsers(), filter.getProjects(), filter.getResourceNames(), filter.getResourceTypes(), filter.getDateStart(), filter.getDateEnd(), filter.getPageNumber(), filter.getPageSize());
         List<Document> auditDocuments  = new ArrayList<>();
         StreamSupport.stream(aggregate(AUDIT_COLLECTION, facets).spliterator(), false)
-                .peek(System.out::println)
                 .map(document -> (ArrayList<Document>)document.get(AUDIT_FACET))
                 .forEach(auditDocuments::addAll);
         return auditDocuments.stream()
