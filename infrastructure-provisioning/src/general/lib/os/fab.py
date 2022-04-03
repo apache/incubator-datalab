@@ -379,6 +379,25 @@ def ensure_python_venv(python_venv_version):
         traceback.print_exc()
         sys.exit(1)
 
+def ensure_anaconda():
+    try:
+        if not exists(conn, '/opt/anaconda3'):
+            conn.sudo('wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh -O /tmp/anaconda.sh')
+            conn.sudo('bash /tmp/anaconda.sh -b -p /opt/anaconda3')
+            conn.sudo('chown -R datalab-user /opt/anaconda3')
+            #conn.sudo(''' bash -l -c "echo 'export PATH=/opt/anaconda3/bin/:\$PATH' >> /home/datalab-user/.bashrc" ''')
+            #conn.run('source /home/datalab-user/.bashrc')
+            conn.run('source /opt/anaconda3/etc/profile.d/conda.sh && conda create -y -p /opt/anaconda3/envs/jupyter-conda git pip ipykernel -c anaconda')
+            conn.run('source /opt/anaconda3/etc/profile.d/conda.sh && conda activate jupyter-conda && /opt/anaconda3/envs/jupyter-conda/bin/pip install numpy scipy pandas scikit-learn transformers==4.4.2 gensim==4.0.1 tokenizers==0.10.1 python-levenshtein==0.12.2')
+            conn.run('source /opt/anaconda3/etc/profile.d/conda.sh && conda activate jupyter-conda && /opt/anaconda3/envs/jupyter-conda/bin/pip install -U torch==1.10.0+cu111 torchvision==0.11.3+cu111 torchaudio==0.10.2+cu111 -f https://download.pytorch.org/whl/cu111/torch_stable.html --no-cache-dir')
+            conn.sudo('chown -R datalab-user /home/datalab-user/.local/share/jupyter/kernels')
+            conn.run('source /opt/anaconda3/etc/profile.d/conda.sh && conda activate jupyter-conda && python -m ipykernel install --user --name=jupyter-conda')
+            conn.sudo('chown -R root /home/datalab-user/.local/share/jupyter/kernels')
+            conn.sudo('systemctl restart jupyter-notebook')
+    except Exception as err:
+        logging.error('Function ensure_anaconda error:', str(err))
+        traceback.print_exc()
+        sys.exit(1)
 
 def install_venv_pip_pkg(pkg_name, pkg_version=''):
     try:
@@ -969,8 +988,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
     if not exists(conn, '/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
             if os.environ['conf_deeplearning_cloud_ami'] == 'false' or os.environ['application'] != 'deeplearning':
-                conn.sudo('-i pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
-                conn.sudo('-i pip3 install jupyter --no-cache-dir')
+                conn.sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
+                conn.sudo('pip3 install jupyter MarkupSafe==2.0.1 --no-cache-dir') # requires investigation
                 conn.sudo('rm -rf {}'.format(jupyter_conf_file))
             elif os.environ['application'] != 'tensor':
                 conn.sudo('-i pip3 install environment_kernels')
