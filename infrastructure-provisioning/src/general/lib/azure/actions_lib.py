@@ -46,8 +46,6 @@ from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
-logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-logger.setLevel(logging.WARNING)
 
 class AzureActions:
     def __init__(self):
@@ -91,12 +89,13 @@ class AzureActions:
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
         )
-        #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
                                             client_id=json.dumps(self.sp_creds['clientId']).replace('"', ''),
                                             resource='https://datalake.azure.net/')
+        logger = logging.getLogger('azure')
+        logger.setLevel(logging.ERROR)
 
     def create_resource_group(self, resource_group_name, region):
         try:
@@ -442,11 +441,10 @@ class AzureActions:
 
     def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
-            test_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
+            network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
                                                                      vpc_name=os.environ['azure_vpc_name'],
                                                                      subnet_name=os.environ['azure_subnet_name']
                                                                      ).id
-            resource_group_id = datalab.meta_lib.AzureMeta().get_resource_group(resource_group_name).id
             result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
@@ -466,7 +464,7 @@ class AzureActions:
                         "bypass": "Logging, Metrics, AzureServices",
                         "virtual_network_rules": [
                             {
-                                "virtual_network_resource_id": test_network_id,
+                                "virtual_network_resource_id": network_id,
                                 "action": "Allow",
                                 "state": "Succeeded"
                             }

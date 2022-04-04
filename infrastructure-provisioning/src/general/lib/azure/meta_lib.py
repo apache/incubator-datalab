@@ -35,8 +35,6 @@ import sys
 import os
 import json
 
-logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-logger.setLevel(logging.WARNING)
 
 class AzureMeta:
     def __init__(self):
@@ -85,6 +83,8 @@ class AzureMeta:
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
                                             client_id=json.dumps(self.sp_creds['clientId']).replace('"', ''),
                                             resource='https://datalake.azure.net/')
+        logger = logging.getLogger('azure')
+        logger.setLevel(logging.ERROR)
 
     def get_resource_group(self, resource_group_name):
         try:
