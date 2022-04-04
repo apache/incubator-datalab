@@ -20,12 +20,13 @@
 package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.backendapi.dao.AuditDAO;
-import com.epam.datalab.backendapi.domain.AuditCreateDTO;
-import com.epam.datalab.backendapi.domain.AuditDTO;
-import com.epam.datalab.backendapi.domain.AuditPaginationDTO;
+import com.epam.datalab.backendapi.domain.*;
+import com.epam.datalab.backendapi.resources.dto.AuditFilter;
 import com.epam.datalab.backendapi.service.AuditService;
+import com.epam.datalab.backendapi.util.AuditUtils;
 import com.google.inject.Inject;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.FOLLOW_LINK;
@@ -59,5 +60,16 @@ public class AuditServiceImpl implements AuditService {
     public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes,
                                              String dateStart, String dateEnd, int pageNumber, int pageSize) {
         return auditDAO.getAudit(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize);
+    }
+
+    public String downloadAuditReport(AuditFilter filter) {
+        List<AuditReportLine> auditReportLines = auditDAO.aggregateAuditReport(filter);
+        final LocalDate dateFrom = LocalDate.parse(filter.getDateStart());
+        final LocalDate dateTo = LocalDate.parse(filter.getDateEnd());
+        StringBuilder reportHead = new StringBuilder(AuditUtils.getFirstLine(dateFrom, dateTo,  filter.getLocale()));
+        reportHead.append(AuditUtils.getHeader());
+        auditReportLines.forEach(r -> reportHead.append(AuditUtils.printLine(r)));
+
+        return reportHead.toString();
     }
 }

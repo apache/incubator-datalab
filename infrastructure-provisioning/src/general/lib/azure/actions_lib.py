@@ -46,6 +46,8 @@ from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
+logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
+logger.setLevel(logging.WARNING)
 
 class AzureActions:
     def __init__(self):
