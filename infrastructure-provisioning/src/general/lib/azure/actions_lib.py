@@ -218,14 +218,6 @@ class AzureActions:
                 subnet_name,
                 {
                     "address_prefix": subnet_cidr
-                    #"service_endpoints": [
-                    #    {
-                    #         "service": "Microsoft.Storage",
-                    #         "locations": [
-                    #             region
-                    #         ]
-                    #    }
-                    #]
                 }
             )
             return result
@@ -1455,4 +1447,3 @@ def find_des_jars(all_jars, des_path):
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
-
