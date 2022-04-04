@@ -17,19 +17,27 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.dao;
+package com.epam.datalab.backendapi.domain;
 
-import com.epam.datalab.backendapi.domain.AuditDTO;
-import com.epam.datalab.backendapi.domain.AuditPaginationDTO;
-import com.epam.datalab.backendapi.domain.AuditReportLine;
-import com.epam.datalab.backendapi.resources.dto.AuditFilter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDate;
 
-public interface AuditDAO {
-    void save(AuditDTO audit);
-
-    List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd, int pageNumber, int pageSize);
-
-    List<AuditReportLine> aggregateAuditReport(AuditFilter auditFilter);
+@Data
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@NoArgsConstructor
+public class AuditReportLine {
+    private String datalabId;
+    private String action;
+    private String resourceType;
+    private String resourceName;
+    private String project;
+    private String user;
+    private LocalDate timestamp;
 }
