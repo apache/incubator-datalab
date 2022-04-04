@@ -21,6 +21,8 @@ package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.backendapi.domain.AuditDTO;
 import com.epam.datalab.backendapi.domain.AuditPaginationDTO;
+import com.epam.datalab.backendapi.domain.AuditReportLine;
+import com.epam.datalab.backendapi.resources.dto.AuditFilter;
 import com.epam.datalab.exceptions.DatalabException;
 import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.Filters;
@@ -33,6 +35,7 @@ import org.bson.conversions.Bson;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -69,6 +72,8 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     private static final String USER_FACET = "userFacet";
     private static final String PROJECT_FACET = "projectFacet";
     private static final String RESOURCE_TYPE_FACET = "typeFacet";
+    private static final String DATALAB_ID = "datalabId";
+    private static final String ACTION = "action";
 
     @Override
     public void save(AuditDTO audit) {
@@ -78,6 +83,25 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     @Override
     public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd,
                                              int pageNumber, int pageSize) {
+        List<Bson> facets = getFacets(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize);
+        return StreamSupport.stream(aggregate(AUDIT_COLLECTION, facets).spliterator(), false)
+                .map(this::toAuditPaginationDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<AuditReportLine> aggregateAuditReport(AuditFilter filter) {
+        List<Bson> facets = getFacets(filter.getUsers(), filter.getProjects(), filter.getResourceNames(), filter.getResourceTypes(), filter.getDateStart(), filter.getDateEnd(), filter.getPageNumber(), filter.getPageSize());
+        List<Document> auditDocuments  = new ArrayList<>();
+        StreamSupport.stream(aggregate(AUDIT_COLLECTION, facets).spliterator(), false)
+                .map(document -> (ArrayList<Document>)document.get(AUDIT_FACET))
+                .forEach(auditDocuments::addAll);
+        return auditDocuments.stream()
+                .map(this::toAuditReport)
+                .collect(Collectors.toList());
+    }
+
+    private List<Bson> getFacets(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd,
+                                 int pageNumber, int pageSize){
         List<Bson> valuesPipeline = new ArrayList<>();
         List<Bson> countPipeline = new ArrayList<>();
         List<Bson> matchCriteria = matchCriteria(users, projects, resourceNames, resourceTypes, dateStart, dateEnd);
@@ -95,12 +119,9 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         List<Bson> resourceNameFilter = Collections.singletonList(group(getGroupingFields(RESOURCE_NAME_FIELD)));
         List<Bson> resourceTypeFilter = Collections.singletonList(group(getGroupingFields(RESOURCE_TYPE_FIELD)));
 
-        List<Bson> facets = Collections.singletonList(facet(new Facet(AUDIT_FACET, valuesPipeline), new Facet(TOTAL_COUNT_FACET, countPipeline),
+        return Collections.singletonList(facet(new Facet(AUDIT_FACET, valuesPipeline), new Facet(TOTAL_COUNT_FACET, countPipeline),
                 new Facet(RESOURCE_NAME_FACET, resourceNameFilter), new Facet(USER_FACET, userFilter), new Facet(PROJECT_FACET, projectFilter),
                 new Facet(RESOURCE_TYPE_FACET, resourceTypeFilter)));
-        return StreamSupport.stream(aggregate(AUDIT_COLLECTION, facets).spliterator(), false)
-                .map(this::toAuditPaginationDTO)
-                .collect(Collectors.toList());
     }
 
     private List<Bson> matchCriteria(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd) {
@@ -141,6 +162,18 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
                 .resourceNameFilter(resourceNameFilter)
                 .resourceTypeFilter(resourceTypeFilter)
                 .projectFilter(projectFilter)
+                .build();
+    }
+
+    private AuditReportLine toAuditReport(Document doc) {
+        return AuditReportLine.builder()
+                .datalabId(doc.getString(DATALAB_ID))
+                .project(doc.getString(PROJECT))
+                .resourceName(doc.getString(RESOURCE_NAME_FIELD))
+                .action(doc.getString(ACTION))
+                .user(doc.getString(USER))
+                .resourceType(doc.getString(RESOURCE_TYPE_FIELD))
+                .timestamp(doc.getDate(TIMESTAMP_FIELD).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
                 .build();
     }
 
