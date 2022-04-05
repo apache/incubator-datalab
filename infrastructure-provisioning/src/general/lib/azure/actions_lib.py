@@ -148,11 +148,16 @@ class AzureActions:
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
                     },
-                    "service_endpoints": [
+                    "subnets": [
                         {
-                             "service": "Microsoft.Storage",
-                             "locations": [
-                                 region
+                             "name": ['azure_subnet_name'],
+                             "service_endpoints": [
+                                 {
+                                      "service": "Microsoft.Storage",
+                                      "locations": [
+                                          region
+                                      ]
+                                 }
                              ]
                         }
                     ]
@@ -217,7 +222,15 @@ class AzureActions:
                 vpc_name,
                 subnet_name,
                 {
-                    "address_prefix": subnet_cidr
+                    "address_prefix": subnet_cidr,
+                    "service_endpoints": [
+                        {
+                             "service": "Microsoft.Storage",
+                             "locations": [
+                                 region
+                             ]
+                        }
+                    ]
                 }
             )
             return result
@@ -433,10 +446,18 @@ class AzureActions:
 
     def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
-            network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
+            ssn_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
                                                                      vpc_name=os.environ['azure_vpc_name'],
                                                                      subnet_name=os.environ['azure_subnet_name']
                                                                      ).id
+            edge_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
+                                                                     vpc_name=os.environ['azure_vpc_name'],
+                                                                     subnet_name='{}-{}-{}-subnet'.format(
+                                                                         os.environ['conf_service_base_name'],
+                                                                         (os.environ['project_name']),
+                                                                         (os.environ['endpoint_name']))
+                                                                       ).id
+            resource_group_id = datalab.meta_lib.AzureMeta().get_resource_group(resource_group_name).id
             result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
@@ -456,7 +477,12 @@ class AzureActions:
                         "bypass": "Logging, Metrics, AzureServices",
                         "virtual_network_rules": [
                             {
-                                "virtual_network_resource_id": network_id,
+                                "virtual_network_resource_id": ssn_network_id,
+                                "action": "Allow",
+                                "state": "Succeeded"
+                            },
+                            {
+                                "virtual_network_resource_id": edge_network_id,
                                 "action": "Allow",
                                 "state": "Succeeded"
                             }
@@ -523,6 +549,7 @@ class AzureActions:
 
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
+            #secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
