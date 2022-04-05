@@ -150,7 +150,7 @@ class AzureActions:
                     },
                     "subnets": [
                         {
-                             "name": ['azure_subnet_name'],
+                             "name": os.environ['azure_subnet_name'],
                              "service_endpoints": [
                                  {
                                       "service": "Microsoft.Storage",
