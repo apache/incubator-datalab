@@ -46,8 +46,6 @@ from fabric import *
 from patchwork.files import exists
 from patchwork import files
 
-logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-logger.setLevel(logging.WARNING)
 
 class AzureActions:
     def __init__(self):
@@ -91,7 +89,6 @@ class AzureActions:
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
         )
-        #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
@@ -150,7 +147,20 @@ class AzureActions:
                     },
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
-                    }
+                    },
+                    "subnets": [
+                        {
+                             "name": os.environ['azure_subnet_name'],
+                             "service_endpoints": [
+                                 {
+                                      "service": "Microsoft.Storage",
+                                      "locations": [
+                                          region
+                                      ]
+                                 }
+                             ]
+                        }
+                    ]
                 }
             )
             return result
@@ -206,12 +216,21 @@ class AzureActions:
 
     def create_subnet(self, resource_group_name, vpc_name, subnet_name, subnet_cidr):
         try:
+            region = os.environ['azure_region']
             result = self.network_client.subnets.begin_create_or_update(
                 resource_group_name,
                 vpc_name,
                 subnet_name,
                 {
-                    'address_prefix': subnet_cidr
+                    "address_prefix": subnet_cidr,
+                    "service_endpoints": [
+                        {
+                             "service": "Microsoft.Storage",
+                             "locations": [
+                                 region
+                             ]
+                        }
+                    ]
                 }
             )
             return result
@@ -427,19 +446,47 @@ class AzureActions:
 
     def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
+            ssn_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
+                                                                     vpc_name=os.environ['azure_vpc_name'],
+                                                                     subnet_name=os.environ['azure_subnet_name']
+                                                                     ).id
+            edge_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
+                                                                     vpc_name=os.environ['azure_vpc_name'],
+                                                                     subnet_name='{}-{}-{}-subnet'.format(
+                                                                         os.environ['conf_service_base_name'],
+                                                                         (os.environ['project_name']),
+                                                                         (os.environ['endpoint_name']))
+                                                                       ).id
             result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
                 {
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
-                    "location":  region,
+                    "location": region,
                     "tags": tags,
                     "access_tier": "Hot",
                     "minimumTlsVersion": "TLS1_2",
                     "encryption": {
                         "key_source": "Microsoft.Storage",
                         "services": {"blob": {"enabled": True}}
+                    },
+                    "AllowBlobPublicAccess": "false",
+                    "network_rule_set": {
+                        "bypass": "Logging, Metrics, AzureServices",
+                        "virtual_network_rules": [
+                            {
+                                "virtual_network_resource_id": ssn_network_id,
+                                "action": "Allow",
+                                "state": "Succeeded"
+                            },
+                            {
+                                "virtual_network_resource_id": edge_network_id,
+                                "action": "Allow",
+                                "state": "Succeeded"
+                            }
+                        ],
+                        "default_action": "Deny"
                     }
                 }
             ).wait()
@@ -469,9 +516,13 @@ class AzureActions:
 
     def create_blob_container(self, resource_group_name, account_name, container_name):
         try:
-            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
-            result = block_blob_service.create_container(container_name)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
+            result = block_blob_service.create_container(
+                container_name,
+                {
+                "public_access": "Off"
+                }
+            )
             return result
         except Exception as err:
             logging.info(
@@ -483,8 +534,7 @@ class AzureActions:
 
     def upload_to_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
             for filename in files:
                 block_blob_service.create_blob_from_path(container_name, filename, filename)
             return ''
@@ -498,8 +548,7 @@ class AzureActions:
 
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
             return ''
