@@ -548,7 +548,6 @@ class AzureActions:
 
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
-            #secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
