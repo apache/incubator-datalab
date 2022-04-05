@@ -457,7 +457,6 @@ class AzureActions:
                                                                          (os.environ['project_name']),
                                                                          (os.environ['endpoint_name']))
                                                                        ).id
-            resource_group_id = datalab.meta_lib.AzureMeta().get_resource_group(resource_group_name).id
             result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
