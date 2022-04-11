@@ -201,7 +201,7 @@ if __name__ == "__main__":
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
                  "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} " \
-                 "--network_tag {16} --labels '{17}' --service_base_name {18} --os_login_enabled {19} " \
+                 "--network_tag {16} --labels '{17}' --service_base_name {18} --os_login_enabled FALSE " \
                  "--block_project_ssh_keys {20} --rsa_encrypted_csek '{21}'".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'],
                    notebook_config['vpc_name'], notebook_config['subnet_name'], notebook_config['instance_size'],
