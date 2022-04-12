@@ -84,7 +84,7 @@ if __name__ == "__main__":
         if os.environ['application'] == 'deeplearning':
             notebook_config['primary_disk_size'] = '100'
         elif os.environ['application'] == 'tensor':
-            notebook_config['primary_disk_size'] = '32'
+            notebook_config['primary_disk_size'] = '28'
         else:
             notebook_config['primary_disk_size'] = '16'
         notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-profile'.format(
