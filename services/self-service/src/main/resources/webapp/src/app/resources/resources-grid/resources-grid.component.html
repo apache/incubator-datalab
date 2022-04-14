@@ -265,6 +265,7 @@
                       *ngIf="element.status === 'running'
                       && element.image !== 'docker.datalab-superset'
                       && element.image !== 'docker.datalab-jupyterlab'
+                      && element.image !== 'docker.datalab-tensor-jupyterlab'
                       && element.image !== 'docker.datalab-jupyter-gpu'"
                       matTooltip="Only one compute can be associated with analytical tool at a time"
                       matTooltipPosition="above"
