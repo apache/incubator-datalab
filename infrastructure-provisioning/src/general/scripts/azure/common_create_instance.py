@@ -95,6 +95,9 @@ if __name__ == "__main__":
                                                args.project_name,
                                                create_option, disk_id, args.instance_storage_account_type,
                                                args.image_type)
+                for disk in AzureMeta().list_disks(args.resource_group_name):
+                    if "SBN" in disk.tags and os.environ['conf_service_base_name'] == disk.tags["SBN"]:
+                        AzureActions().update_disk_access(resource_group_name=args.resource_group_name, disk_name=disk.name)
         except Exception as err:
             logging.error('Error: {0}'.format(err))
             sys.exit(1)
