@@ -586,6 +586,24 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def update_disk_access(self, resource_group_name, disk_name):
+        try:
+            result = self.compute_client.disks.begin_update(
+                resource_group_name,
+                disk_name,
+                {
+                    "network_access_policy": "DenyAll"
+                }
+            ).wait()
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to deny network access for disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to deny network access for disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def delete_static_public_ip(self, resource_group_name, ip_name):
         try:
             result = self.network_client.public_ip_addresses.begin_delete(
