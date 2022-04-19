@@ -67,7 +67,7 @@
         </div>
       </div>
       <button
-        *ngIf="isProjectAdmin"
+        *ngIf="!isProjectAdmin"
         mat-raised-button 
         class="butt ssn" 
         (click)="showEndpointsDialog()"
@@ -78,7 +78,7 @@
         <i class="material-icons"></i>SSN Monitor
       </button> -->
       <button
-        *ngIf="isProjectAdmin" 
+        *ngIf="!isProjectAdmin" 
         mat-raised-button 
         class="butt env" 
         (click)="openManageEnvironmentDialog()"
