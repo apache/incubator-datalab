@@ -333,6 +333,10 @@ export class ManagementComponent implements OnInit {
       this.healthStatusService.recreateEdgeNode().subscribe(observer)
     }
   }
+
+  get isProjectAdmin(): boolean {
+    return this.healthStatus.projectAdmin
+  }
 }
 
 
