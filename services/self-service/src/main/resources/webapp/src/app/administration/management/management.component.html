@@ -19,7 +19,7 @@
 
 <div class="base-retreat">
   <div class="sub-nav">
-    <div *ngIf="healthStatus?.admin" class="admin-group">
+    <div *ngIf="healthStatus?.admin || healthStatus?.projectAdmin" class="admin-group">
       <div class="action-select-wrapper admin-group" >
         <span class="action-button-wrapper">
           <button
@@ -67,7 +67,7 @@
         </div>
       </div>
       <button
-        *ngIf="!isProjectAdmin"
+        *ngIf="healthStatus?.admin"
         mat-raised-button 
         class="butt ssn" 
         (click)="showEndpointsDialog()"
@@ -78,7 +78,7 @@
         <i class="material-icons"></i>SSN Monitor
       </button> -->
       <button
-        *ngIf="!isProjectAdmin" 
+        *ngIf="healthStatus?.admin" 
         mat-raised-button 
         class="butt env" 
         (click)="openManageEnvironmentDialog()"
