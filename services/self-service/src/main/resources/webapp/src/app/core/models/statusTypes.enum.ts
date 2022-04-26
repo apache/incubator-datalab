@@ -18,7 +18,7 @@
  */
 
 export enum StatusTypes {
-    creating = 'creating', 
+    creating = 'creating',
     running = 'running',
     stopping = 'stopping',
     stopped = 'stopped',
