@@ -148,7 +148,7 @@ if __name__ == "__main__":
     #installing prerequisites to ssn instance
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        pip_packages = 'boto3=={} bcrypt=={} backoff=={} argparse=={} fabric=={} awscli=={} pymongo=={} pyyaml=={}' \
+        pip_packages = 'boto3=={} cryptography==36.0.2 bcrypt=={} backoff=={} argparse=={} fabric=={} awscli=={} pymongo=={} pyyaml=={}' \
                        ' jinja2=={}'.format(os.environ['pip_packages_boto3'], os.environ['pip_packages_bcrypt'],
                                             os.environ['pip_packages_backoff'], os.environ['pip_packages_argparse'],
                                             os.environ['pip_packages_fabric'], os.environ['pip_packages_awscli'],
