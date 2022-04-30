@@ -157,7 +157,7 @@ export class ResourcesGridComponent implements OnInit {
         (result: any) => {
           this.environments = ExploratoryModel.loadEnvironments(result);
           if (this.environments?.length === 1) {
-            this.selectActiveProject(this.environments[0].project)
+            this.selectActiveProject(this.environments[0].project);
           }
           this.getEnvironments.emit(this.environments);
           this.getBuckets();
@@ -165,7 +165,7 @@ export class ResourcesGridComponent implements OnInit {
           (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
           this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
           this.progressBarService.stopProgressBar();
-        }, 
+        },
         () => this.progressBarService.stopProgressBar()
       );
   }
@@ -230,10 +230,10 @@ export class ResourcesGridComponent implements OnInit {
 
   public printDetailEnvironmentModal(data): void {
     this.dialog.open(DetailDialogComponent, { data:
-      { 
-        notebook: data, 
-        bucketStatus: this.healthStatus.bucketBrowser, 
-        buckets: this.bucketsList, 
+      {
+        notebook: data,
+        bucketStatus: this.healthStatus.bucketBrowser,
+        buckets: this.bucketsList,
         type: 'resource'
       },
       panelClass: 'modal-lg'
@@ -254,12 +254,12 @@ export class ResourcesGridComponent implements OnInit {
   public exploratoryAction(data, action: string): void {
     const resource = this.getResourceByName(data.name, data.project);
     if (action === 'deploy') {
-      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: 
-        { 
-          notebook: resource, 
-          full_list: this.environments 
-        }, 
-        panelClass: 'modal-xxl' 
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data:
+        {
+          notebook: resource,
+          full_list: this.environments
+        },
+        panelClass: 'modal-xxl'
       })
         .afterClosed().subscribe((res) => {
         res && this.buildGrid();
@@ -280,12 +280,12 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'terminate') {
       const compute =  data.resources.filter(cluster => cluster.status === 'running' || cluster.status === 'stopped');
       this.dialog.open(ConfirmationDialogComponent, { data:
-        { 
-          notebook: data, 
-          compute, 
-          type: ConfirmationDialogType.TerminateExploratory 
-        }, 
-        panelClass: 'modal-sm' 
+        {
+          notebook: data,
+          compute,
+          type: ConfirmationDialogType.TerminateExploratory
+        },
+        panelClass: 'modal-sm'
       })
         .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'install') {
@@ -308,8 +308,8 @@ export class ResourcesGridComponent implements OnInit {
           if (endpoint.status === 'ACTIVE') {
             const currEndpoint: SharedEndpoint = project.projectEndpoints[endpoint.name];
             const edgeItem: BucketList = {
-              name: `${project.project} (${endpoint.name})`, 
-              children: [], 
+              name: `${project.project} (${endpoint.name})`,
+              children: [],
               cloud: endpoint.cloudProvider
             };
             let projectBucket: string = currEndpoint.user_own_bicket_name
@@ -356,8 +356,8 @@ export class ResourcesGridComponent implements OnInit {
 
     data.filter(elem => elem.exploratory.map((item: any) => {
       if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
-      if(item.gpu_type && gpuTypes.indexOf(item.gpu_type) === -1) gpuTypes.push(item.gpu_type);
-      if(item.gpu_count && gpuCounts.indexOf(`GPU count: ${item.gpu_count}`) === -1) gpuCounts.push(`GPU count: ${item.gpu_count}`);
+      if  (item.gpu_type && gpuTypes.indexOf(item.gpu_type) === -1) gpuTypes.push(item.gpu_type);
+      if  (item.gpu_count && gpuCounts.indexOf(`GPU count: ${item.gpu_count}`) === -1) gpuCounts.push(`GPU count: ${item.gpu_count}`);
       if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
       statuses.sort(SortUtils.statusSort);
 
@@ -394,10 +394,12 @@ export class ResourcesGridComponent implements OnInit {
 
             const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
             const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-            const isShape = config.shapes.length > 0 ? 
-                  (config.shapes.indexOf(item.shape) !== -1 ||
-                  config.shapes.indexOf(item.gpu_type) !== -1 ||
-                  config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1 ) : true;
+
+            const isShapeCondition = (config.shapes.indexOf(item.shape) !== -1 ||
+                                      config.shapes.indexOf(item.gpu_type) !== -1 ||
+                                      config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1 );
+
+            const isShape = config.shapes.length > 0 ? isShapeCondition : true;
 
             const modifiedResources = containsStatus(item.resources, config.resources);
             let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
@@ -476,7 +478,7 @@ export class ResourcesGridComponent implements OnInit {
           }
           this.applyFilter_btnClick(result || this.filterForm);
           this.checkFilters();
-        }, 
+        },
         () => this.applyFilter_btnClick(null)
       );
   }
@@ -519,8 +521,8 @@ export class ResourcesGridComponent implements OnInit {
 
   public checkLibStatus(element) {
     let installingLib = [];
-    if(element.libs) {
-      installingLib = element.libs.filter(lib => lib.status === 'installing'); 
+    if (element.libs) {
+      installingLib = element.libs.filter(lib => lib.status === 'installing');
     }
     return !!installingLib.length;
   }
