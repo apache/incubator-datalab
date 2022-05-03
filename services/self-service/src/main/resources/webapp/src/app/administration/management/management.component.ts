@@ -29,7 +29,7 @@ import {
   StorageService
 } from '../../core/services';
 
-import { ActionsType, EnvironmentModel, GeneralEnvironmentStatus, ModalData, ModalDataType } from './management.model';
+import {ActionsType, ActionTypeOptions, EnvironmentModel, GeneralEnvironmentStatus, ModalData, ModalDataType} from './management.model';
 import { HTTP_STATUS_CODES } from '../../core/util';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
@@ -43,6 +43,7 @@ import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../share
 import { ManagementGridComponent, ReconfirmationDialogComponent } from './management-grid/management-grid.component';
 import { FolderTreeComponent } from '../../resources/bucket-browser/folder-tree/folder-tree.component';
 import { StatusTypes } from '../../core/models';
+import {AmiCreateDialogComponent} from '../../resources/exploratory/ami-create-dialog';
 
 @Component({
   selector: 'environments-management',
@@ -225,8 +226,7 @@ export class ManagementComponent implements OnInit {
     this.isActionsOpen = !this.isActionsOpen;
   }
 
-  toggleResourceAction($event): void {
-    const { environment, action, resource } = $event;
+  toggleResourceAction({ environment, action, resource = null}): void {
     this.openDialog(environment, action, resource);
   }
 
@@ -239,7 +239,7 @@ export class ManagementComponent implements OnInit {
     }
   }
 
-  public resourceAction(action) {
+  public resourceAction(action: ActionTypeOptions) {
     this.toggleResourceAction({ environment: this.selected, action: action });
   }
 
@@ -265,7 +265,14 @@ export class ManagementComponent implements OnInit {
       observer.next = (res) => {
         if (res) {
           notebooks.forEach((env) => {
-            this.getNotebookAction(env, action);
+            if (action === 'Create Image') {
+              env['isAdmin'] = true;
+              env['userName'] = env.user;
+              this.dialog.open(AmiCreateDialogComponent, { data: env, panelClass: 'modal-sm' })
+                .afterClosed().subscribe();
+            } else {
+              this.getNotebookAction(env, action);
+            }
           });
         }
         this.clearSelection();
@@ -306,7 +313,7 @@ export class ManagementComponent implements OnInit {
     return {...config, notebooks};
   }
 
-  private getNotebookAction(env: EnvironmentModel, action: ActionsType) {
+  private getNotebookAction(env: EnvironmentModel, action: ActionsType): void {
     this.manageEnvironmentsService.environmentManagement(env.user, action, env.project, env.name)
       .subscribe(
         () => this.buildGrid(),
