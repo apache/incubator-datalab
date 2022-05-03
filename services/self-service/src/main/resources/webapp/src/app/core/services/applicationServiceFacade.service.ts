@@ -475,7 +475,7 @@ export class ApplicationServiceFacade {
       data,
       {
         observe: 'response',
-        headers: { 'Content-Type': 'text/plain' }
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' }
       });
   }
 
