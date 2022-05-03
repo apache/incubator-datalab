@@ -89,14 +89,14 @@ def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag, bucket_v
             })
 
         # Config for Public Access Block in s3
-        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_public_access_block(
-            Bucket=bucket_name,
-            PublicAccessBlockConfiguration={
-                'BlockPublicAcls': True,
-                'IgnorePublicAcls': True,
-                'BlockPublicPolicy': True,
-                'RestrictPublicBuckets': True
-            })
+        # boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_public_access_block(
+        #     Bucket=bucket_name,
+        #     PublicAccessBlockConfiguration={
+        #         'BlockPublicAcls': True,
+        #         'IgnorePublicAcls': True,
+        #         'BlockPublicPolicy': True,
+        #         'RestrictPublicBuckets': True
+        #     })
 
         # Configuring bucket policy to ensure encryption in transit
         bucket_policy = {
