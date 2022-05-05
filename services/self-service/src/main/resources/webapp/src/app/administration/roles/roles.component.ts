@@ -26,7 +26,7 @@ import { RolesGroupsService, HealthStatusService, ApplicationSecurityService, Ap
 import { CheckUtils, SortUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
-import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../shared/modal-dialog/confirmation-dialog';
+import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared';
 
 @Component({
   selector: 'datalab-roles',
@@ -315,9 +315,18 @@ export class RolesComponent implements OnInit {
       return;
     }
     if (user.value && user.value.trim()) {
-      item.users instanceof Array ? item.users.push(user.value.trim()) : item.users = [user.value.trim()];
+      item.users = [...item.users, ...this.normalizeUserList(user.value)];
     }
     user.value = '';
+  }
+
+  private normalizeUserList(userNameList: string): string[] {
+    if (userNameList.includes(',')) {
+      return userNameList.split(',')
+                  .map(userName => userName.trim())
+                  .filter(userName => userName);
+    }
+    return [ userNameList ];
   }
 
   private getEnvironmentHealthStatus() {
@@ -341,9 +350,13 @@ export class RolesComponent implements OnInit {
   }
 
   public checkIfUserAdded(element: any, value: string) {
-    element.isUserAdded = element.users
-      .map(v => v.toLowerCase())
-      .includes(value.toLowerCase());
+    if (value.includes(',')) {
+      element.isUserAdded = element.users.some(userName => this.normalizeUserList(value).includes(userName));
+    } else {
+      element.isUserAdded = element.users
+        .map(v => v.toLowerCase())
+        .includes(value.toLowerCase());
+    }
   }
 }
 
@@ -367,18 +380,18 @@ export class RolesComponent implements OnInit {
     </p>
   </div>
   <div class="text-center">
-    <button 
-      type="button" 
-      class="butt" 
-      mat-raised-button 
+    <button
+      type="button"
+      class="butt"
+      mat-raised-button
       (click)="dialogRef.close()"
     >
       No
     </button>
-    <button 
-      type="button" 
-      class="butt butt-success" 
-      mat-raised-button 
+    <button
+      type="button"
+      class="butt butt-success"
+      mat-raised-button
       (click)="dialogRef.close(true)"
     >
       Yes
