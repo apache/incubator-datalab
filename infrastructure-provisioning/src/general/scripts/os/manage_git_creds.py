@@ -74,6 +74,7 @@ if __name__ == "__main__":
             for conf in sorted(new_config, reverse=True):
                 f.writelines(conf + "\n")
         conn.put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
+        conn.sudo('chmod 600 /home/{}/.netrc'.format(args.os_user))
 
         creds = dict()
         with open("new_gitcreds", 'w') as gitcreds:
@@ -81,6 +82,7 @@ if __name__ == "__main__":
                 creds.update({data[i]['hostname']: [data[i]['username'], data[i]['email']]})
             gitcreds.write(json.dumps(creds))
         conn.put('new_gitcreds', '/home/{}/.gitcreds'.format(args.os_user))
+        conn.sudo('chmod 600 /home/{}/.gitcreds'.format(args.os_user))
 
     except Exception as err:
         print('Error: {0}'.format(err))
