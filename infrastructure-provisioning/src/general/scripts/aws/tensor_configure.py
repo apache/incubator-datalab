@@ -295,6 +295,7 @@ if __name__ == "__main__":
         dns_name = datalab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
         tensorboard_url = "http://" + ip_address + ":6006/"
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
+        notebook_config['edge_instance_hostname'] = '{}.grain.dlabanalytics.com'.format(notebook_config['project_name'])
         jupyter_notebook_access_url = "https://{}/{}/".format(notebook_config['edge_instance_hostname'],
                                                               notebook_config['exploratory_name'])
         tensorboard_access_url = "https://{}/{}-tensor/".format(notebook_config['edge_instance_hostname'],
