@@ -39,47 +39,56 @@ args = parser.parse_args()
 
 
 def get_available_pip_pkgs(version):
-    for attempt in range(3):
-        try:
-            for _ in range(100):
-                pip_pkgs = dict()
-                client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
-                raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
-                all_pkgs = [i[0] for i in raw_pkgs]
-                if len(all_pkgs) != 0:
-                    for pkg in all_pkgs:
-                        pip_pkgs[pkg] = "N/A"
-                    return pip_pkgs
-                else:
-                    time.sleep(5)
-                    continue
-        except Exception as err:
-            print('Error: {0}'.format(err))
-            time.sleep(10)
-        else:
-            break
-    else:
+    try:
+        for _ in range(100):
+            pip_pkgs = dict()
+            attempt = 0
+            while attempt < 3:
+                try:
+                    client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
+                    raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
+                    all_pkgs = [i[0] for i in raw_pkgs]
+                    if len(all_pkgs) != 0:
+                        for pkg in all_pkgs:
+                            pip_pkgs[pkg] = "N/A"
+                        return pip_pkgs
+                    else:
+                        time.sleep(5)
+                        continue
+                except:
+                    attempt += 1
+                    time.sleep(10)
+            if attempt == 3:
+                logging.info("Unable to get available pip packages")
+                raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
-    for attempt in range(3):
-        try:
-            pip_pkgs = dict()
-            client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
-            raw_pkgs = client.list_packages()
-            all_pkgs_other = []
-            for pkg in raw_pkgs:
-                if pkg not in all_pkgs_pip2 and pkg not in all_pkgs_pip3:
-                    all_pkgs_other.append(pkg)
-                    for pkg in all_pkgs_other:
-                        pip_pkgs[pkg] = "N/A"
-                    return pip_pkgs
-        except Exception as err:
-            print('Error: {0}'.format(err))
-            time.sleep(10)
-        else:
-            break
-    else:
+    try:
+        pip_pkgs = dict()
+        attempt = 0
+        while attempt < 3:
+            try:
+                client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
+                raw_pkgs = client.list_packages()
+                all_pkgs_other = []
+                for pkg in raw_pkgs:
+                    if pkg not in all_pkgs_pip2 and pkg not in all_pkgs_pip3:
+                        all_pkgs_other.append(pkg)
+                        for pkg in all_pkgs_other:
+                            pip_pkgs[pkg] = "N/A"
+                        return pip_pkgs
+            except:
+                attempt += 1
+                time.sleep(10)
+        if attempt == 3:
+            logging.info("Unable to get uncategorised pip packages")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
         sys.exit(1)
 
 
