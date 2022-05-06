@@ -181,7 +181,7 @@
   },
   {
     "_id": "nbCreateTensorJupyterlab",
-    "description": "Create Notebook Jupyterlab with TensorFlow",
+    "description": "Create Notebook JupyterLab with TensorFlow",
     "type": "NOTEBOOK",
     "cloud": "AWS",
     "exploratories": [
