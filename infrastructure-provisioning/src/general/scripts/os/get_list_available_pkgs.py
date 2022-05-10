@@ -60,15 +60,24 @@ def get_available_pip_pkgs(version):
 def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
     try:
         pip_pkgs = dict()
-        client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
-        raw_pkgs = client.list_packages()
-        all_pkgs_other = []
-        for pkg in raw_pkgs:
-            if pkg not in all_pkgs_pip2 and pkg not in all_pkgs_pip3:
-                all_pkgs_other.append(pkg)
-        for pkg in all_pkgs_other:
-            pip_pkgs[pkg] = "N/A"
-        return pip_pkgs
+        attempts = 0
+        while attempts < 3:
+            try:
+                client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
+                raw_pkgs = client.list_packages()
+                all_pkgs_other = []
+                for pkg in raw_pkgs:
+                    if pkg not in all_pkgs_pip2 and pkg not in all_pkgs_pip3:
+                        all_pkgs_other.append(pkg)
+                for pkg in all_pkgs_other:
+                    pip_pkgs[pkg] = "N/A"
+                return pip_pkgs
+            except:
+                attempts += 1
+                time.sleep(10)
+        if attempt == 3:
+            logging.info("Unable to get uncategorised pip packages")
+            raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
