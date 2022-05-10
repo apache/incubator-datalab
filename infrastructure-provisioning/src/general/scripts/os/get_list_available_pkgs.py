@@ -84,7 +84,7 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
             except:
                 attempts += 1
                 time.sleep(10)
-        if attempt == 3:
+        if attempts == 3:
             logging.info("Unable to get uncategorised pip packages")
             raise Exception
     except Exception as err:
