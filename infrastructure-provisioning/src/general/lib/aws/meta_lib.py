@@ -749,7 +749,7 @@ def get_list_instance_statuses(instance_ids):
         except Exception as err:
             host['id'] = h.get('id')
             host['status'] = 'terminated'
-            #host['error_response'] = str(err).replace("'", "")
+            #host['error_message'] = str(err).replace("'", "")
             data.append(host)
     return data
 
