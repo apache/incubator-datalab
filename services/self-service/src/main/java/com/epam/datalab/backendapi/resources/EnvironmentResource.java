@@ -20,6 +20,7 @@
 package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.datalab.backendapi.service.EnvironmentService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -27,14 +28,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Path("environment")
 @Slf4j
@@ -117,6 +122,18 @@ public class EnvironmentResource {
         log.info("Admin {} is terminating computational resource {} affiliated with exploratory {} of user {}",
                 userInfo.getName(), computationalName, exploratoryName, user);
         environmentService.terminateComputational(userInfo, user, projectName, exploratoryName, computationalName);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("createImage")
+    public Response createImage(@Auth UserInfo userInfo, @NotEmpty String user,
+                                @Valid @NotNull ExploratoryImageCreateFormDTO formDTO,
+                                @Context UriInfo uriInfo) {
+        log.info("Admin {} is creating an image of exploratory {} of user {}", userInfo.getName(), formDTO.getNotebookName(), user);
+        environmentService.createImage(userInfo, user, formDTO.getProjectName(), formDTO.getNotebookName(), formDTO.getName(), formDTO.getDescription());
         return Response.ok().build();
     }
 }
