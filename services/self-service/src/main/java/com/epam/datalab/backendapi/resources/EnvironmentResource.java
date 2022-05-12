@@ -128,12 +128,15 @@ public class EnvironmentResource {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("createImage")
+    @Path("createImage/{projectName}/{exploratoryName}")
     public Response createImage(@Auth UserInfo userInfo, @NotEmpty String user,
-                                @Valid @NotNull ExploratoryImageCreateFormDTO formDTO,
+                                @NotEmpty String imageName,
+                                @NotEmpty String description,
+                                @PathParam("projectName") String projectName,
+                                @PathParam("exploratoryName") String exploratoryName,
                                 @Context UriInfo uriInfo) {
-        log.info("Admin {} is creating an image of exploratory {} of user {}", userInfo.getName(), formDTO.getNotebookName(), user);
-        environmentService.createImage(userInfo, user, formDTO.getProjectName(), formDTO.getNotebookName(), formDTO.getName(), formDTO.getDescription());
+        log.info("Admin {} is creating an image of exploratory {} of user {}", userInfo.getName(), exploratoryName, user);
+        environmentService.createImage(userInfo, user, projectName, exploratoryName, imageName, description);
         return Response.ok().build();
     }
 }
