@@ -358,7 +358,10 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   selector: 'confirm-dialog',
   template: `
   <div class="dialog-header">
-    <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> resource</h4>
+    <h4 class="modal-title">
+      <span class="capitalize">{{ data.action }}</span>
+      <span *ngIf="data.action !== 'create image'"> resource</span>
+    </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
