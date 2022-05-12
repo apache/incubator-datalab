@@ -22,7 +22,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import { UserResourceService } from '../../../core/services';
+import {ManageEnvironmentsService, UserResourceService} from '../../../core/services';
 import { HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
@@ -38,6 +38,7 @@ export class AmiCreateDialogComponent implements OnInit {
   public provider: string;
   delimitersRegex = /[-_]?/g;
   imagesList: any;
+  private isAdmin: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -45,28 +46,43 @@ export class AmiCreateDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<AmiCreateDialogComponent>,
     private _userResource: UserResourceService,
     private _fb: FormBuilder,
+    private manageEnvironmentsService: ManageEnvironmentsService,
   ) { }
 
   ngOnInit() {
     this.notebook = this.data;
     this.provider = this.data.cloud_provider;
+    this.checkRole();
 
     this.initFormModel();
     this._userResource.getImagesList(this.data.project).subscribe(res => this.imagesList = res);
   }
 
-  public assignChanges(data) {
-    this._userResource.createAMI(data).subscribe(
-      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(true),
-      error => this.toastr.error(error.message || `Image creation failed!`, 'Oops!'));
+  public assignChanges(data): void {
+    if (this.isAdmin) {
+      const { exploratory_name, project_name, name, description } = data;
+      const imageInfo = { userName: this.data.userName,   imageName: name,   description};
+      this.manageEnvironmentsService.environmentManagement(imageInfo, 'createAmi', project_name, exploratory_name).subscribe(
+        () => { this.dialogRef.close(true); });
+    } else {
+      this._userResource.createAMI(data).subscribe(
+        response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(true),
+        error => this.toastr.error(error.message || `Image creation failed!`, 'Oops!'));
+    }
+  }
+
+  private checkRole(): void {
+    if (this.data?.isAdmin) {
+      this.isAdmin = this.data.isAdmin;
+    }
   }
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
       name: ['', [
-        Validators.required, 
-        Validators.pattern(PATTERNS.namePattern), 
-        Validators.maxLength(10), 
+        Validators.required,
+        Validators.pattern(PATTERNS.namePattern),
+        Validators.maxLength(10),
         this.checkDuplication.bind(this)
       ]],
       description: [''],
