@@ -20,6 +20,7 @@
 package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormAdminDTO;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.datalab.backendapi.service.EnvironmentService;
 import com.google.inject.Inject;
@@ -126,17 +127,15 @@ public class EnvironmentResource {
     }
 
     @POST
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("createImage/{projectName}/{exploratoryName}")
-    public Response createImage(@Auth UserInfo userInfo, @NotEmpty String user,
-                                @NotEmpty String imageName,
-                                @NotEmpty String description,
-                                @PathParam("projectName") String projectName,
-                                @PathParam("exploratoryName") String exploratoryName,
+    public Response createImage(@Auth UserInfo userInfo,
+                                @Valid @NotNull ExploratoryImageCreateFormAdminDTO form,
                                 @Context UriInfo uriInfo) {
-        log.info("Admin {} is creating an image of exploratory {} of user {}", userInfo.getName(), exploratoryName, user);
-        environmentService.createImage(userInfo, user, projectName, exploratoryName, imageName, description);
+        log.info("Admin {} is creating an image of exploratory {} of user {}", userInfo.getName(), form.getNotebookName(), form.getUser());
+        environmentService.createImage(userInfo, form.getUser(), form.getProjectName(), form.getNotebookName(), form.getName(), form.getDescription());
         return Response.ok().build();
     }
+
 }

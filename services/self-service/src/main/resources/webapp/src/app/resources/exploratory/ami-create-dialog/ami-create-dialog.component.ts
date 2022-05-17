@@ -61,8 +61,8 @@ export class AmiCreateDialogComponent implements OnInit {
   public assignChanges(data): void {
     if (this.isAdmin) {
       const { exploratory_name, project_name, name, description } = data;
-      const imageInfo = { userName: this.data.userName,   imageName: name,   description};
-      this.manageEnvironmentsService.environmentManagement(imageInfo, 'createAmi', project_name, exploratory_name).subscribe(
+      const imageInfo = { user: this.data.userName,   imageName: name,   description, project_name, exploratory_name};
+      this.manageEnvironmentsService.environmentManagement(imageInfo, 'createImage', project_name, exploratory_name).subscribe(
         () => { this.dialogRef.close(true); });
     } else {
       this._userResource.createAMI(data).subscribe(

@@ -265,7 +265,7 @@ export class ManagementComponent implements OnInit {
       observer.next = (res) => {
         if (res) {
           notebooks.forEach((env) => {
-            if (action === 'Create Image') {
+            if (action === 'create image') {
               env['isAdmin'] = true;
               env['userName'] = env.user;
               this.dialog.open(AmiCreateDialogComponent, { data: env, panelClass: 'modal-sm' })

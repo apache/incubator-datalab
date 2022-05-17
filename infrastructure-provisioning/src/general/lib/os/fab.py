@@ -311,6 +311,9 @@ def configure_nftables(config):
 def ensure_python_venv_deeplearn(python_venv_version):
     try:
         if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
+            if os.environ['conf_cloud_provider'] == 'azure':
+                conn.sudo('rm /etc/apt/sources.list.d/cuda*')
+                conn.sudo('apt update')
             conn.sudo('add-apt-repository ppa:deadsnakes/ppa -y')
             conn.sudo('apt install python{0} -y'.format(python_venv_version[:3]))
             conn.sudo('apt install virtualenv')
