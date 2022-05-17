@@ -1490,3 +1490,32 @@ def find_des_jars(all_jars, des_path):
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
+
+def create_hdinsight_cluster(resource_group_name, instance_name, cluster_parameters):
+    try:
+        client_1 = AzureActions.__init__().hdinsight_client
+        print('Starting to create HDInsight Spark cluster {}'.format('hdinsight'))
+        result = client_1.clusters.begin_create(resource_group_name, instance_name, cluster_parameters)
+
+        return result
+    except Exception as err:
+        logging.info(
+            "Unable to create HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create HDInsight Spark cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def terminate_hdinsight_cluster(resource_group_name, instance_name, cluster_parameters):
+    try:
+        client_1 = AzureActions.__init__().hdinsight_client
+        client_1.clusters.begin_delete(resource_group_name, instance_name, cluster_parameters)
+
+    except Exception as err:
+        logging.info(
+            "Unable to delete HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create HDInsight Spark cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
