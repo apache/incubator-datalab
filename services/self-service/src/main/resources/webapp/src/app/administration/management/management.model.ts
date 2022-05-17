@@ -117,10 +117,10 @@ export class ManagementConfigModel {
 
 export interface ModalData {
   action: ActionsType;
-  resource_name?: any; 
-  user?: any, 
+  resource_name?: any;
+  user?: any;
   type: string;
-  notebooks?: any
+  notebooks?: any;
 }
 
 export enum ModalDataType {
@@ -133,5 +133,8 @@ export enum ActionsType {
   terminate = 'terminate',
   start = 'start',
   run = 'run',
-  recreate = 'recreate'
+  recreate = 'recreate',
+  createImage = 'create image'
 }
+
+export type ActionTypeOptions = 'stop' | 'terminate' | 'start' | 'run' | 'recreate' | 'createAmi';

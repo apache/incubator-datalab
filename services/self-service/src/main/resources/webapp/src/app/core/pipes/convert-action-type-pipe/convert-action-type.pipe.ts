@@ -22,27 +22,31 @@ import { ActionsType } from '../../../administration/management/management.model
 
 const actionTypes = {
     stopped: 'Stopped',
-    terminated: ' Terminated',
-    started: 'Started'
-}
+    terminated: 'Terminated',
+    started: 'Starting',
+    creating: 'Creating Image',
+    unknown: 'Unknown type'
+};
 
 @Pipe({ name: 'convertactiontype' })
 
 export class ConvertActionTypePipe implements PipeTransform {
-  transform(value: string,): string {
-    if(value === ActionsType.stop) {
-        return actionTypes.stopped
+  transform(value: string): string {
+    if (value === ActionsType.stop) {
+        return actionTypes.stopped;
     }
 
-    if(value === ActionsType.start) {
-        return actionTypes.started
+    if (value === ActionsType.start) {
+        return actionTypes.started;
     }
 
-    if(value === ActionsType.terminate) {
-        return actionTypes.terminated
+    if (value === ActionsType.terminate) {
+        return actionTypes.terminated;
     }
-    else {
-        return 'Unknown type'
+    if (value === ActionsType.createImage) {
+      return actionTypes.creating;
+    } else {
+        return actionTypes.unknown;
     }
   }
 }
