@@ -42,6 +42,7 @@ from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlobServiceClient
 from azure.identity import ClientSecretCredential
 from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
+from azure.mgmt.hdinsight import HDInsightManagementClient
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -85,6 +86,11 @@ class AzureActions:
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.datalake_client = DataLakeStoreAccountManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"]
+        )
+        self.hdinsight_client = HDInsightManagementClient(
             self.credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
