@@ -45,6 +45,7 @@ resource "google_project_iam_custom_role" "ps-custom-role" {
 
 resource "google_project_iam_member" "role_for_member" {
   #Grant the custom role for the ps_sa
+  project = var.gcp_project_id
   member = "serviceAccount:${google_service_account.ps_sa.email}"
   role   = "${google_project_iam_custom_role.ps-custom-role.id}"
 }
