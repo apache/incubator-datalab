@@ -45,6 +45,7 @@ resource "google_project_iam_member" "iam" {
 }
 
 resource "google_project_iam_member" "role_for_member" {
+  project = var.gcp_project_id
   member = "serviceAccount:${google_service_account.endpoint_sa.email}"
   role   = google_project_iam_custom_role.endpoint_role.id
 }

@@ -53,6 +53,7 @@ resource "google_project_iam_member" "role_for_member" {
 resource "google_project_iam_member" "iam" {
   #Grant other roles for the ps_sa
   count  = "${length(var.ps_roles)}"
+  project = var.gcp_project_id
   member = "serviceAccount:${google_service_account.ps_sa.email}"
   role   = "${element(var.ps_roles, count.index)}"
 }
