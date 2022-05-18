@@ -66,19 +66,21 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     private final ComputationalService computationalService;
     private final SecurityService securityService;
     private final ProjectService projectService;
+    private final ImageExploratoryService imageExploratoryService;
 
     @Inject
     public EnvironmentServiceImpl(EnvDAO envDAO, UserSettingsDAO settingsDAO, ExploratoryDAO exploratoryDAO,
                                   ExploratoryService exploratoryService, ComputationalService computationalService,
-                                  SecurityService securityService, ProjectService projectService) {
-        this.envDAO = envDAO;
-        this.settingsDAO = settingsDAO;
-        this.exploratoryDAO = exploratoryDAO;
-        this.exploratoryService = exploratoryService;
-        this.computationalService = computationalService;
-        this.securityService = securityService;
-        this.projectService = projectService;
-    }
+        SecurityService securityService, ProjectService projectService, ImageExploratoryService imageExploratoryService) {
+            this.envDAO = envDAO;
+            this.settingsDAO = settingsDAO;
+            this.exploratoryDAO = exploratoryDAO;
+            this.exploratoryService = exploratoryService;
+            this.computationalService = computationalService;
+            this.securityService = securityService;
+            this.projectService = projectService;
+            this.imageExploratoryService = imageExploratoryService;
+        }
 
     @Override
     public List<UserDTO> getUsers() {
@@ -105,6 +107,12 @@ public class EnvironmentServiceImpl implements EnvironmentService {
                 .map(projectDTO -> getProjectEnv(projectDTO, expList))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+    }
+
+    @ProjectAdmin
+    @Override
+    public void createImage(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String imageName, String description) {
+        imageExploratoryService.createImage(securityService.getUserInfoOffline(user), project, exploratoryName, imageName, description, null);
     }
 
     @ProjectAdmin
