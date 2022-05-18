@@ -11,7 +11,8 @@ public class ExploratoryImageCreateFormAdminDTO {
     @NotBlank
     private String user;
     @NotBlank
-    private final String name;
+    @JsonProperty("imageName")
+    private String name;
     @NotBlank
     @JsonProperty("exploratory_name")
     private String notebookName;

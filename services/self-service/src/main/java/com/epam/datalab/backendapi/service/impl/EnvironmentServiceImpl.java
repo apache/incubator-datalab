@@ -111,14 +111,14 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
     @ProjectAdmin
     @Override
-    public void createImage(@User UserInfo userInfo, String user, String project, String exploratoryName, String imageName, String description) {
-        imageExploratoryService.createImage(securityService.getUserInfoOffline(user), project,exploratoryName, imageName, description, null);
+    public void createImage(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String imageName, String description) {
+        imageExploratoryService.createImage(securityService.getUserInfoOffline(user), project, exploratoryName, imageName, description, null);
     }
 
     @ProjectAdmin
     @Override
     public void startExploratory(@User UserInfo userInfo, String user, @Project String project, String exploratoryName) {
-        exploratoryService.start(securityService.getServiceAccountInfo(user),exploratoryName,project,null);
+        exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project, null);
     }
 
     @Override
