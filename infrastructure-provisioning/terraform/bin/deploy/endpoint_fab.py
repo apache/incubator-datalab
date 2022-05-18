@@ -987,7 +987,7 @@ def init_args():
     parser.add_argument('--repository_user', type=str, default='')
     parser.add_argument('--repository_pass', type=str, default='')
     parser.add_argument('--release_tag', type=str,
-                        default='2.5.1')
+                        default='2.5.2')
     parser.add_argument('--docker_version', type=str,
                         default='5:20.10.6~3-0~ubuntu-bionic')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
