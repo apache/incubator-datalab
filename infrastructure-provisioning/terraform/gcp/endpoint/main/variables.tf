@@ -52,7 +52,7 @@ variable "vpc_id" {
 }
 
 variable "ami" {
-  default = "/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20190628"
+  default = "/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20210119a"
 }
 
 variable "subnet_id" {
