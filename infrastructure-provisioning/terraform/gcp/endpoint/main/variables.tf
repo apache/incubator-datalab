@@ -76,7 +76,7 @@ variable "firewall_eg_cidr_range" {
 }
 
 variable "endpoint_policies" {
-  type = "list"
+  type = list(string)
   default = [
     "storage.buckets.create",
     "storage.buckets.delete",
@@ -121,7 +121,7 @@ variable "endpoint_policies" {
 }
 
 variable "endpoint_roles" {
-  type = "list"
+  type = list(string)
   default = [
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountAdmin",
