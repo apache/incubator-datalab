@@ -656,8 +656,7 @@ def pull_docker_images():
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
                 conn.sudo('docker rmi {0}:{1}/docker.datalab-{3}-{2}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
-            conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
-                      .format(args.os_user))
+            #conn.sudo('chown -R {0}:docker /home/{0}/.docker/'.format(args.os_user))
             conn.sudo('touch {}'.format(ensure_file))
     except Exception as err:
         logging.error('Failed to pull Docker images: ', str(err))
