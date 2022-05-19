@@ -128,15 +128,17 @@
 
           <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
             <td class="name-col">
-              <span
-                *ngIf="element.shape !== 'odahu cluster';else odahu"
-                [matTooltip]="element.name"
-                matTooltipPosition="above"
-                (click)="printDetailEnvironmentModal(element)"
-              >
+              <div *ngIf="checkLinkList(element.url); else instanceLink">
+                <span
+                  *ngIf="element.shape !== 'odahu cluster';else odahu"
+                  [matTooltip]="element.name"
+                  matTooltipPosition="above"
+                  (click)="printDetailEnvironmentModal(element)"
+                  class="instances-name__link"
+                >
                 {{ element.name }}
               </span>
-              <ng-template #odahu>
+                <ng-template #odahu>
                 <span
                   [matTooltip]=" element.name "
                   matTooltipPosition="above"
@@ -144,6 +146,10 @@
                 >
                   {{ element.name }}
                 </span>
+                </ng-template>
+              </div>
+              <ng-template #instanceLink>
+                <a target="_blank" class="instances-name__link" [href]="getFirstUrl(element.url)">{{ element.name }}</a>
               </ng-template>
             </td>
             <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">

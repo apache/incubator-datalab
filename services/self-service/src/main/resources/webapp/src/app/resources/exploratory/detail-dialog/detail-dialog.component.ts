@@ -151,10 +151,10 @@ export class DetailDialogComponent implements OnInit {
     bucketName = this.isBucketAllowed ? bucketName : this.data.buckets[0].children[0].name;
     // bucketName = 'ofuks-1304-pr2-local-bucket';
     this.dialog.open(BucketBrowserComponent, { data:
-      { 
-        bucket: bucketName, 
-        endpoint: endpoint, 
-        bucketStatus: this.bucketStatus, 
+      {
+        bucket: bucketName,
+        endpoint: endpoint,
+        bucketStatus: this.bucketStatus,
         buckets: this.data.buckets
       },
       panelClass: 'modal-fullscreen' }
@@ -164,7 +164,7 @@ export class DetailDialogComponent implements OnInit {
   public showCopyIcon(element) {
     this.isCopyIconVissible[element] = true;
   }
-  
+
   public hideCopyIcon() {
     for (const key in this.isCopyIconVissible) {
       this.isCopyIconVissible[key] = false;
@@ -183,5 +183,9 @@ export class DetailDialogComponent implements OnInit {
     } else {
       this.auditService.sendDataToAudit({resource_name: name, info: `Follow ${description} link`, type: 'NOTEBOOK'}).subscribe();
     }
+  }
+
+  get isResourcePage(): boolean {
+    return this.data.type === 'resource';
   }
 }

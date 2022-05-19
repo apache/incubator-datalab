@@ -149,9 +149,7 @@ export class ExploratoryModel {
   }
 }
 
-// export interface Exploratory {
-//   project: string;
-//   endpoints: [];
-//   projectEndpoints: [];
-//   exploratory: ExploratoryModel[];
-// }
+export interface Link {
+  description: string;
+  url: string;
+}

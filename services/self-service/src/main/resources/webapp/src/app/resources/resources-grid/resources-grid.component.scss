@@ -464,3 +464,9 @@ table.resources {
 .content-row {
   background-clip: padding-box;
 }
+
+.instances-name__link{
+  cursor: pointer;
+  color: #35afd5;
+  text-decoration: underline;
+}

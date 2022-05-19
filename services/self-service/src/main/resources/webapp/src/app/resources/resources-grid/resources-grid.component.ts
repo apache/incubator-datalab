@@ -29,7 +29,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectService, UserResourceService, OdahuDeploymentService } from '../../core/services';
-import { ExploratoryModel } from './resources-grid.model';
+import {ExploratoryModel, Link} from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
@@ -446,6 +446,20 @@ export class ResourcesGridComponent implements OnInit {
       }
     }
     this.filteredEnvironments = filteredData;
+  }
+
+  checkLinkList(linkList: Link[]): boolean {
+    const filteredLinkList = this.filterLinkList(linkList);
+    return filteredLinkList.length > 0;
+  }
+
+  getFirstUrl(linkList: Link[]): string {
+    const filteredLinkList = this.filterLinkList(linkList);
+    return filteredLinkList[0].url;
+  }
+
+  private filterLinkList(linkList: Link[]): Link[] {
+    return linkList.filter(({description}) => description !== 'Ungit');
   }
 
   private modifyGrid(): void {
