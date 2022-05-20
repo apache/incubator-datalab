@@ -56,7 +56,7 @@ variable "subnet_cidr" {}
 variable "endpoint_shape" {}
 
 variable "ami" {
-  default = "Canonical_UbuntuServer_16.04-LTS"
+  default = "Canonical_0001-com-ubuntu-server-focal_20.04-lts"
 }
 
 variable "endpoint_volume_size" {}
