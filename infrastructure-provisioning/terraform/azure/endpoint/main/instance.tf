@@ -37,9 +37,9 @@ resource "azurerm_virtual_machine" "endpoint_instance" {
   delete_os_disk_on_termination = true
 
   storage_image_reference {
-    publisher = element(split("_", var.ami),0)
-    offer     = element(split("_", var.ami),1)
-    sku       = element(split("_", var.ami),2)
+    publisher = element(split(":", var.ami),0)
+    offer     = element(split(":", var.ami),1)
+    sku       = element(split(":", var.ami),2)
     version   = "latest"
   }
   storage_os_disk {
