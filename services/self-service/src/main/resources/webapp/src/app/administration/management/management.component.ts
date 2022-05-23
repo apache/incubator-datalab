@@ -313,7 +313,7 @@ export class ManagementComponent implements OnInit {
     return {...config, notebooks};
   }
 
-  private getNotebookAction(env: EnvironmentModel, action: ActionsType): void {
+  private getNotebookAction(env: EnvironmentModel, action: ActionTypeOptions): void {
     this.manageEnvironmentsService.environmentManagement(env.user, action, env.project, env.name)
       .subscribe(
         () => this.buildGrid(),
