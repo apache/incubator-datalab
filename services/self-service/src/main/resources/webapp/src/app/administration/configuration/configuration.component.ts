@@ -351,7 +351,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.activeTab.index = 0;
   }
 
-  get isEndpointsMoreTheOne() {
+  get isEndpointsMoreThanOne() {
     return this.endpoints.length > 1;
   }
 }
@@ -369,13 +369,13 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
     <div mat-dialog-content class="content">
       <ng-template [ngIf]="data.action === 'restart' && !data.environmentStatuses[data.activeEndpoint]?.length" ]>
-        <span class="strong">{{data.services.join(', ') | titlecase}}</span> 
+        <span class="strong">{{data.services.join(', ') | titlecase}}</span>
         <span class="strong" *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')"> service</span>
         <span class="strong" [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
 
       <ng-template [ngIf]="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && filterProvisioning.length" ]>
-        <span class="strong" >{{filterProvisioning.join(', ') | titlecase}}</span> 
+        <span class="strong" >{{filterProvisioning.join(', ') | titlecase}}</span>
         <span class="strong" *ngIf="filterProvisioning.length > 1 || (filterProvisioning.length === 1 && filterProvisioning[0] !== 'self-service')"> service</span>
         <span [hidden]="(filterProvisioning.length < 2) || filterProvisioning.length === 2 && filterProvisioning[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
