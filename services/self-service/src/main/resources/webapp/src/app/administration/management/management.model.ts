@@ -137,4 +137,5 @@ export enum ActionsType {
   createImage = 'create image'
 }
 
-export type ActionTypeOptions = 'stop' | 'terminate' | 'start' | 'run' | 'recreate' | 'createAmi';
+export type ActionTypeOptions = 'stop' | 'terminate' | 'start' | 'createImage';
+

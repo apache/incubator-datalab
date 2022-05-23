@@ -469,13 +469,13 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildEnvironmentManagement(param, data): Observable<any> {
+  public buildEnvironmentManagement(param, data, headers): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + param,
       data,
       {
         observe: 'response',
-        headers: { 'Content-Type': 'application/json; charset=UTF-8' }
+        headers
       });
   }
 
