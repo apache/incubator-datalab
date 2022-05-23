@@ -23,7 +23,7 @@
       <ng-template [ngIf]="endpoints">
         <label class="label">Selected endpoint </label>
         <div class="mat-reset">
-          <div class="control selector-wrapper" [ngClass]="{ 'disabled-select' : !isEndpointsMoreTheOne}">
+          <div class="control selector-wrapper" [ngClass]="{ 'disabled-select' : !isEndpointsMoreThanOne}">
             <mat-form-field [ngClass]="{ 'not-active' : services['provisioning'].isConfigChanged || services['self-service'].isConfigChanged || services['billing'].isConfigChanged }">
               <mat-label>Select endpoint</mat-label>
                 <mat-select
@@ -42,7 +42,7 @@
                     {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + ' (external endpoint)'}}{{endpoint.status !== 'ACTIVE' ? ', inactive' : ''}}
                   </mat-option>
                 </mat-select>
-              <button class="caret" [disabled]="!isEndpointsMoreTheOne">
+              <button class="caret" [disabled]="!isEndpointsMoreThanOne">
                 <i class="material-icons">keyboard_arrow_down</i>
               </button>
             </mat-form-field>
@@ -113,12 +113,12 @@
                     role="menuitem"
                   >
                     <span (click)="toggleSettings(service.key);$event.stopPropagation()" class="d-flex">
-                      <div class="checkbox-wrap">
+                      <span class="checkbox-wrap">
                         <datalab-checkbox
                           [checked]="services[service.key].selected"
                           (toggleSelection)="toggleSettings(service.key)"
                         ></datalab-checkbox>
-                      </div>
+                      </span>
                       {{service.value.label}}
                     </span>
                   </p>
