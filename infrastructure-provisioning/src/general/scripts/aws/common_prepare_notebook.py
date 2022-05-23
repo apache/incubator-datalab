@@ -82,7 +82,7 @@ if __name__ == "__main__":
         #notebook_config['primary_disk_size'] = (lambda x: '100' if x == 'deeplearning' else '16')(
         #    os.environ['application'])
         if os.environ['application'] == 'deeplearning':
-            notebook_config['primary_disk_size'] = '100'
+            notebook_config['primary_disk_size'] = '150'
         elif os.environ['application'] == 'tensor':
             notebook_config['primary_disk_size'] = '28'
         else:
