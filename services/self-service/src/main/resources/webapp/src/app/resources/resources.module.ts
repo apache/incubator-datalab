@@ -31,6 +31,10 @@ import { MatTreeModule } from '@angular/material/tree';
 import { BucketDataService } from './bucket-browser/bucket-data.service';
 import { ConvertFileSizePipeModule } from '../core/pipes/convert-file-size';
 import { BucketBrowserModule } from './bucket-browser/bucket-browser.module';
+import { ImagesComponent } from './images/images.component';
+import {CheckboxModule} from '../shared/checkbox';
+import {BubbleModule} from '../shared';
+import { CapitalizeFirstLetterPipeModule } from '../core/pipes';
 
 @NgModule({
   imports: [
@@ -42,12 +46,16 @@ import { BucketBrowserModule } from './bucket-browser/bucket-browser.module';
     MaterialModule,
     MatTreeModule,
     ConvertFileSizePipeModule,
-    BucketBrowserModule
+    BucketBrowserModule,
+    CheckboxModule,
+    BubbleModule,
+    CapitalizeFirstLetterPipeModule
   ],
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
     ConfirmDeleteAccountDialogComponent,
+    ImagesComponent,
 
   ],
   entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialogComponent],

@@ -17,35 +17,17 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 
-@Injectable()
-export class AppRoutingService {
-  constructor(private router: Router) { }
+import { Pipe, PipeTransform } from '@angular/core';
 
-  redirectToLoginPage(): void {
-    if (this.router.url !== '/login')
-      this.router.navigate(['/login']);
-  }
+@Pipe({ name: 'capitalizeFirstLetter' })
 
-  redirectToNoAccessPage(): void {
-    this.router.navigate(['/403']);
-  }
-
-  redirectToHomePage(): void {
-    this.router.navigate(['/instances']);
-  }
-
-  redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_management']);
-  }
-
-  redirectToAzure(): void {
-    window.location.href = `${window.location.origin}/api/user/azure/init`;
-  }
-
-  redirectToUrl(url: string): void {
-    window.location.href = url;
+export class CapitalizeFirstLetterPipe implements PipeTransform {
+  transform(value: string): string {
+    if (!value) {
+      return '';
+    }
+    const firstLetter = value. substring(0, 1). toUpperCase();
+    return `${firstLetter}${value.substring(1).toLowerCase()}`;
   }
 }

@@ -52,7 +52,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -308,8 +310,22 @@ public class ImageExploratoryServiceImplTest {
     }
 
     private ImageInfoRecord getImageInfoRecord() {
-        return new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someUser", "someApp",
-                "someFullName", ImageStatus.CREATED);
+        return new ImageInfoRecord("someName",
+                new Date(),
+                "someDescription",
+                "someProject",
+                "someEndpoint",
+                "someUser",
+                "someApp",
+                "someInstance",
+                CloudProvider.GENERAL,
+                "someFullName",
+                ImageStatus.CREATED,
+                false,
+                null,
+                null,
+                null,
+                null);
     }
 
     private Image fetchImage() {

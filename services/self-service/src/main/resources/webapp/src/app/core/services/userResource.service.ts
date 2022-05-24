@@ -23,6 +23,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ErrorUtils } from '../util/';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import {ProjectModel} from '../../resources/images/images.model';
 
 @Injectable()
 export class UserResourceService {
@@ -109,9 +110,9 @@ export class UserResourceService {
   }
 
   public suspendComputationalResource(
-    projectName: string, 
-    notebookName: string, 
-    computationalResourceName: string, 
+    projectName: string,
+    notebookName: string,
+    computationalResourceName: string,
     provider: string
   ): Observable<{}> {
     const body = JSON.stringify('/' + projectName + '/' + notebookName + '/' + computationalResourceName + '/terminate');
@@ -123,10 +124,10 @@ export class UserResourceService {
   }
 
   public toggleStopStartAction(
-    project: string, 
-    notebook: string, 
-    resource: string, 
-    action, 
+    project: string,
+    notebook: string,
+    resource: string,
+    action,
     provider: string
   ): Observable<{}> {
     const url = `/${project}/${notebook}/${resource}/${action}`;

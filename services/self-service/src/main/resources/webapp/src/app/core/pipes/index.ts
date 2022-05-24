@@ -23,3 +23,4 @@ export * from './lib-sort-pipe';
 export * from './replace-breaks-pipe';
 export * from './highlight.pipe';
 export * from './convert-action-pipe';
+export * from './capitalize-first-letter-pipe';

@@ -30,7 +30,9 @@ import com.epam.datalab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.datalab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.domain.ProjectDTO;
+import com.epam.datalab.backendapi.resources.dto.ImageFilter;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.backendapi.resources.dto.ProjectImagesInfo;
 import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.ImageExploratoryService;
 import com.epam.datalab.backendapi.service.ProjectService;
@@ -53,6 +55,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -102,8 +105,11 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .user(user.getName())
                 .libraries(fetchExploratoryLibs(libraries))
                 .computationalLibraries(fetchComputationalLibs(libraries))
+                .clusterConfig(userInstance.getClusterConfig())
                 .dockerImage(userInstance.getImageName())
                 .exploratoryId(userInstance.getId())
+                .instanceName(userInstance.getExploratoryName())
+                .cloudProvider(userInstance.getCloudProvider())
                 .project(userInstance.getProject())
                 .endpoint(userInstance.getEndpoint())
                 .build());
@@ -152,6 +158,36 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     @Override
     public List<ImageInfoRecord> getImagesForProject(String project) {
         return imageExploratoryDao.getImagesForProject(project);
+    }
+
+    @Override
+    public List<ProjectImagesInfo> getImagesOfUser(UserInfo user) {
+        log.debug("Loading list of images for user {}", user.getName());
+        return projectService.getUserProjects(user, Boolean.FALSE)
+                .stream()
+                .map( p-> {
+                    List<ImageInfoRecord> images =  imageExploratoryDao.getImagesOfUser(user.getName(), p.getName());
+                    return ProjectImagesInfo.builder()
+                            .project(p.getName())
+                            .images(images)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProjectImagesInfo> getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter) {
+        log.debug("Loading list of images for user {}", user.getName());
+        return projectService.getUserProjects(user, Boolean.FALSE)
+                .stream()
+                .map( p-> {
+                    List<ImageInfoRecord> images =  imageExploratoryDao.getImagesOfUser(user.getName(), p.getName());
+                    return ProjectImagesInfo.builder()
+                            .project(p.getName())
+                            .images(images)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     private Map<String, List<Library>> fetchComputationalLibs(List<Library> libraries) {

@@ -62,13 +62,13 @@ export class ReportingGridComponent implements OnInit {
   isFiltered: boolean = false;
   active: object = {};
   displayedColumns: string[] = [
-    'name', 'user', 'project', 
-    'type', 'status', 'shape', 
+    'name', 'user', 'project',
+    'type', 'status', 'shape',
     'service', 'empty', 'charge'
   ];
   displayedFilterColumns: string[] = [
-    'name-filter', 'user-filter', 'project-filter', 
-    'type-filter', 'status-filter', 'shape-filter',  
+    'name-filter', 'user-filter', 'project-filter',
+    'type-filter', 'status-filter', 'shape-filter',
     'service-filter', 'empty-filter', 'actions'
   ];
   filtered: any;
@@ -106,7 +106,7 @@ export class ReportingGridComponent implements OnInit {
 
   ngOnInit() {
     this.userAgentIndex = window.navigator.userAgent.indexOf('Firefox');
-    
+
     window.setTimeout(() => {
       this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
       this.checkMaxRight();
@@ -128,7 +128,6 @@ export class ReportingGridComponent implements OnInit {
 
   refreshData(fullReport, report) {
     this.reportData = [...report];
-    console.log(fullReport);
     this.fullReport = fullReport;
     this.checkFilters();
   }
@@ -168,7 +167,7 @@ export class ReportingGridComponent implements OnInit {
         return 0;
       });
     }
-    
+
     this.refreshData(this.fullReport, report);
     this.removeSorting();
     this.active[sortItem + direction] = true;
@@ -223,7 +222,7 @@ export class ReportingGridComponent implements OnInit {
     const arg = this.tableWrapper.nativeElement.offsetWidth +
       this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
     return this.isMaxRight.next(arg);
-    
+
   }
 
   public onFilterNameUpdate(targetElement: any) {

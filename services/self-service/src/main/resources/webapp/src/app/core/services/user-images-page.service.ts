@@ -17,35 +17,23 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import {  Injectable } from '@angular/core';
+import {  Observable } from 'rxjs';
+import {  catchError } from 'rxjs/operators';
+import {  ErrorUtils } from '../util';
+
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { ProjectModel } from '../../resources/images';
 
 @Injectable()
-export class AppRoutingService {
-  constructor(private router: Router) { }
+export class UserImagesPageService {
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  redirectToLoginPage(): void {
-    if (this.router.url !== '/login')
-      this.router.navigate(['/login']);
-  }
 
-  redirectToNoAccessPage(): void {
-    this.router.navigate(['/403']);
-  }
-
-  redirectToHomePage(): void {
-    this.router.navigate(['/instances']);
-  }
-
-  redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_management']);
-  }
-
-  redirectToAzure(): void {
-    window.location.href = `${window.location.origin}/api/user/azure/init`;
-  }
-
-  redirectToUrl(url: string): void {
-    window.location.href = url;
+  getUserImagePageInfo(): Observable<ProjectModel[]> {
+    return this.applicationServiceFacade.buildGetUserImagePage()
+      .pipe(
+        catchError(ErrorUtils.handleServiceError)
+      );
   }
 }
