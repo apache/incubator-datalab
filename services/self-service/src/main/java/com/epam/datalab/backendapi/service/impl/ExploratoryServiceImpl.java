@@ -151,7 +151,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
     }
 
     private boolean isDeepLearningOnAwsOrAzure(Exploratory exploratory, EndpointDTO endpointDTO) {
-        return exploratory.getVersion().equals("Deep Learning AMI (Ubuntu 18.04) Version 42.1") ||
+        return exploratory.getVersion().equals("Deep Learning AMI (Ubuntu 18.04) Version 60.2") ||
                 exploratory.getVersion().equals("microsoft-dsvm:ubuntu-1804:1804");
     }
 

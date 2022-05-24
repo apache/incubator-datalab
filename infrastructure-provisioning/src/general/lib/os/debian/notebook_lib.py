@@ -277,7 +277,7 @@ def ensure_python3_libraries(os_user):
                 datalab.fab.conn.sudo('-i pip3 install -U keyrings.alt backoff')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqt5==5.12')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqtwebengine==5.12')
-                datalab.fab.conn.sudo('-i pip3 install setuptools')
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
                 try:
                     datalab.fab.conn.sudo(
                         '-i pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
