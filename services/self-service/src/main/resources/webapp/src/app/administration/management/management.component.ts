@@ -269,7 +269,10 @@ export class ManagementComponent implements OnInit {
               env['isAdmin'] = true;
               env['userName'] = env.user;
               this.dialog.open(AmiCreateDialogComponent, { data: env, panelClass: 'modal-sm' })
-                .afterClosed().subscribe();
+                .afterClosed().subscribe(
+                () => this.buildGrid(),
+                error => console.log(error)
+              );
             } else {
               this.getNotebookAction(env, action);
             }
