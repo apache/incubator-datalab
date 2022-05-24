@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -317,6 +318,11 @@ public class EnvDAO extends BaseDAO {
                         .ifPresent(instanceId -> getEnvResourceAndRemove(hostList, instanceId)
                                 .ifPresent(r -> updateEdgeStatus(user, edge, instanceId, r))));
 
+    }
+
+    public Boolean isEdgeNodeStopped(String user) {
+        LOGGER.trace("Verify if the edge node is stopped for user {}", user);
+        return getEdgeNode(user).map(edge -> edge.getString(EDGE_STATUS)).equals("stopped");
     }
 
     private void updateEdgeStatus(String user, Document edge, String instanceId, EnvResource r) {
