@@ -49,6 +49,8 @@ from patchwork import files
 
 
 class AzureActions:
+    hdinsight_client: HDInsightManagementClient
+
     def __init__(self):
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
         with open('/root/azure_auth.json') as json_file:
