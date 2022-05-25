@@ -191,10 +191,9 @@ class Console:
         Returns:
             str: command result
         """
-        #process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
-        #                           stderr=subprocess.STDOUT,
-        #                           universal_newlines=True)
-        process = subprocess.run(command, shell=True, check=True)
+        process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT,
+                                   universal_newlines=True)
 
         while True:
             nextline = process.stdout.readline()
