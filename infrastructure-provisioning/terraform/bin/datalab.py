@@ -191,7 +191,7 @@ class Console:
         Returns:
             str: command result
         """
-        process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT,
                                    universal_newlines=True)
 
