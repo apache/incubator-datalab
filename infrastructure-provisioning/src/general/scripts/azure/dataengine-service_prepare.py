@@ -1,16 +1,25 @@
-from datalab.actions_lib import *
+#!/usr/bin/python3
+
+import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-from datalab.logger import logging
+import datalab.logger
 import multiprocessing
 import os
 import sys
 import traceback
 import subprocess
-from Crypto.PublicKey import RSA
-from fabric import *
+import Crypto.PublicKey
+import fabric
+import azure.mgmt.hdinsight.models
+#from Crypto.PublicKey import RSA
+#from fabric import *
 from azure.mgmt.hdinsight.models import *
+from azure.mgmt.core import *
+from azure.common import *
+from azure.core import *
+from datalab.actions_lib import *
 
 
 CLUSTER_NAME = 'hdinsight_1'
