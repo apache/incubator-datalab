@@ -247,8 +247,12 @@ def ensure_docker_endpoint():
                                            "| grep 'DNS Servers:' "
                                            "| awk '{print $3}'")
                                   .stdout.rstrip("\n\r"))
-                conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
+                if dns_ip_resolve:
+                    conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
                           .format(dns_ip_resolve, args.datalab_path))
+                else:
+                    conn.sudo("sed -i 's|DNS_IP_RESOLVE||g' {}/tmp/daemon.json"
+                              .format(args.datalab_path))
             elif args.cloud_provider == "gcp" or args.cloud_provider == "azure":
                 dns_ip_resolve = ""
                 conn.sudo('sed -i "s|DNS_IP_RESOLVE||g" {1}/tmp/daemon.json'
