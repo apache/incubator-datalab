@@ -1501,7 +1501,7 @@ def create_hdinsight_cluster(self, resource_group_name, instance_name, cluster_p
     try:
         client_1 = AzureActions.__init__().hdinsight_client
         print('Starting to create HDInsight Spark cluster {}'.format('hdinsight'))
-        result = self, client_1.clusters.begin_create(resource_group_name, instance_name, cluster_parameters)
+        result = self.client_1.clusters.begin_create(resource_group_name, instance_name, cluster_parameters)
 
         return result
     except Exception as err:
