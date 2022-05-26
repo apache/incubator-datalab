@@ -22,7 +22,7 @@ from azure.core import *
 from datalab.actions_lib import *
 
 
-CLUSTER_NAME = 'hdinsight_1'
+CLUSTER_NAME = 'hdinsight-test'
 # The name of your existing Resource Group
 RESOURCE_GROUP_NAME = 'dlab-resource-group'
 # Choose a region. i.e. "East US 2".
