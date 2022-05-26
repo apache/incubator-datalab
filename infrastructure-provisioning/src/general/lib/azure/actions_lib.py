@@ -1497,9 +1497,9 @@ def find_des_jars(all_jars, des_path):
         print('Error:', str(err))
         sys.exit(1)
 
-def create_hdinsight_cluster(self, resource_group_name, instance_name, cluster_parameters):
+def create_hdinsight_cluster(resource_group_name, instance_name, cluster_parameters):
     try:
-        client_1 = AzureActions.__init__()self.hdinsight_client
+        client_1 = AzureActions.__init__()hdinsight_client
         print('Starting to create HDInsight Spark cluster {}'.format('hdinsight'))
         result = client_1.clusters.begin_create(resource_group_name, instance_name, cluster_parameters)
 
