@@ -17,33 +17,23 @@
  * under the License.
  */
 
-package com.epam.datalab.model.exploratory;
+package com.epam.datalab.backendapi.resources.dto;
 
-import com.epam.datalab.dto.exploratory.ImageStatus;
-import com.epam.datalab.model.library.Library;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
-@Data
+@AllArgsConstructor
 @Builder
-public class Image {
-    private final String name;
-    private final String description;
-    private final ImageStatus status;
-    private final String exploratoryId;
-    private final String project;
-    private final String endpoint;
-    private final String user;
-    private final String fullName;
-    private final String externalName;
-    private final String application;
-    private final String instanceName;
-    private final String cloudProvider;
-    private final String dockerImage;
-    private final List<Library> libraries;
-    private final Map<String, List<Library>> computationalLibraries;
+@EqualsAndHashCode
+@ToString
+public class ProjectImagesInfo {
+    @JsonProperty
+    private String project;
+    @JsonProperty
+    private List<ImageInfoRecord> images;
 }

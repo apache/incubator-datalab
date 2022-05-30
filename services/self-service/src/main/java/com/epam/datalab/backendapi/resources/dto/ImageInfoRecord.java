@@ -19,9 +19,12 @@
 
 package com.epam.datalab.backendapi.resources.dto;
 
+import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,6 +35,8 @@ public class ImageInfoRecord {
     private final String endpoint;
     private final String user;
     private final String application;
+    private final String instanceName;
+    private final CloudProvider cloudProvider;
     private final String fullName;
     private final ImageStatus status;
 }

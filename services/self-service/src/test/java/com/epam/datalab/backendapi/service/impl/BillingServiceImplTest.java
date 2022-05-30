@@ -56,6 +56,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.core.GenericType;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -745,7 +746,17 @@ public class BillingServiceImplTest extends TestBase {
 
     private List<ImageInfoRecord> getImageInfoRecords() {
         return Collections.singletonList(
-                new ImageInfoRecord(IMAGE_NAME, IMAGE_DESCRIPTION, PROJECT, ENDPOINT, USER, IMAGE_APPLICATION, IMAGE_FULL_NAME, ImageStatus.CREATED)
+                new ImageInfoRecord(
+                        IMAGE_NAME,
+                        IMAGE_DESCRIPTION,
+                        PROJECT,
+                        ENDPOINT,
+                        USER,
+                        IMAGE_APPLICATION,
+                        EXPLORATORY_NAME,
+                        CloudProvider.GENERAL,
+                        IMAGE_FULL_NAME,
+                        ImageStatus.CREATED)
         );
     }
 }

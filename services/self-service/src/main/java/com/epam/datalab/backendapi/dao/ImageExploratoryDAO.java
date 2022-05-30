@@ -38,6 +38,8 @@ public interface ImageExploratoryDAO {
 
     List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses);
 
+    List<ImageInfoRecord> getImagesOfUser(String user, String project);
+
     List<ImageInfoRecord> getImagesForProject(String project);
 
     Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);

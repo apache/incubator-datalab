@@ -24,6 +24,7 @@ import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.datalab.backendapi.service.ImageExploratoryService;
+import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.exceptions.ResourceAlreadyExistException;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
@@ -39,6 +40,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -275,8 +277,16 @@ public class ImageExploratoryResourceTest extends TestBase {
     }
 
     private List<ImageInfoRecord> getImageList() {
-        ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someUser", "someApp",
-                "someFullName", ImageStatus.CREATED);
+        ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName",
+                "someDescription",
+                "someProject",
+                "someEndpoint",
+                "someUser",
+                "someApp",
+                "someInstance",
+                CloudProvider.AWS,
+                "someFullName",
+                ImageStatus.CREATED);
         return Collections.singletonList(imageInfoRecord);
     }
 }
