@@ -67,7 +67,7 @@ def create_cluster_parameters():
                     Role(
                         name="headnode",
                         target_instance_count=2,
-                        hardware_profile=HardwareProfile(vm_size="Standard_E8_V3"),
+                        hardware_profile=HardwareProfile(vm_size="Standard_A4_v2"),
                         os_profile=OsProfile(
                             linux_operating_system_profile=LinuxOperatingSystemProfile(
                                 username=SSH_USER_NAME,
@@ -78,7 +78,7 @@ def create_cluster_parameters():
                     Role(
                         name="workernode",
                         target_instance_count=2,
-                        hardware_profile=HardwareProfile(vm_size="Standard_E8_V3"),
+                        hardware_profile=HardwareProfile(vm_size="Standard_A4_v2"),
                         os_profile=OsProfile(
                             linux_operating_system_profile=LinuxOperatingSystemProfile(
                                 username=SSH_USER_NAME,
