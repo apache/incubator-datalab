@@ -33,7 +33,7 @@ public enum NotebookTemplate {
     TENSOR("Jupyter with TensorFlow 2.5.0"),
     TENSOR_JUPYTERLAB("JupyterLab with TensorFlow 2.5.0"),
     TENSOR_RSTUDIO("RStudio with TensorFlow 2.3.2"),
-    RSTUDIO("RStudio 2021.09.1-372"),
+    RSTUDIO("RStudio 2022.02.2-485"),
     TENSOR_GCP("Jupyter with TensorFlow 2.1.0"),
     DEEP_LEARNING_GCP("Deeplearning notebook"),
     DEEP_LEARNING_AWS("Deep Learning AMI Version 60.2"),
