@@ -39,5 +39,6 @@ public interface ImageExploratoryService {
 
     List<ImageInfoRecord> getImagesForProject(String project);
 
-    List<ProjectImagesInfo> getImagesOfUser(UserInfo user, ImageFilter imageFilter);
+    List<ProjectImagesInfo> getImagesOfUser(UserInfo user);
+    List<ProjectImagesInfo> getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
 }

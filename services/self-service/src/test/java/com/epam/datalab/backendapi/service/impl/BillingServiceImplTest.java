@@ -748,6 +748,7 @@ public class BillingServiceImplTest extends TestBase {
         return Collections.singletonList(
                 new ImageInfoRecord(
                         IMAGE_NAME,
+                        "2020-02-02",
                         IMAGE_DESCRIPTION,
                         PROJECT,
                         ENDPOINT,
@@ -756,7 +757,8 @@ public class BillingServiceImplTest extends TestBase {
                         EXPLORATORY_NAME,
                         CloudProvider.GENERAL,
                         IMAGE_FULL_NAME,
-                        ImageStatus.CREATED)
+                        ImageStatus.CREATED,
+                        false)
         );
     }
 }

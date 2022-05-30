@@ -309,8 +309,8 @@ public class ImageExploratoryServiceImplTest {
     }
 
     private ImageInfoRecord getImageInfoRecord() {
-        return new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someUser", "someApp",
-                "someInstance",CloudProvider.GENERAL,"someFullName", ImageStatus.CREATED);
+        return new ImageInfoRecord("someName", "2020-02-02","someDescription", "someProject", "someEndpoint", "someUser", "someApp",
+                "someInstance",CloudProvider.GENERAL,"someFullName", ImageStatus.CREATED, false);
     }
 
     private Image fetchImage() {

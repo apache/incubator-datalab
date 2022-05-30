@@ -278,6 +278,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 
     private List<ImageInfoRecord> getImageList() {
         ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName",
+                "2020-02-02",
                 "someDescription",
                 "someProject",
                 "someEndpoint",
@@ -286,7 +287,8 @@ public class ImageExploratoryResourceTest extends TestBase {
                 "someInstance",
                 CloudProvider.AWS,
                 "someFullName",
-                ImageStatus.CREATED);
+                ImageStatus.CREATED,
+                false);
         return Collections.singletonList(imageInfoRecord);
     }
 }

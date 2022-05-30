@@ -160,7 +160,22 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public List<ProjectImagesInfo> getImagesOfUser(UserInfo user, ImageFilter imageFilter) {
+    public List<ProjectImagesInfo> getImagesOfUser(UserInfo user) {
+        log.debug("Loading list of images for user {}", user.getName());
+        return projectService.getUserProjects(user, Boolean.FALSE)
+                .stream()
+                .map( p-> {
+                    List<ImageInfoRecord> images =  imageExploratoryDao.getImagesOfUser(user.getName(), p.getName());
+                    return ProjectImagesInfo.builder()
+                            .project(p.getName())
+                            .images(images)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProjectImagesInfo> getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter) {
         log.debug("Loading list of images for user {}", user.getName());
         return projectService.getUserProjects(user, Boolean.FALSE)
                 .stream()
