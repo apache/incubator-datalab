@@ -38,7 +38,7 @@ if __name__ == "__main__":
         AzureActions = datalab.actions_lib.AzureActions()
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-')
+            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
