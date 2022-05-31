@@ -42,7 +42,7 @@ if __name__ == "__main__":
         notebook_config['user_name'] = os.environ['edge_user_name']
         notebook_config['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
         notebook_config['project_tag'] = notebook_config['project_name']
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-').lower()
+        notebook_config['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['application'] = os.environ['application'].lower()
 
