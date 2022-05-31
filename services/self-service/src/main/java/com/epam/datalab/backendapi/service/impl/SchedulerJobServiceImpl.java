@@ -264,8 +264,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String user = schedulerJobData.getUser();
         final String exploratoryName = schedulerJobData.getExploratoryName();
         final String project = schedulerJobData.getProject();
-        log.debug("Trying to start the exploratory {} for user {} by scheduler", exploratoryName, user);
-        if (!envDAO.isEdgeNodeStopped(user)) {
+        log.info("Trying to start the exploratory {} for user {} by scheduler", exploratoryName, user);
+        if (!envDAO.isEdgeNodeRunning(user)) {
             log.warn("The edge node of {} is not started for user {}", exploratoryName, user);
             return;
         }
