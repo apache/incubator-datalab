@@ -43,6 +43,7 @@ CONTAINER_NAME = 'hdinsight'
 BLOB_ENDPOINT_SUFFIX = '.blob.core.windows.net'
 
 def create_cluster_parameters():
+
     # Returns cluster parameters
 
     return ClusterCreateParametersExtended(
