@@ -288,7 +288,7 @@ public class ImageExploratoryResourceTest extends TestBase {
                 CloudProvider.AWS,
                 "someFullName",
                 ImageStatus.CREATED,
-                false);
+                "private");
         return Collections.singletonList(imageInfoRecord);
     }
 }

@@ -40,5 +40,5 @@ public class ImageInfoRecord {
     private final CloudProvider cloudProvider;
     private final String fullName;
     private final ImageStatus status;
-    private final boolean isShared;
+    private final String sharedStatus;
 }

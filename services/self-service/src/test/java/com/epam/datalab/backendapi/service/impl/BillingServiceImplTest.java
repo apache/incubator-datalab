@@ -758,7 +758,7 @@ public class BillingServiceImplTest extends TestBase {
                         CloudProvider.GENERAL,
                         IMAGE_FULL_NAME,
                         ImageStatus.CREATED,
-                        false)
+                        "private")
         );
     }
 }
