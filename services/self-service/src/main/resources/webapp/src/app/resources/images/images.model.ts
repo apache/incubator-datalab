@@ -6,7 +6,7 @@ export interface ProjectModel {
 export interface ImageModel {
   application: string;
   cloudProvider: 'AWS' | 'GCP' | 'Azure';
-  creationDate: string;
+  timestamp: string;
   description: string;
   endpoint: string;
   fullName: string;
