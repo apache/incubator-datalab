@@ -57,14 +57,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.core.GenericType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -748,7 +741,7 @@ public class BillingServiceImplTest extends TestBase {
         return Collections.singletonList(
                 new ImageInfoRecord(
                         IMAGE_NAME,
-                        "2020-02-02",
+                        new Date(),
                         IMAGE_DESCRIPTION,
                         PROJECT,
                         ENDPOINT,
@@ -758,7 +751,11 @@ public class BillingServiceImplTest extends TestBase {
                         CloudProvider.GENERAL,
                         IMAGE_FULL_NAME,
                         ImageStatus.CREATED,
-                        "private")
+                        false,
+                        null,
+                        null,
+                        null,
+                        null)
         );
     }
 }

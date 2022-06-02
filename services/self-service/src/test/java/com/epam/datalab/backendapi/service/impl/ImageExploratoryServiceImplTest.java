@@ -54,6 +54,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -309,8 +310,22 @@ public class ImageExploratoryServiceImplTest {
     }
 
     private ImageInfoRecord getImageInfoRecord() {
-        return new ImageInfoRecord("someName", "2020-02-02","someDescription", "someProject", "someEndpoint", "someUser", "someApp",
-                "someInstance",CloudProvider.GENERAL,"someFullName", ImageStatus.CREATED, "private");
+        return new ImageInfoRecord("someName",
+                new Date(),
+                "someDescription",
+                "someProject",
+                "someEndpoint",
+                "someUser",
+                "someApp",
+                "someInstance",
+                CloudProvider.GENERAL,
+                "someFullName",
+                ImageStatus.CREATED,
+                false,
+                null,
+                null,
+                null,
+                null);
     }
 
     private Image fetchImage() {

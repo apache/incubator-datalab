@@ -42,6 +42,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -278,7 +279,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 
     private List<ImageInfoRecord> getImageList() {
         ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName",
-                "2020-02-02",
+                new Date(1580601722000L),
                 "someDescription",
                 "someProject",
                 "someEndpoint",
@@ -288,7 +289,11 @@ public class ImageExploratoryResourceTest extends TestBase {
                 CloudProvider.AWS,
                 "someFullName",
                 ImageStatus.CREATED,
-                "private");
+                false,
+                null,
+                null,
+                null,
+                null);
         return Collections.singletonList(imageInfoRecord);
     }
 }
