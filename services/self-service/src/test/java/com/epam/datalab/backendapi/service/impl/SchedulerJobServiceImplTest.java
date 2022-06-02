@@ -709,7 +709,7 @@ public class SchedulerJobServiceImplTest {
                         LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
                 )));
         when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
-        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);//The EDGE_NODE should be running
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
@@ -735,7 +735,7 @@ public class SchedulerJobServiceImplTest {
         when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
                 anyString(), any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
                 DataEngineType.SPARK_STANDALONE, true)));
-        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);//The EDGE node should be running
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService, times(2)).getServiceAccountInfo(USER);
@@ -762,7 +762,7 @@ public class SchedulerJobServiceImplTest {
         when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
                 anyString(), any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
                 DataEngineType.CLOUD_SERVICE, true)));
-        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);//the EDGE_NODE should be running
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
@@ -787,7 +787,7 @@ public class SchedulerJobServiceImplTest {
         when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
                 anyString(), any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
                 DataEngineType.SPARK_STANDALONE, false)));
-        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);// the Edge node should be in running state
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
