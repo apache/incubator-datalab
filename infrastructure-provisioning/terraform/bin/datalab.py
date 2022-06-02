@@ -191,17 +191,18 @@ class Console:
         Returns:
             str: command result
         """
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT,
-                                   universal_newlines=True)
+        # process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+        #                            stderr=subprocess.STDOUT,
+        #                            universal_newlines=True)
+        subprocess.run(command, shell=True, check=True)
 
-        while True:
-            nextline = process.stdout.readline()
-            print(nextline)
-            if nextline == '' and process.poll() is not None:
-                break
-            if 'error' in nextline.lower():
-                sys.exit(0)
+        # while True:
+        #     nextline = process.stdout.readline()
+        #     print(nextline)
+        #     if nextline == '' and process.poll() is not None:
+        #         break
+        #     if 'error' in nextline.lower():
+        #         sys.exit(0)
 
     @staticmethod
     def execute(command):

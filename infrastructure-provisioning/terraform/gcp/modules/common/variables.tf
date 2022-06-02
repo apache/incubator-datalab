@@ -46,14 +46,14 @@ variable "cidr_range" {}
 variable "traefik_cidr" {}
 
 variable "ps_roles" {
-  type = "list"
+  type = list(string)
   default = [
     "roles/dataproc.worker"
   ]
 }
 
 variable "ps_policy" {
-  type = "list"
+  type = list(string)
   default = [
 
   ]
