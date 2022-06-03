@@ -86,7 +86,7 @@ export class ResourcesComponent implements OnInit {
           bucketStatus: this.bucketStatus,
           buckets: this.resourcesGrid.bucketsList
         },
-        panelClass: 'modal-fullscreen' 
+        panelClass: 'modal-fullscreen'
       })
       .afterClosed().subscribe();
   }

@@ -17,35 +17,14 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { CapitalizeFirstLetterPipe } from './capitalize-first-letter.pipe';
 
-@Injectable()
-export class AppRoutingService {
-  constructor(private router: Router) { }
+@NgModule({
+  imports: [CommonModule],
+  declarations: [CapitalizeFirstLetterPipe],
+  exports: [CapitalizeFirstLetterPipe]
+})
 
-  redirectToLoginPage(): void {
-    if (this.router.url !== '/login')
-      this.router.navigate(['/login']);
-  }
-
-  redirectToNoAccessPage(): void {
-    this.router.navigate(['/403']);
-  }
-
-  redirectToHomePage(): void {
-    this.router.navigate(['/instances']);
-  }
-
-  redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_management']);
-  }
-
-  redirectToAzure(): void {
-    window.location.href = `${window.location.origin}/api/user/azure/init`;
-  }
-
-  redirectToUrl(url: string): void {
-    window.location.href = url;
-  }
-}
+export class CapitalizeFirstLetterPipeModule { }

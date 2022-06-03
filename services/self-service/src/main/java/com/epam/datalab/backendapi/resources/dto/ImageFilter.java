@@ -17,34 +17,41 @@
  * under the License.
  */
 
-package com.epam.datalab.model.exploratory;
+package com.epam.datalab.backendapi.resources.dto;
 
-import com.epam.datalab.dto.aws.computational.ClusterConfig;
+import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.exploratory.ImageStatus;
-import com.epam.datalab.model.library.Library;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
-@Builder
-public class Image {
-    private final String name;
-    private final String description;
-    private final ImageStatus status;
-    private final String exploratoryId;
-    private final String project;
-    private final String endpoint;
-    private final String user;
-    private final String fullName;
-    private final String externalName;
-    private final String application;
-    private final String instanceName;
-    private final String cloudProvider;
-    private final String dockerImage;
-    private final List<ClusterConfig> clusterConfig;
-    private final List<Library> libraries;
-    private final Map<String, List<Library>> computationalLibraries;
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ImageFilter {
+    @NonNull
+    private String imageName;
+    @NonNull
+    @JsonProperty("date_start")
+    private String dateStart;
+    @NonNull
+    @JsonProperty("date_end")
+    private String dateEnd;
+    @NonNull
+    private List<CloudProvider> cloudProviders;
+    @NonNull
+    private List<ImageStatus> statuses;
+//    @NonNull
+//    private List<> sharingStatuses;
+    @NonNull
+    private List<String> templateNames;
+    @NonNull
+    private List<String> instanceNames;
+    @NonNull
+    private List<String> projects;
+
 }

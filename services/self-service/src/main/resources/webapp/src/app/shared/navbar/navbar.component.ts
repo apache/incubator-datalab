@@ -42,7 +42,7 @@ import {
 } from '@angular/animations';
 import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-import { sideBarNamesConfig, UserInfo } from './navbar.config';
+import {Sidebar_Names_Config, UserInfo} from './navbar.config';
 
 interface Quota {
   projectQuotas: {};
@@ -93,7 +93,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isExpanded: boolean = true;
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
-  sideBarNames!: Record<string, string>;
+  sideBarNames: typeof Sidebar_Names_Config = Sidebar_Names_Config;
   userData!: UserInfo;
   commitMaxLength: number = 22;
 
@@ -109,7 +109,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.sideBarNames = sideBarNamesConfig;
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;

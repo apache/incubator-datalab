@@ -127,9 +127,8 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
   }
 
   public toggleSelectedFile(file, type): void {
-    console.log(file, type);
-    type === 'file' 
-      ? file.isSelected = !file.isSelected 
+    type === 'file'
+      ? file.isSelected = !file.isSelected
       : file.isFolderSelected = !file.isFolderSelected;
     this.selected = this.folderItems.filter(item => item.isSelected);
     this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
@@ -260,8 +259,8 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
       this.objectPath = event.pathObject;
       this.path = event.path;
       this.originFolderItems = this.folderItems.map(v => v);
-      this.pathInsideBucket = this.path.indexOf('/') !== -1 
-        ? this.path.slice(this.path.indexOf('/') + 1) + '/' 
+      this.pathInsideBucket = this.path.indexOf('/') !== -1
+        ? this.path.slice(this.path.indexOf('/') + 1) + '/'
         : '';
       this.folderItems.forEach(item => item.isSelected = false);
     }
@@ -327,7 +326,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
       if (!file) {
         file = waitUploading[0];
       }
-      
+
       file.status = 'uploading';
       this.isFileUploading = this.addedFiles.some(v => v.status === 'uploading');
       this.isQueueFull = this.addedFiles.some(v => v.status === 'waiting');
@@ -350,7 +349,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
               this.sendFile(this.addedFiles.find(v => v.status === 'waiting'));
               this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
             }
-          }, 
+          },
           error => {
             window.clearInterval(file.interval);
             file.status = 'failed';
@@ -412,7 +411,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
                 selected[0].progress = 0;
               }, 1000);
             }
-          }, 
+          },
           error => {
             this.toastr.error(error.message || 'File downloading error!', 'Oops!');
             selected[0]['isDownloading'] = false;
@@ -461,7 +460,7 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
   public copyPath(): void {
     const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
     const pathToItem = `${this.pathInsideBucket}${selected.item}${selected.isFolderSelected ? '/' : ''}`;
-    
+
     const cloud = this.getCloud();
     const protocol = HelpUtils.getBucketProtocol(cloud);
     if (cloud !== 'azure') {

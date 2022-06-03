@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
 
-import { Dictionary } from '../collections';
-import { environment } from '../../../environments/environment';
-import { HTTPMethod } from '../util';
+import {Dictionary} from '../collections';
+import {environment} from '../../../environments/environment';
+import {HTTPMethod} from '../util';
 
 // we can now access environment.apiUrl
 const API_URL = environment.apiUrl;
@@ -81,6 +81,7 @@ export class ApplicationServiceFacade {
   private static readonly AUDIT = 'audit';
   private static readonly CONFIG = 'config';
   private static readonly QUOTA = 'quota';
+  private static readonly IMAGE_PAGE = 'image_page';
 
   private requestRegistry: Dictionary<string>;
 
@@ -177,6 +178,12 @@ export class ApplicationServiceFacade {
   public buildGetUserProvisionedResourcesRequest(): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.PROVISIONED_RESOURCES),
+      null);
+  }
+
+  buildGetUserImagePage(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE_PAGE),
       null);
   }
 
@@ -714,6 +721,8 @@ export class ApplicationServiceFacade {
     // Exploratory Environment
     this.requestRegistry.Add(ApplicationServiceFacade.PROVISIONED_RESOURCES,
       '/api/infrastructure/info');
+    this.requestRegistry.Add(ApplicationServiceFacade.IMAGE_PAGE,
+      '/api/infrastructure_provision/exploratory_environment/image/user');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.TEMPLATES,

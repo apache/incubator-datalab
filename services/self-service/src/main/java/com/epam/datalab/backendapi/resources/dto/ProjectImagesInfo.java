@@ -17,35 +17,23 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+package com.epam.datalab.backendapi.resources.dto;
 
-@Injectable()
-export class AppRoutingService {
-  constructor(private router: Router) { }
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-  redirectToLoginPage(): void {
-    if (this.router.url !== '/login')
-      this.router.navigate(['/login']);
-  }
+import java.util.List;
 
-  redirectToNoAccessPage(): void {
-    this.router.navigate(['/403']);
-  }
-
-  redirectToHomePage(): void {
-    this.router.navigate(['/instances']);
-  }
-
-  redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_management']);
-  }
-
-  redirectToAzure(): void {
-    window.location.href = `${window.location.origin}/api/user/azure/init`;
-  }
-
-  redirectToUrl(url: string): void {
-    window.location.href = url;
-  }
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
+@ToString
+public class ProjectImagesInfo {
+    @JsonProperty
+    private String project;
+    @JsonProperty
+    private List<ImageInfoRecord> images;
 }

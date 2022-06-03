@@ -1,0 +1,266 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<section class="image-list--wrapper">
+  <nav class="image-list__nav-bar">
+    <div class="selection">
+      <div class="mat-reset">
+        <div class="control selector-wrapper"
+             [ngClass]="{'disabled-select': !isProjectsMoreThanOne}"
+        >
+          <mat-form-field>
+            <mat-label>Select project</mat-label>
+
+            <mat-select
+              disableOptionCentering
+              panelClass="top-select scrolling"
+              [disabled]="!projectList.length"
+            >
+              <mat-option
+                *ngIf="isProjectsMoreThanOne"
+                (click)="onSelectClick('')"
+              >
+                Show all
+              </mat-option>
+              <mat-option
+                *ngFor="let project of projectList"
+                [value]="project"
+                (click)="onSelectClick(project)"
+              >
+                {{ project }}
+              </mat-option>
+              <mat-option *ngIf="!projectList?.length" class="multiple-select ml-10" disabled>
+                Projects list is empty
+              </mat-option>
+            </mat-select>
+            <button class="caret" [disabled]="false">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div class="button--wrapper">
+      <span class="action-button--wrapper">
+          <button
+            type="button"
+            class="butt action-button"
+            mat-raised-button
+            [disabled]="isImageNotSelected"
+            (click)="onActionClick()"
+          >
+            Actions
+            <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>
+          </button>
+        <div class="action-menu" *ngIf="isActionsOpen">
+          <button
+            type="button"
+            class="butt action-menu-item"
+            mat-raised-button
+            [disabled]="true"
+          >
+            Terminate
+          </button>
+
+          <button
+            type="button"
+            class="butt action-menu-item"
+            mat-raised-button
+            [disabled]="true"
+          >
+            Share
+          </button>
+        </div>
+      </span>
+      <span>
+        <button mat-raised-button class="butt">
+          <i class="material-icons highlight">autorenew</i>
+          Refresh
+        </button>
+      </span>
+    </div>
+  </nav>
+
+  <mat-divider></mat-divider>
+
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 image-table data-grid">
+    <ng-container matColumnDef="checkbox">
+      <th mat-header-cell *matHeaderCellDef class="image-checkbox--wrapper">
+        <div class="header-cell--wrapper">
+          <span>
+            <datalab-checkbox
+              (click)="allCheckboxToggle()"
+              [checked]="checkboxSelected"
+              class="image-checkbox"
+            ></datalab-checkbox>
+          </span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element" class="image-checkbox--wrapper">
+        <datalab-checkbox
+          (click)="onCheckboxClick(element)"
+          class="image-checkbox"
+          [checked]="element.isSelected"
+        ></datalab-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="imageName">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.imageName}}</span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="creationDate">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.creationDate}}</span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <span class="date-item"> {{element.timestamp | date: 'yyyy-MM-dd'}} </span>
+        <span> {{element.timestamp | date: 'HH:mm:ss'}} </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="provider">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.provider}}</span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.cloudProvider}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="imageStatus">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.imageStatus}}</span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element" ngClass="{{ element.status.toLowerCase() || ''}}">
+        {{element.status | capitalizeFirstLetter}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="sharedStatus">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.sharedStatus}}</span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <div class="shared-status--wrapper">
+          <span class="shared-status"> {{element.isShader ? sharedStatus.shared : sharedStatus.private}} </span>
+          <span class="currency_details" >
+                <i class="material-icons">help_outline</i>
+              </span>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="templateName">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.templateName}}</span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.application}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="instanceName">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.instanceName}}</span>
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.instanceName}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> {{tableHeaderCellTitles.actions}} </th>
+      <td mat-cell *matCellDef="let element" class="settings actions-col">
+
+        <div class="button--wrapper">
+          <span class="currency_details" >
+                <i class="material-icons">help_outline</i>
+              </span>
+          <span #settings class="actions" (click)="actions.toggle($event, settings)"></span>
+        </div>
+        <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+          <ul class="list-unstyled">
+            <li
+              matTooltip="Unable to terminate notebook because at least one compute is in progress"
+              matTooltipPosition="above"
+            >
+              <div>
+                <i class="material-icons">phonelink_off</i>
+                <span>Terminate</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <i class="material-icons">create</i>
+                <span>Share</span>
+              </div>
+            </li>
+          </ul>
+        </bubble-up>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="placeholder">
+      <td mat-footer-cell *matFooterCellDef class="info" [colSpan]="displayedColumns.length - 1">
+        <span> There are no images yet </span>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr [hidden]="dataSource.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+  </table>
+</section>

@@ -22,7 +22,9 @@ package com.epam.datalab.backendapi.resources;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
+import com.epam.datalab.backendapi.resources.dto.ImageFilter;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.backendapi.resources.dto.ProjectImagesInfo;
 import com.epam.datalab.backendapi.service.ImageExploratoryService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -97,6 +99,24 @@ public class ImageExploratoryResource {
         final List<ImageInfoRecord> images = imageExploratoryService.getImagesForProject(project);
         return Response.ok(images).build();
     }
+
+
+    @GET
+    @Path("user")
+    public Response getImagesForUser(@Auth UserInfo ui) {
+        log.debug("Getting images for user {}", ui.getName());
+        final List<ProjectImagesInfo> images = imageExploratoryService.getImagesOfUser(ui);
+        return Response.ok(images).build();
+    }
+
+    @POST
+    @Path("user")
+    public Response getImagesForUser(@Auth UserInfo ui, @Valid @NotNull ImageFilter imageFilter) {
+        log.debug("Getting images for user {} with filter {}", ui.getName(), imageFilter);
+        final List<ProjectImagesInfo> images = imageExploratoryService.getImagesOfUserWithFilter(ui ,imageFilter);
+        return Response.ok(images).build();
+    }
+
 
     @GET
     @Path("{name}")

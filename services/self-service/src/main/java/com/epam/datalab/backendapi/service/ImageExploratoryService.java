@@ -20,7 +20,9 @@
 package com.epam.datalab.backendapi.service;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.resources.dto.ImageFilter;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.backendapi.resources.dto.ProjectImagesInfo;
 import com.epam.datalab.model.exploratory.Image;
 
 import java.util.List;
@@ -36,4 +38,7 @@ public interface ImageExploratoryService {
     ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
     List<ImageInfoRecord> getImagesForProject(String project);
+
+    List<ProjectImagesInfo> getImagesOfUser(UserInfo user);
+    List<ProjectImagesInfo> getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
 }
