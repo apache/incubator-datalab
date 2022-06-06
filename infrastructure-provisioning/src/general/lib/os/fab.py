@@ -366,6 +366,7 @@ def ensure_python_venv(python_venv_version):
             conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'virtualenv /opt/python/python{0}' '''.format(python_venv_version))
+            conn.sudo('chown -R datalab-user:datalab-user /opt/python/')
             venv_command = 'source /opt/python/python{}/bin/activate'.format(python_venv_version)
             pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
             conn.sudo('''bash -l -c '{0} && {1} install -UI pip=={2}' '''.format(venv_command, pip_command,
