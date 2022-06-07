@@ -28,6 +28,7 @@ import com.epam.datalab.backendapi.dao.UserGroupDAO;
 import com.epam.datalab.backendapi.domain.EndpointDTO;
 import com.epam.datalab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.datalab.backendapi.resources.dto.aws.AwsEmrConfiguration;
+import com.epam.datalab.backendapi.resources.dto.azure.AzureHDInsightConfiguration;
 import com.epam.datalab.backendapi.resources.dto.gcp.GcpDataprocConfiguration;
 import com.epam.datalab.backendapi.roles.RoleType;
 import com.epam.datalab.backendapi.roles.UserRoles;
@@ -247,6 +248,17 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                                      AwsEmrConfiguration awsEmrConfiguration) {
             super(metadataDTO);
             this.awsEmrConfiguration = awsEmrConfiguration;
+        }
+    }
+
+    private static class AzureFullComputationalTemplate extends FullComputationalTemplate {
+        @JsonProperty("limits")
+        private AzureHDInsightConfiguration azureHDInsightConfiguration;
+
+        AzureFullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
+                                       AzureHDInsightConfiguration azureHDInsightConfiguration){
+            super(metadataDTO);
+            this.azureHDInsightConfiguration = azureHDInsightConfiguration;
         }
     }
 
