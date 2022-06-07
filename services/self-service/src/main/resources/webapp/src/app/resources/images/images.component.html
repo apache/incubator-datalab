@@ -25,16 +25,18 @@
              [ngClass]="{'disabled-select': !isProjectsMoreThanOne}"
         >
           <mat-form-field>
-            <mat-label>Select project</mat-label>
+            <mat-label>{{placeholder}}</mat-label>
 
             <mat-select
               disableOptionCentering
+              name="project"
+              [(value)]="activeProjectName"
               panelClass="top-select scrolling"
-              [disabled]="!projectList.length"
+              [disabled]="!isProjectsMoreThanOne"
             >
               <mat-option
                 *ngIf="isProjectsMoreThanOne"
-                (click)="onSelectClick('')"
+                (click)="onSelectClick()"
               >
                 Show all
               </mat-option>
@@ -49,7 +51,7 @@
                 Projects list is empty
               </mat-option>
             </mat-select>
-            <button class="caret" [disabled]="false">
+            <button class="caret" [disabled]="!isProjectsMoreThanOne">
               <i class="material-icons">keyboard_arrow_down</i>
             </button>
           </mat-form-field>
@@ -90,7 +92,7 @@
         </div>
       </span>
       <span>
-        <button mat-raised-button class="butt">
+        <button mat-raised-button class="butt" (click)="onRefresh()">
           <i class="material-icons highlight">autorenew</i>
           Refresh
         </button>
@@ -104,7 +106,7 @@
     <ng-container matColumnDef="checkbox">
       <th mat-header-cell *matHeaderCellDef class="image-checkbox--wrapper">
         <div class="header-cell--wrapper">
-          <span>
+          <span  *ngIf="dataSource.length" >
             <datalab-checkbox
               (click)="allCheckboxToggle()"
               [checked]="checkboxSelected"
@@ -147,8 +149,7 @@
         </div>
       </th>
       <td mat-cell *matCellDef="let element">
-        <span class="date-item"> {{element.timestamp | date: 'yyyy-MM-dd'}} </span>
-        <span> {{element.timestamp | date: 'HH:mm:ss'}} </span>
+        <span> {{element.timestamp | localDate : 'short'}} </span>
       </td>
     </ng-container>
 
@@ -189,7 +190,7 @@
       </th>
       <td mat-cell *matCellDef="let element">
         <div class="shared-status--wrapper">
-          <span class="shared-status"> {{element.isShader ? sharedStatus.shared : sharedStatus.private}} </span>
+          <span class="shared-status"> {{element.shared ? sharedStatus.shared : sharedStatus.private}} </span>
           <span class="currency_details" >
                 <i class="material-icons">help_outline</i>
               </span>
@@ -237,16 +238,22 @@
               matTooltip="Unable to terminate notebook because at least one compute is in progress"
               matTooltipPosition="above"
             >
-              <div>
+              <button class="action-button__share">
                 <i class="material-icons">phonelink_off</i>
                 <span>Terminate</span>
-              </div>
+              </button>
             </li>
-            <li>
-              <div>
+            <li [matTooltip]="'This image cannot be shared by you. Contact Admin user'"
+                matTooltipPosition="above"
+                [matTooltipDisabled]="userName === element.user && element.status === 'CREATED'">
+              <button
+                class="action-button__share"
+                (click)="onShare(element)"
+                [disabled]="userName !== element.user || element.status !== 'CREATED'"
+              >
                 <i class="material-icons">create</i>
                 <span>Share</span>
-              </div>
+              </button>
             </li>
           </ul>
         </bubble-up>

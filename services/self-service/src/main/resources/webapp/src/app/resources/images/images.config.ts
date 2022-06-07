@@ -44,3 +44,7 @@ export const Image_Table_Titles = <const>[
   'instanceName',
   'actions'
 ];
+
+export enum Localstorage_Key {
+  userName = 'user_name'
+}

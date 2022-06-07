@@ -146,7 +146,7 @@
             <a
               *ngIf="healthStatus?.billingEnabled"
               class="sub-nav-item"
-              [routerLink]="['/billing_report']"
+              [routerLink]="['/billing']"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
@@ -161,7 +161,7 @@
             <a
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/roles']"
+              [routerLink]="['/users']"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
@@ -186,7 +186,7 @@
             <a
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/environment_management']"
+              [routerLink]="['/resources']"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >

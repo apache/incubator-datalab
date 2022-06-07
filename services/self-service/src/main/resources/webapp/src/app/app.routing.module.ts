@@ -65,7 +65,7 @@ const routes: Routes = [
         canActivate: [AuthorizationGuard]
       },
       {
-        path: 'billing_report',
+        path: 'billing',
         component: ReportingComponent,
         canActivate: [AuthorizationGuard, CloudProviderGuard]
       },
@@ -79,12 +79,12 @@ const routes: Routes = [
       //   component: OdahuComponent,
       //   canActivate: [AuthorizationGuard, AdminGuard],
       // }, {
-        path: 'roles',
+        path: 'users',
         component: RolesComponent,
         canActivate: [AuthorizationGuard, AdminGuard],
       },
       {
-        path: 'environment_management',
+        path: 'resources',
         component: ManagementComponent,
         canActivate: [AuthorizationGuard, AdminGuard]
       },

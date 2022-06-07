@@ -13,8 +13,14 @@ export interface ImageModel {
   instanceName: string;
   name: string;
   project: string;
-  isShared: boolean;
+  shared: boolean;
   status: 'created' | 'creating' | 'terminated' | 'terminating' | 'failed';
   user: string;
   isSelected?: boolean;
+}
+
+export interface ShareImageAllUsersParams {
+  imageName: string;
+  projectName: string;
+  endpoint: string;
 }
