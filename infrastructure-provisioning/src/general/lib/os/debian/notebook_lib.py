@@ -474,8 +474,13 @@ def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
             datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
-        datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -')
-        manage_pkg('-y install', 'remote', 'nodejs')
+        #datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_16.x | bash -"')
+        #manage_pkg('-y install', 'remote', 'nodejs')
+        datalab.fab.conn.sudo(
+            'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash')
+        datalab.fab.conn.run(
+            'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" && nvm install 16.15.0')
+        datalab.fab.conn.sudo('cp -R .nvm/versions/node/v16.15.0/* /usr/')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 def install_os_pkg(requisites):
