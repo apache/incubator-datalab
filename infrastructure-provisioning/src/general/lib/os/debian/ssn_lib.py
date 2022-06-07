@@ -382,6 +382,8 @@ def install_build_dep():
                     'cd /opt/ && sudo wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip '
                     '&& sudo unzip apache-maven-{1}-bin.zip && sudo mv apache-maven-{1} maven'.format(
                         maven_version.split('.')[0], maven_version))
+            #datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_16.x | bash -"')
+            #manage_pkg('-y install', 'remote', 'nodejs')
             datalab.fab.conn.sudo(
                 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash')
             datalab.fab.conn.run('export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" && nvm install 16.15.0')

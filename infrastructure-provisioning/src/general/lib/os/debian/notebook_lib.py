@@ -474,6 +474,8 @@ def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
             datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
+        #datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_16.x | bash -"')
+        #manage_pkg('-y install', 'remote', 'nodejs')
         datalab.fab.conn.sudo(
             'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash')
         datalab.fab.conn.run(
