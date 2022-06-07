@@ -476,6 +476,8 @@ def install_nodejs(os_user):
             datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
         datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
+        datalab.fab.conn.sudo('curl -s -O https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_16.15.0-1nodesource1_amd64.deb')
+        datalab.fab.conn.sudo('dpkg -i nodejs_16.15.0-1nodesource1_amd64.deb && rm nodejs_16.15.0-1nodesource1_amd64.deb')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 def install_os_pkg(requisites):
