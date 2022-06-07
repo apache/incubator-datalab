@@ -382,8 +382,10 @@ def install_build_dep():
                     'cd /opt/ && sudo wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip '
                     '&& sudo unzip apache-maven-{1}-bin.zip && sudo mv apache-maven-{1} maven'.format(
                         maven_version.split('.')[0], maven_version))
-            datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_16.x | bash -"')
-            manage_pkg('-y install', 'remote', 'nodejs=16.15.0')
+            datalab.fab.conn.sudo(
+                'curl -s -O https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_16.15.0-1nodesource1_amd64.deb')
+            datalab.fab.conn.sudo(
+                'dpkg -i nodejs_16.15.0-1nodesource1_amd64.deb && rm nodejs_16.15.0-1nodesource1_amd64.deb')
             datalab.fab.conn.sudo('npm config set unsafe-perm=true')
             datalab.fab.conn.sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path']))
     except Exception as err:
