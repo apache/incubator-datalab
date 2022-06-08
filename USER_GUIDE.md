@@ -362,9 +362,15 @@ Since Computational resource is up and running - you are now able to leverage cl
 
 To do that open any of the analytical tools and select proper kernel/interpreter:
 
-**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2 (only for local kernel)/3, Spark, Scala, R in Jupyter.
+**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 3, Spark, Scala, R in Jupyter.
 
 ![Jupiter](doc/jupyter_kernel.png)
+
+As you know, you can install library thanks to [Manage libraries functionality](#manage_libraries), but in addition you are supposed to install library via Jupyter cell using the next command (i.e., for Python group):
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/library_magic_usage.png" alt="Library magic usage" width="200">
+</p>
 
 **Zeppelin** – go to Interpreter Biding menu and switch between local and Computational resource there. Once needed interpreter is selected click on "Save".
 
