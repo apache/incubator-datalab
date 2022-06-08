@@ -1526,8 +1526,8 @@ def terminate_hdinsight_cluster(resource_group_name, instance_name, cluster_para
 
     except Exception as err:
         logging.info(
-            "Unable to delete HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create HDInsight Spark cluster",
+            "Unable to terminate HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to terminate HDInsight Spark cluster",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
