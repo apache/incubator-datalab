@@ -1518,6 +1518,7 @@ def terminate_hdinsight_cluster(resource_group_name, instance_name, cluster_para
     try:
         azure_action = AzureActions()
         client_1 = azure_action.hdinsight_client
+        print('Starting to terminate HDInsight Spark cluster {}'.format('hdinsight'))
         client_1.clusters.begin_delete(resource_group_name, instance_name, cluster_parameters)
 
     except Exception as err:
