@@ -40,22 +40,27 @@ from patchwork import files
 
 
 # general functions for all resources
-def init_datalab_connection(hostname, username, keyfile):
+def init_datalab_connection(hostname, username, keyfile, reserve_user=''):
     try:
         global conn
-        attempt = 0
-        while attempt < 15:
-            logging.info('connection attempt {}'.format(attempt))
-            conn = Connection(host=hostname, user=username, connect_kwargs={'banner_timeout': 200,
-                                                                            'key_filename': keyfile})
-            conn.config.run.echo = True
-            try:
-                conn.run('hostname')
+        if reserve_user:
+            users = [username, reserve_user]
+        else:
+            users = [username]
+        for user in users:
+            attempt = 0
+            while attempt < 15:
+                logging.info('connection attempt {} with user {}'.format(attempt, user))
+                conn = Connection(host=hostname, user=user, connect_kwargs={'banner_timeout': 200,
+                                                                                'key_filename': keyfile})
                 conn.config.run.echo = True
-                return conn
-            except:
-                attempt += 1
-                time.sleep(10)
+                try:
+                    conn.run('hostname')
+                    conn.config.run.echo = True
+                    return conn
+                except:
+                    attempt += 1
+                    time.sleep(10)
         if attempt == 15:
             logging.info('Unable to establish connection')
             raise Exception
