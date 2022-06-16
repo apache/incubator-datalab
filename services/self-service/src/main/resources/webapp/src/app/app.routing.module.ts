@@ -65,7 +65,7 @@ const routes: Routes = [
         canActivate: [AuthorizationGuard]
       },
       {
-        path: 'billing_report',
+        path: 'billing',
         component: ReportingComponent,
         canActivate: [AuthorizationGuard, CloudProviderGuard]
       },
@@ -84,7 +84,7 @@ const routes: Routes = [
         canActivate: [AuthorizationGuard, AdminGuard],
       },
       {
-        path: 'environment_management',
+        path: 'resources',
         component: ManagementComponent,
         canActivate: [AuthorizationGuard, AdminGuard]
       },
