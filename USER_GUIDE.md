@@ -68,19 +68,18 @@ As soon as DataLab is deployed by an infrastructure provisioning team and you re
 
 DataLab Web Application authenticates users against:
 
--   OpenLdap;
--   Cloud Identity and Access Management service user validation;
--   KeyCloak integration for seamless SSO experience *;
+As soon as DataLab is deployed by an infrastructure provisioning team and you received DataLab URL, your username and password – open DataLab login page, fill in your credentials and hit Login.
+
+DataLab Web Application authenticates users against:
+
+-   KeyCloak integration for seamless SSO experience;
 
     * NOTE: in case has been installed and configured to use SSO, please click on "Login with SSO" and use your corporate credentials
 
 | Login error messages               | Reason                                                                           |
 |------------------------------------|----------------------------------------------------------------------------------|
-| Username or password is invalid |The username provided:<br>doesn’t match any LDAP user OR<br>there is a type in the password field |
-| Please contact AWS administrator to create corresponding IAM User | The user name provided:<br>exists in LDAP BUT:<br>doesn’t match any of IAM users in AWS |
-| Please contact AWS administrator to activate your Access Key      | The username provided:<br>exists in LDAP BUT:<br>IAM user doesn’t have a single Access Key\* created OR<br>IAM user’s Access Key is Inactive |
+| Invalid username or password. |The username provided: doesn’t match any LDAP user OR there is a type in the password field |
 
-\* Please refer to official documentation from Amazon to figure out how to manage Access Keys for your AWS Account: http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html
 
 To stop working with DataLab - click on user icon <img src="doc/user.png" alt="user" width="20"> at the top right corner of DataLab and hit "Log out from account" button:
 
