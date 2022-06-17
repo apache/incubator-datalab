@@ -72,7 +72,7 @@ As soon as DataLab is deployed by an infrastructure provisioning team and you re
 
 DataLab Web Application authenticates users against:
 
--   KeyCloak integration for seamless SSO experience *;
+-   KeyCloak integration for seamless SSO experience;
 
     * NOTE: in case has been installed and configured to use SSO, please click on "Login with SSO" and use your corporate credentials
 
@@ -81,7 +81,7 @@ DataLab Web Application authenticates users against:
 | Invalid username or password. |The username provided: doesn’t match any LDAP user OR there is a type in the password field |
 
 
-To stop working with DataLab - click on Log Out link at the top right corner of DataLab.alt="user" width="20"> at the top right corner of DataLab and hit "Log out from account" button:
+To stop working with DataLab - click on user icon <img src="doc/user.png" alt="user" width="20"> at the top right corner of DataLab and hit "Log out from account" button:
 
 <p align="center" class="facebox-popup"> 
     <img src="doc/user_information.png" alt="User information" width="300">
