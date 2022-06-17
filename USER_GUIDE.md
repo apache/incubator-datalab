@@ -46,7 +46,7 @@ DataLab is an essential toolset for analytics. It is a self-service Web Console,
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Project management](#project_management)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Environment management](#environment_management)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Resourses](#environment_management)
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Multiple Cloud endpoints](#multiple_cloud_endpoints)
 
@@ -68,16 +68,24 @@ As soon as DataLab is deployed by an infrastructure provisioning team and you re
 
 DataLab Web Application authenticates users against:
 
+As soon as DataLab is deployed by an infrastructure provisioning team and you received DataLab URL, your username and password – open DataLab login page, fill in your credentials and hit Login.
+
+DataLab Web Application authenticates users against:
+
 -   KeyCloak integration for seamless SSO experience *;
 
     * NOTE: in case has been installed and configured to use SSO, please click on "Login with SSO" and use your corporate credentials
 
 | Login error messages               | Reason                                                                           |
 |------------------------------------|----------------------------------------------------------------------------------|
-| Invalid username or password. |The username provided: doesn’t match any user or there is a type in the password field |
+| Invalid username or password. |The username provided: doesn’t match any LDAP user OR there is a type in the password field |
 
 
-To stop working with DataLab - click on Log Out link at the top right corner of DataLab.
+To stop working with DataLab - click on Log Out link at the top right corner of DataLab.alt="user" width="20"> at the top right corner of DataLab and hit "Log out from account" button:
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/user_information.png" alt="User information" width="300">
+</p>
 
 After login user sees warning in case of exceeding quota or close to this limit.
 
@@ -102,9 +110,9 @@ To do this click on “Upload” button on “Projects” page, select your pers
 
 Please note, that you need to have a key pair combination (public and private key) to work with DataLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. DataLab build-in wiki page guides Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DataLab to setup initial infrastructure for you. During this process project is in status "Creating".
+Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 25 minutes for DataLab to setup initial infrastructure for you. During this process project is in status "Creating".
 
-As soon as Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” is appeared on “List of Resources” page:
+As soon as Project is created, Data Scientist can create  notebook server in “Resources” section on "Instances" page . The message “To start working, please create new environment” is appeared on “Instances” page:
 
 ![Main page](doc/main_page.png)
 
@@ -114,7 +122,7 @@ As soon as Project is created, Data Scientist can create  notebook server on “
 
 ## Create notebook server <a name="notebook_create"></a>
 
-To create new analytical environment from “List of Resources” page click on "Create new" button.
+To create new analytical environment from “Instances” page click on "Create new" button.
 
 The "Create analytical tool" popup shows up. Data Scientist can choose the preferred project, endpoint and analytical tool. Adding new analytical toolset is supported by architecture, so you can expect new templates to show up in upcoming releases.
 Currently by means of DataLab, Data Scientists can select between any of the following templates:
@@ -124,7 +132,7 @@ Currently by means of DataLab, Data Scientists can select between any of the fol
 -   RStudio
 -   RStudio with TensorFlow (implemented on AWS)
 -   Jupyter with TensorFlow
--   Deep Learning (Jupyter + MXNet, Caffe2, TensorFlow, CNTK, Theano, PyTorch and Keras)
+-   Deep Learning based on Cloud native image
 -   JupyterLab
 -   Superset (implemented on GCP)
 
@@ -134,7 +142,7 @@ Currently by means of DataLab, Data Scientists can select between any of the fol
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
 
-Keep in mind that "Name" field – is just for visual differentiation between analytical tools on “List of resources” dashboard.
+Keep in mind that "Name" field – is just for visual differentiation between analytical tools on “Instances” dashboard.
 
 Instance shape dropdown, contains configurable list of shapes, which should be chosen depending on the type of analytical work to be performed. Following groups of instance shapes are showing up with default setup configuration:
 
@@ -194,7 +202,7 @@ On every analytical tool instance you can install additional libraries by clicki
 
 After clicking you see the window with 4 fields:
 -   Field for selecting an active resource to install libraries
--   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
+-   Field for selecting group of packages (apt/yum, Python 3, R, Java, Others)
 -   Field for search available packages with autocomplete feature (if it's gained) except Java dependencies. For Java library you should enter using the next format: "groupID:artifactID:versionID"
 -   Field for library version. It's an optional field.
 
@@ -206,7 +214,7 @@ You need to wait for a while after resource and group choosing till list of all 
 
 **Note:** Apt or Yum packages depend on your DataLab OS family.
 
-**Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
+**Note:** In group Others you can find other Python (3) packages, which haven't classifiers of version.
 
 After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
@@ -236,7 +244,7 @@ On "Create AMI" popup you should fill:
 
 After clicking on "Create" button the Notebook status changes to "Creating image". Once an image is created the Notebook status changes back to "Running".
 
-To create new analytical environment from custom image click on "Create new" button on “List of Resources” page. 
+To create new analytical environment from custom image click on "Create new" button on “Resources” page. 
 
 “Create analytical tool” popup shows up. Choose project, endpoint, template of a Notebook for which the custom image has been created:
 
@@ -245,6 +253,18 @@ To create new analytical environment from custom image click on "Create new" but
 </p>
 
 Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape". For Deeplearning notebook on GCP there is also a list of predefined images.
+
+In addition, you can view the list of all images which are created by you and shared with you on the "Images" page:
+
+![Images](doc/images_main.png)
+
+You can share the image in Created status with all users in the project or terminate it if you are image creator/owner. Creator is the user who has created the image.
+Owner is the user who is owning the right to manage image and perform Share and Terminate actions. The owners are Creator and Admin. 
+To share or terminate image click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed image and hit "Terminate" or "Share" button appropriately.
+
+<p align="center"> 
+    <img src="doc/image_action_menu.png" alt="Image action menu" width="150">
+</p>
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
@@ -357,9 +377,15 @@ Since Computational resource is up and running - you are now able to leverage cl
 
 To do that open any of the analytical tools and select proper kernel/interpreter:
 
-**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2 (only for local kernel)/3, Spark, Scala, R in Jupyter.
+**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 3, Spark, Scala, R in Jupyter.
 
-![Jupiter](doc/jupyter_kernel.png)
+![Jupyter](doc/jupyter_kernel.png)
+
+As you know, you can install library thanks to [Manage libraries functionality](#manage_libraries), but in addition you are supposed to install library via Jupyter cell using the next command (i.e., for Python group):
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/library_magic_usage.png" alt="Library magic usage" width="200">
+</p>
 
 **Zeppelin** – go to Interpreter Biding menu and switch between local and Computational resource there. Once needed interpreter is selected click on "Save".
 
@@ -368,7 +394,6 @@ To do that open any of the analytical tools and select proper kernel/interpreter
 Insert following “magics” before blocks of your code to start executing your analytical jobs:
 
 -   interpreter\_name.%spark – for Scala and Spark;
--   interpreter\_name.%pyspark – for Python2;
 -   interpreter\_name.%pyspark3 – for Python3;
 -   interpreter\_name.%sparkr – for R;
 
@@ -529,8 +554,8 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 You are able to access to cloud buckets via DataLab Web UI.
 There are two ways to open bucket browser:
-- clicking on Notebook name on the "List of resources" page, where there is an "Open bucket browser" link;
-- clicking on "Bucket browser" bucket on the "List of resources" page.
+- clicking on Notebook name on the "Instances" page, where there is an "Open bucket browser" link;
+- clicking on "Bucket browser" bucket on the "Instances" page.
 
 ![Bucket_browser_button](doc/bucket_button.png)
 
@@ -551,6 +576,18 @@ In the bucket browser you are supposed to:
 
 --------------------------------
 # Administration <a name="administration"></a>
+
+There are four pages in the "Administration" panel:
+
+<p align="center"> 
+    <img src="doc/administration_section.png" alt="Administration section" width="150">
+</p>
+
+- "Users" page, where administrator can assign appropriate permisions for users;
+- "Projects" page, where administrator can manage a project;
+- "Resources" page, where administrator monitor and manage project resources;
+- "Configuration" page, where administrator can view and change configuration files and restart DataLab services.
+
 
 ## Manage roles <a name="manage_roles"></a>
 
@@ -607,14 +644,14 @@ To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation 
 
 To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon become "Terminated".
 
-## Environment management <a name="environment_management"></a>
+## Resourses <a name="Resourses"></a>
 
-DataLab Environment Management page is an administration page allowing adminstrator to see the list of all users environments and to stop/terminate all of them.
+DataLab Resourses page is an administration page allowing adminstrator to see the list of all users environments and to stop/terminate all of them.
 
-To access Environment management page either navigate to it via main menu:
+To access Resourses page either navigate to it via main menu:
 
 <p align="center"> 
-    <img src="doc/environment_management.png" alt="Environment management">
+    <img src="doc/environment_management.png" alt="Resourses">
 </p>
 
 To stop or terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Stop" or "Terminate" action:
@@ -739,7 +776,7 @@ You are able to view:
 - who did the action
 - what the action was done
 
-Furthermore on the center of header you can choose period of report in datepicker.
+Furthermore, on the center of header you can choose period of report in datepicker.
 
 ![Audit page](doc/audit_page.png)
 
