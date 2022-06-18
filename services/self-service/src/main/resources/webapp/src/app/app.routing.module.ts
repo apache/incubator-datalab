@@ -79,7 +79,7 @@ const routes: Routes = [
       //   component: OdahuComponent,
       //   canActivate: [AuthorizationGuard, AdminGuard],
       // }, {
-        path: 'roles',
+        path: 'users',
         component: RolesComponent,
         canActivate: [AuthorizationGuard, AdminGuard],
       },
