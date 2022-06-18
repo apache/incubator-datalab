@@ -44,6 +44,8 @@ export class ImagesComponent implements OnInit {
   dataSource: ImageModel[] = [];
   checkboxSelected: boolean = false;
   projectList: string[] = [];
+  activeProjectName: string = '';
+  readonly placeholder: string = 'Select project';
   readonly sharedStatus: typeof Shared_Status = Shared_Status;
   private cashedImageListData: ProjectModel[] = [];
 
@@ -79,9 +81,16 @@ export class ImagesComponent implements OnInit {
   onSelectClick(projectName: string): void {
     if (!projectName) {
       this.dataSource = this.getImageList();
+      return;
     }
-    const { images } = this.cashedImageListData.find(({project}) => project === projectName);
-    this.dataSource = [...images];
+    const currentProject = this.cashedImageListData.find(({project}) => project === projectName);
+    this.dataSource = [...currentProject.images];
+    this.activeProjectName = currentProject.project;
+  }
+
+  onRefresh(): void {
+    this.getUserImagePageInfo();
+    this.activeProjectName = '';
   }
 
   private getImageList(): ImageModel[] {
@@ -105,12 +114,17 @@ export class ImagesComponent implements OnInit {
     this.cashedImageListData = imagePageList;
     this.getProjectList(imagePageList);
     this.dataSource = this.getImageList();
+
+    if (imagePageList.length === 1) {
+      this.activeProjectName = imagePageList[0].project;
+    }
   }
 
   private getProjectList(imagePageList: ProjectModel[]): void {
     if (!imagePageList) {
       return;
     }
+    this.projectList = [];
     imagePageList.forEach(({project}) => this.projectList.push(project));
   }
 

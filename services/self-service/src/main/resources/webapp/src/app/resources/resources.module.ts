@@ -35,6 +35,7 @@ import { ImagesComponent } from './images/images.component';
 import {CheckboxModule} from '../shared/checkbox';
 import {BubbleModule} from '../shared';
 import { CapitalizeFirstLetterPipeModule } from '../core/pipes';
+import { LocalDatePipeModule } from '../core/pipes/local-date-pipe';
 
 @NgModule({
   imports: [
@@ -49,7 +50,8 @@ import { CapitalizeFirstLetterPipeModule } from '../core/pipes';
     BucketBrowserModule,
     CheckboxModule,
     BubbleModule,
-    CapitalizeFirstLetterPipeModule
+    CapitalizeFirstLetterPipeModule,
+    LocalDatePipeModule
   ],
   declarations: [
     ResourcesComponent,
