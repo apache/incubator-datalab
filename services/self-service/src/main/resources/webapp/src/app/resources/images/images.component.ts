@@ -78,7 +78,7 @@ export class ImagesComponent implements OnInit {
     this.isActionsOpen = !this.isActionsOpen;
   }
 
-  onSelectClick(projectName: string): void {
+  onSelectClick(projectName: string = ''): void {
     if (!projectName) {
       this.dataSource = this.getImageList();
       return;
