@@ -36,7 +36,7 @@
             >
               <mat-option
                 *ngIf="isProjectsMoreThanOne"
-                (click)="onSelectClick('')"
+                (click)="onSelectClick()"
               >
                 Show all
               </mat-option>
@@ -92,7 +92,7 @@
         </div>
       </span>
       <span>
-        <button mat-raised-button (click)="onRefresh()">
+        <button mat-raised-button class="butt" (click)="onRefresh()">
           <i class="material-icons highlight">autorenew</i>
           Refresh
         </button>
