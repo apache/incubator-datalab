@@ -26,3 +26,4 @@ export * from './fileUtils';
 export * from './checkUtils';
 export * from './patterns';
 export * from './http-methods';
+export * from './checkEndpointList';

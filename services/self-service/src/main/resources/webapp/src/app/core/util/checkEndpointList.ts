@@ -17,17 +17,9 @@
  * under the License.
  */
 
+import { ModifiedEndpoint } from '../../administration/project/project.model';
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ClickOutsideDirective } from './click-outside.directive';
-import { ScrollDirective } from './scrollTo.directive';
-import { IsEndpointsActiveDirective } from './is-endpoint-active.directive';
-
-@NgModule({
-  imports: [CommonModule],
-  declarations: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective],
-  exports: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective]
-})
-
-export class DirectivesModule { }
+export const checkEndpointList = (endpointList: ModifiedEndpoint[]): boolean => {
+  return endpointList.every(({status, endpointStatus}) => (status === 'TERMINATED' || status === 'FAILED')
+    && endpointStatus === 'INACTIVE');
+};

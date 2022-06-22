@@ -28,7 +28,7 @@
       <td mat-cell *matCellDef="let element" class="groups">
         <div class="mat-chip-list-wrap scrolling">
           <mat-chip-list>
-            <mat-chip 
+            <mat-chip
               *ngFor="let group of element.groups"
               [matTooltip]="group"
               matTooltipPosition="above"
@@ -45,7 +45,7 @@
       <th mat-header-cell *matHeaderCellDef class="endpoints">
         <span class="label-endpoint"> Endpoint </span>
         <span class="label-endpoint-status"> Endpoint status </span>
-        <span class="label-status">Edge node status </span>
+        <span class="label-status">Edge node status</span>
       </th>
       <td mat-cell *matCellDef="let element" class="source endpoints">
         <div *ngIf="!element.endpoints?.length; else list">
@@ -63,9 +63,9 @@
                 {{ (endpoint.endpointStatus | titlecase) || 'N/A'}}
               </span>
             </div>
-            
+
             <span class="status resource-status" [ngClass]="endpoint?.status.toLowerCase() || ''">
-              {{ endpoint?.status.toLowerCase() }}
+              {{ endpoint?.status | titlecase }}
             </span>
           </div>
         </ng-template>
@@ -93,11 +93,24 @@
                 Stop edge node
               </a>
             </li>
-            <li class="project-seting-item " *ngIf="element.areTerminatedNode && isEndpointAvailable" (click)="openEdgeDialog('recreate', element)">
-              <i class="material-icons">refresh</i>
-              <a class="action">
-                Recreate edge node
-              </a>
+            <li
+                *ngIf="(element.areTerminatedNode || element.areStoppedNode) && isEndpointAvailable"
+                (click)="openEdgeDialog('recreate', element)"
+
+            >
+              <button class="project-setting-button"
+                      #recreateBtn
+                      datalabIsEndpointActive
+                      [endpointList]="element.endpoints"
+                      [matTooltip]="'Unable to recreate edge node if endpoint status is not active.'"
+                      matTooltipPosition="above"
+                      [matTooltipDisabled]="!isRecreateBtnDisabled(element.endpoints)"
+              >
+                <i class="material-icons">refresh</i>
+                <a class="action" >
+                  Recreate edge node
+                </a>
+              </button>
             </li>
             <li class="project-seting-item " *ngIf="element.areStoppedNode || element.areRunningNode" (click)="openEdgeDialog('terminate', element)">
               <i class="material-icons">phonelink_off</i>

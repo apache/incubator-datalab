@@ -19,7 +19,8 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {Endpoint} from '../../../administration/project/project.component';
+
+import { Endpoint } from '../../../administration/project/project.model';
 
 @Component({
   selector: 'notification-dialog',
