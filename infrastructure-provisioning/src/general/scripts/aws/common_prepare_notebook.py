@@ -117,7 +117,6 @@ if __name__ == "__main__":
         else:
             os.environ['notebook_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
             logging.info('No pre-configured image found, Exciting from... {}'.format(notebook_config['ami_id']))
-            sys.exit(1)
 
         tag = {"Key": notebook_config['tag_name'],
                "Value": "{}-{}-{}-subnet".format(notebook_config['service_base_name'], notebook_config['project_name'],
