@@ -156,7 +156,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
             imageRoles.stream().forEach(role -> {
                 role.setId(String.format(role.getId(), image.getProject(), image.getEndpoint(), image.getName()));
                 role.setDescription(String.format(role.getDescription(), image.getFullName()));
-                role.setCloud(CloudProvider.valueOf(image.getCloudProvider()));
+                role.setCloud(endpointService.get(image.getEndpoint()).getCloudProvider());
                 role.setImages(new HashSet<>(Collections.singletonList(image.getFullName())));
             });
             userRoleDAO.insert(imageRoles);
