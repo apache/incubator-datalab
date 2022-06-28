@@ -45,7 +45,7 @@ public class ImageInfoRecord {
     private final String dockerImage;
     private final String fullName;
     private final ImageStatus status;
-    private final boolean isShared;
+    private boolean isShared;
     private final List<ClusterConfig> clusterConfig;
     private final String exploratoryURL;
     private final List<Library> libraries;

@@ -65,6 +65,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.IMAGE;
@@ -198,6 +199,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .stream()
                 .map(p -> {
                     List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName(), p.getName());
+                    images.forEach(img -> img.setShared(isSharedImage(img.getFullName())));
                     images.addAll(getSharedImages(user, p.getName()));
                     return ProjectImagesInfo.builder()
                             .project(p.getName())
@@ -266,6 +268,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> !img.getUser().equals(userInfo.getName()))
                 .filter(img ->
                         UserRoles.checkAccess(userInfo, RoleType.IMAGE, img.getFullName(), userInfo.getRoles()))
+                .peek(img -> img.setShared(true))
                 .collect(Collectors.toList());
         log.info("Shared with user {} images : {}", userInfo.getName(), sharedImages);
         return sharedImages;
@@ -277,6 +280,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> !img.getUser().equals(userInfo.getName()))
                 .filter(img -> img.getDockerImage().equals(dockerImage) && img.getProject().equals(project) && img.getEndpoint().equals(endpoint))
                 .filter(img -> UserRoles.checkAccess(userInfo, RoleType.IMAGE, img.getFullName(), userInfo.getRoles()))
+                .peek(img -> img.setShared(true))
                 .collect(Collectors.toList());
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
@@ -288,8 +292,19 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> !img.getUser().equals(userInfo.getName()))
                 .filter(img -> img.getProject().equals(project) )
                 .filter(img -> UserRoles.checkAccess(userInfo, RoleType.IMAGE, img.getFullName(), userInfo.getRoles()))
+                .peek(img -> img.setShared(true))
                 .collect(Collectors.toList());
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
+    }
+
+    private boolean isSharedImage(String imageFullName){
+        String anyUser = "$anyuser";
+        List<UserRoleDTO> imageRoles = userRoleDAO.findAll().stream()
+                .filter(r -> r.getImages().contains(imageFullName))
+                .filter( r -> (r.getGroups().contains(anyUser) && r.getGroups().size() >= 2)
+                        || (!r.getGroups().contains(anyUser) && !r.getGroups().isEmpty()))
+                .collect(Collectors.toList());
+        return !imageRoles.isEmpty();
     }
 }
