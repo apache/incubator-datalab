@@ -33,7 +33,7 @@ public interface ImageExploratoryService {
 
     void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
 
-    List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint);
+    List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint);
 
     List<ImageInfoRecord> getNotFailedImages(String dockerImage, String project, String endpoint);
 
