@@ -172,8 +172,10 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint) {
-        return imageExploratoryDao.getImages(user, dockerImage, project, endpoint, ImageStatus.CREATED, ImageStatus.CREATING);
+    public List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint) {
+        List<ImageInfoRecord> images = imageExploratoryDao.getImages(user.getName(), dockerImage, project, endpoint, ImageStatus.CREATED, ImageStatus.CREATING);
+        images.addAll(getSharedImages(user,dockerImage,project,endpoint));
+        return images;
     }
 
     @Override
@@ -269,6 +271,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img ->
                         UserRoles.checkAccess(userInfo, RoleType.IMAGE, img.getFullName(), userInfo.getRoles()))
                 .collect(Collectors.toList());
+        sharedImages.forEach(img -> img.setShared(true));
         log.info("Shared with user {} images : {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }
@@ -280,6 +283,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> img.getDockerImage().equals(dockerImage) && img.getProject().equals(project) && img.getEndpoint().equals(endpoint))
                 .filter(img -> UserRoles.checkAccess(userInfo, RoleType.IMAGE, img.getFullName(), userInfo.getRoles()))
                 .collect(Collectors.toList());
+        sharedImages.forEach(img -> img.setShared(true));
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }
@@ -291,6 +295,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> img.getProject().equals(project) )
                 .filter(img -> UserRoles.checkAccess(userInfo, RoleType.IMAGE, img.getFullName(), userInfo.getRoles()))
                 .collect(Collectors.toList());
+        sharedImages.forEach(img -> img.setShared(true));
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }

@@ -132,7 +132,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 
     @Test
     public void getImages() {
-        when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
+        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
                 .thenReturn(getImageList());
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/image")
@@ -148,14 +148,14 @@ public class ImageExploratoryResourceTest extends TestBase {
         }));
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
+        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
         verifyNoMoreInteractions(imageExploratoryService);
     }
 
     @Test
     public void getImagesWithFailedAuth() throws AuthenticationException {
         authFailSetup();
-        when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
+        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
                 .thenReturn(getImageList());
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/image")
@@ -171,7 +171,7 @@ public class ImageExploratoryResourceTest extends TestBase {
         }));
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
+        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
         verifyNoMoreInteractions(imageExploratoryService);
     }
 
@@ -287,9 +287,9 @@ public class ImageExploratoryResourceTest extends TestBase {
                 "someApp",
                 "someInstance",
                 CloudProvider.AWS,
+                "someDockerImage",
                 "someFullName",
                 ImageStatus.CREATED,
-                false,
                 null,
                 null,
                 null,

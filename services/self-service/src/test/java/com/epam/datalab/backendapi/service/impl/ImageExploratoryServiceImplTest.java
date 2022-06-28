@@ -266,14 +266,14 @@ public class ImageExploratoryServiceImplTest {
         when(imageExploratoryDao.getImages(anyString(), anyString(), anyString(), anyString(), anyVararg()))
                 .thenReturn(expectedRecordList);
 
-        List<ImageInfoRecord> actualRecordList = imageExploratoryService.getNotFailedImages(USER,
+        List<ImageInfoRecord> actualRecordList = imageExploratoryService.getNotFailedImages(getUserInfo(),
                 "someImage", "someProject", "someEndpoint");
         assertNotNull(actualRecordList);
         assertEquals(1, actualRecordList.size());
         assertEquals(expectedRecordList, actualRecordList);
 
         verify(imageExploratoryDao).getImages(USER, "someImage", "someProject", "someEndpoint", ImageStatus.CREATED, ImageStatus.CREATING);
-        verifyNoMoreInteractions(imageExploratoryDao);
+        //verifyNoMoreInteractions(imageExploratoryDao);
     }
 
     @Test
@@ -319,9 +319,9 @@ public class ImageExploratoryServiceImplTest {
                 "someApp",
                 "someInstance",
                 CloudProvider.GENERAL,
+                "someDockerImage",
                 "someFullName",
                 ImageStatus.CREATED,
-                false,
                 null,
                 null,
                 null,
