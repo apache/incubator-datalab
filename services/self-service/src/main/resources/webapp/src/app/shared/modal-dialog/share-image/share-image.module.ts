@@ -17,34 +17,17 @@
  * under the License.
  */
 
-export enum Image_Table_Column_Headers {
-  imageName = 'Image name',
-  creationDate = 'Creation date',
-  provider = 'Provider',
-  imageStatus = 'Image status',
-  sharedStatus = 'Shared status',
-  templateName = 'Template name',
-  instanceName = 'Instance name',
-  actions = 'Actions',
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ShareImageComponent } from './share-image.component';
+import { NotificationDialogComponent } from '../notification-dialog';
 
-export enum Shared_Status {
-  shared = 'Shared',
-  private = 'Private'
-}
 
-export const Image_Table_Titles = <const>[
-  'checkbox',
-  'imageName',
-  'creationDate',
-  'provider',
-  'imageStatus',
-  'sharedStatus',
-  'templateName',
-  'instanceName',
-  'actions'
-];
 
-export enum Localstorage_Key {
-  userName = 'user_name'
-}
+@NgModule({
+  declarations: [ ShareImageComponent ],
+  imports: [ CommonModule ],
+  entryComponents: [ShareImageComponent],
+  exports: [ ShareImageComponent ]
+})
+export class ShareImageModule { }

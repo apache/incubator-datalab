@@ -1,0 +1,10 @@
+[
+  {
+    "_id": "imgFull_%s_%s_%s",
+    "description": "Full control of %s image",
+    "type": "IMAGE",
+    "groups": [
+      "$anyuser"
+    ]
+  }
+]

@@ -21,10 +21,7 @@ package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.domain.RequestId;
-import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
-import com.epam.datalab.backendapi.resources.dto.ImageFilter;
-import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
-import com.epam.datalab.backendapi.resources.dto.ProjectImagesInfo;
+import com.epam.datalab.backendapi.resources.dto.*;
 import com.epam.datalab.backendapi.service.ImageExploratoryService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -113,7 +110,7 @@ public class ImageExploratoryResource {
     @Path("user")
     public Response getImagesForUser(@Auth UserInfo ui, @Valid @NotNull ImageFilter imageFilter) {
         log.debug("Getting images for user {} with filter {}", ui.getName(), imageFilter);
-        final List<ProjectImagesInfo> images = imageExploratoryService.getImagesOfUserWithFilter(ui ,imageFilter);
+        final List<ProjectImagesInfo> images = imageExploratoryService.getImagesOfUserWithFilter(ui, imageFilter);
         return Response.ok(images).build();
     }
 
@@ -126,5 +123,13 @@ public class ImageExploratoryResource {
                              @QueryParam("endpoint") String endpoint) {
         log.debug("Getting image with name {} for user {}", name, ui.getName());
         return Response.ok(imageExploratoryService.getImage(ui.getName(), name, project, endpoint)).build();
+    }
+
+    @POST
+    @Path("share")
+    public Response shareImageWithProjectGroups(@Auth UserInfo ui, @Valid @NotNull ImageProjectGroupsShareDTO dto) {
+        log.debug("Sharing user image {} with project {} groups", dto.getImageName(), dto.getProjectName());
+        imageExploratoryService.shareImageWithProjectGroups(ui, dto.getImageName(), dto.getProjectName(),  dto.getEndpoint());
+        return Response.ok(imageExploratoryService.getImagesOfUser(ui)).build();
     }
 }

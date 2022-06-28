@@ -35,10 +35,19 @@ public interface ImageExploratoryService {
 
     List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint);
 
+    List<ImageInfoRecord> getNotFailedImages(String dockerImage, String project, String endpoint);
+
     ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
     List<ImageInfoRecord> getImagesForProject(String project);
 
     List<ProjectImagesInfo> getImagesOfUser(UserInfo user);
     List<ProjectImagesInfo> getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
+
+    void shareImageWithProjectGroups(UserInfo user, String imageName, String projectName, String endpoint);
+
+    List<ImageInfoRecord> getSharedImages(UserInfo user);
+
+    List<ImageInfoRecord> getSharedImages(UserInfo userInfo, String dockerImage, String project, String endpoint);
+
 }

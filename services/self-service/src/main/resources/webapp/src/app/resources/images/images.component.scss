@@ -85,3 +85,34 @@
   background-color: white;
   opacity: 1;
 }
+
+.action-button__share {
+  display: flex;
+  align-items: start;
+  width: 100%;
+  padding: 10px 15px;
+  background-color: transparent;
+  color: rgb(87, 114, 137);
+  border: none;
+  outline: none;
+
+  &:hover {
+    color: #35afd5;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.26);
+    cursor: not-allowed;
+    transition: all 0.45s ease-in-out;
+  }
+}
+
+.list-menu {
+  padding: 0 !important;
+}
+
+.list-unstyled > li {
+  margin: 0 !important;
+}

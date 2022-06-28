@@ -17,13 +17,14 @@
  * under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
-import {Dictionary} from '../collections';
-import {environment} from '../../../environments/environment';
-import {HTTPMethod} from '../util';
+import { Dictionary } from '../collections';
+import { environment } from '../../../environments/environment';
+import { HTTPMethod } from '../util';
+import { ShareImageAllUsersParams } from '../../resources/images';
 
 // we can now access environment.apiUrl
 const API_URL = environment.apiUrl;
@@ -44,6 +45,7 @@ export class ApplicationServiceFacade {
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
   private static readonly IMAGE = 'image';
+  private static readonly SHARE_ALL = 'share_all';
   private static readonly SCHEDULER = 'scheduler';
   private static readonly TEMPLATES = 'templates';
   private static readonly COMPUTATION_TEMPLATES = 'computation_templates';
@@ -185,6 +187,13 @@ export class ApplicationServiceFacade {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE_PAGE),
       null);
+  }
+
+  buildShareImageAllUsers(params: ShareImageAllUsersParams): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.SHARE_ALL),
+      params
+      );
   }
 
   public buildGetTemplatesRequest(params): Observable<any> {
@@ -729,8 +738,6 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATION_TEMPLATES,
     '/infrastructure_provision/computational_resources');
-    this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
-      '/api/infrastructure_provision/exploratory_environment/image');
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
       '/api/infrastructure_provision/exploratory_environment/scheduler');
 
@@ -742,8 +749,16 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE,
       '/infrastructure_provision/computational_resources/dataengine'); // spark (azure|aws)
 
+
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_templates/computational_templates');
+
+
+    // Images
+    this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
+      '/api/infrastructure_provision/exploratory_environment/image');
+    this.requestRegistry.Add(ApplicationServiceFacade.SHARE_ALL,
+      '/api/infrastructure_provision/exploratory_environment/image/share');
 
     // Bucket browser
     this.requestRegistry.Add(ApplicationServiceFacade.BUCKET, '/api/bucket');

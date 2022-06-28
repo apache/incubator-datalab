@@ -190,7 +190,7 @@
       </th>
       <td mat-cell *matCellDef="let element">
         <div class="shared-status--wrapper">
-          <span class="shared-status"> {{element.isShader ? sharedStatus.shared : sharedStatus.private}} </span>
+          <span class="shared-status"> {{element.shared ? sharedStatus.shared : sharedStatus.private}} </span>
           <span class="currency_details" >
                 <i class="material-icons">help_outline</i>
               </span>
@@ -238,16 +238,22 @@
               matTooltip="Unable to terminate notebook because at least one compute is in progress"
               matTooltipPosition="above"
             >
-              <div>
+              <button class="action-button__share">
                 <i class="material-icons">phonelink_off</i>
                 <span>Terminate</span>
-              </div>
+              </button>
             </li>
-            <li>
-              <div>
+            <li [matTooltip]="'This image cannot be shared by you. Contact Admin user'"
+                matTooltipPosition="above"
+                [matTooltipDisabled]="userName === element.user && element.status === 'CREATED'">
+              <button
+                class="action-button__share"
+                (click)="onShare(element)"
+                [disabled]="userName !== element.user || element.status !== 'CREATED'"
+              >
                 <i class="material-icons">create</i>
                 <span>Share</span>
-              </div>
+              </button>
             </li>
           </ul>
         </bubble-up>

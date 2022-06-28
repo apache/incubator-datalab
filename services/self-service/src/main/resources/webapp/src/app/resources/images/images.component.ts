@@ -24,7 +24,10 @@ import { ToastrService } from 'ngx-toastr';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService, UserImagesPageService } from '../../core/services';
 import { ImageModel, ProjectModel } from './images.model';
-import { Image_Table_Column_Headers, Image_Table_Titles, Shared_Status } from './images.config';
+import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status } from './images.config';
+import { MatDialog } from '@angular/material/dialog';
+import { ShareImageComponent } from '../../shared/modal-dialog/share-image/share-image.component';
+import { ImagesService } from './images.service';
 
 @Component({
   selector: 'datalab-images',
@@ -45,19 +48,25 @@ export class ImagesComponent implements OnInit {
   checkboxSelected: boolean = false;
   projectList: string[] = [];
   activeProjectName: string = '';
+  userName!: string;
+
   readonly placeholder: string = 'Select project';
   readonly sharedStatus: typeof Shared_Status = Shared_Status;
+
   private cashedImageListData: ProjectModel[] = [];
 
   constructor(
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
-    private userImagesPageService: UserImagesPageService
+    private userImagesPageService: UserImagesPageService,
+    private dialog: MatDialog,
+    private imagesService: ImagesService
   ) { }
 
   ngOnInit(): void {
     this.getEnvironmentHealthStatus();
     this.getUserImagePageInfo();
+    this.getUserName();
   }
 
   onCheckboxClick(element: ImageModel): void {
@@ -93,6 +102,15 @@ export class ImagesComponent implements OnInit {
     this.activeProjectName = '';
   }
 
+  onShare(image: ImageModel): void {
+    this.dialog.open(ShareImageComponent, {
+      data: {
+        image
+      },
+      panelClass: 'modal-sm'
+    }).afterClosed().subscribe(() => this.initImageTable(this.imagesService.projectList));
+  }
+
   private getImageList(): ImageModel[] {
     return this.cashedImageListData.reduce((acc, {images}) => [...acc, ...images], []);
   }
@@ -126,6 +144,10 @@ export class ImagesComponent implements OnInit {
     }
     this.projectList = [];
     imagePageList.forEach(({project}) => this.projectList.push(project));
+  }
+
+  private getUserName(): void {
+    this.userName = localStorage.getItem(Localstorage_Key.userName);
   }
 
   get isProjectsMoreThanOne(): boolean {
