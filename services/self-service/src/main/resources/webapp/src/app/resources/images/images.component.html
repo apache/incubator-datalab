@@ -191,7 +191,7 @@
       <td mat-cell *matCellDef="let element">
         <div class="shared-status--wrapper">
           <span class="shared-status"> {{element.shared ? sharedStatus.shared : sharedStatus.private}} </span>
-          <span class="currency_details" >
+          <span *ngIf="element.shared" class="currency_details" >
                 <i class="material-icons">help_outline</i>
               </span>
         </div>
@@ -243,9 +243,11 @@
                 <span>Terminate</span>
               </button>
             </li>
-            <li [matTooltip]="'This image cannot be shared by you. Contact Admin user'"
+            <li [matTooltip]="element.status !== 'CREATED' && 'This image cannot be shared by you. Contact Admin user'
+                  || userName !== element.user && 'Images may be shared by owners only. Please contact Admin user.'"
                 matTooltipPosition="above"
-                [matTooltipDisabled]="userName === element.user && element.status === 'CREATED'">
+                [matTooltipDisabled]="userName === element.user && element.status === 'CREATED'"
+            >
               <button
                 class="action-button__share"
                 (click)="onShare(element)"

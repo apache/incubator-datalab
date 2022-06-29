@@ -34,9 +34,12 @@ import { EndpointStatus } from '../project.config';
 @Component({
   selector: 'project-list',
   templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.scss', '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss']
+  styleUrls: [
+    './project-list.component.scss',
+    '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss'
+  ]
 })
-export class ProjectListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ProjectListComponent implements OnInit, OnDestroy {
   @Input() isProjectAdmin: boolean;
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
@@ -63,10 +66,6 @@ export class ProjectListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.getProjectList();
     this.getEndpointList();
-  }
-
-  ngAfterViewInit(): void {
-
   }
 
   ngOnDestroy(): void {
