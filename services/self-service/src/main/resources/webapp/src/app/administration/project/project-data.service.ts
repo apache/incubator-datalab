@@ -22,7 +22,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { mergeMap} from 'rxjs/operators';
 
 import { ProjectService, EndpointService } from '../../core/services';
-import { Project } from './project.component';
+import { Project } from './project.model';
 
 @Injectable()
 export class ProjectDataService {

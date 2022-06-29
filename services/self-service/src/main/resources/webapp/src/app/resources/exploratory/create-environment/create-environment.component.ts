@@ -22,7 +22,6 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
 import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
@@ -30,6 +29,7 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 import { tap } from 'rxjs/operators';
 import { timer } from 'rxjs';
 import { TemplateName } from '../../../core/models';
+import { Project } from '../../../administration/project/project.model';
 
 @Component({
   selector: 'create-environment',
@@ -181,7 +181,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
       this.gpuTypes = template?.computationGPU ? HelpUtils.sortGpuTypes(template.computationGPU) : [];
 
-      if(template?.image === 'docker.datalab-tensor' /**|| template?.image === 'docker.datalab-jupyter-conda'|| template?.image === 'docker.datalab-jupyter-gpu' */|| template?.image === 'docker.datalab-deeplearning') {
+      // tslint:disable-next-line:max-line-length
+      if (template?.image === 'docker.datalab-tensor' /**|| template?.image === 'docker.datalab-jupyter-conda'|| template?.image === 'docker.datalab-jupyter-gpu' */|| template?.image === 'docker.datalab-deeplearning') {
         this.addGpuFields();
       }
     }
@@ -272,9 +273,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public setInstanceSize() {
-    const {image, computationGPU} = this.currentTemplate
-    if(image === this.templateName.jupyterJpu) {
-      this.createExploratoryForm.get('gpu_count').setValue(computationGPU[0])
+    const {image, computationGPU} = this.currentTemplate;
+    if (image === this.templateName.jupyterJpu) {
+      this.createExploratoryForm.get('gpu_count').setValue(computationGPU[0]);
     } else {
         const controls = ['gpu_type', 'gpu_count'];
         controls.forEach(control => {
@@ -329,9 +330,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
         (res: any) => {
           this.images = res.filter(el => el.status === 'CREATED');
 
-          if(this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
+          if (this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
             this.currentTemplate.exploratory_environment_images = this.currentTemplate.exploratory_environment_images.map(image => {
-              return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description}
+              return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description};
             });
             this.images.push(...this.currentTemplate.exploratory_environment_images);
           }

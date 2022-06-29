@@ -17,17 +17,23 @@
  * under the License.
  */
 
+export interface Endpoint {
+  name: string;
+  status: string;
+  edgeInfo: any;
+}
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ClickOutsideDirective } from './click-outside.directive';
-import { ScrollDirective } from './scrollTo.directive';
-import { IsEndpointsActiveDirective } from './is-endpoint-active.directive';
+export interface ModifiedEndpoint extends Endpoint {
+  endpointStatus?: 'ACTIVE' | 'INACTIVE';
+}
 
-@NgModule({
-  imports: [CommonModule],
-  declarations: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective],
-  exports: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective]
-})
-
-export class DirectivesModule { }
+export interface Project {
+  name: string;
+  endpoints: any;
+  tag: string;
+  groups: string[];
+  shared_image_enabled?: boolean;
+  areStoppedNode?: boolean;
+  areTerminatedNode?: boolean;
+  areRunningNode?: boolean;
+}

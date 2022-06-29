@@ -17,17 +17,10 @@
  * under the License.
  */
 
-
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ClickOutsideDirective } from './click-outside.directive';
-import { ScrollDirective } from './scrollTo.directive';
-import { IsEndpointsActiveDirective } from './is-endpoint-active.directive';
-
-@NgModule({
-  imports: [CommonModule],
-  declarations: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective],
-  exports: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective]
-})
-
-export class DirectivesModule { }
+export enum EndpointStatus {
+  terminated = 'TERMINATED',
+  terminating = 'TERMINATING',
+  failed = 'FAILED',
+  running = 'RUNNING',
+  stopped = 'STOPPED',
+}

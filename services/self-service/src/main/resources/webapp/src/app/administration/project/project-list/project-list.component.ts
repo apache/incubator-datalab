@@ -17,33 +17,37 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, OnDestroy, Inject, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, Inject, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 import { ProjectDataService } from '../project-data.service';
-import { Project, Endpoint } from '../project.component';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
 import { EndpointService } from '../../../core/services';
+import { Endpoint, ModifiedEndpoint, Project } from '../project.model';
+import { checkEndpointList } from '../../../core/util';
+import { EndpointStatus } from '../project.config';
 
 @Component({
   selector: 'project-list',
   templateUrl: './project-list.component.html',
   styleUrls: ['./project-list.component.scss', '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss']
 })
-export class ProjectListComponent implements OnInit, OnDestroy {
+export class ProjectListComponent implements OnInit, OnDestroy, AfterViewInit {
+  @Input() isProjectAdmin: boolean;
+  @Output() editItem: EventEmitter<{}> = new EventEmitter();
+  @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
+
+  @ViewChild('recreateBtn') recreateBtn: ElementRef;
 
   displayedColumns: string[] = ['name', 'groups', 'endpoints', 'actions'];
   dataSource: Project[] | any = [];
   projectList: Project[];
   isEndpointAvailable: boolean;
 
-  @Input() isProjectAdmin: boolean;
-  @Output() editItem: EventEmitter<{}> = new EventEmitter();
-  @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
   private subscriptions: Subscription = new Subscription();
 
   constructor (
@@ -56,52 +60,23 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getProjectList();
     this.getEndpointList();
   }
 
-  ngOnDestroy() {
+  ngAfterViewInit(): void {
+
+  }
+
+  ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  private getProjectList() {
-    this.progressBarService.startProgressBar();
-    this.subscriptions.add(this.projectDataService._projects
-      .subscribe(
-        (value: Project[]) => {
-          this.projectList = value;
-          if (this.projectList) {
-            this.projectList.forEach(project => {
-              project.areRunningNode = this.areResoursesInStatuses(project.endpoints, ['RUNNING']);
-              project.areStoppedNode = this.areResoursesInStatuses(project.endpoints, ['STOPPED']);
-              project.areTerminatedNode = this.areResoursesInStatuses(project.endpoints, ['TERMINATED', 'FAILED']);
-            });
-          }
-          if (value) this.dataSource = new MatTableDataSource(value);
-          this.progressBarService.stopProgressBar();
-        }, 
-        () => this.progressBarService.stopProgressBar()
-      )
-    );
-  }
-
-  private getEndpointList() {
-    this.endpointService.getEndpointsData().subscribe(
-      (response: Endpoint[] | []) => {
-        this.isEndpointAvailable = this.checkIsEndpointAvailable(response);
-      }
-    )
-  }
-
-  private checkIsEndpointAvailable(data: Endpoint[] | []): boolean {
-    return  data.length ? true : false;
   }
 
   public showActiveInstances(): void {
     const filteredList = this.projectList.map(project => {
       project.endpoints = project.endpoints.filter((endpoint: Endpoint) => {
-        return endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED'
+        return endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED';
       });
       return project;
     });
@@ -113,37 +88,83 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.editItem.emit(item);
   }
 
-  public openEdgeDialog(action, project) {
-    const endpoints = project.endpoints.filter(endpoint => {
-      if (action === 'stop') {
-        return endpoint.status === 'RUNNING';
-      }
-      if (action === 'start') {
-        return endpoint.status === 'STOPPED';
-      }
-      if (action === 'terminate') {
-        return endpoint.status === 'RUNNING' || endpoint.status === 'STOPPED';
-      }
-      if (action === 'recreate') {
-        return endpoint.status === 'TERMINATED' || endpoint.status === 'FAILED';
-      }
-    });
+  public openEdgeDialog(action: string, project: Project) {
+    const endpoints = this.getFilteredEndpointList(action, project);
+
     if (action === 'terminate' && endpoints.length === 1) {
       this.toggleStatus.emit({ project, endpoint: endpoints, action, oneEdge: true });
     } else {
       this.dialog.open(EdgeActionDialogComponent, { data: { type: action, item: endpoints }, panelClass: 'modal-sm' })
         .afterClosed().subscribe(
-          endpoint => {
-            if (endpoint && endpoint.length) {
-              this.toggleStatus.emit({project, endpoint, action});
-            }
-          }, 
-          error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
-        );
+        endpoint => {
+          if (endpoint && endpoint.length) {
+            this.toggleStatus.emit({project, endpoint, action});
+          }
+        },
+        error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
+      );
     }
   }
 
   public areResoursesInStatuses(resources, statuses: Array<string>) {
     return resources.some(resource => statuses.some(status => resource.status === status));
+  }
+
+  isRecreateBtnDisabled(endpointList: ModifiedEndpoint[]): boolean {
+    return checkEndpointList(endpointList);
+  }
+
+  private getFilteredEndpointList(action: string, project) {
+    return project.endpoints.filter(endpoint => {
+      if (action === 'stop') {
+        return endpoint.status === EndpointStatus.running;
+      }
+      if (action === 'start') {
+        return endpoint.status === EndpointStatus.stopped;
+      }
+      if (action === 'terminate') {
+        return endpoint.status === EndpointStatus.running || endpoint.status === EndpointStatus.stopped;
+      }
+      if (action === 'recreate') {
+        return endpoint.status === EndpointStatus.terminated || endpoint.status === EndpointStatus.failed;
+      }
+    });
+  }
+
+  private getProjectList() {
+    this.progressBarService.startProgressBar();
+    this.subscriptions.add(this.projectDataService._projects
+      .subscribe(
+        (value: Project[]) => {
+          this.modifyProjectList(value);
+          if (value) this.dataSource = new MatTableDataSource(value);
+          this.progressBarService.stopProgressBar();
+        },
+        () => this.progressBarService.stopProgressBar()
+      )
+    );
+  }
+
+  private modifyProjectList(value: Project[]): void {
+    this.projectList = value;
+    if (this.projectList) {
+      this.projectList.forEach(project => {
+        project.areRunningNode = this.areResoursesInStatuses(project.endpoints, [EndpointStatus.running]);
+        project.areStoppedNode = this.areResoursesInStatuses(project.endpoints, [EndpointStatus.stopped]);
+        project.areTerminatedNode = this.areResoursesInStatuses(project.endpoints, [EndpointStatus.terminated, EndpointStatus.failed]);
+      });
+    }
+  }
+
+  private getEndpointList() {
+    this.endpointService.getEndpointsData().subscribe(
+      (response: Endpoint[] | []) => {
+        this.isEndpointAvailable = this.checkIsEndpointAvailable(response);
+      }
+    );
+  }
+
+  private checkIsEndpointAvailable(data: Endpoint[] | []): boolean {
+    return  data.length ? true : false;
   }
 }
