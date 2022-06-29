@@ -37,7 +37,7 @@ export class UserImagesPageService {
       );
   }
 
-  shareImageAllUsers(params: ShareImageAllUsersParams) {
+  shareImageAllUsers(params: ShareImageAllUsersParams): Observable<ProjectModel[]> {
     return this.applicationServiceFacade.buildShareImageAllUsers(params)
       .pipe(
         catchError(ErrorUtils.handleServiceError)

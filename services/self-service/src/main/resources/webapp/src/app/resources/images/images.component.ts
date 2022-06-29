@@ -23,11 +23,12 @@ import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService, UserImagesPageService } from '../../core/services';
-import { ImageModel, ProjectModel } from './images.model';
+import { ImageModel, ProjectModel, ShareImageAllUsersParams } from './images.model';
 import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status } from './images.config';
 import { MatDialog } from '@angular/material/dialog';
 import { ShareImageComponent } from '../../shared/modal-dialog/share-image/share-image.component';
-import { ImagesService } from './images.service';
+import { switchMap, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'datalab-images',
@@ -60,7 +61,6 @@ export class ImagesComponent implements OnInit {
     public toastr: ToastrService,
     private userImagesPageService: UserImagesPageService,
     private dialog: MatDialog,
-    private imagesService: ImagesService
   ) { }
 
   ngOnInit(): void {
@@ -108,7 +108,11 @@ export class ImagesComponent implements OnInit {
         image
       },
       panelClass: 'modal-sm'
-    }).afterClosed().subscribe(() => this.initImageTable(this.imagesService.projectList));
+    }).afterClosed()
+      .pipe(
+        switchMap(() => this.shareImageAllUsers(image)),
+        tap((imageListData: ProjectModel[]) => this.initImageTable(imageListData))
+      ).subscribe();
   }
 
   private getImageList(): ImageModel[] {
@@ -148,6 +152,16 @@ export class ImagesComponent implements OnInit {
 
   private getUserName(): void {
     this.userName = localStorage.getItem(Localstorage_Key.userName);
+  }
+
+  private shareImageAllUsers(image: ImageModel): Observable<ProjectModel[]> {
+    const shareParams: ShareImageAllUsersParams = {
+      imageName: image.name,
+      projectName: image.project,
+      endpoint: image.endpoint
+    };
+
+    return this.userImagesPageService.shareImageAllUsers(shareParams);
   }
 
   get isProjectsMoreThanOne(): boolean {
