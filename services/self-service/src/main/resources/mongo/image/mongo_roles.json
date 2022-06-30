@@ -4,7 +4,6 @@
     "description": "Full control of %s image",
     "type": "IMAGE",
     "groups": [
-      "$anyuser"
     ]
   }
 ]
