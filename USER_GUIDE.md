@@ -192,6 +192,13 @@ In the body of the dialog:
 
 To access analytical tool Web UI you use direct URL's (your access is established via reverse proxy, so you don't need to have Edge node tunnel up and running).
 
+
+**TensorBoard usage**
+
+Tensorboard, the one that can be accessed by the URL from DataLab UI uses --logdir=/var/log/tensorboard.
+If another logdir is required, existing TensorBoard can be stopped from jupyter terminal using command **sudo systemctl stop tensorboard.service** and another one started instead of it from the terminal with command **source /opt/python/python3.7.9/bin/activate && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; tensorboard --host 0.0.0.0 --port 6006 --logdir=/var/log/tensorboard**  or from Jupyter UI with magic **%tensorboard --host 0.0.0.0 --port 6006 --logdir=/home/datalab-user/LOG_DIR**. 
+This TensorBoard will not be shown in Jupyter window, but can be accessed via TensorBoard URL from DataLab UI.
+
 ### Manage libraries <a name="manage_libraries"></a>
 
 On every analytical tool instance you can install additional libraries by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Manage libraries":
