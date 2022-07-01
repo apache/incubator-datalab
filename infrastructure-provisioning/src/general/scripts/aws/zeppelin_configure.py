@@ -303,6 +303,8 @@ if __name__ == "__main__":
         dns_name = datalab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
         zeppelin_ip_url = "http://" + ip_address + ":8080/"
         zeppelin_dns_url = "http://" + dns_name + ":8080/"
+        notebook_config['edge_instance_hostname'] = \
+            '{}.datalab01.demo.dlabanalytics.com'.format(notebook_config['project_name'].lower())
         zeppelin_notebook_access_url = "https://{}/{}/".format(notebook_config['edge_instance_hostname'],
                                                                notebook_config['exploratory_name'])
         zeppelin_ungit_access_url = "https://{}/{}-ungit/".format(notebook_config['edge_instance_hostname'],

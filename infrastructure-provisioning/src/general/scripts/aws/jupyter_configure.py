@@ -304,7 +304,7 @@ if __name__ == "__main__":
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
         jupyter_dns_url = "http://" + dns_name + ":8888/{}/".format(notebook_config['exploratory_name'])
         notebook_config['edge_instance_hostname'] = \
-            '{}.grain.dlabanalytics.com'.format(notebook_config['project_name'].lower())
+            '{}.datalab01.demo.dlabanalytics.com'.format(notebook_config['project_name'].lower())
         jupyter_notebook_access_url = "https://{}/{}/".format(notebook_config['edge_instance_hostname'],
                                                               notebook_config['exploratory_name'])
         jupyter_ungit_access_url = "https://{}/{}-ungit/".format(notebook_config['edge_instance_hostname'],
