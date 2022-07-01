@@ -243,8 +243,8 @@
                 <span>Terminate</span>
               </button>
             </li>
-            <li [matTooltip]="element.status !== 'CREATED' && 'This image cannot be shared by you. Contact Admin user'
-                  || userName !== element.user && 'Images may be shared by owners only. Please contact Admin user.'"
+            <li [matTooltip]="element.status !== 'CREATED' && 'The image cannot be shared because it is not in the &quot;Created&quot; status'
+                  || userName !== element.user && 'Images may be shared by creators only'"
                 matTooltipPosition="above"
                 [matTooltipDisabled]="userName === element.user && element.status === 'CREATED'"
             >
