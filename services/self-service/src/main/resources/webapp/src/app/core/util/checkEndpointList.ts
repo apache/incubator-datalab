@@ -20,6 +20,11 @@
 import { ModifiedEndpoint } from '../../administration/project/project.model';
 
 export const checkEndpointList = (endpointList: ModifiedEndpoint[]): boolean => {
-  return endpointList.every(({status, endpointStatus}) => (status === 'TERMINATED' || status === 'FAILED')
-    && endpointStatus === 'INACTIVE');
+  return endpointList.every(({status, endpointStatus}) => {
+      const isEdgeNodeInactive = status === 'TERMINATED' || status === 'FAILED';
+      const isEndpointInactive = !endpointStatus || endpointStatus === 'INACTIVE';
+
+      return isEdgeNodeInactive && isEndpointInactive;
+    }
+  );
 };
