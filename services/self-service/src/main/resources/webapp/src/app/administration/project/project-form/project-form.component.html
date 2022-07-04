@@ -41,10 +41,10 @@
                 <span class="upload-icon"></span> Upload
                 <input (change)="onFileChange($event)" type="file" name="file" accept=".pub" />
               </span>
-              <button 
-                mat-raised-button 
-                type="button" 
-                class="butt butt-generate" 
+              <button
+                mat-raised-button
+                type="button"
+                class="butt butt-generate"
                 [ngClass]="{ 'not-allowed' : item }"
                 (click)="generateUserAccessKey()"
               >
@@ -57,19 +57,19 @@
             </div>
           </div>
           <div class="text-center m-bott-10">
-            <button 
-              mat-raised-button 
-              type="button" 
-              class="butt" 
-              [disabled]="item" 
+            <button
+              mat-raised-button
+              type="button"
+              class="butt"
+              [disabled]="item"
               (click)="reset()"
             >
               Clear
             </button>
-            <button 
-              mat-raised-button 
-              type="button" 
-              class="butt next" 
+            <button
+              mat-raised-button
+              type="button"
+              class="butt next"
               matStepperNext
             >
               Next
@@ -88,18 +88,18 @@
             <div class="control-group m-bott-10">
               <label class="label">Project name</label>
               <div class="control">
-                <input 
-                  type="text" 
-                  formControlName="name" 
+                <input
+                  type="text"
+                  formControlName="name"
                   placeholder="Enter project name"
-                  (blur)="generateProjectTag($event)" 
+                  (blur)="generateProjectTag($event)"
                   [ngClass]="{ 'not-allowed' : item }"
                 />
                 <span class="error" *ngIf="projectForm?.controls.name.hasError('duplication')">
                   This project name already exists.
                 </span>
-                <span 
-                  class="error" 
+                <span
+                  class="error"
                   *ngIf="!projectForm?.controls.name.valid
                       && !projectForm?.controls.name.hasError('duplication')
                       && !projectForm?.controls.name.hasError('limit')
@@ -114,10 +114,10 @@
             <div class="control-group m-bott-10">
               <label class="label">Project tag</label>
               <div class="control">
-                <input 
-                  readonly 
-                  type="text" 
-                  formControlName="tag" 
+                <input
+                  readonly
+                  type="text"
+                  formControlName="tag"
                   placeholder="< equal to project name >"
                   class="not-allowed"
                 />
@@ -127,10 +127,10 @@
               <label class="label">Endpoints</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-select 
+                  <mat-select
                     multiple
-                    disableOptionCentering 
-                    formControlName="endpoints" 
+                    disableOptionCentering
+                    formControlName="endpoints"
                     placeholder="Select endpoints"
                     panelClass="crete-project-dialog scrolling"
                   >
@@ -143,16 +143,16 @@
                         <i class="material-icons">clear</i>&nbsp;None
                       </a>
                     </mat-option>
-                    <mat-option 
-                      *ngFor="let endpoint of endpointsList" 
+                    <mat-option
+                      *ngFor="let endpoint of endpointsList"
                       [value]="endpoint.name"
                       [disabled]="isDisabled(endpoint.name) || endpoint.status !== 'ACTIVE'"
                     >
                       {{ endpoint.name === 'local' ? endpoint.name : endpoint.name + (endpoint.status !== 'ACTIVE' ? ' (inactive)' : '')}}
                     </mat-option>
-                    <mat-option 
-                      *ngIf="!endpointsList.length" 
-                      class="multiple-select empty ml-10" 
+                    <mat-option
+                      *ngIf="!endpointsList.length"
+                      class="multiple-select empty ml-10"
                       disabled
                     >
                       Endpoints list is empty
@@ -167,26 +167,26 @@
           </div>
 
           <div class="text-center m-bott-10">
-            <button 
-              mat-raised-button 
-              type="button" 
-              class="butt" 
-              [disabled]="item" 
+            <button
+              mat-raised-button
+              type="button"
+              class="butt"
+              [disabled]="item"
               (click)="reset()"
             >
               Clear
             </button>
-            <button 
-              mat-raised-button 
-              matStepperPrevious 
+            <button
+              mat-raised-button
+              matStepperPrevious
               class="butt"
             >
               <i class="material-icons arrow-icon">keyboard_arrow_left</i>Back
             </button>
-            <button 
-              mat-raised-button 
-              type="button" 
-              class="butt next" 
+            <button
+              mat-raised-button
+              type="button"
+              class="butt next"
               matStepperNext
             >
               Next<i class="material-icons arrow-icon">keyboard_arrow_right</i>
@@ -204,10 +204,10 @@
             <label class="label">Groups</label>
             <div class="control selector-wrapper">
               <mat-form-field>
-                <mat-select 
+                <mat-select
                   multiple
-                  disableOptionCentering 
-                  formControlName="groups" 
+                  disableOptionCentering
+                  formControlName="groups"
                   placeholder="Select user groups"
                   panelClass="crete-project-dialog scrolling"
                 >
@@ -238,26 +238,26 @@
 <!--                <span class="hold-label">Use shared image</span>-->
 <!--              </mat-slide-toggle>-->
 <!--            </div>-->
-            <button 
-              mat-raised-button 
-              type="button" 
-              class="butt" 
-              [disabled]="item" 
+            <button
+              mat-raised-button
+              type="button"
+              class="butt"
+              [disabled]="item"
               (click)="reset()"
             >
               Clear
             </button>
-            <button 
-              mat-raised-button 
-              matStepperPrevious 
+            <button
+              mat-raised-button
+              matStepperPrevious
               class="butt"
             >
               <i class="material-icons arrow-icon">keyboard_arrow_left</i>Back
             </button>
-            <button 
-              mat-raised-button 
-              type="button" 
-              class="butt butt-success" 
+            <button
+              mat-raised-button
+              type="button"
+              class="butt butt-success"
               [disabled]="!projectForm.valid"
               (click)="confirm(projectForm.value)"
             >
