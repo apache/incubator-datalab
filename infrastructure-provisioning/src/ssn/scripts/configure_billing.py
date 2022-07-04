@@ -76,6 +76,7 @@ parser.add_argument('--keystore_password', type=str, help='Keystore password')
 parser.add_argument('--keycloak_client_id', type=str, help='Keycloak client id')
 parser.add_argument('--keycloak_client_secret', type=str, help='Keycloak client secret')
 parser.add_argument('--keycloak_auth_server_url', type=str, help='Keycloak auth server url')
+parser.add_argument('--keycloak_realm_name', type=str, help='Keycloak Realm name')
 args = parser.parse_args()
 
 
