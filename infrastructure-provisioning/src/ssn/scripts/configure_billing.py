@@ -107,6 +107,7 @@ def yml_billing(path):
             config_orig = config_orig.replace('COST', args.cost)
             config_orig = config_orig.replace('RESOURCE_ID', args.resource_id)
             config_orig = config_orig.replace('TAGS', args.tags)
+            config_orig = config_orig.replace('KEYCLOAK_REALM_NAME', args.keycloak_realm_name)
         elif args.cloud_provider == 'azure':
             config_orig = config_orig.replace('SERVICE_BASE_NAME', args.service_base_name)
             config_orig = config_orig.replace('OS_USER', args.os_user)
@@ -126,6 +127,7 @@ def yml_billing(path):
             config_orig = config_orig.replace('CURRENCY', args.currency)
             config_orig = config_orig.replace('LOCALE', args.locale)
             config_orig = config_orig.replace('REGION_INFO', args.region_info)
+            config_orig = config_orig.replace('KEYCLOAK_REALM_NAME', args.keycloak_realm_name)
         elif args.cloud_provider == 'gcp':
             config_orig = config_orig.replace('SERVICE_BASE_NAME', args.service_base_name)
             config_orig = config_orig.replace('OS_USER', args.os_user)
@@ -137,6 +139,7 @@ def yml_billing(path):
             config_orig = config_orig.replace('KEYCLOAK_CLIENT_ID', args.keycloak_client_id)
             config_orig = config_orig.replace('KEYCLOAK_CLIENT_SECRET', args.keycloak_client_secret)
             config_orig = config_orig.replace('KEYCLOAK_AUTH_SERVER_URL', args.keycloak_auth_server_url)
+            config_orig = config_orig.replace('KEYCLOAK_REALM_NAME', args.keycloak_realm_name)
         f = open(path, 'w')
         f.write(config_orig)
         f.close()
@@ -157,6 +160,7 @@ def yml_billing_app(path):
         config_orig = config_orig.replace('KEYCLOAK_CLIENT_ID', args.keycloak_client_id)
         config_orig = config_orig.replace('KEYCLOAK_CLIENT_SECRET', args.keycloak_client_secret)
         config_orig = config_orig.replace('KEYCLOAK_AUTH_SERVER_URL', args.keycloak_auth_server_url)
+        config_orig = config_orig.replace('KEYCLOAK_REALM_NAME', args.keycloak_realm_name)
 
         f = open(path, 'w')
         f.write(config_orig)
