@@ -48,7 +48,7 @@ logging:
 
 keycloak:
   bearer-only: true
-  realm: datalab
+  realm: KEYCLOAK_REALM_NAME
   resource: KEYCLOAK_CLIENT_ID
   credentials.secret: KEYCLOAK_CLIENT_SECRET
   ssl-required: none
