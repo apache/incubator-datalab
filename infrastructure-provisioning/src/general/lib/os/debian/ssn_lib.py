@@ -189,7 +189,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
              application_id, hostname, data_lake_name, subscription_id,
              validate_permission_scope, datalab_id, usage_date, product,
              usage_type, usage, cost, resource_id, tags, billing_dataset_name, keycloak_client_id,
-             keycloak_client_secret, keycloak_auth_server_url, report_path=''):
+             keycloak_client_secret, keycloak_auth_server_url, keycloak_realm_name, report_path=''):
     try:
         if not exists(datalab.fab.conn,os.environ['ssn_datalab_path'] + 'tmp/ss_started'):
             java_path = datalab.fab.conn.sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'").stdout.replace('\n','')
@@ -303,7 +303,8 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                          '--keystore_password {} ' \
                          '--keycloak_client_id {} ' \
                          '--keycloak_client_secret {} ' \
-                         '--keycloak_auth_server_url {} '.\
+                         '--keycloak_auth_server_url {} ' \
+                         '--keycloak_realm_name {} '. \
                             format(cloud_provider,
                                    service_base_name,
                                    tag_resource_id,
@@ -333,7 +334,8 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
                                    keystore_passwd,
                                    keycloak_client_id,
                                    keycloak_client_secret,
-                                   keycloak_auth_server_url)
+                                   keycloak_auth_server_url,
+                                   keycloak_realm_name)
                 datalab.fab.conn.sudo('python3 /tmp/configure_billing.py {}'.format(params))
             try:
                 if os.environ['conf_stepcerts_enabled'] == 'true':
