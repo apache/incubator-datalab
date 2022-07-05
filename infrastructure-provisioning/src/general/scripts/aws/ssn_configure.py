@@ -553,7 +553,8 @@ if __name__ == "__main__":
                    os.environ['tags'],
                    os.environ['keycloak_client_name'],
                    os.environ['keycloak_client_secret'],
-                   os.environ['keycloak_auth_server_url'])
+                   os.environ['keycloak_auth_server_url'],
+                   os.environ['keycloak_realm_name'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True, check=True)
         except:

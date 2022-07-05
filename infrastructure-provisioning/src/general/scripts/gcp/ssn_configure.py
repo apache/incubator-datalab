@@ -502,14 +502,15 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --datalab_path {} --os_user {} --os_family {} --billing_enabled {} " \
                  "--request_id {} --billing_dataset_name {} \
                  --resource {} --service_base_name {} --cloud_provider {} --default_endpoint_name {} " \
-                 "--cloud_params '{}' --keycloak_client_id {} --keycloak_client_secret {} --keycloak_auth_server_url {} --keycloak_realm_name {}". \
+                 "--cloud_params '{}' --keycloak_client_id {} --keycloak_client_secret {}" \
+                 " --keycloak_auth_server_url {} --keycloak_realm_name {}". \
             format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], os.environ['ssn_datalab_path'],
                    ssn_conf['datalab_ssh_user'],
                    os.environ['conf_os_family'], ssn_conf['billing_enabled'], os.environ['request_id'],
                    os.environ['billing_dataset_name'], os.environ['conf_resource'],
                    ssn_conf['service_base_name'], os.environ['conf_cloud_provider'], ssn_conf['default_endpoint_name'],
                    json.dumps(cloud_params), os.environ['keycloak_client_name'], os.environ['keycloak_client_secret'],
-                   os.environ['keycloak_auth_server_url'])
+                   os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True, check=True)
         except:

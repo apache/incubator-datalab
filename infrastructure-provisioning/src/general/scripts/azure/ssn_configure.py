@@ -502,7 +502,8 @@ if __name__ == "__main__":
                    ssn_conf['subscription_id'], os.environ['azure_validate_permission_scope'],
                    ssn_conf['default_endpoint_name'],
                    os.environ['keycloak_client_name'], os.environ['keycloak_client_secret'],
-                   os.environ['keycloak_auth_server_url'])
+                   os.environ['keycloak_auth_server_url'],
+                   os.environ['keycloak_realm_name'])
         subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
