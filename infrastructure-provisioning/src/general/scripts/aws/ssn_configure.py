@@ -523,7 +523,7 @@ if __name__ == "__main__":
                  "--tags {} " \
                  "--keycloak_client_id {} " \
                  "--keycloak_client_secret {} " \
-                 "--keycloak_auth_server_url {}" \
+                 "--keycloak_auth_server_url {} " \
                  "--keycloak_realm_name {}". \
             format(ssn_conf['instance_hostname'],
                    "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
