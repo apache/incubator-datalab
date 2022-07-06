@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService, UserImagesPageService } from '../../core/services';
 import { ImageModel, ProjectModel, ShareImageAllUsersParams } from './images.model';
-import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status } from './images.config';
+import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status, Toaster_Message } from './images.config';
 import { MatDialog } from '@angular/material/dialog';
 import { ShareImageComponent } from '../../shared/modal-dialog/share-image/share-image.component';
 import { switchMap, tap } from 'rxjs/operators';
@@ -112,7 +112,9 @@ export class ImagesComponent implements OnInit {
       .pipe(
         switchMap(() => this.shareImageAllUsers(image)),
         tap((imageListData: ProjectModel[]) => this.initImageTable(imageListData))
-      ).subscribe();
+      ).subscribe(
+      () => this.toastr.success(Toaster_Message.successShare, 'Success!')
+    );
   }
 
   private getImageList(): ImageModel[] {

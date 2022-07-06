@@ -110,22 +110,22 @@ export class EndpointsComponent implements OnInit {
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
       name: ['', Validators.compose([
-        Validators.required, 
-        Validators.pattern(PATTERNS.namePattern), 
-        this.validateName.bind(this), 
+        Validators.required,
+        Validators.pattern(PATTERNS.namePattern),
+        this.validateName.bind(this),
         this.providerMaxLength.bind(this)
       ])],
       url: ['', Validators.compose([
-        Validators.required, 
-        Validators.pattern(PATTERNS.fullUrl), 
+        Validators.required,
+        Validators.pattern(PATTERNS.fullUrl),
         this.validateUrl.bind(this)
       ])],
       account: ['', Validators.compose([
-        Validators.required, 
+        Validators.required,
         Validators.pattern(PATTERNS.namePattern)
       ])],
       endpoint_tag: ['', Validators.compose([
-        Validators.required, 
+        Validators.required,
         Validators.pattern(PATTERNS.namePattern)
       ])]
     });
@@ -137,7 +137,7 @@ export class EndpointsComponent implements OnInit {
         () => {
           this.toastr.success('Endpoint successfully disconnected. All related resources are terminating!', 'Success!');
           this.getEndpointList();
-        }, 
+        },
         error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!')
       );
   }
