@@ -305,15 +305,15 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
           if (this.services['self-service'].selected) {
             this.messagesStatus.counter += 1;
-            this.restartSingleService(true, false, false, 'Self-service')
+            this.restartSingleService(true, false, false, 'Self-service');
           }
           if (this.services['provisioning'].selected) {
             this.messagesStatus.counter += 1;
-            this.restartSingleService(false, true, false, 'Provisioning service')
+            this.restartSingleService(false, true, false, 'Provisioning service');
           }
           if (this.services['billing'].selected) {
             this.messagesStatus.counter += 1;
-            this.restartSingleService(false, false, true, 'Billing service')
+            this.restartSingleService(false, false, true, 'Billing service');
           }
 
           let timer = setInterval(() => {

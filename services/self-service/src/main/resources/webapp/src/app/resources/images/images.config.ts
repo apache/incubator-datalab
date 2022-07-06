@@ -48,3 +48,7 @@ export const Image_Table_Titles = <const>[
 export enum Localstorage_Key {
   userName = 'user_name'
 }
+
+export enum Toaster_Message {
+  successShare = 'The image has been shared with all current Regular Users on the project!'
+}
