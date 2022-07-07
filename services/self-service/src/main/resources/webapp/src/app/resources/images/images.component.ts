@@ -29,6 +29,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ShareImageComponent } from '../../shared/modal-dialog/share-image/share-image.component';
 import { Observable } from 'rxjs';
 import { ImagesService } from './images.service';
+import { ProgressBarService } from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'datalab-images',
@@ -61,7 +62,8 @@ export class ImagesComponent implements OnInit {
     public toastr: ToastrService,
     private userImagesPageService: UserImagesPageService,
     private dialog: MatDialog,
-    private imagesService: ImagesService
+    private imagesService: ImagesService,
+    private progressBarService: ProgressBarService
   ) { }
 
   ngOnInit(): void {
@@ -114,6 +116,7 @@ export class ImagesComponent implements OnInit {
         if (this.imagesService.projectList) {
           this.initImageTable(this.imagesService.projectList);
         }
+        this.progressBarService.stopProgressBar();
       });
   }
 

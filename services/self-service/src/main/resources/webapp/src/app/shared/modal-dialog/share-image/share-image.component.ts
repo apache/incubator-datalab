@@ -43,9 +43,8 @@ export class ShareImageComponent {
 
   onShare() {
     this.dialogRef.close();
-    this.imagesService.shareImageAllUsers(this.data.image).pipe(
-      tap(response => this.imagesService.projectList = response)
-    ).subscribe(
+    this.imagesService.shareImageAllUsers(this.data.image)
+      .subscribe(
       () => this.toastr.success(Toaster_Message.successShare, 'Success!')
     );
   }
