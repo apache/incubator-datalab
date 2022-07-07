@@ -27,8 +27,9 @@ import { ImageModel, ProjectModel, ShareImageAllUsersParams } from './images.mod
 import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status, Toaster_Message } from './images.config';
 import { MatDialog } from '@angular/material/dialog';
 import { ShareImageComponent } from '../../shared/modal-dialog/share-image/share-image.component';
-import { switchMap, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { ImagesService } from './images.service';
+import { ProgressBarService } from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'datalab-images',
@@ -61,6 +62,8 @@ export class ImagesComponent implements OnInit {
     public toastr: ToastrService,
     private userImagesPageService: UserImagesPageService,
     private dialog: MatDialog,
+    private imagesService: ImagesService,
+    private progressBarService: ProgressBarService
   ) { }
 
   ngOnInit(): void {
@@ -109,12 +112,12 @@ export class ImagesComponent implements OnInit {
       },
       panelClass: 'modal-sm'
     }).afterClosed()
-      .pipe(
-        switchMap(() => this.shareImageAllUsers(image)),
-        tap((imageListData: ProjectModel[]) => this.initImageTable(imageListData))
-      ).subscribe(
-      () => this.toastr.success(Toaster_Message.successShare, 'Success!')
-    );
+      .subscribe(() => {
+        if (this.imagesService.projectList) {
+          this.initImageTable(this.imagesService.projectList);
+        }
+        this.progressBarService.stopProgressBar();
+      });
   }
 
   private getImageList(): ImageModel[] {

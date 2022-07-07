@@ -19,6 +19,11 @@
 
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ImagesService } from '../../../resources/images/images.service';
+import { UserImagesPageService } from '../../../core/services';
+import { Toaster_Message } from '../../../resources/images';
+import { ToastrService } from 'ngx-toastr';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'datalab-share-image',
@@ -31,5 +36,16 @@ export class ShareImageComponent {
   constructor(
     public dialogRef: MatDialogRef<ShareImageComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private imagesService: ImagesService,
+    private userImagesPageService: UserImagesPageService,
+    private toastr: ToastrService,
   ) { }
+
+  onShare() {
+    this.dialogRef.close();
+    this.imagesService.shareImageAllUsers(this.data.image)
+      .subscribe(
+      () => this.toastr.success(Toaster_Message.successShare, 'Success!')
+    );
+  }
 }
