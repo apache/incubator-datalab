@@ -36,7 +36,9 @@ import {CheckboxModule} from '../shared/checkbox';
 import {BubbleModule} from '../shared';
 import { CapitalizeFirstLetterPipeModule } from '../core/pipes';
 import { LocalDatePipeModule } from '../core/pipes/local-date-pipe';
-import { ShareImageModule } from '../shared/modal-dialog/share-image/share-image.module';
+import { ShareImageDialogModule } from './exploratory/share-image/share-image-dialog.module';
+import { ImageDetailDialogModule } from './exploratory/image-detail-dialog/image-detail-dialog.module';
+import {LibraryInfoModalModule} from './exploratory/library-info-modal/library-info-modal.module';
 
 @NgModule({
   imports: [
@@ -53,7 +55,9 @@ import { ShareImageModule } from '../shared/modal-dialog/share-image/share-image
     BubbleModule,
     CapitalizeFirstLetterPipeModule,
     LocalDatePipeModule,
-    ShareImageModule
+    ShareImageDialogModule,
+    ImageDetailDialogModule,
+    LibraryInfoModalModule,
   ],
   declarations: [
     ResourcesComponent,
