@@ -125,7 +125,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
         return endpoint.status === EndpointStatus.running || endpoint.status === EndpointStatus.stopped;
       }
       if (action === 'recreate') {
-        return endpoint.status === EndpointStatus.terminated || endpoint.status === EndpointStatus.failed;
+        const edgeNodeStatus = endpoint.status === EndpointStatus.terminated || endpoint.status === EndpointStatus.failed;
+        return edgeNodeStatus && endpoint.endpointStatus === 'ACTIVE';
       }
     });
   }
