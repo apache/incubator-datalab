@@ -19,23 +19,22 @@
 
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ImagesService } from '../../../resources/images/images.service';
+import { ImagesService } from '../../images/images.service';
 import { UserImagesPageService } from '../../../core/services';
-import { Toaster_Message } from '../../../resources/images';
+import { ModalData, Toaster_Message } from '../../images';
 import { ToastrService } from 'ngx-toastr';
-import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'datalab-share-image',
-  templateUrl: './share-image.component.html',
-  styleUrls: ['./share-image.component.scss']
+  templateUrl: './share-image-dialog.component.html',
+  styleUrls: ['./share-image-dialog.component.scss']
 })
-export class ShareImageComponent {
+export class ShareImageDialogComponent {
   imageName!: string;
 
   constructor(
-    public dialogRef: MatDialogRef<ShareImageComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<ShareImageDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: ModalData,
     private imagesService: ImagesService,
     private userImagesPageService: UserImagesPageService,
     private toastr: ToastrService,

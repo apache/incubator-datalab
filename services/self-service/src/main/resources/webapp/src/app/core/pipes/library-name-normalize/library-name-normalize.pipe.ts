@@ -17,20 +17,23 @@
  * under the License.
  */
 
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
-const MAX_SYMBOLS_COUNT = 255;
+const  libNameList = {
+  os_pkg: 'Apt/Yum',
+  pip3: 'Python 3',
+  r_pkg: 'R packages',
+  java: 'Java',
+  others: 'Others'
+};
 
-@Pipe({
-    name: 'truncateTextPipe'
-})
-export class TruncateTextPipe implements PipeTransform {
-    transform(text: string, limit: number = MAX_SYMBOLS_COUNT): string {
-        if (!text) {
-            return '';
-        }
-        return text.length > limit
-            ? `${text.substring(0, limit)}...`
-            : text;
+@Pipe({name: 'libNameNormalize'})
+
+export class LibraryNameNormalizePipe implements PipeTransform {
+  transform(libGroupName: string): string {
+    if (!libGroupName) {
+      return '';
     }
+    return libNameList[libGroupName];
+  }
 }

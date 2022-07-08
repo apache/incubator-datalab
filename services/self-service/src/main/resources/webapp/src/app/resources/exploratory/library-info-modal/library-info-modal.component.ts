@@ -17,20 +17,21 @@
  * under the License.
  */
 
-import { Pipe, PipeTransform } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
-const MAX_SYMBOLS_COUNT = 255;
-
-@Pipe({
-    name: 'truncateTextPipe'
+@Component({
+  selector: 'datalab-library-info-modal',
+  templateUrl: './library-info-modal.component.html',
+  styleUrls: [
+    './library-info-modal.component.scss',
+    '../detail-dialog/detail-dialog.component.scss'
+  ]
 })
-export class TruncateTextPipe implements PipeTransform {
-    transform(text: string, limit: number = MAX_SYMBOLS_COUNT): string {
-        if (!text) {
-            return '';
-        }
-        return text.length > limit
-            ? `${text.substring(0, limit)}...`
-            : text;
-    }
+export class LibraryInfoModalComponent {
+
+  constructor(
+    public dialogRef: MatDialogRef<LibraryInfoModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+  ) { }
 }

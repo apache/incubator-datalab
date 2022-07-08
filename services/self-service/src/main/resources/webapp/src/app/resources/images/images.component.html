@@ -227,9 +227,9 @@
       <td mat-cell *matCellDef="let element" class="settings actions-col">
 
         <div class="button--wrapper">
-          <span class="currency_details" >
-                <i class="material-icons">help_outline</i>
-              </span>
+          <span class="currency_details" (click)="onImageInfo(element)">
+            <i class="material-icons">help_outline</i>
+          </span>
           <span #settings class="actions" (click)="actions.toggle($event, settings)"></span>
         </div>
         <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
