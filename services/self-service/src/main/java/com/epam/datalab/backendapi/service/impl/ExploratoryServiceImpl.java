@@ -422,16 +422,16 @@ public class ExploratoryServiceImpl implements ExploratoryService {
                 .withGPUEnabled(exploratory.getEnabledGPU())
                 .withGPUType(exploratory.getGpuType());
         if (StringUtils.isNotBlank(exploratory.getImageName())) {
-            final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory.getImageName(),
+            final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(exploratory.getImageName(),
                     project, exploratory.getEndpoint());
             userInstance.withLibs(libInstallDtoList);
         }
         return userInstance;
     }
 
-    private List<LibInstallDTO> getImageRelatedLibraries(UserInfo userInfo, String imageFullName, String project,
+    private List<LibInstallDTO> getImageRelatedLibraries(String imageName, String project,
                                                          String endpoint) {
-        final List<Library> libraries = imageExploratoryDao.getLibraries(userInfo.getName(), imageFullName, project,
+        final List<Library> libraries = imageExploratoryDao.getLibraries(imageName, project,
                 endpoint, LibStatus.INSTALLED);
         return toLibInstallDtoList(libraries);
     }

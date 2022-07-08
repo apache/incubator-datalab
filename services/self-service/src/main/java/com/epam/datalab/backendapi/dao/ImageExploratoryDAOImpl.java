@@ -111,19 +111,18 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status) {
-        return ((List<Document>) libDocument(user, imageFullName, project, endpoint, status)
+    public List<Library> getLibraries(String imageName,  String project, String endpoint, LibStatus status) {
+        return ((List<Document>) libDocument(imageName, project, endpoint, status)
                 .orElse(emptyLibrariesDocument()).get(LIBRARIES))
                 .stream()
                 .map(d -> convertFromDocument(d, Library.class))
                 .collect(Collectors.toList());
     }
 
-    private Optional<Document> libDocument(String user, String imageFullName, String project, String endpoint,
+    private Optional<Document> libDocument(String imageName, String project, String endpoint,
                                            LibStatus status) {
         return findOne(MongoCollections.IMAGES,
-                imageLibraryCondition(user, imageFullName, project, endpoint, status),
+                imageLibraryCondition(imageName,project,endpoint,status),
                 fields(include(LIBRARIES), excludeId()));
     }
 
@@ -131,9 +130,8 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
         return new Document(LIBRARIES, Collections.emptyList());
     }
 
-    private Bson imageLibraryCondition(String user, String imageFullName, String project, String endpoint,
-                                       LibStatus status) {
-        return and(eq(USER, user), eq(IMAGE_NAME, imageFullName), eq(PROJECT, project), eq(ENDPOINT, endpoint),
+    private Bson imageLibraryCondition(String imageName, String project, String endpoint, LibStatus status){
+        return and(eq(IMAGE_NAME, imageName), eq(PROJECT, project), eq(ENDPOINT, endpoint),
                 elemMatch(LIBRARIES, eq(STATUS, status.name())));
     }
 
