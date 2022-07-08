@@ -27,14 +27,14 @@ import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'datalab-share-image',
-  templateUrl: './share-image.component.html',
-  styleUrls: ['./share-image.component.scss']
+  templateUrl: './share-image-modal.component.html',
+  styleUrls: ['./share-image-modal.component.scss']
 })
-export class ShareImageComponent {
+export class ShareImageModalComponent {
   imageName!: string;
 
   constructor(
-    public dialogRef: MatDialogRef<ShareImageComponent>,
+    public dialogRef: MatDialogRef<ShareImageModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private imagesService: ImagesService,
     private userImagesPageService: UserImagesPageService,

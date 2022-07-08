@@ -26,7 +26,7 @@ import { HealthStatusService, UserImagesPageService } from '../../core/services'
 import { ImageModel, ProjectModel, ShareImageAllUsersParams } from './images.model';
 import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status, Toaster_Message } from './images.config';
 import { MatDialog } from '@angular/material/dialog';
-import { ShareImageComponent } from '../../shared/modal-dialog/share-image/share-image.component';
+import { ShareImageModalComponent } from '../../shared/modal-dialog/share-image/share-image-modal.component';
 import { Observable } from 'rxjs';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
@@ -106,7 +106,7 @@ export class ImagesComponent implements OnInit {
   }
 
   onShare(image: ImageModel): void {
-    this.dialog.open(ShareImageComponent, {
+    this.dialog.open(ShareImageModalComponent, {
       data: {
         image
       },
