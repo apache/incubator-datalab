@@ -19,15 +19,15 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ShareImageComponent } from './share-image.component';
+import { ShareImageModalComponent } from './share-image-modal.component';
 import { NotificationDialogComponent } from '../notification-dialog';
 
 
 
 @NgModule({
-  declarations: [ ShareImageComponent ],
+  declarations: [ ShareImageModalComponent ],
   imports: [ CommonModule ],
-  entryComponents: [ShareImageComponent],
-  exports: [ ShareImageComponent ]
+  entryComponents: [ShareImageModalComponent],
+  exports: [ ShareImageModalComponent ]
 })
 export class ShareImageModule { }
