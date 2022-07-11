@@ -94,7 +94,7 @@
               </a>
             </li>
             <li
-                *ngIf="(element.areTerminatedNode || element.areStoppedNode) && isEndpointAvailable"
+                *ngIf="element.areTerminatedNode && isEndpointAvailable"
                 (click)="openEdgeDialog('recreate', element)"
 
             >
