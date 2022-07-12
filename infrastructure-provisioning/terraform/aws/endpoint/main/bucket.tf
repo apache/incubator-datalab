@@ -25,7 +25,6 @@ locals {
 
 resource "aws_s3_bucket" "shared_bucket" {
   bucket = local.shared_s3_name
-  acl = "private"
   tags = {
     Name = local.shared_s3_name
      "${local.additional_tag[0]}"   = local.additional_tag[1]
@@ -35,3 +34,8 @@ resource "aws_s3_bucket" "shared_bucket" {
    }
    force_destroy = true
  }
+
+resource "aws_s3_bucket_acl" "example_bucket_acl" {
+  bucket = aws_s3_bucket.shared_bucket.id
+  acl    = "private"
+  }

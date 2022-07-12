@@ -22,14 +22,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective } from './click-outside.directive';
 import { ScrollDirective } from './scrollTo.directive';
-
-export * from './scrollTo.directive';
-export * from './click-outside.directive';
+import { IsEndpointsActiveDirective } from './is-endpoint-active.directive';
 
 @NgModule({
   imports: [CommonModule],
-  declarations: [ClickOutsideDirective, ScrollDirective],
-  exports: [ClickOutsideDirective, ScrollDirective]
+  declarations: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective],
+  exports: [ClickOutsideDirective, ScrollDirective, IsEndpointsActiveDirective]
 })
 
 export class DirectivesModule { }

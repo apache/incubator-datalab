@@ -25,18 +25,18 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum NotebookTemplate {
-    JUPYTER("Jupyter notebook 6.4.12"),
-    JUPYTER_GPU("Jupyter notebook 6.4.12 with GPU"),
-    JUPYTER_LAB("JupyterLab 0.35.6"),
+    JUPYTER("Jupyter 6.4.12"),
+    JUPYTER_GPU("Jupyter 6.4.12 with GPU"),
+    JUPYTER_LAB("JupyterLab 3.4.3"),
     ZEPPELIN("Apache Zeppelin 0.9.1"),
     DEEP_LEARNING("Deep Learning  2.4"),
     TENSOR("Jupyter with TensorFlow 2.5.0"),
     TENSOR_JUPYTERLAB("JupyterLab with TensorFlow 2.5.0"),
     TENSOR_RSTUDIO("RStudio with TensorFlow 2.3.2"),
-    RSTUDIO("RStudio 2021.09.1-372"),
+    RSTUDIO("RStudio 2022.02.2-485"),
     TENSOR_GCP("Jupyter with TensorFlow 2.1.0"),
     DEEP_LEARNING_GCP("Deeplearning notebook"),
-    DEEP_LEARNING_AWS("Deep Learning AMI Version 42.1"),
+    DEEP_LEARNING_AWS("Deep Learning AMI Version 60.2"),
     DEEP_LEARNING_AZURE("Data Science Virtual Machine - Ubuntu 18.04");
 
 

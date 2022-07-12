@@ -38,7 +38,7 @@ if __name__ == "__main__":
         AzureActions = datalab.actions_lib.AzureActions()
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
@@ -46,8 +46,8 @@ if __name__ == "__main__":
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['user_name'] = os.environ['edge_user_name']
-        notebook_config['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
-        notebook_config['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
+        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-')
         notebook_config['project_tag'] = notebook_config['project_name']
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['user_keyname'] = notebook_config['project_name']

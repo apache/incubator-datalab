@@ -52,7 +52,7 @@ variable "vpc_id" {
 }
 
 variable "ami" {
-  default = "/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20190628"
+  default = "/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20210119a"
 }
 
 variable "subnet_id" {
@@ -76,7 +76,7 @@ variable "firewall_eg_cidr_range" {
 }
 
 variable "endpoint_policies" {
-  type = "list"
+  type = list(string)
   default = [
     "storage.buckets.create",
     "storage.buckets.delete",
@@ -121,7 +121,7 @@ variable "endpoint_policies" {
 }
 
 variable "endpoint_roles" {
-  type = "list"
+  type = list(string)
   default = [
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountAdmin",

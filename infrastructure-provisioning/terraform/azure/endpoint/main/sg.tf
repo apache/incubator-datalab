@@ -40,7 +40,7 @@ resource "azurerm_network_security_rule" "inbound-1" {
   source_port_range           = "*"
   destination_address_prefix  = "*"
   destination_port_range      = "22"
-  protocol                    = "TCP"
+  protocol                    = "Tcp"
 }
 
 resource "azurerm_network_security_rule" "inbound-2" {
@@ -54,7 +54,7 @@ resource "azurerm_network_security_rule" "inbound-2" {
   source_port_range           = "*"
   destination_address_prefix  = "*"
   destination_port_range      = "8084"
-  protocol                    = "TCP"
+  protocol                    = "Tcp"
 }
 
 resource "azurerm_network_security_rule" "inbound-3" {
@@ -68,7 +68,7 @@ resource "azurerm_network_security_rule" "inbound-3" {
   source_port_range           = "*"
   destination_address_prefix  = "*"
   destination_port_range      = "8088"
-  protocol                    = "TCP"
+  protocol                    = "Tcp"
 }
 
 resource "azurerm_network_security_rule" "outbound-1" {

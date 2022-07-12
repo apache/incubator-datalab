@@ -138,7 +138,8 @@ td.settings {
   }
 }
 
-.project-seting-item {
+.project-seting-item,
+.project-setting-button{
   display: flex;
   align-items: center;
   padding: 10px;
@@ -157,6 +158,18 @@ td.settings {
   }
 }
 
+.project-setting-button {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+}
+
+.disabled-button {
+  color: rgba(0,0,0,0.26);
+  background-color: rgba(0,0,0,0.12);
+  cursor: not-allowed;
+}
+
 .material-icons {
   font-size: 18px;
   padding-top: 1px;
@@ -171,7 +184,7 @@ td.settings {
 }
 
 .actions-list {
-  padding: 10px 15px;
+  padding: 10px 0px;
 }
 
 .mat-chip {

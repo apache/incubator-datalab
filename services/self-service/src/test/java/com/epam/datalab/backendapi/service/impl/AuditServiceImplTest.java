@@ -91,12 +91,22 @@ public class AuditServiceImplTest {
         when(auditDAO.aggregateAuditReport(any(AuditFilter.class))).thenReturn(getAuditReportLines());
 
         String actualAuditReport = auditService.downloadAuditReport(getAuditFilter());
-        assertEquals("reports should be equal", getAuditReport(), actualAuditReport);
+        assertEquals("reports should be equal", prepareAuditReport(), actualAuditReport);
 
         verify(auditDAO).aggregateAuditReport(getAuditFilter());
     }
 
-    private String getAuditReport() {
+    @Test
+    public void getAuditReport() {
+        when(auditDAO.aggregateAuditReport(any(AuditFilter.class))).thenReturn(getAuditReportLines());
+
+        AuditReport actualAuditReport = auditService.getAuditReport(getAuditFilter());
+        assertEquals("Audit Reports should be equal", getExpectedAuditReport(), actualAuditReport);
+
+        verify(auditDAO).aggregateAuditReport(getAuditFilter());
+    }
+
+    private String prepareAuditReport() {
         StringBuilder auiditReport = new StringBuilder();
         auiditReport.append("\"Available reporting period from: ").append("17-Mar-2022 ").append("to: ").append("20-Mar-2022").append("\"\n");
         auiditReport.append(new StringJoiner(",").add("Date").add("User").add("Action").add("Project").add("Resource type").add("Resource\n"));
@@ -106,6 +116,17 @@ public class AuditServiceImplTest {
         auiditReport.append(new StringJoiner(",").add("2022-03-17").add("test").add("LOG_IN").add("").add("").add("\n"));
 
         return auiditReport.toString();
+    }
+
+    private AuditReport getExpectedAuditReport() {
+        final LocalDate usageDateFrom = LocalDate.parse("2022-03-17");
+        final LocalDate usageDateTo = LocalDate.parse("2022-03-20");
+        return AuditReport.builder()
+                .name("Audit Report")
+                .usageDateFrom(usageDateFrom)
+                .usageDateTo(usageDateTo)
+                .reportLines(getAuditReportLines())
+                .build();
     }
 
     private List<AuditReportLine> getAuditReportLines() {

@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { Project } from '../../administration/project/project.component';
 import {
   Component,
   EventEmitter,
@@ -32,14 +31,13 @@ import { ProjectService, UserResourceService, OdahuDeploymentService } from '../
 import { ExploratoryModel } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
-import { ConfirmationDialogType } from '../../shared';
+import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../shared';
 import { SortUtils, CheckUtils } from '../../core/util';
 import { DetailDialogComponent } from '../exploratory/detail-dialog';
 import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
 import { InstallLibrariesComponent } from '../exploratory/install-libraries';
 import { ComputationalResourceCreateDialogComponent } from '../computational/computational-resource-create-dialog/computational-resource-create-dialog.component';
 import { CostDetailsDialogComponent } from '../exploratory/cost-details-dialog';
-import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmation-dialog';
 import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
@@ -48,6 +46,7 @@ import { NotebookModel } from '../exploratory/notebook.model';
 import { AuditService } from '../../core/services/audit.service';
 import { CompareUtils } from '../../core/util/compareUtils';
 import { OdahuActionDialogComponent } from '../../shared/modal-dialog/odahu-action-dialog';
+import { Project } from '../../administration/project/project.model';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -195,9 +194,9 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-  public containsNotebook(notebook_name: string, envoirmentNames: Array<string>): boolean {
-    if (notebook_name && envoirmentNames.length ) {
-      return envoirmentNames
+  public containsNotebook(notebook_name: string, environmentNames: Array<string>): boolean {
+    if (notebook_name && environmentNames.length ) {
+      return environmentNames
         .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item));
     }
       return false;

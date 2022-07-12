@@ -82,7 +82,7 @@ if __name__ == "__main__":
         #notebook_config['primary_disk_size'] = (lambda x: '100' if x == 'deeplearning' else '16')(
         #    os.environ['application'])
         if os.environ['application'] == 'deeplearning':
-            notebook_config['primary_disk_size'] = '100'
+            notebook_config['primary_disk_size'] = '150'
         elif os.environ['application'] == 'tensor':
             notebook_config['primary_disk_size'] = '28'
         else:
@@ -115,6 +115,11 @@ if __name__ == "__main__":
             notebook_config['ami_id'] = image_id
             logging.info('Pre-configured image found. Using: {}'.format(notebook_config['ami_id']))
         else:
+            if 'notebook_image_name' in os.environ:
+                logging.info('{} is available in the list for notebook creation but image_id '
+                             'is not present on the cloud'.format(os.environ['notebook_image_name']))
+                sys.exit(1)
+
             os.environ['notebook_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
             logging.info('No pre-configured image found. Using default one: {}'.format(notebook_config['ami_id']))
 

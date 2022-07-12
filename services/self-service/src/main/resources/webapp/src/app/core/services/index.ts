@@ -40,3 +40,4 @@ export * from './storage.service';
 export * from './project.service';
 export * from './odahu-deployment.service';
 export * from './endpoint.service';
+export * from './user-images-page.service';

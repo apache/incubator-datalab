@@ -15,7 +15,7 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 6.4.12",
+      "template_name": "Jupyter 6.4.12",
       "description": "Base image with Jupyter node creation routines",
       "environment_type": "exploratory",
       "version": "jupyter_notebook-6.4.12",

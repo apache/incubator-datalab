@@ -19,19 +19,35 @@
 
 package com.epam.datalab.backendapi.resources.dto;
 
+import com.epam.datalab.cloud.CloudProvider;
+import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.exploratory.ImageStatus;
+import com.epam.datalab.model.library.Library;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ImageInfoRecord {
     private final String name;
+    private final Date timestamp;
     private final String description;
     private final String project;
     private final String endpoint;
     private final String user;
     private final String application;
+    private final String instanceName;
+    private final CloudProvider cloudProvider;
+    private final String dockerImage;
     private final String fullName;
     private final ImageStatus status;
+    private boolean isShared;
+    private final List<ClusterConfig> clusterConfig;
+    private final String exploratoryURL;
+    private final List<Library> libraries;
+    private final Map<String, List<Library>> computationalLibraries;
 }

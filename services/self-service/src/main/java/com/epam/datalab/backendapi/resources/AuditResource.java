@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.resources;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.domain.AuditCreateDTO;
 import com.epam.datalab.backendapi.resources.dto.AuditFilter;
+import com.epam.datalab.backendapi.resources.dto.BillingFilter;
 import com.epam.datalab.backendapi.resources.dto.ExportBillingFilter;
 import com.epam.datalab.backendapi.service.AuditService;
 import com.epam.datalab.model.StringList;
@@ -70,6 +71,13 @@ public class AuditResource {
         return Response
                 .ok(auditService.getAudit(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize))
                 .build();
+    }
+
+    @POST
+    @Path("/report")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAuditReport(@Auth UserInfo userInfo, AuditFilter filter) {
+        return Response.ok(auditService.getAuditReport(filter)).build();
     }
 
     @POST

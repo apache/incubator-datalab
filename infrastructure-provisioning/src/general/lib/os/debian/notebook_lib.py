@@ -277,7 +277,7 @@ def ensure_python3_libraries(os_user):
                 datalab.fab.conn.sudo('-i pip3 install -U keyrings.alt backoff')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqt5==5.12')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqtwebengine==5.12')
-                datalab.fab.conn.sudo('-i pip3 install setuptools')
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
                 try:
                     datalab.fab.conn.sudo(
                         '-i pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
@@ -296,13 +296,13 @@ def ensure_python3_libraries(os_user):
                 datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
                 datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
                 try:
-                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
                          .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
-                                 os.environ['notebook_nbconvert_version']))
+                                 os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
                 except:
-                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
                          .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
-                                 os.environ['notebook_nbconvert_version']))
+                                 os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
                 datalab.fab.conn.sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
                 datalab.fab.conn.sudo('pip3 install boto3 --no-cache-dir')
                 datalab.fab.conn.sudo('pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
@@ -474,8 +474,13 @@ def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
             datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
-        datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -')
-        manage_pkg('-y install', 'remote', 'nodejs')
+        #datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_16.x | bash -"')
+        #manage_pkg('-y install', 'remote', 'nodejs')
+        datalab.fab.conn.sudo(
+            'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash')
+        datalab.fab.conn.run(
+            'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" && nvm install 16.15.0')
+        datalab.fab.conn.sudo('cp -R .nvm/versions/node/v16.15.0/* /usr/')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 def install_os_pkg(requisites):

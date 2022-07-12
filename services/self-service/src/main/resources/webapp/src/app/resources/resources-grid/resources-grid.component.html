@@ -232,8 +232,8 @@
                     <li
                       *ngIf="element.status.toLowerCase() === 'stopped' || element.status.toLowerCase() === 'stopping'"
                       matTooltip="{{element.edgeNodeStatus !== 'running'
-                        ? 'Unable to run notebook if edge node is not running.'
-                        : 'Unable to run notebook until it will be stopped.'}}"
+                        ? 'Unable to start notebook if edge node is not running.'
+                        : 'Unable to start notebook until it will be stopped.'}}"
                       matTooltipPosition="above"
                       [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping'
                         && element.edgeNodeStatus === 'running'"
@@ -245,7 +245,7 @@
                         [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping'
                           || element.edgeNodeStatus !== 'running' }">
                         <i class="material-icons">play_circle_outline</i>
-                        <span>Run</span>
+                        <span>Start</span>
                       </div>
                     </li>
                     <li

@@ -1,0 +1,9 @@
+[
+  {
+    "_id": "img_%s_%s_%s_%s",
+    "description": "Create notebook from image %s",
+    "type": "IMAGE",
+    "groups": [
+    ]
+  }
+]

@@ -40,22 +40,27 @@ from patchwork import files
 
 
 # general functions for all resources
-def init_datalab_connection(hostname, username, keyfile):
+def init_datalab_connection(hostname, username, keyfile, reserve_user=''):
     try:
         global conn
-        attempt = 0
-        while attempt < 15:
-            logging.info('connection attempt {}'.format(attempt))
-            conn = Connection(host=hostname, user=username, connect_kwargs={'banner_timeout': 200,
-                                                                            'key_filename': keyfile})
-            conn.config.run.echo = True
-            try:
-                conn.run('hostname')
+        if reserve_user:
+            users = [username, reserve_user]
+        else:
+            users = [username]
+        for user in users:
+            attempt = 0
+            while attempt < 15:
+                logging.info('connection attempt {} with user {}'.format(attempt, user))
+                conn = Connection(host=hostname, user=user, connect_kwargs={'banner_timeout': 200,
+                                                                                'key_filename': keyfile})
                 conn.config.run.echo = True
-                return conn
-            except:
-                attempt += 1
-                time.sleep(10)
+                try:
+                    conn.run('hostname')
+                    conn.config.run.echo = True
+                    return conn
+                except:
+                    attempt += 1
+                    time.sleep(10)
         if attempt == 15:
             logging.info('Unable to establish connection')
             raise Exception
@@ -311,6 +316,9 @@ def configure_nftables(config):
 def ensure_python_venv_deeplearn(python_venv_version):
     try:
         if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
+            if os.environ['conf_cloud_provider'] == 'azure':
+                conn.sudo('rm /etc/apt/sources.list.d/cuda*')
+                conn.sudo('apt update')
             conn.sudo('add-apt-repository ppa:deadsnakes/ppa -y')
             conn.sudo('apt install python{0} -y'.format(python_venv_version[:3]))
             conn.sudo('apt install virtualenv')
@@ -363,6 +371,7 @@ def ensure_python_venv(python_venv_version):
             conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'virtualenv /opt/python/python{0}' '''.format(python_venv_version))
+            conn.sudo('chown -R datalab-user:datalab-user /opt/python/')
             venv_command = 'source /opt/python/python{}/bin/activate'.format(python_venv_version)
             pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
             conn.sudo('''bash -l -c '{0} && {1} install -UI pip=={2}' '''.format(venv_command, pip_command,
