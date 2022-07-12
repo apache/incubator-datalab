@@ -1346,6 +1346,7 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
                 keycloak_auth_server_url))
             conn.sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(
                 keycloak_realm_name))
+            conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/superset_config.py'.format(os_user))
             conn.sudo(
                 'sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/superset_config.py'.format(edge_instance_public_ip))
             conn.sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(superset_name))
