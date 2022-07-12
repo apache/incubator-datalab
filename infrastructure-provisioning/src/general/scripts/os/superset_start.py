@@ -33,11 +33,11 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-superset_dir = '/home/' + args.os_user + '/incubator-superset/contrib/docker'
+superset_dir = '/home/' + args.os_user + '/superset'
 
 def start_superset(superset_dir):
     try:
-        conn.sudo('''bash -c 'cd {} && docker-compose run --rm superset ./docker-init.sh' '''.format(superset_dir))
+        conn.sudo('''bash -c 'cd {} && docker-compose run --rm superset docker/docker-init.sh' '''.format(superset_dir))
         conn.sudo('cp /opt/datalab/templates/superset-notebook.service /tmp/')
         conn.sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(args.os_user))
         conn.sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
