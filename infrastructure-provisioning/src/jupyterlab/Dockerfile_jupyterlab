@@ -41,7 +41,7 @@ RUN apt update && apt install -y vim netcat-openbsd git
 RUN pip install --upgrade jupyterlab-git
 
 RUN echo "ENABLED PLUGINS:" && \
-    jupyter serverextension list
+    jupyter serverextension list && \
     jupyter labextension list
 
 
