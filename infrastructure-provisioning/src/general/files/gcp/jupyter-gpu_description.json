@@ -8,7 +8,7 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter 6.1.6 with GPU",
+      "template_name": "Jupyter 6.4.12 with GPU",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
       "version": "jupyter_notebook_gpu",
