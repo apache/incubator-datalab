@@ -17,20 +17,18 @@
  * under the License.
  */
 
-import { Pipe, PipeTransform } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {LibraryInfoModalComponent} from './library-info-modal.component';
 
-const MAX_SYMBOLS_COUNT = 255;
 
-@Pipe({
-    name: 'truncateTextPipe'
+
+@NgModule({
+  declarations: [LibraryInfoModalComponent],
+  imports: [
+    CommonModule
+  ],
+  exports: [LibraryInfoModalComponent],
+  entryComponents: [LibraryInfoModalComponent]
 })
-export class TruncateTextPipe implements PipeTransform {
-    transform(text: string, limit: number = MAX_SYMBOLS_COUNT): string {
-        if (!text) {
-            return '';
-        }
-        return text.length > limit
-            ? `${text.substring(0, limit)}...`
-            : text;
-    }
-}
+export class LibraryInfoModalModule { }

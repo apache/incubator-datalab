@@ -23,13 +23,14 @@ import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService, UserImagesPageService } from '../../core/services';
-import { ImageModel, ProjectModel, ShareImageAllUsersParams } from './images.model';
+import { ImageModel, ProjectModel } from './images.model';
 import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status, Toaster_Message } from './images.config';
 import { MatDialog } from '@angular/material/dialog';
-import { ShareImageModalComponent } from '../../shared/modal-dialog/share-image/share-image-modal.component';
+import { ShareImageDialogComponent } from '../exploratory/share-image/share-image-dialog.component';
 import { Observable } from 'rxjs';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
+import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
 
 @Component({
   selector: 'datalab-images',
@@ -105,8 +106,17 @@ export class ImagesComponent implements OnInit {
     this.activeProjectName = '';
   }
 
+  onImageInfo(image: ImageModel): void {
+    this.dialog.open(ImageDetailDialogComponent, {
+      data: {
+        image
+      },
+      panelClass: 'modal-md'
+    });
+  }
+
   onShare(image: ImageModel): void {
-    this.dialog.open(ShareImageModalComponent, {
+    this.dialog.open(ShareImageDialogComponent, {
       data: {
         image
       },
@@ -157,16 +167,6 @@ export class ImagesComponent implements OnInit {
 
   private getUserName(): void {
     this.userName = localStorage.getItem(Localstorage_Key.userName);
-  }
-
-  private shareImageAllUsers(image: ImageModel): Observable<ProjectModel[]> {
-    const shareParams: ShareImageAllUsersParams = {
-      imageName: image.name,
-      projectName: image.project,
-      endpoint: image.endpoint
-    };
-
-    return this.userImagesPageService.shareImageAllUsers(shareParams);
   }
 
   get isProjectsMoreThanOne(): boolean {

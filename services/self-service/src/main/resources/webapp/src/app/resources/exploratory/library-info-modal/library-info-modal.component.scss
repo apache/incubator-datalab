@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,20 +17,6 @@
  * under the License.
  */
 
-import { Pipe, PipeTransform } from '@angular/core';
-
-const MAX_SYMBOLS_COUNT = 255;
-
-@Pipe({
-    name: 'truncateTextPipe'
-})
-export class TruncateTextPipe implements PipeTransform {
-    transform(text: string, limit: number = MAX_SYMBOLS_COUNT): string {
-        if (!text) {
-            return '';
-        }
-        return text.length > limit
-            ? `${text.substring(0, limit)}...`
-            : text;
-    }
+.modal__title {
+  font-size: 12px;
 }

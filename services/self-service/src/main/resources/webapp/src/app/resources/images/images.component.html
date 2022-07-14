@@ -227,22 +227,13 @@
       <td mat-cell *matCellDef="let element" class="settings actions-col">
 
         <div class="button--wrapper">
-          <span class="currency_details" >
-                <i class="material-icons">help_outline</i>
-              </span>
+          <span class="currency_details" (click)="onImageInfo(element)">
+            <i class="material-icons">help_outline</i>
+          </span>
           <span #settings class="actions" (click)="actions.toggle($event, settings)"></span>
         </div>
         <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
           <ul class="list-unstyled">
-            <li
-              matTooltip="Unable to terminate notebook because at least one compute is in progress"
-              matTooltipPosition="above"
-            >
-              <button class="action-button__share">
-                <i class="material-icons">phonelink_off</i>
-                <span>Terminate</span>
-              </button>
-            </li>
             <li [matTooltip]="element.status !== 'CREATED' && 'The image cannot be shared because it is not in the &quot;Created&quot; status'
                   || userName !== element.user && 'Images may be shared by creators only'"
                 matTooltipPosition="above"
@@ -255,6 +246,15 @@
               >
                 <i class="material-icons">screen_share</i>
                 <span>Share</span>
+              </button>
+            </li>
+            <li
+              matTooltip="Unable to terminate notebook because at least one compute is in progress"
+              matTooltipPosition="above"
+            >
+              <button class="action-button__share">
+                <i class="material-icons">phonelink_off</i>
+                <span>Terminate</span>
               </button>
             </li>
           </ul>
