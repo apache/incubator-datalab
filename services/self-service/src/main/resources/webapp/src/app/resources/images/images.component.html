@@ -234,15 +234,6 @@
         </div>
         <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
           <ul class="list-unstyled">
-            <li
-              matTooltip="Unable to terminate notebook because at least one compute is in progress"
-              matTooltipPosition="above"
-            >
-              <button class="action-button__share">
-                <i class="material-icons">phonelink_off</i>
-                <span>Terminate</span>
-              </button>
-            </li>
             <li [matTooltip]="element.status !== 'CREATED' && 'The image cannot be shared because it is not in the &quot;Created&quot; status'
                   || userName !== element.user && 'Images may be shared by creators only'"
                 matTooltipPosition="above"
@@ -255,6 +246,15 @@
               >
                 <i class="material-icons">screen_share</i>
                 <span>Share</span>
+              </button>
+            </li>
+            <li
+              matTooltip="Unable to terminate notebook because at least one compute is in progress"
+              matTooltipPosition="above"
+            >
+              <button class="action-button__share">
+                <i class="material-icons">phonelink_off</i>
+                <span>Terminate</span>
               </button>
             </li>
           </ul>
