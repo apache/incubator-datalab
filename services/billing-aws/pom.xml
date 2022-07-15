@@ -33,7 +33,7 @@
 
     <properties>
         <org.apache.jexl3.version>3.0</org.apache.jexl3.version>
-        <com.amazonaws.version>1.11.48</com.amazonaws.version>
+        <com.amazonaws.version>1.12.261</com.amazonaws.version>
         <org.freemarker.version>2.3.22</org.freemarker.version>
     </properties>
 
