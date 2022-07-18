@@ -285,6 +285,7 @@ public class ImageExploratoryResourceTest extends TestBase {
                 "someEndpoint",
                 "someUser",
                 "someApp",
+                "someTemplateName",
                 "someInstance",
                 CloudProvider.AWS,
                 "someDockerImage",
