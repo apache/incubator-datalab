@@ -31,20 +31,55 @@ import {LibraryInfoModalComponent} from '../library-info-modal/library-info-moda
   ]
 })
 
-export class ImageDetailDialogComponent {
+export class ImageDetailDialogComponent implements OnInit {
   maxDescriptionLength: number = 170;
+  libraryList = [];
+
   constructor(
     public dialogRef: MatDialogRef<ImageDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ModalData,
     private dialog: MatDialog,
   ) { }
 
-  onLibraryInfo(library: Library): void {
+  ngOnInit() {
+    this.libraryList = this.normalizeLibraries();
+  }
+
+  onLibraryInfo(libraryList): void {
     this.dialog.open(LibraryInfoModalComponent, {
       data: {
-        library
+        libraryList
       },
       panelClass: 'library-dialog-container'
     });
+  }
+
+  private normalizeLibraries() {
+    return this.data.image.libraries.reduce((acc, item) => {
+      const libraryName = this.normalizeLibraryName(item);
+      const isLibAdded = acc.find(({name}) => item.group === name);
+      if (!isLibAdded) {
+        const newLibrary = {
+          name: item.group,
+          libs: [`${libraryName} v ${item.version}`]
+        };
+        acc.push(newLibrary);
+      } else {
+        acc.find(({name}) => item.group === name).libs.push(`${libraryName} v ${item.version}`);
+      }
+      return acc;
+    }, [])
+      .map(item => {
+        item.libs.sort();
+        return item;
+    });
+  }
+
+  private normalizeLibraryName(library: Library): string {
+    if (library.group === 'java') {
+      const [, libName] = library.name.split(':');
+      return libName;
+    }
+    return library.name;
   }
 }
