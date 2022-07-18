@@ -757,10 +757,6 @@ def configure_billing_endpoint(endpoint_keystore_password):
                     {
                         'key': "KEYCLOAK_AUTH_SERVER_URL",
                         'value': args.keycloak_auth_server_url
-                    },
-                    {
-                        'key': "KEYCLOAK_REALM_NAME",
-                        'value': args.keycloak_realm_name
                     }
                 ]
                 for param in billing_app_properties:
@@ -887,10 +883,6 @@ def configure_billing_endpoint(endpoint_keystore_password):
                     {
                         'key': "KEYCLOAK_AUTH_SERVER_URL",
                         'value': args.keycloak_auth_server_url
-                    },
-                    {
-                        'key': "KEYCLOAK_REALM_NAME",
-                        'value': args.keycloak_realm_name
                     }
                 ]
             elif args.cloud_provider == 'azure':
@@ -930,10 +922,6 @@ def configure_billing_endpoint(endpoint_keystore_password):
                     {
                         'key': "KEYCLOAK_AUTH_SERVER_URL",
                         'value': args.keycloak_auth_server_url
-                    },
-                    {
-                        'key': "KEYCLOAK_REALM_NAME",
-                        'value': args.keycloak_realm_name
                     },
                     {
                         'key': "CLIENT_ID",
