@@ -128,6 +128,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .clusterConfig(userInstance.getClusterConfig())
                 .dockerImage(userInstance.getImageName())
                 .exploratoryId(userInstance.getId())
+                .templateName(userInstance.getTemplateName())
                 .instanceName(userInstance.getExploratoryName())
                 .cloudProvider(userInstance.getCloudProvider())
                 .project(userInstance.getProject())

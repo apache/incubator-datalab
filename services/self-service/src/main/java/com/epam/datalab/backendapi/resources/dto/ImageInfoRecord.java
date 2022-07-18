@@ -40,6 +40,7 @@ public class ImageInfoRecord {
     private final String endpoint;
     private final String user;
     private final String application;
+    private final String templateName;
     private final String instanceName;
     private final CloudProvider cloudProvider;
     private final String dockerImage;

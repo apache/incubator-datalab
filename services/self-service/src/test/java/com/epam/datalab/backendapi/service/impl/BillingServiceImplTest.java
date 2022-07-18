@@ -79,6 +79,7 @@ public class BillingServiceImplTest extends TestBase {
     private static final String IMAGE_NAME = "image_name";
     private static final String IMAGE_DESCRIPTION = "imageDescription";
     private static final String IMAGE_APPLICATION = "image_application";
+    private static final String TEMPLATE_NAME = "template_name";
     private static final String IMAGE_FULL_NAME = "imageFullName";
     private static final String BILLING_URL = "http://localhost:8088/api/billing";
     private static final String EXPLORATORY_NAME = "exploratoryName";
@@ -747,6 +748,7 @@ public class BillingServiceImplTest extends TestBase {
                         ENDPOINT,
                         USER,
                         IMAGE_APPLICATION,
+                        TEMPLATE_NAME,
                         EXPLORATORY_NAME,
                         CloudProvider.GENERAL,
                         "dockerImage",

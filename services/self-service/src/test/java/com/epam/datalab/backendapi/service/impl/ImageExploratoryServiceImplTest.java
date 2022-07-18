@@ -317,6 +317,7 @@ public class ImageExploratoryServiceImplTest {
                 "someEndpoint",
                 "someUser",
                 "someApp",
+                "someTemplate",
                 "someInstance",
                 CloudProvider.GENERAL,
                 "someDockerImage",
