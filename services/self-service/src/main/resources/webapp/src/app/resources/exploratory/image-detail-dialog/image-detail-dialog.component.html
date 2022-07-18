@@ -48,11 +48,11 @@
 
       <div class="image__template--wrapper">
         <span class="modal-row__item modal-row__item--title">Template name</span>
-        <span class="modal-row__item">{{ data.image.application }}</span>
+        <span class="modal-row__item">{{ data.image.templateName }}</span>
       </div>
 
       <div class="image__libraries--wrapper">
-        <span class="modal-row__item modal-row__item--title">Installed libraries` groups</span>
+        <span class="modal-row__item modal-row__item--title">Installed libraries' groups</span>
         <div class="language__wrapper modal-row__item">
           <div *ngIf="libraryList.length; else notAvailable">
             <div *ngFor="let library of libraryList" class="library__wrapper">
