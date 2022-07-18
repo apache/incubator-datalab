@@ -22,73 +22,6 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import {Library, ModalData} from '../../images';
 import {LibraryInfoModalComponent} from '../library-info-modal/library-info-modal.component';
 
-const libraryMock: Library[] = [
-  {
-    add_pkgs: [],
-    available_versions: [],
-    error_message: 'no_error\n',
-    group: 'os_pkg',
-    name: 'csvkit',
-    status: 'installed',
-    version: '1.0.2-2',
-  },
-  {
-    add_pkgs: [],
-    available_versions: [],
-    error_message: ' ',
-    group: 'pip3',
-    name: 'sScrapy',
-    status: 'installed',
-    version: '2.6.1',
-  },
-  {
-    add_pkgs: [],
-    available_versions: [],
-    error_message: ' ',
-    group: 'pip3',
-    name: 'zScrapy',
-    status: 'installed',
-    version: '2.6.1',
-  }
-  ,
-  {
-    add_pkgs: [],
-    available_versions: [],
-    error_message: ' ',
-    group: 'pip3',
-    name: 'aScrapy',
-    status: 'installed',
-    version: '2.6.1',
-  },
-  {
-    add_pkgs: null,
-    available_versions: null,
-    error_message: null,
-    group: 'java',
-    name: 'io.github.egonw.bacting:bioclipse-core',
-    status: 'installed',
-    version: '2.8.0.15',
-  },
-  {
-    add_pkgs: null,
-    available_versions: null,
-    error_message: null,
-    group: 'java',
-    name: 'io.github.egonw.bacting:bioclipse-core',
-    status: 'installed',
-    version: '2.8.0.15',
-  },
-  {
-    add_pkgs: [],
-    available_versions: [],
-    error_message: ' ',
-    group: 'others',
-    name: 'Pillow3f',
-    status: 'installed',
-    version: '0.0.7',
-  }
-];
-
 @Component({
   selector: 'datalab-image-detail-dialog',
   templateUrl: './image-detail-dialog.component.html',
@@ -109,9 +42,7 @@ export class ImageDetailDialogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.data.image.libraries = libraryMock;
     this.libraryList = this.normalizeLibraries();
-    console.log(this.normalizeLibraries());
   }
 
   onLibraryInfo(libraryList): void {
