@@ -20,6 +20,7 @@ export interface ImageModel {
   libraries: Library[];
   computationalLibraries: Library[];
   clusterConfig: ClusterConfig;
+  templateName: string;
 }
 
 export interface ShareImageAllUsersParams {

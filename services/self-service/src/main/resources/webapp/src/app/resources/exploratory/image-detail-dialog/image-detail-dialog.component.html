@@ -54,9 +54,9 @@
       <div class="image__libraries--wrapper">
         <span class="modal-row__item modal-row__item--title">Installed libraries` groups</span>
         <div class="language__wrapper modal-row__item">
-          <div *ngIf="data.image.libraries.length; else notAvailable">
-            <div *ngFor="let library of data.image.libraries" class="library__wrapper">
-              <span>{{library.group | libNameNormalize}}</span>
+          <div *ngIf="libraryList.length; else notAvailable">
+            <div *ngFor="let library of libraryList" class="library__wrapper">
+              <span>{{library.name | libNameNormalize}}</span>
               <i (click)="onLibraryInfo(library)" class="material-icons library__info">info</i>
             </div>
           </div>
