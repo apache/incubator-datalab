@@ -22,6 +22,7 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import {Library, ModalData} from '../../images';
 import {LibraryInfoModalComponent} from '../library-info-modal/library-info-modal.component';
 
+
 @Component({
   selector: 'datalab-image-detail-dialog',
   templateUrl: './image-detail-dialog.component.html',
@@ -70,7 +71,7 @@ export class ImageDetailDialogComponent implements OnInit {
       return acc;
     }, [])
       .map(item => {
-        item.libs.sort();
+        item.libs.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1);
         return item;
     });
   }

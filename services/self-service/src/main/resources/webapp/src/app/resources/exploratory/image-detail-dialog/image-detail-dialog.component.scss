@@ -26,11 +26,13 @@
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
-}
 
-.content-box > div {
   &:not(:last-child) {
     border-bottom: 1px solid #edf1f5;
+  }
+
+  &.image__description--wrapper {
+    padding: 0 0 10px 0;
   }
 }
 
