@@ -1155,6 +1155,11 @@ List of parameters for Endpoint termination:
 
 </details>
 
+After creating endpoint, you must set the endpoint in Datalab UI. To do this, go to the tab
+"Resources" - "Endpoints". In the Name field, you should specify the name of the endpoint, in the URL, 
+specify the network address of the endpoint. In the Account field, you need to specify the "endpoint_id" value that was 
+specified when creating the endpoint, in the Endpoint tag field, specify the endpoint tag (optional).
+
 ## Edge Node <a name="Edge_Node"></a>
 
 Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a public subnet. It serves as an entry 
