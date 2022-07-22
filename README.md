@@ -830,7 +830,7 @@ in which case endpoint is already provided locally.
 
 ```
 source /venv/bin/activate
-/usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create aws endpoint \
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create aws endpoint \
 --access_key_id access_key \
 --secret_access_key secret_access_key \
 --key_name datalab-key \
@@ -887,7 +887,7 @@ List of parameters for Endpoint deployment:
 
 ```
 source /venv/bin/activate
-/usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create azure endpoint \
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create azure endpoint \
 --auth_file_path /path/to/auth.json
 --key_name datalab-key \
 --pkey /path/to/private/key.pem \
@@ -950,7 +950,7 @@ List of parameters for Endpoint deployment:
 
 ```
 source /venv/bin/activate
-/usr/bin/python3 datalab.py create gcp endpoint \
+/venv/bin/python3 datalab.py create gcp endpoint \
 --gcp_project_id xxx-xxxx-xxxxxx \
 --creds_file /path/to/auth.json \
 --key_name datalab-key \
@@ -1006,7 +1006,7 @@ List of parameters for Endpoint deployment:
 
 ```
 source /venv/bin/activate
-/usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy aws endpoint \
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy aws endpoint \
 --access_key_id access_key \
 --secret_access_key secret_access_key \
 --key_name datalab-key \
@@ -1057,7 +1057,7 @@ List of parameters for Endpoint termination:
 
 ```
 source /venv/bin/activate
-/usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy azure endpoint \
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy azure endpoint \
 --auth_file_path /path/to/auth.json
 --key_name datalab-key \
 --pkey /path/to/private/key.pem \
@@ -1115,7 +1115,7 @@ List of parameters for Endpoint termination:
 
 ```
 source /venv/bin/activate
-/usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy gcp endpoint \
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy gcp endpoint \
 --gcp_project_id xxx-xxxx-xxxxxx \
 --creds_file /path/to/auth.json \
 --key_name datalab-key \
