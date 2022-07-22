@@ -25,7 +25,7 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Self-Service Node](#Self_Service_Node)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Endpoint](#Endpoint)
+&nbsp; &nbsp; &nbsp; &nbsp; [Endpoint Node](#Endpoint_node)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Edge Node](#Edge_Node)
 
@@ -817,7 +817,7 @@ Note: It is required to enter gcp_vpc_name and gcp_subnet_name parameters if Sel
 pre-defined VPC and Subnet.
 </details>
 
-## Endpoint <a name="Endpoint"></a>
+## Endpoint node <a name="Endpoint_node"></a>
 
 This node allows you to create Edge nodes and Notebooks on other cloud providers (AWS, Microsoft Azure or GCP).
 The exception is the option in which Edge nodes and Notebooks are created on the same cloud provider as Self-Service Node,
