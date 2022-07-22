@@ -829,6 +829,7 @@ in which case endpoint is already provided locally.
 <details><summary>In Amazon <i>(click to expand)</i></summary>
 
 ```
+source /venv/bin/activate
 /usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create aws endpoint \
 --access_key_id access_key \
 --secret_access_key secret_access_key \
@@ -885,6 +886,7 @@ List of parameters for Endpoint deployment:
 <details><summary>In Azure <i>(click to expand)</i></summary>
 
 ```
+source /venv/bin/activate
 /usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create azure endpoint \
 --auth_file_path /path/to/auth.json
 --key_name datalab-key \
@@ -947,7 +949,7 @@ List of parameters for Endpoint deployment:
 <details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 ```
-
+source /venv/bin/activate
 /usr/bin/python3 datalab.py create gcp endpoint \
 --gcp_project_id xxx-xxxx-xxxxxx \
 --creds_file /path/to/auth.json \
@@ -1003,6 +1005,7 @@ List of parameters for Endpoint deployment:
 <details><summary>In Amazon <i>(click to expand)</i></summary>
 
 ```
+source /venv/bin/activate
 /usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy aws endpoint \
 --access_key_id access_key \
 --secret_access_key secret_access_key \
@@ -1053,6 +1056,7 @@ List of parameters for Endpoint termination:
 <details><summary>In Azure <i>(click to expand)</i></summary>
 
 ```
+source /venv/bin/activate
 /usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy azure endpoint \
 --auth_file_path /path/to/auth.json
 --key_name datalab-key \
@@ -1110,7 +1114,7 @@ List of parameters for Endpoint termination:
 <details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 ```
-
+source /venv/bin/activate
 /usr/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy gcp endpoint \
 --gcp_project_id xxx-xxxx-xxxxxx \
 --creds_file /path/to/auth.json \
@@ -1157,8 +1161,9 @@ List of parameters for Endpoint termination:
 
 After creating endpoint, you must set the endpoint in Datalab UI. To do this, go to the tab
 "Resources" - "Endpoints". In the Name field, you should specify the name of the endpoint, in the URL, 
-specify the network address of the endpoint. In the Account field, you need to specify the "endpoint_id" value that was 
-specified when creating the endpoint, in the Endpoint tag field, specify the endpoint tag (optional).
+specify the network address of the endpoint (taking as an example 0.0.0.0/8084/). In the Account field, you need to 
+specify the "endpoint_id" value that was specified when creating the endpoint (for example, awstest, azuretest or gcptest), 
+in the Endpoint tag field, specify the endpoint tag (optional).
 
 ## Edge Node <a name="Edge_Node"></a>
 
