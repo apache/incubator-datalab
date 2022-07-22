@@ -18,7 +18,7 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Superset 0.35.1",
+      "template_name": "Superset 1.5.1",
       "description": "Base image with superset node creation routines",
       "environment_type": "exploratory",
       "version": "superset-0.34",
