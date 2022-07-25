@@ -58,6 +58,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -215,7 +216,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         return projectService.getUserProjects(user, Boolean.FALSE)
                 .stream()
                 .map(p -> {
-                    List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName(), p.getName());
+                    List<ImageInfoRecord> images = filterImages(imageExploratoryDao.getImagesOfUser(user.getName(), p.getName()),imageFilter);
+                    List<ImageInfoRecord> sharedImages = filterImages(getSharedImages(user, p.getName()), imageFilter);
+                    images.addAll(sharedImages);
                     return ProjectImagesInfo.builder()
                             .project(p.getName())
                             .images(images)
@@ -335,5 +338,15 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
             });
             userRoleDAO.insert(imageRoles);
         }
+    }
+
+    private List<ImageInfoRecord> filterImages(List<ImageInfoRecord> images, ImageFilter filter){
+        return images.stream()
+                .filter(img -> img.getName().contains(filter.getImageName()))
+                .filter(img -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(img.getStatus()))
+                .filter(img -> CollectionUtils.isEmpty(filter.getCloudProviders()) || filter.getCloudProviders().contains(img.getCloudProvider()))
+                .filter(img -> CollectionUtils.isEmpty(filter.getTemplateNames()) || filter.getTemplateNames().contains(img.getTemplateName()))
+                .collect(Collectors.toList());
+
     }
 }
