@@ -36,22 +36,12 @@ public class ImageFilter {
     @NonNull
     private String imageName;
     @NonNull
-    @JsonProperty("date_start")
-    private String dateStart;
-    @NonNull
-    @JsonProperty("date_end")
-    private String dateEnd;
+    private List<ImageStatus> statuses;
     @NonNull
     private List<CloudProvider> cloudProviders;
     @NonNull
-    private List<ImageStatus> statuses;
-//    @NonNull
-//    private List<> sharingStatuses;
-    @NonNull
     private List<String> templateNames;
-    @NonNull
-    private List<String> instanceNames;
-    @NonNull
-    private List<String> projects;
+    //    @NonNull
+//    private List<> sharingStatuses;
 
 }
