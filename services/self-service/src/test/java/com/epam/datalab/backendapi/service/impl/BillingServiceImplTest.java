@@ -56,7 +56,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.core.GenericType;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -753,7 +752,7 @@ public class BillingServiceImplTest extends TestBase {
                         CloudProvider.GENERAL,
                         "dockerImage",
                         IMAGE_FULL_NAME,
-                        ImageStatus.CREATED,
+                        ImageStatus.ACTIVE,
                         null,
                         null,
                         null,
