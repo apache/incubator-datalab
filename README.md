@@ -876,7 +876,8 @@ List of parameters for Endpoint deployment:
 | region                     | AWS region                                                                                                                                  |
 | vpc\_id                    | ID of the VPC (optional)                                                                                                                    |
 | ssn\_ui\_host              | IP address of SSN host on the cloud provider                                                                                                |
-| subnet\_id                 | ID of the public subnet (optional)                                                                                                          || billing\_enable            | Enabling or disabling billing                                                                                                               |
+| subnet\_id                 | ID of the public subnet (optional)                                                                                                          |
+| billing\_enable            | Enabling or disabling billing                                                                                                               |
 | billing\_bucket            | The name of S3 bucket where billing reports will be placed                                                                                  |
 | report\_path               | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
 | mongo\_password            | Mongo database password                                                                                                                     |                                                                                                                                            
@@ -1045,7 +1046,8 @@ List of parameters for Endpoint termination:
 | region                     | AWS region                                                                                                                                  |
 | vpc\_id                    | ID of the VPC (optional)                                                                                                                    |
 | ssn\_ui\_host              | IP address of SSN host on the cloud provider                                                                                                |
-| subnet\_id                 | ID of the public subnet (optional)                                                                                                          || billing\_enable            | Enabling or disabling billing                                                                                                               |
+| subnet\_id                 | ID of the public subnet (optional)                                                                                                          |
+| billing\_enable            | Enabling or disabling billing                                                                                                               |
 | billing\_bucket            | The name of S3 bucket where billing reports will be placed                                                                                  |
 | report\_path               | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
 | mongo\_password            | Mongo database password                                                                                                                     |                                                                                                                                            
