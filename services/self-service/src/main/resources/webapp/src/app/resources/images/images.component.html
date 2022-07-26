@@ -234,15 +234,15 @@
         </div>
         <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
           <ul class="list-unstyled">
-            <li [matTooltip]="element.status !== 'CREATED' && 'The image cannot be shared because it is not in the &quot;Created&quot; status'
+            <li [matTooltip]="element.status !== 'ACTIVE' && 'The image cannot be shared because it is not in the &quot;Created&quot; status'
                   || userName !== element.user && 'Images may be shared by creators only'"
                 matTooltipPosition="above"
-                [matTooltipDisabled]="userName === element.user && element.status === 'CREATED'"
+                [matTooltipDisabled]="userName === element.user && element.status === 'ACTIVE'"
             >
               <button
                 class="action-button__share"
                 (click)="onShare(element)"
-                [disabled]="userName !== element.user || element.status !== 'CREATED'"
+                [disabled]="userName !== element.user || element.status !== 'ACTIVE'"
               >
                 <i class="material-icons">screen_share</i>
                 <span>Share</span>
