@@ -38,7 +38,6 @@ import com.epam.datalab.backendapi.service.EndpointService;
 import com.epam.datalab.backendapi.service.ImageExploratoryService;
 import com.epam.datalab.backendapi.service.ProjectService;
 import com.epam.datalab.backendapi.util.RequestBuilder;
-import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.constants.ServiceConsts;
 import com.epam.datalab.dto.UserInstanceDTO;
 import com.epam.datalab.dto.UserInstanceStatus;
@@ -62,11 +61,9 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.IMAGE;
@@ -172,7 +169,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Override
     public List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint) {
-        List<ImageInfoRecord> images = imageExploratoryDao.getImages(user.getName(), dockerImage, project, endpoint, ImageStatus.CREATED, ImageStatus.CREATING);
+        List<ImageInfoRecord> images = imageExploratoryDao.getImages(user.getName(), dockerImage, project, endpoint, ImageStatus.ACTIVE, ImageStatus.CREATING);
         images.addAll(getSharedImages(user,dockerImage,project,endpoint));
         return images;
     }
@@ -286,7 +283,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     public List<ImageInfoRecord> getSharedImages(UserInfo userInfo, String dockerImage, String project, String endpoint) {
         List<ImageInfoRecord> sharedImages = imageExploratoryDao.getAllImages().stream()
-                .filter(img -> img.getStatus().equals(ImageStatus.CREATED))
+                .filter(img -> img.getStatus().equals(ImageStatus.ACTIVE))
                 .filter(img -> !img.getUser().equals(userInfo.getName()))
                 .filter(img -> img.getDockerImage().equals(dockerImage) && img.getProject().equals(project) && img.getEndpoint().equals(endpoint))
                 .filter(img -> UserRoles.checkAccess(userInfo, RoleType.IMAGE,
@@ -300,7 +297,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     public List<ImageInfoRecord> getSharedImages(UserInfo userInfo, String project){
         List<ImageInfoRecord> sharedImages = imageExploratoryDao.getAllImages().stream()
-                .filter(img -> img.getStatus().equals(ImageStatus.CREATED))
+                .filter(img -> img.getStatus().equals(ImageStatus.ACTIVE))
                 .filter(img -> !img.getUser().equals(userInfo.getName()))
                 .filter(img -> img.getProject().equals(project) )
                 .filter(img -> UserRoles.checkAccess(userInfo, RoleType.IMAGE,
@@ -328,7 +325,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     private void createImageRole(Image image, String exploratoryName){
-        if (image.getStatus().equals(ImageStatus.CREATED)){
+        if (image.getStatus().equals(ImageStatus.ACTIVE)){
             List<UserRoleDTO> imageRoles = getUserImageRoleFromFile();
             imageRoles.stream().forEach(role -> {
                 role.setId(String.format(role.getId(), image.getProject(), image.getEndpoint(), exploratoryName ,image.getName()));

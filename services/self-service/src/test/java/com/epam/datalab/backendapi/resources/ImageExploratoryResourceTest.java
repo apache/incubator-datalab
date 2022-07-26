@@ -40,7 +40,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -290,7 +289,7 @@ public class ImageExploratoryResourceTest extends TestBase {
                 CloudProvider.AWS,
                 "someDockerImage",
                 "someFullName",
-                ImageStatus.CREATED,
+                ImageStatus.ACTIVE,
                 null,
                 null,
                 null,

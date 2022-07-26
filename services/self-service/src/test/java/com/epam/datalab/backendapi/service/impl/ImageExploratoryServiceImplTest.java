@@ -52,7 +52,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -272,7 +271,7 @@ public class ImageExploratoryServiceImplTest {
         assertEquals(1, actualRecordList.size());
         assertEquals(expectedRecordList, actualRecordList);
 
-        verify(imageExploratoryDao).getImages(USER, "someImage", "someProject", "someEndpoint", ImageStatus.CREATED, ImageStatus.CREATING);
+        verify(imageExploratoryDao).getImages(USER, "someImage", "someProject", "someEndpoint", ImageStatus.ACTIVE, ImageStatus.CREATING);
         //verifyNoMoreInteractions(imageExploratoryDao);
     }
 
@@ -322,7 +321,7 @@ public class ImageExploratoryServiceImplTest {
                 CloudProvider.GENERAL,
                 "someDockerImage",
                 "someFullName",
-                ImageStatus.CREATED,
+                ImageStatus.ACTIVE,
                 null,
                 null,
                 null,
