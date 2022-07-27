@@ -39,6 +39,7 @@ import { LocalDatePipeModule } from '../core/pipes/local-date-pipe';
 import { ShareImageDialogModule } from './exploratory/share-image/share-image-dialog.module';
 import { ImageDetailDialogModule } from './exploratory/image-detail-dialog/image-detail-dialog.module';
 import {LibraryInfoModalModule} from './exploratory/library-info-modal/library-info-modal.module';
+import { PageFilterComponent } from './exploratory/page-filter/page-filter.component';
 
 @NgModule({
   imports: [
@@ -64,6 +65,7 @@ import {LibraryInfoModalModule} from './exploratory/library-info-modal/library-i
     ManageUngitComponent,
     ConfirmDeleteAccountDialogComponent,
     ImagesComponent,
+    PageFilterComponent,
 
   ],
   entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialogComponent],

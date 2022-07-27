@@ -48,3 +48,11 @@ export interface ClusterConfig {
   Properties: Record<string, any>;
   Configurations: any[];
 }
+
+export interface FilterDropdownValue {
+  imageName: string[];
+  imageStatus: string[];
+  provider: string[];
+  templateName: string[];
+  sharingStatus: string[];
+}

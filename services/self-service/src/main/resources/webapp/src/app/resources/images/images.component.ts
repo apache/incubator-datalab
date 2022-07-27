@@ -17,12 +17,15 @@
  * under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
+import {map, tap} from 'rxjs/operators';
 
 import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
-import { HealthStatusService, UserImagesPageService } from '../../core/services';
+import { HealthStatusService } from '../../core/services';
 import { ImageModel, ProjectModel } from './images.model';
 import {
   TooltipStatuses,
@@ -33,11 +36,11 @@ import {
   Placeholders,
   Shared_Status,
 } from './images.config';
-import { MatDialog } from '@angular/material/dialog';
 import { ShareImageDialogComponent } from '../exploratory/share-image/share-image-dialog.component';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'datalab-images',
@@ -49,7 +52,7 @@ import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/i
   ]
 })
 
-export class ImagesComponent implements OnInit {
+export class ImagesComponent implements OnInit, OnDestroy {
   readonly tableHeaderCellTitles: typeof Image_Table_Column_Headers = Image_Table_Column_Headers;
   readonly displayedColumns: typeof Image_Table_Titles = Image_Table_Titles;
   readonly placeholder: typeof Placeholders = Placeholders;
@@ -59,27 +62,34 @@ export class ImagesComponent implements OnInit {
 
   isActionsOpen: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
-  dataSource: ImageModel[] = [];
+  dataSource: Observable<ImageModel[]>;
   checkboxSelected: boolean = false;
   projectList: string[] = [];
   activeProjectName: string = '';
   userName!: string;
-
-  private cashedImageListData: ProjectModel[] = [];
+  isProjectsMoreThanOne: boolean;
+  isFilterOpened: Observable<boolean>;
 
   constructor(
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
-    private userImagesPageService: UserImagesPageService,
     private dialog: MatDialog,
     private imagesService: ImagesService,
-    private progressBarService: ProgressBarService
+    private progressBarService: ProgressBarService,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
     this.getEnvironmentHealthStatus();
     this.getUserImagePageInfo();
+
     this.getUserName();
+    this.initImageTable();
+    this.initFilterBtn();
+  }
+
+  ngOnDestroy(): void {
+    this.imagesService.closeFilter();
   }
 
   onCheckboxClick(element: ImageModel): void {
@@ -88,12 +98,7 @@ export class ImagesComponent implements OnInit {
 
   allCheckboxToggle(): void {
     this.checkboxSelected = !this.checkboxSelected;
-
-    if (this.checkboxSelected) {
-      this.dataSource.forEach(image => image.isSelected = true);
-    } else {
-      this.dataSource.forEach(image => image.isSelected = false);
-    }
+    this.imagesService.changeCheckboxValue(this.checkboxSelected);
   }
 
   onActionClick(): void {
@@ -102,20 +107,18 @@ export class ImagesComponent implements OnInit {
 
   onSelectClick(projectName: string = ''): void {
     if (!projectName) {
-      this.dataSource = this.getImageList();
       return;
     }
-    const currentProject = this.cashedImageListData.find(({project}) => project === projectName);
-    this.dataSource = [...currentProject.images];
-    this.activeProjectName = currentProject.project;
+    this.imagesService.getActiveProject(projectName);
+    this.activeProjectName = projectName;
   }
 
-  onRefresh(): void {
+  onRefreshClick(): void {
     this.getUserImagePageInfo();
     this.activeProjectName = '';
   }
 
-  onImageInfo(image: ImageModel): void {
+  onImageInfoClick(image: ImageModel): void {
     this.dialog.open(ImageDetailDialogComponent, {
       data: {
         image
@@ -124,23 +127,27 @@ export class ImagesComponent implements OnInit {
     });
   }
 
-  onShare(image: ImageModel): void {
+  onShareClick(image: ImageModel): void {
     this.dialog.open(ShareImageDialogComponent, {
       data: {
         image
       },
       panelClass: 'modal-sm'
     }).afterClosed()
-      .subscribe(() => {
-        if (this.imagesService.projectList) {
-          this.initImageTable(this.imagesService.projectList);
-        }
-        this.progressBarService.stopProgressBar();
-      });
+      .subscribe(() => this.progressBarService.stopProgressBar());
   }
 
-  private getImageList(): ImageModel[] {
-    return this.cashedImageListData.reduce((acc, {images}) => [...acc, ...images], []);
+  onFilterClick(): void {
+    this.imagesService.openFilter();
+  }
+
+  onFilterApplyClick(filterFormValue): void {
+    console.log(filterFormValue);
+    this.imagesService.closeFilter();
+  }
+
+  onFilterCancelClick(): void {
+    this.imagesService.closeFilter();
   }
 
   private getEnvironmentHealthStatus(): void {
@@ -153,36 +160,36 @@ export class ImagesComponent implements OnInit {
   }
 
   private getUserImagePageInfo(): void {
-    this.userImagesPageService.getUserImagePageInfo().subscribe(imageListData => this.initImageTable(imageListData));
+    this.route.data.pipe(
+      map(data => data['projectList']),
+      tap(projectList => this.getProjectList(projectList))
+    ).subscribe();
   }
 
-  private initImageTable(imagePageList: ProjectModel[]): void {
-    this.cashedImageListData = imagePageList;
-    this.getProjectList(imagePageList);
-    this.dataSource = this.getImageList();
-
-    if (imagePageList.length === 1) {
-      this.activeProjectName = imagePageList[0].project;
-    }
+  private initImageTable(): void {
+    this.dataSource = this.imagesService.$imageList;
   }
 
   private getProjectList(imagePageList: ProjectModel[]): void {
     if (!imagePageList) {
       return;
     }
-    this.projectList = [];
-    imagePageList.forEach(({project}) => this.projectList.push(project));
+    this.projectList = this.imagesService.getProjectNameList(imagePageList);
+    this.isProjectsMoreThanOne = this.projectList.length > 1;
+    if (this.isProjectsMoreThanOne) {
+      this.activeProjectName = this.projectList[0];
+    }
   }
 
   private getUserName(): void {
     this.userName = localStorage.getItem(Localstorage_Key.userName);
   }
 
-  get isProjectsMoreThanOne(): boolean {
-    return this.projectList.length > 1;
+  private initFilterBtn(): void {
+    this.isFilterOpened = this.imagesService.$isFilterOpened;
   }
 
-  get isImageNotSelected(): boolean {
-    return !this.dataSource.some(image => image.isSelected);
+  get isImageSelected(): boolean {
+    return this.imagesService.isImageSelected();
   }
 }

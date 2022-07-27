@@ -60,6 +60,7 @@
 
 .button--wrapper,
 .header-cell--wrapper {
+  position: relative;
   display: flex;
   justify-content: space-between;
 }
@@ -115,4 +116,21 @@
 
 .list-unstyled > li {
   margin: 0 !important;
+}
+
+.filer__wrapper {
+  position: absolute;
+  top: 20px;
+  left: 0px;
+  z-index: 10;
+}
+
+.filter__btn {
+  margin-right: 10px;
+  vertical-align: middle;
+  width: 110px;
+
+  &--name {
+    line-height: 0;
+  }
 }

@@ -26,6 +26,7 @@ export enum Image_Table_Column_Headers {
   templateName = 'Template name',
   instanceName = 'Instance name',
   actions = 'Actions',
+  endpoint = 'Endpoint',
 }
 
 export enum Shared_Status {
@@ -36,12 +37,11 @@ export enum Shared_Status {
 export const Image_Table_Titles = <const>[
   'checkbox',
   'imageName',
-  'creationDate',
-  'provider',
   'imageStatus',
-  'sharedStatus',
+  'creationDate',
+  'endpoint',
   'templateName',
-  'instanceName',
+  'sharedStatus',
   'actions'
 ];
 

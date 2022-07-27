@@ -65,7 +65,7 @@
             type="button"
             class="butt action-button"
             mat-raised-button
-            [disabled]="isImageNotSelected"
+            [disabled]="!isImageSelected"
             (click)="onActionClick()"
           >
             Actions
@@ -91,8 +91,19 @@
           </button>
         </div>
       </span>
+      <button mat-raised-button [disabled]="!(dataSource | async)?.length" class="butt filter__btn" (click)="onFilterClick()">
+        <i class="material-icons">filter_list</i>
+        <span class="filter__btn--name">Filter</span>
+      </button>
+      <div *ngIf="isFilterOpened | async" class="filer__wrapper">
+        <datalab-page-filter
+          (filterFormValue)="onFilterApplyClick($event)"
+          (closeFilter)="onFilterCancelClick()"
+        >
+        </datalab-page-filter>
+      </div>
       <span>
-        <button mat-raised-button class="butt" (click)="onRefresh()">
+        <button mat-raised-button class="butt" (click)="onRefreshClick()">
           <i class="material-icons highlight">autorenew</i>
           Refresh
         </button>
@@ -102,20 +113,17 @@
 
   <mat-divider></mat-divider>
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 image-table data-grid">
+  <table mat-table [dataSource]="dataSource | async" class="mat-elevation-z8 image-table data-grid">
     <ng-container matColumnDef="checkbox">
       <th mat-header-cell *matHeaderCellDef class="image-checkbox--wrapper">
         <div class="header-cell--wrapper">
-          <span  *ngIf="dataSource.length" >
+          <span  *ngIf="(dataSource | async)?.length" >
             <datalab-checkbox
               (click)="allCheckboxToggle()"
               [checked]="checkboxSelected"
               class="image-checkbox"
             ></datalab-checkbox>
           </span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
         </div>
       </th>
       <td mat-cell *matCellDef="let element" class="image-checkbox--wrapper">
@@ -131,47 +139,15 @@
       <th mat-header-cell *matHeaderCellDef>
         <div class="header-cell--wrapper">
           <span>{{tableHeaderCellTitles.imageName}}</span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
         </div>
       </th>
       <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="creationDate">
-      <th mat-header-cell *matHeaderCellDef>
-        <div class="header-cell--wrapper">
-          <span>{{tableHeaderCellTitles.creationDate}}</span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
-        </div>
-      </th>
-      <td mat-cell *matCellDef="let element">
-        <span> {{element.timestamp | localDate : 'short'}} </span>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="provider">
-      <th mat-header-cell *matHeaderCellDef>
-        <div class="header-cell--wrapper">
-          <span>{{tableHeaderCellTitles.provider}}</span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
-        </div>
-      </th>
-      <td mat-cell *matCellDef="let element"> {{element.cloudProvider}} </td>
     </ng-container>
 
     <ng-container matColumnDef="imageStatus">
       <th mat-header-cell *matHeaderCellDef>
         <div class="header-cell--wrapper">
           <span>{{tableHeaderCellTitles.imageStatus}}</span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
         </div>
       </th>
       <td mat-cell *matCellDef="let element" ngClass="{{ element.status.toLowerCase() || ''}}">
@@ -179,13 +155,39 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="creationDate">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.creationDate}}</span>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <span> {{element.timestamp | localDate : 'short'}} </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="endpoint">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.endpoint}}</span>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.endpoint}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="templateName">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="header-cell--wrapper">
+          <span>{{tableHeaderCellTitles.templateName}}</span>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.templateName}} </td>
+    </ng-container>
+
     <ng-container matColumnDef="sharedStatus">
       <th mat-header-cell *matHeaderCellDef>
         <div class="header-cell--wrapper">
           <span>{{tableHeaderCellTitles.sharedStatus}}</span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
         </div>
       </th>
       <td mat-cell *matCellDef="let element">
@@ -198,36 +200,12 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="templateName">
-      <th mat-header-cell *matHeaderCellDef>
-        <div class="header-cell--wrapper">
-          <span>{{tableHeaderCellTitles.templateName}}</span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
-        </div>
-      </th>
-      <td mat-cell *matCellDef="let element"> {{element.templateName}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="instanceName">
-      <th mat-header-cell *matHeaderCellDef>
-        <div class="header-cell--wrapper">
-          <span>{{tableHeaderCellTitles.instanceName}}</span>
-          <i class="material-icons">
-            <span>more_vert</span>
-          </i>
-        </div>
-      </th>
-      <td mat-cell *matCellDef="let element"> {{element.instanceName}} </td>
-    </ng-container>
-
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> {{tableHeaderCellTitles.actions}} </th>
       <td mat-cell *matCellDef="let element" class="settings actions-col">
 
         <div class="button--wrapper">
-          <span class="currency_details" (click)="onImageInfo(element)">
+          <span class="currency_details" (click)="onImageInfoClick(element)">
             <i class="material-icons">help_outline</i>
           </span>
           <span #settings class="actions" (click)="actions.toggle($event, settings)"></span>
@@ -241,7 +219,7 @@
             >
               <button
                 class="action-button__share"
-                (click)="onShare(element)"
+                (click)="onShareClick(element)"
                 [disabled]="userName !== element.user || element.status !== imageStatus.active"
               >
                 <i class="material-icons">screen_share</i>
@@ -270,6 +248,6 @@
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    <tr [hidden]="dataSource.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+    <tr [hidden]="(dataSource | async)?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
 </section>

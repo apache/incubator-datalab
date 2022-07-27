@@ -23,11 +23,13 @@ import {  catchError } from 'rxjs/operators';
 import {  ErrorUtils } from '../util';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
-import { ProjectModel, ShareImageAllUsersParams } from '../../resources/images';
+import {ProjectModel, ShareImageAllUsersParams} from '../../resources/images';
 
 @Injectable()
 export class UserImagesPageService {
-  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
+  constructor(
+    private applicationServiceFacade: ApplicationServiceFacade
+  ) { }
 
 
   getUserImagePageInfo(): Observable<ProjectModel[]> {
@@ -37,8 +39,8 @@ export class UserImagesPageService {
       );
   }
 
-  shareImageAllUsers(params: ShareImageAllUsersParams): Observable<ProjectModel[]> {
-    return this.applicationServiceFacade.buildShareImageAllUsers(params)
+  shareImagesAllUser(shareParams: ShareImageAllUsersParams): Observable<ProjectModel[]> {
+    return this.applicationServiceFacade.buildShareImageAllUsers(shareParams)
       .pipe(
         catchError(ErrorUtils.handleServiceError)
       );
