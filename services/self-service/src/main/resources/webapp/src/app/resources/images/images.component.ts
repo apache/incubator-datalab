@@ -24,10 +24,17 @@ import { ToastrService } from 'ngx-toastr';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService, UserImagesPageService } from '../../core/services';
 import { ImageModel, ProjectModel } from './images.model';
-import { Image_Table_Column_Headers, Image_Table_Titles, Localstorage_Key, Shared_Status, Toaster_Message } from './images.config';
+import {
+  TooltipStatuses,
+  Image_Table_Column_Headers,
+  Image_Table_Titles,
+  ImageStatuses,
+  Localstorage_Key,
+  Placeholders,
+  Shared_Status,
+} from './images.config';
 import { MatDialog } from '@angular/material/dialog';
 import { ShareImageDialogComponent } from '../exploratory/share-image/share-image-dialog.component';
-import { Observable } from 'rxjs';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
@@ -43,18 +50,20 @@ import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/i
 })
 
 export class ImagesComponent implements OnInit {
+  readonly tableHeaderCellTitles: typeof Image_Table_Column_Headers = Image_Table_Column_Headers;
+  readonly displayedColumns: typeof Image_Table_Titles = Image_Table_Titles;
+  readonly placeholder: typeof Placeholders = Placeholders;
+  readonly sharedStatus: typeof Shared_Status = Shared_Status;
+  readonly imageStatus: typeof ImageStatuses = ImageStatuses;
+  readonly tooltipStatuses: typeof TooltipStatuses = TooltipStatuses;
+
   isActionsOpen: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
-  tableHeaderCellTitles: typeof Image_Table_Column_Headers = Image_Table_Column_Headers;
-  displayedColumns: typeof Image_Table_Titles = Image_Table_Titles;
   dataSource: ImageModel[] = [];
   checkboxSelected: boolean = false;
   projectList: string[] = [];
   activeProjectName: string = '';
   userName!: string;
-
-  readonly placeholder: string = 'Select project';
-  readonly sharedStatus: typeof Shared_Status = Shared_Status;
 
   private cashedImageListData: ProjectModel[] = [];
 

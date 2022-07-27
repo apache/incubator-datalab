@@ -14,7 +14,7 @@ export interface ImageModel {
   name: string;
   project: string;
   shared: boolean;
-  status: 'created' | 'creating' | 'terminated' | 'terminating' | 'failed';
+  status: 'active' | 'creating' | 'terminated' | 'terminating' | 'failed';
   user: string;
   isSelected?: boolean;
   libraries: Library[];

@@ -25,7 +25,7 @@
              [ngClass]="{'disabled-select': !isProjectsMoreThanOne}"
         >
           <mat-form-field>
-            <mat-label>{{placeholder}}</mat-label>
+            <mat-label>{{placeholder.projectSelect}}</mat-label>
 
             <mat-select
               disableOptionCentering
@@ -234,22 +234,22 @@
         </div>
         <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
           <ul class="list-unstyled">
-            <li [matTooltip]="element.status !== 'ACTIVE' && 'The image cannot be shared because it is not in the &quot;Created&quot; status'
-                  || userName !== element.user && 'Images may be shared by creators only'"
+            <li [matTooltip]="element.status !== imageStatus.active && tooltipStatuses.activeOnly
+                  || userName !== element.user && tooltipStatuses.creatorOnly"
                 matTooltipPosition="above"
-                [matTooltipDisabled]="userName === element.user && element.status === 'ACTIVE'"
+                [matTooltipDisabled]="userName === element.user && element.status === imageStatus.active"
             >
               <button
                 class="action-button__share"
                 (click)="onShare(element)"
-                [disabled]="userName !== element.user || element.status !== 'ACTIVE'"
+                [disabled]="userName !== element.user || element.status !== imageStatus.active"
               >
                 <i class="material-icons">screen_share</i>
                 <span>Share</span>
               </button>
             </li>
             <li
-              matTooltip="Unable to terminate notebook because at least one compute is in progress"
+              [matTooltip]=tooltipStatuses.unableTerminate
               matTooltipPosition="above"
             >
               <button class="action-button__share">

@@ -52,3 +52,19 @@ export enum Localstorage_Key {
 export enum Toaster_Message {
   successShare = 'The image has been shared with all current Regular Users on the project!'
 }
+
+export enum Placeholders {
+  projectSelect = 'Select project'
+}
+
+export enum ImageStatuses {
+  creating = 'CREATING',
+  active = 'ACTIVE',
+  failed = 'FAILED'
+}
+
+export enum TooltipStatuses {
+  activeOnly = 'The image cannot be shared because it is not in the "Active" status',
+  creatorOnly = 'Images may be shared by creators only',
+  unableTerminate = 'Unable to terminate notebook because at least one compute is in progress'
+}
