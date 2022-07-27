@@ -328,7 +328,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.createExploratoryForm.controls['endpoint'].value)
       .subscribe(
         (res: any) => {
-          this.images = res.filter(el => el.status === 'CREATED');
+          this.images = res.filter(el => el.status === 'ACTIVE');
 
           if (this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
             this.currentTemplate.exploratory_environment_images = this.currentTemplate.exploratory_environment_images.map(image => {
