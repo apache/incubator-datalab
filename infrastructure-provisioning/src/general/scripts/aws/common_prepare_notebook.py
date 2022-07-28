@@ -69,7 +69,7 @@ if __name__ == "__main__":
             sys.exit(1)
         logging.info('Generating infrastructure names and tags')
         try:
-            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         except:
             notebook_config['exploratory_name'] = ''
 
