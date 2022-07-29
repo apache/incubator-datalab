@@ -183,7 +183,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                                                        "Content-Type": "application/json"})
         json_keycloak_client_id = json.loads(keycloak_get_id_client.text)
         if not json_keycloak_client_id:
-            logging.info("Unable to find {}-ui Keycloak client".format(ssn_conf['service_base_name']))
+            logging.info("Unable to find {}-* Keycloak clients".format(ssn_conf['service_base_name']))
         else:
             keycloak_id_client = json_keycloak_client_id[0]['id']
             keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'],
