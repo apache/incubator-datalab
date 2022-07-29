@@ -182,16 +182,16 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                                               headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
                                                        "Content-Type": "application/json"})
         json_keycloak_client_id = json.loads(keycloak_get_id_client.text)
-        keycloak_id_client = json_keycloak_client_id[0]['id']
-
-        keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'],
-                                                                               os.environ['keycloak_realm_name'],
-                                                                               keycloak_id_client)
-
-        keycloak_client = requests.delete(
-            keycloak_client_delete_url,
-            headers={"Authorization": "Bearer {}".format(keycloak_token.get("access_token")),
-                     "Content-Type": "application/json"})
+        if not json_keycloak_client_id:
+            logging.info("Unable to find {}-ui Keycloak client".format(ssn_conf['service_base_name']))
+        else:
+            keycloak_id_client = json_keycloak_client_id[0]['id']
+            keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'],
+                                                                                   os.environ['keycloak_realm_name'],
+                                                                                   keycloak_id_client)
+            keycloak_client = requests.delete(keycloak_client_delete_url,
+                                              headers={"Authorization": "Bearer {}".format(keycloak_token.get("access_token")),
+                                                       "Content-Type": "application/json"})
     except Exception as err:
         logging.info("Failed to remove ssn client from Keycloak", str(err))
 
