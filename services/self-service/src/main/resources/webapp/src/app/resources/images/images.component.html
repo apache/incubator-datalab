@@ -97,8 +97,10 @@
       </button>
       <div *ngIf="isFilterOpened | async" class="filer__wrapper">
         <datalab-page-filter
+          [$filterDropdownData]="$filterDropdownData"
           (filterFormValue)="onFilterApplyClick($event)"
           (closeFilter)="onFilterCancelClick()"
+          (onValueChanges)="onControlChanges(dropdownFieldNames.imageNames, $event)"
         >
         </datalab-page-filter>
       </div>

@@ -17,10 +17,13 @@
  * under the License.
  */
 
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup} from '@angular/forms';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AbstractControl, FormBuilder, FormControl, FormGroup} from '@angular/forms';
 
 import {FilterFormPlaceholders} from './page-filter.config';
+import {DropdownFieldNames, FilterDropdownValue} from '../../images';
+import {Observable} from 'rxjs';
+import {tap} from 'rxjs/operators';
 
 @Component({
   selector: 'datalab-page-filter',
@@ -28,15 +31,15 @@ import {FilterFormPlaceholders} from './page-filter.config';
   styleUrls: ['./page-filter.component.scss']
 })
 export class PageFilterComponent implements OnInit {
-  @Output() filterFormValue: EventEmitter<any> = new EventEmitter<any>();
+  @Input() $filterDropdownData: Observable<FilterDropdownValue>;
+
+  @Output() filterFormValue: EventEmitter<FilterDropdownValue> = new EventEmitter<FilterDropdownValue>();
   @Output() closeFilter: EventEmitter<any> = new EventEmitter<any>();
+  @Output() imageNameValue: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onValueChanges: EventEmitter<string> = new EventEmitter<string>();
 
   readonly placeholders: typeof FilterFormPlaceholders = FilterFormPlaceholders;
 
-  filteredOptions = [];
-  templates = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
-  statuses = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
-  cloudProviders = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
   filterForm: FormGroup;
 
   constructor(
@@ -45,6 +48,7 @@ export class PageFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.initFilterForm();
+    this.onControlChange(DropdownFieldNames.imageName);
   }
 
   initFilterForm(): void {
@@ -67,5 +71,13 @@ export class PageFilterComponent implements OnInit {
 
   cancelFilter(): void {
     this.closeFilter.emit();
+  }
+
+  onControlChange(fieldName: keyof FilterDropdownValue): void {
+      console.log(this.filterForm.get(fieldName));
+   this.filterForm.get(fieldName)?.valueChanges.pipe(
+      tap((inputValue: string) => this.onValueChanges.emit(inputValue))
+    ).subscribe();
+
   }
 }

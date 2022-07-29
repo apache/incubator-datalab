@@ -26,7 +26,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService } from '../../core/services';
-import { ImageModel, ProjectModel } from './images.model';
+import {FilterDropdownValue, ImageModel, ProjectModel} from './images.model';
 import {
   TooltipStatuses,
   Image_Table_Column_Headers,
@@ -34,7 +34,7 @@ import {
   ImageStatuses,
   Localstorage_Key,
   Placeholders,
-  Shared_Status,
+  Shared_Status, DropdownFieldNames,
 } from './images.config';
 import { ShareImageDialogComponent } from '../exploratory/share-image/share-image-dialog.component';
 import { ImagesService } from './images.service';
@@ -59,6 +59,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   readonly sharedStatus: typeof Shared_Status = Shared_Status;
   readonly imageStatus: typeof ImageStatuses = ImageStatuses;
   readonly tooltipStatuses: typeof TooltipStatuses = TooltipStatuses;
+  readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
 
   isActionsOpen: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
@@ -69,6 +70,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   userName!: string;
   isProjectsMoreThanOne: boolean;
   isFilterOpened: Observable<boolean>;
+  $filterDropdownData: Observable<FilterDropdownValue>;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -82,10 +84,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getEnvironmentHealthStatus();
     this.getUserImagePageInfo();
-
     this.getUserName();
     this.initImageTable();
     this.initFilterBtn();
+    this.getDropdownList();
   }
 
   ngOnDestroy(): void {
@@ -150,6 +152,15 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.closeFilter();
   }
 
+  onControlChanges(controlName: keyof FilterDropdownValue, inputValue: string): void {
+    this.imagesService.filterDropdownField(DropdownFieldNames.imageName, inputValue);
+  }
+
+  // onImageNameChange1(inputValue: string): void {
+  //   this.imagesService.filterDropdownField(inputValue);
+  //   console.log(inputValue);
+  // }
+
   private getEnvironmentHealthStatus(): void {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
       (result: GeneralEnvironmentStatus) => {
@@ -187,6 +198,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   private initFilterBtn(): void {
     this.isFilterOpened = this.imagesService.$isFilterOpened;
+  }
+
+  private getDropdownList(): void {
+    this.$filterDropdownData = this.imagesService.$filterDropdownData;
   }
 
   get isImageSelected(): boolean {

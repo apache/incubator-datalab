@@ -26,7 +26,7 @@
                matInput
                [matAutocomplete]="auto">
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-          <mat-option *ngFor="let option of filteredOptions" [value]="option">
+          <mat-option *ngFor="let option of ($filterDropdownData | async).imageNames" [value]="option">
             {{option}}
           </mat-option>
         </mat-autocomplete>
@@ -46,7 +46,7 @@
                   (click)="onSelectClick()"
                 >
                   <mat-option
-                    *ngFor="let status of statuses"
+                    *ngFor="let status of ($filterDropdownData | async).imageStatuses"
                     [value]="status"
                   >
                     {{ status }}
@@ -61,7 +61,7 @@
       </div>
 
       <div class="control-group">
-        <label class="label">Provider</label>
+        <label class="label">Endpoint</label>
         <div class="control selector-wrapper">
             <span class="form-field-wrapper">
               <mat-form-field>
@@ -69,15 +69,15 @@
                   formControlName="cloudProviders"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
-                  [placeholder]="placeholders.provider"
+                  [placeholder]="placeholders.endpoint"
                   multiple
                   (click)="onSelectClick()"
                 >
                   <mat-option
-                    *ngFor="let provider of cloudProviders"
-                    [value]="provider"
+                    *ngFor="let endpoint of ($filterDropdownData | async).endpoints"
+                    [value]="endpoint"
                   >
-                    {{ provider }}
+                    {{ endpoint }}
                   </mat-option>
                 </mat-select>
                 <button class="caret">
@@ -102,7 +102,7 @@
                   (click)="onSelectClick()"
                 >
                   <mat-option
-                    *ngFor="let template of templates"
+                    *ngFor="let template of ($filterDropdownData | async).templateNames"
                     [value]="template"
                   >
                     {{ template }}

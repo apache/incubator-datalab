@@ -24,7 +24,6 @@ export enum Image_Table_Column_Headers {
   imageStatus = 'Image status',
   sharedStatus = 'Shared status',
   templateName = 'Template name',
-  instanceName = 'Instance name',
   actions = 'Actions',
   endpoint = 'Endpoint',
 }
@@ -67,4 +66,20 @@ export enum TooltipStatuses {
   activeOnly = 'The image cannot be shared because it is not in the "Active" status',
   creatorOnly = 'Images may be shared by creators only',
   unableTerminate = 'Unable to terminate notebook because at least one compute is in progress'
+}
+
+export enum DropdownFieldNames {
+  imageName = 'imageName',
+  imageStatuses = 'imageStatuses',
+  endpoints = 'endpoints',
+  templateNames = 'templateNames',
+  sharingStatuses = 'sharingStatuses'
+}
+
+export enum ImageModelNames {
+  name = 'name',
+  status = 'status',
+  endpoint = 'endpoint',
+  templateName = 'templateName',
+  shared = 'shared'
 }

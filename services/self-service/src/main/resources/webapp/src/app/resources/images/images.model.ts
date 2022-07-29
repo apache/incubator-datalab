@@ -51,8 +51,8 @@ export interface ClusterConfig {
 
 export interface FilterDropdownValue {
   imageName: string[];
-  imageStatus: string[];
-  provider: string[];
-  templateName: string[];
-  sharingStatus: string[];
+  imageStatuses: string[];
+  endpoints: string[];
+  templateNames: string[];
+  sharingStatuses: string[];
 }

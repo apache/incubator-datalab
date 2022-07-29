@@ -20,7 +20,7 @@
 export enum FilterFormPlaceholders {
   imageName = 'Enter image name',
   status = 'Select status',
-  provider = 'Select provider',
+  endpoint = 'Select endpoint',
   templateName = 'Select template name',
   sharing = 'Select sharing status'
 }
