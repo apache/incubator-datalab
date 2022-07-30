@@ -17,16 +17,16 @@
  * under the License.
  */
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import { map, tap} from 'rxjs/operators';
 
 import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService } from '../../core/services';
-import {FilterDropdownValue, ImageModel, ProjectModel} from './images.model';
+import { ImageFilterFormDropdownData, ImageFilterFormValue, ImageModel, ProjectModel } from './images.model';
 import {
   TooltipStatuses,
   Image_Table_Column_Headers,
@@ -34,13 +34,13 @@ import {
   ImageStatuses,
   Localstorage_Key,
   Placeholders,
-  Shared_Status, DropdownFieldNames,
+  Shared_Status, DropdownFieldNames, FilterFormInitialValue, ImageModelKeysForFilter,
 } from './images.config';
 import { ShareImageDialogComponent } from '../exploratory/share-image/share-image-dialog.component';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'datalab-images',
@@ -64,13 +64,17 @@ export class ImagesComponent implements OnInit, OnDestroy {
   isActionsOpen: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
   dataSource: Observable<ImageModel[]>;
+  projectSource: Observable<ProjectModel[]>;
   checkboxSelected: boolean = false;
   projectList: string[] = [];
   activeProjectName: string = '';
-  userName!: string;
+  userName: string;
   isProjectsMoreThanOne: boolean;
   isFilterOpened: Observable<boolean>;
-  $filterDropdownData: Observable<FilterDropdownValue>;
+  $filterDropdownData: Observable<ImageFilterFormDropdownData>;
+  $filterFormValue: Observable<ImageFilterFormValue>;
+  isShowActive: boolean = true;
+  isFiltered: boolean = false;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -88,10 +92,16 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.initImageTable();
     this.initFilterBtn();
     this.getDropdownList();
+    this.getFilterFormValue();
   }
 
   ngOnDestroy(): void {
     this.imagesService.closeFilter();
+    this.imagesService.setFilterFormValue(FilterFormInitialValue);
+  }
+
+  public trackBy(index, item) {
+    return null;
   }
 
   onCheckboxClick(element: ImageModel): void {
@@ -116,7 +126,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onRefreshClick(): void {
-    this.getUserImagePageInfo();
+    this.imagesService.getImagePageInfo().subscribe();
     this.activeProjectName = '';
   }
 
@@ -143,8 +153,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.openFilter();
   }
 
-  onFilterApplyClick(filterFormValue): void {
-    console.log(filterFormValue);
+  onFilterApplyClick(filterFormValue: ImageFilterFormValue): void {
+    this.imagesService.filterImagePageInfo(filterFormValue).subscribe();
+    this.imagesService.setFilterFormValue(filterFormValue);
+    this.isFiltered = true;
     this.imagesService.closeFilter();
   }
 
@@ -152,14 +164,21 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.closeFilter();
   }
 
-  onControlChanges(controlName: keyof FilterDropdownValue, inputValue: string): void {
+  onControlChanges(controlName: keyof ImageFilterFormDropdownData, inputValue: string): void {
     this.imagesService.filterDropdownField(DropdownFieldNames.imageName, inputValue);
   }
 
-  // onImageNameChange1(inputValue: string): void {
-  //   this.imagesService.filterDropdownField(inputValue);
-  //   console.log(inputValue);
-  // }
+  toggleShowActive(): void {
+    this.isShowActive = !this.isShowActive;
+    this.imagesService.showImage(this.isShowActive, ImageModelKeysForFilter.status, ImageStatuses.active);
+  }
+
+  onResetFilterClick(event: Event): void {
+    event.stopPropagation();
+    this.imagesService.filterImagePageInfo(FilterFormInitialValue).subscribe();
+    this.imagesService.setFilterFormValue(FilterFormInitialValue);
+    this.isFiltered = false;
+  }
 
   private getEnvironmentHealthStatus(): void {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
@@ -173,12 +192,15 @@ export class ImagesComponent implements OnInit, OnDestroy {
   private getUserImagePageInfo(): void {
     this.route.data.pipe(
       map(data => data['projectList']),
-      tap(projectList => this.getProjectList(projectList))
+      tap(projectList => {
+        return this.getProjectList(projectList);
+      })
     ).subscribe();
   }
 
   private initImageTable(): void {
     this.dataSource = this.imagesService.$imageList;
+    this.projectSource = this.imagesService.$projectList;
   }
 
   private getProjectList(imagePageList: ProjectModel[]): void {
@@ -187,7 +209,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     }
     this.projectList = this.imagesService.getProjectNameList(imagePageList);
     this.isProjectsMoreThanOne = this.projectList.length > 1;
-    if (this.isProjectsMoreThanOne) {
+    if (!this.isProjectsMoreThanOne) {
       this.activeProjectName = this.projectList[0];
     }
   }
@@ -202,6 +224,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   private getDropdownList(): void {
     this.$filterDropdownData = this.imagesService.$filterDropdownData;
+  }
+
+  getFilterFormValue(): void {
+    this.$filterFormValue = this.imagesService.$filterFormValue;
   }
 
   get isImageSelected(): boolean {

@@ -17,17 +17,7 @@
  * under the License.
  */
 
-
-import { Pipe, PipeTransform } from '@angular/core';
-
-@Pipe({ name: 'capitalizeFirstLetter' })
-
-export class CapitalizeFirstLetterPipe implements PipeTransform {
-  transform(value: string): string {
-    if (!value) {
-      return '';
-    }
-    const firstLetter = value. substring(0, 1). toUpperCase();
-    return `${firstLetter}${value.substring(1).toLowerCase()}`;
-  }
-}
+export const toTitleCaseUtil = (value: string): string => {
+  const firstLetter = value.substring(0, 1).toUpperCase();
+  return `${firstLetter}${value.substring(1).toLowerCase()}`;
+};

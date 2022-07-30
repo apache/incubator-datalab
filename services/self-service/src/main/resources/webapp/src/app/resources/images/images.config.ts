@@ -70,15 +70,36 @@ export enum TooltipStatuses {
 
 export enum DropdownFieldNames {
   imageName = 'imageName',
-  imageStatuses = 'imageStatuses',
   endpoints = 'endpoints',
   templateNames = 'templateNames',
-  sharingStatuses = 'sharingStatuses'
+  statuses = 'statuses'
 }
 
 export enum ImageModelNames {
   name = 'name',
   status = 'status',
+  endpoint = 'endpoint',
+  templateName = 'templateName',
+  shared = 'shared'
+}
+
+export const FilterFormInitialValue = {
+    endpoints: [],
+    imageName: '',
+    statuses: [],
+    templateNames: [],
+};
+
+export const ChangedColumnStartValue = {
+    endpoints: false,
+    imageName: false,
+    statuses: false,
+    templateNames: false,
+};
+
+export enum ImageModelKeysForFilter {
+  status = 'status',
+  name = 'name',
   endpoint = 'endpoint',
   templateName = 'templateName',
   shared = 'shared'

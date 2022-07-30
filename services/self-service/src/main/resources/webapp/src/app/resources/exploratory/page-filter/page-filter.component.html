@@ -22,11 +22,16 @@
     <form class="filter-table__wrapper" [formGroup]="filterForm">
       <div class="form-control__wrapper control-group">
         <label class="label">Custom tag</label>
-        <input type="text" class="form-control" [placeholder]="placeholders.imageName" formControlName="imageName"
-               matInput
-               [matAutocomplete]="auto">
+        <input
+          type="text"
+          class="form-control"
+          [placeholder]="placeholders.imageName"
+          [formControlName]="dropdownFieldNames.imageName"
+          matInput
+          [matAutocomplete]="auto"
+        />
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-          <mat-option *ngFor="let option of ($filterDropdownData | async).imageNames" [value]="option">
+          <mat-option *ngFor="let option of ($filterDropdownData | async).imageName" [value]="option">
             {{option}}
           </mat-option>
         </mat-autocomplete>
@@ -38,18 +43,21 @@
             <span class="form-field-wrapper">
               <mat-form-field>
                 <mat-select
-                  formControlName="statuses"
+                  [formControlName]="dropdownFieldNames.statuses"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.status"
                   multiple
                   (click)="onSelectClick()"
                 >
+                  <mat-select-trigger class="select__value">
+                    {{statuses.value | normalizeDropdownMultiValue | titlecase}}
+                  </mat-select-trigger>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).imageStatuses"
                     [value]="status"
                   >
-                    {{ status }}
+                    {{ status | titlecase }}
                   </mat-option>
                 </mat-select>
                 <button class="caret">
@@ -66,13 +74,16 @@
             <span class="form-field-wrapper">
               <mat-form-field>
                 <mat-select
-                  formControlName="cloudProviders"
+                  [formControlName]="dropdownFieldNames.endpoints"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.endpoint"
                   multiple
                   (click)="onSelectClick()"
                 >
+                  <mat-select-trigger class="select__value">
+                    {{endpoints.value | normalizeDropdownMultiValue}}
+                  </mat-select-trigger>
                   <mat-option
                     *ngFor="let endpoint of ($filterDropdownData | async).endpoints"
                     [value]="endpoint"
@@ -94,13 +105,16 @@
             <span class="form-field-wrapper">
               <mat-form-field>
                 <mat-select
-                  formControlName="templateNames"
+                  [formControlName]="dropdownFieldNames.templateNames"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.templateName"
                   multiple
                   (click)="onSelectClick()"
                 >
+                  <mat-select-trigger class="select__value">
+                    {{templateNames.value | normalizeDropdownMultiValue}}
+                  </mat-select-trigger>
                   <mat-option
                     *ngFor="let template of ($filterDropdownData | async).templateNames"
                     [value]="template"

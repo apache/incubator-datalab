@@ -2,9 +2,17 @@ import { Injectable } from '@angular/core';
 import { tap } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { FilterDropdownValue, ImageModel, ProjectModel, ShareImageAllUsersParams } from './images.model';
+import {
+  FilteredColumnList,
+  ImageFilterFormDropdownData,
+  ImageFilterFormValue,
+  ImageModel,
+  ProjectModel,
+  ShareImageAllUsersParams
+} from './images.model';
 import { ApplicationServiceFacade, UserImagesPageService } from '../../core/services';
-import {ImageModelNames} from './images.config';
+import { ChangedColumnStartValue, FilterFormInitialValue, ImageModelNames } from './images.config';
+import { caseInsensitiveSortUtil } from '../../core/util';
 
 @Injectable({
   providedIn: 'root'
@@ -13,22 +21,37 @@ export class ImagesService {
   private $$projectList: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
   private $$imageList: BehaviorSubject<ImageModel[]> = new BehaviorSubject<ImageModel[]>([]);
   private $$isFilterOpened: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private $$filterDropdownData: BehaviorSubject<FilterDropdownValue> = new BehaviorSubject<FilterDropdownValue>({} as FilterDropdownValue);
-  private dropdownStartValue: FilterDropdownValue;
+  // tslint:disable-next-line:max-line-length
+  private $$filterDropdownData: BehaviorSubject<ImageFilterFormDropdownData> = new BehaviorSubject<ImageFilterFormDropdownData>({} as ImageFilterFormDropdownData);
+  private $$filterFormValue: BehaviorSubject<ImageFilterFormValue> = new BehaviorSubject<ImageFilterFormValue>(FilterFormInitialValue);
+  private $$changedColumn: BehaviorSubject<FilteredColumnList> = new BehaviorSubject<FilteredColumnList>(ChangedColumnStartValue);
+  private dropdownStartValue: ImageFilterFormDropdownData;
 
+  $projectList = this.$$projectList.asObservable();
   $imageList = this.$$imageList.asObservable();
   $isFilterOpened = this.$$isFilterOpened.asObservable();
   $filterDropdownData = this.$$filterDropdownData.asObservable();
+  $filterFormValue = this.$$filterFormValue.asObservable();
 
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade,
     private userImagesPageService: UserImagesPageService
   ) { }
 
-  getUserImagePageInfo(): Observable<ProjectModel[]> {
-    return this.userImagesPageService.getUserImagePageInfo()
+  getImagePageInfo(): Observable<ProjectModel[]> {
+    return this.userImagesPageService.getFilterImagePage()
       .pipe(
         tap(value => this.getImagePageData(value))
+      );
+  }
+
+  filterImagePageInfo(params: ImageFilterFormValue): Observable<ProjectModel[]> {
+    return this.userImagesPageService.filterImagePage(params)
+      .pipe(
+        tap(value => {
+          console.log(value);
+          return  this.getImagePageData(value);
+        })
       );
   }
 
@@ -82,9 +105,27 @@ export class ImagesService {
     this.$$isFilterOpened.next(false);
   }
 
-  filterDropdownField(field: keyof FilterDropdownValue, value: string, ) {
+  filterDropdownField(field: keyof ImageFilterFormDropdownData, value: string, ) {
     const filteredDropdownList = this.dropdownStartValue[field].filter(item => item.toLowerCase().includes(value));
     this.addFilterDropdownData({...this.$$filterDropdownData.value, imageName: filteredDropdownList});
+  }
+
+  setFilterFormValue(value: ImageFilterFormValue): void {
+    this.$$filterFormValue.next(value);
+  }
+
+  showImage(flag: boolean, field: keyof ImageModel, comparedValue: string) {
+    const imageList = this.getImageList(this.$$projectList.getValue());
+    if (flag) {
+      this.updateImageList(imageList);
+    } else {
+      const filteredImageList = this.filterByCondition(imageList, field, comparedValue);
+      this.updateImageList(filteredImageList);
+    }
+  }
+
+  private filterByCondition(arr: ImageModel[], field: keyof ImageModel, comparedValue: string) {
+    return  arr.filter(item => item[field] === comparedValue);
   }
 
   private getDropdownDataList(): void {
@@ -95,7 +136,6 @@ export class ImagesService {
       templateNames: this.getDropdownDataItem(ImageModelNames.templateName),
       sharingStatuses: this.getDropdownDataItem(ImageModelNames.shared),
     };
-
     this.addFilterDropdownData(dropdownList);
     this.dropdownStartValue = dropdownList;
   }
@@ -105,17 +145,21 @@ export class ImagesService {
       acc.add(item[key].toString());
       return acc;
     }, new Set<string>());
-    return [...dropdownItem];
+    return caseInsensitiveSortUtil([...dropdownItem]);
   }
 
-  private addFilterDropdownData(data: FilterDropdownValue): void {
+  private addFilterDropdownData(data: ImageFilterFormDropdownData): void {
     this.$$filterDropdownData.next(data);
   }
 
   private getImagePageData(imagePageData: ProjectModel[]): void {
-    const imageList = imagePageData.reduce((acc: ImageModel[], {images}) => [...acc, ...images], []);
+    const imageList = this.getImageList(imagePageData);
     this.updateProjectList(imagePageData);
     this.updateImageList(imageList);
     this.getDropdownDataList();
+  }
+
+  private getImageList(imagePageData: ProjectModel[]): ImageModel[] {
+    return imagePageData.reduce((acc: ImageModel[], {images}) => [...acc, ...images], []);
   }
 }

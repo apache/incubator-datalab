@@ -16,7 +16,7 @@ export class ImagePageResolveGuard implements Resolve<ProjectModel[]> {
   ) {}
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ProjectModel[]> {
-    return this.imagesService.getUserImagePageInfo().pipe(
+    return this.imagesService.getImagePageInfo().pipe(
       switchMap((projectList: ProjectModel[]) => of(projectList)),
       take(1)
     );

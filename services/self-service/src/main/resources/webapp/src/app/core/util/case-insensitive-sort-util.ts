@@ -17,14 +17,5 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CapitalizeFirstLetterPipe } from './capitalize-first-letter.pipe';
 
-@NgModule({
-  imports: [CommonModule],
-  declarations: [CapitalizeFirstLetterPipe],
-  exports: [CapitalizeFirstLetterPipe]
-})
-
-export class CapitalizeFirstLetterPipeModule { }
+export const caseInsensitiveSortUtil = (arr: string[]): string[] => arr.sort(((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1));

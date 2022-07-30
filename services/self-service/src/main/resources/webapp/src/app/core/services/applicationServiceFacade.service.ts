@@ -24,7 +24,7 @@ import { HttpClient } from '@angular/common/http';
 import { Dictionary } from '../collections';
 import { environment } from '../../../environments/environment';
 import { HTTPMethod } from '../util';
-import { ShareImageAllUsersParams } from '../../resources/images';
+import { ImageFilterFormValue, ShareImageAllUsersParams} from '../../resources/images';
 
 // we can now access environment.apiUrl
 const API_URL = environment.apiUrl;
@@ -187,6 +187,12 @@ export class ApplicationServiceFacade {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE_PAGE),
       null);
+  }
+
+  buildFilterUserImagePage(params: ImageFilterFormValue): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE_PAGE),
+      params);
   }
 
   buildShareImageAllUsers(params: ShareImageAllUsersParams): Observable<any> {

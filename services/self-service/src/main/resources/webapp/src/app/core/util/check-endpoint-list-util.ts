@@ -17,15 +17,10 @@
  * under the License.
  */
 
-export * from './http-status-codes';
-export * from './sortUtils';
-export * from './helpUtils';
-export * from './errorUtils';
-export * from './dateUtils';
-export * from './fileUtils';
-export * from './checkUtils';
-export * from './patterns';
-export * from './http-methods';
-export * from './check-endpoint-list-util';
-export * from './case-insensitive-sort-util';
-export * from './to-title-case-util';
+import { ModifiedEndpoint } from '../../administration/project/project.model';
+
+export const checkEndpointListUtil = (endpointList: ModifiedEndpoint[]): boolean => {
+  const isAllInactiveEdgeNodeHaveInactiveEndpoint =  endpointList.filter(({status}) => status === 'TERMINATED' || status === 'FAILED')
+    .every(({endpointStatus}) => !endpointStatus || endpointStatus === 'INACTIVE');
+  return isAllInactiveEdgeNodeHaveInactiveEndpoint;
+};

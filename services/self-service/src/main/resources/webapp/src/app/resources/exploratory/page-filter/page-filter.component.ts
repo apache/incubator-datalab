@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {AbstractControl, FormBuilder, FormControl, FormGroup} from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-import {FilterFormPlaceholders} from './page-filter.config';
-import {DropdownFieldNames, FilterDropdownValue} from '../../images';
-import {Observable} from 'rxjs';
-import {tap} from 'rxjs/operators';
+import { FilterFormPlaceholders } from './page-filter.config';
+import { DropdownFieldNames, ImageFilterFormDropdownData, ImageFilterFormValue } from '../../images';
 
 @Component({
   selector: 'datalab-page-filter',
@@ -31,14 +31,16 @@ import {tap} from 'rxjs/operators';
   styleUrls: ['./page-filter.component.scss']
 })
 export class PageFilterComponent implements OnInit {
-  @Input() $filterDropdownData: Observable<FilterDropdownValue>;
+  @Input() $filterDropdownData: Observable<ImageFilterFormDropdownData>;
+  @Input() $filterFormStartValue: Observable<ImageFilterFormValue>;
 
-  @Output() filterFormValue: EventEmitter<FilterDropdownValue> = new EventEmitter<FilterDropdownValue>();
+  @Output() filterFormValue: EventEmitter<ImageFilterFormValue> = new EventEmitter<ImageFilterFormValue>();
   @Output() closeFilter: EventEmitter<any> = new EventEmitter<any>();
   @Output() imageNameValue: EventEmitter<string> = new EventEmitter<string>();
   @Output() onValueChanges: EventEmitter<string> = new EventEmitter<string>();
 
   readonly placeholders: typeof FilterFormPlaceholders = FilterFormPlaceholders;
+  readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
 
   filterForm: FormGroup;
 
@@ -47,17 +49,9 @@ export class PageFilterComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.initFilterForm();
+    this.createFilterForm();
     this.onControlChange(DropdownFieldNames.imageName);
-  }
-
-  initFilterForm(): void {
-    this.filterForm = this.fb.group({
-      imageName: '',
-      cloudProviders: [[]],
-      statuses: [[]],
-      templateNames: [[]]
-    });
+    this.setFilterValue();
   }
 
   onSelectClick(): void {
@@ -73,11 +67,34 @@ export class PageFilterComponent implements OnInit {
     this.closeFilter.emit();
   }
 
-  onControlChange(fieldName: keyof FilterDropdownValue): void {
-      console.log(this.filterForm.get(fieldName));
+  onControlChange(fieldName: keyof ImageFilterFormDropdownData): void {
    this.filterForm.get(fieldName)?.valueChanges.pipe(
       tap((inputValue: string) => this.onValueChanges.emit(inputValue))
     ).subscribe();
+  }
 
+  private createFilterForm(): void {
+    this.filterForm = this.fb.group({
+      imageName: '',
+      endpoints: [[]],
+      statuses: [[]],
+      templateNames: [[]]
+    });
+  }
+
+  private setFilterValue(): void {
+    this.$filterFormStartValue.subscribe(value => this.filterForm.patchValue(value));
+  }
+
+  get statuses() {
+    return this.filterForm.get(DropdownFieldNames.statuses) as FormControl;
+  }
+
+  get endpoints() {
+    return this.filterForm.get(DropdownFieldNames.endpoints) as FormControl;
+  }
+
+  get templateNames() {
+    return this.filterForm.get(DropdownFieldNames.templateNames) as FormControl;
   }
 }
