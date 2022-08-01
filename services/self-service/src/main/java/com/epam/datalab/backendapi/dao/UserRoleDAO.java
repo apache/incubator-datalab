@@ -29,6 +29,8 @@ import java.util.Set;
 public interface UserRoleDAO {
     List<UserRoleDTO> findAll();
 
+    UserRoleDTO findById(String roleId);
+
     void insert(UserRoleDTO dto);
 
     void insert(List<UserRoleDTO> roles);

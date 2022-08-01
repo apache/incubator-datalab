@@ -42,6 +42,7 @@ import com.epam.datalab.constants.ServiceConsts;
 import com.epam.datalab.dto.UserInstanceDTO;
 import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.exploratory.ExploratoryStatusDTO;
+import com.epam.datalab.dto.exploratory.ImageSharingStatus;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.exceptions.ResourceAlreadyExistException;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
@@ -75,7 +76,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
     private static final String PATH_TO_IMAGE_ROLES = "/mongo/image/mongo_roles.json";
 
-    private static final String IMAGE_FULL_CONTROL_ROLE = "img_%s_%s_%s_%s";
+    private static final String IMAGE_ROLE = "img_%s_%s_%s_%s";
 
     /**
      * projectName-endpointName-exploratoryName-imageName
@@ -197,7 +198,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .stream()
                 .map(p -> {
                     List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName(), p.getName());
-                    images.forEach(img -> img.setShared(isSharedImage(img)));
+                    images.forEach(img -> img.setSharingStatus(getImageSharingStatus(user.getName(),img)));
                     images.addAll(getSharedImages(user, p.getName()));
                     return ProjectImagesInfo.builder()
                             .project(p.getName())
@@ -213,9 +214,11 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         return projectService.getUserProjects(user, Boolean.FALSE)
                 .stream()
                 .map(p -> {
-                    List<ImageInfoRecord> images = filterImages(imageExploratoryDao.getImagesOfUser(user.getName(), p.getName()),imageFilter);
-                    List<ImageInfoRecord> sharedImages = filterImages(getSharedImages(user, p.getName()), imageFilter);
+                    List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName(), p.getName());
+                    images.forEach(img -> img.setSharingStatus(getImageSharingStatus(user.getName(),img)));
+                    List<ImageInfoRecord> sharedImages = getSharedImages(user, p.getName());
                     images.addAll(sharedImages);
+                    images = filterImages(images, imageFilter);
                     return ProjectImagesInfo.builder()
                             .project(p.getName())
                             .images(images)
@@ -231,7 +234,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         if(image.isPresent()){
             String exploratoryName = image.get().getInstanceName();
             userRoleDAO.addGroupToRole(projectGroups,
-                    Collections.singleton(String.format(IMAGE_FULL_CONTROL_ROLE,
+                    Collections.singleton(String.format(IMAGE_ROLE,
                             projectName, endpoint, exploratoryName ,imageName)));
         }
 
@@ -258,9 +261,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         return l -> resourceType == l.getType();
     }
 
-    private List<UserRoleDTO> getUserImageRoleFromFile() {
+    private UserRoleDTO getUserImageRoleFromFile() {
         try (InputStream is = getClass().getResourceAsStream(PATH_TO_IMAGE_ROLES)) {
-            return MAPPER.readValue(is, new TypeReference<List<UserRoleDTO>>() {
+            return MAPPER.readValue(is, new TypeReference<UserRoleDTO>() {
             });
         } catch (IOException e) {
             log.error("Can not marshall datalab image roles due to: {}", e.getMessage(), e);
@@ -276,7 +279,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                                 String.format(IMAGE_MONIKER, img.getProject(), img.getEndpoint(), img.getInstanceName(), img.getName()),
                                 userInfo.getRoles()))
                 .collect(Collectors.toList());
-        sharedImages.forEach(img -> img.setShared(true));
+        sharedImages.forEach(img -> img.setSharingStatus(getImageSharingStatus(userInfo.getName(),img)));
         log.info("Shared with user {} images : {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }
@@ -290,7 +293,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                         String.format(IMAGE_MONIKER, img.getProject(), img.getEndpoint(), img.getInstanceName(), img.getName()),
                         userInfo.getRoles()))
                 .collect(Collectors.toList());
-        sharedImages.forEach(img -> img.setShared(true));
+        sharedImages.forEach(img -> img.setSharingStatus(getImageSharingStatus(userInfo.getName(),img)));
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }
@@ -304,20 +307,29 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                         String.format(IMAGE_MONIKER, img.getProject(), img.getEndpoint(), img.getInstanceName(), img.getName()),
                         userInfo.getRoles()))
                 .collect(Collectors.toList());
-        sharedImages.forEach(img -> img.setShared(true));
+        sharedImages.forEach(img -> img.setSharingStatus(getImageSharingStatus(userInfo.getName(),img)));
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }
 
-    private boolean isSharedImage(ImageInfoRecord image){
+    private ImageSharingStatus getImageSharingStatus(String username, ImageInfoRecord image){
         String anyUser = "$anyuser";
-        List<UserRoleDTO> imageRoles = userRoleDAO.findAll().stream()
-                .filter( r -> r.getType().equals(UserRoleDTO.Type.IMAGE))
-                .filter(r -> r.getImages().contains(getImageMoniker(image.getProject(),image.getEndpoint(),image.getInstanceName(),image.getName())))
-                .filter( r -> (r.getGroups().contains(anyUser) && r.getGroups().size() >= 2)
-                        || (!r.getGroups().contains(anyUser) && !r.getGroups().isEmpty()))
-                .collect(Collectors.toList());
-        return !imageRoles.isEmpty();
+        UserRoleDTO role = getImageRole(image);
+        boolean roleHasGroups = (role.getGroups().contains(anyUser) && role.getGroups().size() >= 2)
+                || (!role.getGroups().contains(anyUser) && !role.getGroups().isEmpty());
+        if(!roleHasGroups && image.getUser().equals(username)){
+            return ImageSharingStatus.PRIVATE;
+        } else if (roleHasGroups && image.getUser().equals(username)){
+            return ImageSharingStatus.SHARED;
+        }
+        return ImageSharingStatus.RECEIVED ;
+    }
+
+    private UserRoleDTO getImageRole(ImageInfoRecord image){
+        // projectName-endpointName-exploratoryName-imageName
+        String imageId = String.format(IMAGE_ROLE,
+                image.getProject(), image.getEndpoint(), image.getInstanceName(),image.getName());
+       return userRoleDAO.findById(imageId);
     }
 
     private String getImageMoniker(String project, String endpoint, String exploratoryName, String imageName){
@@ -326,14 +338,12 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     private void createImageRole(Image image, String exploratoryName){
         if (image.getStatus().equals(ImageStatus.ACTIVE)){
-            List<UserRoleDTO> imageRoles = getUserImageRoleFromFile();
-            imageRoles.stream().forEach(role -> {
-                role.setId(String.format(role.getId(), image.getProject(), image.getEndpoint(), exploratoryName ,image.getName()));
-                role.setDescription(String.format(role.getDescription(), getImageMoniker(image.getProject(), image.getEndpoint(), exploratoryName, image.getName()).replaceAll("_","-")));
-                role.setCloud(endpointService.get(image.getEndpoint()).getCloudProvider());
-                role.setImages(new HashSet<>(Collections.singletonList(getImageMoniker(image.getProject(), image.getEndpoint(), exploratoryName, image.getName()))));
-            });
-            userRoleDAO.insert(imageRoles);
+            UserRoleDTO role = getUserImageRoleFromFile();
+            role.setId(String.format(role.getId(), image.getProject(), image.getEndpoint(), exploratoryName ,image.getName()));
+            role.setDescription(String.format(role.getDescription(), getImageMoniker(image.getProject(), image.getEndpoint(), exploratoryName, image.getName()).replaceAll("_","-")));
+            role.setCloud(endpointService.get(image.getEndpoint()).getCloudProvider());
+            role.setImages(new HashSet<>(Collections.singletonList(getImageMoniker(image.getProject(), image.getEndpoint(), exploratoryName, image.getName()))));
+            userRoleDAO.insert(role);
         }
     }
 
@@ -343,6 +353,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(img.getStatus()))
                 .filter(img -> CollectionUtils.isEmpty(filter.getCloudProviders()) || filter.getCloudProviders().contains(img.getCloudProvider()))
                 .filter(img -> CollectionUtils.isEmpty(filter.getTemplateNames()) || filter.getTemplateNames().contains(img.getTemplateName()))
+                .filter(img -> CollectionUtils.isEmpty(filter.getSharingStatuses()) || filter.getSharingStatuses().contains(img.getSharingStatus()))
                 .collect(Collectors.toList());
 
     }
