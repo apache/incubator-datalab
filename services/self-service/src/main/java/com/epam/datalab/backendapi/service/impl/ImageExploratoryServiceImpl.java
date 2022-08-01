@@ -349,9 +349,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     private List<ImageInfoRecord> filterImages(List<ImageInfoRecord> images, ImageFilter filter){
         return images.stream()
-                .filter(img -> img.getName().contains(filter.getImageName()))
+                .filter(img -> img.getName().toLowerCase().contains(filter.getImageName().toLowerCase()))
                 .filter(img -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(img.getStatus()))
-                .filter(img -> CollectionUtils.isEmpty(filter.getCloudProviders()) || filter.getCloudProviders().contains(img.getCloudProvider()))
+                .filter(img -> CollectionUtils.isEmpty(filter.getEndpoints()) || filter.getEndpoints().contains(img.getEndpoint()))
                 .filter(img -> CollectionUtils.isEmpty(filter.getTemplateNames()) || filter.getTemplateNames().contains(img.getTemplateName()))
                 .filter(img -> CollectionUtils.isEmpty(filter.getSharingStatuses()) || filter.getSharingStatuses().contains(img.getSharingStatus()))
                 .collect(Collectors.toList());

@@ -19,11 +19,9 @@
 
 package com.epam.datalab.backendapi.resources.dto;
 
-import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.exploratory.ImageSharingStatus;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -39,7 +37,7 @@ public class ImageFilter {
     @NonNull
     private List<ImageStatus> statuses;
     @NonNull
-    private List<CloudProvider> cloudProviders;
+    private List<String> endpoints;
     @NonNull
     private List<String> templateNames;
     @NonNull
