@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.resources.dto;
 
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
+import com.epam.datalab.dto.exploratory.ImageSharingStatus;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.model.library.Library;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -46,7 +47,7 @@ public class ImageInfoRecord {
     private final String dockerImage;
     private final String fullName;
     private final ImageStatus status;
-    private boolean isShared;
+    private ImageSharingStatus sharingStatus;
     private final List<ClusterConfig> clusterConfig;
     private final String exploratoryURL;
     private final List<Library> libraries;
