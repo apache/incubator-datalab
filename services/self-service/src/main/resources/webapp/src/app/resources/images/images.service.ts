@@ -19,6 +19,7 @@ import { caseInsensitiveSortUtil } from '../../core/util';
 })
 export class ImagesService {
   private $$projectList: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
+  private $$cashedProjectList: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
   private $$imageList: BehaviorSubject<ImageModel[]> = new BehaviorSubject<ImageModel[]>([]);
   private $$isFilterOpened: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   // tslint:disable-next-line:max-line-length
@@ -112,17 +113,24 @@ export class ImagesService {
   }
 
   showImage(flag: boolean, field: keyof ImageModel, comparedValue: string) {
-    const imageList = this.getImageList(this.$$projectList.getValue());
+    const projectList = this.$$cashedProjectList.getValue();
     if (flag) {
-      this.updateImageList(imageList);
+      this.updateProjectList(projectList);
     } else {
-      const filteredImageList = this.filterByCondition(imageList, field, comparedValue);
-      this.updateImageList(filteredImageList);
+      const filteredImageList = this.filterByCondition(this.$$projectList.getValue(), field, comparedValue);
+      this.updateProjectList(filteredImageList);
     }
   }
 
-  private filterByCondition(arr: ImageModel[], field: keyof ImageModel, comparedValue: string) {
-    return  arr.filter(item => item[field] === comparedValue);
+  private filterByCondition(arr: ProjectModel[], field: keyof ImageModel, comparedValue: string) {
+    return arr.map(item => {
+      const filteredImageList = item.images.filter(image => image[field] === comparedValue);
+      return {...item, images: filteredImageList};
+    });
+  }
+
+  private updateCashedProjectList(projectList: ProjectModel[]): void {
+    this.$$cashedProjectList.next(projectList);
   }
 
   private getDropdownDataList(): void {
@@ -155,6 +163,7 @@ export class ImagesService {
     const imageList = this.getImageList(imagePageData);
     this.updateProjectList(imagePageData);
     this.updateImageList(imageList);
+    this.updateCashedProjectList(imagePageData);
     this.getDropdownDataList();
   }
 
