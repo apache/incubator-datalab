@@ -31,6 +31,8 @@ export class NormalizeDropdownMultiValuePipe implements PipeTransform {
       return firstValue;
     }
 
-    return `${firstValue} (+${value.length - 1} others)`;
+    return value.length === 1
+      ? firstValue
+      : `${firstValue} (+${value.length - 1} others)`;
   }
 }

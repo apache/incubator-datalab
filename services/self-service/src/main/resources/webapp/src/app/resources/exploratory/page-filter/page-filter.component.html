@@ -18,7 +18,7 @@
   -->
 
 <div class="dialog-content selection">
-  <div id="scrolling" class="content-box mat-reset scrolling-content">
+  <div id="scrolling" class="mat-reset scrolling-content">
     <form class="filter-table__wrapper" [formGroup]="filterForm">
       <div class="form-control__wrapper control-group">
         <label class="label">Custom tag</label>
@@ -120,6 +120,37 @@
                     [value]="template"
                   >
                     {{ template }}
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="label">Sharing</label>
+        <div class="control selector-wrapper">
+            <span class="form-field-wrapper">
+              <mat-form-field>
+                <mat-select
+                  [formControlName]="dropdownFieldNames.sharingStatuses"
+                  disableOptionCentering
+                  panelClass="create-resources-dialog scrolling"
+                  [placeholder]="placeholders.sharing"
+                  multiple
+                  (click)="onSelectClick()"
+                >
+                  <mat-select-trigger class="select__value">
+                    {{sharingStatuses.value | normalizeDropdownMultiValue | titlecase}}
+                  </mat-select-trigger>
+                  <mat-option
+                    *ngFor="let status of ($filterDropdownData | async).sharingStatuses"
+                    [value]="status"
+                  >
+                    {{ status | titlecase }}
                   </mat-option>
                 </mat-select>
                 <button class="caret">

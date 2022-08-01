@@ -238,8 +238,8 @@
             </td>
             <td class="cost-col image-table-cell">
               <div class="shared-status--wrapper">
-                <span class="shared-status"> {{element.shared ? sharedStatus.shared : sharedStatus.private}} </span>
-                <span *ngIf="element.shared" class="currency_details" >
+                <span class="shared-status"> {{element.sharingStatus | titlecase}} </span>
+                <span *ngIf="element.sharingStatus !== sharedStatus.private" class="currency_details">
                 <i class="material-icons">help_outline</i>
               </span>
               </div>

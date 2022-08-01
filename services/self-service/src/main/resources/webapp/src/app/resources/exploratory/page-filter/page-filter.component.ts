@@ -78,7 +78,8 @@ export class PageFilterComponent implements OnInit {
       imageName: '',
       endpoints: [[]],
       statuses: [[]],
-      templateNames: [[]]
+      templateNames: [[]],
+      sharingStatuses: [[]],
     });
   }
 
@@ -96,5 +97,9 @@ export class PageFilterComponent implements OnInit {
 
   get templateNames() {
     return this.filterForm.get(DropdownFieldNames.templateNames) as FormControl;
+  }
+
+  get sharingStatuses() {
+    return this.filterForm.get(DropdownFieldNames.sharingStatuses) as FormControl;
   }
 }

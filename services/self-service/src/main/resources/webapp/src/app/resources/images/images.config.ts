@@ -29,8 +29,9 @@ export enum Image_Table_Column_Headers {
 }
 
 export enum Shared_Status {
-  shared = 'Shared',
-  private = 'Private'
+  shared = 'SHARED',
+  private = 'PRIVATE',
+  received = 'RECEIVED'
 }
 
 export const Image_Table_Titles = <const>[
@@ -72,7 +73,8 @@ export enum DropdownFieldNames {
   imageName = 'imageName',
   endpoints = 'endpoints',
   templateNames = 'templateNames',
-  statuses = 'statuses'
+  statuses = 'statuses',
+  sharingStatuses = 'sharingStatuses'
 }
 
 export enum ImageModelNames {
@@ -80,7 +82,7 @@ export enum ImageModelNames {
   status = 'status',
   endpoint = 'endpoint',
   templateName = 'templateName',
-  shared = 'shared'
+  sharingStatus = 'sharingStatus'
 }
 
 export const FilterFormInitialValue = {

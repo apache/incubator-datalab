@@ -444,7 +444,6 @@ export class ResourcesGridComponent implements OnInit {
         this.toastr.error('Creating computation resource failed!', 'Oops!');
       }
     }
-    console.log(filteredData);
     this.filteredEnvironments = filteredData;
   }
 

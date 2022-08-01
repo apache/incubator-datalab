@@ -48,10 +48,7 @@ export class ImagesService {
   filterImagePageInfo(params: ImageFilterFormValue): Observable<ProjectModel[]> {
     return this.userImagesPageService.filterImagePage(params)
       .pipe(
-        tap(value => {
-          console.log(value);
-          return  this.getImagePageData(value);
-        })
+        tap(value => this.getImagePageData(value))
       );
   }
 
@@ -134,7 +131,7 @@ export class ImagesService {
       imageStatuses: this.getDropdownDataItem(ImageModelNames.status),
       endpoints: this.getDropdownDataItem(ImageModelNames.endpoint),
       templateNames: this.getDropdownDataItem(ImageModelNames.templateName),
-      sharingStatuses: this.getDropdownDataItem(ImageModelNames.shared),
+      sharingStatuses: this.getDropdownDataItem(ImageModelNames.sharingStatus),
     };
     this.addFilterDropdownData(dropdownList);
     this.dropdownStartValue = dropdownList;
@@ -142,7 +139,9 @@ export class ImagesService {
 
   private getDropdownDataItem(key: keyof ImageModel): string[] {
     const dropdownItem = this.$$imageList.value.reduce((acc: Set<string>, item) => {
-      acc.add(item[key].toString());
+      if (item) {
+        acc.add(<string>item[key]);
+      }
       return acc;
     }, new Set<string>());
     return caseInsensitiveSortUtil([...dropdownItem]);

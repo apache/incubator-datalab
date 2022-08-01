@@ -13,8 +13,8 @@ export interface ImageModel {
   instanceName: string;
   name: string;
   project: string;
-  shared: boolean;
-  status: 'active' | 'creating' | 'terminated' | 'terminating' | 'failed';
+  sharingStatus: 'SHARED'| 'PRIVATE' | 'RECEIVED';
+  status: 'ACTIVE' | 'CREATING' | 'FAILED';
   user: string;
   isSelected?: boolean;
   libraries: Library[];
