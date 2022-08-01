@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { tap } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import {
@@ -42,14 +42,16 @@ export class ImagesService {
   getImagePageInfo(): Observable<ProjectModel[]> {
     return this.userImagesPageService.getFilterImagePage()
       .pipe(
-        tap(value => this.getImagePageData(value))
+        tap(value => this.getImagePageData(value)),
+        take(1)
       );
   }
 
   filterImagePageInfo(params: ImageFilterFormValue): Observable<ProjectModel[]> {
     return this.userImagesPageService.filterImagePage(params)
       .pipe(
-        tap(value => this.getImagePageData(value))
+        tap(value => this.getImagePageData(value)),
+        take(1)
       );
   }
 
@@ -62,7 +64,8 @@ export class ImagesService {
 
     return this.userImagesPageService.shareImagesAllUser(shareParams)
       .pipe(
-        tap(value => this.getImagePageData(value))
+        tap(value => this.getImagePageData(value)),
+        take(1)
       );
   }
 
@@ -112,7 +115,7 @@ export class ImagesService {
     this.$$filterFormValue.next(value);
   }
 
-  showImage(flag: boolean, field: keyof ImageModel, comparedValue: string) {
+  showImage(flag: boolean, field: keyof ImageModel, comparedValue: string): void {
     const projectList = this.$$cashedProjectList.getValue();
     if (flag) {
       this.updateProjectList(projectList);
@@ -136,7 +139,7 @@ export class ImagesService {
   private getDropdownDataList(): void {
     const dropdownList = {
       imageName: this.getDropdownDataItem(ImageModelNames.name),
-      imageStatuses: this.getDropdownDataItem(ImageModelNames.status),
+      statuses: this.getDropdownDataItem(ImageModelNames.status),
       endpoints: this.getDropdownDataItem(ImageModelNames.endpoint),
       templateNames: this.getDropdownDataItem(ImageModelNames.templateName),
       sharingStatuses: this.getDropdownDataItem(ImageModelNames.sharingStatus),

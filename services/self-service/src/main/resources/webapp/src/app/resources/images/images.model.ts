@@ -51,7 +51,7 @@ export interface ClusterConfig {
 
 export interface ImageFilterFormDropdownData {
   imageName: string[];
-  imageStatuses: string[];
+  statuses: string[];
   endpoints: string[];
   templateNames: string[];
   sharingStatuses: string[];
