@@ -51,10 +51,18 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{statuses.value | normalizeDropdownMultiValue | titlecase}}
+                    {{($filterDropdownData | async).statuses | normalizeDropdownMultiValue | titlecase}}
                   </mat-select-trigger>
                   <mat-option
-                    *ngFor="let status of ($filterDropdownData | async).imageStatuses"
+                    *ngIf="($filterDropdownData | async).statuses.length > 1"
+                    #allStatusesSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(statuses, allStatusesSelected, dropdownFieldNames.statuses)"
+                  >
+                   Select all found
+                  </mat-option>
+                  <mat-option
+                    *ngFor="let status of ($filterDropdownData | async).statuses"
                     [value]="status"
                   >
                     {{ status | titlecase }}
@@ -82,8 +90,16 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{endpoints.value | normalizeDropdownMultiValue}}
+                    {{($filterDropdownData | async).endpoints | normalizeDropdownMultiValue}}
                   </mat-select-trigger>
+                  <mat-option
+                    *ngIf="($filterDropdownData | async).endpoints.length > 1"
+                    #allEndpointsSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(endpoints, allEndpointsSelected, dropdownFieldNames.endpoints)"
+                  >
+                   Select all found
+                  </mat-option>
                   <mat-option
                     *ngFor="let endpoint of ($filterDropdownData | async).endpoints"
                     [value]="endpoint"
@@ -113,8 +129,16 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{templateNames.value | normalizeDropdownMultiValue}}
+                    {{($filterDropdownData | async).templateNames | normalizeDropdownMultiValue}}
                   </mat-select-trigger>
+                  <mat-option
+                    *ngIf="($filterDropdownData | async).templateNames.length > 1"
+                    #allTemplatesSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(templateNames, allTemplatesSelected, dropdownFieldNames.templateNames)"
+                  >
+                   Select all found
+                  </mat-option>
                   <mat-option
                     *ngFor="let template of ($filterDropdownData | async).templateNames"
                     [value]="template"
@@ -144,8 +168,16 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{sharingStatuses.value | normalizeDropdownMultiValue | titlecase}}
+                    {{($filterDropdownData | async).sharingStatuses | normalizeDropdownMultiValue | titlecase}}
                   </mat-select-trigger>
+                  <mat-option
+                    *ngIf="($filterDropdownData | async).sharingStatuses.length > 1"
+                    #allSharingStatusesSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(sharingStatuses, allSharingStatusesSelected, dropdownFieldNames.sharingStatuses)"
+                  >
+                   Select all found
+                  </mat-option>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).sharingStatuses"
                     [value]="status"

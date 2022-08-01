@@ -20,10 +20,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
 
 import { FilterFormPlaceholders } from './page-filter.config';
 import { DropdownFieldNames, ImageFilterFormDropdownData, ImageFilterFormValue } from '../../images';
+import { MatOption } from '@angular/material/core';
 
 @Component({
   selector: 'datalab-page-filter',
@@ -41,6 +42,7 @@ export class PageFilterComponent implements OnInit {
 
   readonly placeholders: typeof FilterFormPlaceholders = FilterFormPlaceholders;
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
+  readonly selectAllValue = 'selectAllFound';
 
   filterForm: FormGroup;
 
@@ -71,6 +73,17 @@ export class PageFilterComponent implements OnInit {
    this.filterForm.get(fieldName)?.valueChanges.pipe(
       tap((inputValue: string) => this.onValueChanges.emit(inputValue))
     ).subscribe();
+  }
+
+  onClickAll(control: FormControl, allSelected: MatOption, key: DropdownFieldNames ): void {
+    if (allSelected.selected) {
+      this.$filterDropdownData.pipe(
+        tap(value => control.patchValue([...value[key], this.selectAllValue])),
+        take(1)
+      ).subscribe();
+    } else {
+      this.statuses.patchValue([]);
+    }
   }
 
   private createFilterForm(): void {
