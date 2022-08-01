@@ -20,7 +20,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ImagesService } from '../../images/images.service';
-import { UserImagesPageService } from '../../../core/services';
 import { ModalData, Toaster_Message } from '../../images';
 import { ToastrService } from 'ngx-toastr';
 
@@ -36,7 +35,6 @@ export class ShareImageDialogComponent {
     public dialogRef: MatDialogRef<ShareImageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ModalData,
     private imagesService: ImagesService,
-    private userImagesPageService: UserImagesPageService,
     private toastr: ToastrService,
   ) { }
 

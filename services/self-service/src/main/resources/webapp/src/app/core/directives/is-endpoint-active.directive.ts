@@ -20,7 +20,7 @@
 import { Directive, ElementRef, HostListener, Input, OnInit, Renderer2 } from '@angular/core';
 
 import { ModifiedEndpoint } from '../../administration/project/project.model';
-import { checkEndpointList } from '../util';
+import { checkEndpointListUtil } from '../util';
 
 
 @Directive({
@@ -55,6 +55,6 @@ export class IsEndpointsActiveDirective implements OnInit {
   }
 
   private checkEndpointList(endpointList: ModifiedEndpoint[]): void {
-    this.isButtonDisabled = checkEndpointList(endpointList);
+    this.isButtonDisabled = checkEndpointListUtil(endpointList);
   }
 }

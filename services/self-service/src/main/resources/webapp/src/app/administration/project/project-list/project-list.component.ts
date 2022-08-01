@@ -28,7 +28,7 @@ import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
 import { EndpointService } from '../../../core/services';
 import { Endpoint, ModifiedEndpoint, Project } from '../project.model';
-import { checkEndpointList } from '../../../core/util';
+import { checkEndpointListUtil } from '../../../core/util';
 import { EndpointStatus } from '../project.config';
 
 @Component({
@@ -110,7 +110,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   isRecreateBtnDisabled(endpointList: ModifiedEndpoint[]): boolean {
-    return checkEndpointList(endpointList);
+    return checkEndpointListUtil(endpointList);
   }
 
   private getFilteredEndpointList(action: string, project) {

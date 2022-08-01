@@ -60,6 +60,7 @@
 
 .button--wrapper,
 .header-cell--wrapper {
+  position: relative;
   display: flex;
   justify-content: space-between;
 }
@@ -115,4 +116,130 @@
 
 .list-unstyled > li {
   margin: 0 !important;
+}
+
+.filer__wrapper {
+  position: absolute;
+  top: 20px;
+  left: 170px;
+  z-index: 10;
+}
+
+.filter__btn {
+  position: relative;
+  margin-right: 10px;
+  vertical-align: middle;
+  width: 110px;
+
+  &--name {
+    line-height: 0;
+  }
+}
+
+.show-active__btn {
+  line-height: 1;
+}
+
+.close__btn {
+  position: absolute;
+  top: 0px;
+  right: 2px;
+  width: 12px;
+  color: rgb(87, 114, 137);
+  background-color: transparent;
+  font-size: 15px;
+  border: none;
+  outline: none;
+
+  &:hover {
+    color: #35afd5;
+    cursor: pointer;
+  }
+}
+
+.settings {
+  text-align: end;
+}
+
+.image-page__project {
+  font-weight: 600;
+  color: #577289;
+  padding-left: 21px;
+}
+
+.image-checkbox--wrapper {
+    width: 4%;
+}
+
+table.resources .header-row > .header-cell {
+  padding: 5px 0;
+}
+
+table.resources .exploratory .element-row td.actions-col {
+  padding: 0;
+}
+
+table.resources .exploratory .element-row td,
+table.resources .header-row > .header-cell,
+table.resources .header-row th.label-header,{
+  padding: 0;
+}
+
+table.resources .header-row .label.image-label {
+  padding-top: 0px;
+  vertical-align: inherit !important;
+}
+
+.image-table-cell {
+  padding: 0 !important;
+}
+
+table.resources {
+  & .name-col.header-cell {
+    width: 15.5%;
+  }
+
+  & .shape-col.image-table-cell,
+  & .tag-col.image-table-cell {
+    width: 17%;
+  }
+
+  & .shape-col.header-cell,
+  & .tag-col.header-cell{
+    width: 15.7%;
+  }
+
+  & .resources-col.image-table-cell {
+    width: 23%;
+  }
+
+  & .resources-col.label-header {
+    width: 21.6%;
+  }
+
+  & .settings.actions-col,
+  & .settings.label-header {
+    width: 7%;
+  }
+
+  &  .status-col.header-cell {
+    width: 10.1%;
+  }
+
+  & .cost-col.label-header {
+    width: 12.5%;
+  }
+}
+
+.settings.image-table-cell,
+.settings.label-header {
+  width: 12%;
+}
+
+.action__button--wrapper {
+  width: 100%;
+}
+
+table.resources .label-header.settings {
+  padding-right: 15px !important;
 }

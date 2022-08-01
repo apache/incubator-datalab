@@ -17,10 +17,20 @@
  * under the License.
  */
 
-import { ModifiedEndpoint } from '../../administration/project/project.model';
+import { Pipe, PipeTransform } from '@angular/core';
 
-export const checkEndpointList = (endpointList: ModifiedEndpoint[]): boolean => {
-  const isAllInactiveEdgeNodeHaveInactiveEndpoint =  endpointList.filter(({status}) => status === 'TERMINATED' || status === 'FAILED')
-    .every(({endpointStatus}) => !endpointStatus || endpointStatus === 'INACTIVE');
-  return isAllInactiveEdgeNodeHaveInactiveEndpoint;
-};
+@Pipe({ name: 'normalizeDropdownMultiValue' })
+
+export class NormalizeDropdownMultiValuePipe implements PipeTransform {
+  transform(value: string[]): string {
+    if (!value.length) {
+      return '';
+    }
+    const [firstValue] = value;
+    if (value.length === 1) {
+      return firstValue;
+    }
+
+    return `${firstValue} (+${value.length - 1} others)`;
+  }
+}

@@ -17,15 +17,7 @@
  * under the License.
  */
 
-export * from './http-status-codes';
-export * from './sortUtils';
-export * from './helpUtils';
-export * from './errorUtils';
-export * from './dateUtils';
-export * from './fileUtils';
-export * from './checkUtils';
-export * from './patterns';
-export * from './http-methods';
-export * from './check-endpoint-list-util';
-export * from './case-insensitive-sort-util';
-export * from './to-title-case-util';
+export const toTitleCaseUtil = (value: string): string => {
+  const firstLetter = value.substring(0, 1).toUpperCase();
+  return `${firstLetter}${value.substring(1).toLowerCase()}`;
+};

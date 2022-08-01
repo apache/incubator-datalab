@@ -19,9 +19,9 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {Library, ModalData} from '../../images';
+import {LibraryInfoItem, Library, ModalData} from '../../images';
 import {LibraryInfoModalComponent} from '../library-info-modal/library-info-modal.component';
-
+import {caseInsensitiveSortUtil} from '../../../core/util';
 
 @Component({
   selector: 'datalab-image-detail-dialog',
@@ -42,7 +42,7 @@ export class ImageDetailDialogComponent implements OnInit {
     private dialog: MatDialog,
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.libraryList = this.normalizeLibraries();
   }
 
@@ -55,12 +55,12 @@ export class ImageDetailDialogComponent implements OnInit {
     });
   }
 
-  private normalizeLibraries() {
+  private normalizeLibraries(): LibraryInfoItem[] {
     return this.data.image.libraries.reduce((acc, item) => {
       const libraryName = this.normalizeLibraryName(item);
       const isLibAdded = acc.find(({name}) => item.group === name);
       if (!isLibAdded) {
-        const newLibrary = {
+        const newLibrary: LibraryInfoItem = {
           name: item.group,
           libs: [`${libraryName} v ${item.version}`]
         };
@@ -71,7 +71,7 @@ export class ImageDetailDialogComponent implements OnInit {
       return acc;
     }, [])
       .map(item => {
-        item.libs.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1);
+        caseInsensitiveSortUtil(item.libs);
         return item;
     });
   }

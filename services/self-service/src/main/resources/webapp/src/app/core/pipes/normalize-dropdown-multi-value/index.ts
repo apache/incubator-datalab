@@ -17,15 +17,14 @@
  * under the License.
  */
 
-export * from './http-status-codes';
-export * from './sortUtils';
-export * from './helpUtils';
-export * from './errorUtils';
-export * from './dateUtils';
-export * from './fileUtils';
-export * from './checkUtils';
-export * from './patterns';
-export * from './http-methods';
-export * from './check-endpoint-list-util';
-export * from './case-insensitive-sort-util';
-export * from './to-title-case-util';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NormalizeDropdownMultiValuePipe } from './normalize-dropdown-multi-value.pipe';
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [NormalizeDropdownMultiValuePipe],
+  exports: [NormalizeDropdownMultiValuePipe]
+})
+
+export class CapitalizeFirstLetterPipeModule { }

@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,15 +17,43 @@
  * under the License.
  */
 
-export * from './http-status-codes';
-export * from './sortUtils';
-export * from './helpUtils';
-export * from './errorUtils';
-export * from './dateUtils';
-export * from './fileUtils';
-export * from './checkUtils';
-export * from './patterns';
-export * from './http-methods';
-export * from './check-endpoint-list-util';
-export * from './case-insensitive-sort-util';
-export * from './to-title-case-util';
+.filter-table__wrapper {
+  width: 450px;
+  padding: 20px;
+  background-color: white;
+}
+
+.filter-table__wrapper,
+.form-control {
+  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+
+.form-control {
+  padding: 8px;
+
+  &__wrapper {
+    & > .label {
+      width: 35%;
+    }
+
+    & > .form-control {
+      width: 65%;
+    }
+  }
+}
+
+.form-field-wrapper {
+  width: 100%;
+}
+
+::ng-deep .cdk-overlay-pane.normalized-dropdown-position {
+  transform: translateX(-15px) !important;
+}
+
+.content-box {
+  padding: 25px 0 35px;
+}
+
+.select__value {
+  color: #607d8b;
+}

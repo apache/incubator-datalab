@@ -14,7 +14,7 @@ export interface ImageModel {
   name: string;
   project: string;
   shared: boolean;
-  status: 'created' | 'creating' | 'terminated' | 'terminating' | 'failed';
+  status: 'active' | 'creating' | 'terminated' | 'terminating' | 'failed';
   user: string;
   isSelected?: boolean;
   libraries: Library[];
@@ -47,4 +47,32 @@ export interface ClusterConfig {
   Classification: string;
   Properties: Record<string, any>;
   Configurations: any[];
+}
+
+export interface ImageFilterFormDropdownData {
+  imageName: string[];
+  imageStatuses: string[];
+  endpoints: string[];
+  templateNames: string[];
+  sharingStatuses: string[];
+}
+
+export interface ImageFilterFormValue {
+  endpoints: string[];
+  imageName: string;
+  statuses: string[];
+  templateNames: string[];
+}
+
+
+export interface LibraryInfoItem {
+  name: string;
+  libs: string[];
+}
+
+export interface FilteredColumnList {
+  imageName: boolean;
+  statuses: boolean;
+  endpoints: boolean;
+  templateNames: boolean;
 }
