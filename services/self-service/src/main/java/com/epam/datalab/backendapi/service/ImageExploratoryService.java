@@ -22,6 +22,7 @@ package com.epam.datalab.backendapi.service;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.ImageFilter;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.backendapi.resources.dto.ImageUserPermissions;
 import com.epam.datalab.backendapi.resources.dto.ProjectImagesInfo;
 import com.epam.datalab.model.exploratory.Image;
 
@@ -49,5 +50,7 @@ public interface ImageExploratoryService {
     List<ImageInfoRecord> getSharedImages(UserInfo user);
 
     List<ImageInfoRecord> getSharedImages(UserInfo userInfo, String dockerImage, String project, String endpoint);
+
+    ImageUserPermissions getUserImagePermissions(UserInfo userInfo, String imageName, String projectName, String endpoint);
 
 }
