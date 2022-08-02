@@ -22,17 +22,18 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({ name: 'normalizeDropdownMultiValue' })
 
 export class NormalizeDropdownMultiValuePipe implements PipeTransform {
-  transform(value: string[], meaninglessValue: number = 0): string {
+  transform(value: string[], meaninglessValue: string = ''): string {
     if (!value.length) {
       return '';
     }
-    const [firstValue] = value;
-    if (value.length === 1) {
+    const filteredList = value.filter(item => item !== meaninglessValue);
+    const [firstValue] = filteredList;
+    if (filteredList.length === 1) {
       return firstValue;
     }
 
-    return value.length === 1
+    return filteredList.length === 1
       ? firstValue
-      : `${firstValue} (+${value.length - meaninglessValue} others)`;
+      : `${firstValue} (+${filteredList.length - 1} others)`;
   }
 }
