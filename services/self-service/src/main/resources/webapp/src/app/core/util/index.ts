@@ -28,4 +28,4 @@ export * from './patterns';
 export * from './http-methods';
 export * from './check-endpoint-list-util';
 export * from './case-insensitive-sort-util';
-export * from './to-title-case-util';
+export * from './capitalize-util';
