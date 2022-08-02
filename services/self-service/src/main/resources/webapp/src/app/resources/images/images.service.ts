@@ -72,8 +72,12 @@ export class ImagesService {
   }
 
   getActiveProject(projectName: string): void {
-    const currentProject = this.$$projectList.value.find(({project}) => project === projectName);
-    this.updateImageList(currentProject.images);
+    if (!projectName) {
+      this.updateProjectList(this.$$cashedProjectList.getValue());
+    } else {
+      const currentProject = this.$$cashedProjectList.getValue().find(({project}) => project === projectName);
+      this.updateProjectList([currentProject]);
+    }
   }
 
   getProjectNameList(imageList: ProjectModel[]): string[] {
