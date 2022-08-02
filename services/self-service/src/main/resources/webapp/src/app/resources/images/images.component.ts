@@ -100,6 +100,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.setFilterFormValue(FilterFormInitialValue);
   }
 
+  trackBy(index, item) {
+    return null;
+  }
+
   onCheckboxClick(element: ImageModel): void {
     element.isSelected = !element.isSelected;
   }
