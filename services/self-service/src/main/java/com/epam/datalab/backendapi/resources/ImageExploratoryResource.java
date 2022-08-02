@@ -132,4 +132,11 @@ public class ImageExploratoryResource {
         imageExploratoryService.shareImageWithProjectGroups(ui, dto.getImageName(), dto.getProjectName(),  dto.getEndpoint());
         return Response.ok(imageExploratoryService.getImagesOfUser(ui)).build();
     }
+
+    @POST
+    @Path("roles")
+    public Response getUserImagePermissions(@Auth UserInfo ui, @Valid @NotNull ImageProjectGroupsShareDTO dto){
+        return Response.ok(
+                imageExploratoryService.getUserImagePermissions(ui,dto.getImageName(),dto.getProjectName(), dto.getEndpoint())).build();
+    }
 }
