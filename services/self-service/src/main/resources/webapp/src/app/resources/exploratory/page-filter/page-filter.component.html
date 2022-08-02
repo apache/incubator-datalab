@@ -51,7 +51,7 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{statuses.value | normalizeDropdownMultiValue: 2 | titlecase}}
+                    {{statuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
                   </mat-select-trigger>
                   <mat-option
                     *ngIf="($filterDropdownData | async).statuses.length > 1"
@@ -90,7 +90,7 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{endpoints.value | normalizeDropdownMultiValue: 2}}
+                    {{endpoints.value | normalizeDropdownMultiValue: selectAllValue}}
                   </mat-select-trigger>
                   <mat-option
                     *ngIf="($filterDropdownData | async).endpoints.length > 1"
@@ -129,7 +129,7 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{templateNames.value | normalizeDropdownMultiValue: 2}}
+                    {{templateNames.value | normalizeDropdownMultiValue: selectAllValue}}
                   </mat-select-trigger>
                   <mat-option
                     *ngIf="($filterDropdownData | async).templateNames.length > 1"
@@ -168,7 +168,7 @@
                   (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
-                    {{sharingStatuses.value | normalizeDropdownMultiValue: 2 | titlecase}}
+                    {{sharingStatuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
                   </mat-select-trigger>
                   <mat-option
                     *ngIf="($filterDropdownData | async).sharingStatuses.length > 1"
