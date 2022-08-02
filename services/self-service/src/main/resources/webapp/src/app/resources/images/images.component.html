@@ -145,7 +145,9 @@
     >
 
       <ng-container matColumnDef="project">
-        <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="image-page__project"> {{ element.project }} </td>
+        <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="image-page__project">
+          {{ element.project }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="checkbox">
@@ -292,8 +294,8 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns;" class="header-row"></tr>
 
-      <tr mat-row *matRowDef="let element; columns: ['project']" class="element-row"></tr>
+      <tr mat-row [hidden]="!element.images.length" *matRowDef="let element; columns: ['project']" class="element-row"></tr>
       <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
-      <tr [hidden]="(dataSource | async)?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+      <tr [hidden]="!($isProjectListEmpty | async)" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
     </table>
 </section>

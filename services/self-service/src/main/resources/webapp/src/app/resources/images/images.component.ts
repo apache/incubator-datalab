@@ -73,6 +73,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   isFilterOpened: Observable<boolean>;
   $filterDropdownData: Observable<ImageFilterFormDropdownData>;
   $filterFormValue: Observable<ImageFilterFormValue>;
+  $isProjectListEmpty: Observable<boolean>;
   isShowActive: boolean = true;
   isFiltered: boolean = false;
 
@@ -93,6 +94,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.initFilterBtn();
     this.getDropdownList();
     this.getFilterFormValue();
+    this.getIsProjectListEmpty();
   }
 
   ngOnDestroy(): void {
@@ -226,8 +228,12 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.$filterDropdownData = this.imagesService.$filterDropdownData;
   }
 
-  getFilterFormValue(): void {
+  private getFilterFormValue(): void {
     this.$filterFormValue = this.imagesService.$filterFormValue;
+  }
+
+  private getIsProjectListEmpty(): void {
+    this.$isProjectListEmpty = this.imagesService.$isProjectListEmpty;
   }
 
   get isImageSelected(): boolean {
