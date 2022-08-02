@@ -19,6 +19,7 @@ import { caseInsensitiveSortUtil } from '../../core/util';
 })
 export class ImagesService {
   private $$projectList: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
+  private $$isProjectListEmpty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private $$cashedProjectList: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
   private $$imageList: BehaviorSubject<ImageModel[]> = new BehaviorSubject<ImageModel[]>([]);
   private $$isFilterOpened: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -29,6 +30,7 @@ export class ImagesService {
   private dropdownStartValue: ImageFilterFormDropdownData;
 
   $projectList = this.$$projectList.asObservable();
+  $isProjectListEmpty = this.$$isProjectListEmpty.asObservable();
   $imageList = this.$$imageList.asObservable();
   $isFilterOpened = this.$$isFilterOpened.asObservable();
   $filterDropdownData = this.$$filterDropdownData.asObservable();
@@ -168,6 +170,11 @@ export class ImagesService {
     this.updateImageList(imageList);
     this.updateCashedProjectList(imagePageData);
     this.getDropdownDataList();
+    this.$$isProjectListEmpty.next(this.isProjectListEmpty(imagePageData));
+  }
+
+  private isProjectListEmpty(imagePageData: ProjectModel[]): boolean {
+    return imagePageData.every(({images}) => Boolean(!images.length));
   }
 
   private getImageList(imagePageData: ProjectModel[]): ImageModel[] {
