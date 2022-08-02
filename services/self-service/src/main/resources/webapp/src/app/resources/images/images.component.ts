@@ -120,9 +120,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onSelectClick(projectName: string = ''): void {
-    if (!projectName) {
-      return;
-    }
     this.imagesService.getActiveProject(projectName);
     this.activeProjectName = projectName;
   }
