@@ -17,7 +17,7 @@
  * under the License.
  */
 
-export const toTitleCaseUtil = (value: string): string => {
+export const capitalizeUtil = (value: string): string => {
   const firstLetter = value.substring(0, 1).toUpperCase();
   return `${firstLetter}${value.substring(1).toLowerCase()}`;
 };
