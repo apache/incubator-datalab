@@ -94,7 +94,7 @@
         </div>
       </span>
 
-      <button mat-raised-button [disabled]="!(dataSource | async)?.length" class="butt filter__btn" (click)="onFilterClick()">
+      <button mat-raised-button [disabled]="!(dataSource | async)?.length && !isFiltered" class="butt filter__btn" (click)="onFilterClick()">
         <i class="material-icons" [ngClass]="{'filtered-icon': isFiltered}">filter_list</i>
         <span class="filter__btn--name">Filter</span>
         <button *ngIf="isFiltered" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
