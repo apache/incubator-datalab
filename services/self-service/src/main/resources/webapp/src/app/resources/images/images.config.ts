@@ -106,3 +106,5 @@ export enum ImageModelKeysForFilter {
   templateName = 'templateName',
   shared = 'shared'
 }
+
+export const DropdownSelectAllValue = 'selectAllFound';

@@ -23,7 +23,12 @@ import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 
 import { FilterFormPlaceholders } from './page-filter.config';
-import { DropdownFieldNames, ImageFilterFormDropdownData, ImageFilterFormValue } from '../../images';
+import {
+  DropdownFieldNames,
+  DropdownSelectAllValue,
+  ImageFilterFormDropdownData,
+  ImageFilterFormValue
+} from '../../images';
 import { MatOption } from '@angular/material/core';
 
 @Component({
@@ -42,9 +47,10 @@ export class PageFilterComponent implements OnInit {
 
   readonly placeholders: typeof FilterFormPlaceholders = FilterFormPlaceholders;
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
-  readonly selectAllValue = 'selectAllFound';
+  readonly selectAllValue = DropdownSelectAllValue;
 
   filterForm: FormGroup;
+  $setFilterValueObservable: Observable<ImageFilterFormValue>;
 
   constructor(
     private fb: FormBuilder
@@ -70,7 +76,7 @@ export class PageFilterComponent implements OnInit {
   }
 
   onControlChange(fieldName: keyof ImageFilterFormDropdownData): void {
-   this.filterForm.get(fieldName)?.valueChanges.pipe(
+    this.filterForm.get(fieldName)?.valueChanges.pipe(
       tap((inputValue: string) => this.onValueChanges.emit(inputValue))
     ).subscribe();
   }
@@ -82,7 +88,7 @@ export class PageFilterComponent implements OnInit {
         take(1)
       ).subscribe();
     } else {
-      this.statuses.patchValue([]);
+      control.patchValue([]);
     }
   }
 
@@ -97,7 +103,7 @@ export class PageFilterComponent implements OnInit {
   }
 
   private setFilterValue(): void {
-    this.$filterFormStartValue.subscribe(value => this.filterForm.patchValue(value));
+    this.$setFilterValueObservable = this.$filterFormStartValue.pipe(tap(value => this.filterForm.patchValue(value)));
   }
 
   get statuses() {

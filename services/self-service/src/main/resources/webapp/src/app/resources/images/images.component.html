@@ -95,7 +95,7 @@
       </span>
 
       <button mat-raised-button [disabled]="!(dataSource | async)?.length" class="butt filter__btn" (click)="onFilterClick()">
-        <i class="material-icons">filter_list</i>
+        <i class="material-icons" [ngClass]="{'filtered-icon': isFiltered}">filter_list</i>
         <span class="filter__btn--name">Filter</span>
         <button *ngIf="isFiltered" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
       </button>
@@ -241,9 +241,6 @@
             <td class="cost-col image-table-cell">
               <div class="shared-status--wrapper">
                 <span class="shared-status"> {{element.sharingStatus | titlecase}} </span>
-                <span *ngIf="element.sharingStatus !== sharedStatus.private" class="currency_details">
-                <i class="material-icons">help_outline</i>
-              </span>
               </div>
             </td>
 

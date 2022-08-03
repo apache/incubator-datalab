@@ -214,7 +214,7 @@ table.resources {
   }
 
   & .resources-col.label-header {
-    width: 21.6%;
+    width: 21.3%;
   }
 
   & .settings.actions-col,
@@ -242,4 +242,12 @@ table.resources {
 
 table.resources .label-header.settings {
   padding-right: 15px !important;
+}
+
+td.mat-cell.image-page__project {
+  padding-left: 49px;
+}
+
+.filtered-icon {
+  color: #35afd5;
 }
