@@ -26,7 +26,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { HealthStatusService } from '../../core/services';
-import { ImageFilterFormDropdownData, ImageFilterFormValue, ImageModel, ProjectModel } from './images.model';
+import { FilteredColumnList, ImageFilterFormDropdownData, ImageFilterFormValue, ImageModel, ProjectModel } from './images.model';
 import {
   TooltipStatuses,
   Image_Table_Column_Headers,
@@ -78,8 +78,9 @@ export class ImagesComponent implements OnInit, OnDestroy {
   $filterDropdownData: Observable<ImageFilterFormDropdownData>;
   $filterFormValue: Observable<ImageFilterFormValue>;
   $isProjectListEmpty: Observable<boolean>;
+  $filteredColumnState: Observable<FilteredColumnList>;
+  $isFiltered: Observable<boolean>;
   isShowActive: boolean = true;
-  isFiltered: boolean = false;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -99,6 +100,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.getDropdownList();
     this.getFilterFormValue();
     this.getIsProjectListEmpty();
+    this.initFilteredColumnState();
+    this.initIsImageListFiltered();
   }
 
   ngOnDestroy(): void {
@@ -158,9 +161,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   onFilterApplyClick(filterFormValue: ImageFilterFormValue): void {
     const normalizeFilterFormValue = this.imagesService.normalizeFilterFormValue(filterFormValue, DropdownSelectAllValue);
+    this.imagesService.updateFilterColumnState(normalizeFilterFormValue);
     this.imagesService.filterImagePageInfo(normalizeFilterFormValue).subscribe();
     this.imagesService.setFilterFormValue(filterFormValue);
-    this.isFiltered = true;
+    this.imagesService.checkIsPageFiltered();
     this.imagesService.closeFilter();
   }
 
@@ -182,7 +186,12 @@ export class ImagesComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.imagesService.filterImagePageInfo(FilterFormInitialValue).subscribe();
     this.imagesService.setFilterFormValue(FilterFormInitialValue);
-    this.isFiltered = false;
+    this.imagesService.updateFilterColumnState(FilterFormInitialValue);
+    this.imagesService.checkIsPageFiltered();
+  }
+
+  onResetColumn(dropdownFieldNames: DropdownFieldNames): void {
+    this.imagesService.resetFilterField(dropdownFieldNames, DropdownSelectAllValue);
   }
 
   private getEnvironmentHealthStatus(): void {
@@ -192,6 +201,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
       },
       error => this.toastr.error(error.message, 'Oops!')
     );
+  }
+
+  private initFilteredColumnState(): void {
+    this.$filteredColumnState = this.imagesService.$filteredColumnState;
   }
 
   private getUserImagePageInfo(): void {
@@ -237,6 +250,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   private getIsProjectListEmpty(): void {
     this.$isProjectListEmpty = this.imagesService.$isProjectListEmpty;
+  }
+
+  private initIsImageListFiltered(): void {
+    this.$isFiltered = this.imagesService.$isImageListFiltered;
   }
 
   get isImageSelected(): boolean {
