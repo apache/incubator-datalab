@@ -44,14 +44,13 @@
         <label class="label">Status</label>
         <div class="control selector-wrapper">
             <span class="form-field-wrapper">
-              <mat-form-field>
+              <mat-form-field (click)="onSelectClick()">
                 <mat-select
                   [formControlName]="dropdownFieldNames.statuses"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.status"
                   multiple
-                  (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
                     {{statuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
@@ -83,14 +82,13 @@
         <label class="label">Endpoint</label>
         <div class="control selector-wrapper">
             <span class="form-field-wrapper">
-              <mat-form-field>
+              <mat-form-field (click)="onSelectClick()">
                 <mat-select
                   [formControlName]="dropdownFieldNames.endpoints"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.endpoint"
                   multiple
-                  (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
                     {{endpoints.value | normalizeDropdownMultiValue: selectAllValue}}
@@ -122,14 +120,13 @@
         <label class="label">Template name</label>
         <div class="control selector-wrapper">
             <span class="form-field-wrapper">
-              <mat-form-field>
+              <mat-form-field (click)="onSelectClick()">
                 <mat-select
                   [formControlName]="dropdownFieldNames.templateNames"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.templateName"
                   multiple
-                  (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
                     {{templateNames.value | normalizeDropdownMultiValue: selectAllValue}}
@@ -161,14 +158,13 @@
         <label class="label">Sharing</label>
         <div class="control selector-wrapper">
             <span class="form-field-wrapper">
-              <mat-form-field>
+              <mat-form-field (click)="onSelectClick()">
                 <mat-select
                   [formControlName]="dropdownFieldNames.sharingStatuses"
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.sharing"
                   multiple
-                  (click)="onSelectClick()"
                 >
                   <mat-select-trigger class="select__value">
                     {{sharingStatuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
