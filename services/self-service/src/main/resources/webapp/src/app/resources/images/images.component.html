@@ -285,7 +285,7 @@
 
       <ng-container matColumnDef="placeholder">
         <td mat-footer-cell *matFooterCellDef class="info" [colSpan]="displayedColumns.length - 1">
-          <span> There are no images yet </span>
+          <span>{{ isFiltered ? 'No matches found' : 'There are no images yet' }}</span>
         </td>
       </ng-container>
 
