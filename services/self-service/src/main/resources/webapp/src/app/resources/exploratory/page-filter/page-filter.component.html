@@ -18,10 +18,13 @@
   -->
 
 <div class="dialog-content selection">
+
+  <ng-container *ngIf="$setFilterValueObservable | async"></ng-container>
+
   <div id="scrolling" class="mat-reset scrolling-content">
     <form class="filter-table__wrapper" [formGroup]="filterForm">
       <div class="form-control__wrapper control-group">
-        <label class="label">Custom tag</label>
+        <label class="label">Image name</label>
         <input
           type="text"
           class="form-control"
@@ -59,7 +62,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(statuses, allStatusesSelected, dropdownFieldNames.statuses)"
                   >
-                   Select all found
+                   Select all
                   </mat-option>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).statuses"
@@ -98,7 +101,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(endpoints, allEndpointsSelected, dropdownFieldNames.endpoints)"
                   >
-                   Select all found
+                   Select all
                   </mat-option>
                   <mat-option
                     *ngFor="let endpoint of ($filterDropdownData | async).endpoints"
@@ -137,7 +140,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(templateNames, allTemplatesSelected, dropdownFieldNames.templateNames)"
                   >
-                   Select all found
+                   Select all
                   </mat-option>
                   <mat-option
                     *ngFor="let template of ($filterDropdownData | async).templateNames"
@@ -176,7 +179,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(sharingStatuses, allSharingStatusesSelected, dropdownFieldNames.sharingStatuses)"
                   >
-                   Select all found
+                   Select all
                   </mat-option>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).sharingStatuses"

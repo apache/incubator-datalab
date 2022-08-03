@@ -72,11 +72,13 @@ export class ImagesService {
   }
 
   getActiveProject(projectName: string): void {
+    const projectList = this.$$cashedProjectList.getValue();
     if (!projectName) {
-      this.updateProjectList(this.$$cashedProjectList.getValue());
+      this.updateProjectList(projectList);
     } else {
-      const currentProject = this.$$cashedProjectList.getValue().find(({project}) => project === projectName);
+      const currentProject = projectList.find(({project}) => project === projectName);
       this.updateProjectList([currentProject]);
+      this.$$isProjectListEmpty.next(this.isProjectListEmpty([currentProject]));
     }
   }
 
@@ -129,6 +131,24 @@ export class ImagesService {
       const filteredImageList = this.filterByCondition(this.$$projectList.getValue(), field, comparedValue);
       this.updateProjectList(filteredImageList);
     }
+  }
+
+  normalizeFilterFormValue(filterFormValue: ImageFilterFormValue, exceptionValue: string = '') {
+    if (!exceptionValue) {
+      return filterFormValue;
+    }
+    return (<any>Object).entries(filterFormValue)
+      .reduce((acc, fieldItem) => {
+        const [ fieldName, fieldValue ] = fieldItem;
+        let value;
+
+        if (typeof fieldValue === 'string') {
+          value = fieldValue;
+        } else {
+          value = fieldValue.filter(item => item !== exceptionValue);
+        }
+        return {...acc, [fieldName]: value};
+      }, <ImageFilterFormValue>{});
   }
 
   private filterByCondition(arr: ProjectModel[], field: keyof ImageModel, comparedValue: string) {

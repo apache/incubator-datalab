@@ -34,7 +34,11 @@ import {
   ImageStatuses,
   Localstorage_Key,
   Placeholders,
-  Shared_Status, DropdownFieldNames, FilterFormInitialValue, ImageModelKeysForFilter,
+  Shared_Status,
+  DropdownFieldNames,
+  FilterFormInitialValue,
+  ImageModelKeysForFilter,
+  DropdownSelectAllValue,
 } from './images.config';
 import { ShareImageDialogComponent } from '../exploratory/share-image/share-image-dialog.component';
 import { ImagesService } from './images.service';
@@ -153,7 +157,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onFilterApplyClick(filterFormValue: ImageFilterFormValue): void {
-    this.imagesService.filterImagePageInfo(filterFormValue).subscribe();
+    const normalizeFilterFormValue = this.imagesService.normalizeFilterFormValue(filterFormValue, DropdownSelectAllValue);
+    this.imagesService.filterImagePageInfo(normalizeFilterFormValue).subscribe();
     this.imagesService.setFilterFormValue(filterFormValue);
     this.isFiltered = true;
     this.imagesService.closeFilter();
@@ -164,7 +169,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onControlChanges(controlName: keyof ImageFilterFormDropdownData, inputValue: string): void {
-    this.imagesService.filterDropdownField(DropdownFieldNames.imageName, inputValue);
+    const normalizedInputValue = inputValue.toLowerCase();
+    this.imagesService.filterDropdownField(DropdownFieldNames.imageName, normalizedInputValue);
   }
 
   toggleShowActive(): void {
