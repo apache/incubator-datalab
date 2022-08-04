@@ -165,6 +165,9 @@ class ParamsBuilder:
     def add_int(self, name, desc, **kwargs):
         return self.add(int, name, desc, **kwargs)
 
+    def add_list(self, name, desc, **kwargs):
+        return self.add(list, name, desc, **kwargs)
+
     @staticmethod
     def str2bool(v):
         if isinstance(v, bool):
