@@ -29,7 +29,7 @@ export interface ShareImageAllUsersParams {
   endpoint: string;
 }
 
-export interface ModalData {
+export interface ShareModalData {
   image: ImageModel;
 }
 

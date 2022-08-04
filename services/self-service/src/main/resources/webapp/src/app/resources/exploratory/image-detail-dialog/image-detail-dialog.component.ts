@@ -19,7 +19,7 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {LibraryInfoItem, Library, ModalData} from '../../images';
+import {LibraryInfoItem, Library, ShareModalData} from '../../images';
 import {LibraryInfoModalComponent} from '../library-info-modal/library-info-modal.component';
 import {caseInsensitiveSortUtil} from '../../../core/util';
 
@@ -38,7 +38,7 @@ export class ImageDetailDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<ImageDetailDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ModalData,
+    @Inject(MAT_DIALOG_DATA) public data: ShareModalData,
     private dialog: MatDialog,
   ) { }
 

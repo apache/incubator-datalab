@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ImagesService } from '../../images/images.service';
-import { ModalData, Toaster_Message } from '../../images';
+import { ShareModalData, Toaster_Message } from '../../images';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -28,15 +28,19 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './share-image-dialog.component.html',
   styleUrls: ['./share-image-dialog.component.scss']
 })
-export class ShareImageDialogComponent {
+export class ShareImageDialogComponent implements OnInit{
   imageName!: string;
 
   constructor(
     public dialogRef: MatDialogRef<ShareImageDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ModalData,
+    @Inject(MAT_DIALOG_DATA) public data: ShareModalData,
     private imagesService: ImagesService,
     private toastr: ToastrService,
   ) { }
+
+  ngOnInit() {
+    this.imageName = this.data.image.name;
+  }
 
   onShare() {
     this.dialogRef.close();
