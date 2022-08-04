@@ -122,7 +122,9 @@
 .filer__wrapper {
   position: absolute;
   top: 46px;
-  left: 135px;
+  //UNCOMMENT AFTER UNCOMMENT ACTION MENU
+  //left: 135px;
+  left: -35px;
   z-index: 10;
 }
 

@@ -75,6 +75,10 @@ export class PageFilterComponent implements OnInit {
     this.closeFilter.emit();
   }
 
+  onClickOutside(): void {
+    this.closeFilter.emit();
+  }
+
   onControlChange(fieldName: keyof ImageFilterFormDropdownData): void {
     this.filterForm.get(fieldName)?.valueChanges.pipe(
       tap((inputValue: string) => this.onValueChanges.emit(inputValue))
