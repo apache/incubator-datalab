@@ -12,18 +12,6 @@
     ]
   },
   {
-    "_id": "imgTerminateOwnImages",
-    "description": "Allow to terminate own images",
-    "type": "IMAGE",
-    "cloud": "GENERAL",
-    "pages": [
-      "/api/image/delete"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
     "_id": "imgShareAllImages",
     "description": "Allow to share all images",
     "type": "IMAGE",

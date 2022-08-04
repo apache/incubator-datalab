@@ -290,10 +290,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     public ImageUserPermissions getUserImagePermissions(UserInfo userInfo, String imageName, String projectName, String endpoint) {
         boolean canShare;
         boolean canTerminate = false;
-        Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(userInfo.getName(), imageName, projectName, endpoint);
         if(imageExploratoryDao.getImage(userInfo.getName(), imageName, projectName, endpoint).isPresent()){
             canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_OWN_IMAGES_PAGE,userInfo.getRoles());
-            canTerminate = UserRoles.checkAccess(userInfo, RoleType.PAGE, TERMINATE_OWN_IMAGES_PAGE,userInfo.getRoles());
         } else {
             canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_RECEIVED_IMAGES_PAGE,userInfo.getRoles());
         }
