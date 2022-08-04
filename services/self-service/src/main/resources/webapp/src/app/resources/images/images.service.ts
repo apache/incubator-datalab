@@ -79,6 +79,7 @@ export class ImagesService {
     const projectList = this.$$cashedProjectList.getValue();
     if (!projectName) {
       this.updateProjectList(projectList);
+      this.$$isProjectListEmpty.next(this.isProjectListEmpty(projectList));
     } else {
       const currentProject = projectList.find(({project}) => project === projectName);
       this.updateProjectList([currentProject]);
