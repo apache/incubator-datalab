@@ -62,43 +62,44 @@
     <div class="button--wrapper">
 
 
-      <span class="action-button--wrapper">
-          <button
-            type="button"
-            class="butt action-button"
-            mat-raised-button
-            [disabled]="!isImageSelected"
-            (click)="onActionClick()"
-          >
-            Actions
-            <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>
-          </button>
-        <div class="action-menu" *ngIf="isActionsOpen">
-          <button
-            type="button"
-            class="butt action-menu-item"
-            mat-raised-button
-            [disabled]="true"
-          >
-            Terminate
-          </button>
+<!--      <span class="action-button&#45;&#45;wrapper">-->
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="butt action-button"-->
+<!--            mat-raised-button-->
+<!--            [disabled]="!isImageSelected"-->
+<!--            (click)="onActionClick()"-->
+<!--          >-->
+<!--            Actions-->
+<!--            <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>-->
+<!--          </button>-->
+<!--        <div class="action-menu" *ngIf="isActionsOpen">-->
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="butt action-menu-item"-->
+<!--            mat-raised-button-->
+<!--            [disabled]="true"-->
+<!--          >-->
+<!--            Terminate-->
+<!--          </button>-->
 
-          <button
-            type="button"
-            class="butt action-menu-item"
-            mat-raised-button
-            [disabled]="true"
-          >
-            Share
-          </button>
-        </div>
-      </span>
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="butt action-menu-item"-->
+<!--            mat-raised-button-->
+<!--            [disabled]="true"-->
+<!--          >-->
+<!--            Share-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </span>-->
 
       <button mat-raised-button [disabled]="!(dataSource | async)?.length && !($isFiltered | async)" class="butt filter__btn" (click)="onFilterClick()">
         <i class="material-icons" [ngClass]="{'filtered-icon': $isFiltered | async}">filter_list</i>
         <span class="filter__btn--name" [ngClass]="{'filtered-icon': $isFiltered | async}">Filter</span>
         <button *ngIf="$isFiltered | async" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
       </button>
+
       <div *ngIf="isFilterOpened | async" class="filer__wrapper">
         <datalab-page-filter
           [$filterDropdownData]="$filterDropdownData"
@@ -317,15 +318,15 @@
                       <span>Share</span>
                     </button>
                   </li>
-                  <li
-                    [matTooltip]=tooltipStatuses.unableTerminate
-                    matTooltipPosition="above"
-                  >
-                    <button class="action-button__share" disabled>
-                      <i class="material-icons">phonelink_off</i>
-                      <span>Terminate</span>
-                    </button>
-                  </li>
+<!--                  <li-->
+<!--                    [matTooltip]=tooltipStatuses.unableTerminate-->
+<!--                    matTooltipPosition="above"-->
+<!--                  >-->
+<!--                    <button class="action-button__share" disabled>-->
+<!--                      <i class="material-icons">phonelink_off</i>-->
+<!--                      <span>Terminate</span>-->
+<!--                    </button>-->
+<!--                  </li>-->
                 </ul>
               </bubble-up>
             </td>
