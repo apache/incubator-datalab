@@ -40,6 +40,7 @@ import { ShareImageDialogModule } from './exploratory/share-image/share-image-di
 import { ImageDetailDialogModule } from './exploratory/image-detail-dialog/image-detail-dialog.module';
 import {LibraryInfoModalModule} from './exploratory/library-info-modal/library-info-modal.module';
 import { PageFilterComponent } from './exploratory/page-filter/page-filter.component';
+import { DirectivesModule } from '../core/directives';
 
 @NgModule({
   imports: [
@@ -59,6 +60,7 @@ import { PageFilterComponent } from './exploratory/page-filter/page-filter.compo
     ShareImageDialogModule,
     ImageDetailDialogModule,
     LibraryInfoModalModule,
+    DirectivesModule
   ],
   declarations: [
     ResourcesComponent,

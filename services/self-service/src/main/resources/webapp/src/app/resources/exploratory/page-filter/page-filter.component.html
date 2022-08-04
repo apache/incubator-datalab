@@ -17,7 +17,11 @@
   ~ under the License.
   -->
 
-<div class="dialog-content selection">
+<div
+  class="dialog-content selection"
+  datalabClickedOutside
+  (clickedOutside)="onClickOutside()"
+>
 
   <ng-container *ngIf="$setFilterValueObservable | async"></ng-container>
 
