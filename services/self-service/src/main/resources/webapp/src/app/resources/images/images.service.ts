@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import {
   FilteredColumnList,
+  FilterFormItemType,
   ImageFilterFormDropdownData,
   ImageFilterFormValue,
   ImageModel,
@@ -26,7 +27,8 @@ export class ImagesService {
   // tslint:disable-next-line:max-line-length
   private $$filterDropdownData: BehaviorSubject<ImageFilterFormDropdownData> = new BehaviorSubject<ImageFilterFormDropdownData>({} as ImageFilterFormDropdownData);
   private $$filterFormValue: BehaviorSubject<ImageFilterFormValue> = new BehaviorSubject<ImageFilterFormValue>(FilterFormInitialValue);
-  private $$changedColumn: BehaviorSubject<FilteredColumnList> = new BehaviorSubject<FilteredColumnList>(ChangedColumnStartValue);
+  private $$filteredColumnState: BehaviorSubject<FilteredColumnList> = new BehaviorSubject<FilteredColumnList>(ChangedColumnStartValue);
+  private $$isImageListFiltered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private dropdownStartValue: ImageFilterFormDropdownData;
 
   $projectList = this.$$projectList.asObservable();
@@ -35,6 +37,8 @@ export class ImagesService {
   $isFilterOpened = this.$$isFilterOpened.asObservable();
   $filterDropdownData = this.$$filterDropdownData.asObservable();
   $filterFormValue = this.$$filterFormValue.asObservable();
+  $filteredColumnState = this.$$filteredColumnState.asObservable();
+  $isImageListFiltered = this.$$isImageListFiltered.asObservable();
 
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade,
@@ -72,11 +76,14 @@ export class ImagesService {
   }
 
   getActiveProject(projectName: string): void {
+    const projectList = this.$$cashedProjectList.getValue();
     if (!projectName) {
-      this.updateProjectList(this.$$cashedProjectList.getValue());
+      this.updateProjectList(projectList);
+      this.$$isProjectListEmpty.next(this.isProjectListEmpty(projectList));
     } else {
-      const currentProject = this.$$cashedProjectList.getValue().find(({project}) => project === projectName);
+      const currentProject = projectList.find(({project}) => project === projectName);
       this.updateProjectList([currentProject]);
+      this.$$isProjectListEmpty.next(this.isProjectListEmpty([currentProject]));
     }
   }
 
@@ -112,9 +119,19 @@ export class ImagesService {
     this.$$isFilterOpened.next(false);
   }
 
-  filterDropdownField(field: keyof ImageFilterFormDropdownData, value: string, ) {
+  filterDropdownField(field: keyof ImageFilterFormDropdownData, value: string, ): void {
     const filteredDropdownList = this.dropdownStartValue[field].filter(item => item.toLowerCase().includes(value));
     this.addFilterDropdownData({...this.$$filterDropdownData.value, imageName: filteredDropdownList});
+  }
+
+  resetFilterField(field: keyof ImageFilterFormDropdownData, exceptionValue: string = ''): void {
+    const droppedFieldValue = this.getDroppedFieldValue(field);
+    const updatedFilterFormValue = {...this.$$filterFormValue.value, [field]: droppedFieldValue};
+    const normalizeFormValue = this.normalizeFilterFormValue(updatedFilterFormValue, exceptionValue);
+    this.setFilterFormValue(updatedFilterFormValue);
+    this.updateFilterColumnState(normalizeFormValue);
+    this.filterImagePageInfo(normalizeFormValue).subscribe();
+    this.checkIsPageFiltered();
   }
 
   setFilterFormValue(value: ImageFilterFormValue): void {
@@ -129,6 +146,51 @@ export class ImagesService {
       const filteredImageList = this.filterByCondition(this.$$projectList.getValue(), field, comparedValue);
       this.updateProjectList(filteredImageList);
     }
+  }
+
+  normalizeFilterFormValue(filterFormValue: ImageFilterFormValue, exceptionValue: string = '') {
+    if (!exceptionValue) {
+      return filterFormValue;
+    }
+    return (<any>Object).entries(filterFormValue)
+      .reduce((acc, fieldItem) => this.filterFormValue(acc, fieldItem, exceptionValue), <ImageFilterFormValue>{});
+  }
+
+  updateFilterColumnState(filterFormValue: ImageFilterFormValue): void {
+    const columnStateList = (<any>Object).entries(filterFormValue)
+      .reduce((acc, fieldItem) => this.checkColumnState(acc, fieldItem), <FilteredColumnList>{});
+
+    this.$$filteredColumnState.next(columnStateList);
+  }
+
+  getDroppedFieldValue(field: keyof ImageFilterFormDropdownData): string | [] {
+    return typeof this.$$filterFormValue.value[field] === 'string'
+      ? ''
+      : [];
+  }
+
+  checkIsPageFiltered() {
+    const isImageListFiltered = (<any>Object).values(this.$$filteredColumnState.value).some(item => Boolean(item));
+    this.$$isImageListFiltered.next(isImageListFiltered);
+  }
+
+  private checkColumnState(acc: FilteredColumnList, fieldItem: FilterFormItemType): FilteredColumnList {
+    const [ fieldName, fieldValue ] = fieldItem;
+    let isColumnFiltered: boolean;
+    isColumnFiltered = typeof fieldValue === 'string' ? Boolean(fieldValue) : Boolean(fieldValue.length);
+    return  {...acc, [fieldName]: isColumnFiltered};
+  }
+
+  private filterFormValue(acc: ImageFilterFormValue, fieldItem: FilterFormItemType, exceptionValue: string = ''): ImageFilterFormValue {
+    const [ fieldName, fieldValue ] = fieldItem;
+    let value;
+
+    if (typeof fieldValue === 'string') {
+      value = fieldValue;
+    } else {
+      value = fieldValue.filter(item => item !== exceptionValue);
+    }
+    return {...acc, [fieldName]: value};
   }
 
   private filterByCondition(arr: ProjectModel[], field: keyof ImageModel, comparedValue: string) {

@@ -21,7 +21,7 @@ export enum Image_Table_Column_Headers {
   imageName = 'Image name',
   creationDate = 'Creation date',
   provider = 'Provider',
-  imageStatus = 'Image status',
+  imageStatus = 'Status',
   sharedStatus = 'Shared status',
   templateName = 'Template name',
   actions = 'Actions',
@@ -90,6 +90,7 @@ export const FilterFormInitialValue = {
     imageName: '',
     statuses: [],
     templateNames: [],
+    sharingStatuses: [],
 };
 
 export const ChangedColumnStartValue = {
@@ -97,6 +98,7 @@ export const ChangedColumnStartValue = {
     imageName: false,
     statuses: false,
     templateNames: false,
+    sharingStatuses: false,
 };
 
 export enum ImageModelKeysForFilter {
@@ -106,3 +108,6 @@ export enum ImageModelKeysForFilter {
   templateName = 'templateName',
   shared = 'shared'
 }
+
+export const DropdownSelectAllValue = 'selectAllFound';
+

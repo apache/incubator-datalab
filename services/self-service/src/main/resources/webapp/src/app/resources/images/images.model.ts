@@ -62,6 +62,7 @@ export interface ImageFilterFormValue {
   imageName: string;
   statuses: string[];
   templateNames: string[];
+  sharingStatuses: string[];
 }
 
 
@@ -75,4 +76,7 @@ export interface FilteredColumnList {
   statuses: boolean;
   endpoints: boolean;
   templateNames: boolean;
+  sharingStatuses: boolean;
 }
+
+export type FilterFormItemType = [string, string[] | string];

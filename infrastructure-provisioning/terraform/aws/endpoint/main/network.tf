@@ -90,42 +90,42 @@ resource "aws_security_group" "endpoint_sec_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 8084
     to_port     = 8084
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 8085
     to_port     = 8085
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 4822
     to_port     = 4822
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 8088
     to_port     = 8088
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
     ingress {
     from_port   = 3128
     to_port     = 3128
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   egress {

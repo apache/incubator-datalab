@@ -94,10 +94,10 @@
         </div>
       </span>
 
-      <button mat-raised-button [disabled]="!(dataSource | async)?.length" class="butt filter__btn" (click)="onFilterClick()">
-        <i class="material-icons">filter_list</i>
-        <span class="filter__btn--name">Filter</span>
-        <button *ngIf="isFiltered" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
+      <button mat-raised-button [disabled]="!(dataSource | async)?.length && !($isFiltered | async)" class="butt filter__btn" (click)="onFilterClick()">
+        <i class="material-icons" [ngClass]="{'filtered-icon': $isFiltered | async}">filter_list</i>
+        <span class="filter__btn--name" [ngClass]="{'filtered-icon': $isFiltered | async}">Filter</span>
+        <button *ngIf="$isFiltered | async" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
       </button>
       <div *ngIf="isFilterOpened | async" class="filer__wrapper">
         <datalab-page-filter
@@ -166,43 +166,93 @@
 
       <ng-container matColumnDef="imageName">
         <th mat-header-cell *matHeaderCellDef class="name-col header-cell">
-          <span class="label image-label">Image name</span>
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.imageName}">
+            {{tableHeaderCellTitles.imageName}}
+            <button
+              *ngIf="($filteredColumnState | async)?.imageName"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(dropdownFieldNames.imageName)"
+            >
+              &times;
+            </button>
+          </span>
         </th>
       </ng-container>
 
       <ng-container matColumnDef="imageStatus">
         <th mat-header-cell *matHeaderCellDef class="status-col header-cell">
-          <span class="label image-label"> Status </span>
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.statuses}">
+            {{tableHeaderCellTitles.imageStatus}}
+            <button
+              *ngIf="($filteredColumnState | async)?.statuses"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(dropdownFieldNames.statuses)"
+            >
+              &times;
+            </button>
+          </span>
         </th>
       </ng-container>
 
       <ng-container matColumnDef="creationDate">
         <th mat-header-cell *matHeaderCellDef class="shape-col header-cell">
-          <span class="label image-label"> Creation date </span>
+          <span class="label image-label"> {{tableHeaderCellTitles.creationDate}} </span>
         </th>
       </ng-container>
 
       <ng-container matColumnDef="endpoint">
         <th mat-header-cell *matHeaderCellDef class="tag-col header-cell">
-          <span class="label image-label"> Endpoint </span>
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.endpoints}">
+            {{tableHeaderCellTitles.endpoint}}
+            <button
+              *ngIf="($filteredColumnState | async)?.endpoints"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(dropdownFieldNames.endpoints)"
+            >
+              &times;
+            </button>
+          </span>
         </th>
       </ng-container>
 
       <ng-container matColumnDef="templateName">
         <th mat-header-cell *matHeaderCellDef class="resources-col label-header">
-          <span class="label image-label"> Template name </span>
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.templateNames}">
+            {{tableHeaderCellTitles.templateName}}
+            <button
+              *ngIf="($filteredColumnState | async)?.templateNames"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(dropdownFieldNames.templateNames)"
+            >
+              &times;
+            </button>
+          </span>
         </th>
       </ng-container>
 
       <ng-container matColumnDef="sharedStatus">
         <th mat-header-cell *matHeaderCellDef class="cost-col label-header">
-          <span class="label image-label"> Sharing </span>
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.sharingStatuses}">
+            {{tableHeaderCellTitles.sharedStatus}}
+            <button
+              *ngIf="($filteredColumnState | async)?.sharingStatuses"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(dropdownFieldNames.sharingStatuses)"
+            >
+              &times;
+            </button>
+          </span>
         </th>
       </ng-container>
 
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef class="settings label-header">
-          <span class="label image-label"> Actions </span>
+          <span class="label image-label"> {{tableHeaderCellTitles.actions}} </span>
         </th>
       </ng-container>
 
@@ -241,9 +291,6 @@
             <td class="cost-col image-table-cell">
               <div class="shared-status--wrapper">
                 <span class="shared-status"> {{element.sharingStatus | titlecase}} </span>
-                <span *ngIf="element.sharingStatus !== sharedStatus.private" class="currency_details">
-                <i class="material-icons">help_outline</i>
-              </span>
               </div>
             </td>
 
@@ -288,7 +335,7 @@
 
       <ng-container matColumnDef="placeholder">
         <td mat-footer-cell *matFooterCellDef class="info" [colSpan]="displayedColumns.length - 1">
-          <span> There are no images yet </span>
+          <span>{{ ($isFiltered | async) ? 'No matches found' : 'There are no images yet' }}</span>
         </td>
       </ng-container>
 

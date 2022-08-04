@@ -79,6 +79,7 @@
 
 .action-menu {
   position: absolute;
+  z-index: 10;
 }
 
 .action-menu-item:disabled {
@@ -214,7 +215,7 @@ table.resources {
   }
 
   & .resources-col.label-header {
-    width: 21.6%;
+    width: 21.3%;
   }
 
   & .settings.actions-col,
@@ -242,4 +243,21 @@ table.resources {
 
 table.resources .label-header.settings {
   padding-right: 15px !important;
+}
+
+td.mat-cell.image-page__project {
+  padding-left: 3.75%;
+}
+
+.filtered-icon {
+  color: #35afd5;
+}
+
+.label {
+  position: relative;
+}
+
+.header__close--btn.close__btn {
+  top: -15px;
+  right: -15px;
 }
