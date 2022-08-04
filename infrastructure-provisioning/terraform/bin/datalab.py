@@ -165,9 +165,6 @@ class ParamsBuilder:
     def add_int(self, name, desc, **kwargs):
         return self.add(int, name, desc, **kwargs)
 
-    def add_list(self, name, desc, **kwargs):
-        return self.add(list, name, desc, **kwargs)
-
     @staticmethod
     def str2bool(v):
         if isinstance(v, bool):
@@ -1018,7 +1015,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   default='false')
          .add_str('--billing_aws_account_id', 'The ID of ASW linked account', group='endpoint', default='')
          .add_str('--billing_tag', 'Billing tag', group='endpoint', default='datalab')
-         .add_list('--allowed_ip_cidrs', 'Allowed IP CIDRs for SGs', group='endpoint', default=['44.235.146.59/32'])
+         .add_str('--allowed_ip_cidrs', 'Allowed IP CIDRs for SGs', group='endpoint', default='["44.235.146.59/32"]')
          )
         return params.build()
 
