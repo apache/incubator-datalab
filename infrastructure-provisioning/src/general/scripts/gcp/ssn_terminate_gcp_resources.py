@@ -139,7 +139,6 @@ if __name__ == "__main__":
     logging.info("Removing SSN VPC")
     try:
         vpc_list = GCPMeta.get_list_vpc(args.service_base_name)
-        print(vpc_list)
         if args.pre_defined_vpc != 'True':
             if 'items' in vpc_list:
                 for i in vpc_list['items']:
