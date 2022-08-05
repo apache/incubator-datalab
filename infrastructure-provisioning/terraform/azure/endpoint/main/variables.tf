@@ -51,6 +51,11 @@ variable "subnet_id" {
   default = ""
 }
 
+variable "allowed_ip_cidrs" {
+  type = list(string)
+  default = ["0.0.0.0/0"]
+}
+
 variable "subnet_cidr" {}
 
 variable "endpoint_shape" {}

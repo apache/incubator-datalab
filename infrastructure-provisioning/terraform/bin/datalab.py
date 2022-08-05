@@ -1276,6 +1276,7 @@ class AzureEndpointBuilder(AbstractDeployBuilder):
          .add_str('--region_info', 'Azure region info', group='endpoint', default='')
          .add_str('--mongo_password', 'Mongo database password', group='endpoint')
          .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
+         .add_str('--allowed_ip_cidrs', 'Allowed IP CIDRs for SGs', group='endpoint', default='["0.0.0.0/0"]')
          .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
          )
         return params.build()

@@ -27,60 +27,49 @@ resource "azurerm_network_security_group" "enpoint-sg" {
   location            = data.azurerm_resource_group.data-endpoint-resource-group.location
   resource_group_name = data.azurerm_resource_group.data-endpoint-resource-group.name
   name                = local.endpoint_sg_name
-}
 
-resource "azurerm_network_security_rule" "inbound-1" {
-  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
-  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
-  name                        = "inbound-1"
-  direction                   = "Inbound"
-  access                      = "Allow"
-  priority                    = 100
-  source_address_prefix       = "*"
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "22"
-  protocol                    = "Tcp"
-}
+  security_rule {
+    name                       = "inbound-1"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "22"
+    destination_port_range     = "22"
+    source_address_prefix      = var.allowed_ip_cidrs
+  }
 
-resource "azurerm_network_security_rule" "inbound-2" {
-  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
-  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
-  name                        = "inbound-2"
-  direction                   = "Inbound"
-  access                      = "Allow"
-  priority                    = 200
-  source_address_prefix       = "*"
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "8084"
-  protocol                    = "Tcp"
-}
+  security_rule {
+    name                       = "inbound-2"
+    priority                   = 200
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "8084"
+    destination_port_range     = "8084"
+    source_address_prefix      = var.allowed_ip_cidrs
+  }
 
-resource "azurerm_network_security_rule" "inbound-3" {
-  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
-  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
-  name                        = "inbound-3"
-  direction                   = "Inbound"
-  access                      = "Allow"
-  priority                    = 300
-  source_address_prefix       = "*"
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "8088"
-  protocol                    = "Tcp"
-}
+  security_rule {
+    name                       = "inbound-3"
+    priority                   = 300
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "8088"
+    destination_port_range     = "8088"
+    source_address_prefix      = var.allowed_ip_cidrs
+  }
 
-resource "azurerm_network_security_rule" "outbound-1" {
-  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
-  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
-  name                        = "outbound-1"
-  direction                   = "Outbound"
-  access                      = "Allow"
-  priority                    = 100
-  source_address_prefix       = "*"
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "*"
-  protocol                    = "*"
+  security_rule {
+    name                       = "outbound-1"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
