@@ -149,6 +149,3 @@ if __name__ == "__main__":
     except Exception as err:
         logging.error('Error: {0}'.format(err))
         sys.exit(1)
-
-
-
