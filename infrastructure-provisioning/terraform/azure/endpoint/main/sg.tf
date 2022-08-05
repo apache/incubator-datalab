@@ -29,47 +29,47 @@ resource "azurerm_network_security_group" "enpoint-sg" {
   name                = local.endpoint_sg_name
 
   security_rule {
-    name                       = "inbound-1"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "22"
-    destination_port_range     = "22"
-    source_address_prefix      = var.allowed_ip_cidrs
+    name                         = "inbound-1"
+    priority                     = 100
+    direction                    = "Inbound"
+    access                       = "Allow"
+    protocol                     = "Tcp"
+    source_port_range            = "22"
+    destination_port_range       = "22"
+    source_address_prefixes      = var.allowed_ip_cidrs
   }
 
   security_rule {
-    name                       = "inbound-2"
-    priority                   = 200
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "8084"
-    destination_port_range     = "8084"
-    source_address_prefix      = var.allowed_ip_cidrs
+    name                         = "inbound-2"
+    priority                     = 200
+    direction                    = "Inbound"
+    access                       = "Allow"
+    protocol                     = "Tcp"
+    source_port_range            = "8084"
+    destination_port_range       = "8084"
+    source_address_prefixes      = var.allowed_ip_cidrs
   }
 
   security_rule {
-    name                       = "inbound-3"
-    priority                   = 300
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "8088"
-    destination_port_range     = "8088"
-    source_address_prefix      = var.allowed_ip_cidrs
+    name                         = "inbound-3"
+    priority                     = 300
+    direction                    = "Inbound"
+    access                       = "Allow"
+    protocol                     = "Tcp"
+    source_port_range            = "8088"
+    destination_port_range       = "8088"
+    source_address_prefixes      = var.allowed_ip_cidrs
   }
 
   security_rule {
-    name                       = "outbound-1"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
+    name                         = "outbound-1"
+    priority                     = 100
+    direction                    = "Inbound"
+    access                       = "Allow"
+    protocol                     = "*"
+    source_port_range            = "*"
+    destination_port_range       = "*"
+    source_address_prefix        = "*"
+    destination_address_prefix   = "*"
   }
 }

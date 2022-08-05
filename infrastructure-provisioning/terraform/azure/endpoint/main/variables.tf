@@ -52,7 +52,7 @@ variable "subnet_id" {
 }
 
 variable "allowed_ip_cidrs" {
-  type = list(string)
+  type    = list(string)
   default = ["0.0.0.0/0"]
 }
 
