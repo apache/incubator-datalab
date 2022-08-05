@@ -25,7 +25,7 @@ import { map, tap} from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
-import { HealthStatusService } from '../../core/services';
+import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
 import { FilteredColumnList, ImageFilterFormDropdownData, ImageFilterFormValue, ImageModel, ProjectModel } from './images.model';
 import {
   TooltipStatuses,
@@ -89,6 +89,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     private imagesService: ImagesService,
     private progressBarService: ProgressBarService,
     private route: ActivatedRoute,
+    private applicationSecurityService: ApplicationSecurityService
   ) { }
 
   ngOnInit(): void {
@@ -132,6 +133,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onRefreshClick(): void {
+    this.checkAuthorize();
     this.imagesService.getImagePageInfo().subscribe();
     this.activeProjectName = '';
   }
@@ -194,6 +196,12 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.resetFilterField(dropdownFieldNames, DropdownSelectAllValue);
   }
 
+  private checkAuthorize() {
+    this.applicationSecurityService.isLoggedIn().subscribe(() => {
+      this.getEnvironmentHealthStatus();
+    });
+  }
+
   private getEnvironmentHealthStatus(): void {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
       (result: GeneralEnvironmentStatus) => {
@@ -254,9 +262,5 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   private initIsImageListFiltered(): void {
     this.$isFiltered = this.imagesService.$isImageListFiltered;
-  }
-
-  get isImageSelected(): boolean {
-    return this.imagesService.isImageSelected();
   }
 }
