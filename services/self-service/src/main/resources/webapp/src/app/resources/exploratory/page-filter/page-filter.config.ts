@@ -18,7 +18,7 @@
  */
 
 export enum FilterFormPlaceholders {
-  imageName = 'Enter image name',
+  imageName = 'Search in images\' names',
   status = 'Select status',
   endpoint = 'Select endpoint',
   templateName = 'Select template name',

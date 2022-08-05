@@ -17,11 +17,7 @@
   ~ under the License.
   -->
 
-<div
-  class="dialog-content selection"
-  datalabClickedOutside
-  (clickedOutside)="onClickOutside()"
->
+<div class="dialog-content selection">
 
   <ng-container *ngIf="$setFilterValueObservable | async"></ng-container>
 
@@ -65,7 +61,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(statuses, allStatusesSelected, dropdownFieldNames.statuses)"
                   >
-                   Select all
+                   All
                   </mat-option>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).statuses"
@@ -103,7 +99,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(endpoints, allEndpointsSelected, dropdownFieldNames.endpoints)"
                   >
-                   Select all
+                   All
                   </mat-option>
                   <mat-option
                     *ngFor="let endpoint of ($filterDropdownData | async).endpoints"
@@ -141,7 +137,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(templateNames, allTemplatesSelected, dropdownFieldNames.templateNames)"
                   >
-                   Select all
+                   All
                   </mat-option>
                   <mat-option
                     *ngFor="let template of ($filterDropdownData | async).templateNames"
@@ -179,7 +175,7 @@
                     [value]="selectAllValue"
                     (click)="onClickAll(sharingStatuses, allSharingStatusesSelected, dropdownFieldNames.sharingStatuses)"
                   >
-                   Select all
+                   All
                   </mat-option>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).sharingStatuses"

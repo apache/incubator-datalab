@@ -94,21 +94,23 @@
 <!--        </div>-->
 <!--      </span>-->
 
-      <button mat-raised-button [disabled]="!(dataSource | async)?.length && !($isFiltered | async)" class="butt filter__btn" (click)="onFilterClick()">
-        <i class="material-icons" [ngClass]="{'filtered-icon': $isFiltered | async}">filter_list</i>
-        <span class="filter__btn--name" [ngClass]="{'filtered-icon': $isFiltered | async}">Filter</span>
-        <button *ngIf="$isFiltered | async" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
-      </button>
+      <div class="filter__wrapper">
+        <button mat-raised-button [disabled]="!(dataSource | async)?.length && !($isFiltered | async)" class="butt filter__btn" (click)="onFilterClick()">
+          <i class="material-icons" [ngClass]="{'filtered-icon': $isFiltered | async}">filter_list</i>
+          <span class="filter__btn--name" [ngClass]="{'filtered-icon': $isFiltered | async}">Filter</span>
+          <button *ngIf="$isFiltered | async" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
+        </button>
 
-      <div *ngIf="isFilterOpened | async" class="filer__wrapper">
-        <datalab-page-filter
-          [$filterDropdownData]="$filterDropdownData"
-          [$filterFormStartValue]="$filterFormValue"
-          (filterFormValue)="onFilterApplyClick($event)"
-          (closeFilter)="onFilterCancelClick()"
-          (onValueChanges)="onControlChanges(dropdownFieldNames.imageName, $event)"
-        >
-        </datalab-page-filter>
+        <div *ngIf="isFilterOpened | async" class="filer-pop-up__wrapper">
+          <datalab-page-filter
+            [$filterDropdownData]="$filterDropdownData"
+            [$filterFormStartValue]="$filterFormValue"
+            (filterFormValue)="onFilterApplyClick($event)"
+            (closeFilter)="onFilterCancelClick()"
+            (onValueChanges)="onControlChanges(dropdownFieldNames.imageName, $event)"
+          >
+          </datalab-page-filter>
+        </div>
       </div>
 
       <button
