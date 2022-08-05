@@ -68,11 +68,13 @@ variable "subnet_cidr" {
 }
 
 variable "firewall_ing_cidr_range" {
-  default = "0.0.0.0/0"
+  type = list(string)
+  default = ["0.0.0.0/0"]
 }
 
 variable "firewall_eg_cidr_range" {
-  default = "0.0.0.0/0"
+  type = list(string)
+  default = ["0.0.0.0/0"]
 }
 
 variable "endpoint_policies" {
