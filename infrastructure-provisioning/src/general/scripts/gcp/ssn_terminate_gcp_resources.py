@@ -137,12 +137,19 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info("Removing SSN VPC")
-    if args.pre_defined_vpc != 'True':
-        try:
-            GCPActions.remove_vpc(args.vpc_name)
-        except Exception as err:
-            logging.error('Error: {0}'.format(err))
-            logging.error("No such VPC")
-            sys.exit(1)
-    else:
-        logging.info('VPC is predefined, VPC will not be deleted')
+    try:
+        vpc_list = GCPMeta.get_list_vpc(args.service_base_name)
+        print(vpc_list)
+        if args.pre_defined_vpc != 'True':
+            if 'items' in vpc_list:
+                for i in vpc_list['items']:
+                    GCPActions.remove_vpc(i['name'])
+            else:
+                logging.info("Unable to find {0}".format(args.vpc_name))
+        else:
+            logging.info('VPC is predefined, VPC will not be deleted')
+    except Exception as err:
+        logging.error('Error: {0}'.format(err))
+        sys.exit(1)
+
+
