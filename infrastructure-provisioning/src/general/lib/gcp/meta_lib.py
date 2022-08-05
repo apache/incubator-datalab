@@ -553,23 +553,6 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
-    def get_list_vpc(self, filter_string=''):
-        try:
-            if not filter_string:
-                raise Exception("There are no filter_string was added for list VPC")
-            else:
-                request = self.service.networks().list(project=self.project,
-                                                       filter='name eq {}-.*'.format(filter_string))
-            result = request.execute()
-            return result
-        except Exception as err:
-            logging.info("Error with getting list VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(
-                file=sys.stdout))
-            append_result(str({"error": "Error with getting list VPC",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-            return ''
-
     def get_list_subnetworks(self, region, vpc_name='', filter_string=''):
         try:
             if not filter_string and not vpc_name:
