@@ -255,8 +255,4 @@ export class ImagesComponent implements OnInit, OnDestroy {
   private initIsImageListFiltered(): void {
     this.$isFiltered = this.imagesService.$isImageListFiltered;
   }
-
-  get isImageSelected(): boolean {
-    return this.imagesService.isImageSelected();
-  }
 }

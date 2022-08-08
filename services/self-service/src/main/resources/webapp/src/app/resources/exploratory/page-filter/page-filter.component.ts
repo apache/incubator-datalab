@@ -19,8 +19,10 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
+
+import isEqual from 'lodash.isequal';
 
 import { FilterFormPlaceholders } from './page-filter.config';
 import {
@@ -49,8 +51,13 @@ export class PageFilterComponent implements OnInit {
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
   readonly selectAllValue = DropdownSelectAllValue;
 
+  private $$isApplyBtnDisabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+  private filterFormStartValue: ImageFilterFormValue;
+
   filterForm: FormGroup;
   $setFilterValueObservable: Observable<ImageFilterFormValue>;
+  $changeIsApplyBtnDisabledObservable: Observable<ImageFilterFormValue>;
+  $isApplyBtnDisabled: Observable<boolean> = this.$$isApplyBtnDisabled.asObservable();
 
   constructor(
     private fb: FormBuilder
@@ -60,6 +67,7 @@ export class PageFilterComponent implements OnInit {
     this.createFilterForm();
     this.onControlChange(DropdownFieldNames.imageName);
     this.setFilterValue();
+    this.isFilterFormChanged();
   }
 
   onSelectClick(): void {
@@ -103,7 +111,16 @@ export class PageFilterComponent implements OnInit {
   }
 
   private setFilterValue(): void {
-    this.$setFilterValueObservable = this.$filterFormStartValue.pipe(tap(value => this.filterForm.patchValue(value)));
+    this.$setFilterValueObservable = this.$filterFormStartValue.pipe(
+      tap(value => this.filterFormStartValue = value),
+      tap(value => this.filterForm.patchValue(value)
+      ));
+  }
+
+  private isFilterFormChanged(): void {
+    this.$changeIsApplyBtnDisabledObservable = this.filterForm.valueChanges.pipe(
+      tap(formValue => this.$$isApplyBtnDisabled.next(isEqual(formValue, this.filterFormStartValue)))
+    );
   }
 
   get statuses() {
