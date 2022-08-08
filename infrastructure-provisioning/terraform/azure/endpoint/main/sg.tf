@@ -34,8 +34,8 @@ resource "azurerm_network_security_group" "enpoint-sg" {
     direction                    = "Inbound"
     access                       = "Allow"
     protocol                     = "Tcp"
-    source_port_ranges           = ["22", "8084", "8088"]
-    destination_port_range       = "*"
+    source_port_range            = "*"
+    destination_port_ranges      = ["22", "8084", "8088"]
     source_address_prefixes      = var.allowed_ip_cidrs
     destination_address_prefix   = "*"
   }
