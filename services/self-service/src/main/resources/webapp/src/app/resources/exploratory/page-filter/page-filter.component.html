@@ -20,6 +20,7 @@
 <div class="dialog-content selection">
 
   <ng-container *ngIf="$setFilterValueObservable | async"></ng-container>
+  <ng-container *ngIf="$changeIsApplyBtnDisabledObservable | async"></ng-container>
 
   <div id="scrolling" class="mat-reset">
     <form class="filter-table__wrapper" [formGroup]="filterForm">
@@ -194,7 +195,15 @@
 
       <div class="text-center m-top-20">
         <button type="button" class="butt" mat-raised-button (click)="cancelFilter()" >Cancel</button>
-        <button type="button" class="butt butt-success" mat-raised-button (click)="confirmFilter()" >Apply</button>
+        <button
+          type="button"
+          [disabled]="($isApplyBtnDisabled | async)"
+          class="butt butt-success"
+          mat-raised-button
+          (click)="confirmFilter()"
+        >
+          Apply
+        </button>
       </div>
     </form>
   </div>
