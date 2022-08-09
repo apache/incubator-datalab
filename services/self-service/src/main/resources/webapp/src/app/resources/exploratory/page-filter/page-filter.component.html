@@ -51,7 +51,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.status"
-                  multiple
+                  [multiple]="($filterDropdownData | async).statuses.length > 1"
                 >
                   <mat-select-trigger class="select__value">
                     {{statuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
@@ -89,7 +89,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.endpoint"
-                  multiple
+                  [multiple]="($filterDropdownData | async).endpoints.length > 1"
                 >
                   <mat-select-trigger class="select__value">
                     {{endpoints.value | normalizeDropdownMultiValue: selectAllValue}}
@@ -127,7 +127,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.templateName"
-                  multiple
+                  [multiple]="($filterDropdownData | async).templateNames.length > 1"
                 >
                   <mat-select-trigger class="select__value">
                     {{templateNames.value | normalizeDropdownMultiValue: selectAllValue}}
@@ -165,7 +165,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.sharing"
-                  multiple
+                  [multiple]="($filterDropdownData | async).sharingStatuses.length > 1"
                 >
                   <mat-select-trigger class="select__value">
                     {{sharingStatuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
