@@ -67,7 +67,7 @@ export class PageFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.createFilterForm();
-    this.onControlChange(FilterFormControlNames.imageName);
+    this.onControlChange(this.controlNames.imageName);
     this.setFilterValue();
     this.isFilterFormChanged();
   }
