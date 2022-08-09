@@ -42,8 +42,8 @@ public interface ImageExploratoryService {
 
     List<ImageInfoRecord> getImagesForProject(String project);
 
-    List<ProjectImagesInfo> getImagesOfUser(UserInfo user);
-    List<ProjectImagesInfo> getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
+    ProjectImagesInfo getImagesOfUser(UserInfo user);
+    ProjectImagesInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
 
     void shareImageWithProjectGroups(UserInfo user, String imageName, String projectName, String endpoint);
 
@@ -51,6 +51,6 @@ public interface ImageExploratoryService {
 
     List<ImageInfoRecord> getSharedImages(UserInfo userInfo, String dockerImage, String project, String endpoint);
 
-    ImageUserPermissions getUserImagePermissions(UserInfo userInfo, String imageName, String projectName, String endpoint);
+    ImageUserPermissions getUserImagePermissions(UserInfo userInfo, ImageInfoRecord image);
 
 }

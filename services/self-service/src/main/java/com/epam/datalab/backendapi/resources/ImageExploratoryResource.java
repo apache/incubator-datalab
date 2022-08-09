@@ -102,7 +102,7 @@ public class ImageExploratoryResource {
     @Path("user")
     public Response getImagesForUser(@Auth UserInfo ui) {
         log.debug("Getting images for user {}", ui.getName());
-        final List<ProjectImagesInfo> images = imageExploratoryService.getImagesOfUser(ui);
+        final ProjectImagesInfo images = imageExploratoryService.getImagesOfUser(ui);
         return Response.ok(images).build();
     }
 
@@ -110,7 +110,7 @@ public class ImageExploratoryResource {
     @Path("user")
     public Response getImagesForUser(@Auth UserInfo ui, @Valid @NotNull ImageFilter imageFilter) {
         log.debug("Getting images for user {} with filter {}", ui.getName(), imageFilter);
-        final List<ProjectImagesInfo> images = imageExploratoryService.getImagesOfUserWithFilter(ui, imageFilter);
+        final ProjectImagesInfo images = imageExploratoryService.getImagesOfUserWithFilter(ui, imageFilter);
         return Response.ok(images).build();
     }
 
@@ -133,10 +133,4 @@ public class ImageExploratoryResource {
         return Response.ok(imageExploratoryService.getImagesOfUser(ui)).build();
     }
 
-    @POST
-    @Path("roles")
-    public Response getUserImagePermissions(@Auth UserInfo ui, @Valid @NotNull ImageProjectGroupsShareDTO dto){
-        return Response.ok(
-                imageExploratoryService.getUserImagePermissions(ui,dto.getImageName(),dto.getProjectName(), dto.getEndpoint())).build();
-    }
 }

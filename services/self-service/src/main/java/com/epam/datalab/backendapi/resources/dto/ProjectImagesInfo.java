@@ -26,6 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @Builder
@@ -33,7 +34,9 @@ import java.util.List;
 @ToString
 public class ProjectImagesInfo {
     @JsonProperty
-    private String project;
+    private Map<String,List<ImageInfoRecord>> projectImages;
     @JsonProperty
-    private List<ImageInfoRecord> images;
+    private ImageFilter imageFilter;
+    @JsonProperty
+    private ImageFilterFormData filterData;
 }

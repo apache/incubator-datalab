@@ -26,21 +26,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ImageFilter {
     @NonNull
-    private String imageName;
+    private String imageName = "";
     @NonNull
-    private List<ImageStatus> statuses;
+    private Set<ImageStatus> statuses = new HashSet<>();
     @NonNull
-    private List<String> endpoints;
+    private Set<String> endpoints = new HashSet<>();
     @NonNull
-    private List<String> templateNames;
+    private Set<String> templateNames = new HashSet<>();
     @NonNull
-    private List<ImageSharingStatus> sharingStatuses;
+    private Set<ImageSharingStatus> sharingStatuses = new HashSet<>();
 
 }
