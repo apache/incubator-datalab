@@ -50,6 +50,12 @@
   transform: translateX(-15px) !important;
 }
 
+::ng-deep .cdk-overlay-pane.normalized-dropdown-position {
+  &  .mat-option:first-child .mat-pseudo-checkbox {
+    display: block;
+  }
+}
+
 .select__value {
   color: #607d8b;
 }
