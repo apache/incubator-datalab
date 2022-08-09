@@ -53,14 +53,12 @@ if __name__ == "__main__":
             notebook_config['notebook_ip'] = get_instance_private_ip_address(
                 notebook_config['tag_name'], notebook_config['notebook_name'])
             notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-            notebook_config['python_version'] = os.environ['notebook_python_venv_version']
         except Exception as err:
             print('Error: {0}'.format(err))
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --instance_ip {} --keyfile '{}' --group {} --python_version {}" \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'],
-                    notebook_config['group_name'], notebook_config['python_version'])
+        params = "--os_user {} --instance_ip {} --keyfile '{}' --group {}" \
+            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'], notebook_config['group_name'])
         try:
             # Run script to get available libs
             subprocess.run("~/scripts/{}.py {}".format('get_list_available_pkgs', params), shell=True, check=True)
