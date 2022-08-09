@@ -211,6 +211,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
     );
   }
 
+  onClickOutside() {
+    this.imagesService.closeFilter();
+  }
+
   private initFilteredColumnState(): void {
     this.$filteredColumnState = this.imagesService.$filteredColumnState;
   }
