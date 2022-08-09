@@ -23,7 +23,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.ImageFilter;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.datalab.backendapi.resources.dto.ImageUserPermissions;
-import com.epam.datalab.backendapi.resources.dto.ProjectImagesInfo;
+import com.epam.datalab.backendapi.resources.dto.ImagesPageInfo;
 import com.epam.datalab.model.exploratory.Image;
 
 import java.util.List;
@@ -42,8 +42,8 @@ public interface ImageExploratoryService {
 
     List<ImageInfoRecord> getImagesForProject(String project);
 
-    ProjectImagesInfo getImagesOfUser(UserInfo user);
-    ProjectImagesInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
+    ImagesPageInfo getImagesOfUser(UserInfo user);
+    ImagesPageInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
 
     void shareImageWithProjectGroups(UserInfo user, String imageName, String projectName, String endpoint);
 

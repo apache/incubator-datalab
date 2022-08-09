@@ -102,7 +102,7 @@ public class ImageExploratoryResource {
     @Path("user")
     public Response getImagesForUser(@Auth UserInfo ui) {
         log.debug("Getting images for user {}", ui.getName());
-        final ProjectImagesInfo images = imageExploratoryService.getImagesOfUser(ui);
+        final ImagesPageInfo images = imageExploratoryService.getImagesOfUser(ui);
         return Response.ok(images).build();
     }
 
@@ -110,7 +110,7 @@ public class ImageExploratoryResource {
     @Path("user")
     public Response getImagesForUser(@Auth UserInfo ui, @Valid @NotNull ImageFilter imageFilter) {
         log.debug("Getting images for user {} with filter {}", ui.getName(), imageFilter);
-        final ProjectImagesInfo images = imageExploratoryService.getImagesOfUserWithFilter(ui, imageFilter);
+        final ImagesPageInfo images = imageExploratoryService.getImagesOfUserWithFilter(ui, imageFilter);
         return Response.ok(images).build();
     }
 

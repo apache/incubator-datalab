@@ -190,12 +190,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public ProjectImagesInfo getImagesOfUser(UserInfo user) {
+    public ImagesPageInfo getImagesOfUser(UserInfo user) {
         log.debug("Loading list of images for user {}", user.getName());
-        Map<String, List<ImageInfoRecord>> projectImages = new HashMap<>();
-        projectService.getUserProjects(user, Boolean.FALSE).stream()
-                .map(ProjectDTO::getName)
-                .forEach(name->projectImages.put(name, new ArrayList<>()));
 
         List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName());
         images.forEach(img -> img.setSharingStatus(getImageSharingStatus(user.getName(),img)));
@@ -210,20 +206,29 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         userSettingsDAO.setUserImageFilter(user.getName(),imageFilter);
         images.forEach(img -> img.setImageUserPermissions(getUserImagePermissions(user,img)));
 
-        projectImages.putAll(images.stream().collect(Collectors.groupingBy(ImageInfoRecord::getProject)));
-        return ProjectImagesInfo.builder()
-                .projectImages(projectImages)
+
+        final List<ImageInfoRecord> finalImages = images;
+
+        List<ProjectImagesInfo> projectImagesInfoList = projectService.getUserProjects(user, Boolean.FALSE)
+                .stream()
+                .map(p -> {
+                    List<ImageInfoRecord> im = finalImages.stream().filter(img -> img.getProject().equals(p.getName())).collect(Collectors.toList());
+                    return ProjectImagesInfo.builder()
+                            .project(p.getName())
+                            .images(im)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return ImagesPageInfo.builder()
+                .projectImagesInfos(projectImagesInfoList)
                 .imageFilter(userSettingsDAO.getImageFilter(user.getName()).get())
                 .filterData(filterData).build();
     }
 
     @Override
-    public ProjectImagesInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter) {
+    public ImagesPageInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter) {
         log.debug("Loading list of images for user {}", user.getName());
-        Map<String, List<ImageInfoRecord>> projectImages = new HashMap<>();
-        projectService.getUserProjects(user, Boolean.FALSE).stream()
-                .map(ProjectDTO::getName)
-                .forEach(name->projectImages.put(name, new ArrayList<>()));
 
         List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName());
         images.forEach(img -> img.setSharingStatus(getImageSharingStatus(user.getName(),img)));
@@ -236,9 +241,21 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
         images.forEach(img -> img.setImageUserPermissions(getUserImagePermissions(user,img)));
 
-        projectImages.putAll(images.stream().collect(Collectors.groupingBy(ImageInfoRecord::getProject)));
-        return ProjectImagesInfo.builder()
-                .projectImages(projectImages)
+
+        List<ImageInfoRecord> finalImages = images;
+
+        List<ProjectImagesInfo> projectImagesInfoList = projectService.getUserProjects(user, Boolean.FALSE)
+                .stream()
+                .map(p -> {
+                    List<ImageInfoRecord> im = finalImages.stream().filter(img -> img.getProject().equals(p.getName())).collect(Collectors.toList());
+                    return ProjectImagesInfo.builder()
+                            .project(p.getName())
+                            .images(im)
+                            .build();
+                })
+                .collect(Collectors.toList());
+        return ImagesPageInfo.builder()
+                .projectImagesInfos(projectImagesInfoList)
                 .filterData(filterData)
                 .imageFilter(imageFilter)
                 .build();
