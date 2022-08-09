@@ -86,10 +86,11 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
                 ImageInfoRecord.class);
     }
 
+
     @Override
-    public List<ImageInfoRecord> getImagesOfUser(String user, String project) {
+    public List<ImageInfoRecord> getImagesOfUser(String user) {
         return find(MongoCollections.IMAGES,
-                imageUserProjectCondition(user, project),
+                eq(USER, user),
                 ImageInfoRecord.class);
     }
 

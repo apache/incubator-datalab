@@ -40,7 +40,7 @@ public interface ImageExploratoryDAO {
 
     List<ImageInfoRecord> getImages(String project, String endpoint, String dockerImage);
 
-    List<ImageInfoRecord> getImagesOfUser(String user, String project);
+    List<ImageInfoRecord> getImagesOfUser(String user);
 
     List<ImageInfoRecord> getImagesForProject(String project);
 

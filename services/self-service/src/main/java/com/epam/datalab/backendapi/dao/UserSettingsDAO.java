@@ -30,6 +30,7 @@ import org.bson.Document;
 import java.util.Optional;
 
 import static com.epam.datalab.backendapi.dao.MongoCollections.USER_SETTINGS;
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;
@@ -81,9 +82,15 @@ public class UserSettingsDAO extends BaseDAO {
     }
 
     public Optional<ImageFilter> getImageFilter(String user){
-        return findOne(USER_SETTINGS, eq(ID, user),
+         return findOne(USER_SETTINGS, and(eq(ID, user), notNull(USER_IMAGE_FILTER)),
                 fields(include(USER_IMAGE_FILTER), excludeId()))
-                .map(d -> convertFromDocument((Document) d.get(USER_IMAGE_FILTER), ImageFilter.class));
+                 .map(d -> convertFromDocument((Document) d.get(USER_IMAGE_FILTER), ImageFilter.class));
+
+//         if(doc.isPresent()){
+//             return doc.map(d -> convertFromDocument((Document) d.get(USER_IMAGE_FILTER), ImageFilter.class)).get();
+//         }
+//         return new ImageFilter();
+
     }
 
 

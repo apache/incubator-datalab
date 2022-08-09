@@ -48,6 +48,7 @@ public class ImageInfoRecord {
     private final String fullName;
     private final ImageStatus status;
     private ImageSharingStatus sharingStatus;
+    private ImageUserPermissions imageUserPermissions;
     private final List<ClusterConfig> clusterConfig;
     private final String exploratoryURL;
     private final List<Library> libraries;
