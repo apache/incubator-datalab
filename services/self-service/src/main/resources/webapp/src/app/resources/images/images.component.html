@@ -111,7 +111,7 @@
             [$filterFormStartValue]="$filterFormValue"
             (filterFormValue)="onFilterApplyClick($event)"
             (closeFilter)="onFilterCancelClick()"
-            (onValueChanges)="onControlChanges(dropdownFieldNames.imageName, $event)"
+            (onValueChanges)="onControlChanges(dropdownFieldNames.imageNames, $event)"
           >
           </datalab-page-filter>
         </div>
@@ -179,7 +179,7 @@
               *ngIf="($filteredColumnState | async)?.imageName"
               type="button"
               class="close__btn header__close--btn"
-              (click)="onResetColumn(dropdownFieldNames.imageName)"
+              (click)="onResetColumn(dropdownFieldNames.imageNames)"
             >
               &times;
             </button>

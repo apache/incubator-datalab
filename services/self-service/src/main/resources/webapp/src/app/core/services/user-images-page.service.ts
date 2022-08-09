@@ -23,7 +23,11 @@ import {  catchError } from 'rxjs/operators';
 import {  ErrorUtils } from '../util';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
-import {ImageFilterFormDropdownData, ImageFilterFormValue, ProjectModel, ShareImageAllUsersParams} from '../../resources/images';
+import {
+  ImageFilterFormValue,
+  ProjectImagesInfo,
+  ShareImageAllUsersParams
+} from '../../resources/images';
 
 @Injectable()
 export class UserImagesPageService {
@@ -32,21 +36,21 @@ export class UserImagesPageService {
   ) { }
 
 
-  getFilterImagePage(): Observable<ProjectModel[]> {
+  getFilterImagePage(): Observable<ProjectImagesInfo> {
     return this.applicationServiceFacade.buildGetUserImagePage()
       .pipe(
         catchError(ErrorUtils.handleServiceError)
       );
   }
 
-  filterImagePage(params: ImageFilterFormValue): Observable<ProjectModel[]> {
+  filterImagePage(params: ImageFilterFormValue): Observable<ProjectImagesInfo> {
     return this.applicationServiceFacade.buildFilterUserImagePage(params)
       .pipe(
         catchError(ErrorUtils.handleServiceError)
       );
   }
 
-  shareImagesAllUser(shareParams: ShareImageAllUsersParams): Observable<ProjectModel[]> {
+  shareImagesAllUser(shareParams: ShareImageAllUsersParams): Observable<ProjectImagesInfo> {
     return this.applicationServiceFacade.buildShareImageAllUsers(shareParams)
       .pipe(
         catchError(ErrorUtils.handleServiceError)

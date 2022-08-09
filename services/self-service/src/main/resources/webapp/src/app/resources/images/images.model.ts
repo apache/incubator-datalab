@@ -1,3 +1,9 @@
+export interface ProjectImagesInfo {
+  filterData: ImageFilterFormDropdownData;
+  imageFilter: ImageFilterFormValue;
+  projectImagesInfos: ProjectModel[];
+}
+
 export interface ProjectModel {
   project: string;
   images: ImageModel[];
@@ -50,7 +56,7 @@ export interface ClusterConfig {
 }
 
 export interface ImageFilterFormDropdownData {
-  imageName: string[];
+  imageNames: string[];
   statuses: string[];
   endpoints: string[];
   templateNames: string[];
@@ -72,7 +78,7 @@ export interface LibraryInfoItem {
 }
 
 export interface FilteredColumnList {
-  imageName: boolean;
+  imageNames: boolean;
   statuses: boolean;
   endpoints: boolean;
   templateNames: boolean;
