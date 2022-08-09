@@ -56,6 +56,12 @@
   }
 }
 
+::ng-deep .cdk-overlay-pane.normalized-dropdown-position {
+  &  .mat-option:first-child.single-option .mat-pseudo-checkbox {
+    display: none;
+  }
+}
+
 .select__value {
   color: #607d8b;
 }

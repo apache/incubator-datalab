@@ -19,6 +19,7 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { MatOption } from '@angular/material/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 
@@ -28,10 +29,10 @@ import { FilterFormPlaceholders } from './page-filter.config';
 import {
   DropdownFieldNames,
   DropdownSelectAllValue,
+  FilterFormControlNames,
   ImageFilterFormDropdownData,
   ImageFilterFormValue
 } from '../../images';
-import { MatOption } from '@angular/material/core';
 
 @Component({
   selector: 'datalab-page-filter',
@@ -49,6 +50,7 @@ export class PageFilterComponent implements OnInit {
 
   readonly placeholders: typeof FilterFormPlaceholders = FilterFormPlaceholders;
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
+  readonly controlNames: typeof FilterFormControlNames = FilterFormControlNames;
   readonly selectAllValue = DropdownSelectAllValue;
 
   private $$isApplyBtnDisabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
@@ -65,7 +67,7 @@ export class PageFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.createFilterForm();
-    this.onControlChange(DropdownFieldNames.imageName);
+    this.onControlChange(FilterFormControlNames.imageName);
     this.setFilterValue();
     this.isFilterFormChanged();
   }
@@ -83,7 +85,7 @@ export class PageFilterComponent implements OnInit {
     this.closeFilter.emit();
   }
 
-  onControlChange(fieldName: keyof ImageFilterFormDropdownData): void {
+  onControlChange(fieldName: keyof ImageFilterFormValue): void {
     this.filterForm.get(fieldName)?.valueChanges.pipe(
       tap((inputValue: string) => this.onValueChanges.emit(inputValue))
     ).subscribe();
@@ -112,9 +114,13 @@ export class PageFilterComponent implements OnInit {
 
   private setFilterValue(): void {
     this.$setFilterValueObservable = this.$filterFormStartValue.pipe(
-      tap(value => this.filterFormStartValue = value),
-      tap(value => this.filterForm.patchValue(value)
-      ));
+      tap(value => this.updateFilterForm(value))
+      );
+  }
+
+  private updateFilterForm(value: ImageFilterFormValue): void {
+    this.filterFormStartValue = value;
+    this.filterForm.patchValue(value);
   }
 
   private isFilterFormChanged(): void {

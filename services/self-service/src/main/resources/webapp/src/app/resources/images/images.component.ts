@@ -176,7 +176,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   onControlChanges(controlName: keyof ImageFilterFormDropdownData, inputValue: string): void {
     const normalizedInputValue = inputValue.toLowerCase();
-    this.imagesService.filterDropdownField(DropdownFieldNames.imageName, normalizedInputValue);
+    this.imagesService.filterDropdownField(DropdownFieldNames.imageNames, normalizedInputValue);
   }
 
   toggleShowActive(): void {
@@ -222,9 +222,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   private getUserImagePageInfo(): void {
     this.route.data.pipe(
       map(data => data['projectList']),
-      tap(projectList => {
-        return this.getProjectList(projectList);
-      })
+      tap(({projectImagesInfos}) => this.getProjectList(projectImagesInfos))
     ).subscribe();
   }
 

@@ -1,23 +1,23 @@
 import { Injectable } from '@angular/core';
-import {ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
-import {EMPTY, Observable, of} from 'rxjs';
+import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
+import { Observable, of  } from 'rxjs';
 
-import {ImagesService} from '../../resources/images/images.service';
-import {ProjectModel} from '../../resources/images';
-import {switchMap, take} from 'rxjs/operators';
+import { ImagesService } from '../../resources/images/images.service';
+import { ProjectImagesInfo } from '../../resources/images';
+import { switchMap, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ImagePageResolveGuard implements Resolve<ProjectModel[]> {
+export class ImagePageResolveGuard implements Resolve<ProjectImagesInfo> {
   constructor(
     private router: Router,
     private imagesService: ImagesService
   ) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ProjectModel[]> {
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ProjectImagesInfo> {
     return this.imagesService.getImagePageInfo().pipe(
-      switchMap((projectList: ProjectModel[]) => of(projectList)),
+      switchMap((imagePageData: ProjectImagesInfo) => of(imagePageData)),
       take(1)
     );
   }

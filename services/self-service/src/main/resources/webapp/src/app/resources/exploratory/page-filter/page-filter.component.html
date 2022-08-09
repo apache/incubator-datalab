@@ -30,12 +30,12 @@
           type="text"
           class="form-control"
           [placeholder]="placeholders.imageName"
-          [formControlName]="dropdownFieldNames.imageName"
+          [formControlName]="controlNames.imageName"
           matInput
           [matAutocomplete]="auto"
         />
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-          <mat-option *ngFor="let option of ($filterDropdownData | async).imageName" [value]="option">
+          <mat-option *ngFor="let option of ($filterDropdownData | async).imageNames" [value]="option">
             {{option}}
           </mat-option>
         </mat-autocomplete>
@@ -51,7 +51,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.status"
-                  [multiple]="($filterDropdownData | async).statuses.length > 1"
+                  multiple
                 >
                   <mat-select-trigger class="select__value">
                     {{statuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
@@ -66,6 +66,7 @@
                   </mat-option>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).statuses"
+                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
                     [value]="status"
                   >
                     {{ status | titlecase }}
@@ -89,7 +90,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.endpoint"
-                  [multiple]="($filterDropdownData | async).endpoints.length > 1"
+                  multiple
                 >
                   <mat-select-trigger class="select__value">
                     {{endpoints.value | normalizeDropdownMultiValue: selectAllValue}}
@@ -104,6 +105,7 @@
                   </mat-option>
                   <mat-option
                     *ngFor="let endpoint of ($filterDropdownData | async).endpoints"
+                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
                     [value]="endpoint"
                   >
                     {{ endpoint }}
@@ -127,7 +129,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.templateName"
-                  [multiple]="($filterDropdownData | async).templateNames.length > 1"
+                  multiple
                 >
                   <mat-select-trigger class="select__value">
                     {{templateNames.value | normalizeDropdownMultiValue: selectAllValue}}
@@ -142,6 +144,7 @@
                   </mat-option>
                   <mat-option
                     *ngFor="let template of ($filterDropdownData | async).templateNames"
+                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
                     [value]="template"
                   >
                     {{ template }}
@@ -165,7 +168,7 @@
                   disableOptionCentering
                   panelClass="create-resources-dialog scrolling"
                   [placeholder]="placeholders.sharing"
-                  [multiple]="($filterDropdownData | async).sharingStatuses.length > 1"
+                  multiple
                 >
                   <mat-select-trigger class="select__value">
                     {{sharingStatuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
@@ -180,6 +183,7 @@
                   </mat-option>
                   <mat-option
                     *ngFor="let status of ($filterDropdownData | async).sharingStatuses"
+                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
                     [value]="status"
                   >
                     {{ status | titlecase }}
