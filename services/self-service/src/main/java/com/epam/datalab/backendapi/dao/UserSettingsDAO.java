@@ -85,12 +85,6 @@ public class UserSettingsDAO extends BaseDAO {
          return findOne(USER_SETTINGS, and(eq(ID, user), notNull(USER_IMAGE_FILTER)),
                 fields(include(USER_IMAGE_FILTER), excludeId()))
                  .map(d -> convertFromDocument((Document) d.get(USER_IMAGE_FILTER), ImageFilter.class));
-
-//         if(doc.isPresent()){
-//             return doc.map(d -> convertFromDocument((Document) d.get(USER_IMAGE_FILTER), ImageFilter.class)).get();
-//         }
-//         return new ImageFilter();
-
     }
 
 
