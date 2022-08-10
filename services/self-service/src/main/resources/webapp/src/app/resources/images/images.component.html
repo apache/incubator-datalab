@@ -306,33 +306,29 @@
                 <span class="currency_details" (click)="onImageInfoClick(element)">
                   <i class="material-icons">help_outline</i>
                 </span>
-                <span #settings class="actions" (click)="actions.toggle($event, settings)"></span>
+                <span
+                  *ngIf="element.imageUserPermissions | isElementAvailable"
+                  #settings class="actions"
+                  (click)="actions.toggle($event, settings)"
+                ></span>
               </div>
               <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
                 <ul class="list-unstyled">
-                  <li [matTooltip]="element.status !== imageStatus.active && tooltipStatuses.activeOnly
-                      || userName !== element.user && tooltipStatuses.creatorOnly"
-                      matTooltipPosition="above"
-                      [matTooltipDisabled]="userName === element.user && element.status === imageStatus.active"
-                  >
+                  <li *ngIf="element.imageUserPermissions.canShare">
                     <button
                       class="action-button__share"
                       (click)="onShareClick(element)"
-                      [disabled]="userName !== element.user || element.status !== imageStatus.active"
                     >
                       <i class="material-icons">screen_share</i>
                       <span>Share</span>
                     </button>
                   </li>
-<!--                  <li-->
-<!--                    [matTooltip]=tooltipStatuses.unableTerminate-->
-<!--                    matTooltipPosition="above"-->
-<!--                  >-->
-<!--                    <button class="action-button__share" disabled>-->
-<!--                      <i class="material-icons">phonelink_off</i>-->
-<!--                      <span>Terminate</span>-->
-<!--                    </button>-->
-<!--                  </li>-->
+                  <li *ngIf="element.imageUserPermissions.canTerminate">
+                    <button class="action-button__share" disabled>
+                      <i class="material-icons">phonelink_off</i>
+                      <span>Terminate</span>
+                    </button>
+                  </li>
                 </ul>
               </bubble-up>
             </td>

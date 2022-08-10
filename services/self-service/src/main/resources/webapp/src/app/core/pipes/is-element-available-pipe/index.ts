@@ -17,11 +17,14 @@
  * under the License.
  */
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
-export * from './highlight.pipe';
-export * from './convert-action-pipe';
-export * from './normalize-dropdown-multi-value';
-export * from './is-element-available-pipe';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IsElementAvailablePipe } from './is-element-available.pipe';
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [IsElementAvailablePipe],
+  exports: [IsElementAvailablePipe]
+})
+
+export class IsElementAvailablePipeModule { }

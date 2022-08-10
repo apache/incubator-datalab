@@ -17,11 +17,12 @@
  * under the License.
  */
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
-export * from './highlight.pipe';
-export * from './convert-action-pipe';
-export * from './normalize-dropdown-multi-value';
-export * from './is-element-available-pipe';
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({ name: 'isElementAvailable' })
+
+export class IsElementAvailablePipe implements PipeTransform {
+  transform<T extends object>(elementField: T): boolean {
+    return (<any>Object).values(elementField).some(item => Boolean(item));
+  }
+}

@@ -17,6 +17,7 @@ export interface ImageModel {
   endpoint: string;
   fullName: string;
   instanceName: string;
+  imageUserPermissions: ImageUserPermissions;
   name: string;
   project: string;
   sharingStatus: 'SHARED'| 'PRIVATE' | 'RECEIVED';
@@ -27,6 +28,11 @@ export interface ImageModel {
   computationalLibraries: Library[];
   clusterConfig: ClusterConfig;
   templateName: string;
+}
+
+export interface ImageUserPermissions {
+  canShare: boolean;
+  canTerminate: boolean;
 }
 
 export interface ShareImageAllUsersParams {
