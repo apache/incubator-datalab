@@ -27,4 +27,5 @@ import { NormalizeDropdownMultiValuePipe } from './normalize-dropdown-multi-valu
   exports: [NormalizeDropdownMultiValuePipe]
 })
 
-export class CapitalizeFirstLetterPipeModule { }
+export class NormalizeDropdownMultiValuePipeModule { }
+

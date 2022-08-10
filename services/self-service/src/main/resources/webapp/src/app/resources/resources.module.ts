@@ -34,7 +34,7 @@ import { BucketBrowserModule } from './bucket-browser/bucket-browser.module';
 import { ImagesComponent } from './images/images.component';
 import {CheckboxModule} from '../shared/checkbox';
 import {BubbleModule} from '../shared';
-import { CapitalizeFirstLetterPipeModule } from '../core/pipes';
+import { IsElementAvailablePipeModule, NormalizeDropdownMultiValuePipeModule } from '../core/pipes';
 import { LocalDatePipeModule } from '../core/pipes/local-date-pipe';
 import { ShareImageDialogModule } from './exploratory/share-image/share-image-dialog.module';
 import { ImageDetailDialogModule } from './exploratory/image-detail-dialog/image-detail-dialog.module';
@@ -55,12 +55,13 @@ import { DirectivesModule } from '../core/directives';
     BucketBrowserModule,
     CheckboxModule,
     BubbleModule,
-    CapitalizeFirstLetterPipeModule,
+    NormalizeDropdownMultiValuePipeModule,
     LocalDatePipeModule,
     ShareImageDialogModule,
     ImageDetailDialogModule,
     LibraryInfoModalModule,
-    DirectivesModule
+    DirectivesModule,
+    IsElementAvailablePipeModule
   ],
   declarations: [
     ResourcesComponent,
