@@ -119,7 +119,7 @@ export class ImagesService {
     this.addFilterDropdownData({...this.$$filterDropdownData.value, imageNames: filteredDropdownList});
   }
 
-  resetFilterField(field: keyof ImageFilterFormDropdownData, exceptionValue: string = ''): void {
+  resetFilterField(field: keyof ImageFilterFormValue, exceptionValue: string = ''): void {
     const droppedFieldValue = this.getDroppedFieldValue(field);
     const updatedFilterFormValue = {...this.$$filterFormValue.value, [field]: droppedFieldValue};
     const normalizeFormValue = this.normalizeFilterFormValue(updatedFilterFormValue, exceptionValue);
@@ -158,7 +158,7 @@ export class ImagesService {
     this.$$filteredColumnState.next(columnStateList);
   }
 
-  getDroppedFieldValue(field: keyof ImageFilterFormDropdownData): string | [] {
+  getDroppedFieldValue(field: keyof ImageFilterFormValue): string | [] {
     return typeof this.$$filterFormValue.value[field] === 'string'
       ? ''
       : [];

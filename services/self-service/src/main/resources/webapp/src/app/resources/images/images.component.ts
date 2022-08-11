@@ -38,9 +38,9 @@ import {
   DropdownFieldNames,
   FilterFormInitialValue,
   ImageModelKeysForFilter,
-  DropdownSelectAllValue,
+  DropdownSelectAllValue, FilterFormControlNames,
 } from './images.config';
-import { ShareImageDialogComponent } from '../exploratory/share-image/share-image-dialog.component';
+import { ShareImageDialogComponent } from '../exploratory/share-image-dialog/share-image-dialog.component';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
@@ -62,7 +62,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   readonly placeholder: typeof Placeholders = Placeholders;
   readonly sharedStatus: typeof Shared_Status = Shared_Status;
   readonly imageStatus: typeof ImageStatuses = ImageStatuses;
-  readonly tooltipStatuses: typeof TooltipStatuses = TooltipStatuses;
+  readonly columnFieldNames: typeof FilterFormControlNames = FilterFormControlNames;
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
 
   isActionsOpen: boolean = false;
@@ -192,7 +192,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.checkIsPageFiltered();
   }
 
-  onResetColumn(dropdownFieldNames: DropdownFieldNames): void {
+  onResetColumn(dropdownFieldNames: FilterFormControlNames): void {
+    console.log(dropdownFieldNames);
     this.imagesService.resetFilterField(dropdownFieldNames, DropdownSelectAllValue);
   }
 

@@ -24,7 +24,7 @@ import { ShareModalData, Toaster_Message } from '../../images';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: 'datalab-share-image',
+  selector: 'datalab-share-image-dialog',
   templateUrl: './share-image-dialog.component.html',
   styleUrls: ['./share-image-dialog.component.scss']
 })
