@@ -13,7 +13,7 @@
   },
   {
     "_id": "imgShareAllImages",
-    "description": "Allow to share all images",
+    "description": "Allow to share own and others' images",
     "type": "IMAGE",
     "cloud": "GENERAL",
     "pages": [
