@@ -133,7 +133,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onRefreshClick(): void {
-    this.checkAuthorize();
     this.imagesService.getImagePageInfo().subscribe();
     this.activeProjectName = '';
   }
@@ -154,7 +153,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
       },
       panelClass: 'modal-sm'
     }).afterClosed()
-      .subscribe(() => this.progressBarService.stopProgressBar());
+      .subscribe(() => {
+        this.checkAuthorize();
+        this.progressBarService.stopProgressBar();
+      });
   }
 
   onFilterClick(): void {
