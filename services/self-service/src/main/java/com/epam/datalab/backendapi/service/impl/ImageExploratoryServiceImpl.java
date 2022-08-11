@@ -326,6 +326,12 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     public ImageUserPermissions getUserImagePermissions(UserInfo userInfo, ImageInfoRecord image) {
         boolean canShare;
         boolean canTerminate = false;
+
+        if(!image.getStatus().equals(ImageStatus.ACTIVE)){
+            new ImageUserPermissions(false,canTerminate);
+        }
+
+
         if(image.getUser().equals(userInfo.getName())){
             canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_OWN_IMAGES_PAGE,userInfo.getRoles());
         } else {
