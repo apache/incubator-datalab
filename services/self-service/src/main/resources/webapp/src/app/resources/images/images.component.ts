@@ -199,7 +199,11 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.resetFilterField(dropdownFieldNames, DropdownSelectAllValue);
   }
 
-  private checkAuthorize() {
+  onClickOutside(): void {
+    this.imagesService.closeFilter();
+  }
+
+  private checkAuthorize(): void {
     this.applicationSecurityService.isLoggedIn().subscribe(() => {
       this.getEnvironmentHealthStatus();
     });
@@ -212,10 +216,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
       },
       error => this.toastr.error(error.message, 'Oops!')
     );
-  }
-
-  onClickOutside() {
-    this.imagesService.closeFilter();
   }
 
   private initFilteredColumnState(): void {
