@@ -36,12 +36,17 @@ variable "product" {}
 
 variable "subnet_cidr" {}
 
+variable "allowed_ip_cidrs" {
+  type    = list(string)
+  default = ["0.0.0.0/0"]
+}
+
 variable "endpoint_instance_shape" {}
 
 variable "key_name" {}
 
 variable "ami" {
-  default = "ami-07b4f3c02c7f83d59"
+  default = "ami-07dd19a7900a1f049"
 }
 
 variable "vpc_id" {

@@ -1,5 +1,15 @@
 [
   {
+    "_id": "nbShapes_a2-highgpu-1g_fetching",
+    "description": "Use a2-highgpu-1g instance shape for notebook",
+    "exploratory_shapes": [
+      "a2-highgpu-1g"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbShapes_n1-highcpu-2_fetching",
     "description": "Use n1-highcpu-2 instance shape for notebook",
     "exploratory_shapes": [
@@ -84,6 +94,16 @@
     "description": "Create Notebook Jupyter",
     "exploratories": [
       "docker.datalab-jupyter"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateJupyterGpu",
+    "description": "Create Notebook Jupyter Gpu",
+    "exploratories": [
+      "docker.datalab-jupyter-gpu"
     ],
     "groups": [
       "$anyuser"
@@ -234,6 +254,16 @@
     "description": "Use n1-highcpu-32 instance shape for cluster",
     "computational_shapes": [
       "n1-highcpu-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_a2-highgpu-1g_fetching",
+    "description": "Use a2-highgpu-1g instance shape for cluster",
+    "computational_shapes": [
+      "a2-highgpu-1g"
     ],
     "groups": [
       "$anyuser"

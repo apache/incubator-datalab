@@ -52,7 +52,8 @@ resource "azurerm_subnet" "endpoint-subnet" {
   name                 = local.endpoint_subnet_name
   resource_group_name  = data.azurerm_resource_group.data-endpoint-resource-group.name
   virtual_network_name = data.azurerm_virtual_network.data-endpoint-network.name
-  address_prefix       = var.subnet_cidr
+  address_prefixes     = [var.subnet_cidr]
+  service_endpoints    = ["Microsoft.Storage"]
 }
 
 data "azurerm_subnet" "data-endpoint-subnet" {

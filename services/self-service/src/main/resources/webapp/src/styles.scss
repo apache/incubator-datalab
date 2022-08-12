@@ -121,6 +121,7 @@ mat-chip.mat-chip strong {
   text-align: left;
 }
 
+.created,
 .running,
 .starting,
 .installed,
@@ -570,4 +571,13 @@ ace_scrollbar {
 
 .timezone-mat-select {
   max-width: 350px !important;
+}
+
+.library-dialog-container .mat-dialog-container {
+  width: 300px;
+  max-height: 210px;
+}
+
+.library-dialog-container ::-webkit-scrollbar {
+  width: 3px !important;
 }

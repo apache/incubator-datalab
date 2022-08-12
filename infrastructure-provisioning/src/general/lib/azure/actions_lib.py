@@ -89,12 +89,13 @@ class AzureActions:
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
         )
-        #self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
         self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
         self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
                                             client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
                                             client_id=json.dumps(self.sp_creds['clientId']).replace('"', ''),
                                             resource='https://datalake.azure.net/')
+        logger = logging.getLogger('azure')
+        logger.setLevel(logging.ERROR)
 
     def create_resource_group(self, resource_group_name, region):
         try:
@@ -146,7 +147,20 @@ class AzureActions:
                     },
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
-                    }
+                    },
+                    "subnets": [
+                        {
+                             "name": os.environ['azure_subnet_name'],
+                             "service_endpoints": [
+                                 {
+                                      "service": "Microsoft.Storage",
+                                      "locations": [
+                                          region
+                                      ]
+                                 }
+                             ]
+                        }
+                    ]
                 }
             )
             return result
@@ -202,12 +216,21 @@ class AzureActions:
 
     def create_subnet(self, resource_group_name, vpc_name, subnet_name, subnet_cidr):
         try:
+            region = os.environ['azure_region']
             result = self.network_client.subnets.begin_create_or_update(
                 resource_group_name,
                 vpc_name,
                 subnet_name,
                 {
-                    'address_prefix': subnet_cidr
+                    "address_prefix": subnet_cidr,
+                    "service_endpoints": [
+                        {
+                             "service": "Microsoft.Storage",
+                             "locations": [
+                                 region
+                             ]
+                        }
+                    ]
                 }
             )
             return result
@@ -423,19 +446,47 @@ class AzureActions:
 
     def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
+            ssn_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
+                                                                     vpc_name=os.environ['azure_vpc_name'],
+                                                                     subnet_name=os.environ['azure_subnet_name']
+                                                                     ).id
+            edge_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
+                                                                     vpc_name=os.environ['azure_vpc_name'],
+                                                                     subnet_name='{}-{}-{}-subnet'.format(
+                                                                         os.environ['conf_service_base_name'],
+                                                                         (os.environ['project_name']),
+                                                                         (os.environ['endpoint_name']))
+                                                                       ).id
             result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
                 {
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
-                    "location":  region,
+                    "location": region,
                     "tags": tags,
                     "access_tier": "Hot",
                     "minimumTlsVersion": "TLS1_2",
                     "encryption": {
                         "key_source": "Microsoft.Storage",
                         "services": {"blob": {"enabled": True}}
+                    },
+                    "AllowBlobPublicAccess": "false",
+                    "network_rule_set": {
+                        "bypass": "Logging, Metrics, AzureServices",
+                        "virtual_network_rules": [
+                            {
+                                "virtual_network_resource_id": ssn_network_id,
+                                "action": "Allow",
+                                "state": "Succeeded"
+                            },
+                            {
+                                "virtual_network_resource_id": edge_network_id,
+                                "action": "Allow",
+                                "state": "Succeeded"
+                            }
+                        ],
+                        "default_action": "Deny"
                     }
                 }
             ).wait()
@@ -465,9 +516,13 @@ class AzureActions:
 
     def create_blob_container(self, resource_group_name, account_name, container_name):
         try:
-            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
-            result = block_blob_service.create_container(container_name)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
+            result = block_blob_service.create_container(
+                container_name,
+                {
+                "public_access": "Off"
+                }
+            )
             return result
         except Exception as err:
             logging.info(
@@ -479,8 +534,7 @@ class AzureActions:
 
     def upload_to_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
             for filename in files:
                 block_blob_service.create_blob_from_path(container_name, filename, filename)
             return ''
@@ -494,8 +548,7 @@ class AzureActions:
 
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = datalab.meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=secret_key)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
             return ''
@@ -529,6 +582,24 @@ class AzureActions:
             logging.info(
                 "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to create static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def update_disk_access(self, resource_group_name, disk_name):
+        try:
+            result = self.compute_client.disks.begin_update(
+                resource_group_name,
+                disk_name,
+                {
+                    "network_access_policy": "DenyAll"
+                }
+            ).wait()
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to deny network access for disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to deny network access for disk",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -1106,7 +1177,11 @@ def ensure_local_jars(os_user, jars_dir):
                 datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
                 datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
-                    -O {1}azure-storage-{0}.jar'.format('2.2.0', jars_dir))
+                    -O {1}azure-storage-{0}.jar'.format('8.6.6', jars_dir))
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util/{0}/jetty-util-{0}.jar \
+                    -O {1}jetty-util-{0}.jar'.format('9.4.46.v20220331', jars_dir))
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util-ajax/{0}/jetty-util-ajax-{0}.jar \
+                    -O {1}jetty-util-ajax-{0}.jar'.format('9.4.46.v20220331', jars_dir))
             else:
                 datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format('3.0.0', jars_dir))

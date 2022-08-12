@@ -90,7 +90,8 @@ if __name__ == "__main__":
                                                                        notebook_config['project_name'],
                                                                        notebook_config['endpoint_name'],
                                                                        notebook_config['exploratory_name'])
-        notebook_config['primary_disk_size'] = (lambda x: '60' if x == 'deeplearning' else '20')(
+        notebook_config['primary_disk_size'] = (lambda x: '60' if x == 'deeplearning' else ('30' if x == 'tensor'
+                                                                                            else '20'))(
             os.environ['application'])
         notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
 
@@ -159,12 +160,17 @@ if __name__ == "__main__":
         notebook_config['gpu_accelerator_type'] = 'None'
         notebook_config['gpu_accelerator_count'] = 'None'
 
+
         if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning') or os.environ['gpu_enabled'] == 'True':
             if os.environ['gpuType'] != '':
                 notebook_config['gpu_accelerator_type'] = os.environ['gpuType']
                 notebook_config['gpu_accelerator_count'] = os.environ['gpuCount']
             else:
                 notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
+
+        if os.environ['application'] in ('jupyter-gpu', 'jupyter-conda'):
+            notebook_config['gpu_accelerator_type'] = os.environ['gcp_jupyter_gpu_type']
+            notebook_config['gpu_accelerator_count'] = '1'
 
         notebook_config['network_tag'] = '{0}-{1}-{2}-ps'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
@@ -201,7 +207,7 @@ if __name__ == "__main__":
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
                  "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} " \
-                 "--network_tag {16} --labels '{17}' --service_base_name {18} --os_login_enabled {19} " \
+                 "--network_tag {16} --labels '{17}' --service_base_name {18} --os_login_enabled FALSE " \
                  "--block_project_ssh_keys {20} --rsa_encrypted_csek '{21}'".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'],
                    notebook_config['vpc_name'], notebook_config['subnet_name'], notebook_config['instance_size'],

@@ -29,7 +29,7 @@ import {
   StorageService
 } from '../../core/services';
 
-import { ActionsType, EnvironmentModel, GeneralEnvironmentStatus, ModalData, ModalDataType } from './management.model';
+import {ActionsType, ActionTypeOptions, EnvironmentModel, GeneralEnvironmentStatus, ModalData, ModalDataType} from './management.model';
 import { HTTP_STATUS_CODES } from '../../core/util';
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
@@ -43,6 +43,7 @@ import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../share
 import { ManagementGridComponent, ReconfirmationDialogComponent } from './management-grid/management-grid.component';
 import { FolderTreeComponent } from '../../resources/bucket-browser/folder-tree/folder-tree.component';
 import { StatusTypes } from '../../core/models';
+import {AmiCreateDialogComponent} from '../../resources/exploratory/ami-create-dialog';
 
 @Component({
   selector: 'environments-management',
@@ -58,7 +59,7 @@ export class ManagementComponent implements OnInit {
   public isActionsOpen: boolean = false;
   public selectedRunning: boolean;
   public selectedStopped: boolean;
-  public resourseStaus = StatusTypes;
+  public resourceStatus = StatusTypes;
 
   @ViewChild(ManagementGridComponent, { static: true }) managementGrid;
 
@@ -119,7 +120,7 @@ export class ManagementComponent implements OnInit {
           total => {
             this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
             this.dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
-          }, 
+          },
           () => this.toastr.error('Failed users list loading!', 'Oops!')
         );
     });
@@ -152,7 +153,7 @@ export class ManagementComponent implements OnInit {
               result.status === HTTP_STATUS_CODES.OK && this.toastr.success('Budget limits updated!', 'Success!');
               this.buildGrid();
             }
-          }, 
+          },
           error => this.toastr.error(error.message, 'Oops!'));
     } else {
       this.healthStatusService.updateTotalBudgetData($event.total)
@@ -217,16 +218,15 @@ export class ManagementComponent implements OnInit {
       this.isActionsOpen = false;
     }
 
-    this.selectedRunning = this.selected.every(item => item.status === this.resourseStaus.running);
-    this.selectedStopped = this.selected.every(item => item.status === this.resourseStaus.stopped);
+    this.selectedRunning = this.selected.every(item => item.status === this.resourceStatus.running);
+    this.selectedStopped = this.selected.every(item => item.status === this.resourceStatus.stopped);
   }
 
   public toogleActions() {
     this.isActionsOpen = !this.isActionsOpen;
   }
 
-  toggleResourceAction($event): void {
-    const { environment, action, resource } = $event;
+  toggleResourceAction({ environment, action, resource = null}): void {
     this.openDialog(environment, action, resource);
   }
 
@@ -239,75 +239,84 @@ export class ManagementComponent implements OnInit {
     }
   }
 
-  public resourseAction(action) {
+  public resourceAction(action: ActionTypeOptions) {
     this.toggleResourceAction({ environment: this.selected, action: action });
   }
 
   private openDialog(environment, action, resource) {
-    let config: ModalData = { 
-      type: '', 
-      action 
+    let config: ModalData = {
+      type: '',
+      action
     };
-    let observer = {
+    const observer = {
       next: (res) => {}
     };
 
-    if(resource) {
+    if (resource) {
       config.resource_name = resource.computational_name;
       config.user = environment.user;
-      config.type = ModalDataType.cluster
+      config.type = ModalDataType.cluster;
       observer.next = (res) => {
-        res && this.manageEnvironmentAction({ action, environment, resource })
-      }
+        res && this.manageEnvironmentAction({ action, environment, resource });
+      };
     } else {
       const notebooks = this.selected.length ? this.selected : [environment];
       config = this.getModalConfig(config, action, notebooks);
       observer.next = (res) => {
         if (res) {
           notebooks.forEach((env) => {
-            this.getNotebookAction(env, action)
+            if (action === 'create image') {
+              env['isAdmin'] = true;
+              env['userName'] = env.user;
+              this.dialog.open(AmiCreateDialogComponent, { data: env, panelClass: 'modal-sm' })
+                .afterClosed().subscribe(
+                () => this.buildGrid(),
+                error => console.log(error)
+              );
+            } else {
+              this.getNotebookAction(env, action);
+            }
           });
         }
         this.clearSelection();
-      }
+      };
       this.isActionsOpen = false;
     }
 
-    //TODO if action run and recreate are restored, uncomment this piece of code
+    // TODO if action run and recreate are restored, uncomment this piece of code
 
     // if(action === 'run' || action === 'recreate') {
     //   this.getHealthAction(action);
     // } else {
     //   this.dialog.open(ReconfirmationDialogComponent, {
     //     data: config,
-    //     width: '550px', 
+    //     width: '550px',
     //     panelClass: 'error-modalbox'
     //   }).afterClosed().subscribe(observer);
     // }
 
-    //TODO if action run and recreate are restored remove this piece of code
-    
+    // TODO if action run and recreate are restored remove this piece of code
       this.dialog.open(ReconfirmationDialogComponent, {
         data: config,
-        width: '550px', 
+        width: '550px',
         panelClass: 'error-modalbox'
       }).afterClosed().subscribe(observer);
   }
 
   private getModalConfig(config: ModalData, action: ActionsType, notebooks: EnvironmentModel[]): ModalData {
-    config = {...config, type: ModalDataType.notebook}
-    if(action === ActionsType.stop) {
-      notebooks = notebooks.filter(note => note.status !== this.resourseStaus.stopped);
-      return {...config, notebooks}
+    config = {...config, type: ModalDataType.notebook};
+    if (action === ActionsType.stop) {
+      notebooks = notebooks.filter(note => note.status !== this.resourceStatus.stopped);
+      return {...config, notebooks};
     }
-    if(action === ActionsType.start) {
-      notebooks = notebooks.filter(note => note.status === this.resourseStaus.stopped);
-      return {...config, notebooks}
+    if (action === ActionsType.start) {
+      notebooks = notebooks.filter(note => note.status === this.resourceStatus.stopped);
+      return {...config, notebooks};
     }
-    return {...config, notebooks}
+    return {...config, notebooks};
   }
 
-  private getNotebookAction(env: EnvironmentModel, action: ActionsType) {
+  private getNotebookAction(env: EnvironmentModel, action: ActionTypeOptions): void {
     this.manageEnvironmentsService.environmentManagement(env.user, action, env.project, env.name)
       .subscribe(
         () => this.buildGrid(),
@@ -323,14 +332,14 @@ export class ManagementComponent implements OnInit {
         this.toastr.success(`Edge Node ${nodeAction} is processing!`, 'Processing!');
       },
       error: () => this.toastr.error(`Edge Node ${nodeAction} failed!`, 'Oops!')
-    }
-    if(action === ActionsType.run) {
+    };
+    if (action === ActionsType.run) {
       nodeAction = ActionsType.run;
-      this.healthStatusService.runEdgeNode().subscribe(observer)
+      this.healthStatusService.runEdgeNode().subscribe(observer);
     }
-    if(action === ActionsType.recreate) {
-      nodeAction = ActionsType.recreate
-      this.healthStatusService.recreateEdgeNode().subscribe(observer)
+    if (action === ActionsType.recreate) {
+      nodeAction = ActionsType.recreate;
+      this.healthStatusService.recreateEdgeNode().subscribe(observer);
     }
   }
 }

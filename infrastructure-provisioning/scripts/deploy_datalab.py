@@ -137,7 +137,7 @@ def build_parser():
         multiple emails, e.g. u1@example.com,u2@example.com.''')
     parser.add_argument('--conf_repository_user', type=str, default='',
                         help='user to access repository (used for jars download)')
-    parser.add_argument('--conf_release_tag', type=str, default='2.5.1',
+    parser.add_argument('--conf_release_tag', type=str, default='2.5.2',
                         help='tag used for jars download')
     parser.add_argument('--conf_repository_pass', type=str, default='',
                         help='password to access repository (used for jars download)')
@@ -273,6 +273,8 @@ def build_parser():
     gcp_parser.add_argument('--gcp_wrapped_csek', type=str, default='',
                             help='customer supplied encryption key for disk/image encryption in RFC 4648 base64 '
                                  'encoded, RSA-wrapped 2048-bit format as rsaEncryptedKey')
+    gcp_parser.add_argument('--gcp_jupyter_gpu_type', type=str, default='nvidia-tesla-a100',
+                            help='gpu type for jupyter gpu notebooks with a2-highgpu-1g shape')
 
     gcp_required_args = gcp_parser.add_argument_group('Required arguments')
     gcp_required_args.add_argument('--gcp_region', type=str, required=True, help='GCP region')

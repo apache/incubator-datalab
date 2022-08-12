@@ -43,11 +43,11 @@ if __name__ == "__main__":
     logging.info('Generating infrastructure names and tags')
     data_engine_config = dict()
     try:
-        data_engine_config['exploratory_name'] = os.environ['exploratory_name']
+        data_engine_config['exploratory_name'] = os.environ['exploratory_name'].lower()
     except:
         data_engine_config['exploratory_name'] = ''
     try:
-        data_engine_config['computational_name'] = os.environ['computational_name']
+        data_engine_config['computational_name'] = os.environ['computational_name'].lower()
     except:
         data_engine_config['computational_name'] = ''
     data_engine_config['service_base_name'] = (os.environ['conf_service_base_name'])

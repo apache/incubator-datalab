@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform } from '@angular/core';
 
 const MAX_SYMBOLS_COUNT = 255;
 
@@ -27,10 +27,10 @@ const MAX_SYMBOLS_COUNT = 255;
 export class TruncateTextPipe implements PipeTransform {
     transform(text: string, limit: number = MAX_SYMBOLS_COUNT): string {
         if (!text) {
-            return ''
+            return '';
         }
-        return text.length > limit 
+        return text.length > limit
             ? `${text.substring(0, limit)}...`
-            : text
+            : text;
     }
 }

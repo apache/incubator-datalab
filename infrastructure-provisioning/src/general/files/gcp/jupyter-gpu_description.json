@@ -1,0 +1,18 @@
+{
+  "exploratory_environment_shapes" :
+  {
+    "GPU" : [
+      {"Size": "S", "Description": "a2-highgpu-1g", "Type": "a2-highgpu-1g","Ram": "85 GB","Cpu": "12"}
+    ]
+  },
+  "exploratory_environment_versions" :
+  [
+    {
+      "template_name": "Jupyter 6.4.12 with GPU",
+      "description": "Base image with jupyter node creation routines",
+      "environment_type": "exploratory",
+      "version": "jupyter_notebook_gpu",
+      "vendor": "GCP"
+    }
+  ]
+}

@@ -99,7 +99,7 @@ public class ProjectServiceImpl implements ProjectService {
         String uuid = DockerCommands.generateUUID();
         Duration timeout = configuration.getKeyLoaderPollTimeout();
         if(action == DockerAction.CREATE){
-            timeout = Duration.minutes(timeout.toMinutes() + 10);
+            timeout = Duration.minutes(timeout.toMinutes() + 30);
         }
 
         folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),

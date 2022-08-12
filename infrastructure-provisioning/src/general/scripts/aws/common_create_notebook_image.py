@@ -67,6 +67,11 @@ if __name__ == "__main__":
                                                                       instance_name=image_conf['instance_name'],
                                                                       image_name=image_conf['full_image_name'],
                                                                       tags=json.dumps(image_conf['tags']))
+
+            logging.info("Image id from actions.lib.py {}".format(image_id))
+            if not image_id :
+                raise Exception("Image can not be created from not running instances")
+
             logging.info("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
 
             with open("/root/result.json", 'w') as result:
@@ -74,7 +79,7 @@ if __name__ == "__main__":
                        "full_image_name": image_conf['full_image_name'],
                        "project_name": image_conf['project_name'],
                        "application": image_conf['application'],
-                       "status": "created",
+                       "status": "active",
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
     except Exception as err:

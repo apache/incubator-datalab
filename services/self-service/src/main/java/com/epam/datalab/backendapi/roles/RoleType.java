@@ -25,6 +25,7 @@ package com.epam.datalab.backendapi.roles;
 public enum RoleType {
     COMPUTATIONAL("computationals"),
     EXPLORATORY("exploratories"),
+    IMAGE("images"),
     EXPLORATORY_SHAPES("exploratory_shapes"),
     COMPUTATIONAL_SHAPES("computational_shapes"),
     PAGE("pages");

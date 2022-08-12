@@ -151,7 +151,7 @@
   },
   {
     "_id": "nbCreateTensorJupyterlab",
-    "description": "Create Notebook Jupyterlab with TensorFlow",
+    "description": "Create Notebook JupyterLab with TensorFlow",
     "exploratories": [
       "docker.datalab-tensor-jupyterlab"
     ],

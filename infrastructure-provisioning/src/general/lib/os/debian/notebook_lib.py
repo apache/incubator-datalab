@@ -85,7 +85,9 @@ def ensure_r(os_user, r_libs):
             r_repository = 'https://cloud.r-project.org'
             #add_marruter_key()
             datalab.fab.conn.sudo('apt update')
-            manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
+            manage_pkg('-yV install', 'remote', 'libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev '
+                                                'libfontconfig1-dev libharfbuzz-dev libfribidi-dev libssl-dev '
+                                                'libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
             manage_pkg('-y install', 'remote', 'cmake')
             datalab.fab.conn.sudo('''bash -c -l 'apt-key adv --keyserver-options http-proxy="$http_proxy" --keyserver hkp://keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9' ''')
             datalab.fab.conn.sudo("add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'")
@@ -273,24 +275,39 @@ def ensure_python3_libraries(os_user):
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
             manage_pkg('-y install', 'remote', 'libbz2-dev libsqlite3-dev tk-dev libncursesw5-dev libreadline-dev '
                                                'liblzma-dev uuid-dev lzma-dev libgdbm-dev')  #necessary for python build
-            datalab.fab.conn.sudo('-i pip3 install -U keyrings.alt backoff')
-            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': 
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true':
+                datalab.fab.conn.sudo('-i pip3 install -U keyrings.alt backoff')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqt5==5.12')
                 datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqtwebengine==5.12')
-                datalab.fab.conn.sudo('-i pip3 install setuptools')
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
+                try:
+                    datalab.fab.conn.sudo(
+                        '-i pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                        .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                except:
+                    datalab.fab.conn.sudo(
+                        '-i pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                        .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                datalab.fab.conn.sudo(
+                    '-i pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+                datalab.fab.conn.sudo('-i pip3 install boto3 --no-cache-dir')
+                datalab.fab.conn.sudo('-i pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
             else:
-                datalab.fab.conn.sudo('-i pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
-            try:
-                datalab.fab.conn.sudo('-i pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
-                             os.environ['notebook_nbconvert_version']))
-            except:
-                datalab.fab.conn.sudo('-i pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} sparkmagic --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
-                             os.environ['notebook_nbconvert_version']))
-            datalab.fab.conn.sudo('-i pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            datalab.fab.conn.sudo('-i pip3 install boto3 --no-cache-dir')
-            datalab.fab.conn.sudo('-i pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
+                datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
+                try:
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                         .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                 os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                except:
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                         .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                 os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                datalab.fab.conn.sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+                datalab.fab.conn.sudo('pip3 install boto3 --no-cache-dir')
+                datalab.fab.conn.sudo('pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
             sys.exit(1)
@@ -409,7 +426,12 @@ def ensure_venv_libs(os_user, libs):
 def ensure_pytorch(os_user, gpu=True):
     if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/pytorch_ensured'):
         if gpu:
-            datalab.fab.install_venv_pip_pkg('torch==1.10.2+cu113 torchvision==0.11.3+cu113 '
+            if os.environ['application'] in ('jupyter-gpu', 'jupyter-conda'):
+                datalab.fab.install_venv_pip_pkg('torch==1.10.0+cu111 torchvision==0.11.0+cu111 '
+                                                 'torchaudio==0.10.0+cu111 -f '
+                                                 'https://download.pytorch.org/whl/cu111/torch_stable.html')
+            else:
+                datalab.fab.install_venv_pip_pkg('torch==1.10.2+cu113 torchvision==0.11.3+cu113 '
                                                   'torchaudio==0.10.2+cu113 -f '
                                                   'https://download.pytorch.org/whl/cu113/torch_stable.html')
         else:
@@ -454,8 +476,13 @@ def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
             datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
-        datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -')
-        manage_pkg('-y install', 'remote', 'nodejs')
+        #datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_16.x | bash -"')
+        #manage_pkg('-y install', 'remote', 'nodejs')
+        datalab.fab.conn.sudo(
+            'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash')
+        datalab.fab.conn.run(
+            'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" && nvm install 16.15.0')
+        datalab.fab.conn.sudo('cp -R .nvm/versions/node/v16.15.0/* /usr/')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 def install_os_pkg(requisites):

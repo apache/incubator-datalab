@@ -21,6 +21,8 @@ package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.backendapi.domain.AuditDTO;
 import com.epam.datalab.backendapi.domain.AuditPaginationDTO;
+import com.epam.datalab.backendapi.domain.AuditReportLine;
+import com.epam.datalab.backendapi.resources.dto.AuditFilter;
 
 import java.util.List;
 
@@ -28,4 +30,6 @@ public interface AuditDAO {
     void save(AuditDTO audit);
 
     List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd, int pageNumber, int pageSize);
+
+    List<AuditReportLine> aggregateAuditReport(AuditFilter auditFilter);
 }

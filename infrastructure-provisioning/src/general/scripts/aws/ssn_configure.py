@@ -148,7 +148,7 @@ if __name__ == "__main__":
     #installing prerequisites to ssn instance
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        pip_packages = 'boto3=={} bcrypt=={} backoff=={} argparse=={} fabric=={} awscli=={} pymongo=={} pyyaml=={}' \
+        pip_packages = 'boto3=={} cryptography==36.0.2 bcrypt=={} backoff=={} argparse=={} fabric=={} awscli=={} pymongo=={} pyyaml=={}' \
                        ' jinja2=={}'.format(os.environ['pip_packages_boto3'], os.environ['pip_packages_bcrypt'],
                                             os.environ['pip_packages_backoff'], os.environ['pip_packages_argparse'],
                                             os.environ['pip_packages_fabric'], os.environ['pip_packages_awscli'],
@@ -523,7 +523,8 @@ if __name__ == "__main__":
                  "--tags {} " \
                  "--keycloak_client_id {} " \
                  "--keycloak_client_secret {} " \
-                 "--keycloak_auth_server_url {}". \
+                 "--keycloak_auth_server_url {} " \
+                 "--keycloak_realm_name {}". \
             format(ssn_conf['instance_hostname'],
                    "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
                    os.environ['ssn_datalab_path'],
@@ -552,7 +553,8 @@ if __name__ == "__main__":
                    os.environ['tags'],
                    os.environ['keycloak_client_name'],
                    os.environ['keycloak_client_secret'],
-                   os.environ['keycloak_auth_server_url'])
+                   os.environ['keycloak_auth_server_url'],
+                   os.environ['keycloak_realm_name'])
         try:
             subprocess.run("~/scripts/{}.py {}".format('configure_ui', params), shell=True, check=True)
         except:

@@ -197,7 +197,7 @@ if __name__ == "__main__":
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
                  "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} " \
                  "--network_tag {16} --cluster_name {17} --labels '{18}' --service_base_name {19} " \
-                 "--os_login_enabled {20} --block_project_ssh_keys {21} --rsa_encrypted_csek '{22}'". \
+                 "--os_login_enabled FALSE --block_project_ssh_keys {21} --rsa_encrypted_csek '{22}'". \
             format(data_engine['master_node_name'], data_engine['region'], data_engine['zone'], data_engine['vpc_name'],
                    data_engine['subnet_name'], data_engine['master_size'], data_engine['ssh_key_path'], initial_user,
                    data_engine['dataengine_service_account_name'], data_engine['primary_image_name'],
@@ -226,7 +226,7 @@ if __name__ == "__main__":
                      "--image_name {9} --secondary_image_name {10} --instance_class {11} --primary_disk_size {12} " \
                      "--secondary_disk_size {13} --gpu_accelerator_type {14} --gpu_accelerator_count {15} " \
                      "--network_tag {16} --cluster_name {17} --labels '{18}' --service_base_name {19} " \
-                     "--os_login_enabled {20} --block_project_ssh_keys {21} --rsa_encrypted_csek '{22}'". \
+                     "--os_login_enabled FALSE --block_project_ssh_keys {21} --rsa_encrypted_csek '{22}'". \
                 format(slave_name, data_engine['region'], data_engine['zone'],
                        data_engine['vpc_name'], data_engine['subnet_name'], data_engine['slave_size'],
                        data_engine['ssh_key_path'], initial_user, data_engine['dataengine_service_account_name'],

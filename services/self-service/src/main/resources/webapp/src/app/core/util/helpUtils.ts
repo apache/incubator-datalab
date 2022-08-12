@@ -44,13 +44,14 @@ export class HelpUtils {
   }
 
   public static sortGpuTypes(gpuType: Array<string> = []): Array<string> {
-    
+
     const sortedTypes = [
-      'nvidia-tesla-t4', 
-      'nvidia-tesla-k80', 
-      'nvidia-tesla-p4', 
-      'nvidia-tesla-p100', 
-      'nvidia-tesla-v100'
+      'nvidia-tesla-t4',
+      'nvidia-tesla-k80',
+      'nvidia-tesla-p4',
+      'nvidia-tesla-p100',
+      'nvidia-tesla-v100',
+      'nvidia-tesla-a100'
     ];
 
     return sortedTypes.filter(el => gpuType.includes(el));;

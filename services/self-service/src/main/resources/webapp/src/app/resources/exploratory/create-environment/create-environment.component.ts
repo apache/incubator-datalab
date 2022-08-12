@@ -22,13 +22,14 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import { Project } from '../../../administration/project/project.component';
 import { UserResourceService, ProjectService } from '../../../core/services';
 import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS, HelpUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import { tap } from 'rxjs/operators';
 import { timer } from 'rxjs';
+import { TemplateName } from '../../../core/models';
+import { Project } from '../../../administration/project/project.model';
 
 @Component({
   selector: 'create-environment',
@@ -51,6 +52,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   selectedImage: any;
   maxNotebookLength: number = 14;
   maxCustomTagLength: number = 63;
+  templateName = TemplateName;
   public areShapes: boolean;
   public selectedCloud: string = '';
   public gpuCount: Array<number>;
@@ -109,7 +111,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public setEndpoints(project) {
     const controls = ['endpoint', 'version', 'shape', 'gpu_type', 'gpu_count'];
     this.resetSelections(controls);
-    
+
     this.endpoints = project.endpoints
       .filter(e => e.status === 'RUNNING')
       .map(e => e.name);
@@ -171,15 +173,16 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.createExploratoryForm.controls['notebook_image_name'].setValidators([Validators.required]);
       this.createExploratoryForm.controls['notebook_image_name'].updateValueAndValidity();
     }
-    
-    if (this.selectedCloud === 'gcp' && 
+
+    if (this.selectedCloud === 'gcp' &&
         (template?.image === 'docker.datalab-jupyter' ||
         template?.image === 'docker.datalab-deeplearning' ||
         template?.image === 'docker.datalab-tensor')) {
-          
+
       this.gpuTypes = template?.computationGPU ? HelpUtils.sortGpuTypes(template.computationGPU) : [];
 
-      if(template?.image === 'docker.datalab-tensor' || template?.image === 'docker.datalab-deeplearning') {
+      // tslint:disable-next-line:max-line-length
+      if (template?.image === 'docker.datalab-tensor' /**|| template?.image === 'docker.datalab-jupyter-conda'|| template?.image === 'docker.datalab-jupyter-gpu' */|| template?.image === 'docker.datalab-deeplearning') {
         this.addGpuFields();
       }
     }
@@ -215,8 +218,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       template_name: this.currentTemplate.exploratory_environment_versions[0].template_name
     };
 
-    if (!data.notebook_image_name 
-      && this.currentTemplate.image === 'docker.datalab-deeplearning' 
+    if (!data.notebook_image_name
+      && this.currentTemplate.image === 'docker.datalab-deeplearning'
       && (this.selectedCloud === 'aws' || this.selectedCloud === 'azure')) {
       data.notebook_image_name = this.currentTemplate.exploratory_environment_versions[0].version;
     }
@@ -259,7 +262,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       });
 
     } else {
-      controls.forEach(control => {
+        controls.forEach(control => {
         this.createExploratoryForm.controls[control].setValidators([Validators.required]);
         this.createExploratoryForm.controls[control].updateValueAndValidity();
       });
@@ -270,10 +273,15 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public setInstanceSize() {
-    const controls = ['gpu_type', 'gpu_count'];
-    controls.forEach(control => {
-      this.createExploratoryForm.controls[control].setValue(null);
-    });
+    const {image, computationGPU} = this.currentTemplate;
+    if (image === this.templateName.jupyterJpu) {
+      this.createExploratoryForm.get('gpu_count').setValue(computationGPU[0]);
+    } else {
+        const controls = ['gpu_type', 'gpu_count'];
+        controls.forEach(control => {
+        this.createExploratoryForm.controls[control].setValue(null);
+      });
+    }
   }
 
   public setCount(type: any, gpuType: any): void {
@@ -320,11 +328,11 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.createExploratoryForm.controls['endpoint'].value)
       .subscribe(
         (res: any) => {
-          this.images = res.filter(el => el.status === 'CREATED');
-          
-          if(this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
+          this.images = res.filter(el => el.status === 'ACTIVE');
+
+          if (this.selectedCloud === 'gcp' && this.currentTemplate.image === 'docker.datalab-deeplearning') {
             this.currentTemplate.exploratory_environment_images = this.currentTemplate.exploratory_environment_images.map(image => {
-              return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description}
+              return {name: image['Image family'] ?? image.name, description: image['Description'] ?? image.description};
             });
             this.images.push(...this.currentTemplate.exploratory_environment_images);
           }

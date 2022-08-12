@@ -49,7 +49,7 @@
           <mat-icon [ngClass]="{'highlight': isMaxRight | async }">keyboard_arrow_right</mat-icon>
         </button>
       </div>
-      <div class="totaL-item strong" >
+      <div class="totaL-item strong" *ngIf="reportData?.length">
         Total <span>{{fullReport.total_cost | localcurrency}}</span>
       </div>
     </div>
