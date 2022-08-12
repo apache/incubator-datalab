@@ -328,7 +328,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         boolean canTerminate = false;
 
         if(!image.getStatus().equals(ImageStatus.ACTIVE)){
-            new ImageUserPermissions(false,canTerminate);
+            return new ImageUserPermissions(false,canTerminate);
         }
 
         if(image.getUser().equals(userInfo.getName())){
@@ -336,7 +336,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         } else {
             canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_RECEIVED_IMAGES_PAGE,userInfo.getRoles());
         }
-        return  new ImageUserPermissions(canShare,canTerminate);
+        return new ImageUserPermissions(canShare,canTerminate);
     }
 
     private ImageSharingStatus getImageSharingStatus(String username, ImageInfoRecord image){
