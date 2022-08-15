@@ -142,8 +142,13 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                                 .minDataprocPreemptibleInstanceCount(configuration.getMinDataprocPreemptibleCount())
                                 .build());
             case AZURE:
-                log.error("Dataengine service is not supported currently for {}", AZURE);
-                throw new UnsupportedOperationException("Dataengine service is not supported currently for " + AZURE);
+                return new AzureFullComputationalTemplate(metadataDTO,
+                        AzureHDInsightConfiguration.builder()
+                                .minHdinsightInstanceCount(configuration.getMinHDInsightInstanceCount())
+                                .maxHdinsightInstanceCount(configuration.getMaxHDInsightInstanceCount())
+                                .build());
+//                log.error("Dataengine service is not supported currently for {}", AZURE);
+//                throw new UnsupportedOperationException("Dataengine service is not supported currently for " + AZURE);
             default:
                 throw new UnsupportedOperationException("Dataengine service is not supported currently for " + cloudProvider);
         }

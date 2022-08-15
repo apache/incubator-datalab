@@ -97,9 +97,9 @@ public class ComputationalResourceAzure {
                     .status(CREATING.toString())
                     .masterShape(form.getMasterInstanceType())
                     .slaveShape(form.getSlaveInstanceType())
+                    .slaveInstanceCount(form.getSlaveInstanceCount())
                     .config(form.getConfig())
                     .version(form.getVersion())
-                    //.totalInstanceCount(Integer.parseInt(form.getInstanceCount()))
                     .build();
 
             boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, azureComputationalResource

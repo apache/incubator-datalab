@@ -27,24 +27,24 @@ public class AzureComputationalResource extends UserComputationalResource {
     private final String slaveShape;
     @JsonProperty("hdinsight_version")
     private final String version;
+    @JsonProperty("hdinsight_slave_count")
+    private final String slaveInstanceCount;
 
 
     @Builder
     public AzureComputationalResource(String computationalName, String computationalId, String imageName,
-                                    String templateName, String status, Date uptime,
-                                    SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
-                                    String instanceId, String masterShape, String slaveShape, String version,
-                                    List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-                                    List<ClusterConfig> config, Map<String, String> tags, int totalInstanceCount) {
+                                      String templateName, String status, Date uptime,
+                                      SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
+                                      String instanceId, String masterShape, String slaveShape, String version,
+                                      List<ResourceURL> resourceURL, LocalDateTime lastActivity,
+                                      List<ClusterConfig> config, Map<String, String> tags, int totalInstanceCount, String slaveInstanceCount) {
         super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
                 reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
         this.instanceId = instanceId;
         this.masterShape = masterShape;
         this.slaveShape = slaveShape;
-//        this.slaveSpot = slaveSpot;
-//        this.slaveSpotPctPrice = slaveSpotPctPrice;
-//        this.slaveNumber = slaveNumber;
         this.version = version;
+        this.slaveInstanceCount = slaveInstanceCount;
         this.config = config;
     }
 }
