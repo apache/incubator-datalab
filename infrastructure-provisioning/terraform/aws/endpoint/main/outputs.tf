@@ -32,5 +32,5 @@ output "vpc_id" {
 }
 
 output "ssn_k8s_sg_id" {
-  value = aws_security_group.endpoint_sec_group.id
+  value = data.aws_security_group.data_sg.id
 }
