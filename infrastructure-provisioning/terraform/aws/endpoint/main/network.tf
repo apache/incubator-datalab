@@ -144,8 +144,8 @@ resource "aws_security_group" "endpoint_sec_group" {
   }
 }
 
-data "aws_security_group" "data_sg" {
-  id = var.sg_ids == "" ? [aws_security_group.endpoint_sec_group[1].id] : var.sg_ids
+data "aws_instance" "data_sg" {
+  security_groups = var.sg_ids == "" ? [aws_security_group.endpoint_sec_group[1].id] : var.sg_ids
 }
 
 resource "aws_eip" "endpoint_eip" {
