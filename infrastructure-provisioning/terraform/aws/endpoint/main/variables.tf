@@ -53,8 +53,9 @@ variable "vpc_id" {
   default = ""
 }
 
-variable "sg_id" {
-  default = ""
+variable "sg_ids" {
+  type    = list(string)
+  default = [""]
 }
 
 variable "subnet_id" {

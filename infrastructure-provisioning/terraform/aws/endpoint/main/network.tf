@@ -85,7 +85,7 @@ resource "aws_route" "route" {
 
 resource "aws_security_group" "endpoint_sec_group" {
   name        = local.endpoint_sg_name
-  count       = var.sg_id == "" ? 1 : 0
+  count       = var.sg_ids == [""] ? 1 : 0
   vpc_id      = data.aws_vpc.data_vpc.id
   ingress {
     from_port   = 22
@@ -145,7 +145,7 @@ resource "aws_security_group" "endpoint_sec_group" {
 }
 
 data "aws_security_group" "data_sg" {
-  id = var.sg_id == "" ? aws_security_group.endpoint_sec_group.id : var.sg_id
+  id = var.sg_ids == [""] ? [aws_security_group.endpoint_sec_group.id] : var.sg_ids
 }
 
 resource "aws_eip" "endpoint_eip" {
