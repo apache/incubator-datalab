@@ -1016,7 +1016,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--billing_aws_account_id', 'The ID of ASW linked account', group='endpoint', default='')
          .add_str('--billing_tag', 'Billing tag', group='endpoint', default='datalab')
          .add_str('--allowed_ip_cidrs', 'Allowed IP CIDRs for SGs', group='endpoint', default='["0.0.0.0/0"]')
-         .add_str('--sg_ids', 'SGs IDs to be added to instance', group='endpoint', default='[""]')
+         .add_str('--sg_id', 'SG ID to be added to instance', group='endpoint', default="")
          )
         return params.build()
 
