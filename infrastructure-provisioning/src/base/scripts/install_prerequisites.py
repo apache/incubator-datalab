@@ -39,7 +39,7 @@ parser.add_argument('--pip_packages', type=str,
                     default='boto3 argparse fabric awscli google-api-python-client google-auth-httplib2 '
                             'google-cloud-storage pycryptodome azure-storage-blob azure-datalake-store '
                             'azure-mgmt-compute azure-mgmt-network azure-mgmt-resource azure-mgmt-storage '
-                            'azure-mgmt-datalake-store azure-identity')
+                            'azure-mgmt-datalake-store azure-identity azure-mgmt-hdinsight')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--user', type=str, default='')
 parser.add_argument('--edge_private_ip', type=str, default='')

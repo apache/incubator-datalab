@@ -42,6 +42,7 @@ from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlobServiceClient
 from azure.identity import ClientSecretCredential
 from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
+from azure.mgmt.hdinsight import HDInsightManagementClient
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -85,6 +86,11 @@ class AzureActions:
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.datalake_client = DataLakeStoreAccountManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"]
+        )
+        self.hdinsight_client = HDInsightManagementClient(
             self.credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
@@ -1494,3 +1500,35 @@ def find_des_jars(all_jars, des_path):
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
+
+def create_hdinsight_cluster(resource_group_name, instance_name, cluster_parameters):
+    try:
+        azure_action = AzureActions()
+        client_1 = azure_action.hdinsight_client
+        print('Starting to create HDInsight Spark cluster {}'.format('hdinsight'))
+        result = client_1.clusters.begin_create(resource_group_name, instance_name, cluster_parameters)
+
+        return result
+    except Exception as err:
+        logging.info(
+            "Unable to create HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create HDInsight Spark cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def terminate_hdinsight_cluster(resource_group_name, instance_name, cluster_parameters):
+    try:
+        azure_action = AzureActions()
+        client_1 = azure_action.hdinsight_client
+        print('Starting to terminate HDInsight Spark cluster {}'.format('hdinsight'))
+        client_1.clusters.begin_delete(resource_group_name, instance_name, cluster_parameters)
+
+    except Exception as err:
+        logging.info(
+            "Unable to terminate HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to terminate HDInsight Spark cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
