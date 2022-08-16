@@ -66,7 +66,7 @@ if __name__ == "__main__":
     logging.info('Generating infrastructure names and tags')
     hdin_conf = dict()
     hdin_conf['service_base_name'] = (os.environ['conf_service_base_name'])
-    hdin_conf['hdin_name'] = os.environ['computational_name']
+    hdin_conf['hdin_name'] = os.environ['hdinsight_cluster_name']
     hdin_conf['notebook_name'] = os.environ['notebook_instance_name']
     hdin_conf['project_name'] = os.environ['project_name']
     hdin_conf['endpoint_name'] = os.environ['endpoint_name']
