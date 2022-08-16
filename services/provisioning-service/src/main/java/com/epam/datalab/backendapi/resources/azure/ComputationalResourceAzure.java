@@ -29,6 +29,7 @@ import com.epam.datalab.backendapi.core.response.handlers.ComputationalCallbackH
 import com.epam.datalab.backendapi.core.response.handlers.ComputationalConfigure;
 import com.epam.datalab.backendapi.service.impl.DockerService;
 import com.epam.datalab.backendapi.service.impl.SparkClusterService;
+import com.epam.datalab.dto.azure.computational.AzureComputationalTerminateDTO;
 import com.epam.datalab.dto.azure.computational.ComputationalCreateAzure;
 import com.epam.datalab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.datalab.dto.base.DataEngineType;
@@ -37,7 +38,6 @@ import com.epam.datalab.dto.computational.ComputationalClusterConfigDTO;
 import com.epam.datalab.dto.computational.ComputationalStartDTO;
 import com.epam.datalab.dto.computational.ComputationalStopDTO;
 import com.epam.datalab.dto.computational.ComputationalTerminateDTO;
-import com.epam.datalab.dto.gcp.computational.GcpComputationalTerminateDTO;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.rest.contracts.ComputationalAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,7 +58,6 @@ import static com.epam.datalab.backendapi.core.commands.DockerAction.TERMINATE;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-//public class ComputationalResourceAzure implements ComputationalAPI {
 public class ComputationalResourceAzure extends DockerService implements DockerCommands {
 
     @Inject
@@ -103,7 +102,7 @@ public class ComputationalResourceAzure extends DockerService implements DockerC
 
     @POST
     @Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC)
-    public String terminate(@Auth UserInfo ui, GcpComputationalTerminateDTO dto) {
+    public String terminate(@Auth UserInfo ui, AzureComputationalTerminateDTO dto) {
 
         log.debug("Terminate computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(),
                 dto);
