@@ -103,5 +103,5 @@ def create_cluster_parameters():
     )
 
 if __name__ == "__main__":
-    params = create_cluster_parameters()
-    create_hdinsight_cluster(RESOURCE_GROUP_NAME,CLUSTER_NAME, params)
+    #params = create_cluster_parameters()
+    #create_hdinsight_cluster(RESOURCE_GROUP_NAME,CLUSTER_NAME, params)
