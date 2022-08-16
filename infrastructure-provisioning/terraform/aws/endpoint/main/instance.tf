@@ -28,7 +28,7 @@ resource "aws_instance" "endpoint" {
   instance_type        = var.endpoint_instance_shape
   key_name             = var.key_name
   subnet_id            = data.aws_subnet.data_subnet.id
-  security_groups      = [aws_security_group.endpoint_sec_group.id]
+  security_groups      = [data.aws_security_group.data_sg.id]
   iam_instance_profile = aws_iam_instance_profile.endpoint_profile.name
   root_block_device {
     volume_type           = "gp2"
