@@ -421,14 +421,7 @@
           <button
             mat-raised-button
             type="button"
-            [disabled]="!resourceForm?.valid
-              || (!resourceForm.value.shape_slave)
-              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version)"
-            (click)="createComputationalResource(resourceForm.value)"
             class="butt butt-success action"
-            [ngClass]="{'not-allowed': !resourceForm?.valid
-              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave)
-              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version) }"
           >
             Create
           </button>
