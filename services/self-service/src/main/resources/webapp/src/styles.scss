@@ -403,7 +403,8 @@ input[type="number"] {
 }
 #scrolling,
 .scrolling,
-ace_scrollbar {
+ace_scrollbar,
+.library-dialog-container .mat-dialog-container {
   scrollbar-width: thin;
 }
 
