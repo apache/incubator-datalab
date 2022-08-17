@@ -53,6 +53,8 @@ export interface Library {
   name: string;
   status: string;
   version: string;
+  resourceName: string;
+  type: 'EXPLORATORY';
 }
 
 export interface ClusterConfig {
