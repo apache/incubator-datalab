@@ -81,7 +81,8 @@ public class CheckInfrastructureStatusScheduler implements Job {
                 .map(EndpointDTO::getName)
                 .collect(Collectors.toList());
 
-        List<UserInstanceDTO> userInstanceDTOS = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusIn(activeEndpoints, statusesToCheck, Boolean.TRUE);
+        List<UserInstanceDTO> userInstanceDTOS = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusIn(activeEndpoints, statusesToCheck, Boolean.TRUE)
+        .stream().filter(e -> e.getInstanceId() != null).collect(Collectors.toList());
 
         Map<String, List<EnvResource>> exploratoryAndSparkInstances = userInstanceDTOS
                 .stream()
