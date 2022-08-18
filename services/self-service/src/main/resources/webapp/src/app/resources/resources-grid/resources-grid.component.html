@@ -318,19 +318,19 @@
                       <span>Manage libraries</span>
                     </div>
                   </li>
-                  <li *ngIf="element.status === 'running'" (click)="logAction(element.name)">
-                    <div>
-                      <a
-                        target="_blank"
-                        [attr.href]="'/#/terminal/' + element.private_ip + '/' + element.endpoint"
-                        class="navigate"
-                        (contextmenu)="false"
-                      >
-                        <i class="material-icons">laptop</i>
-                        <span>Open terminal</span>
-                      </a>
-                    </div>
-                  </li>
+<!--                  <li *ngIf="element.status === 'running'" (click)="logAction(element.name)">-->
+<!--                    <div>-->
+<!--                      <a-->
+<!--                        target="_blank"-->
+<!--                        [attr.href]="'/#/terminal/' + element.private_ip + '/' + element.endpoint"-->
+<!--                        class="navigate"-->
+<!--                        (contextmenu)="false"-->
+<!--                      >-->
+<!--                        <i class="material-icons">laptop</i>-->
+<!--                        <span>Open terminal</span>-->
+<!--                      </a>-->
+<!--                    </div>-->
+<!--                  </li>-->
                 </ul>
                 <ul class="list-unstyled" *ngIf="element.shape === 'odahu cluster'">
                   <li class="project-seting-item" *ngIf="element.status === 'stopped'" (click)="odahuAction(element, 'start')">
