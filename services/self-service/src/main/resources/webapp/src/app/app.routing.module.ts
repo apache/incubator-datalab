@@ -31,11 +31,17 @@ import { ManagementComponent } from './administration/management';
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
 import { SwaggerComponent } from './swagger';
-import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard, AuditGuard } from './core/services';
+import {
+  AuthorizationGuard,
+  CheckParamsGuard,
+  CloudProviderGuard,
+  AdminGuard,
+  AuditGuard,
+  ImagePageResolveGuard
+} from './core/services';
 import {ConfigurationComponent} from './administration/configuration/configuration.component';
 import {ProjectAdminGuard} from './core/services/projectAdmin.guard';
 import {ReportingComponent} from './reports/reporting/reporting.component';
-import {OdahuComponent} from './administration/odahu/odahu.component';
 import {AuditComponent} from './reports/audit/audit.component';
 import {ImagesComponent} from './resources/images/images.component';
 
@@ -62,7 +68,10 @@ const routes: Routes = [
       {
         path: 'images',
         component: ImagesComponent,
-        canActivate: [AuthorizationGuard]
+        canActivate: [AuthorizationGuard],
+        resolve: {
+          projectList: ImagePageResolveGuard
+        }
       },
       {
         path: 'billing',

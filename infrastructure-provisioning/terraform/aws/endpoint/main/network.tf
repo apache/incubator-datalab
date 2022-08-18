@@ -85,47 +85,48 @@ resource "aws_route" "route" {
 
 resource "aws_security_group" "endpoint_sec_group" {
   name        = local.endpoint_sg_name
+  count       = var.sg_id == "" ? 1 : 0
   vpc_id      = data.aws_vpc.data_vpc.id
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 8084
     to_port     = 8084
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 8085
     to_port     = 8085
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 4822
     to_port     = 4822
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   ingress {
     from_port   = 8088
     to_port     = 8088
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
     ingress {
     from_port   = 3128
     to_port     = 3128
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ip_cidrs
   }
 
   egress {
@@ -141,6 +142,10 @@ resource "aws_security_group" "endpoint_sec_group" {
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_sg_name}"
     "${var.service_base_name}-tag" = local.endpoint_sg_name
   }
+}
+
+data "aws_security_group" "data_sg" {
+  id = var.sg_id == "" ? aws_security_group.endpoint_sec_group[1].id : var.sg_id
 }
 
 resource "aws_eip" "endpoint_eip" {

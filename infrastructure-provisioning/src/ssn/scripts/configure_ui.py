@@ -78,6 +78,7 @@ parser.add_argument('--tags', type=str, default=None)
 parser.add_argument('--keycloak_client_id', type=str, default=None)
 parser.add_argument('--keycloak_client_secret', type=str, default=None)
 parser.add_argument('--keycloak_auth_server_url', type=str, default=None)
+parser.add_argument('--keycloak_realm_name', type=str, default=None)
 args = parser.parse_args()
 
 datalab_conf_dir = args.datalab_path + 'conf/'
@@ -257,6 +258,6 @@ if __name__ == "__main__":
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
              args.datalab_id, args.usage_date, args.product, args.usage_type,
              args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
-             args.keycloak_client_secret, args.keycloak_auth_server_url)
+             args.keycloak_client_secret, args.keycloak_auth_server_url, args.keycloak_realm_name)
 
     conn.close()

@@ -40,7 +40,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -132,7 +131,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 
     @Test
     public void getImages() {
-        when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
+        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
                 .thenReturn(getImageList());
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/image")
@@ -148,14 +147,14 @@ public class ImageExploratoryResourceTest extends TestBase {
         }));
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
+        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
         verifyNoMoreInteractions(imageExploratoryService);
     }
 
     @Test
     public void getImagesWithFailedAuth() throws AuthenticationException {
         authFailSetup();
-        when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
+        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
                 .thenReturn(getImageList());
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/image")
@@ -171,7 +170,7 @@ public class ImageExploratoryResourceTest extends TestBase {
         }));
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
+        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
         verifyNoMoreInteractions(imageExploratoryService);
     }
 
@@ -285,11 +284,12 @@ public class ImageExploratoryResourceTest extends TestBase {
                 "someEndpoint",
                 "someUser",
                 "someApp",
+                "someTemplateName",
                 "someInstance",
                 CloudProvider.AWS,
+                "someDockerImage",
                 "someFullName",
-                ImageStatus.CREATED,
-                false,
+                ImageStatus.ACTIVE,
                 null,
                 null,
                 null,

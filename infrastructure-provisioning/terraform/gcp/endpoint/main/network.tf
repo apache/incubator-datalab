@@ -56,7 +56,7 @@ resource "google_compute_firewall" "firewall-ingress" {
     ports    = ["22", "8084", "8085", "4822", "8088"]
   }
   target_tags   = ["${var.service_base_name}-${var.endpoint_id}-endpoint"]
-  source_ranges = [var.firewall_ing_cidr_range]
+  source_ranges = var.firewall_ing_cidr_range
 
 }
 
@@ -68,5 +68,5 @@ resource "google_compute_firewall" "firewall-egress" {
     protocol = "all"
   }
   target_tags        = ["${var.service_base_name}-${var.endpoint_id}-endpoint"]
-  destination_ranges = [var.firewall_eg_cidr_range]
+  destination_ranges = var.firewall_eg_cidr_range
 }

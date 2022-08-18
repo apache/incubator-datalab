@@ -34,8 +34,13 @@ import { BucketBrowserModule } from './bucket-browser/bucket-browser.module';
 import { ImagesComponent } from './images/images.component';
 import {CheckboxModule} from '../shared/checkbox';
 import {BubbleModule} from '../shared';
-import { CapitalizeFirstLetterPipeModule } from '../core/pipes';
+import { IsElementAvailablePipeModule, NormalizeDropdownMultiValuePipeModule } from '../core/pipes';
 import { LocalDatePipeModule } from '../core/pipes/local-date-pipe';
+import { ShareImageDialogModule } from './exploratory/share-image-dialog/share-image-dialog.module';
+import { ImageDetailDialogModule } from './exploratory/image-detail-dialog/image-detail-dialog.module';
+import {LibraryInfoModalModule} from './exploratory/library-info-modal/library-info-modal.module';
+import { PageFilterComponent } from './exploratory/page-filter/page-filter.component';
+import { DirectivesModule } from '../core/directives';
 
 @NgModule({
   imports: [
@@ -50,14 +55,20 @@ import { LocalDatePipeModule } from '../core/pipes/local-date-pipe';
     BucketBrowserModule,
     CheckboxModule,
     BubbleModule,
-    CapitalizeFirstLetterPipeModule,
-    LocalDatePipeModule
+    NormalizeDropdownMultiValuePipeModule,
+    LocalDatePipeModule,
+    ShareImageDialogModule,
+    ImageDetailDialogModule,
+    LibraryInfoModalModule,
+    DirectivesModule,
+    IsElementAvailablePipeModule
   ],
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
     ConfirmDeleteAccountDialogComponent,
     ImagesComponent,
+    PageFilterComponent,
 
   ],
   entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialogComponent],

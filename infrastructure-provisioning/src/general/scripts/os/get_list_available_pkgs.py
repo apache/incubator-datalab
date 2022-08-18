@@ -26,6 +26,7 @@ import json
 import sys
 import time
 import xmlrpc.client
+import os
 from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric import *
@@ -103,10 +104,10 @@ if __name__ == "__main__":
     #elif args.group == 'pip2':
         #all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
     elif args.group == 'pip3':
-        all_pkgs['pip3'] = get_available_pip_pkgs("3.8")
+        all_pkgs['pip3'] = get_available_pip_pkgs(os.environ['notebook_python_venv_version'][:3])
     elif args.group == 'others':
         all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
-        all_pkgs['pip3'] = get_available_pip_pkgs("3.8")
+        all_pkgs['pip3'] = get_available_pip_pkgs(os.environ['notebook_python_venv_version'][:3])
         all_pkgs['others'] = get_uncategorised_pip_pkgs(all_pkgs['pip2'], all_pkgs['pip3'])
     elif args.group == 'r_pkg':
         all_pkgs['r_pkg'] = get_available_r_pkgs()

@@ -17,14 +17,26 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CapitalizeFirstLetterPipe } from './capitalize-first-letter.pipe';
+package com.epam.datalab.backendapi.resources.dto;
 
-@NgModule({
-  imports: [CommonModule],
-  declarations: [CapitalizeFirstLetterPipe],
-  exports: [CapitalizeFirstLetterPipe]
-})
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-export class CapitalizeFirstLetterPipeModule { }
+import java.util.List;
+import java.util.Map;
+
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
+@ToString
+public class ImagesPageInfo {
+    @JsonProperty
+    private List<ProjectImagesInfo> projectImagesInfos;
+    @JsonProperty
+    private ImageFilter imageFilter;
+    @JsonProperty
+    private ImageFilterFormData filterData;
+}

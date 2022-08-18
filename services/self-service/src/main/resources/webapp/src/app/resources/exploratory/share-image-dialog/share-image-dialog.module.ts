@@ -17,17 +17,17 @@
  * under the License.
  */
 
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ShareImageDialogComponent } from './share-image-dialog.component';
+import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 
-import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'capitalizeFirstLetter' })
 
-export class CapitalizeFirstLetterPipe implements PipeTransform {
-  transform(value: string): string {
-    if (!value) {
-      return '';
-    }
-    const firstLetter = value. substring(0, 1). toUpperCase();
-    return `${firstLetter}${value.substring(1).toLowerCase()}`;
-  }
-}
+@NgModule({
+  declarations: [ ShareImageDialogComponent ],
+  imports: [ CommonModule ],
+  entryComponents: [ShareImageDialogComponent],
+  exports: [ ShareImageDialogComponent ]
+})
+export class ShareImageDialogModule { }

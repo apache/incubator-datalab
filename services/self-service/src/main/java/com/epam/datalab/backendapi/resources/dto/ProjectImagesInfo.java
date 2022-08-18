@@ -20,10 +20,7 @@
 package com.epam.datalab.backendapi.resources.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -31,6 +28,7 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode
 @ToString
+@Data
 public class ProjectImagesInfo {
     @JsonProperty
     private String project;

@@ -19,39 +19,29 @@
 
 package com.epam.datalab.backendapi.resources.dto;
 
-import com.epam.datalab.cloud.CloudProvider;
+import com.epam.datalab.dto.exploratory.ImageSharingStatus;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ImageFilter {
     @NonNull
-    private String imageName;
+    private String imageName = "";
     @NonNull
-    @JsonProperty("date_start")
-    private String dateStart;
+    private Set<ImageStatus> statuses = new HashSet<>();
     @NonNull
-    @JsonProperty("date_end")
-    private String dateEnd;
+    private Set<String> endpoints = new HashSet<>();
     @NonNull
-    private List<CloudProvider> cloudProviders;
+    private Set<String> templateNames = new HashSet<>();
     @NonNull
-    private List<ImageStatus> statuses;
-//    @NonNull
-//    private List<> sharingStatuses;
-    @NonNull
-    private List<String> templateNames;
-    @NonNull
-    private List<String> instanceNames;
-    @NonNull
-    private List<String> projects;
+    private Set<ImageSharingStatus> sharingStatuses = new HashSet<>();
 
 }

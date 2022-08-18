@@ -23,15 +23,35 @@ import {  catchError } from 'rxjs/operators';
 import {  ErrorUtils } from '../util';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
-import { ProjectModel } from '../../resources/images';
+import {
+  ImageFilterFormValue,
+  ProjectImagesInfo,
+  ShareImageAllUsersParams
+} from '../../resources/images';
 
 @Injectable()
 export class UserImagesPageService {
-  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
+  constructor(
+    private applicationServiceFacade: ApplicationServiceFacade
+  ) { }
 
 
-  getUserImagePageInfo(): Observable<ProjectModel[]> {
+  getFilterImagePage(): Observable<ProjectImagesInfo> {
     return this.applicationServiceFacade.buildGetUserImagePage()
+      .pipe(
+        catchError(ErrorUtils.handleServiceError)
+      );
+  }
+
+  filterImagePage(params: ImageFilterFormValue): Observable<ProjectImagesInfo> {
+    return this.applicationServiceFacade.buildFilterUserImagePage(params)
+      .pipe(
+        catchError(ErrorUtils.handleServiceError)
+      );
+  }
+
+  shareImagesAllUser(shareParams: ShareImageAllUsersParams): Observable<ProjectImagesInfo> {
+    return this.applicationServiceFacade.buildShareImageAllUsers(shareParams)
       .pipe(
         catchError(ErrorUtils.handleServiceError)
       );

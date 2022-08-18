@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { Project } from '../../administration/project/project.component';
 import {
   Component,
   EventEmitter,
@@ -47,6 +46,7 @@ import { NotebookModel } from '../exploratory/notebook.model';
 import { AuditService } from '../../core/services/audit.service';
 import { CompareUtils } from '../../core/util/compareUtils';
 import { OdahuActionDialogComponent } from '../../shared/modal-dialog/odahu-action-dialog';
+import { Project } from '../../administration/project/project.model';
 
 export interface SharedEndpoint {
   edge_node_ip: string;

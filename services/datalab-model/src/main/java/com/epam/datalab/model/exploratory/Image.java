@@ -41,6 +41,7 @@ public class Image {
     private final String fullName;
     private final String externalName;
     private final String application;
+    private final String templateName;
     private final String instanceName;
     private final String cloudProvider;
     private final String dockerImage;

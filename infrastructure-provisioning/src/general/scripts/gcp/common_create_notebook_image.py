@@ -90,7 +90,7 @@ if __name__ == "__main__":
                        "secondary_image_name": image_conf['expected_secondary_image_name'],
                        "project_name": image_conf['project_name'],
                        "application": image_conf['application'],
-                       "status": "created",
+                       "status": "active",
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
     except Exception as err:

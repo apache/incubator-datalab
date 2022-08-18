@@ -21,26 +21,101 @@ export enum Image_Table_Column_Headers {
   imageName = 'Image name',
   creationDate = 'Creation date',
   provider = 'Provider',
-  imageStatus = 'Image status',
+  imageStatus = 'Status',
   sharedStatus = 'Shared status',
   templateName = 'Template name',
-  instanceName = 'Instance name',
   actions = 'Actions',
+  endpoint = 'Endpoint',
 }
 
 export enum Shared_Status {
-  shared = 'Shared',
-  private = 'Private'
+  shared = 'SHARED',
+  private = 'PRIVATE',
+  received = 'RECEIVED'
 }
 
 export const Image_Table_Titles = <const>[
   'checkbox',
   'imageName',
-  'creationDate',
-  'provider',
   'imageStatus',
-  'sharedStatus',
+  'creationDate',
+  'endpoint',
   'templateName',
-  'instanceName',
+  'sharedStatus',
   'actions'
 ];
+
+export enum Localstorage_Key {
+  userName = 'user_name'
+}
+
+export enum Toaster_Message {
+  successShare = 'The image has been shared with all current Regular Users on the project!'
+}
+
+export enum Placeholders {
+  projectSelect = 'Select project'
+}
+
+export enum ImageStatuses {
+  creating = 'CREATING',
+  active = 'ACTIVE',
+  failed = 'FAILED'
+}
+
+export enum TooltipStatuses {
+  activeOnly = 'The image cannot be shared because it is not in the "Active" status',
+  creatorOnly = 'Images may be shared by creators only',
+  unableTerminate = 'Unable to terminate notebook because at least one compute is in progress'
+}
+
+export enum DropdownFieldNames {
+  imageNames = 'imageNames',
+  endpoints = 'endpoints',
+  templateNames = 'templateNames',
+  statuses = 'statuses',
+  sharingStatuses = 'sharingStatuses'
+}
+
+export enum FilterFormControlNames {
+  imageName = 'imageName',
+  endpoints = 'endpoints',
+  templateNames = 'templateNames',
+  statuses = 'statuses',
+  sharingStatuses = 'sharingStatuses'
+}
+
+export enum ImageModelNames {
+  name = 'name',
+  status = 'status',
+  endpoint = 'endpoint',
+  templateName = 'templateName',
+  sharingStatus = 'sharingStatus'
+}
+
+export const FilterFormInitialValue = {
+    endpoints: [],
+    imageName: '',
+    statuses: [],
+    templateNames: [],
+    sharingStatuses: [],
+};
+
+export const ChangedColumnStartValue = {
+    endpoints: false,
+    imageNames: false,
+    statuses: false,
+    templateNames: false,
+    sharingStatuses: false,
+};
+
+export enum ImageModelKeysForFilter {
+  status = 'status',
+  name = 'name',
+  endpoint = 'endpoint',
+  templateName = 'templateName',
+  shared = 'shared'
+}
+
+export const DropdownSelectAllValue = 'selectAllFound';
+

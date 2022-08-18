@@ -1319,18 +1319,17 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
                        keycloak_client_secret, edge_instance_private_ip, edge_instance_public_ip, superset_name):
     logging.info('Superset configuring')
     try:
-        if not exists(conn, '/home/{}/incubator-superset'.format(os_user)):
+        if not exists(conn, '/home/{}/superset'.format(os_user)):
             conn.sudo(
                 '''bash -c 'cd /home/{} && wget https://github.com/apache/incubator-superset/archive/{}.tar.gz' '''.format(
                     os_user, os.environ['notebook_superset_version']))
             conn.sudo('''bash -c 'cd /home/{} && tar -xzf {}.tar.gz' '''.format(os_user, os.environ[
                 'notebook_superset_version']))
-            conn.sudo('''bash -c 'cd /home/{} && ln -sf incubator-superset-{} incubator-superset' '''.format(os_user,
-                                                                                                             os.environ[
-                                                                                                                 'notebook_superset_version']))
+            conn.sudo('''bash -c 'cd /home/{} && ln -sf superset-{} superset' '''.format(os_user,
+                                                                                         os.environ['notebook_superset_version']))
         if not exists(conn, '/tmp/superset-notebook_installed'):
             conn.sudo('mkdir -p /opt/datalab/templates')
-            conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')
+            conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz .')
             conn.put('/tmp/templates.tar.gz', '/tmp/templates.tar.gz')
             conn.sudo('tar -zxvf /tmp/templates.tar.gz -C /opt/datalab/templates')
             conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/.env'.format(os_user))
@@ -1347,23 +1346,27 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
                 keycloak_auth_server_url))
             conn.sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(
                 keycloak_realm_name))
+            conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/superset_config.py'.format(os_user))
             conn.sudo(
                 'sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/superset_config.py'.format(edge_instance_public_ip))
             conn.sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(superset_name))
-            conn.sudo('cp -f /opt/datalab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            conn.sudo('cp -f /opt/datalab/templates/.env /home/{}/superset/docker/'.format(os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/docker-compose.yml /home/{}/superset/'.format(
                     os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/id_provider.json /home/{}/superset/docker/'.format(
                     os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/requirements-extra.txt /home/{}/superset/requirements/'.format(
                     os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/superset_config.py /home/{}/superset/docker/pythonpath_dev/'.format(
                     os_user))
-            conn.sudo('cp -f /opt/datalab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(
+            conn.sudo(
+                'cp -f /opt/datalab/templates/keycloak_security_manager.py /home/{}/superset/docker/pythonpath_dev/'.format(
+                    os_user))
+            conn.sudo('cp -f /opt/datalab/templates/docker-init.sh /home/{}/superset/docker/'.format(
                 os_user))
             conn.sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:
