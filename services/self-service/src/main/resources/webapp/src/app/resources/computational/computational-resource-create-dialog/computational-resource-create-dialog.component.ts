@@ -78,7 +78,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     private _ref: ChangeDetectorRef,
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loading = true;
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
@@ -86,7 +86,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint, this.notebook_instance.cloud_provider);
   }
 
-  public selectImage($event) {
+  public selectImage($event): void {
     this.selectedImage = $event;
     this.filterShapes();
     this.getComputationalResourceLimits();
@@ -109,13 +109,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  public selectPreemptibleNodes(addPreemptible) {
+  public selectPreemptibleNodes(addPreemptible): void {
     if (addPreemptible) {
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
     }
   }
 
-  public selectConfiguration() {
+  public selectConfiguration(): void {
     if (this.isSelected.configuration) {
       const template = (this.selectedImage.image === 'docker.datalab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
@@ -142,7 +142,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public createComputationalResource(data) {
+  public createComputationalResource(data): void {
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance,
       this.PROVIDER.toLowerCase(), this.isSelected.gpu)
       .subscribe(
@@ -258,7 +258,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private validConfiguration(control) {
     if (this.isSelected.configuration) {
       return this.isSelected.configuration
-        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+        ? (control.value && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
     }
   }
@@ -299,8 +299,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     let filtered;
 
     const reduceShapes = (obj, key) => {
-      obj[key] = this.selectedImage.computation_resources_shapes[key];
-      return obj;
+      return {...obj, [key]: this.selectedImage.computation_resources_shapes[key]};
     };
 
     const filteredShapeKeys = Object.keys(
@@ -315,8 +314,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     ) {
       filtered = filterShapes(key => allowed.includes(key));
       if (this.PROVIDER !== 'azure') {
-        const images = this.clusterTypes.filter(image => image.image === 'docker.datalab-dataengine');
-        this.clusterTypes = images;
+        this.clusterTypes = this.clusterTypes.filter(image => image.image === 'docker.datalab-dataengine');
         this.selectedImage = this.clusterTypes[0];
       }
     } else if (this.notebook_instance.template_name.toLowerCase().indexOf('jupyter notebook') !== -1 &&
