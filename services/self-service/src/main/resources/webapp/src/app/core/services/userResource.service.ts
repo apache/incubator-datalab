@@ -23,7 +23,9 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ErrorUtils } from '../util/';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
-import {ProjectModel} from '../../resources/images/images.model';
+import {
+  ComputationalResourceModel
+} from '../../resources/computational/computational-resource-create-dialog/computational.resource.model';
 
 @Injectable()
 export class UserResourceService {
@@ -38,7 +40,7 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalTemplates(project, endpoint, provider): Observable<any> {
+  public getComputationalTemplates(project, endpoint, provider): Observable<ComputationalResourceModel> {
     const url = `/${project}/${endpoint}/templates`;
     return this.applicationServiceFacade
       .buildGetComputationTemplatesRequest(url, provider)

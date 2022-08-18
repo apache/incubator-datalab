@@ -17,17 +17,21 @@
  * under the License.
  */
 
-import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
-import {FormGroup, FormBuilder, Validators, FormControl, ValidatorFn} from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils, HelpUtils } from '../../../core/util';
+import { CheckUtils, HelpUtils, HTTP_STATUS_CODES, PATTERNS, SortUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
+import { DockerImageName } from '../../../core/models';
+import { TemplateName } from '../../../core/configs/template-name';
+import { ComputationalTemplate } from './computational.resource.model';
+import { Providers } from '../../../core/configs/providers';
 
 @Component({
   selector: 'computational-resource-create-dialog',
@@ -40,6 +44,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   readonly CLUSTER_CONFIGURATION = CLUSTER_CONFIGURATION;
   readonly CheckUtils = CheckUtils;
+  readonly providerList: typeof Providers = Providers;
 
   notebook_instance: any;
   resourcesList: any;
@@ -153,6 +158,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       );
   }
 
+  public isHasHDInside(templateList: ComputationalTemplate[]): boolean {
+    return  templateList.some(({template_name}) => template_name === TemplateName.hdInsight);
+  }
+
   private initFormModel(): void {
     this.resourceForm = this._fb.group({
       template_name: ['', [Validators.required]],
@@ -189,13 +198,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
       this.minInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max];
-
-      if (this.PROVIDER === 'gcp' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
+      if (this.PROVIDER === 'gcp' && this.selectedImage.image === DockerImageName.dataEngineService) {
         this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max] - 1;
         this.minPreemptibleInstanceNumber = this.selectedImage.limits.min_dataproc_preemptible_instance_count;
       }
 
-      if (this.PROVIDER === 'aws' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
+      if (this.PROVIDER === 'aws' && this.selectedImage.image === DockerImageName.dataEngineService) {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
@@ -273,12 +281,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  private getTemplates(project, endpoint, provider) {
+  private getTemplates(project, endpoint, provider): void {
     this.userResourceService.getComputationalTemplates(project, endpoint, provider).subscribe(
-      clusterTypes => {
-        this.clusterTypes = clusterTypes.templates;
-        this.userComputations = clusterTypes.user_computations;
-        this.projectComputations = clusterTypes.project_computations;
+      ({templates, user_computations, project_computations}) => {
+        this.clusterTypes = templates;
+        this.userComputations = user_computations;
+        this.projectComputations = project_computations;
 
         this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes =
           SortUtils.shapesSort(cluster.computation_resources_shapes));

@@ -307,7 +307,7 @@
                   <i class="material-icons">help_outline</i>
                 </span>
                 <span
-                  *ngIf="element.imageUserPermissions | isElementAvailable"
+                  *ngIf="element.imageUserPermissions | isElementAvailable: isObjectFieldTrue"
                   #settings class="actions"
                   (click)="actions.toggle($event, settings)"
                 ></span>
