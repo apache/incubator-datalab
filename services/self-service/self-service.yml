@@ -28,7 +28,7 @@ maxEmrInstanceCount: 14
 minEmrSpotInstanceBidPct: 20
 maxEmrSpotInstanceBidPct: 90
 
- Minimum and maximum number of slave HDInsight instances that could be created
+# Minimum and maximum number of slave HDInsight instances that could be created
 minHDInsightInstanceCount: 2
 maxHDInsightInstanceCount: 29
 
