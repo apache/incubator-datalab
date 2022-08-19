@@ -147,8 +147,6 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
                                 .minHdinsightInstanceCount(configuration.getMinHDInsightInstanceCount())
                                 .maxHdinsightInstanceCount(configuration.getMaxHDInsightInstanceCount())
                                 .build());
-//                log.error("Dataengine service is not supported currently for {}", AZURE);
-//                throw new UnsupportedOperationException("Dataengine service is not supported currently for " + AZURE);
             default:
                 throw new UnsupportedOperationException("Dataengine service is not supported currently for " + cloudProvider);
         }
