@@ -18,10 +18,10 @@
  */
 
 import { Component, Inject, OnInit } from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {LibraryInfoItem, Library, ShareModalData} from '../../images';
-import {LibraryInfoModalComponent} from '../library-info-modal/library-info-modal.component';
-import {caseInsensitiveSortUtil} from '../../../core/util';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { LibraryInfoItem, Library, ShareModalData } from '../../images';
+import { LibraryInfoModalComponent } from '../library-info-modal/library-info-modal.component';
+import { caseInsensitiveSortUtil } from '../../../core/util';
 
 @Component({
   selector: 'datalab-image-detail-dialog',
