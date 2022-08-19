@@ -10,10 +10,10 @@ import org.hibernate.validator.constraints.NotBlank;
 @Builder
 public class AzureHDInsightConfiguration  {
     @NotBlank
-    @JsonProperty("min_hdinsight_instance_count")
+    @JsonProperty("min_instance_count")
     private int minHdinsightInstanceCount;
     @NotBlank
-    @JsonProperty("max_hdinsight_instance_count")
+    @JsonProperty("max_instance_count")
     private int maxHdinsightInstanceCount;
 
 }
