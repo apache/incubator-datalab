@@ -17,12 +17,8 @@
  * under the License.
  */
 
-import { Pipe, PipeTransform } from '@angular/core';
-
-@Pipe({ name: 'isElementAvailable' })
-
-export class IsElementAvailablePipe implements PipeTransform {
-  transform<T>(elementField: T, callback: (elementField: T, rest?: any[]) => boolean, ...rest: any[]): boolean {
-    return callback(elementField, rest);
-  }
+export enum Providers {
+  aws = 'aws',
+  azure = 'azure',
+  gcp = 'gsp'
 }

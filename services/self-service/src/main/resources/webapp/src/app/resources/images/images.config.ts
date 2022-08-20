@@ -28,7 +28,7 @@ export enum Image_Table_Column_Headers {
   endpoint = 'Endpoint',
 }
 
-export enum Shared_Status {
+export enum SharedStatus {
   shared = 'SHARED',
   private = 'PRIVATE',
   received = 'RECEIVED'
@@ -83,14 +83,6 @@ export enum FilterFormControlNames {
   templateNames = 'templateNames',
   statuses = 'statuses',
   sharingStatuses = 'sharingStatuses'
-}
-
-export enum ImageModelNames {
-  name = 'name',
-  status = 'status',
-  endpoint = 'endpoint',
-  templateName = 'templateName',
-  sharingStatus = 'sharingStatus'
 }
 
 export const FilterFormInitialValue = {

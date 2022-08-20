@@ -34,7 +34,7 @@ import {
   ImageStatuses,
   Localstorage_Key,
   Placeholders,
-  Shared_Status,
+  SharedStatus,
   DropdownFieldNames,
   FilterFormInitialValue,
   ImageModelKeysForFilter,
@@ -60,7 +60,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   readonly tableHeaderCellTitles: typeof Image_Table_Column_Headers = Image_Table_Column_Headers;
   readonly displayedColumns: typeof Image_Table_Titles = Image_Table_Titles;
   readonly placeholder: typeof Placeholders = Placeholders;
-  readonly sharedStatus: typeof Shared_Status = Shared_Status;
+  readonly sharedStatus: typeof SharedStatus = SharedStatus;
   readonly imageStatus: typeof ImageStatuses = ImageStatuses;
   readonly columnFieldNames: typeof FilterFormControlNames = FilterFormControlNames;
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
@@ -125,6 +125,10 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   onActionClick(): void {
     this.isActionsOpen = !this.isActionsOpen;
+  }
+
+  isObjectFieldTrue(elementField: ImageModel): boolean {
+    return (<any>Object).values(elementField).some(item => Boolean(item));
   }
 
   onSelectClick(projectName: string = ''): void {
