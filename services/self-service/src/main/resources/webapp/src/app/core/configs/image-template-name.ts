@@ -17,6 +17,6 @@
  * under the License.
  */
 
-export enum TemplateName {
+export enum ImageTemplateName {
   hdInsight = 'HDInsight cluster'
 }

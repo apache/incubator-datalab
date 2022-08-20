@@ -29,7 +29,7 @@ import { CheckUtils, HelpUtils, HTTP_STATUS_CODES, PATTERNS, SortUtils } from '.
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
 import { DockerImageName } from '../../../core/models';
-import { TemplateName } from '../../../core/configs/template-name';
+import { ImageTemplateName } from '../../../core/configs/image-template-name';
 import { ComputationalTemplate } from './computational.resource.model';
 import { Providers } from '../../../core/configs/providers';
 
@@ -159,7 +159,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public isHasHDInside(templateList: ComputationalTemplate[]): boolean {
-    return  templateList.some(({template_name}) => template_name === TemplateName.hdInsight);
+    return  templateList.some(({template_name}) => template_name === ImageTemplateName.hdInsight);
   }
 
   private initFormModel(): void {
