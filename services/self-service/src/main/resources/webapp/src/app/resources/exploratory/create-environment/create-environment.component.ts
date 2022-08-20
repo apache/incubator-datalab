@@ -28,7 +28,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import { tap } from 'rxjs/operators';
 import { timer } from 'rxjs';
-import { TemplateName } from '../../../core/models';
+import { DockerImageName } from '../../../core/models';
 import { Project } from '../../../administration/project/project.model';
 
 @Component({
@@ -52,7 +52,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   selectedImage: any;
   maxNotebookLength: number = 14;
   maxCustomTagLength: number = 63;
-  templateName = TemplateName;
+  templateName = DockerImageName;
   public areShapes: boolean;
   public selectedCloud: string = '';
   public gpuCount: Array<number>;

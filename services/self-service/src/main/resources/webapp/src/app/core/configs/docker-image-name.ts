@@ -17,6 +17,7 @@
  * under the License.
  */
 
-export enum TemplateName {
-    jupyterJpu = 'docker.datalab-jupyter-gpu'
+export enum DockerImageName {
+    jupyterJpu = 'docker.datalab-jupyter-gpu',
+    dataEngineService = 'docker.datalab-dataengine-service'
 }

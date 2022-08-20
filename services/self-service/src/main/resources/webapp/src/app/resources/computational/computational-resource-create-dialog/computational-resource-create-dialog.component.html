@@ -27,7 +27,11 @@
       <form [formGroup]="resourceForm" *ngIf="clusterTypes.length && resourceForm; else placeholder">
         <div class="form-wrapper">
           <div class="col">
-            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="clusterTypes.length === 1">
+            <div
+              class="control-group"
+              *ngIf="(clusterTypes | isElementAvailable : isHasHDInside) || this.PROVIDER !== providerList.azure"
+              [hidden]="clusterTypes.length === 1"
+            >
               <label class="label">Select cluster type</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
