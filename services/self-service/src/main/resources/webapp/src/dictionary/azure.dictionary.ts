@@ -57,10 +57,8 @@ export const NAMING_CONVENTION_AZURE = {
     'datalake_user_directory_name': 'datalake_user_directory_name',
     'datalake_shared_directory_name': 'datalake_shared_directory_name',
     'docker.datalab-dataengine-service': {
-        'total_instance_number_min': 'min_emr_instance_count',
-        'total_instance_number_max': 'max_emr_instance_count',
-        'min_emr_spot_instance_bid_pct': 'min_emr_spot_instance_bid_pct',
-        'max_emr_spot_instance_bid_pct': 'max_emr_spot_instance_bid_pct',
+        'total_instance_number_min': 'min_hdinsight_instance_count',
+        'total_instance_number_max': 'max_hdinsight_instance_count',
         'master_node_shape': 'master_node_shape',
         'slave_node_shape': 'slave_node_shape',
         'total_instance_number': 'total_instance_number',
