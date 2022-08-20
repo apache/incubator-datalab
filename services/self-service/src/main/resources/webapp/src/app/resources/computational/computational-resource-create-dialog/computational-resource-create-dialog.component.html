@@ -27,7 +27,7 @@
       <form [formGroup]="resourceForm" *ngIf="clusterTypes.length && resourceForm; else placeholder">
         <div class="form-wrapper">
           <div class="col">
-            <div class="control-group" [hidden]="clusterTypes.length === 1">
+            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="clusterTypes.length === 1">
               <label class="label">Select cluster type</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
@@ -420,6 +420,12 @@
           </button>
           <button
             mat-raised-button
+            [ngClass]="{'not-allowed': !resourceForm?.valid
+              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave)
+              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version) }"
+            [disabled]="!resourceForm?.valid
+              || (!resourceForm.value.shape_slave)
+              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version)"
             type="button"
             (click)="createComputationalResource(resourceForm.value)"
             class="butt butt-success action"

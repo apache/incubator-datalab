@@ -184,7 +184,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    console.log(1111, this.selectedImage);
     if (this.selectedImage && this.selectedImage.image) {
       const activeImage = DICTIONARY[this.PROVIDER][this.selectedImage.image];
 
@@ -203,10 +202,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.isSelected.spotInstances = true;
         this.resourceForm.controls['emr_slave_instance_spot'].setValue(true);
         this.resourceForm.controls['instance_price'].setValue(50);
-      }
-      if (this.PROVIDER === 'azure' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
-        this.minInstanceNumber = this.selectedImage.limits['min_hdinsight_instance_count'];
-        this.maxInstanceNumber = this.selectedImage.limits['max_hdinsight_instance_count'];
       }
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
