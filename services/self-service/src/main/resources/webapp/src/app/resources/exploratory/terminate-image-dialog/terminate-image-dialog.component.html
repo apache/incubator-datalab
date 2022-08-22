@@ -19,15 +19,22 @@
 
 <div id="dialog-box">
   <header class="dialog-header">
-    <h4 class="modal-title">Share Image</h4>
+    <h4 class="modal-title">Terminate Image</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <section class="content">
-    <p class="description">
-      The image
-      <span class="image-name">{{imageName}} </span>
-      <span>will be shared with all current user groups on the project with all the data and code.</span>
-    </p>
+    <mat-list>
+      <mat-list-item class="list-header sans image-terminate">
+        <div class="image">Image</div>
+        <div class="status">Further status</div>
+      </mat-list-item>
+      <div class="scrolling-content scrolling image-list">
+<!--        <mat-list-item *ngFor="let endpoint of filterEndpoints()" class="sans node">-->
+<!--          <div class="endpoint ellipsis">{{endpoint.name}}</div>-->
+<!--          <div class="status terminated">Terminated</div>-->
+<!--        </mat-list-item>-->
+      </div>
+    </mat-list>
     <p class="question center">
       Do you want proceed?
     </p>

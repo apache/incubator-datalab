@@ -38,13 +38,14 @@ import {
   DropdownFieldNames,
   FilterFormInitialValue,
   ImageModelKeysForFilter,
-  DropdownSelectAllValue, FilterFormControlNames,
+  DropdownSelectAllValue, FilterFormControlNames, ImageActions,
 } from './images.config';
-import { ShareImageDialogComponent } from '../exploratory/share-image-dialog/share-image-dialog.component';
+import { ImageActionDialogComponent } from '../exploratory/image-action-dialog/image-action-dialog.component';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
 import { ActivatedRoute } from '@angular/router';
+import { TerminateImageDialogComponent } from '../exploratory/terminate-image-dialog/terminate-image-dialog.component';
 
 @Component({
   selector: 'datalab-images',
@@ -151,14 +152,28 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onShareClick(image: ImageModel): void {
-    this.dialog.open(ShareImageDialogComponent, {
+    this.dialog.open(ImageActionDialogComponent, {
       data: {
-        image
+        image,
+        actionType: ImageActions.share
       },
       panelClass: 'modal-sm'
     }).afterClosed()
       .subscribe(() => {
         this.checkAuthorize();
+        this.progressBarService.stopProgressBar();
+      });
+  }
+
+  onTerminateClick(image: ImageModel): void {
+    this.dialog.open(ImageActionDialogComponent, {
+      data: {
+        image,
+        actionType: ImageActions.terminate
+      },
+      panelClass: 'modal-sm'
+    }).afterClosed()
+      .subscribe(() => {
         this.progressBarService.stopProgressBar();
       });
   }

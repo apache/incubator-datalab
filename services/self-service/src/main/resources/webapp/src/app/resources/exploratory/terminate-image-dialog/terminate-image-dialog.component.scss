@@ -24,6 +24,14 @@
   font-weight: 600;
 }
 
+::ng-deep .mat-list.mat-list-base > .list-header.image-terminate > .mat-list-item-content {
+  justify-content: space-between;
+}
+
+.proceed {
+  text-align: center;
+}
+
 .question {
   color: #718ba6;
 }
@@ -32,14 +40,6 @@
   text-align: center;
 }
 
-.description {
+.image-list {
   margin-bottom: 20px;
-  color: #35afd5;
-  font-size: 14px;
-  text-align: center;
-  font-weight: 200;
-}
-
-.image-name {
-  font-weight: 600;
 }

@@ -111,3 +111,8 @@ export enum ImageModelKeysForFilter {
 
 export const DropdownSelectAllValue = 'selectAllFound';
 
+export enum ImageActions {
+  share = 'share',
+  terminate = 'terminate'
+}
+

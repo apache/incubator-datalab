@@ -19,34 +19,23 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ImagesService } from '../../images/images.service';
-import { ShareModalData, Toaster_Message } from '../../images';
-import { ToastrService } from 'ngx-toastr';
+import { ImageModalData } from '../../images';
 
 @Component({
-  selector: 'datalab-share-image-dialog',
-  templateUrl: './share-image-dialog.component.html',
-  styleUrls: ['./share-image-dialog.component.scss']
+  selector: 'datalab-terminate-image-dialog',
+  templateUrl: './terminate-image-dialog.component.html',
+  styleUrls: ['./terminate-image-dialog.component.scss']
 })
-export class ShareImageDialogComponent implements OnInit{
-  imageName!: string;
+export class TerminateImageDialogComponent implements OnInit {
 
   constructor(
-    public dialogRef: MatDialogRef<ShareImageDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ShareModalData,
-    private imagesService: ImagesService,
-    private toastr: ToastrService,
+    public dialogRef: MatDialogRef<TerminateImageDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: ImageModalData,
   ) { }
 
-  ngOnInit() {
-    this.imageName = this.data.image.name;
-  }
+  ngOnInit(): void {}
 
   onShare() {
-    this.dialogRef.close();
-    this.imagesService.shareImageAllUsers(this.data.image)
-      .subscribe(
-      () => this.toastr.success(Toaster_Message.successShare, 'Success!')
-    );
+    console.log(this.data.image);
   }
 }

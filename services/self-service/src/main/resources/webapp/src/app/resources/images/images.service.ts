@@ -10,7 +10,7 @@ import {
   ImageModel,
   ProjectImagesInfo,
   ProjectModel,
-  ShareImageAllUsersParams
+  ImageParams, ImageActionType
 } from './images.model';
 import { ApplicationServiceFacade, UserImagesPageService } from '../../core/services';
 import { ChangedColumnStartValue, FilterFormInitialValue } from './images.config';
@@ -60,14 +60,16 @@ export class ImagesService {
       );
   }
 
-  shareImageAllUsers(image: ImageModel): Observable<ProjectImagesInfo> {
-    const shareParams: ShareImageAllUsersParams = {
-      imageName: image.name,
-      projectName: image.project,
-      endpoint: image.endpoint
-    };
+  shareImageAllUsers(imageInfo: ImageParams): Observable<ProjectImagesInfo> {
+    return this.userImagesPageService.shareImagesAllUser(imageInfo)
+      .pipe(
+        tap(value => this.getImagePageData(value.projectImagesInfos)),
+        take(1)
+      );
+  }
 
-    return this.userImagesPageService.shareImagesAllUser(shareParams)
+  terminateImage(imageInfo: ImageParams, action: ImageActionType): Observable<ProjectImagesInfo> {
+    return this.userImagesPageService.terminateImage(imageInfo, action)
       .pipe(
         tap(value => this.getImagePageData(value.projectImagesInfos)),
         take(1)

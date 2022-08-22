@@ -19,14 +19,15 @@
 
 import {  Injectable } from '@angular/core';
 import {  Observable } from 'rxjs';
-import {  catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import {  ErrorUtils } from '../util';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import {
-  ImageFilterFormValue,
+  ImageActionType,
+  ImageFilterFormValue, ImageModel,
   ProjectImagesInfo,
-  ShareImageAllUsersParams
+  ImageParams
 } from '../../resources/images';
 
 @Injectable()
@@ -50,10 +51,19 @@ export class UserImagesPageService {
       );
   }
 
-  shareImagesAllUser(shareParams: ShareImageAllUsersParams): Observable<ProjectImagesInfo> {
+  shareImagesAllUser(shareParams: ImageParams): Observable<ProjectImagesInfo> {
     return this.applicationServiceFacade.buildShareImageAllUsers(shareParams)
       .pipe(
         catchError(ErrorUtils.handleServiceError)
       );
+  }
+
+   terminateImage(image: ImageParams, action: ImageActionType): Observable<ProjectImagesInfo> {
+    const url = `/${image.projectName}/${image.endpoint}/${image.imageName}/${action}`;
+
+    return this.applicationServiceFacade
+      .buildDeleteImage(JSON.stringify(url))
+      .pipe(
+        catchError(ErrorUtils.handleServiceError));
   }
 }
