@@ -10,10 +10,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter with TensorFlow 2.5.0",
+      "template_name": "Jupyter with TensorFlow 2.9.1",
       "description": "Base image with TensorFlow and Jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "tensorflow_gpu-2.5.0",
+      "version": "tensorflow_gpu-2.9.1",
       "vendor": "GCP"
     }
   ]
