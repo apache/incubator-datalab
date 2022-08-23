@@ -156,6 +156,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         },
         error => this.toastr.error(error.message, 'Oops!')
       );
+    console.log(this.resourceForm);
   }
 
   public isHasHDInside(templateList: ComputationalTemplate[]): boolean {
