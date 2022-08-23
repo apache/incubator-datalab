@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { ValidatorFn, FormControl } from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter, Inject, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { ValidatorFn, FormControl, NgModel } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -27,16 +27,21 @@ import { CheckUtils, SortUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared';
+import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { GroupModel, Role } from '../../core/models/role.model';
 
 @Component({
   selector: 'datalab-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['../../resources/resources-grid/resources-grid.component.scss', './roles.component.scss']
 })
-export class RolesComponent implements OnInit {
+export class RolesComponent implements OnInit, AfterViewInit {
   readonly DICTIONARY = DICTIONARY;
 
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
+  @ViewChild('groupName') qwe: ElementRef;
+  @ViewChild('setupGroupName') setupGroupName: NgModel;
 
   private startedGroups: Array<any>;
 
@@ -53,6 +58,7 @@ export class RolesComponent implements OnInit {
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
   public noPermissionMessage: string = 'You have not permissions for groups which are not assigned to your projects.';
   public maxGroupLength: number = 25;
+  public isGroupNameDuplicated: boolean = false;
 
   stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
@@ -69,6 +75,14 @@ export class RolesComponent implements OnInit {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
+  }
+
+  ngAfterViewInit() {
+    if (this.qwe) {
+      fromEvent(this.qwe.nativeElement, 'keyup').pipe(
+        debounceTime(500)
+      ).subscribe(({target}) => console.log(target.value));
+    }
   }
 
   openManageRolesDialog() {
@@ -240,11 +254,11 @@ export class RolesComponent implements OnInit {
   }
 
   public extractIds(sourceList, target) {
-    const map = new Map();
+    const mapObj = new Map();
     const mapped = sourceList.reduce((acc, item) => {
       target.includes(item.description) && acc.set(item._id, item.description);
       return acc;
-    }, map);
+    }, mapObj);
 
     return this.mapToObj(mapped);
   }
@@ -264,16 +278,10 @@ export class RolesComponent implements OnInit {
   }
 
   public groupValidation(): ValidatorFn {
-    const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
       if (control.value && control.value.length > this.maxGroupLength) {
         return { long: true };
       }
-
-      if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
-        return { duplicate: true };
-      }
-
       if (control.value && !this.groupnamePattern.test(control.value))
         return { patterns: true };
 

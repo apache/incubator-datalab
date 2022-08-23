@@ -42,10 +42,12 @@
         <div class="inner-step mat-reset">
           <input
             [validator]="groupValidation()"
+            isGroupNameUnique
             type="text"
             placeholder="Enter group name"
             [(ngModel)]="setupGroup"
             #setupGroupName="ngModel"
+            #groupName
           />
           <div class="error" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">
             Group name can only contain letters, numbers, hyphens and '_'.
