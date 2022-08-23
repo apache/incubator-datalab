@@ -17,6 +17,26 @@
  * under the License.
  */
 
-export enum TemplateName {
-    jupyterJpu = 'docker.datalab-jupyter-gpu'
+package com.epam.datalab.backendapi.resources.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.List;
+import java.util.Map;
+
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
+@ToString
+public class ImagesPageInfo {
+    @JsonProperty
+    private List<ProjectImagesInfo> projectImagesInfos;
+    @JsonProperty
+    private ImageFilter imageFilter;
+    @JsonProperty
+    private ImageFilterFormData filterData;
 }

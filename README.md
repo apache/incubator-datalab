@@ -25,6 +25,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Self-Service Node](#Self_Service_Node)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Endpoint Node](#Endpoint_node)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Edge Node](#Edge_Node)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Notebook node](#Notebook_node)
@@ -814,6 +816,356 @@ List of parameters for SSN node termination:
 Note: It is required to enter gcp_vpc_name and gcp_subnet_name parameters if Self-Service Node was deployed in 
 pre-defined VPC and Subnet.
 </details>
+
+## Endpoint node <a name="Endpoint_node"></a>
+
+This node allows you to create Edge nodes and Notebooks on other cloud providers (AWS, Microsoft Azure or GCP).
+The exception is the option in which Edge nodes and Notebooks are created on the same cloud provider as Self-Service Node,
+in which case endpoint is already provided locally.
+
+
+### Executing deployment script
+
+<details><summary>In Amazon <i>(click to expand)</i></summary>
+
+```
+source /venv/bin/activate
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create aws endpoint \
+--access_key_id access_key \
+--secret_access_key secret_access_key \
+--key_name datalab-key \
+--pkey /path/to/private/key.pem \
+--path_to_pub_key /path/key.pub \
+--service_base_name datalab-test \
+--endpoint_id awstest \
+--region xx-xxx \
+--zone xxxx \
+--cloud_provider aws \
+--vpc_id xxxxxxx \
+--subnet_id xxxxxxx \
+--ssn_ui_host 0.0.0.0 \
+--billing_enable true/false \
+--billing_bucket xxxxxxx \
+--report_path xxxxxxxxx \
+--billing_aws_account_id xxxxxxxxx \
+--billing_tag xxxxxxx \
+--mongo_password xxxxxxxxxx
+deactivate
+```
+
+The following AWS resources will be created:
+- Endpoint EC2 instance
+- Elastic IP address for Endpoint EC2 instance
+- S3 bucket
+- Security Group for Endpoint instance
+- IAM Roles and Instance Profiles for Endpoint instance
+- User private subnet. All further nodes (Notebooks, EMR clusters) will be provisioned in different subnet than SSN.
+
+List of parameters for Endpoint deployment:
+
+| Parameter                  | Description/Value                                                                                                                           |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| service\_base\_name        | Any infrastructure value (should be unique if multiple SSN’s have been deployed before)                                                     |                           
+| pkey                       | Path to private key                                                                                                                         |
+| path\_to\_pub\_key         | Path to public key                                                                                                                          |
+| key\_name                  | Name of the uploaded SSH key file (without “.pem” extension)                                                                                |
+| endpoint\_id               | ID of the endpoint                                                                                                                          |
+| cloud\_provider            | Name of the cloud provider, which is supported by DataLab (AWS)                                                                             |
+| access\_key\_id            | AWS user access key                                                                                                                         |
+| secret\_access\_key        | AWS user secret access key                                                                                                                  |
+| region                     | AWS region                                                                                                                                  |
+| vpc\_id                    | ID of the VPC (optional)                                                                                                                    |
+| ssn\_ui\_host              | IP address of SSN host on the cloud provider                                                                                                |
+| subnet\_id                 | ID of the public subnet (optional)                                                                                                          |
+| billing\_enable            | Enabling or disabling billing                                                                                                               |
+| billing\_bucket            | The name of S3 bucket where billing reports will be placed                                                                                  |
+| report\_path               | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
+| mongo\_password            | Mongo database password                                                                                                                     |                                                                                                                                            
+
+</details>
+
+<details><summary>In Azure <i>(click to expand)</i></summary>
+
+```
+source /venv/bin/activate
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py create azure endpoint \
+--auth_file_path /path/to/auth.json
+--key_name datalab-key \
+--pkey /path/to/private/key.pem \
+--path_to_pub_key /path/key.pub \
+--service_base_name datalab-test \
+--resource_group_name datalab-test-group \
+--endpoint_id azuretest \
+--region xx-xxx \
+--zone xxxx \
+--cloud_provider azure \
+--vpc_id xxxxxxx \
+--subnet_id xxxxxxx \
+--ssn_ui_host 0.0.0.0 \
+--billing_enable true/false \
+--billing_bucket xxxxxxx \
+--report_path xxxxxxxxx \
+--billing_aws_account_id xxxxxxxxx \
+--billing_tag xxxxxxx \
+--mongo_password xxxxxxxxxx \
+--offer_number xxxxxxxx \
+--currency "USD"  \
+--locale "en-US" \
+--region_info "US"
+deactivate
+```
+
+The following Azure resources will be created:
+-   Endpoint virtual machine
+-   Static public IP address for Endpoint virtual machine
+-   Network interface for Endpoint node
+-   Security Group for user's Endpoint instance
+-   Endpoint's private subnet.
+
+List of parameters for Endpoint deployment:
+
+| Parameter             | Description/Value                                                                       |
+|-----------------------|-----------------------------------------------------------------------------------------|
+| service\_base\_name   | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| pkey                  | Path to private key                                                                     |
+| path\_to\_pub\_key    | Path to public key                                                                      |
+| key\_name             | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| endpoint\_id          | ID of the endpoint                                                                      |
+| cloud\_provider       | Name of the cloud provider, which is supported by DataLab (Azure)                       |
+| vpc\_id               | Name of the Virtual Network (VN) (optional)                                             |
+| subnet\_id            | Name of the Azure subnet (optional)                                                     |
+| ssn\_ui\_host         | IP address of SSN host on the cloud provider                                            |
+| resource\_group\_name | Resource group name (can be the same as service base name                               |
+| region                | Azure region                                                                            |
+| auth\_file\_path      | Full path to auth json file                                                             |
+| offer\_number         | Azure offer id number                                                                   |
+| currency              | Currency that is used for billing information(e.g. USD)                                 |
+| locale                | Locale that is used for billing information(e.g. en-US)                                 |
+| region\_info          | Region info that is used for billing information(e.g. US)                               |
+| billing\_enable       | Enabling or disabling billing                                                           |
+| mongo\_password       | Mongo database password                                                                 |                                                                                                                                            
+
+</details>
+
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
+
+```
+source /venv/bin/activate
+/venv/bin/python3 datalab.py create gcp endpoint \
+--gcp_project_id xxx-xxxx-xxxxxx \
+--creds_file /path/to/auth.json \
+--key_name datalab-key \
+--pkey /path/to/private/key.pem \
+--service_base_name datalab-test \
+--path_to_pub_key /path/key.pub \
+--endpoint_id gcptest \
+--region xx-xxx \
+--zone xxxx \
+--cloud_provider gcp \
+--vpc_id xxxxxxx \
+--subnet_id xxxxxxx \
+--ssn_ui_host 0.0.0.0 \
+--mongo_password xxxxxxxxxx \
+--billing_dataset_name xxxxxxxx \
+--billing_enable true/false
+deactivate
+```
+
+The following GCP resources will be created:
+- Endpoint VM instance
+- External static IP address for Endpoint VM instance
+- Security Group for Endpoint instance
+- Endpoint's private subnet.
+
+List of parameters for Endpoint deployment:
+
+| Parameter              | Description/Value                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|
+| service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| pkey                   | Path to private key                                                                     |
+| path\_to\_pub\_key     | Path to public key                                                                      |
+| key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| endpoint\_id           | ID of the endpoint                                                                      |
+| cloud\_provider        | Name of the cloud provider, which is supported by DataLab (GCP)                         |
+| creds\_file            | Full path to auth json file                                                             |
+| gcp\_project\_id       | ID of GCP project                                                                       |
+| region                 | GCP region                                                                              |
+| zone                   | GCP zone                                                                                |
+| vpc\_id                | Name of the Virtual Network (VN) (optional)                                             |
+| subnet\_id             | Name of the GCP subnet (optional)                                                       |
+| billing\_dataset\_name | Name of GCP dataset (BigQuery service)                                                  |
+| ssn\_ui\_host          | IP address of SSN host on the cloud provider                                            |
+| billing\_enable        | Enabling or disabling billing                                                           |
+| mongo\_password        | Mongo database password                                                                 |                                                                                                                                            
+
+
+</details>
+
+### Terminating Endpoint
+
+<details><summary>In Amazon <i>(click to expand)</i></summary>
+
+```
+source /venv/bin/activate
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy aws endpoint \
+--access_key_id access_key \
+--secret_access_key secret_access_key \
+--key_name datalab-key \
+--pkey /path/to/private/key.pem \
+--path_to_pub_key /path/key.pub \
+--service_base_name datalab-test \
+--endpoint_id awstest \
+--region xx-xxx \
+--zone xxxx \
+--cloud_provider aws \
+--vpc_id xxxxxxx \
+--subnet_id xxxxxxx \
+--ssn_ui_host 0.0.0.0 \
+--billing_enable true/false \
+--billing_bucket xxxxxxx \
+--report_path xxxxxxxxx \
+--billing_aws_account_id xxxxxxxxx \
+--billing_tag xxxxxxx \
+--mongo_password xxxxxxxxxx
+deactivate
+```
+
+
+List of parameters for Endpoint termination:
+
+| Parameter                  | Description/Value                                                                                                                           |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| service\_base\_name        | Any infrastructure value (should be unique if multiple SSN’s have been deployed before)                                                     |                           
+| pkey                       | Path to private key                                                                                                                         |
+| path\_to\_pub\_key         | Path to public key                                                                                                                          |
+| key\_name                  | Name of the uploaded SSH key file (without “.pem” extension)                                                                                |
+| endpoint\_id               | ID of the endpoint                                                                                                                          |
+| cloud\_provider            | Name of the cloud provider, which is supported by DataLab (AWS)                                                                             |
+| access\_key\_id            | AWS user access key                                                                                                                         |
+| secret\_access\_key        | AWS user secret access key                                                                                                                  |
+| region                     | AWS region                                                                                                                                  |
+| vpc\_id                    | ID of the VPC (optional)                                                                                                                    |
+| ssn\_ui\_host              | IP address of SSN host on the cloud provider                                                                                                |
+| subnet\_id                 | ID of the public subnet (optional)                                                                                                          |
+| billing\_enable            | Enabling or disabling billing                                                                                                               |
+| billing\_bucket            | The name of S3 bucket where billing reports will be placed                                                                                  |
+| report\_path               | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
+| mongo\_password            | Mongo database password                                                                                                                     |                                                                                                                                            
+
+
+</details>
+
+<details><summary>In Azure <i>(click to expand)</i></summary>
+
+```
+source /venv/bin/activate
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy azure endpoint \
+--auth_file_path /path/to/auth.json
+--key_name datalab-key \
+--pkey /path/to/private/key.pem \
+--path_to_pub_key /path/key.pub \
+--service_base_name datalab-test \
+--resource_group_name datalab-test-group \
+--endpoint_id azuretest \
+--region xx-xxx \
+--zone xxxx \
+--cloud_provider azure \
+--vpc_id xxxxxxx \
+--subnet_id xxxxxxx \
+--ssn_ui_host 0.0.0.0 \
+--billing_enable true/false \
+--billing_bucket xxxxxxx \
+--report_path xxxxxxxxx \
+--billing_aws_account_id xxxxxxxxx \
+--billing_tag xxxxxxx \
+--mongo_password xxxxxxxxxx \
+--offer_number xxxxxxxx \
+--currency "USD"  \
+--locale "en-US" \
+--region_info "US"
+deactivate
+```
+
+
+List of parameters for Endpoint termination:
+
+| Parameter             | Description/Value                                                                       |
+|-----------------------|-----------------------------------------------------------------------------------------|
+| service\_base\_name   | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| pkey                  | Path to private key                                                                     |
+| path\_to\_pub\_key    | Path to public key                                                                      |
+| key\_name             | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| endpoint\_id          | ID of the endpoint                                                                      |
+| cloud\_provider       | Name of the cloud provider, which is supported by DataLab (Azure)                       |
+| vpc\_id               | Name of the Virtual Network (VN) (optional)                                             |
+| subnet\_id            | Name of the Azure subnet (optional)                                                     |
+| ssn\_ui\_host         | IP address of SSN host on the cloud provider                                            |
+| resource\_group\_name | Resource group name (can be the same as service base name                               |
+| region                | Azure region                                                                            |
+| auth\_file\_path      | Full path to auth json file                                                             |
+| offer\_number         | Azure offer id number                                                                   |
+| currency              | Currency that is used for billing information(e.g. USD)                                 |
+| locale                | Locale that is used for billing information(e.g. en-US)                                 |
+| region\_info          | Region info that is used for billing information(e.g. US)                               |
+| billing\_enable       | Enabling or disabling billing                                                           |
+| mongo\_password       | Mongo database password                                                                 |                                                                                                                                            
+
+
+</details>
+
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
+
+```
+source /venv/bin/activate
+/venv/bin/python3 infrastructure-provisioning/terraform/bin/datalab.py destroy gcp endpoint \
+--gcp_project_id xxx-xxxx-xxxxxx \
+--creds_file /path/to/auth.json \
+--key_name datalab-key \
+--pkey /path/to/private/key.pem \
+--service_base_name datalab-test \
+--path_to_pub_key /path/key.pub \
+--endpoint_id gcptest \
+--region xx-xxx \
+--zone xxxx \
+--cloud_provider gcp \
+--vpc_id xxxxxxx \
+--subnet_id xxxxxxx \
+--ssn_ui_host 0.0.0.0 \
+--mongo_password xxxxxxxxxx \
+--billing_dataset_name xxxxxxxx \
+--billing_enable true/false
+deactivate
+```
+
+List of parameters for Endpoint termination:
+
+| Parameter              | Description/Value                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|
+| service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| pkey                   | Path to private key                                                                     |
+| path\_to\_pub\_key     | Path to public key                                                                      |
+| key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| endpoint\_id           | ID of the endpoint                                                                      |
+| cloud\_provider        | Name of the cloud provider, which is supported by DataLab (GCP)                         |
+| creds\_file            | Full path to auth json file                                                             |
+| gcp\_project\_id       | ID of GCP project                                                                       |
+| region                 | GCP region                                                                              |
+| zone                   | GCP zone                                                                                |
+| vpc\_id                | Name of the Virtual Network (VN) (optional)                                             |
+| subnet\_id             | Name of the GCP subnet (optional)                                                       |
+| billing\_dataset\_name | Name of GCP dataset (BigQuery service)                                                  |
+| ssn\_ui\_host          | IP address of SSN host on the cloud provider                                            |
+| billing\_enable        | Enabling or disabling billing                                                           |
+| mongo\_password        | Mongo database password                                                                 |                                                                                                                                            
+
+
+</details>
+
+After creating endpoint, you must set the endpoint in Datalab UI. To do this, go to the tab
+"Resources" - "Endpoints". In the Name field, you should specify the name of the endpoint, in the URL, 
+specify the network address of the endpoint (taking as an example https://0.0.0.0:8084/). In the Account field, you need to 
+specify the "endpoint_id" value that was specified when creating the endpoint (for example, awstest, azuretest or gcptest), 
+in the Endpoint tag field, specify the endpoint tag (optional).
 
 ## Edge Node <a name="Edge_Node"></a>
 

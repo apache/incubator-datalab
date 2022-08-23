@@ -54,11 +54,11 @@ if __name__ == "__main__":
         logging.info('Generating infrastructure names and tags')
         notebook_config = dict()
         if 'exploratory_name' in os.environ:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         else:
             notebook_config['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            notebook_config['computational_name'] = os.environ['computational_name']
+            notebook_config['computational_name'] = os.environ['computational_name'].lower()
         else:
             notebook_config['computational_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(

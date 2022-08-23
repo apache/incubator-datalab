@@ -19,7 +19,7 @@
 
 import { ComputationalResourceApplicationTemplate } from './computationalResourceApplicationTemplate.model';
 import { ResourceShapeTypesModel } from './resourceShapeTypes.model';
-import { ImageType } from './imageType.enum';
+import { ImageType } from '../configs/imageType.enum';
 import { SortUtils } from '../util';
 
 export class ComputationalResourceImage {
@@ -44,9 +44,9 @@ export class ComputationalResourceImage {
       for (let index = 0; index < jsonModel.templates.length; index++) {
         this.application_templates.push(new ComputationalResourceApplicationTemplate(
           jsonModel.templates[index],
-          this.shapes, 
-          this.image, 
-          this.template_name, 
+          this.shapes,
+          this.image,
+          this.template_name,
           this.description)
         );
       }

@@ -20,7 +20,10 @@
 package com.epam.datalab.backendapi.service;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.resources.dto.ImageFilter;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.backendapi.resources.dto.ImageUserPermissions;
+import com.epam.datalab.backendapi.resources.dto.ImagesPageInfo;
 import com.epam.datalab.model.exploratory.Image;
 
 import java.util.List;
@@ -31,9 +34,23 @@ public interface ImageExploratoryService {
 
     void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
 
-    List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint);
+    List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint);
+
+    List<ImageInfoRecord> getNotFailedImages(String dockerImage, String project, String endpoint);
 
     ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
     List<ImageInfoRecord> getImagesForProject(String project);
+
+    ImagesPageInfo getImagesOfUser(UserInfo user);
+    ImagesPageInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
+
+    void shareImageWithProjectGroups(UserInfo user, String imageName, String projectName, String endpoint);
+
+    List<ImageInfoRecord> getSharedImages(UserInfo user);
+
+    List<ImageInfoRecord> getSharedImages(UserInfo userInfo, String dockerImage, String project, String endpoint);
+
+    ImageUserPermissions getUserImagePermissions(UserInfo userInfo, ImageInfoRecord image);
+
 }

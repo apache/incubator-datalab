@@ -24,6 +24,7 @@ import com.epam.datalab.backendapi.domain.RequestId;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.datalab.backendapi.service.ImageExploratoryService;
+import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.exceptions.ResourceAlreadyExistException;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
@@ -40,6 +41,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -129,7 +131,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 
     @Test
     public void getImages() {
-        when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
+        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
                 .thenReturn(getImageList());
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/image")
@@ -145,14 +147,14 @@ public class ImageExploratoryResourceTest extends TestBase {
         }));
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
+        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
         verifyNoMoreInteractions(imageExploratoryService);
     }
 
     @Test
     public void getImagesWithFailedAuth() throws AuthenticationException {
         authFailSetup();
-        when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
+        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
                 .thenReturn(getImageList());
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/image")
@@ -168,7 +170,7 @@ public class ImageExploratoryResourceTest extends TestBase {
         }));
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
+        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
         verifyNoMoreInteractions(imageExploratoryService);
     }
 
@@ -275,8 +277,23 @@ public class ImageExploratoryResourceTest extends TestBase {
     }
 
     private List<ImageInfoRecord> getImageList() {
-        ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someUser", "someApp",
-                "someFullName", ImageStatus.CREATED);
+        ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName",
+                new Date(1580601722000L),
+                "someDescription",
+                "someProject",
+                "someEndpoint",
+                "someUser",
+                "someApp",
+                "someTemplateName",
+                "someInstance",
+                CloudProvider.AWS,
+                "someDockerImage",
+                "someFullName",
+                ImageStatus.ACTIVE,
+                null,
+                null,
+                null,
+                null);
         return Collections.singletonList(imageInfoRecord);
     }
 }

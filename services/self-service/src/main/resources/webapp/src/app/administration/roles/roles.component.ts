@@ -320,6 +320,10 @@ export class RolesComponent implements OnInit {
     user.value = '';
   }
 
+  onAddGroupClick(): void {
+    this.stepperView = !this.stepperView;
+  }
+
   private normalizeUserList(userNameList: string): string[] {
     if (userNameList.includes(',')) {
       return userNameList.split(',')

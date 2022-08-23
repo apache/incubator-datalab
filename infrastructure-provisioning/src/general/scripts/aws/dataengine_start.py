@@ -57,11 +57,11 @@ if __name__ == "__main__":
     data_engine = dict()
     
     try:
-        data_engine['exploratory_name'] = os.environ['exploratory_name']
+        data_engine['exploratory_name'] = os.environ['exploratory_name'].lower()
     except:
         data_engine['exploratory_name'] = ''
     try:
-        data_engine['computational_name'] = os.environ['computational_name']
+        data_engine['computational_name'] = os.environ['computational_name'].lower()
     except:
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = (os.environ['conf_service_base_name'])

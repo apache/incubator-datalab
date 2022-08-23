@@ -20,17 +20,22 @@
 package com.epam.datalab.backendapi.resources.azure;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.datalab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
+import com.epam.datalab.backendapi.resources.dto.azure.AzureComputationalCreateForm;
 import com.epam.datalab.backendapi.roles.RoleType;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.ComputationalService;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
+import com.epam.datalab.dto.azure.computational.AzureComputationalResource;
+import com.epam.datalab.dto.base.DataEngineType;
 import com.epam.datalab.exceptions.DatalabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.management.relation.Role;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -44,6 +49,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static com.epam.datalab.dto.UserInstanceStatus.CREATING;
 import static com.epam.datalab.rest.contracts.ComputationalAPI.AUDIT_COMPUTATIONAL_RECONFIGURE_MESSAGE;
 import static com.epam.datalab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
 
@@ -55,11 +61,16 @@ import static com.epam.datalab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ComputationalResourceAzure {
+
+    private final SelfServiceApplicationConfiguration configuration;
+
     private final ComputationalService computationalService;
 
     @Inject
-    public ComputationalResourceAzure(ComputationalService computationalService) {
+    public ComputationalResourceAzure(ComputationalService computationalService,
+                                      SelfServiceApplicationConfiguration configuration) {
         this.computationalService = computationalService;
+        this.configuration = configuration;
     }
 
     @GET
@@ -68,6 +79,37 @@ public class ComputationalResourceAzure {
                                  @PathParam("endpoint") String endpoint) {
         return Response.ok(computationalService.getComputationalNamesAndTemplates(userInfo, project, endpoint)).build();
     }
+
+    @PUT
+    @Path("dataengine-service")
+    public Response createDataEngineService(@Auth @Parameter(hidden = true) UserInfo userInfo,
+                                            @Parameter @Valid @NotNull AzureComputationalCreateForm form) {
+        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+
+        if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
+
+            validate(userInfo, form);
+
+            AzureComputationalResource azureComputationalResource = AzureComputationalResource.builder()
+                    .computationalName(form.getName())
+                    .imageName(form.getImage())
+                    .templateName(form.getTemplateName())
+                    .status(CREATING.toString())
+                    .masterShape(form.getMasterInstanceType())
+                    .slaveShape(form.getSlaveInstanceType())
+                    .slaveInstanceCount(form.getSlaveInstanceCount())
+                    .config(form.getConfig())
+                    .version(form.getVersion())
+                    .build();
+
+            boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, azureComputationalResource
+                    , form.getProject(), getAuditInfo(form.getNotebookName()));
+            return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
+        }
+
+        throw new IllegalArgumentException("Malformed image " + form.getImage());
+    }
+
 
     /**
      * Asynchronously creates computational Spark cluster.
@@ -173,6 +215,26 @@ public class ComputationalResourceAzure {
                                      @PathParam("exploratoryName") String exploratoryName,
                                      @PathParam("computationalName") String computationalName) {
         return Response.ok(computationalService.getClusterConfig(userInfo, projectName, exploratoryName, computationalName)).build();
+    }
+
+    private void validate(UserInfo userInfo, AzureComputationalCreateForm formDTO) {
+        if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage(), userInfo.getRoles())) {
+            log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
+            throw new DatalabException("You do not have the privileges to create a " + formDTO.getTemplateName());
+        }
+
+        int slaveInstanceCount = Integer.parseInt(formDTO.getSlaveInstanceCount());
+        if (slaveInstanceCount < configuration.getMinHDInsightInstanceCount() || slaveInstanceCount > configuration.getMaxHDInsightInstanceCount()) {
+
+            log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave " +
+                            "instances. Minimum is {}, maximum is {}",
+                    formDTO.getName(), userInfo.getName(), configuration.getMinHDInsightInstanceCount(),
+                    configuration.getMaxHDInsightInstanceCount());
+            throw new DatalabException("Limit exceeded to creation slave instances. Minimum is " +
+                    configuration.getMinHDInsightInstanceCount() + ", maximum is " + configuration.getMaxHDInsightInstanceCount() +
+                    ".");
+        }
+
     }
 
     private String getAuditInfo(String exploratoryName) {

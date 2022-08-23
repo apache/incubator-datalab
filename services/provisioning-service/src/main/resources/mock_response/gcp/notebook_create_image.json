@@ -7,7 +7,7 @@
          "user_name": "${EDGE_USER_NAME}",
          "application": "${APPLICATION}",
          "image_id": "${IMAGE_NAME}-${REQUEST_ID}",
-         "status": "created",
+         "status": "active",
          "ip": "102.011.10.3",
          "Action": "Create image from notebook"
       },

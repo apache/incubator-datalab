@@ -22,11 +22,11 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import { Project } from '../../project/project.component';
 import { ProjectService, OdahuDeploymentService } from '../../../core/services';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import {CheckUtils, PATTERNS} from '../../../core/util';
+import { Project } from '../../project/project.model';
 
 
 @Component({

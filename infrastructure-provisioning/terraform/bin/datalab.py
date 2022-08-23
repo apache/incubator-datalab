@@ -191,17 +191,18 @@ class Console:
         Returns:
             str: command result
         """
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT,
-                                   universal_newlines=True)
+        # process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+        #                            stderr=subprocess.STDOUT,
+        #                            universal_newlines=True)
+        subprocess.run(command, shell=True, check=True)
 
-        while True:
-            nextline = process.stdout.readline()
-            print(nextline)
-            if nextline == '' and process.poll() is not None:
-                break
-            if 'error' in nextline.lower():
-                sys.exit(0)
+        # while True:
+        #     nextline = process.stdout.readline()
+        #     print(nextline)
+        #     if nextline == '' and process.poll() is not None:
+        #         break
+        #     if 'error' in nextline.lower():
+        #         sys.exit(0)
 
     @staticmethod
     def execute(command):
@@ -1014,6 +1015,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   default='false')
          .add_str('--billing_aws_account_id', 'The ID of ASW linked account', group='endpoint', default='')
          .add_str('--billing_tag', 'Billing tag', group='endpoint', default='datalab')
+         .add_str('--allowed_ip_cidrs', 'Allowed IP CIDRs for SGs', group='endpoint', default='["0.0.0.0/0"]')
+         .add_str('--sg_id', 'SG ID to be added to instance', group='endpoint', default="")
          )
         return params.build()
 
@@ -1191,8 +1194,8 @@ class GCPEndpointBuilder(AbstractDeployBuilder):
          .add_str('--ldap_user', 'ldap user', required=True, group='endpoint')
          .add_str('--ldap_bind_creds', 'ldap bind creds', required=True, group='endpoint')
          .add_str('--ldap_users_group', 'ldap users group', required=True, group='endpoint')
-         .add_str('--firewall_ing_cidr_range', 'Ingress range', group='endpoint')
-         .add_str('--firewall_eg_cidr_range', 'Egress range', group='endpoint')
+         .add_str('--firewall_ing_cidr_range', 'Ingress range', group='endpoint', default = '["0.0.0.0/0"]')
+         .add_str('--firewall_eg_cidr_range', 'Egress range', group='endpoint', default = '["0.0.0.0/0"]')
          .add_str('--endpoint_policies', 'Endpoint policies list', group='endpoint')
          .add_str('--endpoint_roles', 'Endpoint roles list', group='endpoint')
          .add_str('--bucket_region', 'Bucket region', group='endpoint')
@@ -1274,6 +1277,7 @@ class AzureEndpointBuilder(AbstractDeployBuilder):
          .add_str('--region_info', 'Azure region info', group='endpoint', default='')
          .add_str('--mongo_password', 'Mongo database password', group='endpoint')
          .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
+         .add_str('--allowed_ip_cidrs', 'Allowed IP CIDRs for SGs', group='endpoint', default='["0.0.0.0/0"]')
          .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
          )
         return params.build()

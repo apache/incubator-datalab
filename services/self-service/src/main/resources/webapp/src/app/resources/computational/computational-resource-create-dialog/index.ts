@@ -25,7 +25,7 @@ import { MaterialModule } from '../../../shared/material.module';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ComputationalResourceCreateDialogComponent } from './computational-resource-create-dialog.component';
 import { ComputationalResourceModel } from './computational-resource-create.model';
-import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
+import { IsElementAvailablePipeModule, KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
 
 @NgModule({
   imports: [
@@ -35,7 +35,8 @@ import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
     FormControlsModule,
     KeysPipeModule,
     UnderscorelessPipeModule,
-    MaterialModule
+    MaterialModule,
+    IsElementAvailablePipeModule
   ],
   declarations: [ComputationalResourceCreateDialogComponent],
   providers: [ComputationalResourceModel],

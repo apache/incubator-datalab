@@ -27,6 +27,7 @@
  resource "google_storage_bucket" "shared_bucket" {
    name     = local.shared_bucket_name
    force_destroy = true
+   location = var.region
    labels = {
      name                              = local.shared_bucket_name
      "${local.additional_tag[0]}"      = local.additional_tag[1]

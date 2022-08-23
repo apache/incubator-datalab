@@ -86,7 +86,7 @@ export class ResourcesComponent implements OnInit {
           bucketStatus: this.bucketStatus,
           buckets: this.resourcesGrid.bucketsList
         },
-        panelClass: 'modal-fullscreen' 
+        panelClass: 'modal-fullscreen'
       })
       .afterClosed().subscribe();
   }
@@ -96,8 +96,6 @@ export class ResourcesComponent implements OnInit {
   }
 
   public getActiveProject() {
-    console.log('activeProject: ', this.resourcesGrid.activeProject);
-
     return this.resourcesGrid.activeProject;
   }
 

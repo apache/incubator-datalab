@@ -27,9 +27,9 @@ import { Subscription } from 'rxjs';
 import { ProjectService, RolesGroupsService, EndpointService, UserAccessKeyService } from '../../../core/services';
 import { ProjectDataService } from '../project-data.service';
 import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
-import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import {ConfirmationDialogComponent} from '../../../shared/modal-dialog/confirmation-dialog';
+import { Project } from '../project.model';
 
 export interface GenerateKey { privateKey: string; publicKey: string; }
 
@@ -88,7 +88,7 @@ export class ProjectFormComponent implements OnInit {
         () => {
           this.toastr.success('Project updated successfully!', 'Success!');
           this.update.emit();
-        }, 
+        },
         error => this.toastr.error(error.message || 'Project update failed!', 'Oops!')
       );
   }
@@ -96,7 +96,7 @@ export class ProjectFormComponent implements OnInit {
   public confirm(data) {
     if (this.item) {
       const deletedGroups = this.item.groups.filter((v) => !(this.projectForm.value.groups.includes(v)));
-      
+
       if (deletedGroups.length) {
         this.dialog.open(ConfirmationDialogComponent, {
           data: {notebook: deletedGroups, type: 5, manageAction: true}, panelClass: 'modal-md'
@@ -170,7 +170,7 @@ export class ProjectFormComponent implements OnInit {
 
 
   public selectOptions(list, key, select?) {
-    const filter = key === 'endpoints' ? list.filter(el => el.status === 'ACTIVE').map(el => el.name) : list
+    const filter = key === 'endpoints' ? list.filter(el => el.status === 'ACTIVE').map(el => el.name) : list;
     this.projectForm.controls[key].setValue(select ? filter : []);
   }
 

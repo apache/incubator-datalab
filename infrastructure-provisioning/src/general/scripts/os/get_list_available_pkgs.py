@@ -26,6 +26,7 @@ import json
 import sys
 import time
 import xmlrpc.client
+import os
 from datalab.fab import *
 from datalab.notebook_lib import *
 from fabric import *
@@ -69,8 +70,8 @@ def get_available_pip_pkgs(version):
 def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
     try:
         pip_pkgs = dict()
-        attempt = 0
-        while attempt < 3:
+        attempts = 0
+        while attempts < 3:
             try:
                 client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
                 raw_pkgs = client.list_packages()
@@ -78,13 +79,13 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
                 for pkg in raw_pkgs:
                     if pkg not in all_pkgs_pip2 and pkg not in all_pkgs_pip3:
                         all_pkgs_other.append(pkg)
-                        for pkg in all_pkgs_other:
-                            pip_pkgs[pkg] = "N/A"
-                        return pip_pkgs
+                for pkg in all_pkgs_other:
+                    pip_pkgs[pkg] = "N/A"
+                return pip_pkgs
             except:
-                attempt += 1
+                attempts += 1
                 time.sleep(10)
-        if attempt == 3:
+        if attempts == 3:
             logging.info("Unable to get uncategorised pip packages")
             raise Exception
     except Exception as err:
@@ -103,10 +104,10 @@ if __name__ == "__main__":
     #elif args.group == 'pip2':
         #all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
     elif args.group == 'pip3':
-        all_pkgs['pip3'] = get_available_pip_pkgs("3.8")
+        all_pkgs['pip3'] = get_available_pip_pkgs(os.environ['notebook_python_venv_version'][:3])
     elif args.group == 'others':
         all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
-        all_pkgs['pip3'] = get_available_pip_pkgs("3.8")
+        all_pkgs['pip3'] = get_available_pip_pkgs(os.environ['notebook_python_venv_version'][:3])
         all_pkgs['others'] = get_uncategorised_pip_pkgs(all_pkgs['pip2'], all_pkgs['pip3'])
     elif args.group == 'r_pkg':
         all_pkgs['r_pkg'] = get_available_r_pkgs()

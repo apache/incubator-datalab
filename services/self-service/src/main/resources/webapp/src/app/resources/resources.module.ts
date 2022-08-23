@@ -31,6 +31,16 @@ import { MatTreeModule } from '@angular/material/tree';
 import { BucketDataService } from './bucket-browser/bucket-data.service';
 import { ConvertFileSizePipeModule } from '../core/pipes/convert-file-size';
 import { BucketBrowserModule } from './bucket-browser/bucket-browser.module';
+import { ImagesComponent } from './images/images.component';
+import {CheckboxModule} from '../shared/checkbox';
+import {BubbleModule} from '../shared';
+import { IsElementAvailablePipeModule, NormalizeDropdownMultiValuePipeModule } from '../core/pipes';
+import { LocalDatePipeModule } from '../core/pipes/local-date-pipe';
+import { ShareImageDialogModule } from './exploratory/share-image-dialog/share-image-dialog.module';
+import { ImageDetailDialogModule } from './exploratory/image-detail-dialog/image-detail-dialog.module';
+import {LibraryInfoModalModule} from './exploratory/library-info-modal/library-info-modal.module';
+import { PageFilterComponent } from './exploratory/page-filter/page-filter.component';
+import { DirectivesModule } from '../core/directives';
 
 @NgModule({
   imports: [
@@ -42,12 +52,23 @@ import { BucketBrowserModule } from './bucket-browser/bucket-browser.module';
     MaterialModule,
     MatTreeModule,
     ConvertFileSizePipeModule,
-    BucketBrowserModule
+    BucketBrowserModule,
+    CheckboxModule,
+    BubbleModule,
+    NormalizeDropdownMultiValuePipeModule,
+    LocalDatePipeModule,
+    ShareImageDialogModule,
+    ImageDetailDialogModule,
+    LibraryInfoModalModule,
+    DirectivesModule,
+    IsElementAvailablePipeModule
   ],
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
     ConfirmDeleteAccountDialogComponent,
+    ImagesComponent,
+    PageFilterComponent,
 
   ],
   entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialogComponent],

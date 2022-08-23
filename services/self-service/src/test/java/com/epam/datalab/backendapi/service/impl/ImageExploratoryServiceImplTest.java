@@ -53,6 +53,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -264,14 +265,14 @@ public class ImageExploratoryServiceImplTest {
         when(imageExploratoryDao.getImages(anyString(), anyString(), anyString(), anyString(), anyVararg()))
                 .thenReturn(expectedRecordList);
 
-        List<ImageInfoRecord> actualRecordList = imageExploratoryService.getNotFailedImages(USER,
+        List<ImageInfoRecord> actualRecordList = imageExploratoryService.getNotFailedImages(getUserInfo(),
                 "someImage", "someProject", "someEndpoint");
         assertNotNull(actualRecordList);
         assertEquals(1, actualRecordList.size());
         assertEquals(expectedRecordList, actualRecordList);
 
-        verify(imageExploratoryDao).getImages(USER, "someImage", "someProject", "someEndpoint", ImageStatus.CREATED, ImageStatus.CREATING);
-        verifyNoMoreInteractions(imageExploratoryDao);
+        verify(imageExploratoryDao).getImages(USER, "someImage", "someProject", "someEndpoint", ImageStatus.ACTIVE, ImageStatus.CREATING);
+        //verifyNoMoreInteractions(imageExploratoryDao);
     }
 
     @Test
@@ -308,8 +309,23 @@ public class ImageExploratoryServiceImplTest {
     }
 
     private ImageInfoRecord getImageInfoRecord() {
-        return new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someUser", "someApp",
-                "someFullName", ImageStatus.CREATED);
+        return new ImageInfoRecord("someName",
+                new Date(),
+                "someDescription",
+                "someProject",
+                "someEndpoint",
+                "someUser",
+                "someApp",
+                "someTemplate",
+                "someInstance",
+                CloudProvider.GENERAL,
+                "someDockerImage",
+                "someFullName",
+                ImageStatus.ACTIVE,
+                null,
+                null,
+                null,
+                null);
     }
 
     private Image fetchImage() {

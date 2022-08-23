@@ -57,7 +57,7 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
 if __name__ == "__main__":
     print("Configure connections")
     global conn
-    conn = datalab.fab.init_datalab_connection(args.hostname, args.initial_user, args.keyfile)
+    conn = datalab.fab.init_datalab_connection(args.hostname, args.initial_user, args.keyfile, args.os_user)
     print("Creating ssh user: {}".format(args.os_user))
     try:
         ensure_ssh_user(args.initial_user, args.os_user, args.sudo_group)

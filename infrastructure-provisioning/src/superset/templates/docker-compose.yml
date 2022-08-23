@@ -14,18 +14,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-version: '2'
+x-superset-image: &superset-image apache/superset:${TAG:-1.5.1}
+x-superset-user: &superset-user root
+x-superset-depends-on: &superset-depends-on
+  - db
+  - redis
+x-superset-volumes: &superset-volumes
+  # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
+  - ./docker:/app/docker
+  - ./superset:/app/superset
+  - ./superset-frontend:/app/superset-frontend
+  - superset_home:/app/superset_home
+  - ./tests:/app/tests
+
+version: "3.7"
 services:
   redis:
-    image: redis:3.2
+    image: redis:latest
+    container_name: superset_cache
     restart: unless-stopped
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
       - redis:/data
 
-  postgres:
-    image: postgres:10
+  db:
+    env_file: docker/.env
+    image: postgres:14
+    container_name: superset_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: superset
@@ -34,44 +50,112 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - db_home:/var/lib/postgresql/data
 
   superset:
-    build:
-      context: ../../
-      dockerfile: contrib/docker/Dockerfile
+    env_file: docker/.env
+    image: *superset-image
+    container_name: superset_app
+    command: ["/app/docker/docker-bootstrap.sh", "app"]
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: superset
-      POSTGRES_USER: superset
-      POSTGRES_PASSWORD: superset
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      USERNAME_OIDC_FIELD: preferred_username
-      FIRST_NAME_OIDC_FIELD: given_name
-      LAST_NAME_OIDC_FIELD: family_name
-      http_proxy: http://PROXY_STRING
-      https_proxy: http://PROXY_STRING
-      # If using production, comment development volume below
-      SUPERSET_ENV: production
-      #SUPERSET_ENV: development
-    user: root:root
     ports:
       - 8088:8088
+    user: *superset-user
+    depends_on: *superset-depends-on
+    volumes: *superset-volumes
+    environment:
+      CYPRESS_CONFIG: "${CYPRESS_CONFIG}"
+
+  superset-websocket:
+    container_name: superset_websocket
+    build: ./superset-websocket
+    image: superset-websocket
+    ports:
+      - 8080:8080
     depends_on:
-      - postgres
       - redis
+    # Mount everything in superset-websocket into container and
+    # then exclude node_modules and dist with bogus volume mount.
+    # This is necessary because host and container need to have
+    # their own, separate versions of these files. .dockerignore
+    # does not seem to work when starting the service through
+    # docker-compose.
+    #
+    # For example, node_modules may contain libs with native bindings.
+    # Those bindings need to be compiled for each OS and the container
+    # OS is not necessarily the same as host OS.
     volumes:
-      # this is needed to communicate with the postgres and redis services
-      - ./superset_config.py:/home/superset/superset/superset_config.py
-      # this is needed for development, remove with SUPERSET_ENV=production
-      #- ../../superset:/home/superset/superset
-      - ./id_provider.json:/home/superset/superset/id_provider.json
+      - ./superset-websocket:/home/superset-websocket
+      - /home/superset-websocket/node_modules
+      - /home/superset-websocket/dist
+    environment:
+      - PORT=8080
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_SSL=false
+
+  superset-init:
+    image: *superset-image
+    container_name: superset_init
+    command: ["/app/docker/docker-init.sh"]
+    env_file: docker/.env
+    depends_on: *superset-depends-on
+    user: *superset-user
+    volumes: *superset-volumes
+    environment:
+      CYPRESS_CONFIG: "${CYPRESS_CONFIG}"
+
+  superset-node:
+    image: node:16
+    container_name: superset_node
+    command: ["/app/docker/docker-frontend.sh"]
+    env_file: docker/.env
+    depends_on: *superset-depends-on
+    volumes: *superset-volumes
+
+  superset-worker:
+    image: *superset-image
+    container_name: superset_worker
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    env_file: docker/.env
+    restart: unless-stopped
+    depends_on: *superset-depends-on
+    user: *superset-user
+    volumes: *superset-volumes
+    # Bump memory limit if processing selenium / thumbnails on superset-worker
+    # mem_limit: 2038m
+    # mem_reservation: 128M
+
+  superset-worker-beat:
+    image: *superset-image
+    container_name: superset_worker_beat
+    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    env_file: docker/.env
+    restart: unless-stopped
+    depends_on: *superset-depends-on
+    user: *superset-user
+    volumes: *superset-volumes
+
+  superset-tests-worker:
+    image: *superset-image
+    container_name: superset_tests_worker
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    env_file: docker/.env
+    environment:
+      DATABASE_HOST: localhost
+      DATABASE_DB: test
+      REDIS_CELERY_DB: 2
+      REDIS_RESULTS_DB: 3
+      REDIS_HOST: localhost
+    network_mode: host
+    depends_on: *superset-depends-on
+    user: *superset-user
+    volumes: *superset-volumes
 
 volumes:
-  postgres:
+  superset_home:
+    external: false
+  db_home:
     external: false
   redis:
     external: false

@@ -40,22 +40,27 @@ from patchwork import files
 
 
 # general functions for all resources
-def init_datalab_connection(hostname, username, keyfile):
+def init_datalab_connection(hostname, username, keyfile, reserve_user=''):
     try:
         global conn
-        attempt = 0
-        while attempt < 15:
-            logging.info('connection attempt {}'.format(attempt))
-            conn = Connection(host=hostname, user=username, connect_kwargs={'banner_timeout': 200,
-                                                                            'key_filename': keyfile})
-            conn.config.run.echo = True
-            try:
-                conn.run('hostname')
+        if reserve_user:
+            users = [username, reserve_user]
+        else:
+            users = [username]
+        for user in users:
+            attempt = 0
+            while attempt < 15:
+                logging.info('connection attempt {} with user {}'.format(attempt, user))
+                conn = Connection(host=hostname, user=user, connect_kwargs={'banner_timeout': 200,
+                                                                                'key_filename': keyfile})
                 conn.config.run.echo = True
-                return conn
-            except:
-                attempt += 1
-                time.sleep(10)
+                try:
+                    conn.run('hostname')
+                    conn.config.run.echo = True
+                    return conn
+                except:
+                    attempt += 1
+                    time.sleep(10)
         if attempt == 15:
             logging.info('Unable to establish connection')
             raise Exception
@@ -311,6 +316,9 @@ def configure_nftables(config):
 def ensure_python_venv_deeplearn(python_venv_version):
     try:
         if not exists(conn, '/opt/python/python{}'.format(python_venv_version)):
+            if os.environ['conf_cloud_provider'] == 'azure':
+                conn.sudo('rm /etc/apt/sources.list.d/cuda*')
+                conn.sudo('apt update')
             conn.sudo('add-apt-repository ppa:deadsnakes/ppa -y')
             conn.sudo('apt install python{0} -y'.format(python_venv_version[:3]))
             conn.sudo('apt install virtualenv')
@@ -363,6 +371,7 @@ def ensure_python_venv(python_venv_version):
             conn.sudo('''bash -l -c 'cd /tmp/Python-{0} && make altinstall' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'cd /tmp && rm -rf Python-{}' '''.format(python_venv_version))
             conn.sudo('''bash -l -c 'virtualenv /opt/python/python{0}' '''.format(python_venv_version))
+            conn.sudo('chown -R datalab-user:datalab-user /opt/python/')
             venv_command = 'source /opt/python/python{}/bin/activate'.format(python_venv_version)
             pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_venv_version, python_venv_version[:3])
             conn.sudo('''bash -l -c '{0} && {1} install -UI pip=={2}' '''.format(venv_command, pip_command,
@@ -1310,18 +1319,17 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
                        keycloak_client_secret, edge_instance_private_ip, edge_instance_public_ip, superset_name):
     logging.info('Superset configuring')
     try:
-        if not exists(conn, '/home/{}/incubator-superset'.format(os_user)):
+        if not exists(conn, '/home/{}/superset'.format(os_user)):
             conn.sudo(
                 '''bash -c 'cd /home/{} && wget https://github.com/apache/incubator-superset/archive/{}.tar.gz' '''.format(
                     os_user, os.environ['notebook_superset_version']))
             conn.sudo('''bash -c 'cd /home/{} && tar -xzf {}.tar.gz' '''.format(os_user, os.environ[
                 'notebook_superset_version']))
-            conn.sudo('''bash -c 'cd /home/{} && ln -sf incubator-superset-{} incubator-superset' '''.format(os_user,
-                                                                                                             os.environ[
-                                                                                                                 'notebook_superset_version']))
+            conn.sudo('''bash -c 'cd /home/{} && ln -sf superset-{} superset' '''.format(os_user,
+                                                                                         os.environ['notebook_superset_version']))
         if not exists(conn, '/tmp/superset-notebook_installed'):
             conn.sudo('mkdir -p /opt/datalab/templates')
-            conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz *')
+            conn.local('cd  /root/templates; tar -zcvf /tmp/templates.tar.gz .')
             conn.put('/tmp/templates.tar.gz', '/tmp/templates.tar.gz')
             conn.sudo('tar -zxvf /tmp/templates.tar.gz -C /opt/datalab/templates')
             conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/.env'.format(os_user))
@@ -1338,23 +1346,27 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
                 keycloak_auth_server_url))
             conn.sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(
                 keycloak_realm_name))
+            conn.sudo('sed -i \'s/OS_USER/{}/g\' /opt/datalab/templates/superset_config.py'.format(os_user))
             conn.sudo(
                 'sed -i \'s/EDGE_IP/{}/g\' /opt/datalab/templates/superset_config.py'.format(edge_instance_public_ip))
             conn.sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/datalab/templates/superset_config.py'.format(superset_name))
-            conn.sudo('cp -f /opt/datalab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            conn.sudo('cp -f /opt/datalab/templates/.env /home/{}/superset/docker/'.format(os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/docker-compose.yml /home/{}/superset/'.format(
                     os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/id_provider.json /home/{}/superset/docker/'.format(
                     os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/requirements-extra.txt /home/{}/superset/requirements/'.format(
                     os_user))
             conn.sudo(
-                'cp -f /opt/datalab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(
+                'cp -f /opt/datalab/templates/superset_config.py /home/{}/superset/docker/pythonpath_dev/'.format(
                     os_user))
-            conn.sudo('cp -f /opt/datalab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(
+            conn.sudo(
+                'cp -f /opt/datalab/templates/keycloak_security_manager.py /home/{}/superset/docker/pythonpath_dev/'.format(
+                    os_user))
+            conn.sudo('cp -f /opt/datalab/templates/docker-init.sh /home/{}/superset/docker/'.format(
                 os_user))
             conn.sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:

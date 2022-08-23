@@ -80,6 +80,11 @@ public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
     }
 
     @Override
+    public UserRoleDTO findById(String roleId) {
+        return findOne(MongoCollections.ROLES, in(ID, roleId),UserRoleDTO.class).orElse(null);
+    }
+
+    @Override
     public void insert(UserRoleDTO dto) {
         insertOne(MongoCollections.ROLES, dto, dto.getId());
     }

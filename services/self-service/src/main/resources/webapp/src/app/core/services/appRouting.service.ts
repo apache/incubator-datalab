@@ -34,7 +34,7 @@ export class AppRoutingService {
   }
 
   redirectToHomePage(): void {
-    this.router.navigate(['/resources_list']);
+    this.router.navigate(['/instances']);
   }
 
   redirectToHealthStatusPage(): void {

@@ -142,7 +142,7 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
             this.applyFilter(this.cashedFilterForm || this.filterForm);
           }
           this.progressBarService.stopProgressBar();
-        }, 
+        },
         () => {
           this.progressBarService.stopProgressBar();
         }
@@ -186,8 +186,8 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
 
     const containsStatus = (list, selectedItems) => {
       if (list) {
-        return list.filter((item: any) => { 
-          if (selectedItems.indexOf(item.status) !== -1) return item; 
+        return list.filter((item: any) => {
+          if (selectedItems.indexOf(item.status) !== -1) return item;
         });
       }
     };
@@ -196,30 +196,30 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
     if (config) {
       filteredData = filteredData.filter(item => {
         const isUser = config.users.length > 0 ? (config.users.indexOf(item.user) !== -1) : true;
-        const isTypeName = item.name 
-          ? item.name.toLowerCase().indexOf(config.type.toLowerCase()) !== -1 
+        const isTypeName = item.name
+          ? item.name.toLowerCase().indexOf(config.type.toLowerCase()) !== -1
           : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
-        const isStatus = config.statuses.length > 0 
-          ? (config.statuses.indexOf(item.status) !== -1) 
+        const isStatus = config.statuses.length > 0
+          ? (config.statuses.indexOf(item.status) !== -1)
           : (config.type !== 'active');
-        const isShape = config.shapes.length > 0 
+        const isShape = config.shapes.length > 0
           ? (config.shapes.indexOf(item.shape) !== -1 ||
             config.shapes.indexOf(item.gpu_type) !== -1 ||
-            config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1) 
+            config.shapes.indexOf(`GPU count: ${item.gpu_count}`) !== -1)
           : true;
-        const isProject = config.projects.length > 0 
-          ? (config.projects.indexOf(item.project) !== -1) 
+        const isProject = config.projects.length > 0
+          ? (config.projects.indexOf(item.project) !== -1)
           : true;
-        const isEndpoint = config.endpoints.length > 0 
-          ? (config.endpoints.indexOf(item.endpoint) !== -1) 
+        const isEndpoint = config.endpoints.length > 0
+          ? (config.endpoints.indexOf(item.endpoint) !== -1)
           : true;
 
         const modifiedResources = containsStatus(item.resources, config.resources);
-        let isResources = config.resources.length > 0 
-          ? (modifiedResources && modifiedResources.length > 0) 
+        let isResources = config.resources.length > 0
+          ? (modifiedResources && modifiedResources.length > 0)
           : true;
-        if (config.resources.length > 0 && modifiedResources && modifiedResources.length > 0) { 
-          item.resources = modifiedResources; 
+        if (config.resources.length > 0 && modifiedResources && modifiedResources.length > 0) {
+          item.resources = modifiedResources;
         }
 
         if (config.resources && config.resources.length === 0 && config.type === 'active' ||
@@ -288,7 +288,13 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
       }
     });
 
-    this.filterConfiguration = new ManagementConfigModel(users, '', projects, [...shapes, ...gpuTypes, ...gpuCounts], statuses, resources, endpoints);
+    this.filterConfiguration = new ManagementConfigModel(
+      users,
+      '',
+      projects,
+      [...shapes, ...gpuTypes, ...gpuCounts],
+      statuses, resources, endpoints
+    );
   }
 
   public openNotebookDetails(data) {
@@ -352,7 +358,10 @@ export class ManagementGridComponent implements OnInit, AfterViewInit, AfterView
   selector: 'confirm-dialog',
   template: `
   <div class="dialog-header">
-    <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> resource</h4>
+    <h4 class="modal-title">
+      <span class="capitalize">{{ data.action }}</span>
+      <span *ngIf="data.action !== 'create image'"> resource</span>
+    </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">

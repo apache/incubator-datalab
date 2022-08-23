@@ -62,6 +62,19 @@ public class AuditServiceImpl implements AuditService {
         return auditDAO.getAudit(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize);
     }
 
+    @Override
+    public AuditReport getAuditReport(AuditFilter filter) {
+        List<AuditReportLine> auditReportLines = auditDAO.aggregateAuditReport(filter);
+        final LocalDate dateFrom = LocalDate.parse(filter.getDateStart());
+        final LocalDate dateTo = LocalDate.parse(filter.getDateEnd());
+        return AuditReport.builder()
+                .name("Audit Report")
+                .reportLines(auditReportLines)
+                .usageDateFrom(dateFrom)
+                .usageDateTo(dateTo)
+                .build();
+    }
+
     public String downloadAuditReport(AuditFilter filter) {
         List<AuditReportLine> auditReportLines = auditDAO.aggregateAuditReport(filter);
         final LocalDate dateFrom = LocalDate.parse(filter.getDateStart());

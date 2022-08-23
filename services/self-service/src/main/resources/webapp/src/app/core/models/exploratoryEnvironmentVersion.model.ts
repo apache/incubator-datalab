@@ -18,7 +18,7 @@
  */
 
 import { ResourceShapeTypesModel } from './resourceShapeTypes.model';
-import { ImageType } from './imageType.enum';
+import { ImageType } from '../configs/imageType.enum';
 
 export class ExploratoryEnvironmentVersionModel {
   image: string;

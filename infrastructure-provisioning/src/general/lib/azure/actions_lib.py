@@ -1177,7 +1177,11 @@ def ensure_local_jars(os_user, jars_dir):
                 datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
                 datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
-                    -O {1}azure-storage-{0}.jar'.format('2.2.0', jars_dir))
+                    -O {1}azure-storage-{0}.jar'.format('8.6.6', jars_dir))
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util/{0}/jetty-util-{0}.jar \
+                    -O {1}jetty-util-{0}.jar'.format('9.4.46.v20220331', jars_dir))
+                datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util-ajax/{0}/jetty-util-ajax-{0}.jar \
+                    -O {1}jetty-util-ajax-{0}.jar'.format('9.4.46.v20220331', jars_dir))
             else:
                 datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format('3.0.0', jars_dir))
