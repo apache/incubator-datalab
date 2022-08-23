@@ -12,10 +12,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "JupyterLab with TensorFlow 2.5.0",
+      "template_name": "JupyterLab with TensorFlow 2.9.1",
       "description": "Base image with TensorFlow and JupyterLab node creation routines",
       "environment_type": "exploratory",
-      "version": "tensorflow-jupyterlab-2.5.0",
+      "version": "tensorflow-jupyterlab-2.9.1",
       "vendor": "AWS"
     }
   ]
