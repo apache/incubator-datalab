@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -69,7 +69,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-venv_libs = 'numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow==2.5.0'
+venv_libs = "numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow=={0}".format(tensorflow_version)
 
 ##############
 # Run script #
