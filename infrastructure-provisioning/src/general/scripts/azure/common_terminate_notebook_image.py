@@ -35,17 +35,25 @@ if __name__ == "__main__":
         image_conf = dict()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-        image_conf['full_image_name'] = os.environ['notebook_image_name']
+        image_conf['project_name'] = os.environ['project_name']
+        image_conf['endpoint_name'] = os.environ['endpoint_name']
+        image_conf['application'] = os.environ['application']
+        image_conf['image_name'] = os.environ['notebook_image_name']
+        image_conf['full_image_name'] = '{}-{}-{}-{}-{}'.format(image_conf['service_base_name'],
+                                                                image_conf['project_name'],
+                                                                image_conf['endpoint_name'],
+                                                                image_conf['application'],
+                                                                image_conf['image_name'])
 
         image = AzureMeta.get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
         if image != '':
             AzureActions.remove_image(image_conf['resource_group_name'], image_conf['full_image_name'])
 
-            with open("/root/result.json", 'w') as result:
-                res = {"notebook_image_name": image_conf['full_image_name'],
-                       "status": "terminated",
-                       "Action": "Delete existing notebook image"}
-                result.write(json.dumps(res))
+        with open("/root/result.json", 'w') as result:
+            res = {"notebook_image_name": image_conf['full_image_name'],
+                   "status": "terminated",
+                   "Action": "Delete existing notebook image"}
+            result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)
