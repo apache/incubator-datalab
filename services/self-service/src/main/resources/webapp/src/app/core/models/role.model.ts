@@ -17,19 +17,27 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
-import { ManagenementModule } from './management';
-import { ProjectModule } from './project';
-import { RolesModule } from './roles';
-import {ConfigurationModule} from './configuration';
-import {OdahuModule} from './odahu';
-import { DirectivesModule } from '../core/directives';
+export interface GroupModel {
+  group: string;
+  roles: Role[];
+  users: string[];
+}
 
-@NgModule({
-  imports: [ CommonModule, ManagenementModule, ProjectModule, RolesModule, ConfigurationModule, OdahuModule ],
-  declarations: [],
-  exports: [ ManagenementModule, ProjectModule, RolesModule, ConfigurationModule, OdahuModule ]
-})
-export class AdministrationModule { }
+export interface Role {
+  id: string;
+  description: string;
+  type: EntityType;
+  cloud: CloudType;
+  pages: string[];
+  computationals: string[];
+  exploratories: string[];
+  exploratory_shapes: string[];
+  groups: string[];
+  images: string[];
+}
+
+
+export type EntityType = 'NOTEBOOK' | 'COMPUTATIONAL' | 'IMAGE' | 'NOTEBOOK_SHAPE' | 'COMPUTATIONAL_SHAPE' | 'BILLING' | 'BUCKET_BROWSER' | 'ADMINISTRATION';
+
+export type CloudType = 'AWS' | 'AZURE' | 'GSP' | 'GENERAL';

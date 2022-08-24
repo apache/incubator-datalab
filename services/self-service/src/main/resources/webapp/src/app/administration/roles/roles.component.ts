@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { ValidatorFn, FormControl } from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter, Inject, ViewChild, ElementRef } from '@angular/core';
+import { ValidatorFn, FormControl, NgModel } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService } from '../../core/services';
-import { CheckUtils, SortUtils } from '../../core/util';
+import { SortUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared';
@@ -96,7 +96,7 @@ export class RolesComponent implements OnInit {
     );
   }
 
-  getGroupsData() {
+  getGroupsData(): void {
     this.rolesService.getGroupsData()
       .subscribe(
         list => this.updateGroupData(list),
@@ -240,11 +240,11 @@ export class RolesComponent implements OnInit {
   }
 
   public extractIds(sourceList, target) {
-    const map = new Map();
+    const mapObj = new Map();
     const mapped = sourceList.reduce((acc, item) => {
       target.includes(item.description) && acc.set(item._id, item.description);
       return acc;
-    }, map);
+    }, mapObj);
 
     return this.mapToObj(mapped);
   }
@@ -264,16 +264,10 @@ export class RolesComponent implements OnInit {
   }
 
   public groupValidation(): ValidatorFn {
-    const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
       if (control.value && control.value.length > this.maxGroupLength) {
         return { long: true };
       }
-
-      if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
-        return { duplicate: true };
-      }
-
       if (control.value && !this.groupnamePattern.test(control.value))
         return { patterns: true };
 

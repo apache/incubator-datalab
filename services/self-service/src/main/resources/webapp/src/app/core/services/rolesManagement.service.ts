@@ -23,16 +23,16 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
+import { GroupModel } from '../models/role.model';
 
 @Injectable()
 export class RolesGroupsService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public getGroupsData(): Observable<{}> {
+  public getGroupsData(): Observable<GroupModel[]> {
     return this.applicationServiceFacade
       .buildGetGroupsData()
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -40,7 +40,6 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildGetRolesData()
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -48,7 +47,6 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildSetupNewGroup(data)
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -56,7 +54,6 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildUpdateGroupData(data)
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -64,7 +61,6 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildSetupRolesForGroup(data)
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -72,7 +68,6 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildSetupUsersForGroup(data)
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -82,7 +77,6 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildRemoveUsersForGroup(JSON.stringify(url))
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -92,7 +86,6 @@ export class RolesGroupsService {
     return this.applicationServiceFacade
       .buildRemoveGroupById(JSON.stringify(url))
       .pipe(
-        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 }

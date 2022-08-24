@@ -42,6 +42,7 @@
         <div class="inner-step mat-reset">
           <input
             [validator]="groupValidation()"
+            isGroupNameUnique
             type="text"
             placeholder="Enter group name"
             [(ngModel)]="setupGroup"
