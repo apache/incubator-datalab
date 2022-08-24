@@ -17,31 +17,26 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, Inject, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Inject, ViewChild, ElementRef } from '@angular/core';
 import { ValidatorFn, FormControl, NgModel } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService } from '../../core/services';
-import { CheckUtils, SortUtils } from '../../core/util';
+import { SortUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared';
-import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
-import { fromEvent } from 'rxjs';
-import { GroupModel, Role } from '../../core/models/role.model';
 
 @Component({
   selector: 'datalab-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['../../resources/resources-grid/resources-grid.component.scss', './roles.component.scss']
 })
-export class RolesComponent implements OnInit, AfterViewInit {
+export class RolesComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
-  @ViewChild('groupName') qwe: ElementRef;
-  @ViewChild('setupGroupName') setupGroupName: NgModel;
 
   private startedGroups: Array<any>;
 
@@ -58,7 +53,6 @@ export class RolesComponent implements OnInit, AfterViewInit {
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
   public noPermissionMessage: string = 'You have not permissions for groups which are not assigned to your projects.';
   public maxGroupLength: number = 25;
-  public isGroupNameDuplicated: boolean = false;
 
   stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
@@ -75,14 +69,6 @@ export class RolesComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-  }
-
-  ngAfterViewInit() {
-    if (this.qwe) {
-      fromEvent(this.qwe.nativeElement, 'keyup').pipe(
-        debounceTime(500)
-      ).subscribe(({target}) => console.log(target.value));
-    }
   }
 
   openManageRolesDialog() {
@@ -110,7 +96,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
     );
   }
 
-  getGroupsData() {
+  getGroupsData(): void {
     this.rolesService.getGroupsData()
       .subscribe(
         list => this.updateGroupData(list),
