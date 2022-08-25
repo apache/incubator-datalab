@@ -25,6 +25,18 @@
     ]
   },
   {
+    "_id": "imgTerminateOwnImages",
+    "description": "Allow to terminate own images",
+    "type": "IMAGE",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/image/terminate"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbBillingReportFull",
     "description": "View full billing report for all users",
     "type": "BILLING",
