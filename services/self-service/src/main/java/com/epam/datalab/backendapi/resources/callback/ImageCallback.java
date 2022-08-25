@@ -51,8 +51,14 @@ public class ImageCallback {
     public Response imageCreateStatus(ImageCreateStatusDTO dto) {
         log.debug("Updating status of image {} for user {} to {}", dto.getName(), dto.getUser(), dto);
         requestId.remove(dto.getRequestId());
-        imageExploratoryService.finishImageCreate(getImage(dto), dto.getExploratoryName(), dto.getImageCreateDTO()
-                .getIp());
+
+        if(dto.getStatus().equalsIgnoreCase(String.valueOf(ImageStatus.TERMINATED))){
+            imageExploratoryService.finishTerminateImage(dto.getImageCreateDTO().getExternalName());
+        } else {
+            imageExploratoryService.finishImageCreate(getImage(dto), dto.getExploratoryName(), dto.getImageCreateDTO()
+                    .getIp());
+        }
+
         return Response.status(Response.Status.CREATED).build();
     }
 

@@ -26,6 +26,8 @@ import java.util.Arrays;
 public enum ImageStatus {
     CREATING,
     ACTIVE,
+    TERMINATING,
+    TERMINATED,
     FAILED;
 
     @JsonCreator

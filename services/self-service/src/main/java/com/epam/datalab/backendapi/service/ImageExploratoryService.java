@@ -32,6 +32,10 @@ public interface ImageExploratoryService {
 
     String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription, String info);
 
+    void terminateImage(UserInfo user, String project, String endpoint, String imageName);
+
+    void finishTerminateImage(String fullImageName);
+
     void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
 
     List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint);

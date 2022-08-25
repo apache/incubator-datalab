@@ -42,6 +42,7 @@ import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.set;
 
 @Singleton
 public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratoryDAO {
@@ -70,6 +71,12 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
         final Bson condition = userImageCondition(image.getUser(), image.getName(), image.getProject(), image.getEndpoint());
         final Document updatedFields = getUpdatedFields(image);
         updateOne(MongoCollections.IMAGES, condition, new Document(SET, updatedFields));
+    }
+
+    @Override
+    public void updateImageStatus(String user, String imageName, String project, String endpoint, ImageStatus status) {
+        final Bson condition = userImageCondition(user, imageName, project, endpoint);
+        updateOne(MongoCollections.IMAGES, condition, set(STATUS,status.toString()));
     }
 
     @Override

@@ -59,6 +59,19 @@ public class ImageResource extends DockerService implements DockerCommands {
         return Response.accepted(uuid).build();
     }
 
+    @POST
+    @Path("/terminate")
+    public Response terminateImage(@Auth UserInfo ui, ExploratoryImageDTO image) throws JsonProcessingException{
+        final String uuid = DockerCommands.generateUUID();
+        log.info("terminate image dto {}",image);
+
+        folderListenerExecutor.start(configuration.getImagesDirectory(), configuration.getResourceStatusPollTimeout(),
+                new ImageCreateCallbackHandler(selfService, uuid, DockerAction.TERMINATE_IMAGE, image));
+        String command = commandBuilder.buildCommand(getDockerCommand(DockerAction.TERMINATE_IMAGE, uuid, image), image);
+        commandExecutor.executeAsync(ui.getName(), uuid, command);
+        log.debug("Docker command: " + command);
+        return Response.accepted(uuid).build();
+    }
 
     @Override
     public String getResourceType() {

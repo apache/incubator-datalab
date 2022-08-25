@@ -60,6 +60,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.IMAGE;
 
 @Singleton
@@ -69,7 +70,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
 
     private static final String SHARE_OWN_IMAGES_PAGE = "/api/image/share";
-    private static final String TERMINATE_OWN_IMAGES_PAGE = "/api/image/delete";
+    private static final String TERMINATE_OWN_IMAGES_PAGE = "/api/image/terminate";
     private static final String SHARE_RECEIVED_IMAGES_PAGE = "/api/image/shareReceived";
     private static final String IMAGE_ROLE = "img_%s_%s_%s_%s";
     private static final String IMAGE_ROLE_DESCRIPTION = "Create Notebook from image %s";
@@ -141,6 +142,30 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         return provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE,
                 user.getAccessToken(),
                 requestBuilder.newExploratoryImageCreate(user, userInstance, imageName, endpointDTO, projectDTO), String.class);
+    }
+
+    @Audit(action = TERMINATE, type = IMAGE)
+    @Override
+    public void terminateImage(@User UserInfo user, @Project String project, String endpoint, String imageName) {
+        Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(user.getName(), imageName, project, endpoint);
+        if(image.isPresent()){
+            ImageInfoRecord imageInfoRecord = image.get();
+            imageExploratoryDao.updateImageStatus(user.getName(),imageName,project,endpoint,ImageStatus.TERMINATING);
+            EndpointDTO endpointDTO = endpointService.get(endpoint);
+            ProjectDTO projectDTO = projectService.get(project);
+            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(user.getName(), project, imageInfoRecord.getInstanceName());
+
+            log.info("ExploratoryImageCreate {}", requestBuilder.newExploratoryImageCreate(user, userInstance, imageName, endpointDTO, projectDTO));
+            provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE_TERMINATE,
+                    user.getAccessToken(), requestBuilder.newExploratoryImageCreate(user, userInstance, imageName, endpointDTO, projectDTO)
+                    , String.class);
+        }
+
+    }
+
+    @Override
+    public void finishTerminateImage(String fullImageName) {
+
     }
 
     @Override
@@ -325,16 +350,18 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     @Override
     public ImageUserPermissions getUserImagePermissions(UserInfo userInfo, ImageInfoRecord image) {
         boolean canShare;
-        boolean canTerminate = false;
+        boolean canTerminate;
 
         if(!image.getStatus().equals(ImageStatus.ACTIVE)){
-            return new ImageUserPermissions(false,canTerminate);
+            return new ImageUserPermissions(false,false);
         }
 
         if(image.getUser().equals(userInfo.getName())){
             canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_OWN_IMAGES_PAGE,userInfo.getRoles());
+            canTerminate = UserRoles.checkAccess(userInfo, RoleType.PAGE, TERMINATE_OWN_IMAGES_PAGE,userInfo.getRoles());
         } else {
             canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_RECEIVED_IMAGES_PAGE,userInfo.getRoles());
+            canTerminate = false;
         }
         return new ImageUserPermissions(canShare,canTerminate);
     }
