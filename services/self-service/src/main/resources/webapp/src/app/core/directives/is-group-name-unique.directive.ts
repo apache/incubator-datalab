@@ -48,7 +48,7 @@ export class IsGroupNameUniqueDirective implements Validator {
 
   private isGroupExist(groupList: GroupModel[], comparedValue: string): boolean {
     return groupList.some(({group}) => {
-      return  group.toLowerCase() === comparedValue;
+      return  group.toLowerCase() === comparedValue.toLowerCase();
     });
   }
 }
