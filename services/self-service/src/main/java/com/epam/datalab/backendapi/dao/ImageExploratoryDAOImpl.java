@@ -80,6 +80,11 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
     }
 
     @Override
+    public void updateImageStatus(String fullName, ImageStatus status) {
+        updateOne(MongoCollections.IMAGES, eq(IMAGE_FULL_NAME, fullName), set(STATUS,status.toString()));
+    }
+
+    @Override
     public List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses) {
         return find(MongoCollections.IMAGES,
                 userImagesCondition(user, dockerImage, project, endpoint, statuses),
