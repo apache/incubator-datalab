@@ -165,7 +165,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Override
     public void finishTerminateImage(String fullImageName) {
-
+        imageExploratoryDao.updateImageStatus(fullImageName, ImageStatus.TERMINATED);
     }
 
     @Override

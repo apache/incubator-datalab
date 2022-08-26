@@ -51,8 +51,7 @@ public class ImageCallback {
     public Response imageCreateStatus(ImageCreateStatusDTO dto) {
         log.debug("Updating status of image {} for user {} to {}", dto.getName(), dto.getUser(), dto);
         requestId.remove(dto.getRequestId());
-
-        if(dto.getStatus().equalsIgnoreCase(String.valueOf(ImageStatus.TERMINATED))){
+        if(dto.getImageCreateDTO().getStatus() == ImageStatus.TERMINATED){
             imageExploratoryService.finishTerminateImage(dto.getImageCreateDTO().getExternalName());
         } else {
             imageExploratoryService.finishImageCreate(getImage(dto), dto.getExploratoryName(), dto.getImageCreateDTO()
