@@ -54,7 +54,7 @@
 }
 
 .terminate-image-list__wrapper {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   border-bottom: 1px solid rgba(0,0,0,.08);
 }
 
@@ -76,4 +76,11 @@
       font-weight: 300;
     }
   }
+}
+
+.shared-warning {
+  margin-bottom: 30px;
+  color: red;
+  text-align: center;
+  font-weight: 400;
 }
