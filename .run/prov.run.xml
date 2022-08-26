@@ -1,2 +1,0 @@
-      <env name="DATALAB_CONF_DIR" value="C:\Users\Denys_Yankiv\IdeaProjects\incubator-datalab\infrastructure-provisioning\src\ssn\templates" />
-    <option name="VM_PARAMETERS" value="-Ddocker.dir=C:\Users\Denys_Yankiv\IdeaProjects\incubator-datalab\infrastructure-provisioning\src\general\files\aws\" />
