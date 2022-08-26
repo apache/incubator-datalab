@@ -68,10 +68,10 @@ export class ImagesService {
       );
   }
 
-  terminateImage(imageInfo: ImageParams, action: ImageActionType): Observable<ProjectImagesInfo> {
+  terminateImage(imageInfo: ImageParams, action: ImageActionType): Observable<any> {
     return this.userImagesPageService.terminateImage(imageInfo, action)
       .pipe(
-        tap(value => this.getImagePageData(value.projectImagesInfos)),
+        tap(value => this.getImagePageData(JSON.parse(value['body']).projectImagesInfos)),
         take(1)
       );
   }
