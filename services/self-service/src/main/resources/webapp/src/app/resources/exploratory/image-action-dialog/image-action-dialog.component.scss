@@ -41,5 +41,39 @@
 }
 
 .image-name {
-  font-weight: 600;
+  font-weight: 300;
+}
+
+.image-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.terminate-action__wrapper {
+  width: 100%;
+}
+
+.terminate-image-list__wrapper {
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.terminate-action__header--wrapper,
+.terminate-image-list__wrapper {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  line-height: 26px;
+
+  & > .status {
+    text-align: right;
+  }
+}
+
+.content {
+  & .terminate-image-list__wrapper {
+    & > .status {
+      font-weight: 300;
+    }
+  }
 }

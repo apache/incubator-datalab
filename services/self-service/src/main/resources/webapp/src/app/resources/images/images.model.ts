@@ -1,3 +1,5 @@
+import { ImageActions } from './images.config';
+
 export interface ProjectImagesInfo {
   filterData: ImageFilterFormDropdownData;
   imageFilter: ImageFilterFormValue;
@@ -35,15 +37,18 @@ export interface ImageUserPermissions {
   canTerminate: boolean;
 }
 
-export interface ShareImageAllUsersParams {
+export interface ImageParams {
   imageName: string;
   projectName: string;
   endpoint: string;
 }
 
-export interface ShareModalData {
+export interface ImageModalData {
   image: ImageModel;
+  actionType: ImageActionType;
 }
+
+export type ImageActionType = 'share' | 'terminate';
 
 export interface Library {
   add_pkgs: string[];

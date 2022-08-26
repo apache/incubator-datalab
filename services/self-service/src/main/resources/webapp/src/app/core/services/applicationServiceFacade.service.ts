@@ -24,7 +24,7 @@ import { HttpClient } from '@angular/common/http';
 import { Dictionary } from '../collections';
 import { environment } from '../../../environments/environment';
 import { HTTPMethod } from '../util';
-import { ImageFilterFormValue, ShareImageAllUsersParams} from '../../resources/images';
+import { ImageActionType, ImageFilterFormValue, ImageParams } from '../../resources/images';
 
 // we can now access environment.apiUrl
 const API_URL = environment.apiUrl;
@@ -195,7 +195,7 @@ export class ApplicationServiceFacade {
       params);
   }
 
-  buildShareImageAllUsers(params: ShareImageAllUsersParams): Observable<any> {
+  buildShareImageAllUsers(params: ImageParams): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.SHARE_ALL),
       params
@@ -452,6 +452,12 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
       data,
       { observe: 'response', responseType: 'text' });
+  }
+
+  public buildDeleteImage(data: string): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      data, { responseType: 'text', observe: 'response' });
   }
 
   public buildGetExploratorySchedule(data): Observable<any> {
