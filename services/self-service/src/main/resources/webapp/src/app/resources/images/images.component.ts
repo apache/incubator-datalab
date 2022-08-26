@@ -28,7 +28,6 @@ import { GeneralEnvironmentStatus } from '../../administration/management/manage
 import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
 import { FilteredColumnList, ImageFilterFormDropdownData, ImageFilterFormValue, ImageModel, ProjectModel } from './images.model';
 import {
-  TooltipStatuses,
   Image_Table_Column_Headers,
   Image_Table_Titles,
   ImageStatuses,
@@ -45,7 +44,6 @@ import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
 import { ActivatedRoute } from '@angular/router';
-import { TerminateImageDialogComponent } from '../exploratory/terminate-image-dialog/terminate-image-dialog.component';
 
 @Component({
   selector: 'datalab-images',

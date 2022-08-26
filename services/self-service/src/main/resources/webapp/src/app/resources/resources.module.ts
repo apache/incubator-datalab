@@ -41,7 +41,6 @@ import { ImageDetailDialogModule } from './exploratory/image-detail-dialog/image
 import {LibraryInfoModalModule} from './exploratory/library-info-modal/library-info-modal.module';
 import { PageFilterComponent } from './exploratory/page-filter/page-filter.component';
 import { DirectivesModule } from '../core/directives';
-import { TerminateImageDialogModule } from './exploratory/terminate-image-dialog/terminate-image-dialog.module';
 
 @NgModule({
   imports: [
@@ -63,7 +62,6 @@ import { TerminateImageDialogModule } from './exploratory/terminate-image-dialog
     LibraryInfoModalModule,
     DirectivesModule,
     IsElementAvailablePipeModule,
-    TerminateImageDialogModule
   ],
   declarations: [
     ResourcesComponent,

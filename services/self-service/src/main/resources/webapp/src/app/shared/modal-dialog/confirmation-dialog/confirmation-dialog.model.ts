@@ -76,7 +76,6 @@ export class ConfirmationDialogModel {
   }
 
   private terminateExploratory(): Observable<{}> {
-    console.log(this.manageAction);
     return this.manageAction ? this.manageEnvironmentsService.environmentManagement(
         this.notebook.user, 'terminate', this.notebook.project,  this.notebook.name
       ) : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');

@@ -129,7 +129,7 @@ import { Endpoint } from '../../../administration/project/project.model';
                    <div class="scrolling-content scrolling">
                      <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
                        <div class="endpoint ellipsis">{{resource}}</div>
-                       <div class="status terminated">Terminated111111</div>
+                       <div class="status terminated">Terminated</div>
                      </mat-list-item>
                    </div>
                  </mat-list>
