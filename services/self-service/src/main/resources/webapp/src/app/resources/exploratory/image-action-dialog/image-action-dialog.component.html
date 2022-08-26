@@ -37,14 +37,17 @@
         <div class="image-name ellipsis">{{imageName}}</div>
         <div class="status terminated">Terminated</div>
       </div>
+      <p *ngIf="data.image.sharingStatus !== 'PRIVATE'" class="shared-warning">!The image is shared with other users.</p>
     </div>
     <p class="question center">
       Do you want proceed?
     </p>
     <div class="text-center m-top-30 m-bott-10">
       <button type="button" class="butt mat-raised-button" (click)="dialogRef.close()">No</button>
-      <button type="button" class="butt butt-success mat-raised-button"
-              (click)="onYesClick(data.actionType)">Yes
+      <button
+        type="button"
+        class="butt butt-success mat-raised-button"
+        (click)="onYesClick(data.actionType)">Yes
       </button>
     </div>
   </section>

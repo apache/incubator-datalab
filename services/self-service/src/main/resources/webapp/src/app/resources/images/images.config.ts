@@ -50,7 +50,8 @@ export enum Localstorage_Key {
 }
 
 export enum Toaster_Message {
-  successShare = 'The image has been shared with all current Regular Users on the project!'
+  successShare = 'The image has been shared with all current Regular Users on the project!',
+  successTerminate = 'The image has been terminated'
 }
 
 export enum Placeholders {
