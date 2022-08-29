@@ -63,9 +63,7 @@ export class ImageActionDialogComponent implements OnInit {
     const imageInfo = this.getImageInfo();
     this.dialogRef.close();
     this.imagesService.terminateImage(imageInfo, this.data.actionType)
-      .subscribe(
-        () => this.toastr.success(Toaster_Message.successShare, 'Success!')
-      );
+      .subscribe();
   }
 
   private shareImage(): void {
@@ -73,7 +71,7 @@ export class ImageActionDialogComponent implements OnInit {
     this.dialogRef.close();
     this.imagesService.shareImageAllUsers(imageInfo)
       .subscribe(
-        () => this.toastr.success(Toaster_Message.successTerminate, 'Success!')
+        () => this.toastr.success(Toaster_Message.successShare, 'Success!')
       );
   }
 
