@@ -41,7 +41,7 @@
 }
 
 .image-name {
-  font-weight: 300;
+  font-weight: 600;
 }
 
 .image-list {
@@ -62,6 +62,7 @@
 .terminate-image-list__wrapper {
   display: flex;
   justify-content: space-between;
+  margin-top: 26px;
   padding: 10px 0;
   line-height: 26px;
 
