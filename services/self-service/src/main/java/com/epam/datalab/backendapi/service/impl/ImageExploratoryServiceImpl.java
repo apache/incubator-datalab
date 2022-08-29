@@ -349,20 +349,19 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Override
     public ImageUserPermissions getUserImagePermissions(UserInfo userInfo, ImageInfoRecord image) {
-        boolean canShare;
-        boolean canTerminate;
+        boolean canShare = false;
+        boolean canTerminate = (image.getStatus().equals(ImageStatus.ACTIVE) || image.getStatus().equals(ImageStatus.FAILED)) &&
+                (image.getUser().equals(userInfo.getName())
+                        && UserRoles.checkAccess(userInfo, RoleType.PAGE, TERMINATE_OWN_IMAGES_PAGE, userInfo.getRoles()));
 
-        if(!image.getStatus().equals(ImageStatus.ACTIVE)){
-            return new ImageUserPermissions(false,false);
+        if(image.getStatus().equals(ImageStatus.ACTIVE) ){
+            if(image.getUser().equals(userInfo.getName())){
+                canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_OWN_IMAGES_PAGE,userInfo.getRoles());
+            } else {
+                canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_RECEIVED_IMAGES_PAGE,userInfo.getRoles());
+            }
         }
 
-        if(image.getUser().equals(userInfo.getName())){
-            canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_OWN_IMAGES_PAGE,userInfo.getRoles());
-            canTerminate = UserRoles.checkAccess(userInfo, RoleType.PAGE, TERMINATE_OWN_IMAGES_PAGE,userInfo.getRoles());
-        } else {
-            canShare = UserRoles.checkAccess(userInfo, RoleType.PAGE, SHARE_RECEIVED_IMAGES_PAGE,userInfo.getRoles());
-            canTerminate = false;
-        }
         return new ImageUserPermissions(canShare,canTerminate);
     }
 
