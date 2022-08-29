@@ -33,7 +33,7 @@ if __name__ == "__main__":
         image_conf = dict()
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        image_conf['image_name'] = os.environ['notebook_image_name']
+        image_conf['image_name'] = os.environ['notebook_image_name'].replace('_', '-').lower()
         image_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         image_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
