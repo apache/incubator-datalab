@@ -88,6 +88,7 @@ if __name__ == "__main__":
             with open("/root/result.json", 'w') as result:
                 res = {"primary_image_name": image_conf['expected_primary_image_name'],
                        "secondary_image_name": image_conf['expected_secondary_image_name'],
+                       "full_image_name": image_conf['expected_primary_image_name'],
                        "project_name": image_conf['project_name'],
                        "application": image_conf['application'],
                        "status": "active",
