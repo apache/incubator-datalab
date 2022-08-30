@@ -20,13 +20,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import { map, tap} from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 
 import { ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
-import { FilteredColumnList, ImageFilterFormDropdownData, ImageFilterFormValue, ImageModel, ProjectModel } from './images.model';
+import {
+  FilteredColumnList,
+  ImageActionType,
+  ImageFilterFormDropdownData,
+  ImageFilterFormValue,
+  ImageModel,
+  ProjectModel
+} from './images.model';
 import {
   Image_Table_Column_Headers,
   Image_Table_Titles,
@@ -37,7 +44,10 @@ import {
   DropdownFieldNames,
   FilterFormInitialValue,
   ImageModelKeysForFilter,
-  DropdownSelectAllValue, FilterFormControlNames, ImageActions,
+  DropdownSelectAllValue,
+  FilterFormControlNames,
+  ImageActions,
+  Toaster_Message,
 } from './images.config';
 import { ImageActionDialogComponent } from '../exploratory/image-action-dialog/image-action-dialog.component';
 import { ImagesService } from './images.service';
@@ -63,6 +73,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   readonly imageStatus: typeof ImageStatuses = ImageStatuses;
   readonly columnFieldNames: typeof FilterFormControlNames = FilterFormControlNames;
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;
+  readonly imageActionType: typeof ImageActions = ImageActions;
 
   isActionsOpen: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
@@ -122,7 +133,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.changeCheckboxValue(this.checkboxSelected);
   }
 
-  onActionClick(): void {
+  onActionBtnClick(): void {
     this.isActionsOpen = !this.isActionsOpen;
   }
 
@@ -149,31 +160,20 @@ export class ImagesComponent implements OnInit, OnDestroy {
     });
   }
 
-  onShareClick(image: ImageModel): void {
-    this.dialog.open(ImageActionDialogComponent, {
-      data: {
-        image,
-        actionType: ImageActions.share
-      },
-      panelClass: 'modal-sm'
-    }).afterClosed()
-      .subscribe(() => {
-        this.checkAuthorize();
-        this.progressBarService.stopProgressBar();
-      });
-  }
+  onActionClick(image: ImageModel, actionType: ImageActionType): void {
+    const imageInfo = this.imagesService.createImageRequestInfo(image);
+    const data = this.imagesService.createActionDialogConfig(image, actionType);
+    const requestCallback = this.imagesService.getRequestByAction(actionType).bind(this.imagesService);
 
-  onTerminateClick(image: ImageModel): void {
     this.dialog.open(ImageActionDialogComponent, {
-      data: {
-        image,
-        actionType: ImageActions.terminate
-      },
+      data,
       panelClass: 'modal-sm'
     }).afterClosed()
-      .subscribe(() => {
-        this.progressBarService.stopProgressBar();
-      });
+      .pipe(
+        switchMap(() => requestCallback(imageInfo, actionType)),
+        tap(() => this.callActionHelpers(actionType))
+    )
+      .subscribe();
   }
 
   onFilterClick(): void {
@@ -218,6 +218,14 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   onClickOutside(): void {
     this.imagesService.closeFilter();
+  }
+
+  private callActionHelpers(actionType: ImageActionType): void {
+    if (actionType === ImageActions.share) {
+      this.toastr.success(Toaster_Message.successShare, 'Success!');
+    }
+    this.checkAuthorize();
+    this.progressBarService.stopProgressBar();
   }
 
   private checkAuthorize(): void {

@@ -43,9 +43,15 @@ export interface ImageParams {
   endpoint: string;
 }
 
-export interface ImageModalData {
-  image: ImageModel;
+export interface ImageActionModalData {
   actionType: ImageActionType;
+  title: string;
+  imageName: string;
+  isShared?: boolean;
+}
+
+export interface ImageDetailModalData {
+  image: ImageModel;
 }
 
 export type ImageActionType = 'share' | 'terminate';
