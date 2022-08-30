@@ -19,7 +19,7 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 
 import { ToastrService } from 'ngx-toastr';
@@ -170,8 +170,13 @@ export class ImagesComponent implements OnInit, OnDestroy {
       panelClass: 'modal-sm'
     }).afterClosed()
       .pipe(
-        switchMap(() => requestCallback(imageInfo, actionType)),
-        tap(() => this.callActionHelpers(actionType))
+        switchMap((confirm) => {
+          if (confirm) {
+            return requestCallback(imageInfo, actionType);
+          }
+          return EMPTY;
+        }),
+        tap(() => this.callActionHelpers(actionType, this.callToasterShareSuccess))
     )
       .subscribe();
   }
@@ -212,7 +217,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onResetColumn(dropdownFieldNames: FilterFormControlNames): void {
-    console.log(dropdownFieldNames);
     this.imagesService.resetFilterField(dropdownFieldNames, DropdownSelectAllValue);
   }
 
@@ -220,12 +224,17 @@ export class ImagesComponent implements OnInit, OnDestroy {
     this.imagesService.closeFilter();
   }
 
-  private callActionHelpers(actionType: ImageActionType): void {
+  private callActionHelpers(actionType: ImageActionType, callback?: (actionType: string) => void): void {
+    const toasterInvoke = callback.bind(this);
+    toasterInvoke(actionType);
+    this.checkAuthorize();
+    this.progressBarService.stopProgressBar();
+  }
+
+  private callToasterShareSuccess(actionType: ImageActionType): void {
     if (actionType === ImageActions.share) {
       this.toastr.success(Toaster_Message.successShare, 'Success!');
     }
-    this.checkAuthorize();
-    this.progressBarService.stopProgressBar();
   }
 
   private checkAuthorize(): void {
