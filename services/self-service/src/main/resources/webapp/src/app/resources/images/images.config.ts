@@ -117,3 +117,8 @@ export enum ImageActions {
   terminate = 'terminate'
 }
 
+export enum ModalTitle {
+  share = 'Share image',
+  terminate = 'Terminate image'
+}
+
