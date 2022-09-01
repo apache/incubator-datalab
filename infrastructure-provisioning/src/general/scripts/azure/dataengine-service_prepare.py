@@ -61,6 +61,7 @@ if __name__ == "__main__":
         hdinsight_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         hdinsight_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         hdinsight_conf['region'] = os.environ['azure_region']
+        hdinsight_conf['tag_name'] = hdinsight_conf['service_base_name'] + '-tag'
         hdinsight_conf['cluster_name'] = '{}-{}-{}-des-{}'.format(hdinsight_conf['service_base_name'],
                                                                   hdinsight_conf['project_name'],
                                                                   hdinsight_conf['endpoint_name'],
@@ -79,12 +80,50 @@ if __name__ == "__main__":
         hdinsight_conf['release_label'] = os.environ['hdinsight_version']
         key = RSA.importKey(open(hdinsight_conf['key_path'], 'rb').read())
         ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
+        hdinsight_conf['container_name'] = ('{0}-{1}-{2}-{3}-bucket'.format(hdinsight_conf['service_base_name'],
+                                                                            hdinsight_conf['project_name'],
+                                                                            hdinsight_conf['endpoint_name'],
+                                                                            hdinsight_conf['cluster_name'])).lower()
+        hdinsight_conf['storage_account_name_tag'] = ('{0}-{1}-{2}-{3}-bucket'.format(hdinsight_conf['service_base_name'],
+                                                                                      hdinsight_conf['project_name'],
+                                                                                      hdinsight_conf['endpoint_name'],
+                                                                                      hdinsight_conf['cluster_name']
+                                                                                      )).lower()
+        hdinsight_conf['storage_account_tags'] = {"Name": hdinsight_conf['storage_account_name_tag'],
+                                                  "SBN": hdinsight_conf['service_base_name'],
+                                                  "project_tag": hdinsight_conf['project_name'],
+                                                  "endpoint_tag": hdinsight_conf['endpoint_name'],
+                                                  os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
+                                                  hdinsight_conf['tag_name']: hdinsight_conf['storage_account_name_tag']}
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
     try:
+        logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
+
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+            format(hdinsight_conf['container_name'], json.dumps(hdinsight_conf['storage_account_tags']),
+                   hdinsight_conf['resource_group_name'], hdinsight_conf['region'])
+        try:
+            subprocess.run("~/scripts/{}.py {}".format('common_create_storage_account', params), shell=True, check=True)
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        datalab.fab.append_result("Failed to create storage account.", str(err))
+        for storage_account in AzureMeta.list_storage_accounts(hdinsight_conf['resource_group_name']):
+            if hdinsight_conf['storage_account_name_tag'] == storage_account.tags["Name"]:
+                AzureActions.remove_storage_account(hdinsight_conf['resource_group_name'], storage_account.name)
+        sys.exit(1)
+
+    try:
         logging.info('[Creating HDInsight Cluster]')
+        for storage_account in AzureMeta.list_storage_accounts(hdinsight_conf['resource_group_name']):
+            if hdinsight_conf['storage_account_name_tag'] == storage_account.tags["Name"]:
+                hdinsight_conf['storage_account_name'] = storage_account.name
+        hdinsight_conf['storage_account_key'] = AzureMeta.list_storage_keys(
+            hdinsight_conf['resource_group_name'], hdinsight_conf['storage_account_name'])[0]
         params = "--resource_group_name {} --cluster_name {} " \
                  "--cluster_version {} --location {} " \
                  "--master_instance_type {} --worker_instance_type {} " \
