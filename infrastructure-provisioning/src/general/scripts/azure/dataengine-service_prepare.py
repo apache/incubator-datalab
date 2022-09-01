@@ -34,102 +34,15 @@ import subprocess
 import Crypto.PublicKey
 import fabric
 import azure.mgmt.hdinsight.models
-#from Crypto.PublicKey import RSA
-#from fabric import *
 from azure.mgmt.hdinsight.models import *
 from azure.mgmt.core import *
 from azure.common import *
 from azure.core import *
 from datalab.actions_lib import *
 
-
-CLUSTER_NAME = 'hdinsight-test'
-# The name of your existing Resource Group
-RESOURCE_GROUP_NAME = 'dlab-resource-group'
-# Choose a region. i.e. "East US 2".
-LOCATION = 'West US 2'
-# Cluster login username
-CLUSTER_LOGIN_USER_NAME = 'datalab-user'
-# (SSH) user username
-SSH_USER_NAME = 'datalab-user'
-# Cluster admin password
-PASSWORD = ''
-# The name of blob storage account
-STORAGE_ACCOUNT_NAME = 'hdinsight'
-# Blob storage account key
-STORAGE_ACCOUNT_KEY = ''
-# Blob storage account container name
-CONTAINER_NAME = 'hdinsight'
-# Blob Storage endpoint suffix.
-BLOB_ENDPOINT_SUFFIX = '.blob.core.windows.net'
-
-def create_cluster_parameters(LOCATION, CLUSTER_LOGIN_USER_NAME, PASSWORD, SSH_USER_NAME):
-
-    # Returns cluster parameters
-
-    return ClusterCreateParametersExtended(
-        location=LOCATION,
-        tags={},
-        properties=ClusterCreateProperties(
-            cluster_version="4.0",
-            os_type=OSType.linux,
-            tier=Tier.standard,
-            cluster_definition=ClusterDefinition(
-                kind="Spark",
-                configurations={
-                    "gateway": {
-                        "restAuthCredential.isEnabled": "true",
-                        "restAuthCredential.username": CLUSTER_LOGIN_USER_NAME,
-                        "restAuthCredential.password": PASSWORD
-                    }
-                }
-            ),
-            compute_profile=ComputeProfile(
-                roles=[
-                    Role(
-                        name="headnode",
-                        target_instance_count=2,
-                        hardware_profile=HardwareProfile(vm_size="Standard_A4_v2"),
-                        os_profile=OsProfile(
-                            linux_operating_system_profile=LinuxOperatingSystemProfile(
-                                username=SSH_USER_NAME,
-                                password=PASSWORD
-                            )
-                        )
-                    ),
-                    Role(
-                        name="workernode",
-                        target_instance_count=2,
-                        hardware_profile=HardwareProfile(vm_size="Standard_A4_v2"),
-                        os_profile=OsProfile(
-                            linux_operating_system_profile=LinuxOperatingSystemProfile(
-                                username=SSH_USER_NAME,
-                                password=PASSWORD
-                            )
-                        )
-                    )
-                ]
-            ),
-            storage_profile=StorageProfile(
-                storageaccounts=[
-                    StorageAccount(
-                        name=STORAGE_ACCOUNT_NAME + ".blob.core.windows.net",
-                        key=STORAGE_ACCOUNT_KEY,
-                        container=CONTAINER_NAME.lower(),
-                        is_default=True
-                    )
-                ]
-            )
-        )
-    )
-
 if __name__ == "__main__":
-    #params = create_cluster_parameters()
-    #create_hdinsight_cluster(RESOURCE_GROUP_NAME,CLUSTER_NAME, params)
-    
     try:
         AzureMeta = datalab.meta_lib.AzureMeta()
-        AzureActions = datalab.actions_lib.AzureActions()
         logging.info('Generating infrastructure names and tags')
         hdinsight_conf = dict()
         if 'exploratory_name' in os.environ:
@@ -142,57 +55,48 @@ if __name__ == "__main__":
             hdinsight_conf['computational_name'] = ''
 
         hdinsight_conf['service_base_name'] = (os.environ['conf_service_base_name'])
-        hdinsight_conf['edge_user_name'] = (os.environ['edge_user_name'])
         hdinsight_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
-        hdinsight_conf['project_tag'] = hdinsight_conf['project_name']
         hdinsight_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
-        hdinsight_conf['endpoint_tag'] = hdinsight_conf['endpoint_name']
         hdinsight_conf['key_name'] = os.environ['conf_key_name']
         hdinsight_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        hdinsight_conf['zone'] = os.environ['gcp_zone']
         hdinsight_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         hdinsight_conf['region'] = os.environ['azure_region']
-        data_engine['vpc_name'] = os.environ['azure_vpc_name']
-        data_engine['private_subnet_name'] = '{}-{}-{}-subnet'.format(data_engine['service_base_name'],
-                                                                      data_engine['project_name'],
-                                                                      data_engine['endpoint_name'])
-        data_engine['private_subnet_cidr'] = AzureMeta.get_subnet(data_engine['resource_group_name'],
-                                                                  data_engine['vpc_name'],
-                                                                  data_engine['private_subnet_name']).address_prefix
-        data_engine['cluster_name'] = '{}-{}-{}-des-{}'.format(data_engine['service_base_name'],
-                                                              data_engine['project_name'],
-                                                              data_engine['endpoint_name'],
-                                                              data_engine['computational_name'])
+        hdinsight_conf['cluster_name'] = '{}-{}-{}-des-{}'.format(hdinsight_conf['service_base_name'],
+                                                                  hdinsight_conf['project_name'],
+                                                                  hdinsight_conf['endpoint_name'],
+                                                                  hdinsight_conf['computational_name'])
 
+        hdinsight_conf['cluster_tags'] = {
+            "name": hdinsight_conf['cluster_name'],
+            "sbn": hdinsight_conf['service_base_name'],
+            "notebook_name": os.environ['notebook_instance_name'],
+            "product": "datalab",
+            "computational_name": hdinsight_conf['computational_name'],
+            "project": hdinsight_conf['project_name'],
+            "endpoint": hdinsight_conf['endpoint_name']
+        }
 
-
-        hdinsight_conf['subnet'] = '{0}-{1}-{2}-subnet'.format(hdinsight_conf['service_base_name'],
-                                                              hdinsight_conf['project_name'],
-                                                              hdinsight_conf['endpoint_name'])
-        hdinsight_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}'.format(hdinsight_conf['service_base_name'],
-                                                                     hdinsight_conf['project_name'],
-                                                                     hdinsight_conf['endpoint_name'],
-                                                                     hdinsight_conf['computational_name'])
-        hdinsight_conf['cluster_tag'] = '{0}-{1}-{2}-ps'.format(hdinsight_conf['service_base_name'],
-                                                               hdinsight_conf['project_name'],
-                                                               hdinsight_conf['endpoint_name'])
-        hdinsight_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(hdinsight_conf['service_base_name'],
-                                                                   hdinsight_conf['project_name'],
-                                                                   hdinsight_conf['endpoint_name'])
-
-        hdinsight_conf['edge_instance_hostname'] = '{0}-{1}-{2}-edge'.format(hdinsight_conf['service_base_name'],
-                                                                            hdinsight_conf['project_name'],
-                                                                            hdinsight_conf['endpoint_name'])
-        hdinsight_conf['datalab_ssh_user'] = os.environ['conf_os_user']
+        hdinsight_conf['release_label'] = os.environ['hdinsight_version']
+        key = RSA.importKey(open(hdinsight_conf['key_path'], 'rb').read())
+        ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
     try:
         logging.info('[Creating HDInsight Cluster]')
-        params = "--region {0} --bucket {1} --params '{2}'".format(hdinsight_conf['region'],
-                                                                   hdinsight_conf['bucket_name'],
-                                                                   json.dumps(hdinsight_cluster))
+        params = "--resource_group_name {} --cluster_name {} " \
+                 "--cluster_version {} --location {} " \
+                 "--master_instance_type {} --worker_instance_type {} " \
+                 "--worker_count {} --storage_account_name {} " \
+                 "--storage_account_key {} --container_name {} " \
+                 "--tags '{}' --public_key {}"\
+            .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
+                    hdinsight_conf['release_label'], hdinsight_conf['region'],
+                    os.environ['hdinsight_master_instance_type'], os.environ['hdinsight_slave_instance_type'],
+                    os.environ['hdinsight_slave_count'], hdinsight_conf['storage_account_name'],
+                    hdinsight_conf['storage_account_key'], hdinsight_conf['container_name'],
+                    json.dumps(hdinsight_conf['cluster_tags']), ssh_admin_pubkey)
 
         try:
             subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)
