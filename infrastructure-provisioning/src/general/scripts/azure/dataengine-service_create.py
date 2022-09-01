@@ -128,9 +128,9 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
 
 if __name__ == "__main__":
     parser.print_help()
-
+    password = ''
     params = create_cluster_parameters(args.location, json.loads(args.tags), args.cluster_version, 'datalab-user',
-                                       args.password, args.master_instance_type, args.worker_count,
+                                       password, args.master_instance_type, args.worker_count,
                                        args.worker_instance_type, args.storage_account_name, args.storage_account_key,
                                        args.container_name, args.public_key)
     build_hdinsight_cluster(args.resource_group_name, args.cluster_name, params)
