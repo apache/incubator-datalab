@@ -23,5 +23,6 @@
     },
   "templates":
   [
+    {"version":"4.0", "applications": []}
   ]
 }
