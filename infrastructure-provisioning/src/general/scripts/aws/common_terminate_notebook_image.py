@@ -49,6 +49,9 @@ if __name__ == "__main__":
 
         with open("/root/result.json", 'w') as result:
             res = {"notebook_image_name": image_conf['full_image_name'],
+                   "endpoint": image_conf['endpoint_name'],
+                   "project": image_conf['project_name'],
+                   "imageName": image_conf['image_name'],
                    "status": "terminated",
                    "Action": "Delete existing notebook image"}
             result.write(json.dumps(res))
