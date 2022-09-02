@@ -30,9 +30,21 @@ export class ComputationalResourceModel {
 
   public createComputationalResource(parameters, image, env, provider, gpu?): Observable<{}> {
     const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
+    const requestObj = this.createRequestObject(parameters, image, env, provider, config, gpu);
+    const dataEngineServiceCondition = (provider === 'aws' && image.image === 'docker.datalab-dataengine-service')
+      || (provider === 'gcp' && image.image === 'docker.datalab-dataengine-service')
+      || (provider === 'azure' && image.template_name === 'HDInsight cluster');
 
+    if (dataEngineServiceCondition) {
+      return this.userResourceService.createComputationalResource_DataengineService(requestObj, provider);
+    } else {
+      return this.userResourceService.createComputationalResource_Dataengine(requestObj, provider);
+    }
+  }
+
+  private createRequestObject(parameters, image, env, provider, config, gpu?) {
     if (provider === 'aws' && image.image === 'docker.datalab-dataengine-service') {
-      return this.userResourceService.createComputationalResource_DataengineService({
+      return {
         name: parameters.cluster_alias_name,
         emr_instance_count: parameters.instance_number,
         emr_master_instance_type: parameters.shape_master,
@@ -46,9 +58,9 @@ export class ComputationalResourceModel {
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag
-      }, provider);
+      };
     } else if (provider === 'gcp' && image.image === 'docker.datalab-dataengine-service') {
-      return this.userResourceService.createComputationalResource_DataengineService({
+      return {
         template_name: image.template_name,
         image: image.image,
         notebook_name: env.name,
@@ -67,9 +79,23 @@ export class ComputationalResourceModel {
         master_gpu_count: gpu ? parameters.master_GPU_count : null,
         slave_gpu_count: gpu ? parameters.slave_GPU_count : null,
         gpu_enabled: gpu
-      }, provider);
+      };
+    } else if (provider === 'azure' && image.template_name === 'HDInsight cluster') {
+      return {
+        template_name: image.template_name,
+        image: image.image,
+        name: parameters.cluster_alias_name,
+        project: env.project,
+        custom_tag: parameters.custom_tag,
+        notebook_name: env.name,
+        config: config,
+        hdinsight_master_instance_type: parameters.shape_master,
+        hdinsight_slave_instance_type: parameters.shape_slave,
+        hdinsight_version: parameters.version,
+        hdinsight_slave_count: (parameters.instance_number - 2),
+      };
     } else {
-      return this.userResourceService.createComputationalResource_Dataengine({
+      return {
         name: parameters.cluster_alias_name,
         dataengine_instance_count: parameters.instance_number,
         master_instance_shape: parameters.shape_master,
@@ -85,7 +111,7 @@ export class ComputationalResourceModel {
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag
-      }, provider);
+      };
     }
   }
 }
