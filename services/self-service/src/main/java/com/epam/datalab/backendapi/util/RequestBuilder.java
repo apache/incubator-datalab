@@ -40,6 +40,7 @@ import com.epam.datalab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.datalab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.datalab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.datalab.dto.azure.AzureCloudSettings;
+import com.epam.datalab.dto.azure.computational.AzureComputationalTerminateDTO;
 import com.epam.datalab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.datalab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.datalab.dto.azure.exploratory.ExploratoryActionStopAzure;
@@ -460,7 +461,11 @@ public class RequestBuilder {
                 computationalTerminate = (T) terminateDTO;
                 break;
             case AZURE:
-                computationalTerminate = (T) newResourceSysBaseDTO(resourceCreator, cloudProvider, ComputationalTerminateDTO.class);
+                AzureComputationalTerminateDTO azureTerminateDTO =  newResourceSysBaseDTO(resourceCreator, cloudProvider, AzureComputationalTerminateDTO.class);
+                if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE){
+                    azureTerminateDTO.setClusterName(computationalResource.getComputationalId());
+                }
+                computationalTerminate = (T) azureTerminateDTO;
                 break;
             case GCP:
                 GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(resourceCreator, cloudProvider,

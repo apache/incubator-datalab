@@ -50,7 +50,8 @@ export enum Localstorage_Key {
 }
 
 export enum Toaster_Message {
-  successShare = 'The image has been shared with all current Regular Users on the project!'
+  successShare = 'The image has been shared with all current Regular Users on the project!',
+  successTerminate = 'The image has been terminated'
 }
 
 export enum Placeholders {
@@ -114,5 +115,10 @@ export const DropdownSelectAllValue = 'selectAllFound';
 export enum ImageActions {
   share = 'share',
   terminate = 'terminate'
+}
+
+export enum ModalTitle {
+  share = 'Share image',
+  terminate = 'Terminate image'
 }
 

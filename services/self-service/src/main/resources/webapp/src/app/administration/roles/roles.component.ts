@@ -169,6 +169,10 @@ export class RolesComponent implements OnInit {
               }
             });
           }
+          // TODO REMOVE THIS CODE AFTER IMAGE ROLE REFACTORING
+          setTimeout(() => {
+            this.checkAuthorize();
+          });
           deletedUsers = [];
         });
     }
@@ -325,6 +329,12 @@ export class RolesComponent implements OnInit {
                   .filter(userName => userName);
     }
     return [ userNameList ];
+  }
+
+  private checkAuthorize(): void {
+    this.applicationSecurityService.isLoggedIn().subscribe(() => {
+      this.getEnvironmentHealthStatus();
+    });
   }
 
   private getEnvironmentHealthStatus() {

@@ -10,10 +10,12 @@ import {
   ImageModel,
   ProjectImagesInfo,
   ProjectModel,
-  ImageParams, ImageActionType
+  ImageParams,
+  ImageActionType,
+  ImageActionModalData
 } from './images.model';
 import { ApplicationServiceFacade, UserImagesPageService } from '../../core/services';
-import { ChangedColumnStartValue, FilterFormInitialValue } from './images.config';
+import { ChangedColumnStartValue, FilterFormInitialValue, ModalTitle, SharedStatus } from './images.config';
 
 @Injectable({
   providedIn: 'root'
@@ -166,9 +168,43 @@ export class ImagesService {
       : [];
   }
 
-  checkIsPageFiltered() {
+  checkIsPageFiltered(): void {
     const isImageListFiltered = (<any>Object).values(this.$$filteredColumnState.value).some(item => Boolean(item));
     this.$$isImageListFiltered.next(isImageListFiltered);
+  }
+
+  createImageRequestInfo(image: ImageModel): ImageParams {
+    const { name, project, endpoint } = image;
+    return {
+      imageName: name,
+      projectName: project,
+      endpoint: endpoint
+    };
+  }
+
+  createActionDialogConfig(image: ImageModel, actionType: ImageActionType): ImageActionModalData {
+    const modalTitle = {
+      share: ModalTitle.share,
+      terminate: ModalTitle.terminate
+    };
+    return {
+      title: modalTitle[actionType],
+      actionType,
+      imageName: image.name,
+      isShared: this.isImageShared(image)
+    };
+  }
+
+  getRequestByAction(actionType): Function {
+    const callbackList = {
+      share: this.shareImageAllUsers,
+      terminate: this.terminateImage
+    };
+    return callbackList[actionType];
+  }
+
+  private isImageShared(image: ImageModel): boolean {
+    return image.sharingStatus !== SharedStatus.private;
   }
 
   private initImagePageInfo(imagePageInfo: ProjectImagesInfo): void {

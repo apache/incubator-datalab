@@ -317,13 +317,14 @@
                   <li *ngIf="element.imageUserPermissions.canShare">
                     <button
                       class="action-button__share"
-                      (click)="onShareClick(element)"
+                      (click)="onActionClick(element, imageActionType.share)"
                     >
                       <i class="material-icons">screen_share</i>
                       <span>Share</span>
                     </button>
                   </li>
-                  <li *ngIf="element.imageUserPermissions.canTerminate" (click)="onTerminateClick(element)">
+                  <li *ngIf="element.imageUserPermissions.canTerminate"
+                      (click)="onActionClick(element, imageActionType.terminate)">
                     <button class="action-button__share">
                       <i class="material-icons">phonelink_off</i>
                       <span>Terminate</span>
