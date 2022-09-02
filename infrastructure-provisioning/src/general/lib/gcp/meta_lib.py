@@ -673,6 +673,22 @@ class GCPMeta:
                 data.append(host)
         return data
 
+    def get_list_image_statuses(self, image_name_list):
+        data = []
+        for image in image_name_list:
+            host = {}
+            try:
+                request = self.service.images().get(project=self.project, image=image)
+                result = request.execute()
+                host['id'] = image
+                host['status'] = result.get('status').lower().replace("terminated", "stopped")
+                data.append(host)
+            except:
+                host['id'] = image
+                host['status'] = 'terminated'
+                data.append(host)
+        return data
+
     def get_cluster(self, cluster_name):
         try:
             request = self.dataproc.projects().regions().clusters().get(projectId=self.project,

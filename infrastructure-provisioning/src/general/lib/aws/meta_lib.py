@@ -754,6 +754,26 @@ def get_list_instance_statuses(instance_ids):
     return data
 
 
+def get_list_image_statuses(image_ids, data=[]):
+    client = boto3.client('ec2')
+    for k in image_ids:
+        host = {}
+        try:
+            if 'id' in k:
+                response = client.describe_images(ImageIds=[k.get('id')]).get('Reservations')
+                for i in response:
+                    img = i.get('Images')
+                    for j in img:
+                        host['id'] = j.get('ImageId')
+                        host['status'] = j.get('State').get('Name')
+                        data.append(host)
+        except Exception as err:
+            host['id'] = h.get('id')
+            host['status'] = 'terminated'
+            data.append(host)
+    return data
+
+
 def get_list_cluster_statuses(cluster_ids, data=[]):
     client = boto3.client('emr')
     for i in cluster_ids:
