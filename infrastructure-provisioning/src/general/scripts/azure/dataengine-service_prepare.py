@@ -77,6 +77,10 @@ if __name__ == "__main__":
             "endpoint": hdinsight_conf['endpoint_name']
         }
 
+        hdinsight_conf['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+        if hdinsight_conf['custom_tag']:
+            hdinsight_conf['cluster_tags']['custom_tag'] = hdinsight_conf['custom_tag']
+
         hdinsight_conf['release_label'] = os.environ['azure_hdinsight_version']
         key = RSA.importKey(open(hdinsight_conf['key_path'], 'rb').read())
         ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
