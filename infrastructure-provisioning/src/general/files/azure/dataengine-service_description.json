@@ -2,7 +2,7 @@
   "template_name": "HDInsight cluster",
   "description": "HDInsight cluster",
   "environment_type": "computational",
-    "computation_resources_shapes":
+  "computation_resources_shapes":
     {
       "For testing" : [
         {"Size": "S", "Description": "Standard_F4s", "Type": "Standard_F4s","Ram": "8.0 GB","Cpu": "4"}
@@ -23,6 +23,6 @@
     },
   "templates":
   [
-    {"version":"4.0", "applications": []}
+    {"version":"4.0", "applications": [{"Name":"Spark", "Version": "x.x.x"}]}
   ]
 }
