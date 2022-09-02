@@ -198,6 +198,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
       this.minInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max];
+
       if (this.PROVIDER === 'gcp' && this.selectedImage.image === DockerImageName.dataEngineService) {
         this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max] - 1;
         this.minPreemptibleInstanceNumber = this.selectedImage.limits.min_dataproc_preemptible_instance_count;

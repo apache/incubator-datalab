@@ -132,7 +132,10 @@
               </div>
             </div>
 
-            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!selectedImage.templates.length">
+            <div class="control-group"
+                 *ngIf="(clusterTypes | isElementAvailable : isHasHDInside) || PROVIDER !== providerList.azure"
+                 [hidden]="!selectedImage.templates.length"
+            >
               <label class="label">Select template</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
