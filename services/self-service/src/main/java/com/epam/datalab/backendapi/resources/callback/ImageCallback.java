@@ -52,7 +52,7 @@ public class ImageCallback {
         log.debug("Updating status of image {} for user {} to {}", dto.getName(), dto.getUser(), dto);
         requestId.remove(dto.getRequestId());
         if(dto.getImageCreateDTO().getStatus() == ImageStatus.TERMINATED){
-            imageExploratoryService.finishTerminateImage(dto.getImageCreateDTO().getExternalName());
+            imageExploratoryService.finishTerminateImage(dto.getName(), dto.getProject(), dto.getEndpoint());
         } else {
             imageExploratoryService.finishImageCreate(getImage(dto), dto.getExploratoryName(), dto.getImageCreateDTO()
                     .getIp());

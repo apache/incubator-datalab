@@ -78,10 +78,9 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
         final Bson condition = userImageCondition(user, imageName, project, endpoint);
         updateOne(MongoCollections.IMAGES, condition, set(STATUS,status.toString()));
     }
-
     @Override
-    public void updateImageStatus(String fullName, ImageStatus status) {
-        updateOne(MongoCollections.IMAGES, eq(IMAGE_FULL_NAME, fullName), set(STATUS,status.toString()));
+    public void updateImageStatus(String imageName, String projectName, String endpoint, ImageStatus status) {
+        updateOne(MongoCollections.IMAGES, and(eq(IMAGE_NAME, imageName), eq(PROJECT, projectName), eq(ENDPOINT, endpoint)), set(STATUS,status.toString()));
     }
 
     @Override

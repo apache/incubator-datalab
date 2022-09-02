@@ -33,8 +33,7 @@ public interface ImageExploratoryService {
     String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription, String info);
 
     void terminateImage(UserInfo user, String project, String endpoint, String imageName);
-
-    void finishTerminateImage(String fullImageName);
+    void finishTerminateImage(String imageName, String projectName, String endpoint);
 
     void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
 
