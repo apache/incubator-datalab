@@ -72,7 +72,9 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         except:
             notebook_config['exploratory_name'] = ''
-
+        notebook_config['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+        if notebook_config['custom_tag']:
+            notebook_config['custom_tag'] = ';custom_tag:{}'.format(notebook_config['custom_tag'])
         notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
@@ -134,11 +136,12 @@ if __name__ == "__main__":
             json.dump(data, f)
 
         try:
-            os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1};'.format(
-                notebook_config['project_name'], notebook_config['endpoint_name'], os.environ['conf_additional_tags'])
-        except KeyError:
-            os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(
-                notebook_config['project_name'], notebook_config['endpoint_name'])
+            os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}{3}'.format(
+                notebook_config['project_name'], notebook_config['endpoint_name'], os.environ['conf_additional_tags'],
+                notebook_config['custom_tag'])
+        except KeyError as ex:
+            os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}{2}'.format(
+                notebook_config['project_name'], notebook_config['endpoint_name'], notebook_config['custom_tag'])
 
         logging.info('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
     except Exception as err:

@@ -68,6 +68,9 @@ if __name__ == "__main__":
                                    "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    "product": "datalab"}
+        notebook_config['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+        if notebook_config['custom_tag']:
+            notebook_config['tags']['custom_tag'] = notebook_config['custom_tag']
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
         notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                          notebook_config['project_name'],
