@@ -53,7 +53,7 @@ if __name__ == "__main__":
             hdinsight_conf['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
         else:
             hdinsight_conf['computational_name'] = ''
-
+        hdinsight_conf['hdinsight_worker_count'] = int(os.environ['dataengine_instance_count']) - 2
         hdinsight_conf['service_base_name'] = (os.environ['conf_service_base_name'])
         hdinsight_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
         hdinsight_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
@@ -77,7 +77,7 @@ if __name__ == "__main__":
             "endpoint": hdinsight_conf['endpoint_name']
         }
 
-        hdinsight_conf['release_label'] = os.environ['hdinsight_version']
+        hdinsight_conf['release_label'] = os.environ['azure_hdinsight_version']
         key = RSA.importKey(open(hdinsight_conf['key_path'], 'rb').read())
         ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         hdinsight_conf['container_name'] = ('{0}-{1}-{2}-{3}-bucket'.format(hdinsight_conf['service_base_name'],
@@ -132,8 +132,8 @@ if __name__ == "__main__":
                  "--tags '{}' --public_key {}"\
             .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
                     hdinsight_conf['release_label'], hdinsight_conf['region'],
-                    os.environ['hdinsight_master_instance_type'], os.environ['hdinsight_slave_instance_type'],
-                    os.environ['hdinsight_slave_count'], hdinsight_conf['storage_account_name'],
+                    os.environ['azure_dataengine_master_size'], os.environ['azure_dataengine_slave_size'],
+                    hdinsight_conf['hdinsight_worker_count'], hdinsight_conf['storage_account_name'],
                     hdinsight_conf['storage_account_key'], hdinsight_conf['container_name'],
                     json.dumps(hdinsight_conf['cluster_tags']), ssh_admin_pubkey)
 
