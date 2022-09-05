@@ -1,0 +1,111 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<datalab-image-action-dialog [activeTabConfig]="activeTabConfig" [isApplyBtnDisabled]="isApplyBtnDisabled">
+  <div datalab-share-dialog class="wrapper">
+    <ul class="title__list">
+      <li
+        class="title__item active-tab"
+        [ngClass]="{'active-tab': activeTabConfig.shareImage}"
+        (click)="onTabTitle(tabsName.shareImage)"
+      >
+        <button class="title__btn">
+          <h4 class="title">
+            SHARE IMAGE
+          </h4>
+        </button>
+      </li>
+      <li
+        class="title__item"
+        [ngClass]="{'active-tab': activeTabConfig.shareWith}"
+        (click)="onTabTitle(tabsName.shareWith)"
+      >
+        <button class="title__btn">
+          <h4 class="title">
+            SHARED WITH
+          </h4>
+        </button>
+      </li>
+    </ul>
+
+    <div *ngIf="activeTabConfig.shareImage" class="search-input__wrapper">
+
+<!--      TODO REMOVE IT WHEN REMOVING THE RADIO BUTTON FROM APP-->
+
+      <div class="radio__wrapper">
+        <div class="radio-input__wrapper">
+          <label>
+            user
+            <input
+              name="user-radio"
+              type="radio"
+              [(ngModel)]="userNameOrGroup"
+              [value]="userDataTypeConfig.user">
+          </label>
+          <label>
+            user group
+            <input
+              name="group-radio"
+              type="radio"
+              [(ngModel)]="userNameOrGroup"
+              [value]="userDataTypeConfig.group">
+          </label>
+        </div>
+        <span [hidden]="!isSearchUserTouched" class="error">Select with whom to share the image</span>
+      </div>
+      <div class="input__wrapper">
+        <input
+          class="search-input"
+          [placeholder]="placeholder.groupOrNameSearchInput"
+          [(ngModel)]="searchInput"
+          #searchUser="ngModel"
+          (keydown.enter)="onAddUser()"
+          required
+        >
+        <button
+          class="add-person__btn"
+          mat-icon-button
+          [disabled]="isAddUserDataBtnDisabled"
+          (click)="onAddUser()"
+        >
+          <mat-icon> person_add </mat-icon>
+        </button>
+        <span [hidden]="!isUserInputEmpty" class="error">This field is required</span>
+        <span [hidden]="!isLongInputMessage" class="error">Length can`t be more than 25 symbols</span>
+      </div>
+      <div class="user-list__wrapper scrolling">
+        <ul class="user-list">
+          <li *ngFor="let entity of temporaryUserList" class="user-list__item">
+            <datalab-share-user-data (removeUserData)="onRemoveUserData($event, tabsName.shareImage)" [userData]="entity"></datalab-share-user-data>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div *ngIf="activeTabConfig.shareWith" class="share-with__wrapper">
+      <div class="user-list__wrapper scrolling">
+        <ul class="user-list">
+          <li *ngFor="let entity of userList" class="user-list__item">
+            <datalab-share-user-data (removeUserData)="onRemoveUserData($event, tabsName.shareWith)" [userData]="entity"></datalab-share-user-data>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</datalab-image-action-dialog>

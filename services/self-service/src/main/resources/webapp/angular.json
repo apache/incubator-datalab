@@ -14,7 +14,8 @@
             "allowedCommonJsDependencies": [
               "chart.js",
               "ng-daterangepicker",
-              "moment-timezone"
+              "moment-timezone",
+              "rxjs-compat"
             ],
             "aot": true,
             "outputPath": "dist",

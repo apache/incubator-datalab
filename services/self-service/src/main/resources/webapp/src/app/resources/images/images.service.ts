@@ -16,6 +16,9 @@ import {
 } from './images.model';
 import { ApplicationServiceFacade, UserImagesPageService } from '../../core/services';
 import { ChangedColumnStartValue, FilterFormInitialValue, ModalTitle, SharedStatus } from './images.config';
+import { ShareDialogComponent } from '../exploratory/image-action-dialog/share-dialog/share-dialog.component';
+import { TerminateDialogComponent } from '../exploratory/image-action-dialog/terminate-dialog/terminate-dialog.component';
+import { ComponentType } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -201,6 +204,14 @@ export class ImagesService {
       terminate: this.terminateImage
     };
     return callbackList[actionType];
+  }
+
+  getComponentByAction(actionType): ComponentType<unknown> {
+    const componentList = {
+      share: ShareDialogComponent,
+      terminate: TerminateDialogComponent
+    };
+    return componentList[actionType];
   }
 
   initImagePageInfo(imagePageInfo: ProjectImagesInfo): void {
