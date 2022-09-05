@@ -259,7 +259,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
   private getUserImagePageInfo(): void {
     this.route.data.pipe(
       map(data => data['projectList']),
-      tap(({projectImagesInfos}) => this.getProjectList(projectImagesInfos))
+      tap((response) => this.imagesService.initImagePageInfo(response)),
+      tap(({projectImagesInfos}) => this.getProjectList(projectImagesInfos)),
     ).subscribe();
   }
 
