@@ -248,7 +248,7 @@ if __name__ == "__main__":
                     emr_conf['project_tag'], emr_conf['endpoint_tag'], emr_conf['custom_tag'],
                     os.environ['conf_additional_tags'])
             else:
-                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'],
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}{2}'.format(emr_conf['project_tag'],
                                                                                                emr_conf['endpoint_tag'],
                                                                                                emr_conf['custom_tag'])
             print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
