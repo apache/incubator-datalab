@@ -203,16 +203,16 @@ export class ImagesService {
     return callbackList[actionType];
   }
 
-  private isImageShared(image: ImageModel): boolean {
-    return image.sharingStatus !== SharedStatus.private;
-  }
-
-  private initImagePageInfo(imagePageInfo: ProjectImagesInfo): void {
+  initImagePageInfo(imagePageInfo: ProjectImagesInfo): void {
     this.getImagePageData(imagePageInfo.projectImagesInfos);
     this.getDropdownDataList(imagePageInfo.filterData);
     this.setFilterFormValue(imagePageInfo.imageFilter);
     this.updateFilterColumnState(imagePageInfo.imageFilter);
     this.checkIsPageFiltered();
+  }
+
+  private isImageShared(image: ImageModel): boolean {
+    return image.sharingStatus !== SharedStatus.private;
   }
 
   private checkColumnState(acc: FilteredColumnList, fieldItem: FilterFormItemType): FilteredColumnList {
