@@ -76,6 +76,9 @@ if __name__ == "__main__":
             emr_conf['computational_name'] = os.environ['computational_name'].lower()
         else:
             emr_conf['computational_name'] = ''
+        emr_conf['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+        if emr_conf['custom_tag']:
+            emr_conf['custom_tag'] = ';custom_tag:{}'.format(emr_conf['custom_tag'])
         emr_conf['apps'] = 'Hadoop Hive Hue Spark Livy'
         emr_conf['tag_name'] = '{0}-tag'.format(emr_conf['service_base_name'])
         emr_conf['key_name'] = os.environ['conf_key_name']
@@ -87,7 +90,8 @@ if __name__ == "__main__":
                                                                    emr_conf['project_name'], emr_conf['endpoint_name'])
         emr_conf['edge_security_group_name'] = '{0}-sg'.format(emr_conf['edge_instance_name'])
         emr_conf['nb_security_group_name'] = '{0}-{1}-{2}-nb-sg'.format(emr_conf['service_base_name'],
-                                                                   emr_conf['project_name'], emr_conf['endpoint_name'])
+                                                                        emr_conf['project_name'],
+                                                                        emr_conf['endpoint_name'])
         emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
         emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
         emr_conf['instance_count'] = os.environ['emr_instance_count']
@@ -100,21 +104,21 @@ if __name__ == "__main__":
                            'Notebook={4},' \
                            'State=not-configured,' \
                            'ComputationalName={3},' \
-                           'Endpoint_tag={5}'\
+                           'Endpoint_tag={5}' \
             .format(emr_conf['service_base_name'],
                     emr_conf['project_name'],
                     emr_conf['exploratory_name'],
                     emr_conf['computational_name'],
                     os.environ['notebook_instance_name'],
                     emr_conf['endpoint_name'])
-        emr_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}-{4}'\
+        emr_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}-{4}' \
             .format(emr_conf['service_base_name'],
                     emr_conf['project_name'],
                     emr_conf['endpoint_name'],
                     emr_conf['computational_name'],
                     args.uuid)
         emr_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
-                                                               emr_conf['endpoint_name']).lower().replace('_', '-')
+                                                              emr_conf['endpoint_name']).lower().replace('_', '-')
         emr_conf['configurations'] = '[]'
         if 'emr_configurations' in os.environ:
             emr_conf['configurations'] = os.environ['emr_configurations']
@@ -125,7 +129,7 @@ if __name__ == "__main__":
         emr_conf['subnet_cidr'] = datalab.meta_lib.get_subnet_by_tag(tag)
         emr_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         emr_conf['all_ip_cidr'] = '0.0.0.0/0'
-        emr_conf['additional_emr_sg_name'] = '{}-{}-{}-de-se-additional-sg'\
+        emr_conf['additional_emr_sg_name'] = '{}-{}-{}-de-se-additional-sg' \
             .format(emr_conf['service_base_name'], emr_conf['project_name'], emr_conf['endpoint_name'])
         emr_conf['vpc_id'] = os.environ['aws_vpc_id']
         emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
@@ -240,11 +244,13 @@ if __name__ == "__main__":
                    emr_conf['cluster_name'], True)
         try:
             if 'conf_additional_tags' in os.environ:
-                os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1};'.format(
-                    emr_conf['project_tag'], emr_conf['endpoint_tag'], os.environ['conf_additional_tags'])
+                os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}{3}'.format(
+                    emr_conf['project_tag'], emr_conf['endpoint_tag'], emr_conf['custom_tag'],
+                    os.environ['conf_additional_tags'])
             else:
-                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'],
-                                                                                               emr_conf['endpoint_tag'])
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}{2}'.format(emr_conf['project_tag'],
+                                                                                               emr_conf['endpoint_tag'],
+                                                                                               emr_conf['custom_tag'])
             print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
             subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
@@ -280,7 +286,7 @@ if __name__ == "__main__":
                  "--bid_price {19} " \
                  "--service_base_name {20} " \
                  "--additional_emr_sg {21} " \
-                 "--configurations \"{22}\" "\
+                 "--configurations \"{22}\" " \
             .format(emr_conf['cluster_name'],
                     emr_conf['apps'],
                     emr_conf['master_instance_type'],
