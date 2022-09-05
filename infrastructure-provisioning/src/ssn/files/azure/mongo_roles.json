@@ -150,6 +150,16 @@
     ]
   },
   {
+    "_id": "nbCreateDataEngineService",
+    "description": "Create Data Engine Service",
+    "computationals": [
+      "docker.datalab-dataengine-service"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_Standard_F4s_fetching",
     "description": "Use Standard_F4s instance shape for cluster",
     "computational_shapes": [

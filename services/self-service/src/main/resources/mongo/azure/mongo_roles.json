@@ -180,6 +180,18 @@
     ]
   },
   {
+    "_id": "nbCreateDataEngineService",
+    "description": "Create Data Engine Service",
+    "type": "COMPUTATIONAL",
+    "cloud": "AZURE",
+    "computationals": [
+      "docker.datalab-dataengine-service"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_Standard_F4s_fetching",
     "description": "Use Standard_F4s instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",

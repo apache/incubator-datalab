@@ -63,7 +63,6 @@ public class ImageResource extends DockerService implements DockerCommands {
     @Path("/terminate")
     public Response terminateImage(@Auth UserInfo ui, ExploratoryImageDTO image) throws JsonProcessingException{
         final String uuid = DockerCommands.generateUUID();
-        log.info("terminate image dto {}",image);
 
         folderListenerExecutor.start(configuration.getImagesDirectory(), configuration.getResourceStatusPollTimeout(),
                 new ImageCreateCallbackHandler(selfService, uuid, DockerAction.TERMINATE_IMAGE, image));
