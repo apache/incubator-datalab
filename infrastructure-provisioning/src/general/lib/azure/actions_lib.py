@@ -1175,7 +1175,13 @@ class AzureActions:
     def create_hdinsight_cluster(self, resource_group_name, cluster_name, cluster_parameters):
         try:
             print('Starting to create HDInsight Spark cluster {}'.format(cluster_name))
-            return self.hdinsight_client.clusters.begin_create(resource_group_name, cluster_name, cluster_parameters)
+            result = self.hdinsight_client.clusters.begin_create(resource_group_name, cluster_name, cluster_parameters)
+            cluster = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            while cluster.properties.cluster_state != 'Running':
+                time.sleep(15)
+                print('The cluster is being provisioned... Please wait')
+                cluster = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            return result
         except Exception as err:
             logging.info(
                 "Unable to create HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -1188,7 +1194,13 @@ class AzureActions:
     def terminate_hdinsight_cluster(self, resource_group_name, cluster_name):
         try:
             print('Starting to terminate HDInsight Spark cluster {}'.format(cluster_name))
-            return self.hdinsight_client.clusters.begin_delete(resource_group_name, cluster_name)
+            result = self.hdinsight_client.clusters.begin_delete(resource_group_name, cluster_name)
+            cluster_status = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            while cluster_status:
+                time.sleep(15)
+                print('The cluster is being terminated... Please wait')
+                cluster_status = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            return result
         except Exception as err:
             logging.info(
                 "Unable to terminate HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
