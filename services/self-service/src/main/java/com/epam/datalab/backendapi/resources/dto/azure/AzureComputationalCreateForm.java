@@ -15,6 +15,10 @@ import org.hibernate.validator.constraints.NotBlank;
 public class AzureComputationalCreateForm extends ComputationalCreateFormDTO {
 
     @NotBlank
+    @JsonProperty("hdinsight_instance_count")
+    private String instanceCount;
+
+    @NotBlank
     @JsonProperty("hdinsight_master_instance_type")
     private String masterInstanceType;
     @NotBlank
@@ -23,10 +27,6 @@ public class AzureComputationalCreateForm extends ComputationalCreateFormDTO {
     @NotBlank
     @JsonProperty("hdinsight_version")
     private String version;
-
-    @NotBlank
-    @JsonProperty("hdinsight_slave_instance_count")
-    private String slaveInstanceCount;
 
 
 }

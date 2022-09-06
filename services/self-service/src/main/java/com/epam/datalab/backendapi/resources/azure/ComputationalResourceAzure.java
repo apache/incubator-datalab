@@ -97,7 +97,7 @@ public class ComputationalResourceAzure {
                     .status(CREATING.toString())
                     .masterShape(form.getMasterInstanceType())
                     .slaveShape(form.getSlaveInstanceType())
-                    .slaveInstanceCount(form.getSlaveInstanceCount())
+                    .totalInstanceCount(Integer.parseInt(form.getInstanceCount()))
                     .config(form.getConfig())
                     .version(form.getVersion())
                     .build();
@@ -223,7 +223,7 @@ public class ComputationalResourceAzure {
             throw new DatalabException("You do not have the privileges to create a " + formDTO.getTemplateName());
         }
 
-        int slaveInstanceCount = Integer.parseInt(formDTO.getSlaveInstanceCount());
+        int slaveInstanceCount = Integer.parseInt(formDTO.getInstanceCount());
         if (slaveInstanceCount < configuration.getMinHDInsightInstanceCount() || slaveInstanceCount > configuration.getMaxHDInsightInstanceCount()) {
 
             log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave " +
