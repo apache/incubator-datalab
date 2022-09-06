@@ -46,6 +46,8 @@ parser.add_argument('--storage_account_key', type=str, help='')
 parser.add_argument('--container_name', type=str, help='')
 parser.add_argument('--tags', type=str, help='')
 parser.add_argument('--public_key', type=str, help='')
+parser.add_argument('--vpc_id', type=str, help='')
+parser.add_argument('--subnet', type=str, help='')
 args = parser.parse_args()
 
 
@@ -56,7 +58,7 @@ def build_hdinsight_cluster(resource_group_name, cluster_name, params):
 
 def create_cluster_parameters(location, tags, cluster_version, cluster_login_username, password, master_instance_type,
                               worker_count, worker_instance_type, storage_account_name, storage_account_key,
-                              container_name, public_key):
+                              container_name, public_key, vpc_id, subnet):
 
     # Returns cluster parameters
 
@@ -92,6 +94,10 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
                                     ]
                                 }
                             )
+                        ),
+                        virtual_network_profile=VirtualNetworkProfile(
+                            id=vpc_id,
+                            subnet=subnet
                         )
                     ),
                     Role(
@@ -107,6 +113,10 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
                                     ]
                                 }
                             )
+                        ),
+                        virtual_network_profile=VirtualNetworkProfile(
+                            id=vpc_id,
+                            subnet=subnet
                         )
                     )
                 ]
@@ -129,12 +139,13 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
 ##############
 
 if __name__ == "__main__":
-    parser.print_help()
+    #parser.print_help()
     password = ''
     params = create_cluster_parameters(args.location, json.loads(args.tags), args.cluster_version, 'datalab-user',
                                        password, args.master_instance_type, args.worker_count,
                                        args.worker_instance_type, args.storage_account_name, args.storage_account_key,
-                                       args.container_name, args.public_key)
+                                       args.container_name, args.public_key, args.vpc_id, args.subnet)
+
     build_hdinsight_cluster(args.resource_group_name, args.cluster_name, params)
 
     logfile = '{}_creation.log'.format(args.cluster_name)

@@ -91,6 +91,20 @@ if __name__ == "__main__":
                                                   "endpoint_tag": hdinsight_conf['endpoint_name'],
                                                   os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
                                                   hdinsight_conf['tag_name']: hdinsight_conf['storage_account_name_tag']}
+
+        hdinsight_conf['vpc_name'] = os.environ['azure_vpc_name']
+
+        hdinsight_conf['vpc_id'] = AzureMeta.get_vpc(hdinsight_conf['resource_group_name'],
+                                                     hdinsight_conf['vpc_name']).id
+
+        hdinsight_conf['subnet_name'] = '{}-{}-{}-subnet'.format(hdinsight_conf['service_base_name'],
+                                                                 hdinsight_conf['project_name'],
+                                                                 hdinsight_conf['endpoint_name'])
+
+        hdinsight_conf['edge_network_id'] = AzureMeta.get_subnet(hdinsight_conf['resource_group_name'],
+                                                                 hdinsight_conf['vpc_name'],
+                                                                 hdinsight_conf['subnet_name']).id
+
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
@@ -125,13 +139,14 @@ if __name__ == "__main__":
                  "--master_instance_type {} --worker_instance_type {} " \
                  "--worker_count {} --storage_account_name {} " \
                  "--storage_account_key '{}' --container_name {} " \
-                 "--tags '{}' --public_key '{}'"\
+                 "--tags '{}' --public_key '{}' --vpc_id {} --subnet {}"\
             .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
                     hdinsight_conf['release_label'], hdinsight_conf['region'],
                     os.environ['hdinsight_master_instance_type'], os.environ['hdinsight_slave_instance_type'],
                     hdinsight_conf['hdinsight_worker_count'], hdinsight_conf['storage_account_name'],
                     hdinsight_conf['storage_account_key'], hdinsight_conf['container_name'],
-                    json.dumps(hdinsight_conf['cluster_tags']), ssh_admin_pubkey)
+                    json.dumps(hdinsight_conf['cluster_tags']), ssh_admin_pubkey, hdinsight_conf['vpc_id'],
+                    hdinsight_conf['edge_network_id'])
 
         try:
             subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)
