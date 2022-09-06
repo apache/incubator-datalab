@@ -21,7 +21,6 @@
 #
 # ******************************************************************************
 
-import boto3
 import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
@@ -32,65 +31,57 @@ import traceback
 from datalab.logger import logging
 
 
-def terminate_hdin_cluster(hdin_name, bucket_name, tag_name, nb_tag_value, ssh_user, key_path):
-    logging.info('Terminating hdin cluster and cleaning hdin config from S3 bucket')
-    # try:
-    #     clusters_list = datalab.meta_lib.get_hdin_list(hdin_name, 'Value')
-    #     if clusters_list:
-    #         for cluster_id in clusters_list:
-    #             computational_name = ''
-    #             client = boto3.client('hdin')
-    #             cluster = client.describe_cluster(ClusterId=cluster_id)
-    #             cluster = cluster.get("Cluster")
-    #             hdin_name = cluster.get('Name')
-    #             hdin_version = cluster.get('ReleaseLabel')
-    #             for tag in cluster.get('Tags'):
-    #                 if tag.get('Key') == 'ComputationalName':
-    #                     computational_name = tag.get('Value')
-    #             datalab.actions_lib.s3_cleanup(bucket_name, hdin_name, os.environ['project_name'])
-    #             print("The bucket {} has been cleaned successfully".format(bucket_name))
-    #             datalab.actions_lib.terminate_hdin(cluster_id)
-    #             print("The hdin cluster {} has been terminated successfully".format(hdin_name))
-    #             print("Removing hdin kernels from notebook")
-    #             datalab.actions_lib.remove_kernels(hdin_name, tag_name, nb_tag_value, ssh_user, key_path,
-    #                                                hdin_version, computational_name)
-    #     else:
-    #         logging.info("There are no hdin clusters to terminate.")
+if __name__ == "__main__":
+    try:
+        # generating variables dictionary
+        logging.info('Generating infrastructure names and tags')
+        hdinsight_conf = dict()
+        AzureActions = datalab.actions_lib.AzureActions()
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        if 'exploratory_name' in os.environ:
+            hdinsight_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
+        else:
+            hdinsight_conf['exploratory_name'] = ''
+        if 'computational_name' in os.environ:
+            hdinsight_conf['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
+        else:
+            hdinsight_conf['computational_name'] = ''
+        hdinsight_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+        hdinsight_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+        hdinsight_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
+        hdinsight_conf['resource_group_name'] = os.environ['azure_resource_group_name']
+        hdinsight_conf['region'] = os.environ['azure_region']
+        hdinsight_conf['cluster_name'] = '{}-{}-{}-des-{}'.format(hdinsight_conf['service_base_name'],
+                                                                  hdinsight_conf['project_name'],
+                                                                  hdinsight_conf['endpoint_name'],
+                                                                  hdinsight_conf['computational_name'])
+        hdinsight_conf['storage_account_name_tag'] = ('{}-bucket'.format(hdinsight_conf['cluster_name'])).lower()
+        hdinsight_conf['container_name'] = ('{}-bucket'.format(hdinsight_conf['cluster_name'])).lower()
+        hdinsight_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
+        hdinsight_conf['notebook_instance_name'] = os.environ['notebook_instance_name']
+    except Exception as err:
+        datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[TERMINATE HDINSIGHT CLUSTER AND ASSOCIATED RESOURCES]')
+        try:
+            AzureActions.terminate_hdinsight_cluster(hdinsight_conf['resource_group_name'],
+                                                     hdinsight_conf['cluster_name'])
+            for storage_account in AzureMeta.list_storage_accounts(hdinsight_conf['resource_group_name']):
+                if hdinsight_conf['storage_account_name_tag'] == storage_account.tags["Name"]:
+                    AzureActions.remove_storage_account(hdinsight_conf['resource_group_name'], storage_account.name)
+        except Exception as err:
+            traceback.print_exc()
+            datalab.fab.append_result("Failed to terminate hdinsight cluster.", str(err))
+            raise Exception
     except:
         sys.exit(1)
 
-
-if __name__ == "__main__":
-    # generating variables dictionary
-    datalab.actions_lib.create_aws_config_files()
-    logging.info('Generating infrastructure names and tags')
-    hdin_conf = dict()
-    hdin_conf['service_base_name'] = (os.environ['conf_service_base_name'])
-    hdin_conf['hdin_name'] = os.environ['hdinsight_cluster_name']
-    hdin_conf['notebook_name'] = os.environ['notebook_instance_name']
-    hdin_conf['project_name'] = os.environ['project_name']
-    hdin_conf['endpoint_name'] = os.environ['endpoint_name']
-    hdin_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(hdin_conf['service_base_name'], hdin_conf['project_name'],
-                                                           hdin_conf['endpoint_name']).lower().replace('_', '-')
-    hdin_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-    hdin_conf['tag_name'] = hdin_conf['service_base_name'] + '-tag'
-
-    # try:
-    #     logging.info('[TERMINATE hdin CLUSTER]')
-    #     try:
-    #         terminate_hdin_cluster(hdin_conf['hdin_name'], hdin_conf['bucket_name'], hdin_conf['tag_name'],
-    #                               hdin_conf['notebook_name'], os.environ['conf_os_user'], hdin_conf['key_path'])
-    #     except Exception as err:
-    #         traceback.print_exc()
-    #         datalab.fab.append_result("Failed to terminate hdin cluster.", str(err))
-    #         raise Exception
-    # except:
-    #     sys.exit(1)
-
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"dataengine-service_name": hdin_conf['hdin_name'],
-                   "notebook_name": hdin_conf['notebook_name'],
+            res = {"dataengine-service_name": hdinsight_conf['computational_name'],
+                   "notebook_name": hdinsight_conf['notebook_instance_name'],
                    "Action": "Terminate HDInsight cluster"}
             print(json.dumps(res))
             result.write(json.dumps(res))
