@@ -77,14 +77,8 @@ if __name__ == "__main__":
         hdinsight_conf['release_label'] = os.environ['hdinsight_version']
         key = RSA.importKey(open(hdinsight_conf['key_path'], 'rb').read())
         ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
-        hdinsight_conf['container_name'] = ('{0}-bucket'.format(hdinsight_conf['service_base_name'],
-                                                                hdinsight_conf['project_name'],
-                                                                hdinsight_conf['endpoint_name'],
-                                                                hdinsight_conf['cluster_name'])).lower()
-        hdinsight_conf['storage_account_name_tag'] = ('{0}-bucket'.format(hdinsight_conf['service_base_name'],
-                                                                          hdinsight_conf['project_name'],
-                                                                          hdinsight_conf['endpoint_name'],
-                                                                          hdinsight_conf['cluster_name'])).lower()
+        hdinsight_conf['container_name'] = ('{}-bucket'.format(hdinsight_conf['cluster_name'])).lower()
+        hdinsight_conf['storage_account_name_tag'] = ('{}-bucket'.format(hdinsight_conf['cluster_name'])).lower()
         hdinsight_conf['storage_account_tags'] = {"Name": hdinsight_conf['storage_account_name_tag'],
                                                   "SBN": hdinsight_conf['service_base_name'],
                                                   "project_tag": hdinsight_conf['project_name'],
@@ -112,7 +106,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
 
-        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {} " \
+                 "--storage_account_kind StorageV2". \
             format(hdinsight_conf['container_name'], json.dumps(hdinsight_conf['storage_account_tags']),
                    hdinsight_conf['resource_group_name'], hdinsight_conf['region'])
         try:
@@ -156,5 +151,8 @@ if __name__ == "__main__":
 
     except Exception as err:
         datalab.fab.append_result("Failed to create hdinsight Cluster.", str(err))
+        for storage_account in AzureMeta.list_storage_accounts(hdinsight_conf['resource_group_name']):
+            if hdinsight_conf['storage_account_name_tag'] == storage_account.tags["Name"]:
+                AzureActions.remove_storage_account(hdinsight_conf['resource_group_name'], storage_account.name)
         #subprocess.run('rm /response/.hdinsight_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
         sys.exit(1)

@@ -450,25 +450,23 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_storage_account(self, resource_group_name, account_name, region, tags):
+    def create_storage_account(self, resource_group_name, account_name, region, tags, kind='BlobStorage'):
         try:
             ssn_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
                                                                      vpc_name=os.environ['azure_vpc_name'],
-                                                                     subnet_name=os.environ['azure_subnet_name']
-                                                                     ).id
+                                                                     subnet_name=os.environ['azure_subnet_name']).id
             edge_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
-                                                                     vpc_name=os.environ['azure_vpc_name'],
-                                                                     subnet_name='{}-{}-{}-subnet'.format(
-                                                                         os.environ['conf_service_base_name'],
-                                                                         (os.environ['project_name']),
-                                                                         (os.environ['endpoint_name']))
-                                                                       ).id
+                                                                      vpc_name=os.environ['azure_vpc_name'],
+                                                                      subnet_name='{}-{}-{}-subnet'.format(
+                                                                          os.environ['conf_service_base_name'],
+                                                                          (os.environ['project_name']),
+                                                                          (os.environ['endpoint_name']))).id
             result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
                 {
                     "sku": {"name": "Standard_LRS"},
-                    "kind": "BlobStorage",
+                    "kind": kind,
                     "location": region,
                     "tags": tags,
                     "access_tier": "Hot",
@@ -520,13 +518,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_blob_container(self, resource_group_name, account_name, container_name):
+    def create_blob_container(self, account_name, container_name):
         try:
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/",
+                                                   credential=self.credential)
             result = block_blob_service.create_container(
                 container_name,
                 {
-                "public_access": "Off"
+                    "public_access": "Off"
                 }
             )
             return result
