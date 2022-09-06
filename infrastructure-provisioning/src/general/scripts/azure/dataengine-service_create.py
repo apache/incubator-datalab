@@ -24,6 +24,7 @@
 import argparse
 import json
 import sys
+import secrets
 from datalab.actions_lib import *
 from datalab.meta_lib import *
 from datalab.logger import logging
@@ -159,7 +160,7 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
 
 if __name__ == "__main__":
     #parser.print_help()
-    password = ''
+    password = secrets.token_urlsafe(20)
     params = create_cluster_parameters(args.location, json.loads(args.tags), args.cluster_version, 'datalab-user',
                                        password, args.master_instance_type, args.worker_count,
                                        args.worker_instance_type, args.storage_account_name, args.storage_account_key,
