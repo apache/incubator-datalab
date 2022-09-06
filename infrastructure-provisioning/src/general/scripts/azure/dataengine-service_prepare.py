@@ -21,24 +21,17 @@
 #
 # ******************************************************************************
 
-import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
-import datalab.logger
 import multiprocessing
 import os
 import sys
 import traceback
 import subprocess
-import Crypto.PublicKey
-import fabric
-import azure.mgmt.hdinsight.models
-from azure.mgmt.hdinsight.models import *
-from azure.mgmt.core import *
-from azure.common import *
-from azure.core import *
-from datalab.actions_lib import *
+from Crypto.PublicKey import RSA
+from datalab.logger import logging
+from fabric import *
 
 if __name__ == "__main__":
     try:
@@ -53,7 +46,7 @@ if __name__ == "__main__":
             hdinsight_conf['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
         else:
             hdinsight_conf['computational_name'] = ''
-        hdinsight_conf['hdinsight_worker_count'] = int(os.environ['dataengine_instance_count']) - 2
+        hdinsight_conf['hdinsight_worker_count'] = int(os.environ['hdinsight_count']) - 2
         hdinsight_conf['service_base_name'] = (os.environ['conf_service_base_name'])
         hdinsight_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
         hdinsight_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
@@ -81,7 +74,7 @@ if __name__ == "__main__":
         if hdinsight_conf['custom_tag']:
             hdinsight_conf['cluster_tags']['custom_tag'] = hdinsight_conf['custom_tag']
 
-        hdinsight_conf['release_label'] = os.environ['azure_hdinsight_version']
+        hdinsight_conf['release_label'] = os.environ['hdinsight_version']
         key = RSA.importKey(open(hdinsight_conf['key_path'], 'rb').read())
         ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         hdinsight_conf['container_name'] = ('{0}-{1}-{2}-{3}-bucket'.format(hdinsight_conf['service_base_name'],
@@ -133,10 +126,10 @@ if __name__ == "__main__":
                  "--master_instance_type {} --worker_instance_type {} " \
                  "--worker_count {} --storage_account_name {} " \
                  "--storage_account_key {} --container_name {} " \
-                 "--tags '{}' --public_key {}"\
+                 "--tags '{}' --public_key '{}'"\
             .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
                     hdinsight_conf['release_label'], hdinsight_conf['region'],
-                    os.environ['azure_dataengine_master_size'], os.environ['azure_dataengine_slave_size'],
+                    os.environ['hdinsight_master_instance_type'], os.environ['hdinsight_slave_instance_type'],
                     hdinsight_conf['hdinsight_worker_count'], hdinsight_conf['storage_account_name'],
                     hdinsight_conf['storage_account_key'], hdinsight_conf['container_name'],
                     json.dumps(hdinsight_conf['cluster_tags']), ssh_admin_pubkey)
@@ -147,9 +140,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
 
-        keyfile_name = "/root/keys/{}.pem".format(hdinsight_conf['key_name'])
-        subprocess.run('rm /response/.hdinsight_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
     except Exception as err:
         datalab.fab.append_result("Failed to create hdinsight Cluster.", str(err))
-        subprocess.run('rm /response/.hdinsight_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
+        #subprocess.run('rm /response/.hdinsight_creating_{}'.format(os.environ['exploratory_name']), shell=True, check=True)
         sys.exit(1)

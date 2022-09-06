@@ -187,7 +187,8 @@ if __name__ == "__main__":
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
-                             {"name": "dataengine", "tag": "latest"}]
+                             {"name": "dataengine", "tag": "latest"},
+                             {"name": "dataengine-service", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --datalab_path {} " \
                  "--cloud_provider {} --region {}".format(ssn_conf['instance_host'], ssn_conf['ssh_key_path'],
                                                           json.dumps(additional_config), os.environ['conf_os_family'],
