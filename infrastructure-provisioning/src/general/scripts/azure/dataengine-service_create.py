@@ -48,9 +48,11 @@ parser.add_argument('--tags', type=str, help='')
 parser.add_argument('--public_key', type=str, help='')
 args = parser.parse_args()
 
+
 def build_hdinsight_cluster(resource_group_name, cluster_name, params):
     logging.info("Will be created cluster: {}".format(cluster_name))
     return datalab.actions_lib.AzureActions().create_hdinsight_cluster(resource_group_name, cluster_name, params)
+
 
 def create_cluster_parameters(location, tags, cluster_version, cluster_login_username, password, master_instance_type,
                               worker_count, worker_instance_type, storage_account_name, storage_account_key,

@@ -77,15 +77,14 @@ if __name__ == "__main__":
         hdinsight_conf['release_label'] = os.environ['hdinsight_version']
         key = RSA.importKey(open(hdinsight_conf['key_path'], 'rb').read())
         ssh_admin_pubkey = key.publickey().exportKey("OpenSSH").decode('UTF-8')
-        hdinsight_conf['container_name'] = ('{0}-{1}-{2}-{3}-bucket'.format(hdinsight_conf['service_base_name'],
-                                                                            hdinsight_conf['project_name'],
-                                                                            hdinsight_conf['endpoint_name'],
-                                                                            hdinsight_conf['cluster_name'])).lower()
-        hdinsight_conf['storage_account_name_tag'] = ('{0}-{1}-{2}-{3}-bucket'.format(hdinsight_conf['service_base_name'],
-                                                                                      hdinsight_conf['project_name'],
-                                                                                      hdinsight_conf['endpoint_name'],
-                                                                                      hdinsight_conf['cluster_name']
-                                                                                      )).lower()
+        hdinsight_conf['container_name'] = ('{0}-bucket'.format(hdinsight_conf['service_base_name'],
+                                                                hdinsight_conf['project_name'],
+                                                                hdinsight_conf['endpoint_name'],
+                                                                hdinsight_conf['cluster_name'])).lower()
+        hdinsight_conf['storage_account_name_tag'] = ('{0}-bucket'.format(hdinsight_conf['service_base_name'],
+                                                                          hdinsight_conf['project_name'],
+                                                                          hdinsight_conf['endpoint_name'],
+                                                                          hdinsight_conf['cluster_name'])).lower()
         hdinsight_conf['storage_account_tags'] = {"Name": hdinsight_conf['storage_account_name_tag'],
                                                   "SBN": hdinsight_conf['service_base_name'],
                                                   "project_tag": hdinsight_conf['project_name'],
@@ -125,7 +124,7 @@ if __name__ == "__main__":
                  "--cluster_version {} --location {} " \
                  "--master_instance_type {} --worker_instance_type {} " \
                  "--worker_count {} --storage_account_name {} " \
-                 "--storage_account_key {} --container_name {} " \
+                 "--storage_account_key '{}' --container_name {} " \
                  "--tags '{}' --public_key '{}'"\
             .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
                     hdinsight_conf['release_label'], hdinsight_conf['region'],
