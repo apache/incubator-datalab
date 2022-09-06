@@ -118,6 +118,25 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
                             id=vpc_id,
                             subnet=subnet
                         )
+                    ),
+                    Role(
+                        name="zookeepernode",
+                        target_instance_count=3,
+                        hardware_profile=HardwareProfile(vm_size=Small),
+                        os_profile=OsProfile(
+                            linux_operating_system_profile=LinuxOperatingSystemProfile(
+                                username=cluster_login_username,
+                                ssh_profile={
+                                    "publicKeys": [
+                                        {"certificateData": public_key}
+                                    ]
+                                }
+                            )
+                        ),
+                        virtual_network_profile=VirtualNetworkProfile(
+                            id=vpc_id,
+                            subnet=subnet
+                        )
                     )
                 ]
             ),
