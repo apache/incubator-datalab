@@ -1185,10 +1185,10 @@ class AzureActions:
             traceback.print_exc(file=sys.stdout)
 
 
-    def terminate_hdinsight_cluster(self, resource_group_name, cluster_name, cluster_parameters):
+    def terminate_hdinsight_cluster(self, resource_group_name, cluster_name):
         try:
             print('Starting to terminate HDInsight Spark cluster {}'.format(cluster_name))
-            return self.hdinsight_client.clusters.begin_delete(resource_group_name, cluster_name, cluster_parameters)
+            return self.hdinsight_client.clusters.begin_delete(resource_group_name, cluster_name)
         except Exception as err:
             logging.info(
                 "Unable to terminate HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
