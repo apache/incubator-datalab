@@ -92,7 +92,7 @@ export class ComputationalResourceModel {
         hdinsight_master_instance_type: parameters.shape_master,
         hdinsight_slave_instance_type: parameters.shape_slave,
         hdinsight_version: parameters.version,
-        hdinsight_slave_instance_count: (parameters.instance_number - 2),
+        hdinsight_instance_count: parameters.instance_number ,
       };
     } else {
       return {
