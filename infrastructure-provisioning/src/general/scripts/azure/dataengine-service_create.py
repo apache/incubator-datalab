@@ -52,7 +52,7 @@ args = parser.parse_args()
 
 
 def build_hdinsight_cluster(resource_group_name, cluster_name, params):
-    logging.info("Will be created cluster: {}".format(cluster_name))
+    logging.info("{} cluster creation".format(cluster_name))
     return datalab.actions_lib.AzureActions().create_hdinsight_cluster(resource_group_name, cluster_name, params)
 
 
@@ -122,7 +122,7 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
                     Role(
                         name="zookeepernode",
                         target_instance_count=3,
-                        hardware_profile=HardwareProfile(vm_size=Small),
+                        hardware_profile=HardwareProfile(vm_size="Standard_A4_v2"),
                         os_profile=OsProfile(
                             linux_operating_system_profile=LinuxOperatingSystemProfile(
                                 username=cluster_login_username,

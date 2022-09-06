@@ -23,6 +23,7 @@
 
 import datalab.fab
 import datalab.meta_lib
+import datalab.actions_lib
 import json
 import multiprocessing
 import os
@@ -35,6 +36,7 @@ from fabric import *
 
 if __name__ == "__main__":
     try:
+        AzureActions = datalab.actions_lib.AzureActions()
         AzureMeta = datalab.meta_lib.AzureMeta()
         logging.info('Generating infrastructure names and tags')
         hdinsight_conf = dict()
@@ -99,6 +101,9 @@ if __name__ == "__main__":
                                                                  hdinsight_conf['vpc_name'],
                                                                  hdinsight_conf['subnet_name']).id
 
+        hdinsight_conf['hdinsight_master_instance_type'] = os.environ['hdinsight_master_instance_type']
+        hdinsight_conf['hdinsight_slave_instance_type'] = os.environ['hdinsight_slave_instance_type']
+
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
@@ -137,7 +142,7 @@ if __name__ == "__main__":
                  "--tags '{}' --public_key '{}' --vpc_id {} --subnet {}"\
             .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
                     hdinsight_conf['release_label'], hdinsight_conf['region'],
-                    os.environ['hdinsight_master_instance_type'], os.environ['hdinsight_slave_instance_type'],
+                    hdinsight_conf['hdinsight_master_instance_type'], hdinsight_conf['hdinsight_slave_instance_type'],
                     hdinsight_conf['hdinsight_worker_count'], hdinsight_conf['storage_account_name'],
                     hdinsight_conf['storage_account_key'], hdinsight_conf['container_name'],
                     json.dumps(hdinsight_conf['cluster_tags']), ssh_admin_pubkey, hdinsight_conf['vpc_id'],

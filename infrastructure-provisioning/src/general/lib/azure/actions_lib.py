@@ -509,6 +509,7 @@ class AzureActions:
                 resource_group_name,
                 account_name
             )
+            logging.info("Storage account {} was removed.".format(account_name))
             return result
         except Exception as err:
             logging.info(
