@@ -170,6 +170,16 @@
     ]
   },
   {
+    "_id": "compShapes_Standard_E4_v3_fetching",
+    "description": "Use Standard_E4_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E4_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_Standard_E4s_v3_fetching",
     "description": "Use Standard_E4s_v3 instance shape for cluster",
     "computational_shapes": [
@@ -180,10 +190,30 @@
     ]
   },
   {
+    "_id": "compShapes_Standard_E16_v3_fetching",
+    "description": "Use Standard_E16_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E16_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_Standard_E16s_v3_fetching",
     "description": "Use Standard_E16s_v3 instance shape for cluster",
     "computational_shapes": [
       "Standard_E16s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E32_v3_fetching",
+    "description": "Use Standard_E32_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E32_v3"
     ],
     "groups": [
       "$anyuser"
