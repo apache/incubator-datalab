@@ -21,40 +21,78 @@
 #
 # ******************************************************************************
 
+import datalab.actions_lib
+import datalab.fab
+import datalab.meta_lib
+import json
+from datalab.logger import logging
+import multiprocessing
+import os
+import sys
+import traceback
+import subprocess
+from Crypto.PublicKey import RSA
+from fabric import *
+
 if __name__ == "__main__":
     try:
-        data_engine['service_base_name'] = os.environ['conf_service_base_name']
-        data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
-        data_engine['region'] = os.environ['azure_region']
-        data_engine['key_name'] = os.environ['conf_key_name']
-        data_engine['vpc_name'] = os.environ['azure_vpc_name']
-        data_engine['user_name'] = os.environ['edge_user_name']
-        data_engine['project_name'] = os.environ['project_name']
-        data_engine['project_tag'] = data_engine['project_name']
-        data_engine['endpoint_name'] = os.environ['endpoint_name']
-        data_engine['endpoint_tag'] = data_engine['endpoint_name']
-        data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
-        data_engine['key_name'] = os.environ['conf_key_name']
+        AzureMeta = datalab.meta_lib.AzureMeta()
+        AzureActions = datalab.actions_lib.AzureActions()
+        logging.info('Generating infrastructure names and tags')
+        hdinsight_conf = dict()
+        hdinsight_conf['service_base_name'] = os.environ['conf_service_base_name']
+        hdinsight_conf['resource_group_name'] = os.environ['azure_resource_group_name']
+        hdinsight_conf['region'] = os.environ['azure_region']
+        hdinsight_conf['key_name'] = os.environ['conf_key_name']
+        hdinsight_conf['vpc_name'] = os.environ['azure_vpc_name']
+        hdinsight_conf['user_name'] = os.environ['edge_user_name']
+        hdinsight_conf['project_name'] = os.environ['project_name']
+        hdinsight_conf['project_tag'] = hdinsight_conf['project_name']
+        hdinsight_conf['endpoint_name'] = os.environ['endpoint_name']
+        hdinsight_conf['endpoint_tag'] = hdinsight_conf['endpoint_name']
+        hdinsight_conf['key_name'] = os.environ['conf_key_name']
+        hdinsight_conf['hdinsight_master_instance_type'] = os.environ['hdinsight_master_instance_type']
+        hdinsight_conf['hdinsight_slave_instance_type'] = os.environ['hdinsight_slave_instance_type']
         if 'computational_name' in os.environ:
-            data_engine['computational_name'] = os.environ['computational_name']
+            hdinsight_conf['computational_name'] = os.environ['computational_name']
         else:
-            data_engine['computational_name'] = ''
-        data_engine['cluster_name'] = '{}-{}-{}-des-{}'.format(data_engine['service_base_name'],
-                                                              data_engine['project_name'],
-                                                              data_engine['endpoint_name'],
-                                                              data_engine['computational_name'])
+            hdinsight_conf['computational_name'] = ''
+        hdinsight_conf['cluster_name'] = '{}-{}-{}-des-{}'.format(hdinsight_conf['service_base_name'],
+                                                               hdinsight_conf['project_name'],
+                                                               hdinsight_conf['endpoint_name'],
+                                                               hdinsight_conf['computational_name'])
+        hdinsight_conf['cluster_url'] = 'https://{}.azurehdinsight.net'.format(hdinsight_conf['cluster_name'])
+        hdinsight_conf['cluster_jupyter_url'] = '{}/jupyter/'.format(hdinsight_conf['cluster_url'])
+        hdinsight_conf['cluster_sparkhistory_url'] = '{}/sparkhistory/'.format(hdinsight_conf['cluster_url'])
+        hdinsight_conf['cluster_zeppelin_url'] = '{}/zeppelin/'.format(hdinsight_conf['cluster_url'])
+        logging.info('[SUMMARY]')
+        logging.info("Service base name: {}".format(hdinsight_conf['service_base_name']))
+        logging.info("Region: {}".format(hdinsight_conf['region']))
+        logging.info("Cluster name: {}".format(hdinsight_conf['cluster_name']))
+        logging.info("Master node shape: {}".format(hdinsight_conf['hdinsight_master_instance_type']))
+        logging.info("Slave node shape: {}".format(hdinsight_conf['hdinsight_slave_instance_type']))
+        logging.info("Instance count: {}".format(str(os.environ['hdinsight_count'])))
+        logging.info("URL access username: datalab-user")
+        logging.info("URL access password: {}".format(os.environ['access_password']))
+
         with open("/root/result.json", 'w') as result:
-            res = {"hostname": data_engine['cluster_name'],
-                   "instance_id": data_engine['master_node_name'],
-                   "key_name": data_engine['key_name'],
+            res = {"hostname": hdinsight_conf['cluster_name'],
+                   "key_name": hdinsight_conf['key_name'],
                    "Action": "Create new HDInsight cluster",
                    "computational_url": [
                        {"description": "HDInsight cluster",
-                        "url": "spark_master_access_url"}
-                       # {"description": "Apache Spark Master (via tunnel)",
-                       # "url": spark_master_url}
+                        "url": hdinsight_conf['cluster_url']},
+                       {"description": "Apache Spark History",
+                        "url": hdinsight_conf['cluster_sparkhistory_url']},
+                       {"description": "Jupyter notebook",
+                        "url": hdinsight_conf['cluster_jupyter_url']},
+                       {"description": "Zeppelin notebook",
+                        "url": hdinsight_conf['cluster_zeppelin_url']}
                    ]
                    }
             result.write(json.dumps(res))
-    except:
-        pass
+    except Exception as err:
+        traceback.print_exc()
+        datalab.fab.append_result("Error with writing results", str(err))
+        AzureActions.terminate_hdinsight_cluster(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'])
+        sys.exit(1)

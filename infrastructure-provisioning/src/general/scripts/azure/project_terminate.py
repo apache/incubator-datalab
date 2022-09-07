@@ -40,8 +40,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             for cluster in clusters_list:
                 if "sbn" in cluster.tags and service_base_name == cluster.tags["sbn"] and \
                         "project" in cluster.tags and cluster.tags['project'] == project_tag:
-                    print(cluster.name + ' found for termination')
-                    #AzureActions.terminate_hdinsight_cluster(cluster.name, region)
+                    AzureActions.terminate_hdinsight_cluster(resource_group_name, cluster.name)
                     logging.info('The HDinsight cluster {} has been terminated successfully'.format(cluster.name))
         else:
             logging.info("There are no HDinsight clusters to terminate.")

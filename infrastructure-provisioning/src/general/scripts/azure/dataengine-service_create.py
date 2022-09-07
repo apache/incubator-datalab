@@ -25,6 +25,7 @@ import argparse
 import json
 import sys
 import secrets
+import os
 from datalab.actions_lib import *
 from datalab.meta_lib import *
 from datalab.logger import logging
@@ -123,7 +124,7 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
                     Role(
                         name="zookeepernode",
                         target_instance_count=3,
-                        hardware_profile=HardwareProfile(vm_size="Standard_A4_v2"),
+                        hardware_profile=HardwareProfile(vm_size="Standard_A2_v2"),
                         os_profile=OsProfile(
                             linux_operating_system_profile=LinuxOperatingSystemProfile(
                                 username=cluster_login_username,
@@ -161,6 +162,7 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
 if __name__ == "__main__":
     #parser.print_help()
     password = secrets.token_urlsafe(20)
+    os.environ['access_password'] = password
     params = create_cluster_parameters(args.location, json.loads(args.tags), args.cluster_version, 'datalab-user',
                                        password, args.master_instance_type, args.worker_count,
                                        args.worker_instance_type, args.storage_account_name, args.storage_account_key,
@@ -168,9 +170,9 @@ if __name__ == "__main__":
 
     build_hdinsight_cluster(args.resource_group_name, args.cluster_name, params)
 
-    logfile = '{}_creation.log'.format(args.cluster_name)
-    logpath = '/response/' + logfile
-    out = open(logpath, 'w')
-    out.close()
-
-    sys.exit(0)
+    # logfile = '{}_creation.log'.format(args.cluster_name)
+    # logpath = '/response/' + logfile
+    # out = open(logpath, 'w')
+    # out.close()
+    #
+    # sys.exit(0)
