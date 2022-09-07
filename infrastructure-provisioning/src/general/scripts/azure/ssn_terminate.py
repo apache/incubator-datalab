@@ -35,6 +35,16 @@ from fabric import *
 
 
 def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region):
+    logging.info("Terminating HDINSIGHT clusters")
+    try:
+        for cluster in AzureMeta.list_hdinsight_clusters(resource_group_name):
+            if "sbn" in cluster.tags and service_base_name == cluster.tags["sbn"]:
+                AzureActions.terminate_hdinsight_cluster(resource_group_name, cluster.name)
+                logging.info("Cluster {} has been terminated".format(cluster.name))
+    except Exception as err:
+        datalab.fab.append_result("Failed to terminate HDINSIGHT clusters", str(err))
+        sys.exit(1)
+
     logging.info("Terminating instances")
     try:
         for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):

@@ -33,6 +33,22 @@ import traceback
 
 
 def terminate_edge_node(resource_group_name, service_base_name, project_tag, subnet_name, vpc_name, endpoint_name):
+    logging.info("Terminating Dataengine-service clusters")
+    try:
+        clusters_list = AzureMeta.list_hdinsight_clusters(resource_group_name)
+        if clusters_list:
+            for cluster in clusters_list:
+                if "sbn" in cluster.tags and service_base_name == cluster.tags["sbn"] and \
+                        "project" in cluster.tags and cluster.tags['project'] == project_tag:
+                    print(cluster.name + ' found for termination')
+                    #AzureActions.terminate_hdinsight_cluster(cluster.name, region)
+                    logging.info('The HDinsight cluster {} has been terminated successfully'.format(cluster.name))
+        else:
+            logging.info("There are no HDinsight clusters to terminate.")
+    except Exception as err:
+        datalab.fab.append_result("Failed to terminate dataengine-service", str(err))
+        sys.exit(1)
+
     logging.info("Terminating EDGE, notebook and dataengine virtual machines")
     try:
         for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
