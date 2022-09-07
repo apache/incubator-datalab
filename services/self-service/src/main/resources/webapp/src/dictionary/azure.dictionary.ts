@@ -30,7 +30,7 @@ export const NAMING_CONVENTION_AZURE = {
     'slave_node_shape': 'azure_dataengine_slave_size',
     'total_instance_number': 'dataengine_instance_count',
     'spot_instance': 'Low-priority virtual machines',
-    'cluster_version': '',
+    'cluster_version': 'hdinsight_version',
     'max_cluster_name_length': 10,
     'billing': {
         'resourceName': 'resourceName',
