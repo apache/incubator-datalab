@@ -19,6 +19,7 @@
 
 package com.epam.datalab.backendapi.resources.dto;
 
+import com.epam.datalab.dto.SharedWith;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -28,4 +29,5 @@ public class ImageProjectGroupsShareDTO {
     private final String imageName;
     private final String projectName;
     private final String endpoint;
+    private final SharedWith sharedWith;
 }

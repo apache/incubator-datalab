@@ -20,6 +20,7 @@
 package com.epam.datalab.backendapi.resources.dto;
 
 import com.epam.datalab.cloud.CloudProvider;
+import com.epam.datalab.dto.SharedWith;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.exploratory.ImageSharingStatus;
 import com.epam.datalab.dto.exploratory.ImageStatus;
@@ -49,6 +50,7 @@ public class ImageInfoRecord {
     private final ImageStatus status;
     private ImageSharingStatus sharingStatus;
     private ImageUserPermissions imageUserPermissions;
+    private final SharedWith sharedWith;
     private final List<ClusterConfig> clusterConfig;
     private final String exploratoryURL;
     private final List<Library> libraries;
