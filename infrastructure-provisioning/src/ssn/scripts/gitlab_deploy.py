@@ -25,7 +25,7 @@ from ConfigParser import ConfigParser
 from fabric import *
 import argparse
 import boto3
-from botocore.client import Config as botoConfig`
+from botocore.client import Config as botoConfig
 import sys
 import os
 

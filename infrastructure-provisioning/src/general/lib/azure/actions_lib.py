@@ -42,6 +42,7 @@ from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlobServiceClient
 from azure.identity import ClientSecretCredential
 from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
+from azure.mgmt.hdinsight import HDInsightManagementClient
 from fabric import *
 from patchwork.files import exists
 from patchwork import files
@@ -85,6 +86,11 @@ class AzureActions:
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.datalake_client = DataLakeStoreAccountManagementClient(
+            self.credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"]
+        )
+        self.hdinsight_client = HDInsightManagementClient(
             self.credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
@@ -444,25 +450,23 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_storage_account(self, resource_group_name, account_name, region, tags):
+    def create_storage_account(self, resource_group_name, account_name, region, tags, kind='BlobStorage'):
         try:
             ssn_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
                                                                      vpc_name=os.environ['azure_vpc_name'],
-                                                                     subnet_name=os.environ['azure_subnet_name']
-                                                                     ).id
+                                                                     subnet_name=os.environ['azure_subnet_name']).id
             edge_network_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name,
-                                                                     vpc_name=os.environ['azure_vpc_name'],
-                                                                     subnet_name='{}-{}-{}-subnet'.format(
-                                                                         os.environ['conf_service_base_name'],
-                                                                         (os.environ['project_name']),
-                                                                         (os.environ['endpoint_name']))
-                                                                       ).id
+                                                                      vpc_name=os.environ['azure_vpc_name'],
+                                                                      subnet_name='{}-{}-{}-subnet'.format(
+                                                                          os.environ['conf_service_base_name'],
+                                                                          (os.environ['project_name']),
+                                                                          (os.environ['endpoint_name']))).id
             result = self.storage_client.storage_accounts.begin_create(
                 resource_group_name,
                 account_name,
                 {
                     "sku": {"name": "Standard_LRS"},
-                    "kind": "BlobStorage",
+                    "kind": kind,
                     "location": region,
                     "tags": tags,
                     "access_tier": "Hot",
@@ -505,6 +509,7 @@ class AzureActions:
                 resource_group_name,
                 account_name
             )
+            logging.info("Storage account {} was removed.".format(account_name))
             return result
         except Exception as err:
             logging.info(
@@ -514,13 +519,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_blob_container(self, resource_group_name, account_name, container_name):
+    def create_blob_container(self, account_name, container_name):
         try:
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/",
+                                                   credential=self.credential)
             result = block_blob_service.create_container(
                 container_name,
                 {
-                "public_access": "Off"
+                    "public_access": "Off"
                 }
             )
             return result
@@ -1162,6 +1168,43 @@ class AzureActions:
             logging.info(
                 "Unable to remove image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to remove image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_hdinsight_cluster(self, resource_group_name, cluster_name, cluster_parameters):
+        try:
+            logging.info('Starting to create HDInsight Spark cluster {}'.format(cluster_name))
+            result = self.hdinsight_client.clusters.begin_create(resource_group_name, cluster_name, cluster_parameters)
+            cluster = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            while cluster.properties.cluster_state != 'Running':
+                time.sleep(30)
+                logging.info('The cluster is being provisioned... Please wait')
+                cluster = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create HDInsight Spark cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
+    def terminate_hdinsight_cluster(self, resource_group_name, cluster_name):
+        try:
+            logging.info('Starting to terminate HDInsight cluster {}'.format(cluster_name))
+            result = self.hdinsight_client.clusters.begin_delete(resource_group_name, cluster_name)
+            cluster_status = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            while cluster_status:
+                time.sleep(30)
+                logging.info('The cluster is being terminated... Please wait')
+                cluster_status = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to terminate HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to terminate HDInsight Spark cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

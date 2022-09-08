@@ -29,6 +29,7 @@ from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.datalake.store import core, lib
 from azure.identity import ClientSecretCredential
 from azure.core.exceptions import ResourceNotFoundError
+from azure.mgmt.hdinsight import HDInsightManagementClient
 import logging
 import traceback
 import sys
@@ -74,6 +75,11 @@ class AzureMeta:
             credential_scopes=["{}/.default".format(json_dict["resourceManagerEndpointUrl"])]
         )
         self.datalake_client = DataLakeStoreAccountManagementClient(
+            credential,
+            json_dict["subscriptionId"],
+            base_url=json_dict["resourceManagerEndpointUrl"]
+        )
+        self.hdinsight_client = HDInsightManagementClient(
             credential,
             json_dict["subscriptionId"],
             base_url=json_dict["resourceManagerEndpointUrl"]
@@ -633,6 +639,36 @@ class AzureMeta:
             logging.info(
                 "Unable to get disk list: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get disk list",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_hdinsight_cluster(self, resource_group_name, cluster_name):
+        try:
+            result = self.hdinsight_client.clusters.get(resource_group_name, cluster_name)
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get hdinsight cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get hdinsight cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def list_hdinsight_clusters(self, resource_group_name):
+        try:
+            result = self.hdinsight_client.clusters.list_by_resource_group(resource_group_name)
+            return result
+        except ResourceNotFoundError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list hdinsight clusters: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list hdinsight clusters",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

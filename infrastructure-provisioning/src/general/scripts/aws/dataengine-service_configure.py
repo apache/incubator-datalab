@@ -37,6 +37,7 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
+parser.add_argument('--access_password', type=str, default='')
 args = parser.parse_args()
 
 

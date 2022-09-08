@@ -758,7 +758,7 @@ class GCPMeta:
 
     def dataproc_waiter(self, labels):
         if os.path.exists(
-                '/response/.emr_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
+                '/response/.dataproc_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
                 os.environ['notebook_instance_name']):
             with hide('stderr', 'running', 'warnings'):
                 subprocess.run("echo 'Some Dataproc cluster is still being created/terminated, waiting..'", shell=True, check=True)
