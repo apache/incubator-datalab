@@ -54,6 +54,7 @@ import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
 import { ActivatedRoute } from '@angular/router';
+import { TerminateDialogComponent } from '../exploratory/image-action-dialog/terminate-dialog/terminate-dialog.component';
 
 @Component({
   selector: 'datalab-images',
@@ -164,8 +165,9 @@ export class ImagesComponent implements OnInit, OnDestroy {
     const imageInfo = this.imagesService.createImageRequestInfo(image);
     const data = this.imagesService.createActionDialogConfig(image, actionType);
     const requestCallback = this.imagesService.getRequestByAction(actionType).bind(this.imagesService);
+    const component = this.imagesService.getComponentByAction(actionType);
 
-    this.dialog.open(ImageActionDialogComponent, {
+    this.dialog.open(component, {
       data,
       panelClass: 'modal-sm'
     }).afterClosed()

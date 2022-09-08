@@ -17,19 +17,38 @@
  * under the License.
  */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ImageActions, ImageActionModalData } from '../../images';
+import { DialogWindowTabConfig } from './image-action.model';
 
 @Component({
   selector: 'datalab-image-action-dialog',
   templateUrl: './image-action-dialog.component.html',
   styleUrls: ['./image-action-dialog.component.scss']
 })
-export class ImageActionDialogComponent {
+export class ImageActionDialogComponent implements OnInit {
+  @Input() activeTabConfig: DialogWindowTabConfig;
+  @Input() isApplyBtnDisabled: Boolean;
+
   readonly actionType: typeof ImageActions = ImageActions;
+
+  confirmBtnName!: string;
+
   constructor(
     public dialogRef: MatDialogRef<ImageActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ImageActionModalData,
   ) { }
+
+  ngOnInit(): void {
+    this.createConfirmBtnName();
+  }
+
+  private createConfirmBtnName(): void {
+    const btnNameObj = {
+      share: 'Share',
+      terminate: 'Yes'
+    };
+    this.confirmBtnName = btnNameObj[this.data.actionType];
+  }
 }

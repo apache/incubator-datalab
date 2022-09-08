@@ -19,35 +19,22 @@
 
 <div id="dialog-box">
   <header class="dialog-header">
-    <h4 class="modal-title">{{data.title}}</h4>
+    <h4 class="modal-title">{{data.title}}<span *ngIf="data.actionType === actionType.share">: {{data.imageName}}</span></h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <section class="content">
-    <p class="description" *ngIf="data.actionType === actionType.share">
-      The image
-      <span class="shared-image-name">{{data.imageName}} </span>
-      <span>will be shared with all current user groups on the project with all the data and code.</span>
-    </p>
-    <div *ngIf="data.actionType === actionType.terminate" class="terminate-action__wrapper">
-      <div class="list-header sans terminate-action__header--wrapper">
-        <div class="image">Image</div>
-        <div class="status">Further status</div>
-      </div>
-      <div class="scrolling-content scrolling terminate-image-list__wrapper">
-        <div class="image-name ellipsis">{{data.imageName}}</div>
-        <div class="status terminated">Terminated</div>
-      </div>
-      <p *ngIf="data.isShared" class="shared-warning">!The image is shared with other users.</p>
-    </div>
-    <p class="question center">
-      Do you want proceed?
-    </p>
-    <div class="text-center m-top-30 m-bott-10">
+    <ng-content select="[datalab-share-dialog]">
+    </ng-content>
+    <ng-content select="[datalab-terminate-dialog]">
+    </ng-content>
+    <div [hidden]="activeTabConfig && activeTabConfig.shareWith" class="text-center m-top-30 m-bott-10">
       <button type="button" class="butt mat-raised-button" (click)="dialogRef.close()">No</button>
       <button
+        [disabled]="isApplyBtnDisabled"
         type="button"
         class="butt butt-success mat-raised-button"
-        (click)="dialogRef.close(true)">Yes
+        (click)="dialogRef.close(true)">
+        {{confirmBtnName}}
       </button>
     </div>
   </section>

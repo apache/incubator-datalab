@@ -20,15 +20,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageActionDialogComponent } from './image-action-dialog.component';
-import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 import { MaterialModule } from '../../../shared/material.module';
+import { TerminateDialogComponent } from './terminate-dialog/terminate-dialog.component';
+import { ShareDialogComponent } from './share-dialog/share-dialog.component';
+import { FormsModule } from '@angular/forms';
+import { ShareUserDataComponent } from './share-user-data/share-user-data.component';
 
 
 
 @NgModule({
-  declarations: [ ImageActionDialogComponent ],
-  imports: [ CommonModule, MaterialModule ],
-  entryComponents: [ImageActionDialogComponent],
+  declarations: [ ImageActionDialogComponent, TerminateDialogComponent, ShareDialogComponent, ShareUserDataComponent ],
+  imports: [ CommonModule, MaterialModule, FormsModule ],
+  entryComponents: [TerminateDialogComponent , ShareDialogComponent],
   exports: [ ImageActionDialogComponent ]
 })
 export class ImageActionDialogModule { }
