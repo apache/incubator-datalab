@@ -19,15 +19,16 @@
 
 package com.epam.datalab.backendapi.resources.dto;
 
-import com.epam.datalab.dto.SharedWith;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ImageProjectGroupsShareDTO {
+public class ImageShareDTO {
     private final String imageName;
     private final String projectName;
     private final String endpoint;
-    private final SharedWith sharedWith;
+    private final Set<SharedWithDTO> sharedWith;
 }

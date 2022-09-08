@@ -59,6 +59,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
@@ -80,10 +81,6 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     private ImageExploratoryDAO imageExploratoryDao;
     @Inject
     private ExploratoryLibDAO libDAO;
-
-    @Inject
-    private UserRoleDAO userRoleDAO;
-
     @Inject
     private UserGroupDAO userGroupDAO;
     @Inject
@@ -280,15 +277,44 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public void shareImageWithProjectGroups(UserInfo user, String imageName, String projectName, String endpoint) {
+    public void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS) {
         Set<String> projectGroups = projectService.get(projectName).getGroups();
         Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(user.getName(),imageName,projectName,endpoint);
         image.ifPresent(img -> {
             log.info("image {}", img);
-            SharedWith sharedWith = img.getSharedWith();
-            sharedWith.getGroups().addAll(projectGroups);
-            imageExploratoryDao.updateSharing(sharedWith, img.getName() ,img.getProject(), img.getEndpoint());
+            imageExploratoryDao.updateSharing(toSharedWith(sharedWithDTOS), img.getName() ,img.getProject(), img.getEndpoint());
         });
+    }
+
+    @Override
+    public Set<SharedWithDTO> getImageSharingInfo(String userName, String imageName, String project, String endpoint){
+        Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(userName, imageName, project, endpoint);
+        if(image.isPresent()){
+            return toSharedWithDTOs(image.get().getSharedWith());
+        } else {
+            throw new ResourceNotFoundException(IMAGE_NOT_FOUND_MSG);
+        }
+    }
+
+    private Set<SharedWithDTO> toSharedWithDTOs(SharedWith sharedWith){
+        Set<SharedWithDTO> sharedWithDTO = sharedWith.getGroups().stream()
+                .map(s -> new SharedWithDTO(SharedWithDTO.Type.GROUP, s)).collect(Collectors.toSet());
+        Set<SharedWithDTO> users = sharedWith.getUsers().stream()
+                .map(s -> new SharedWithDTO(SharedWithDTO.Type.USER, s)).collect(Collectors.toSet());
+        sharedWithDTO.addAll(users);
+        return sharedWithDTO;
+
+    }
+
+    private SharedWith toSharedWith(Set<SharedWithDTO> dtos){
+        SharedWith sharedWith = new SharedWith();
+        dtos.forEach(dto -> {
+                    if(dto.getType().equals(SharedWithDTO.Type.GROUP)){
+                        sharedWith.getGroups().add(dto.getValue());
+                    }
+                    else sharedWith.getUsers().add(dto.getValue());
+                });
+        return sharedWith;
     }
 
     public boolean hasAccess(String userName, SharedWith sharedWith){
