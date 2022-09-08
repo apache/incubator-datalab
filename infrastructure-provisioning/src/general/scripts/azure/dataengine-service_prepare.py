@@ -69,13 +69,13 @@ if __name__ == "__main__":
                                                                   hdinsight_conf['computational_name'])
 
         hdinsight_conf['cluster_tags'] = {
-            "name": hdinsight_conf['cluster_name'],
-            "sbn": hdinsight_conf['service_base_name'],
+            "Name": hdinsight_conf['cluster_name'],
+            "SBN": hdinsight_conf['service_base_name'],
             "notebook_name": os.environ['notebook_instance_name'],
             "product": "datalab",
             "computational_name": hdinsight_conf['computational_name'],
-            "project": hdinsight_conf['project_name'],
-            "endpoint": hdinsight_conf['endpoint_name']
+            "project_tag": hdinsight_conf['project_name'],
+            "endpoint_tag": hdinsight_conf['endpoint_name']
         }
 
         hdinsight_conf['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
