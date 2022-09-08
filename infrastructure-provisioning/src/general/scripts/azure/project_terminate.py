@@ -38,8 +38,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
         clusters_list = AzureMeta.list_hdinsight_clusters(resource_group_name)
         if clusters_list:
             for cluster in clusters_list:
-                if "sbn" in cluster.tags and service_base_name == cluster.tags["sbn"] and \
-                        "project" in cluster.tags and cluster.tags['project'] == project_tag:
+                if "SBN" in cluster.tags and service_base_name == cluster.tags["SBN"] and \
+                        "project_tag" in cluster.tags and cluster.tags['project_tag'] == project_tag:
                     AzureActions.terminate_hdinsight_cluster(resource_group_name, cluster.name)
                     logging.info('The HDinsight cluster {} has been terminated successfully'.format(cluster.name))
         else:
@@ -52,7 +52,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     try:
         for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             try:
-                if project_tag == vm.tags["project_tag"]:
+                if "SBN" in vm.tags and service_base_name == vm.tags["SBN"] and \
+                        "project_tag" in vm.tags and vm.tags['project_tag'] == project_tag:
                     AzureActions.remove_instance(resource_group_name, vm.name)
                     logging.info("Instance {} has been terminated".format(vm.name))
             except:
@@ -65,7 +66,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     try:
         for network_interface in AzureMeta.list_network_interfaces(resource_group_name):
             try:
-                if project_tag == network_interface.tags["project_name"]:
+                if "SBN" in network_interface.tags and service_base_name == network_interface.tags["SBN"] and \
+                        "project_tag" in network_interface.tags and network_interface.tags['project_tag'] == project_tag:
                     AzureActions.delete_network_if(resource_group_name, network_interface.name)
                     logging.info("Network interface {} has been removed".format(network_interface.name))
             except:
@@ -78,7 +80,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     try:
         for static_public_ip in AzureMeta.list_static_ips(resource_group_name):
             try:
-                if project_tag in static_public_ip.tags["project_tag"]:
+                if "SBN" in static_public_ip.tags and service_base_name == static_public_ip.tags["SBN"] and \
+                        "project_tag" in static_public_ip.tags and static_public_ip.tags['project_tag'] == project_tag:
                     AzureActions.delete_static_public_ip(resource_group_name, static_public_ip.name)
                     logging.info("Static public IP {} has been removed".format(static_public_ip.name))
             except:
@@ -91,7 +94,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     try:
         for disk in AzureMeta.list_disks(resource_group_name):
             try:
-                if project_tag in disk.tags["project_tag"]:
+                if "SBN" in disk.tags and service_base_name == disk.tags["SBN"] and \
+                        "project_tag" in disk.tags and disk.tags['project_tag'] == project_tag:
                     AzureActions.remove_disk(resource_group_name, disk.name)
                     logging.info("Disk {} has been removed".format(disk.name))
             except:
@@ -104,7 +108,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     try:
         for storage_account in AzureMeta.list_storage_accounts(resource_group_name):
             try:
-                if project_tag == storage_account.tags["project_tag"]:
+                if "SBN" in storage_account.tags and service_base_name == storage_account.tags["SBN"] and \
+                        "project_tag" in storage_account.tags and storage_account.tags['project_tag'] == project_tag:
                     AzureActions.remove_storage_account(resource_group_name, storage_account.name)
                     logging.info("Storage account {} has been terminated".format(storage_account.name))
             except:
@@ -129,8 +134,9 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     logging.info("Removing project specific images")
     try:
         for image in AzureMeta.list_images():
-            if service_base_name == image.tags["SBN"] and project_tag == image.tags["project_tag"] \
-                    and endpoint_name == image.tags["endpoint_tag"]:
+            if "SBN" in image.tags and service_base_name == image.tags["SBN"] and \
+                    "project_tag" in image.tags and image.tags['project_tag'] == project_tag and \
+                    "endpoint_tag" in image.tags and endpoint_name == image.tags["endpoint_tag"]:
                 AzureActions.remove_image(resource_group_name, image.name)
                 logging.info("Image {} has been removed".format(image.name))
     except Exception as err:
@@ -147,7 +153,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
                                                                       project_conf['endpoint_name']))
         for sg in AzureMeta.network_client.network_security_groups.list(resource_group_name):
             try:
-                if project_tag == sg.tags["project_tag"]:
+                if "SBN" in sg.tags and service_base_name == sg.tags["SBN"] and \
+                        "project_tag" in sg.tags and sg.tags['project_tag'] == project_tag:
                     AzureActions.remove_security_group(resource_group_name, sg.name)
                     logging.info("Security group {} has been terminated".format(sg.name))
             except:
