@@ -66,13 +66,14 @@ if __name__ == "__main__":
     try:
         logging.info('[TERMINATE HDINSIGHT CLUSTER AND ASSOCIATED RESOURCES]')
         try:
-            cluster = AzureMeta.get_hdinsight_cluster(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'])
+            cluster = AzureMeta.get_hdinsight_cluster(hdinsight_conf['resource_group_name'],
+                                                      hdinsight_conf['cluster_name'])
             if cluster and cluster.properties.cluster_state == 'Running':
                 AzureActions.terminate_hdinsight_cluster(hdinsight_conf['resource_group_name'],
                                                          hdinsight_conf['cluster_name'])
-                for storage_account in AzureMeta.list_storage_accounts(hdinsight_conf['resource_group_name']):
-                    if hdinsight_conf['storage_account_name_tag'] == storage_account.tags["Name"]:
-                        AzureActions.remove_storage_account(hdinsight_conf['resource_group_name'], storage_account.name)
+            for storage_account in AzureMeta.list_storage_accounts(hdinsight_conf['resource_group_name']):
+                if hdinsight_conf['storage_account_name_tag'] == storage_account.tags["Name"]:
+                    AzureActions.remove_storage_account(hdinsight_conf['resource_group_name'], storage_account.name)
         except Exception as err:
             traceback.print_exc()
             datalab.fab.append_result("Failed to terminate hdinsight cluster.", str(err))
