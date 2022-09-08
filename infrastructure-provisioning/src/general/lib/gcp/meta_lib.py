@@ -681,11 +681,16 @@ class GCPMeta:
                 request = self.service.images().get(project=self.project, image=image)
                 result = request.execute()
                 host['id'] = image
-                host['status'] = result.get('status').lower().replace("terminated", "stopped")
+                if result.get('status') == 'PENDING':
+                    host['status'] = 'CREATING'
+                elif result.get('status') == 'READY':
+                    host['status'] = 'ACTIVE'
+                else:
+                    host['status'] = result.get('status')
                 data.append(host)
             except:
                 host['id'] = image
-                host['status'] = 'terminated'
+                host['status'] = 'TERMINATED'
                 data.append(host)
         return data
 

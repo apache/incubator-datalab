@@ -47,7 +47,7 @@ if __name__ == "__main__":
         except:
             logging.error("Hosts JSON wasn't been provided")
         try:
-            data_images = AzureMeta().list_images(data.get('image'))
+            data_images = AzureMeta().get_image_statuses(args.resource_group_name, data.get('image'))
             statuses['image'] = data_images
         except:
             logging.error("Images JSON wasn't been provided")

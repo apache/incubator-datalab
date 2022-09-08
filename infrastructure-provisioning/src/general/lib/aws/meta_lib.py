@@ -759,17 +759,25 @@ def get_list_image_statuses(image_ids, data=[]):
     for k in image_ids:
         host = {}
         try:
-            if 'id' in k:
-                response = client.describe_images(ImageIds=[k.get('id')]).get('Reservations')
-                for i in response:
-                    img = i.get('Images')
-                    for j in img:
-                        host['id'] = j.get('ImageId')
-                        host['status'] = j.get('State').get('Name')
-                        data.append(host)
+            response = client.describe_images(ImageIds=[k.get('id')]).get('Images')
+            for i in response:
+                host['id'] = i.get('ImageId')
+                if i.get('State') == 'pending':
+                    host['status'] = 'CREATING'
+                elif i.get('State') == 'available':
+                    host['status'] = 'ACTIVE'
+                elif i.get('State') == 'invalid':
+                    host['status'] = 'FAILED'
+                elif i.get('State') == 'error':
+                    host['status'] = 'FAILED'
+                elif i.get('State') == 'failed':
+                    host['status'] = 'FAILED'
+                elif i.get('State') == 'deregistered':
+                    host['status'] = 'TERMINATED'
+                data.append(host)
         except Exception as err:
-            host['id'] = h.get('id')
-            host['status'] = 'terminated'
+            host['id'] = k.get('id')
+            host['status'] = 'TERMINATED'
             data.append(host)
     return data
 

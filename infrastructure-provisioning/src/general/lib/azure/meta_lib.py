@@ -537,6 +537,32 @@ class AzureMeta:
                 data.append(host)
         return data
 
+    def get_image_statuses(self, resource_group_name, image_name_list):
+        data = []
+        for image_name in image_name_list:
+            image_name = image_name['id']
+            host = {}
+            try:
+                request = self.compute_client.images.get(resource_group_name, image_name)
+                host['id'] = image_name
+                if request.provisioning_state == 'Succeeded':
+                    host['status'] = 'ACTIVE'
+                elif request.provisioning_state == 'Deleting':
+                    host['status'] = 'TERMINATING'
+                elif request.provisioning_state == 'Canceled':
+                    host['status'] = 'FAILED'
+                elif request.provisioning_state == 'Creating':
+                    host['status'] = 'CREATING'
+                elif request.provisioning_state == 'Locked':
+                    host['status'] = 'FAILED'
+                data.append(host)
+            except:
+                host['id'] = image_name
+                host['status'] = 'TERMINATED'
+                data.append(host)
+        return data
+
+
     def get_instance_status(self, resource_group_name, instance_name):
         try:
             request = self.compute_client.virtual_machines.get(resource_group_name, instance_name, expand='instanceView')
