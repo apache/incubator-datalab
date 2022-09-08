@@ -756,6 +756,7 @@ public class BillingServiceImplTest extends TestBase {
                         null,
                         null,
                         null,
+                        null,
                         null)
         );
     }

@@ -325,6 +325,7 @@ public class ImageExploratoryServiceImplTest {
                 null,
                 null,
                 null,
+                null,
                 null);
     }
 
