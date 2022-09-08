@@ -1178,7 +1178,7 @@ class AzureActions:
             result = self.hdinsight_client.clusters.begin_create(resource_group_name, cluster_name, cluster_parameters)
             cluster = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
             while cluster.properties.cluster_state != 'Running':
-                time.sleep(15)
+                time.sleep(30)
                 logging.info('The cluster is being provisioned... Please wait')
                 cluster = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
             return result
@@ -1197,7 +1197,7 @@ class AzureActions:
             result = self.hdinsight_client.clusters.begin_delete(resource_group_name, cluster_name)
             cluster_status = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
             while cluster_status:
-                time.sleep(15)
+                time.sleep(30)
                 logging.info('The cluster is being terminated... Please wait')
                 cluster_status = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
             return result
