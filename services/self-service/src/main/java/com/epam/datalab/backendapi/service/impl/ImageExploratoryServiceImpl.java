@@ -278,7 +278,6 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Override
     public void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS) {
-        Set<String> projectGroups = projectService.get(projectName).getGroups();
         Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(user.getName(),imageName,projectName,endpoint);
         image.ifPresent(img -> {
             log.info("image {}", img);
