@@ -754,6 +754,30 @@ def get_list_instance_statuses(instance_ids):
     return data
 
 
+def get_list_image_statuses(image_ids, data=[]):
+    client = boto3.client('ec2')
+    for k in image_ids:
+        host = {}
+        try:
+            response = client.describe_images(ImageIds=[k.get('id')]).get('Images')
+            for i in response:
+                host['id'] = i.get('ImageId')
+                if i.get('State') == 'pending':
+                    host['status'] = 'CREATING'
+                elif i.get('State') == 'available':
+                    host['status'] = 'ACTIVE'
+                elif i.get('State') == 'invalid' or i.get('State') == 'error' or i.get('State') == 'failed':
+                    host['status'] = 'FAILED'
+                elif i.get('State') == 'deregistered':
+                    host['status'] = 'TERMINATED'
+                data.append(host)
+        except Exception as err:
+            host['id'] = k.get('id')
+            host['status'] = 'TERMINATED'
+            data.append(host)
+    return data
+
+
 def get_list_cluster_statuses(cluster_ids, data=[]):
     client = boto3.client('emr')
     for i in cluster_ids:

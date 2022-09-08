@@ -50,6 +50,11 @@ if __name__ == "__main__":
             statuses['cluster'] = data_clusters
         except:
             logging.info("Clusters JSON wasn't provided")
+        try:
+            data_images = get_list_image_statuses(data.get('image'))
+            statuses['image'] = data_images
+        except:
+            logging.info("Images JSON wasn't been provided")
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:
