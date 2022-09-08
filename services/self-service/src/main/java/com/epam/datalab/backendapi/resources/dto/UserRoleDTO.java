@@ -49,7 +49,7 @@ public class UserRoleDTO {
     private Set<String> computationalShapes;
     private Set<String> groups;
 
-    public enum Type {
+    private enum Type {
         NOTEBOOK,
         COMPUTATIONAL,
         IMAGE,
