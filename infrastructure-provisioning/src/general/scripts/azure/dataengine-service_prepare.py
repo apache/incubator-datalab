@@ -33,6 +33,12 @@ import subprocess
 from Crypto.PublicKey import RSA
 from datalab.logger import logging
 from fabric import *
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--uuid', type=str, default='')
+parser.add_argument('--access_password', type=str, default='')
+args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
@@ -139,14 +145,14 @@ if __name__ == "__main__":
                  "--master_instance_type {} --worker_instance_type {} " \
                  "--worker_count {} --storage_account_name {} " \
                  "--storage_account_key '{}' --container_name {} " \
-                 "--tags '{}' --public_key '{}' --vpc_id {} --subnet {}"\
+                 "--tags '{}' --public_key '{}' --vpc_id {} --subnet {} --access_password {}"\
             .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
                     hdinsight_conf['release_label'], hdinsight_conf['region'],
                     hdinsight_conf['hdinsight_master_instance_type'], hdinsight_conf['hdinsight_slave_instance_type'],
                     hdinsight_conf['hdinsight_worker_count'], hdinsight_conf['storage_account_name'],
                     hdinsight_conf['storage_account_key'], hdinsight_conf['container_name'],
                     json.dumps(hdinsight_conf['cluster_tags']), ssh_admin_pubkey, hdinsight_conf['vpc_id'],
-                    hdinsight_conf['edge_network_id'])
+                    hdinsight_conf['edge_network_id'], args.access_password)
 
         try:
             subprocess.run("~/scripts/{}.py {}".format('dataengine-service_create', params), shell=True, check=True)

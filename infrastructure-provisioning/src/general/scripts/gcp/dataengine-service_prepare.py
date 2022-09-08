@@ -33,6 +33,12 @@ import traceback
 import subprocess
 from Crypto.PublicKey import RSA
 from fabric import *
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--uuid', type=str, default='')
+parser.add_argument('--access_password', type=str, default='')
+args = parser.parse_args()
 
 if __name__ == "__main__":
     try:

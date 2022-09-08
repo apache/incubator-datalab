@@ -24,7 +24,6 @@
 import argparse
 import json
 import sys
-import secrets
 import os
 from datalab.actions_lib import *
 from datalab.meta_lib import *
@@ -50,6 +49,7 @@ parser.add_argument('--tags', type=str, help='')
 parser.add_argument('--public_key', type=str, help='')
 parser.add_argument('--vpc_id', type=str, help='')
 parser.add_argument('--subnet', type=str, help='')
+parser.add_argument('--access_password', type=str, help='')
 args = parser.parse_args()
 
 
@@ -161,10 +161,8 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
 
 if __name__ == "__main__":
     #parser.print_help()
-    password = secrets.token_urlsafe(20)
-    os.environ['access_password'] = password
     params = create_cluster_parameters(args.location, json.loads(args.tags), args.cluster_version, 'datalab-user',
-                                       password, args.master_instance_type, args.worker_count,
+                                       args.access_password, args.master_instance_type, args.worker_count,
                                        args.worker_instance_type, args.storage_account_name, args.storage_account_key,
                                        args.container_name, args.public_key, args.vpc_id, args.subnet)
 

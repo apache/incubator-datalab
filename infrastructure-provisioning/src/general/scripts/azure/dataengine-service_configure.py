@@ -33,6 +33,12 @@ import traceback
 import subprocess
 from Crypto.PublicKey import RSA
 from fabric import *
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--uuid', type=str, default='')
+parser.add_argument('--access_password', type=str, default='')
+args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
@@ -73,7 +79,11 @@ if __name__ == "__main__":
         logging.info("Slave node shape: {}".format(hdinsight_conf['hdinsight_slave_instance_type']))
         logging.info("Instance count: {}".format(str(os.environ['hdinsight_count'])))
         logging.info("URL access username: datalab-user")
-        logging.info("URL access password: {}".format(os.environ['access_password']))
+        logging.info("URL access password: {}".format(args.access_password))
+        logging.info("Cluster URL: {}".format(hdinsight_conf['cluster_url']))
+        logging.info("Spark History URL: {}".format(hdinsight_conf['cluster_sparkhistory_url']))
+        logging.info("Jupyter URL: {}".format(hdinsight_conf['cluster_jupyter_url']))
+        logging.info("Zeppelin URL: {}".format(hdinsight_conf['cluster_zeppelin_url']))
 
         with open("/root/result.json", 'w') as result:
             res = {"hostname": hdinsight_conf['cluster_name'],
