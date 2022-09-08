@@ -766,11 +766,7 @@ def get_list_image_statuses(image_ids, data=[]):
                     host['status'] = 'CREATING'
                 elif i.get('State') == 'available':
                     host['status'] = 'ACTIVE'
-                elif i.get('State') == 'invalid':
-                    host['status'] = 'FAILED'
-                elif i.get('State') == 'error':
-                    host['status'] = 'FAILED'
-                elif i.get('State') == 'failed':
+                elif i.get('State') == 'invalid' or i.get('State') == 'error' or i.get('State') == 'failed':
                     host['status'] = 'FAILED'
                 elif i.get('State') == 'deregistered':
                     host['status'] = 'TERMINATED'
