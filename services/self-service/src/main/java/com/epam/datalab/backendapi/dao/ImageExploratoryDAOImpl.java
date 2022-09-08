@@ -20,6 +20,7 @@
 package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.dto.SharedWith;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.dto.exploratory.LibStatus;
 import com.epam.datalab.model.exploratory.Image;
@@ -55,6 +56,8 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
     private static final String DOCKER_IMAGE = "dockerImage";
     private static final String PROJECT = "project";
     private static final String ENDPOINT = "endpoint";
+
+    private static final String SHARED_WITH = "sharedWith";
 
     @Override
     public boolean exist(String image, String project) {
@@ -129,6 +132,11 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
                 .stream()
                 .map(d -> convertFromDocument(d, Library.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateSharing(SharedWith sharedWith, String imageName, String project, String endpoint) {
+        updateOne(MongoCollections.IMAGES, and(eq(IMAGE_NAME,imageName),eq(PROJECT,project),eq(ENDPOINT,endpoint)), set(SHARED_WITH, convertToBson(sharedWith)));
     }
 
     private Optional<Document> libDocument(String imageName, String project, String endpoint,

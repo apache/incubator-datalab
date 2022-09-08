@@ -122,9 +122,9 @@ public class ImageExploratoryResource {
 
     @POST
     @Path("share")
-    public Response shareImageWithProjectGroups(@Auth UserInfo ui, @Valid @NotNull ImageProjectGroupsShareDTO dto) {
+    public Response shareImage(@Auth UserInfo ui, @Valid @NotNull ImageShareDTO dto) {
         log.debug("Sharing user image {} with project {} groups", dto.getImageName(), dto.getProjectName());
-        imageExploratoryService.shareImageWithProjectGroups(ui, dto.getImageName(), dto.getProjectName(), dto.getEndpoint());
+        imageExploratoryService.shareImage(ui, dto.getImageName(), dto.getProjectName(), dto.getEndpoint(), dto.getSharedWith());
         return Response.ok(imageExploratoryService.getImagesOfUser(ui)).build();
     }
 
@@ -138,5 +138,14 @@ public class ImageExploratoryResource {
         log.debug("Terminating  image {} of user {} groups", imageName, ui.getName());
         imageExploratoryService.terminateImage(ui,projectName,endpoint,imageName);
         return Response.ok(imageExploratoryService.getImagesOfUser(ui)).build();
+    }
+
+    @GET
+    @Path("sharing_info/{imageName}/{projectName}/{endpoint}")
+    public Response getSharingInfo(@Auth UserInfo ui,
+                                   @PathParam("imageName") String imageName,
+                                   @PathParam("projectName") String projectName,
+                                   @PathParam("endpoint") String endpoint){
+        return Response.ok(imageExploratoryService.getImageSharingInfo(ui.getName(),imageName,projectName, endpoint)).build();
     }
 }

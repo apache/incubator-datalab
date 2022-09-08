@@ -17,15 +17,18 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.resources.dto;
+package com.epam.datalab.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ImageProjectGroupsShareDTO {
-    private final String imageName;
-    private final String projectName;
-    private final String endpoint;
+public class SharedWith {
+    private Set<String> users=new HashSet<>();
+    private Set<String> groups=new HashSet<>();
 }

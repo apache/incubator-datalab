@@ -293,6 +293,7 @@ public class ImageExploratoryResourceTest extends TestBase {
                 null,
                 null,
                 null,
+                null,
                 null);
         return Collections.singletonList(imageInfoRecord);
     }
