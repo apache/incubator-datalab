@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ImageActionModalData } from '../../../images';
 
@@ -26,13 +26,9 @@ import { ImageActionModalData } from '../../../images';
   templateUrl: './terminate-dialog.component.html',
   styleUrls: ['./terminate-dialog.component.scss']
 })
-export class TerminateDialogComponent implements OnInit {
+export class TerminateDialogComponent {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ImageActionModalData,
   ) { }
-
-  ngOnInit(): void {
-  }
-
 }

@@ -17,31 +17,10 @@
  * under the License.
  */
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ImageActionModalData } from '../../../images';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { SharePlaceholder, TabName, UserDataTypeConfig } from '../image-action.config';
 import { DialogWindowTabConfig, UserData, UserDataType } from '../image-action.model';
 import { NgModel } from '@angular/forms';
-
-const mockedUserList: UserData[] = [
-  {
-    value: 'Biba',
-    type: 'GROUP'
-  },
-  {
-    value: 'Boba',
-    type: 'USER'
-  },
-  {
-    value: 'hennadii_shpak@epam.com',
-    type: 'USER'
-  },
-  {
-    value: 'hennadii_shpak@epam.com',
-    type: 'GROUP'
-  },
-];
 
 @Component({
   selector: 'datalab-share-dialog',
@@ -56,7 +35,7 @@ export class ShareDialogComponent {
   readonly tabsName: typeof TabName = TabName;
   readonly userDataTypeConfig: typeof UserDataTypeConfig = UserDataTypeConfig;
 
-  userList: UserData[] = mockedUserList;
+  userList: UserData[] = [];
   temporaryUserList: UserData[] = [];
   userNameOrGroup: UserDataType;
   activeTabConfig: DialogWindowTabConfig = {
@@ -70,7 +49,7 @@ export class ShareDialogComponent {
       return;
     }
     const newUserEntity: UserData = {
-      value: this.searchInput,
+      value: this.searchInput.trim(),
       type: this.userNameOrGroup
     };
     this.temporaryUserList = [...this.temporaryUserList, newUserEntity];
