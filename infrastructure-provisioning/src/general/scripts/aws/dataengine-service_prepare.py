@@ -77,9 +77,6 @@ if __name__ == "__main__":
             emr_conf['computational_name'] = os.environ['computational_name'].lower()
         else:
             emr_conf['computational_name'] = ''
-        emr_conf['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
-        if emr_conf['custom_tag']:
-            emr_conf['custom_tag'] = ';custom_tag:{}'.format(emr_conf['custom_tag'])
         emr_conf['apps'] = 'Hadoop Hive Hue Spark Livy'
         emr_conf['tag_name'] = '{0}-tag'.format(emr_conf['service_base_name'])
         emr_conf['key_name'] = os.environ['conf_key_name']
@@ -104,14 +101,22 @@ if __name__ == "__main__":
                            '{0}-tag={0}-{1}-{5}-des-{3},' \
                            'Notebook={4},' \
                            'State=not-configured,' \
-                           'ComputationalName={3},' \
-                           'Endpoint_tag={5}' \
+                           'ComputationalName={3}' \
             .format(emr_conf['service_base_name'],
                     emr_conf['project_name'],
                     emr_conf['exploratory_name'],
                     emr_conf['computational_name'],
                     os.environ['notebook_instance_name'],
                     emr_conf['endpoint_name'])
+        additional_tags = os.environ['tags'].replace("': '", ":").replace("', '", ",").replace("{'", "").replace(
+            "'}", "").lower()
+        for tag in additional_tags.split(','):
+            label_key = tag.split(':')[0]
+            label_value = tag.split(':')[1].replace('_', '-')
+            if '@' in label_value:
+                label_value = label_value[:label_value.find('@')]
+            if label_value != '':
+                emr_conf['tags'] = '{}={},{}'.format(label_key, label_value, emr_conf['tags'])
         emr_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}-{4}' \
             .format(emr_conf['service_base_name'],
                     emr_conf['project_name'],
@@ -245,13 +250,12 @@ if __name__ == "__main__":
                    emr_conf['cluster_name'], True)
         try:
             if 'conf_additional_tags' in os.environ:
-                os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}{3}'.format(
-                    emr_conf['project_tag'], emr_conf['endpoint_tag'], emr_conf['custom_tag'],
+                os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}'.format(
+                    emr_conf['project_tag'], emr_conf['endpoint_tag'],
                     os.environ['conf_additional_tags'])
             else:
-                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}{2}'.format(emr_conf['project_tag'],
-                                                                                               emr_conf['endpoint_tag'],
-                                                                                               emr_conf['custom_tag'])
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'],
+                                                                                               emr_conf['endpoint_tag'])
             print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
             subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
