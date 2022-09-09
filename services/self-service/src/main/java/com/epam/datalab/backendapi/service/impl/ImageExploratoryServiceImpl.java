@@ -205,60 +205,25 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public ImagesPageInfo getImagesOfUser(UserInfo user) {
+    public ImagesPageInfo getImagesOfUser(UserInfo user, ImageFilter imageFilter) {
         log.debug("Loading list of images for user {}", user.getName());
-
         List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName());
         images.forEach(img -> img.setSharingStatus(getImageSharingStatus(user.getName(),img)));
         images.addAll(getSharedImages(user));
-
         ImageFilterFormData filterData = getDataForFilter(images);
-        ImageFilter imageFilter = new ImageFilter();
-        if(userSettingsDAO.getImageFilter(user.getName()).isPresent()){
-            imageFilter = userSettingsDAO.getImageFilter(user.getName()).get();
+
+        if(imageFilter == null){
+            if(userSettingsDAO.getImageFilter(user.getName()).isPresent()){
+                imageFilter = userSettingsDAO.getImageFilter(user.getName()).get();
+                images = filterImages(images, imageFilter);
+            }
+        } else{
             images = filterImages(images, imageFilter);
+            userSettingsDAO.setUserImageFilter(user.getName(),imageFilter);
         }
-        userSettingsDAO.setUserImageFilter(user.getName(),imageFilter);
+
         images.forEach(img -> img.setImageUserPermissions(getUserImagePermissions(user,img)));
-
-
         final List<ImageInfoRecord> finalImages = images;
-
-        List<ProjectImagesInfo> projectImagesInfoList = projectService.getUserProjects(user, Boolean.FALSE)
-                .stream()
-                .map(p -> {
-                    List<ImageInfoRecord> im = finalImages.stream().filter(img -> img.getProject().equals(p.getName())).collect(Collectors.toList());
-                    return ProjectImagesInfo.builder()
-                            .project(p.getName())
-                            .images(im)
-                            .build();
-                })
-                .collect(Collectors.toList());
-
-        return ImagesPageInfo.builder()
-                .projectImagesInfos(projectImagesInfoList)
-                .imageFilter(userSettingsDAO.getImageFilter(user.getName()).get())
-                .filterData(filterData).build();
-    }
-
-    @Override
-    public ImagesPageInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter) {
-        log.debug("Loading list of images for user {}", user.getName());
-
-        List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName());
-        images.forEach(img -> img.setSharingStatus(getImageSharingStatus(user.getName(),img)));
-        images.addAll(getSharedImages(user));
-
-        ImageFilterFormData filterData = getDataForFilter(images);
-        images = filterImages(images, imageFilter);
-
-        userSettingsDAO.setUserImageFilter(user.getName(),imageFilter);
-
-        images.forEach(img -> img.setImageUserPermissions(getUserImagePermissions(user,img)));
-
-
-        List<ImageInfoRecord> finalImages = images;
-
         List<ProjectImagesInfo> projectImagesInfoList = projectService.getUserProjects(user, Boolean.FALSE)
                 .stream()
                 .map(p -> {

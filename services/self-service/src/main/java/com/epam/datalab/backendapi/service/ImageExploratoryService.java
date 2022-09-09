@@ -42,9 +42,7 @@ public interface ImageExploratoryService {
     ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
     List<ImageInfoRecord> getImagesForProject(String project);
-
-    ImagesPageInfo getImagesOfUser(UserInfo user);
-    ImagesPageInfo getImagesOfUserWithFilter(UserInfo user, ImageFilter imageFilter);
+    ImagesPageInfo getImagesOfUser(UserInfo user, ImageFilter imageFilter);
 
     void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS);
 

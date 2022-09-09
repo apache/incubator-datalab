@@ -97,7 +97,7 @@ public class ImageExploratoryResource {
     @Path("user")
     public Response getImagesForUser(@Auth UserInfo ui) {
         log.debug("Getting images for user {}", ui.getName());
-        final ImagesPageInfo images = imageExploratoryService.getImagesOfUser(ui);
+        final ImagesPageInfo images = imageExploratoryService.getImagesOfUser(ui,null);
         return Response.ok(images).build();
     }
 
@@ -105,7 +105,7 @@ public class ImageExploratoryResource {
     @Path("user")
     public Response getImagesForUser(@Auth UserInfo ui, @Valid @NotNull ImageFilter imageFilter) {
         log.debug("Getting images for user {} with filter {}", ui.getName(), imageFilter);
-        final ImagesPageInfo images = imageExploratoryService.getImagesOfUserWithFilter(ui, imageFilter);
+        final ImagesPageInfo images = imageExploratoryService.getImagesOfUser(ui, imageFilter);
         return Response.ok(images).build();
     }
 
@@ -125,7 +125,7 @@ public class ImageExploratoryResource {
     public Response shareImage(@Auth UserInfo ui, @Valid @NotNull ImageShareDTO dto) {
         log.debug("Sharing user image {} with project {} groups", dto.getImageName(), dto.getProjectName());
         imageExploratoryService.shareImage(ui, dto.getImageName(), dto.getProjectName(), dto.getEndpoint(), dto.getSharedWith());
-        return Response.ok(imageExploratoryService.getImagesOfUser(ui)).build();
+        return Response.ok(imageExploratoryService.getImagesOfUser(ui,null)).build();
     }
 
     @RolesAllowed("/api/image/terminate")
@@ -137,7 +137,7 @@ public class ImageExploratoryResource {
                                        @PathParam("endpoint") String endpoint) {
         log.debug("Terminating  image {} of user {} groups", imageName, ui.getName());
         imageExploratoryService.terminateImage(ui,projectName,endpoint,imageName);
-        return Response.ok(imageExploratoryService.getImagesOfUser(ui)).build();
+        return Response.ok(imageExploratoryService.getImagesOfUser(ui,null)).build();
     }
 
     @GET
