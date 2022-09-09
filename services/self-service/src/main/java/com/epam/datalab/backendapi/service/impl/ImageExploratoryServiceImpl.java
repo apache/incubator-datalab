@@ -216,6 +216,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
             if(userSettingsDAO.getImageFilter(user.getName()).isPresent()){
                 imageFilter = userSettingsDAO.getImageFilter(user.getName()).get();
                 images = filterImages(images, imageFilter);
+            } else {
+                imageFilter = new ImageFilter();
+                userSettingsDAO.setUserImageFilter(user.getName(),imageFilter);
             }
         } else{
             images = filterImages(images, imageFilter);
