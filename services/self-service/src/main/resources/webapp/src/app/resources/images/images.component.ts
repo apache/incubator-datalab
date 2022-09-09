@@ -31,7 +31,8 @@ import {
   ImageActionType,
   ImageFilterFormDropdownData,
   ImageFilterFormValue,
-  ImageModel, ImageParams,
+  ImageModel,
+  ImageParams,
   ProjectModel
 } from './images.model';
 import {

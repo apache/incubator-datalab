@@ -75,11 +75,6 @@ export class ShareDialogComponent implements OnInit {
     this.searchInput = '';
   }
 
-  aaa() {
-    console.log(this.searchUser);
-
-  }
-
   onTabTitle(tabName: keyof DialogWindowTabConfig): void {
     Object.keys(this.activeTabConfig).forEach(item => this.activeTabConfig[item] = false);
     this.activeTabConfig = {...this.activeTabConfig, [tabName]: true};
