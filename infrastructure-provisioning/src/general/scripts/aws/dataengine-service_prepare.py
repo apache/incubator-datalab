@@ -115,7 +115,7 @@ if __name__ == "__main__":
             if '@' in label_value:
                 label_value = label_value[:label_value.find('@')]
             if label_value != '':
-                emr_conf['tags'].update({label_key: label_value})
+                emr_conf['tags'] = '{}={},{}'.format(label_key, label_value, emr_conf['tags'])
         emr_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}-{4}' \
             .format(emr_conf['service_base_name'],
                     emr_conf['project_name'],
@@ -249,13 +249,12 @@ if __name__ == "__main__":
                    emr_conf['cluster_name'], True)
         try:
             if 'conf_additional_tags' in os.environ:
-                os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}{3}'.format(
-                    emr_conf['project_tag'], emr_conf['endpoint_tag'], emr_conf['custom_tag'],
+                os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}'.format(
+                    emr_conf['project_tag'], emr_conf['endpoint_tag'],
                     os.environ['conf_additional_tags'])
             else:
-                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}{2}'.format(emr_conf['project_tag'],
-                                                                                                  emr_conf['endpoint_tag'],
-                                                                                                  emr_conf['custom_tag'])
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'],
+                                                                                               emr_conf['endpoint_tag'])
             print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
             subprocess.run("~/scripts/{}.py {}".format('common_create_security_group', params), shell=True, check=True)
         except:
