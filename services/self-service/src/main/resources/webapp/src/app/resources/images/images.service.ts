@@ -19,6 +19,7 @@ import { ChangedColumnStartValue, FilterFormInitialValue, ModalTitle, SharedStat
 import { ShareDialogComponent } from '../exploratory/image-action-dialog/share-dialog/share-dialog.component';
 import { TerminateDialogComponent } from '../exploratory/image-action-dialog/terminate-dialog/terminate-dialog.component';
 import { ComponentType } from 'ngx-toastr';
+import { UserData } from '../exploratory/image-action-dialog/image-action.model';
 
 @Injectable({
   providedIn: 'root'
@@ -79,6 +80,10 @@ export class ImagesService {
         tap(value => this.getImagePageData(JSON.parse(value['body']).projectImagesInfos)),
         take(1)
       );
+  }
+
+  getImageShareInfo(imageInfo: ImageParams): Observable<UserData[]> {
+    return this.userImagesPageService.getImageShareInfo(imageInfo);
   }
 
   getActiveProject(projectName: string): void {
@@ -176,12 +181,13 @@ export class ImagesService {
     this.$$isImageListFiltered.next(isImageListFiltered);
   }
 
-  createImageRequestInfo(image: ImageModel): ImageParams {
+  createImageRequestInfo(image: ImageModel, userDataList: UserData[]): ImageParams {
     const { name, project, endpoint } = image;
     return {
       imageName: name,
       projectName: project,
-      endpoint: endpoint
+      endpoint: endpoint,
+      sharedWith: userDataList
     };
   }
 
@@ -193,7 +199,7 @@ export class ImagesService {
     return {
       title: modalTitle[actionType],
       actionType,
-      imageName: image.name,
+      image,
       isShared: this.isImageShared(image)
     };
   }

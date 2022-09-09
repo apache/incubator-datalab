@@ -19,8 +19,8 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { EMPTY, Observable } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { EMPTY, Observable, of } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { ToastrService } from 'ngx-toastr';
 
@@ -31,7 +31,7 @@ import {
   ImageActionType,
   ImageFilterFormDropdownData,
   ImageFilterFormValue,
-  ImageModel,
+  ImageModel, ImageParams,
   ProjectModel
 } from './images.model';
 import {
@@ -49,12 +49,10 @@ import {
   ImageActions,
   Toaster_Message,
 } from './images.config';
-import { ImageActionDialogComponent } from '../exploratory/image-action-dialog/image-action-dialog.component';
 import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
 import { ActivatedRoute } from '@angular/router';
-import { TerminateDialogComponent } from '../exploratory/image-action-dialog/terminate-dialog/terminate-dialog.component';
 
 @Component({
   selector: 'datalab-images',
@@ -162,7 +160,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   onActionClick(image: ImageModel, actionType: ImageActionType): void {
-    const imageInfo = this.imagesService.createImageRequestInfo(image);
+    let imageInfo: ImageParams;
     const data = this.imagesService.createActionDialogConfig(image, actionType);
     const requestCallback = this.imagesService.getRequestByAction(actionType).bind(this.imagesService);
     const component = this.imagesService.getComponentByAction(actionType);
@@ -172,13 +170,17 @@ export class ImagesComponent implements OnInit, OnDestroy {
       panelClass: 'modal-sm'
     }).afterClosed()
       .pipe(
+        tap(userDataList => {
+          imageInfo = this.imagesService.createImageRequestInfo(image, userDataList);
+        }),
         switchMap((confirm) => {
           if (confirm) {
             return requestCallback(imageInfo, actionType);
           }
           return EMPTY;
         }),
-        tap(() => this.callActionHelpers(actionType, this.callToasterShareSuccess))
+        tap(() => this.callActionHelpers(actionType, this.callToasterShareSuccess)),
+        catchError(() => of(this.callToasterShareError(actionType)))
     )
       .subscribe();
   }
@@ -236,6 +238,12 @@ export class ImagesComponent implements OnInit, OnDestroy {
   private callToasterShareSuccess(actionType: ImageActionType): void {
     if (actionType === ImageActions.share) {
       this.toastr.success(Toaster_Message.successShare, 'Success!');
+    }
+  }
+
+  private callToasterShareError(actionType: ImageActionType): void {
+    if (actionType === ImageActions.share) {
+      this.toastr.error('Something went wrong. Please try again.', 'Oops!');
     }
   }
 

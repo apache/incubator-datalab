@@ -17,7 +17,14 @@
   ~ under the License.
   -->
 
-<datalab-image-action-dialog [activeTabConfig]="activeTabConfig" [isApplyBtnDisabled]="isApplyBtnDisabled">
+<datalab-image-action-dialog
+  [activeTabConfig]="activeTabConfig"
+  [responseObj]="responseObj"
+  [isApplyBtnDisabled]="isApplyBtnDisabled"
+>
+
+  <ng-container *ngIf="($getUserListData | async)"></ng-container>
+
   <div datalab-share-dialog class="wrapper">
     <ul class="title__list">
       <li
@@ -91,8 +98,8 @@
       </div>
       <div class="user-list__wrapper scrolling">
         <ul class="user-list">
-          <li *ngFor="let entity of temporaryUserList" class="user-list__item">
-            <datalab-share-user-data (removeUserData)="onRemoveUserData($event, tabsName.shareImage)" [userData]="entity"></datalab-share-user-data>
+          <li *ngFor="let entity of temporaryUserDataList" class="user-list__item">
+            <datalab-share-user-data (removeUserData)="onRemoveUserData($event)" [userData]="entity"></datalab-share-user-data>
           </li>
         </ul>
       </div>
@@ -101,8 +108,8 @@
     <div *ngIf="activeTabConfig.shareWith" class="share-with__wrapper">
       <div class="user-list__wrapper scrolling">
         <ul class="user-list">
-          <li *ngFor="let entity of userList" class="user-list__item">
-            <datalab-share-user-data (removeUserData)="onRemoveUserData($event, tabsName.shareWith)" [userData]="entity"></datalab-share-user-data>
+          <li *ngFor="let entity of userDataList" class="user-list__item">
+            <datalab-share-user-data (removeUserData)="onRemoveUserData($event)" [userData]="entity"></datalab-share-user-data>
           </li>
         </ul>
       </div>
