@@ -120,6 +120,7 @@ public class ImageExploratoryResource {
         return Response.ok(imageExploratoryService.getImage(ui.getName(), name, project, endpoint)).build();
     }
 
+    @RolesAllowed("/api/image/share")
     @POST
     @Path("share")
     public Response shareImage(@Auth UserInfo ui, @Valid @NotNull ImageShareDTO dto) {
