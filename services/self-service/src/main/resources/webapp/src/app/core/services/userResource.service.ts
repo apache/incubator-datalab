@@ -184,7 +184,6 @@ export class UserResourceService {
   }
 
   public createAMI(data): Observable<any> {
-    const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateAMI(data)
       .pipe(

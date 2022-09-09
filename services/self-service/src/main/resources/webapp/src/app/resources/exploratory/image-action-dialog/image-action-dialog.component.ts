@@ -20,7 +20,7 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ImageActions, ImageActionModalData } from '../../images';
-import { DialogWindowTabConfig } from './image-action.model';
+import { DialogWindowTabConfig, UserData } from './image-action.model';
 
 @Component({
   selector: 'datalab-image-action-dialog',
@@ -30,6 +30,7 @@ import { DialogWindowTabConfig } from './image-action.model';
 export class ImageActionDialogComponent implements OnInit {
   @Input() activeTabConfig: DialogWindowTabConfig;
   @Input() isApplyBtnDisabled: Boolean;
+  @Input() responseObj: UserData[] = [];
 
   readonly actionType: typeof ImageActions = ImageActions;
 

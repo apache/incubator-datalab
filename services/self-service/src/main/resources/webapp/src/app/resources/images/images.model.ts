@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import { UserData } from '../exploratory/image-action-dialog/image-action.model';
+
 export interface ProjectImagesInfo {
   filterData: ImageFilterFormDropdownData;
   imageFilter: ImageFilterFormValue;
@@ -58,12 +60,13 @@ export interface ImageParams {
   imageName: string;
   projectName: string;
   endpoint: string;
+  sharedWith?: UserData[];
 }
 
 export interface ImageActionModalData {
   actionType: ImageActionType;
   title: string;
-  imageName: string;
+  image: ImageModel;
   isShared?: boolean;
 }
 

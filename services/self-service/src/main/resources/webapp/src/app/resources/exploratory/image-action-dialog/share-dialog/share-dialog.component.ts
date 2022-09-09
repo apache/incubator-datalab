@@ -17,10 +17,15 @@
  * under the License.
  */
 
-import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { SharePlaceholder, TabName, UserDataTypeConfig } from '../image-action.config';
 import { DialogWindowTabConfig, UserData, UserDataType } from '../image-action.model';
 import { NgModel } from '@angular/forms';
+import { ImagesService } from '../../../images/images.service';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ImageActionModalData } from '../../../images';
+import { tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'datalab-share-dialog',
@@ -28,21 +33,33 @@ import { NgModel } from '@angular/forms';
   styleUrls: ['./share-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ShareDialogComponent {
+export class ShareDialogComponent implements OnInit {
   @ViewChild('searchUser') searchUser: NgModel;
 
   readonly placeholder: typeof SharePlaceholder = SharePlaceholder;
   readonly tabsName: typeof TabName = TabName;
   readonly userDataTypeConfig: typeof UserDataTypeConfig = UserDataTypeConfig;
 
-  userList: UserData[] = [];
-  temporaryUserList: UserData[] = [];
+  userDataList: UserData[] = [];
+  temporaryUserDataList: UserData[] = [];
   userNameOrGroup: UserDataType;
   activeTabConfig: DialogWindowTabConfig = {
     shareImage: true,
     shareWith: false
   };
   searchInput = '';
+
+  $getUserListData: Observable<UserData[]>;
+
+  constructor(
+    private imagesService: ImagesService,
+    @Inject(MAT_DIALOG_DATA) public data: ImageActionModalData,
+  ) {
+  }
+
+  ngOnInit(): void {
+    this.getSharingUserList();
+  }
 
   onAddUser(): void {
     if (!this.searchInput) {
@@ -52,7 +69,9 @@ export class ShareDialogComponent {
       value: this.searchInput.trim(),
       type: this.userNameOrGroup
     };
-    this.temporaryUserList = [...this.temporaryUserList, newUserEntity];
+    this.temporaryUserDataList = [...this.temporaryUserDataList, newUserEntity]
+      .sort((a, b) => a.value < b.value ? 1 : -1)
+      .sort((a, b) => a.type > b.type ? 1 : -1);
     this.searchInput = '';
   }
 
@@ -61,12 +80,28 @@ export class ShareDialogComponent {
     this.activeTabConfig = {...this.activeTabConfig, [tabName]: true};
   }
 
-  onRemoveUserData(userName: string, tabName: TabName): void {
-    this.temporaryUserList = this.temporaryUserList.filter(({value}) => value !== userName);
+  onRemoveUserData(userName: string): void {
+    this.temporaryUserDataList = this.temporaryUserDataList.filter(({value}) => value !== userName);
+  }
+
+  private getSharingUserList(): void {
+    const { name, project, endpoint} = this.data.image;
+    const imageParams = {
+      imageName: name,
+      projectName: project,
+      endpoint
+    };
+    this.$getUserListData = this.imagesService.getImageShareInfo(imageParams).pipe(
+      tap(userListData => this.userDataList = userListData)
+    );
+  }
+
+  get responseObj(): UserData[] {
+    return [...this.temporaryUserDataList, ...this.userDataList];
   }
 
   get isApplyBtnDisabled(): boolean {
-    return this.searchInput.length > 25 || !Boolean(this.temporaryUserList.length);
+    return this.searchInput.length > 25 || !Boolean(this.temporaryUserDataList.length);
   }
 
   get isAddUserDataBtnDisabled(): boolean {
@@ -80,7 +115,7 @@ export class ShareDialogComponent {
   get isUserInputEmpty(): boolean {
     return this.searchUser?.control.touched
       && !Boolean(this.searchInput.length)
-      && !Boolean(this.temporaryUserList.length);
+      && !Boolean(this.temporaryUserDataList.length);
   }
 
   get isLongInputMessage() {

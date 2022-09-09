@@ -460,6 +460,12 @@ export class ApplicationServiceFacade {
       data, { responseType: 'text', observe: 'response' });
   }
 
+  public buildGetImageShareInfo(data: string): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE) + data,
+      null);
+  }
+
   public buildGetExploratorySchedule(data): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER),
