@@ -235,13 +235,13 @@ After clicking on "Install" button you see process of installation with appropri
 
 ### Create image <a name="create_image"></a>
 
-Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you want to re-use existing configuration. To create an AMI click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed Notebook and hit "Create AMI":
+Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you want to re-use existing configuration. To create an AMI click on the gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed Notebook and hit "Create AMI":
 
 <p align="center"> 
     <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_ami" width="150">
 </p>
 
-On "Create AMI" popup you should fill:
+On "Create AMI" pop-up you should fill out:
 -   text box for an AMI name (mandatory)
 -   text box for an AMI description (optional)
 
@@ -249,21 +249,21 @@ On "Create AMI" popup you should fill:
     <img src="doc/create_ami.png" alt="Create AMI" width="480">
 </p>
 
-After clicking on "Create" button the Notebook status changes to "Creating image" and this iamge shows up in the list of "Images" page. Once an image is created the Notebook status changes back to "Running" and image status - to "Active":
+After clicking on the "Create" button the Notebook status changes to "Creating image" and this image shows up in the list of "Images" page. Once an image is created the Notebook status changes back to "Running" and image status - to "Active":
 
 ![Main Image Page](doc/main_image_page.png) 
 
-To create new analytical environment from custom image click on "Create new" button on “Resources” page. 
+To create a new analytical environment from custom image click on the "Create new" button on “Resources” page. 
 
-“Create analytical tool” popup shows up. Choose project, endpoint, template of a Notebook for which the custom image has been created:
+“Create analytical tool” pop-up shows up. Choose project, endpoint, template of a Notebook for which the custom image has been created:
 
 <p align="center"> 
     <img src="doc/create_notebook_from_ami.png" alt="Create notebook from AMI" width="560">
 </p>
 
-Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape". For Deeplearning notebook on GCP there is also a list of predefined images.
+Before clicking the "Create" button you should choose the image from "Select AMI" and fill out the "Name" and "Instance shape". For Deeplearning notebook on GCP there is also a list of predefined images.
 
-In addition, you can filter by clicking on "Filter" button:
+In addition, you can filter list of images by clicking on the "Filter" button:
 
 <p align="center"> 
     <img src="doc/filter_image_popup.png" alt="Filter Image Popup" width="480">
@@ -276,7 +276,7 @@ Here you can filter by:
 - Template name - the name of the template (custom or cloud) which was used to create the instance and later the image
 - Sharing status - current status of the image that inform user whether image has been shared with other users or user groups
 
-As soon as the you select one or several filtering options you can confirm the filter action by clicking "Ok" button 
+As soon as you select one or several filtered options you can confirm the filter action by clicking the "Ok" button. 
 After confirmation the page is updated by filtered parameters.
 
 
@@ -287,9 +287,8 @@ On top of that, you have several options to clear filter by:
 - Clicking on cross icon <img src="doc/filter_cross_icon.png" alt="cross" width="20"> near to blue activate filter button - all filters are cleared
 - Clicking  in each column in the "Filter image" pop-up
 
-You can share the image in "Active" status with all users in the project or terminate it if you are image creator/owner. Creator is the user who has created the image.
-Owner is the user who is owning the right to manage image and perform Share and Terminate actions. The owners are Creator and Admin. 
-To share or terminate image click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed image and hit "Terminate" or "Share" button appropriately.
+You can share the image (only in "Active" status) with all users in the project or terminate it if you are image creator. Creator is the user who has created the image. 
+To share or terminate image click on the gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed image and hit "Terminate" or "Share" button appropriately.
 
 <p align="center"> 
     <img src="doc/image_action_menu.png" alt="Image action menu" width="150">
