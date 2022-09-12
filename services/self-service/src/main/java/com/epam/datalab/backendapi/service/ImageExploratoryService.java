@@ -41,6 +41,8 @@ public interface ImageExploratoryService {
 
     ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
+    ImageInfoRecord getImage(String name, String project, String endpoint);
+
     List<ImageInfoRecord> getImagesForProject(String project);
     ImagesPageInfo getImagesOfUser(UserInfo user, ImageFilter imageFilter);
 
@@ -53,5 +55,7 @@ public interface ImageExploratoryService {
     ImageUserPermissions getUserImagePermissions(UserInfo userInfo, ImageInfoRecord image);
 
     Set<SharedWithDTO> getImageSharingInfo(String userName, String imageName, String project, String endpoint);
+
+    boolean canCreateFromImage(UserInfo userInfo, String imageName, String project, String endpoint);
 
 }

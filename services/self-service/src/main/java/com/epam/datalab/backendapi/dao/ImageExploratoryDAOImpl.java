@@ -126,6 +126,11 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
     }
 
     @Override
+    public Optional<ImageInfoRecord> getImage(String name, String project, String endpoint) {
+        return findOne(MongoCollections.IMAGES, imageProjectEndpointCondition(name, project, endpoint), ImageInfoRecord.class);
+    }
+
+    @Override
     public List<Library> getLibraries(String imageName,  String project, String endpoint, LibStatus status) {
         return ((List<Document>) libDocument(imageName, project, endpoint, status)
                 .orElse(emptyLibrariesDocument()).get(LIBRARIES))
@@ -181,6 +186,10 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
 
     private Bson imageProjectCondition(String image, String project) {
         return and(eq(IMAGE_NAME, image), eq(PROJECT, project));
+    }
+
+    private Bson imageProjectEndpointCondition(String image, String project, String endpoint) {
+        return and(eq(IMAGE_NAME, image), eq(PROJECT, project), eq(ENDPOINT, endpoint));
     }
 
     private Bson imageUserProjectCondition(String user, String project) {

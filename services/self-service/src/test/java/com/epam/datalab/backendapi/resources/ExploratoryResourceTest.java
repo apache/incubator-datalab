@@ -23,6 +23,7 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.datalab.backendapi.service.ExploratoryService;
+import com.epam.datalab.backendapi.service.ImageExploratoryService;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.model.exploratory.Exploratory;
@@ -59,9 +60,10 @@ import static org.mockito.Mockito.when;
 public class ExploratoryResourceTest extends TestBase {
 
     private ExploratoryService exploratoryService = mock(ExploratoryService.class);
+    private ImageExploratoryService imageExploratoryService = mock(ImageExploratoryService.class);
 
     @Rule
-    public final ResourceTestRule resources = getResourceTestRuleInstance(new ExploratoryResource(exploratoryService));
+    public final ResourceTestRule resources = getResourceTestRuleInstance(new ExploratoryResource(exploratoryService,imageExploratoryService));
 
     @Before
     public void setup() throws AuthenticationException {
@@ -297,7 +299,7 @@ public class ExploratoryResourceTest extends TestBase {
         ecfDto.setName("someName");
         ecfDto.setShape("someShape");
         ecfDto.setVersion("someVersion");
-        ecfDto.setImageName("someImageName");
+        //ecfDto.setImageName("someImageName");
         ecfDto.setProject("project");
         ecfDto.setEndpoint("endpoint");
         return ecfDto;
