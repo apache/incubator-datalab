@@ -109,7 +109,7 @@
       <div class="user-list__wrapper scrolling">
         <ul class="user-list">
           <li *ngFor="let entity of userDataList" class="user-list__item">
-            <datalab-share-user-data (removeUserData)="onRemoveUserData($event)" [userData]="entity"></datalab-share-user-data>
+            <datalab-share-user-data (removeUserData)="unShare($event)" [userData]="entity"></datalab-share-user-data>
           </li>
         </ul>
       </div>

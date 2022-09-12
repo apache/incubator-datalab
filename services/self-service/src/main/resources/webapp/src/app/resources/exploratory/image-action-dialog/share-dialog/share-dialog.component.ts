@@ -24,7 +24,7 @@ import { NgModel } from '@angular/forms';
 import { ImagesService } from '../../../images/images.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ImageActionModalData } from '../../../images';
-import { tap } from 'rxjs/operators';
+import { switchMap, take, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -58,7 +58,7 @@ export class ShareDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getSharingUserList();
+    this.initUserList();
   }
 
   onAddUser(): void {
@@ -82,16 +82,36 @@ export class ShareDialogComponent implements OnInit {
 
   onRemoveUserData(userName: string): void {
     this.temporaryUserDataList = this.temporaryUserDataList.filter(({value}) => value !== userName);
+    const imageInfo = this.imagesService.createImageRequestInfo(this.data.image, this.temporaryUserDataList);
+    this.$getUserListData = this.imagesService.shareImageAllUsers(imageInfo).pipe(
+      take(1),
+      switchMap(() => this.imagesService.getImageShareInfo(imageInfo).pipe(
+        tap(userListData => this.userDataList = userListData)
+      ))
+    );
   }
 
-  private getSharingUserList(): void {
+  unShare(userName: string): void {
+    this.userDataList = this.userDataList.filter(({value}) => value !== userName);
+    const imageInfo = this.imagesService.createImageRequestInfo(this.data.image, this.userDataList);
+    this.$getUserListData = this.imagesService.shareImageAllUsers(imageInfo).pipe(
+      take(1),
+      switchMap(() => this.getSharingUserList())
+    );
+  }
+
+  private initUserList(): void {
+    this.$getUserListData = this.getSharingUserList();
+  }
+
+  private getSharingUserList(): Observable<UserData[]> {
     const { name, project, endpoint} = this.data.image;
     const imageParams = {
       imageName: name,
       projectName: project,
       endpoint
     };
-    this.$getUserListData = this.imagesService.getImageShareInfo(imageParams).pipe(
+    return this.imagesService.getImageShareInfo(imageParams).pipe(
       tap(userListData => this.userDataList = userListData)
     );
   }
