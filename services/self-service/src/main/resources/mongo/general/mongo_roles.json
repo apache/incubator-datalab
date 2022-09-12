@@ -24,6 +24,30 @@
     ]
   },
   {
+    "_id": "nbCreateBasedOnCustomOwnImages",
+    "description": "Create Notebook based on custom own images",
+    "type": "NOTEBOOK",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/exploratory/createFromOwnCustomImage"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateBasedOnSharedImages",
+    "description": "Create Notebook based on custom shared images",
+    "type": "NOTEBOOK",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/exploratory/createFromSharedCustomImage"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbBillingReportFull",
     "description": "View full billing report for all users",
     "type": "BILLING",

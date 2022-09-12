@@ -27,6 +27,7 @@ import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.GitCredsDAO;
 import com.epam.datalab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.datalab.backendapi.domain.*;
+import com.epam.datalab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryCreatePopUp;
 import com.epam.datalab.backendapi.service.*;
 import com.epam.datalab.backendapi.util.RequestBuilder;

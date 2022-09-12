@@ -42,6 +42,7 @@ import com.epam.datalab.dto.UserInstanceStatus;
 import com.epam.datalab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.datalab.dto.exploratory.ImageSharingStatus;
 import com.epam.datalab.dto.exploratory.ImageStatus;
+import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.exceptions.ResourceAlreadyExistException;
 import com.epam.datalab.exceptions.ResourceNotFoundException;
 import com.epam.datalab.model.ResourceType;
@@ -68,10 +69,14 @@ import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.IMAGE;
 @Slf4j
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
-    private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
+    private static final String IMAGE_NOT_FOUND_FOR_USER_MSG = "Image with name %s was not found for user %s";
+    private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found ";
 
     private static final String SHARE_OWN_IMAGES_PAGE = "/api/image/share";
     private static final String TERMINATE_OWN_IMAGES_PAGE = "/api/image/terminate";
+
+    private static final String CREATE_NOTEBOOK_BASED_ON_OWN_IMAGES = "/api/exploratory/createFromOwnCustomImage";
+    private static final String CREATE_NOTEBOOK_BASED_ON_SHARED_IMAGES = "/api/exploratory/createFromSharedCustomImage";
 
     @Inject
     private ExploratoryDAO exploratoryDAO;
@@ -181,8 +186,13 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Override
     public List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint) {
-        List<ImageInfoRecord> images = imageExploratoryDao.getImages(user.getName(), dockerImage, project, endpoint, ImageStatus.ACTIVE, ImageStatus.CREATING);
-        images.addAll(getSharedImages(user,dockerImage,project,endpoint));
+        List<ImageInfoRecord> images = new ArrayList<>();
+        if(UserRoles.checkAccess(user, RoleType.PAGE,CREATE_NOTEBOOK_BASED_ON_OWN_IMAGES,user.getRoles())){
+            images.addAll(imageExploratoryDao.getImages(user.getName(), dockerImage, project, endpoint, ImageStatus.ACTIVE, ImageStatus.CREATING));
+        }
+        if (UserRoles.checkAccess(user,RoleType.PAGE, CREATE_NOTEBOOK_BASED_ON_SHARED_IMAGES,user.getRoles())){
+            images.addAll(getSharedImages(user,dockerImage,project,endpoint));
+        }
         return images;
     }
 
@@ -194,7 +204,13 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     @Override
     public ImageInfoRecord getImage(String user, String name, String project, String endpoint) {
         return imageExploratoryDao.getImage(user, name, project, endpoint).orElseThrow(() ->
-                new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name, user)));
+                new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_FOR_USER_MSG, name, user)));
+    }
+
+    @Override
+    public ImageInfoRecord getImage(String name, String project, String endpoint) {
+        return imageExploratoryDao.getImage(name, project, endpoint).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name)));
     }
 
     @Override
@@ -257,7 +273,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         if(image.isPresent()){
             return toSharedWithDTOs(image.get().getSharedWith());
         } else {
-            throw new ResourceNotFoundException(IMAGE_NOT_FOUND_MSG);
+            throw new ResourceNotFoundException(IMAGE_NOT_FOUND_FOR_USER_MSG);
         }
     }
 
@@ -339,6 +355,17 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 (image.getUser().equals(userInfo.getName())
                         && UserRoles.checkAccess(userInfo, RoleType.PAGE, TERMINATE_OWN_IMAGES_PAGE, userInfo.getRoles()));
         return new ImageUserPermissions(canShare,canTerminate);
+    }
+
+    @Override
+    public boolean canCreateFromImage(UserInfo userInfo, String imageName, String project, String endpoint){
+        ImageInfoRecord image = getImage(imageName, project, endpoint);
+        if(image.getUser().equals(userInfo.getName())){
+              return UserRoles.checkAccess(userInfo,RoleType.PAGE, CREATE_NOTEBOOK_BASED_ON_OWN_IMAGES, userInfo.getRoles() );
+        } else {
+            return hasAccess(userInfo.getName(), image.getSharedWith())
+                    && UserRoles.checkAccess(userInfo, RoleType.PAGE,CREATE_NOTEBOOK_BASED_ON_SHARED_IMAGES, userInfo.getRoles());
+        }
     }
 
     private ImageSharingStatus getImageSharingStatus(String username, ImageInfoRecord image){

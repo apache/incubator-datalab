@@ -51,6 +51,8 @@ public interface ImageExploratoryDAO {
     List<ImageInfoRecord> getAllImages();
     Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);
 
+    Optional<ImageInfoRecord> getImage(String name, String project, String endpoint);
+
     List<Library> getLibraries(String imageName,  String project, String endpoint, LibStatus status);
 
     void updateSharing(SharedWith sharedWith, String imageName, String project, String endpoint);

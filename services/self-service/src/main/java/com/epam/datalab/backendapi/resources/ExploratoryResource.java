@@ -22,9 +22,12 @@ package com.epam.datalab.backendapi.resources;
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.datalab.backendapi.roles.RoleType;
 import com.epam.datalab.backendapi.roles.UserRoles;
 import com.epam.datalab.backendapi.service.ExploratoryService;
+import com.epam.datalab.backendapi.service.ImageExploratoryService;
+import com.epam.datalab.backendapi.service.impl.ImageExploratoryServiceImpl;
 import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.exceptions.DatalabException;
 import com.epam.datalab.model.exploratory.Exploratory;
@@ -51,9 +54,12 @@ public class ExploratoryResource implements ExploratoryAPI {
 
     private final ExploratoryService exploratoryService;
 
+    private final ImageExploratoryService imageExploratoryService;
+
     @Inject
-    public ExploratoryResource(ExploratoryService exploratoryService) {
+    public ExploratoryResource(ExploratoryService exploratoryService, ImageExploratoryService imageExploratoryService) {
         this.exploratoryService = exploratoryService;
+        this.imageExploratoryService = imageExploratoryService;
     }
 
     @GET
@@ -77,6 +83,11 @@ public class ExploratoryResource implements ExploratoryAPI {
         if (!UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, formDTO.getImage(), userInfo.getRoles())) {
             log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
             throw new DatalabException("You do not have the privileges to create a " + formDTO.getTemplateName());
+        }
+        if(formDTO.getImageName() != null
+                && !imageExploratoryService.canCreateFromImage(userInfo, formDTO.getImageName(),formDTO.getProject() , formDTO.getEndpoint())){
+            log.warn("Unauthorized attempt to create notebook from image  {} by user {}", formDTO.getImageName(), userInfo.getName());
+            throw new DatalabException("You do not have the privileges to create notebook from image " + formDTO.getImageName());
         }
 
         String uuid = exploratoryService.create(userInfo, getExploratory(formDTO), formDTO.getProject(), formDTO.getName());
