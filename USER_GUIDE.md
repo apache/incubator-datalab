@@ -238,7 +238,7 @@ After clicking on "Install" button you see process of installation with appropri
 Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you want to re-use existing configuration. To create an AMI click on the gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed Notebook and hit "Create AMI":
 
 <p align="center"> 
-    <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_image" width="150">
+    <img src="doc/notebook_menu_create_image.png" alt="Notebook create_image" width="150">
 </p>
 
 On "Create AMI" pop-up you should fill out:
