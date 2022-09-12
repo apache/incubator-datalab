@@ -82,13 +82,6 @@ export class ShareDialogComponent implements OnInit {
 
   onRemoveUserData(userName: string): void {
     this.temporaryUserDataList = this.temporaryUserDataList.filter(({value}) => value !== userName);
-    const imageInfo = this.imagesService.createImageRequestInfo(this.data.image, this.temporaryUserDataList);
-    this.$getUserListData = this.imagesService.shareImageAllUsers(imageInfo).pipe(
-      take(1),
-      switchMap(() => this.imagesService.getImageShareInfo(imageInfo).pipe(
-        tap(userListData => this.userDataList = userListData)
-      ))
-    );
   }
 
   unShare(userName: string): void {
