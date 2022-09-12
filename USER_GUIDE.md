@@ -251,9 +251,7 @@ On "Create AMI" popup you should fill:
 
 After clicking on "Create" button the Notebook status changes to "Creating image" and this iamge shows up in the list of "Images" page. Once an image is created the Notebook status changes back to "Running" and image status - to "Active":
 
-<p align="center"> 
-    <img src="doc/main_image_page.png" alt="Main Image Page" width="480">
-</p>
+![Main Image Page](doc/main_image_page.png) 
 
 To create new analytical environment from custom image click on "Create new" button on “Resources” page. 
 
@@ -281,9 +279,8 @@ Here you can filter by:
 As soon as the you select one or several filtering options you can confirm the filter action by clicking "Ok" button 
 After confirmation the page is updated by filtered parameters.
 
-<p align="center"> 
-    <img src="doc/filtered_images.png" alt="Filter Image Popup" width="480">
-</p>
+
+![Filter Image Popup](doc/filtered_images.png)
 
 On top of that, you have several options to clear filter by:
 - Clicking on blue cross icon <img src="doc/filter_cross_icon.png" alt="cross" width="20"> next to each column  - only the filtering for this column is cleared
@@ -301,7 +298,7 @@ To share or terminate image click on a gear icon <img src="doc/gear_icon.png" al
 Confirmation pop-up for image termination:
 
 <p align="center"> 
-    <img src="doc/image_termination.png" alt="Image termination" width="150">
+    <img src="doc/image_termination.png" alt="Image termination" width="500">
 </p>
 
 After you confirm your intent to terminate the image - the status changes to "Terminating" and later becomes "Terminated"
@@ -309,10 +306,10 @@ After you confirm your intent to terminate the image - the status changes to "Te
 Confirmation pop-up for image sharing:
 
 <p align="center"> 
-    <img src="doc/image_sharing.png" alt="Image sharing" width="150">
+    <img src="doc/image_sharing.png" alt="Image sharing" width="500">
 </p>
 
-Confirm image sharing and afterwards image status changes status from "Private" to "Shared" for user who shares the image. The shared image show up in the list of images and has "Received" status for user with whom image is shared.
+Confirm image sharing and afterwards image status changes from "Private" to "Shared" status for user who shares the image. The shared image shows up in the list of images and has "Received" status for user with whom image is shared.
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
