@@ -15,6 +15,6 @@
     },
   "templates":
   [
-    {"version":"4.0", "applications": [{"Name":"Spark", "Version": "2.4"}]}
+    {"version":"4.0", "applications": [{"Name":"Spark", "Version": "3.1"}]}
   ]
 }

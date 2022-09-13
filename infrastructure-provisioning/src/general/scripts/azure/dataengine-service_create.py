@@ -73,6 +73,10 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
             tier=Tier.standard,
             cluster_definition=ClusterDefinition(
                 kind="Spark",
+                component_version=
+                {
+                    "Spark": "3.1"
+                },
                 configurations={
                     "gateway": {
                         "restAuthCredential.isEnabled": "true",
