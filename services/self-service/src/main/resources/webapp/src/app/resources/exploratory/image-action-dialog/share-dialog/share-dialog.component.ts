@@ -23,7 +23,7 @@ import { DialogWindowTabConfig, UserData, UserDataType } from '../image-action.m
 import { NgModel } from '@angular/forms';
 import { ImagesService } from '../../../images/images.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { ImageActionModalData, ModalTitle, Toaster_Message, UnShareModal } from '../../../images';
+import { ImageActionModalData, ImageParams, ModalTitle, ProjectImagesInfo, Toaster_Message, UnShareModal } from '../../../images';
 import { switchMap, tap } from 'rxjs/operators';
 import { EMPTY, Observable } from 'rxjs';
 import { UnShareWarningComponent } from '../unshare-warning/un-share-warning.component';
@@ -101,15 +101,17 @@ export class ShareDialogComponent implements OnInit {
       panelClass: 'modal-sm'
     }).afterClosed()
       .pipe(
-        switchMap((confirm) => {
-          if (confirm) {
-            return  this.imagesService.shareImageAllUsers(imageInfo);
-          }
-          return EMPTY;
-        }),
-        switchMap((v) =>  this.getSharingUserList()),
+        switchMap((isShare) => this.sendShareRequest(isShare, imageInfo)),
+        switchMap(() =>  this.getSharingUserList()),
         tap(() => this.toastr.success(Toaster_Message.successUnShare, Toaster_Message.successTitle))
       );
+  }
+
+  private sendShareRequest(flag: boolean, imageInfo: ImageParams): Observable<ProjectImagesInfo> {
+    if (!flag) {
+      return EMPTY;
+    }
+    return  this.imagesService.shareImageAllUsers(imageInfo);
   }
 
   private initUserList(): void {
