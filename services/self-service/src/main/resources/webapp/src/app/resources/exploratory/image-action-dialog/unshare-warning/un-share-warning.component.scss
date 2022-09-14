@@ -17,52 +17,26 @@
  * under the License.
  */
 
-.terminate-action__wrapper {
-  width: 100%;
+.content {
+  padding: 20px 50px 0 50px;
 }
 
-.terminate-image-list__wrapper {
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(0,0,0,.08);
+.user__name {
+  font-weight: bold;
 }
 
-.terminate-action__header--wrapper,
-.terminate-image-list__wrapper {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 20px;
-  line-height: 26px;
-
-  & > .status {
-    text-align: right;
-  }
-}
-
-.terminate-action__header--wrapper {
-  margin-top: 26px;
-}
-
-.wrapper {
-  & .terminate-image-list__wrapper {
-    & > .status {
-      font-weight: 300;
-    }
-  }
-}
-
-.shared-warning {
-  margin-bottom: 10px;
-  color: red;
+.modal__text {
   text-align: center;
-  font-weight: 400;
-}
-
-.question,
-.shared-warning {
-  line-height: 1;
+  color: #35afd5;
+  margin-bottom: 30px;
 }
 
 .question {
   text-align: center;
   color: #718ba6;
+  font-weight: bold;
+}
+
+.button__wrapper {
+  margin-bottom: 20px;
 }

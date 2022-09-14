@@ -18,6 +18,7 @@
  */
 
 import { UserData } from '../exploratory/image-action-dialog/image-action.model';
+import { ModalTitle } from './images.config';
 
 export interface ProjectImagesInfo {
   filterData: ImageFilterFormDropdownData;
@@ -125,3 +126,8 @@ export interface FilteredColumnList {
 }
 
 export type FilterFormItemType = [string, string[] | string];
+
+export interface UnShareModal {
+  userName: string;
+  title: ModalTitle;
+}
