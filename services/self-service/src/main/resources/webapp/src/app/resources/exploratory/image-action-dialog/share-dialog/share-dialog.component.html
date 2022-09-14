@@ -25,7 +25,7 @@
 
   <ng-container *ngIf="($getUserListData | async)"></ng-container>
 
-  <div datalab-share-dialog class="wrapper">
+  <div datalab-share-dialog class="dialog__wrapper">
     <ul class="title__list">
       <li
         class="title__item active-tab"
@@ -106,13 +106,17 @@
     </div>
 
     <div *ngIf="activeTabConfig.shareWith" class="share-with__wrapper">
-      <div class="user-list__wrapper scrolling">
+      <div *ngIf="userDataList.length; else emptyUserList" class="user-list__wrapper scrolling">
         <ul class="user-list">
           <li *ngFor="let entity of userDataList" class="user-list__item">
             <datalab-share-user-data (removeUserData)="unShare($event)" [userData]="entity"></datalab-share-user-data>
           </li>
         </ul>
+
       </div>
+      <ng-template #emptyUserList>
+        <p class="empty-state">The image hase not been shared.</p>
+      </ng-template>
     </div>
   </div>
 </datalab-image-action-dialog>

@@ -17,52 +17,18 @@
  * under the License.
  */
 
-.terminate-action__wrapper {
-  width: 100%;
-}
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { UnShareModal } from '../../../images';
 
-.terminate-image-list__wrapper {
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(0,0,0,.08);
-}
+@Component({
+  templateUrl: './un-share-warning.component.html',
+  styleUrls: ['./un-share-warning.component.scss']
+})
+export class UnShareWarningComponent {
 
-.terminate-action__header--wrapper,
-.terminate-image-list__wrapper {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 20px;
-  line-height: 26px;
-
-  & > .status {
-    text-align: right;
-  }
-}
-
-.terminate-action__header--wrapper {
-  margin-top: 26px;
-}
-
-.wrapper {
-  & .terminate-image-list__wrapper {
-    & > .status {
-      font-weight: 300;
-    }
-  }
-}
-
-.shared-warning {
-  margin-bottom: 10px;
-  color: red;
-  text-align: center;
-  font-weight: 400;
-}
-
-.question,
-.shared-warning {
-  line-height: 1;
-}
-
-.question {
-  text-align: center;
-  color: #718ba6;
+  constructor(
+    public dialogRef: MatDialogRef<UnShareWarningComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: UnShareModal,
+  ) { }
 }

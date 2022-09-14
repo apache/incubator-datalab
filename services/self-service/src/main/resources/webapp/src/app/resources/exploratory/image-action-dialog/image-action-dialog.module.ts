@@ -25,13 +25,20 @@ import { TerminateDialogComponent } from './terminate-dialog/terminate-dialog.co
 import { ShareDialogComponent } from './share-dialog/share-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { ShareUserDataComponent } from './share-user-data/share-user-data.component';
+import { UnShareWarningComponent } from './unshare-warning/un-share-warning.component';
 
 
 
 @NgModule({
-  declarations: [ ImageActionDialogComponent, TerminateDialogComponent, ShareDialogComponent, ShareUserDataComponent ],
+  declarations: [
+    ImageActionDialogComponent,
+    TerminateDialogComponent,
+    ShareDialogComponent,
+    ShareUserDataComponent,
+    UnShareWarningComponent
+  ],
   imports: [ CommonModule, MaterialModule, FormsModule ],
-  entryComponents: [TerminateDialogComponent , ShareDialogComponent],
+  entryComponents: [TerminateDialogComponent , ShareDialogComponent, UnShareWarningComponent],
   exports: [ ImageActionDialogComponent ]
 })
 export class ImageActionDialogModule { }

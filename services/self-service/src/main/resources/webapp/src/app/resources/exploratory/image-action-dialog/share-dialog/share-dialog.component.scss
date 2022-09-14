@@ -29,6 +29,7 @@
 
   &__item {
     width: 49%;
+    padding: 5px 0;
     text-align: center;
     border-bottom: 1px solid rgba(0,0,0,.08);
   }
@@ -52,12 +53,10 @@
   &::placeholder {
     color: #c6bcbc;
   }
-
-  &__wrapper {
-  }
 }
 
 .active-tab {
+  background-color: #E9F7FA;
   border-bottom: 2px solid #35afd5;
 }
 
@@ -74,7 +73,7 @@
 .user-list {
   display: flex;
   flex-wrap: wrap;
-  max-height: 80px;
+  height: 80px;
   padding: 10px 0;
 
   &__wrapper{
@@ -94,6 +93,14 @@
   flex-direction: column;
   align-items: center;
   height: 35px;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #35afd5;
 }
 
 // TODO REMOVE IT WHEN REMOVING THE RADIO BUTTON FROM APP

@@ -17,21 +17,25 @@
   ~ under the License.
   -->
 
-<datalab-image-action-dialog>
-  <div datalab-terminate-dialog class="wrapper">
-    <div  class="terminate-action__wrapper">
-      <div class="list-header sans terminate-action__header--wrapper">
-        <div class="image">Image</div>
-        <div class="status">Further status</div>
-      </div>
-      <div class="scrolling-content scrolling terminate-image-list__wrapper">
-        <div class="image-name ellipsis">{{data.image.name}}</div>
-        <div class="status terminated">Terminated</div>
-      </div>
-      <p *ngIf="data.isShared" class="shared-warning">!The image is shared with other users.</p>
-    </div>
-    <p class="question">
+<div id="dialog-box" class="dialog__wrapper">
+  <header class="dialog-header">
+    <h4 class="modal-title">{{data.title}}
+    </h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <section class="content">
+    <p class="modal__text">User <span class="user__name">{{data.userName}}</span> will no longer have an access to the image.</p>
+    <p class="question center">
       Do you want proceed?
     </p>
+  </section>
+  <div class="text-center m-top-30 m-bott-10 button__wrapper">
+    <button type="button" class="butt mat-raised-button" (click)="dialogRef.close()">No</button>
+    <button
+      type="button"
+      class="butt butt-success mat-raised-button"
+      (click)="dialogRef.close(true)">
+      Yes
+    </button>
   </div>
-</datalab-image-action-dialog>
+</div>

@@ -50,8 +50,10 @@ export enum Localstorage_Key {
 }
 
 export enum Toaster_Message {
+  successTitle = 'Success!',
   successShare = 'The image has been successfully shared.',
-  successTerminate = 'The image has been terminated'
+  successTerminate = 'The image has been terminated',
+  successUnShare = 'The action has been performed successfully.'
 }
 
 export enum Placeholders {
@@ -119,6 +121,6 @@ export enum ImageActions {
 
 export enum ModalTitle {
   share = 'Share image',
-  terminate = 'Terminate image'
+  terminate = 'Terminate image',
+  unShare = '! Warning'
 }
-

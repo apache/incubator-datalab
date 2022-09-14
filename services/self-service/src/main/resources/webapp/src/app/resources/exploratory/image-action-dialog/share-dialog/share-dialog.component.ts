@@ -22,10 +22,12 @@ import { SharePlaceholder, TabName, UserDataTypeConfig } from '../image-action.c
 import { DialogWindowTabConfig, UserData, UserDataType } from '../image-action.model';
 import { NgModel } from '@angular/forms';
 import { ImagesService } from '../../../images/images.service';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ImageActionModalData } from '../../../images';
-import { switchMap, take, tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { ImageActionModalData, ImageParams, ModalTitle, ProjectImagesInfo, Toaster_Message, UnShareModal } from '../../../images';
+import { switchMap, tap } from 'rxjs/operators';
+import { EMPTY, Observable } from 'rxjs';
+import { UnShareWarningComponent } from '../unshare-warning/un-share-warning.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'datalab-share-dialog',
@@ -54,6 +56,8 @@ export class ShareDialogComponent implements OnInit {
   constructor(
     private imagesService: ImagesService,
     @Inject(MAT_DIALOG_DATA) public data: ImageActionModalData,
+    private dialog: MatDialog,
+    public toastr: ToastrService,
   ) {
   }
 
@@ -85,12 +89,29 @@ export class ShareDialogComponent implements OnInit {
   }
 
   unShare(userName: string): void {
-    this.userDataList = this.userDataList.filter(({value}) => value !== userName);
-    const imageInfo = this.imagesService.createImageRequestInfo(this.data.image, this.userDataList);
-    this.$getUserListData = this.imagesService.shareImageAllUsers(imageInfo).pipe(
-      take(1),
-      switchMap(() => this.getSharingUserList())
-    );
+    const data: UnShareModal = {
+      userName,
+      title: ModalTitle.unShare
+    };
+    const filteredList = this.userDataList.filter(({value}) => value !== userName);
+    const imageInfo = this.imagesService.createImageRequestInfo(this.data.image, filteredList);
+
+    this.$getUserListData = this.dialog.open(UnShareWarningComponent, {
+      data,
+      panelClass: 'modal-sm'
+    }).afterClosed()
+      .pipe(
+        switchMap((isShare) => this.sendShareRequest(isShare, imageInfo)),
+        switchMap(() =>  this.getSharingUserList()),
+        tap(() => this.toastr.success(Toaster_Message.successUnShare, Toaster_Message.successTitle))
+      );
+  }
+
+  private sendShareRequest(flag: boolean, imageInfo: ImageParams): Observable<ProjectImagesInfo> {
+    if (!flag) {
+      return EMPTY;
+    }
+    return  this.imagesService.shareImageAllUsers(imageInfo);
   }
 
   private initUserList(): void {
