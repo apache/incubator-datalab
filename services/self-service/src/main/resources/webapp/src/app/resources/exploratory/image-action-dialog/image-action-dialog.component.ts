@@ -22,6 +22,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ImageActions, ImageActionModalData } from '../../images';
 import { DialogWindowTabConfig, UserData } from './image-action.model';
 
+const CONFIRM_BUTTON_CONFIG = {
+  share: 'Share',
+  terminate: 'Yes'
+};
+
 @Component({
   selector: 'datalab-image-action-dialog',
   templateUrl: './image-action-dialog.component.html',
@@ -29,8 +34,8 @@ import { DialogWindowTabConfig, UserData } from './image-action.model';
 })
 export class ImageActionDialogComponent implements OnInit {
   @Input() activeTabConfig: DialogWindowTabConfig;
-  @Input() isApplyBtnDisabled: Boolean;
-  @Input() responseObj: UserData[] = [];
+  @Input() isShareBtnDisabled: Boolean;
+  @Input() sharingDataList: UserData[] = [];
 
   readonly actionType: typeof ImageActions = ImageActions;
 
@@ -46,10 +51,6 @@ export class ImageActionDialogComponent implements OnInit {
   }
 
   private createConfirmBtnName(): void {
-    const btnNameObj = {
-      share: 'Share',
-      terminate: 'Yes'
-    };
-    this.confirmBtnName = btnNameObj[this.data.actionType];
+    this.confirmBtnName = CONFIRM_BUTTON_CONFIG[this.data.actionType];
   }
 }

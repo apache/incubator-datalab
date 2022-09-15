@@ -25,26 +25,26 @@ import { UserData } from '../exploratory/image-action-dialog/image-action.model'
   providedIn: 'root'
 })
 export class ImagesService {
-  private $$projectList: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
-  private $$isProjectListEmpty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private $$cashedProjectList: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
-  private $$imageList: BehaviorSubject<ImageModel[]> = new BehaviorSubject<ImageModel[]>([]);
-  private $$isFilterOpened: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private projectList$$: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
+  private isProjectListEmpty$$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private cashedProjectList$$: BehaviorSubject<ProjectModel[]> = new BehaviorSubject<ProjectModel[]>([]);
+  private imageList$$: BehaviorSubject<ImageModel[]> = new BehaviorSubject<ImageModel[]>([]);
+  private isFilterOpened$$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   // tslint:disable-next-line:max-line-length
-  private $$filterDropdownData: BehaviorSubject<ImageFilterFormDropdownData> = new BehaviorSubject<ImageFilterFormDropdownData>({} as ImageFilterFormDropdownData);
-  private $$filterFormValue: BehaviorSubject<ImageFilterFormValue> = new BehaviorSubject<ImageFilterFormValue>(FilterFormInitialValue);
-  private $$filteredColumnState: BehaviorSubject<FilteredColumnList> = new BehaviorSubject<FilteredColumnList>(ChangedColumnStartValue);
-  private $$isImageListFiltered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private filterDropdownData$$: BehaviorSubject<ImageFilterFormDropdownData> = new BehaviorSubject<ImageFilterFormDropdownData>({} as ImageFilterFormDropdownData);
+  private filterFormValue$$: BehaviorSubject<ImageFilterFormValue> = new BehaviorSubject<ImageFilterFormValue>(FilterFormInitialValue);
+  private filteredColumnState$$: BehaviorSubject<FilteredColumnList> = new BehaviorSubject<FilteredColumnList>(ChangedColumnStartValue);
+  private isImageListFiltered$$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private dropdownStartValue: ImageFilterFormDropdownData;
 
-  $projectList = this.$$projectList.asObservable();
-  $isProjectListEmpty = this.$$isProjectListEmpty.asObservable();
-  $imageList = this.$$imageList.asObservable();
-  $isFilterOpened = this.$$isFilterOpened.asObservable();
-  $filterDropdownData = this.$$filterDropdownData.asObservable();
-  $filterFormValue = this.$$filterFormValue.asObservable();
-  $filteredColumnState = this.$$filteredColumnState.asObservable();
-  $isImageListFiltered = this.$$isImageListFiltered.asObservable();
+  projectList$ = this.projectList$$.asObservable();
+  isProjectListEmpty$ = this.isProjectListEmpty$$.asObservable();
+  imageList$ = this.imageList$$.asObservable();
+  isFilterOpened$ = this.isFilterOpened$$.asObservable();
+  filterDropdownData$ = this.filterDropdownData$$.asObservable();
+  filterFormValue$ = this.filterFormValue$$.asObservable();
+  filteredColumnState$ = this.filteredColumnState$$.asObservable();
+  isImageListFiltered$ = this.isImageListFiltered$$.asObservable();
 
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade,
@@ -82,19 +82,15 @@ export class ImagesService {
       );
   }
 
-  getImageShareInfo(imageInfo: ImageParams): Observable<UserData[]> {
-    return this.userImagesPageService.getImageShareInfo(imageInfo);
-  }
-
   getActiveProject(projectName: string): void {
-    const projectList = this.$$cashedProjectList.getValue();
+    const projectList = this.cashedProjectList$$.getValue();
     if (!projectName) {
       this.updateProjectList(projectList);
-      this.$$isProjectListEmpty.next(this.isProjectListEmpty(projectList));
+      this.isProjectListEmpty$$.next(this.isProjectListEmpty(projectList));
     } else {
       const currentProject = projectList.find(({project}) => project === projectName);
       this.updateProjectList([currentProject]);
-      this.$$isProjectListEmpty.next(this.isProjectListEmpty([currentProject]));
+      this.isProjectListEmpty$$.next(this.isProjectListEmpty([currentProject]));
     }
   }
 
@@ -103,37 +99,37 @@ export class ImagesService {
   }
 
   updateImageList(imageList: ImageModel[]): void {
-    this.$$imageList.next(imageList);
+    this.imageList$$.next(imageList);
   }
 
   updateProjectList(projectList: ProjectModel[]): void {
-    this.$$projectList.next(projectList);
+    this.projectList$$.next(projectList);
   }
 
   changeCheckboxValue(value: boolean): void {
-    const updatedImageList = this.$$imageList.value.map(image => {
+    const updatedImageList = this.imageList$$.value.map(image => {
       image.isSelected = value;
       return image;
     });
-    this.$$imageList.next(updatedImageList);
+    this.imageList$$.next(updatedImageList);
   }
 
   openFilter(): void {
-    this.$$isFilterOpened.next(true);
+    this.isFilterOpened$$.next(true);
   }
 
   closeFilter(): void {
-    this.$$isFilterOpened.next(false);
+    this.isFilterOpened$$.next(false);
   }
 
   filterDropdownField(field: keyof ImageFilterFormDropdownData, value: string, ): void {
     const filteredDropdownList = this.dropdownStartValue[field].filter(item => item.toLowerCase().includes(value));
-    this.addFilterDropdownData({...this.$$filterDropdownData.value, imageNames: filteredDropdownList});
+    this.addFilterDropdownData({...this.filterDropdownData$$.value, imageNames: filteredDropdownList});
   }
 
   resetFilterField(field: keyof ImageFilterFormValue, exceptionValue: string = ''): void {
     const droppedFieldValue = this.getDroppedFieldValue(field);
-    const updatedFilterFormValue = {...this.$$filterFormValue.value, [field]: droppedFieldValue};
+    const updatedFilterFormValue = {...this.filterFormValue$$.value, [field]: droppedFieldValue};
     const normalizeFormValue = this.normalizeFilterFormValue(updatedFilterFormValue, exceptionValue);
     this.setFilterFormValue(updatedFilterFormValue);
     this.updateFilterColumnState(normalizeFormValue);
@@ -142,15 +138,15 @@ export class ImagesService {
   }
 
   setFilterFormValue(value: ImageFilterFormValue): void {
-    this.$$filterFormValue.next(value);
+    this.filterFormValue$$.next(value);
   }
 
   showImage(flag: boolean, field: keyof ImageModel, comparedValue: string): void {
-    const projectList = this.$$cashedProjectList.getValue();
+    const projectList = this.cashedProjectList$$.getValue();
     if (flag) {
       this.updateProjectList(projectList);
     } else {
-      const filteredImageList = this.filterByCondition(this.$$projectList.getValue(), field, comparedValue);
+      const filteredImageList = this.filterByCondition(this.projectList$$.getValue(), field, comparedValue);
       this.updateProjectList(filteredImageList);
     }
   }
@@ -167,28 +163,32 @@ export class ImagesService {
     const columnStateList = (<any>Object).entries(filterFormValue)
       .reduce((acc, fieldItem) => this.checkColumnState(acc, fieldItem), <FilteredColumnList>{});
 
-    this.$$filteredColumnState.next(columnStateList);
+    this.filteredColumnState$$.next(columnStateList);
   }
 
   getDroppedFieldValue(field: keyof ImageFilterFormValue): string | [] {
-    return typeof this.$$filterFormValue.value[field] === 'string'
+    return typeof this.filterFormValue$$.value[field] === 'string'
       ? ''
       : [];
   }
 
   checkIsPageFiltered(): void {
-    const isImageListFiltered = (<any>Object).values(this.$$filteredColumnState.value).some(item => Boolean(item));
-    this.$$isImageListFiltered.next(isImageListFiltered);
+    const isImageListFiltered = (<any>Object).values(this.filteredColumnState$$.value).some(item => Boolean(item));
+    this.isImageListFiltered$$.next(isImageListFiltered);
   }
 
-  createImageRequestInfo(image: ImageModel, userDataList: UserData[]): ImageParams {
+  createImageRequestInfo(image: ImageModel, userDataList?: UserData[]): ImageParams {
     const { name, project, endpoint } = image;
-    return {
+    const imageParams = {
       imageName: name,
       projectName: project,
       endpoint: endpoint,
-      sharedWith: userDataList
     };
+
+    if (userDataList) {
+      imageParams['sharedWith'] = userDataList;
+    }
+    return imageParams;
   }
 
   createActionDialogConfig(image: ImageModel, actionType: ImageActionType): ImageActionModalData {
@@ -259,7 +259,7 @@ export class ImagesService {
   }
 
   private updateCashedProjectList(projectList: ProjectModel[]): void {
-    this.$$cashedProjectList.next(projectList);
+    this.cashedProjectList$$.next(projectList);
   }
 
   private getDropdownDataList(dropdownList: ImageFilterFormDropdownData): void {
@@ -268,7 +268,7 @@ export class ImagesService {
   }
 
   private addFilterDropdownData(data: ImageFilterFormDropdownData): void {
-    this.$$filterDropdownData.next(data);
+    this.filterDropdownData$$.next(data);
   }
 
   private getImagePageData(imagePageData: ProjectModel[]): void {
@@ -276,7 +276,7 @@ export class ImagesService {
     this.updateProjectList(imagePageData);
     this.updateImageList(imageList);
     this.updateCashedProjectList(imagePageData);
-    this.$$isProjectListEmpty.next(this.isProjectListEmpty(imagePageData));
+    this.isProjectListEmpty$$.next(this.isProjectListEmpty(imagePageData));
   }
 
   private isProjectListEmpty(imagePageData: ProjectModel[]): boolean {

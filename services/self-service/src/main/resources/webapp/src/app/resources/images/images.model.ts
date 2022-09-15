@@ -128,6 +128,6 @@ export interface FilteredColumnList {
 export type FilterFormItemType = [string, string[] | string];
 
 export interface UnShareModal {
-  userName: string;
+  userData: UserData;
   title: ModalTitle;
 }

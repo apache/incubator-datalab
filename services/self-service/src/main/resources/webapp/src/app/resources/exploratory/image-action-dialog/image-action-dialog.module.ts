@@ -23,7 +23,7 @@ import { ImageActionDialogComponent } from './image-action-dialog.component';
 import { MaterialModule } from '../../../shared/material.module';
 import { TerminateDialogComponent } from './terminate-dialog/terminate-dialog.component';
 import { ShareDialogComponent } from './share-dialog/share-dialog.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ShareUserDataComponent } from './share-user-data/share-user-data.component';
 import { UnShareWarningComponent } from './unshare-warning/un-share-warning.component';
 
@@ -37,7 +37,7 @@ import { UnShareWarningComponent } from './unshare-warning/un-share-warning.comp
     ShareUserDataComponent,
     UnShareWarningComponent
   ],
-  imports: [ CommonModule, MaterialModule, FormsModule ],
+  imports: [ CommonModule, MaterialModule, FormsModule, ReactiveFormsModule ],
   entryComponents: [TerminateDialogComponent , ShareDialogComponent, UnShareWarningComponent],
   exports: [ ImageActionDialogComponent ]
 })

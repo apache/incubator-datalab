@@ -17,66 +17,94 @@
  * under the License.
  */
 
-import { ChangeDetectionStrategy, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { SharePlaceholder, TabName, UserDataTypeConfig } from '../image-action.config';
-import { DialogWindowTabConfig, UserData, UserDataType } from '../image-action.model';
-import { NgModel } from '@angular/forms';
+import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { SharePlaceholder, TabName } from '../image-action.config';
+import { DialogWindowTabConfig, ShareDialogData, UserData } from '../image-action.model';
+import { FormControl } from '@angular/forms';
 import { ImagesService } from '../../../images/images.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { ImageActionModalData, ImageParams, ModalTitle, ProjectImagesInfo, Toaster_Message, UnShareModal } from '../../../images';
+import {
+  ImageActionModalData,
+  ModalTitle,
+  Toaster_Message,
+  UnShareModal,
+} from '../../../images';
 import { switchMap, tap } from 'rxjs/operators';
-import { EMPTY, Observable } from 'rxjs';
+import { Observable, timer } from 'rxjs';
 import { UnShareWarningComponent } from '../unshare-warning/un-share-warning.component';
 import { ToastrService } from 'ngx-toastr';
+import { ShareDialogService } from './share-dialog.service';
 
 @Component({
   selector: 'datalab-share-dialog',
   templateUrl: './share-dialog.component.html',
   styleUrls: ['./share-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ShareDialogComponent implements OnInit {
-  @ViewChild('searchUser') searchUser: NgModel;
+
+export class ShareDialogComponent implements OnInit, OnDestroy {
+  @ViewChild('searchUserData') searchUserData: ElementRef;
 
   readonly placeholder: typeof SharePlaceholder = SharePlaceholder;
   readonly tabsName: typeof TabName = TabName;
-  readonly userDataTypeConfig: typeof UserDataTypeConfig = UserDataTypeConfig;
 
-  userDataList: UserData[] = [];
-  temporaryUserDataList: UserData[] = [];
-  userNameOrGroup: UserDataType;
+  searchUserDataDropdownList$: Observable<UserData[]>;
+  userDataList$!: Observable<UserData[]>;
+  temporaryUserDataList$!: Observable<UserData[]>;
+  sharingDataList: UserData[] = [];
   activeTabConfig: DialogWindowTabConfig = {
     shareImage: true,
     shareWith: false
   };
-  searchInput = '';
+  addUserDataControl: FormControl = new FormControl('');
 
-  $getUserListData: Observable<UserData[]>;
+  onInputSubscription$: Observable<UserData[]>;
+  getUserListDataSubscription$: Observable<ShareDialogData>;
+  getUserListDataOnChangeSubscription$: Observable<UserData[]>;
 
   constructor(
+    public toastr: ToastrService,
     private imagesService: ImagesService,
     @Inject(MAT_DIALOG_DATA) public data: ImageActionModalData,
     private dialog: MatDialog,
-    public toastr: ToastrService,
+    private shareDialogService: ShareDialogService
   ) {
   }
 
   ngOnInit(): void {
-    this.initUserList();
+    this.getImageParams();
+    this.getUserListDataSubscription$ = this.shareDialogService.getImageShareInfo();
+    this.initUserData();
+    this.initSearchDropdownList();
+    this.initTemporaryUserDataList();
   }
 
-  onAddUser(): void {
-    if (!this.searchInput) {
+  ngOnDestroy(): void {
+    this.shareDialogService.clearTemporaryList();
+  }
+
+  onInputKeyDown(): void {
+    this.onInputSubscription$ = timer(300).pipe(
+      switchMap(() => this.shareDialogService.getUserDataForShareDropdown(this.addUserDataControl.value))
+    );
+  }
+
+  onChange(): void {
+    this.addUserDataControl.setValue('');
+    // We need a timer because the click event cannot have time to select userData from the dropdown list.
+    this.getUserListDataOnChangeSubscription$ = timer(300).pipe(
+      switchMap(() => this.shareDialogService.getUserDataForShareDropdown())
+    );
+  }
+
+  addUserToTemporaryList(user: UserData): void {
+    if (!user) {
       return;
     }
-    const newUserEntity: UserData = {
-      value: this.searchInput.trim(),
-      type: this.userNameOrGroup
-    };
-    this.temporaryUserDataList = [...this.temporaryUserDataList, newUserEntity]
-      .sort((a, b) => a.value < b.value ? 1 : -1)
-      .sort((a, b) => a.type > b.type ? 1 : -1);
-    this.searchInput = '';
+    this.shareDialogService.addToTemporaryList(user);
+    this.addUserDataControl.setValue('');
+    this.searchUserData.nativeElement.blur();
+    this.sharingDataList = this.shareDialogService.getSharingUserDataList();
+    this.shareDialogService.filterSearchDropdown();
   }
 
   onTabTitle(tabName: keyof DialogWindowTabConfig): void {
@@ -84,75 +112,51 @@ export class ShareDialogComponent implements OnInit {
     this.activeTabConfig = {...this.activeTabConfig, [tabName]: true};
   }
 
-  onRemoveUserData(userName: string): void {
-    this.temporaryUserDataList = this.temporaryUserDataList.filter(({value}) => value !== userName);
+  onRemoveUserData(userData: UserData): void {
+    this.shareDialogService.removeUserFromTemporaryList(userData);
+    this.shareDialogService.filterSearchDropdown();
   }
 
-  unShare(userName: string): void {
+  unShare(userData: UserData): void {
     const data: UnShareModal = {
-      userName,
+      userData,
       title: ModalTitle.unShare
     };
-    const filteredList = this.userDataList.filter(({value}) => value !== userName);
+    const filteredList = this.shareDialogService.filterSharingList(userData);
     const imageInfo = this.imagesService.createImageRequestInfo(this.data.image, filteredList);
 
-    this.$getUserListData = this.dialog.open(UnShareWarningComponent, {
+    this.getUserListDataSubscription$ = this.dialog.open(UnShareWarningComponent, {
       data,
       panelClass: 'modal-sm'
     }).afterClosed()
       .pipe(
-        switchMap((isShare) => this.sendShareRequest(isShare, imageInfo)),
-        switchMap(() =>  this.getSharingUserList()),
+        switchMap((isShare) => this.shareDialogService.sendShareRequest(isShare, imageInfo)),
+        switchMap(() =>  this.shareDialogService.getImageShareInfo()),
         tap(() => this.toastr.success(Toaster_Message.successUnShare, Toaster_Message.successTitle))
       );
   }
 
-  private sendShareRequest(flag: boolean, imageInfo: ImageParams): Observable<ProjectImagesInfo> {
-    if (!flag) {
-      return EMPTY;
-    }
-    return  this.imagesService.shareImageAllUsers(imageInfo);
+  private getImageParams(): void {
+    this.shareDialogService.imageInfo = this.imagesService.createImageRequestInfo(this.data.image);
   }
 
-  private initUserList(): void {
-    this.$getUserListData = this.getSharingUserList();
+  private initUserData(): void {
+    this.userDataList$ = this.shareDialogService.userDataList$;
   }
 
-  private getSharingUserList(): Observable<UserData[]> {
-    const { name, project, endpoint} = this.data.image;
-    const imageParams = {
-      imageName: name,
-      projectName: project,
-      endpoint
-    };
-    return this.imagesService.getImageShareInfo(imageParams).pipe(
-      tap(userListData => this.userDataList = userListData)
-    );
+  private initSearchDropdownList(): void {
+    this.searchUserDataDropdownList$ = this.shareDialogService.searchUserDataDropdownList$;
   }
 
-  get responseObj(): UserData[] {
-    return [...this.temporaryUserDataList, ...this.userDataList];
+  private initTemporaryUserDataList(): void {
+    this.temporaryUserDataList$ = this.shareDialogService.temporaryUserDataList$;
   }
 
-  get isApplyBtnDisabled(): boolean {
-    return this.searchInput.length > 25 || !Boolean(this.temporaryUserDataList.length);
+  get isShareBtnDisabled(): boolean {
+    return !this.shareDialogService.isTemporaryListEmpty();
   }
 
-  get isAddUserDataBtnDisabled(): boolean {
-    return !Boolean(this.userNameOrGroup) || this.searchInput.length > 25 || !Boolean(this.searchInput.length);
-  }
-
-  get isSearchUserTouched(): boolean {
-    return this.searchUser?.control.touched && !Boolean(this.userNameOrGroup);
-  }
-
-  get isUserInputEmpty(): boolean {
-    return this.searchUser?.control.touched
-      && !Boolean(this.searchInput.length)
-      && !Boolean(this.temporaryUserDataList.length);
-  }
-
-  get isLongInputMessage() {
-    return this.searchInput.length > 25;
+  get isUserDataListEmpty(): boolean {
+    return this.addUserDataControl.touched && this.shareDialogService.isTemporaryListEmpty();
   }
 }

@@ -33,10 +33,10 @@
     <div [hidden]="activeTabConfig && activeTabConfig.shareWith" class="text-center m-top-30 m-bott-10">
       <button type="button" class="butt mat-raised-button" (click)="dialogRef.close()">No</button>
       <button
-        [disabled]="isApplyBtnDisabled"
+        [disabled]="isShareBtnDisabled"
         type="button"
         class="butt butt-success mat-raised-button"
-        (click)="dialogRef.close(responseObj)">
+        (click)="dialogRef.close(sharingDataList)">
         {{confirmBtnName}}
       </button>
     </div>

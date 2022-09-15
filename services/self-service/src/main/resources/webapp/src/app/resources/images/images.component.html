@@ -107,8 +107,8 @@
 
         <div *ngIf="isFilterOpened | async" class="filer__component--wrapper">
           <datalab-page-filter
-            [$filterDropdownData]="$filterDropdownData"
-            [$filterFormStartValue]="$filterFormValue"
+            [filterDropdownData$]="$filterDropdownData"
+            [filterFormStartValue$]="$filterFormValue"
             (filterFormValue)="onFilterApplyClick($event)"
             (closeFilter)="onFilterCancelClick()"
             (onValueChanges)="onControlChanges(dropdownFieldNames.imageNames, $event)"

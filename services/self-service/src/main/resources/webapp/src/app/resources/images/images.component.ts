@@ -264,7 +264,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   private initFilteredColumnState(): void {
-    this.$filteredColumnState = this.imagesService.$filteredColumnState;
+    this.$filteredColumnState = this.imagesService.filteredColumnState$;
   }
 
   private getUserImagePageInfo(): void {
@@ -276,8 +276,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   private initImageTable(): void {
-    this.dataSource = this.imagesService.$imageList;
-    this.projectSource = this.imagesService.$projectList;
+    this.dataSource = this.imagesService.imageList$;
+    this.projectSource = this.imagesService.projectList$;
   }
 
   private getProjectList(imagePageList: ProjectModel[]): void {
@@ -296,22 +296,22 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   private initFilterBtn(): void {
-    this.isFilterOpened = this.imagesService.$isFilterOpened;
+    this.isFilterOpened = this.imagesService.isFilterOpened$;
   }
 
   private getDropdownList(): void {
-    this.$filterDropdownData = this.imagesService.$filterDropdownData;
+    this.$filterDropdownData = this.imagesService.filterDropdownData$;
   }
 
   private getFilterFormValue(): void {
-    this.$filterFormValue = this.imagesService.$filterFormValue;
+    this.$filterFormValue = this.imagesService.filterFormValue$;
   }
 
   private getIsProjectListEmpty(): void {
-    this.$isProjectListEmpty = this.imagesService.$isProjectListEmpty;
+    this.$isProjectListEmpty = this.imagesService.isProjectListEmpty$;
   }
 
   private initIsImageListFiltered(): void {
-    this.$isFiltered = this.imagesService.$isImageListFiltered;
+    this.$isFiltered = this.imagesService.isImageListFiltered$;
   }
 }
