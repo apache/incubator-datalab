@@ -28,8 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.dao.MongoCollections.USER_GROUPS;
-import static com.mongodb.client.model.Filters.elemMatch;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 
 @Singleton
 public class UserGroupDAOImpl extends BaseDAO implements UserGroupDAO {
@@ -64,5 +63,12 @@ public class UserGroupDAOImpl extends BaseDAO implements UserGroupDAO {
         return new HashSet<>(findOne(USER_GROUPS, eq(ID, group))
                 .map(document -> (List<String>) document.get(USERS_FIELD))
                 .orElseThrow(() -> new DatalabException(String.format("Group %s not found", group))));
+    }
+
+    @Override
+    public Set<String> getGroupNames(String name) {
+        return stream(find(USER_GROUPS, regex(ID, name,"i")))
+                .map(document -> document.getString(ID))
+                .collect(Collectors.toSet());
     }
 }
