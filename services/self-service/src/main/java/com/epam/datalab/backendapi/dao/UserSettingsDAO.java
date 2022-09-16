@@ -28,10 +28,11 @@ import org.bson.Document;
 
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.dao.MongoCollections.USER_SETTINGS;
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;
 
@@ -93,6 +94,12 @@ public class UserSettingsDAO extends BaseDAO {
                 eq(ID, userName),
                 set(USER_IMAGE_FILTER, convertToBson(imageFilter)),
                 true);
+    }
+
+    public Set<String> getUserNames(String name){
+        return stream(find(USER_SETTINGS, regex(ID, name,"i")))
+                .map(document -> document.getString(ID))
+                .collect(Collectors.toSet());
     }
 
 }
