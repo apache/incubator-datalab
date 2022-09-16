@@ -58,4 +58,5 @@ public interface ImageExploratoryService {
 
     boolean canCreateFromImage(UserInfo userInfo, String imageName, String project, String endpoint);
 
+    Set<SharedWithDTO> getUsersAndGroupsForSharing(String userName,String imageName, String project, String endpoint, String value);
 }

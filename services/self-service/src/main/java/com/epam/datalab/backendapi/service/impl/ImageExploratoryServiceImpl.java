@@ -368,6 +368,17 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         }
     }
 
+    @Override
+    public Set<SharedWithDTO> getUsersAndGroupsForSharing(String userName, String imageName, String project, String endpoint, String value){
+        Set<SharedWithDTO> sharedWith = getImageSharingInfo(userName, imageName, project, endpoint);
+        Set<SharedWithDTO> canBeSharedWith = userSettingsDAO.getUserNames(value).stream()
+                .map(s -> new SharedWithDTO(SharedWithDTO.Type.USER, s)).collect(Collectors.toSet());
+        canBeSharedWith.addAll(userGroupDAO.getGroupNames(value).stream()
+                .map(s -> new SharedWithDTO(SharedWithDTO.Type.GROUP, s)).collect(Collectors.toSet()));
+        canBeSharedWith.removeAll(sharedWith);
+        return canBeSharedWith;
+    }
+
     private ImageSharingStatus getImageSharingStatus(String username, ImageInfoRecord image){
         boolean notShared = image.getSharedWith().getUsers().isEmpty() && image.getSharedWith().getGroups().isEmpty();
         if(notShared && image.getUser().equals(username)){

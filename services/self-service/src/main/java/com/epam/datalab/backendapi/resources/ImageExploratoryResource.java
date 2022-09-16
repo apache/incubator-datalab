@@ -149,4 +149,14 @@ public class ImageExploratoryResource {
                                    @PathParam("endpoint") String endpoint){
         return Response.ok(imageExploratoryService.getImageSharingInfo(ui.getName(),imageName,projectName, endpoint)).build();
     }
+
+    @GET
+    @Path("share_autocomplete/{imageName}/{projectName}/{endpoint}")
+    public Response getUsersAndGroups(@Auth UserInfo userInfo,
+                                      @PathParam("imageName") String imageName,
+                                      @PathParam("projectName") String projectName,
+                                      @PathParam("endpoint") String endpoint,
+                                      @NotNull @QueryParam("value") String value){
+        return Response.ok(imageExploratoryService.getUsersAndGroupsForSharing(userInfo.getName(),imageName, projectName, endpoint, value)).build();
+    }
 }
