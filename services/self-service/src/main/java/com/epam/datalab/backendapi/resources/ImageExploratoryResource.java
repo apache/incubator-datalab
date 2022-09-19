@@ -147,7 +147,7 @@ public class ImageExploratoryResource {
                                    @PathParam("imageName") String imageName,
                                    @PathParam("projectName") String projectName,
                                    @PathParam("endpoint") String endpoint){
-        return Response.ok(imageExploratoryService.getImageSharingInfo(ui.getName(),imageName,projectName, endpoint)).build();
+        return Response.ok(imageExploratoryService.getSharingInfo(ui.getName(),imageName,projectName, endpoint)).build();
     }
 
     @GET
