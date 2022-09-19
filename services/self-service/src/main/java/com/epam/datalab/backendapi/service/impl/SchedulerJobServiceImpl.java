@@ -65,7 +65,7 @@ import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.SET_UP_SCHEDULER;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
-import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
+import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.INSTANCE;
 import static com.epam.datalab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.datalab.dto.UserInstanceStatus.CONFIGURING;
 import static com.epam.datalab.dto.UserInstanceStatus.CREATING;
@@ -129,7 +129,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
                         exploratoryName) + " with computational resource " + computationalName));
     }
 
-    @Audit(action = SET_UP_SCHEDULER, type = NOTEBOOK)
+    @Audit(action = SET_UP_SCHEDULER, type = INSTANCE)
     @Override
     public void updateExploratorySchedulerData(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, SchedulerJobDTO dto) {
         validateExploratoryStatus(user.getName(), project, exploratoryName);

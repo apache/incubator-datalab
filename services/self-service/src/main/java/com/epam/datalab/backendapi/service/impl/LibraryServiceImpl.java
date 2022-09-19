@@ -60,7 +60,7 @@ import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.INSTALL_LIBS;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
-import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
+import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.INSTANCE;
 import static com.epam.datalab.backendapi.domain.NotebookTemplate.*;
 import static com.epam.datalab.dto.LibraryGroups.*;
 
@@ -142,7 +142,7 @@ public class LibraryServiceImpl implements LibraryService {
         return uuid;
     }
 
-    @Audit(action = INSTALL_LIBS, type = NOTEBOOK)
+    @Audit(action = INSTALL_LIBS, type = INSTANCE)
     @Override
     public String installExploratoryLibs(@User UserInfo ui, @Project String project, @ResourceName String expName, List<LibInstallDTO> libs, @Info String auditInfo) {
         final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);

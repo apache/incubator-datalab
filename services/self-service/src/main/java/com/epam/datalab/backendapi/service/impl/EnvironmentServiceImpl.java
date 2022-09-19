@@ -43,13 +43,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.START;
-import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
 import static com.epam.datalab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
 import static com.epam.datalab.backendapi.resources.dto.UserDTO.Status.NOT_ACTIVE;
 import static com.epam.datalab.dto.UserInstanceStatus.*;
 import static com.epam.datalab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
-import static com.epam.datalab.rest.contracts.ExploratoryAPI.EXPLORATORY_START;
 
 @Singleton
 @Slf4j
