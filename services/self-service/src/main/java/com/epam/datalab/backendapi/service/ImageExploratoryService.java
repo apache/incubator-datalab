@@ -31,19 +31,19 @@ public interface ImageExploratoryService {
     String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription, String info);
 
     void terminateImage(UserInfo user, String project, String endpoint, String imageName);
+
     void finishTerminateImage(String imageName, String projectName, String endpoint);
 
     void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
 
     List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint);
 
-    List<ImageInfoRecord> getNotFailedImages(String dockerImage, String project, String endpoint);
-
     ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
     ImageInfoRecord getImage(String name, String project, String endpoint);
 
     List<ImageInfoRecord> getImagesForProject(String project);
+
     ImagesPageInfo getImagesOfUser(UserInfo user, ImageFilter imageFilter);
 
     void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS);
@@ -54,9 +54,9 @@ public interface ImageExploratoryService {
 
     ImageUserPermissions getUserImagePermissions(UserInfo userInfo, ImageInfoRecord image);
 
-    Set<SharedWithDTO> getImageSharingInfo(String userName, String imageName, String project, String endpoint);
+    SharingInfo getSharingInfo(String userName, String imageName, String project, String endpoint);
 
     boolean canCreateFromImage(UserInfo userInfo, String imageName, String project, String endpoint);
 
-    Set<SharedWithDTO> getUsersAndGroupsForSharing(String userName,String imageName, String project, String endpoint, String value);
+    Set<SharedWithDTO> getUsersAndGroupsForSharing(String userName, String imageName, String project, String endpoint, String value);
 }

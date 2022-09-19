@@ -17,33 +17,17 @@
  * under the License.
  */
 
+
 package com.epam.datalab.backendapi.resources.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.annotation.Nonnull;
-import java.util.Comparator;
-
+import java.util.Set;
+import java.util.TreeSet;
 @Getter
 @Setter
-@ToString
-@EqualsAndHashCode
-@JsonIgnoreProperties(ignoreUnknown = true)
-@AllArgsConstructor
-public class SharedWithDTO implements Comparable<SharedWithDTO>{
-    private Type type;
-    private String value;
-
-    public enum Type{
-        GROUP,
-        USER
-    }
-
-    @Override
-    public int compareTo(@Nonnull SharedWithDTO o) {
-        return Comparator.comparing(SharedWithDTO::getType)
-                .thenComparing(SharedWithDTO::getValue)
-                .compare(this, o);
-    }
+public class SharingInfo {
+    public Set<SharedWithDTO> sharedWith = new TreeSet<>();
+    public Set<SharedWithDTO> canBeSharedWith = new TreeSet<>();
 }
