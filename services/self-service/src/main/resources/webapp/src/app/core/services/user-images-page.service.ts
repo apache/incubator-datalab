@@ -25,11 +25,12 @@ import {  ErrorUtils } from '../util';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import {
   ImageActionType,
-  ImageFilterFormValue, ImageModel,
+  ImageFilterFormValue,
   ProjectImagesInfo,
-  ImageParams
+  ImageParams,
+  URL_Chunk
 } from '../../resources/images';
-import { UserData } from '../../resources/exploratory/image-action-dialog/image-action.model';
+import { ShareDialogData, UserData } from '../../resources/exploratory/image-action-dialog/image-action.model';
 
 @Injectable()
 export class UserImagesPageService {
@@ -69,9 +70,19 @@ export class UserImagesPageService {
       );
   }
 
-  getImageShareInfo(image: ImageParams): Observable<UserData[]> {
-    const { imageName, projectName, endpoint} = image;
-    const url = `/sharing_info/${imageName}/${projectName}/${endpoint}/`;
+  getImageShareInfo(imageInfo: ImageParams): Observable<ShareDialogData> {
+    const { imageName, projectName, endpoint} = imageInfo;
+    const url = `/${URL_Chunk.sharingInfo}/${imageName}/${projectName}/${endpoint}/`;
+    return this.applicationServiceFacade
+      .buildGetImageShareInfo(url)
+      .pipe(
+        catchError(ErrorUtils.handleServiceError)
+      );
+  }
+
+  getUserDataForShareDropdown(imageInfo: ImageParams, userData: string): Observable<UserData[]> {
+    const { imageName, projectName, endpoint} = imageInfo;
+    const url = `/${URL_Chunk.autocomplete}/${imageName}/${projectName}/${endpoint}?value=${userData}`;
     return this.applicationServiceFacade
       .buildGetImageShareInfo(url)
       .pipe(

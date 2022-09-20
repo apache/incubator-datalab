@@ -40,8 +40,8 @@ import {
   styleUrls: ['./page-filter.component.scss']
 })
 export class PageFilterComponent implements OnInit {
-  @Input() $filterDropdownData: Observable<ImageFilterFormDropdownData>;
-  @Input() $filterFormStartValue: Observable<ImageFilterFormValue>;
+  @Input() filterDropdownData$: Observable<ImageFilterFormDropdownData>;
+  @Input() filterFormStartValue$: Observable<ImageFilterFormValue>;
 
   @Output() filterFormValue: EventEmitter<ImageFilterFormValue> = new EventEmitter<ImageFilterFormValue>();
   @Output() closeFilter: EventEmitter<any> = new EventEmitter<any>();
@@ -53,13 +53,13 @@ export class PageFilterComponent implements OnInit {
   readonly controlNames: typeof FilterFormControlNames = FilterFormControlNames;
   readonly selectAllValue = DropdownSelectAllValue;
 
-  private $$isApplyBtnDisabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+  private isApplyBtnDisabled$$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private filterFormStartValue: ImageFilterFormValue;
 
   filterForm: FormGroup;
-  $setFilterValueObservable: Observable<ImageFilterFormValue>;
-  $changeIsApplyBtnDisabledObservable: Observable<ImageFilterFormValue>;
-  $isApplyBtnDisabled: Observable<boolean> = this.$$isApplyBtnDisabled.asObservable();
+  setFilterValueObservable$: Observable<ImageFilterFormValue>;
+  changeIsApplyBtnDisabledObservable$: Observable<ImageFilterFormValue>;
+  isApplyBtnDisabled$: Observable<boolean> = this.isApplyBtnDisabled$$.asObservable();
 
   constructor(
     private fb: FormBuilder
@@ -93,7 +93,7 @@ export class PageFilterComponent implements OnInit {
 
   onClickAll(control: FormControl, allSelected: MatOption, key: DropdownFieldNames ): void {
     if (allSelected.selected) {
-      this.$filterDropdownData.pipe(
+      this.filterDropdownData$.pipe(
         tap(value => control.patchValue([...value[key], this.selectAllValue])),
         take(1)
       ).subscribe();
@@ -113,7 +113,7 @@ export class PageFilterComponent implements OnInit {
   }
 
   private setFilterValue(): void {
-    this.$setFilterValueObservable = this.$filterFormStartValue.pipe(
+    this.setFilterValueObservable$ = this.filterFormStartValue$.pipe(
       tap(value => this.updateFilterForm(value))
       );
   }
@@ -124,8 +124,8 @@ export class PageFilterComponent implements OnInit {
   }
 
   private isFilterFormChanged(): void {
-    this.$changeIsApplyBtnDisabledObservable = this.filterForm.valueChanges.pipe(
-      tap(formValue => this.$$isApplyBtnDisabled.next(isEqual(formValue, this.filterFormStartValue)))
+    this.changeIsApplyBtnDisabledObservable$ = this.filterForm.valueChanges.pipe(
+      tap(formValue => this.isApplyBtnDisabled$$.next(isEqual(formValue, this.filterFormStartValue)))
     );
   }
 

@@ -19,8 +19,8 @@
 
 <div class="dialog-content selection">
 
-  <ng-container *ngIf="$setFilterValueObservable | async"></ng-container>
-  <ng-container *ngIf="$changeIsApplyBtnDisabledObservable | async"></ng-container>
+  <ng-container *ngIf="setFilterValueObservable$ | async"></ng-container>
+  <ng-container *ngIf="changeIsApplyBtnDisabledObservable$ | async"></ng-container>
 
   <div id="scrolling" class="mat-reset">
     <form class="filter-table__wrapper" [formGroup]="filterForm">
@@ -35,7 +35,7 @@
           [matAutocomplete]="auto"
         />
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-          <mat-option *ngFor="let option of ($filterDropdownData | async).imageNames" [value]="option">
+          <mat-option *ngFor="let option of (filterDropdownData$ | async).imageNames" [value]="option">
             {{option}}
           </mat-option>
         </mat-autocomplete>
@@ -57,7 +57,7 @@
                     {{statuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
                   </mat-select-trigger>
                   <mat-option
-                    *ngIf="($filterDropdownData | async).statuses.length > 1"
+                    *ngIf="(filterDropdownData$ | async).statuses.length > 1"
                     #allStatusesSelected
                     [value]="selectAllValue"
                     (click)="onClickAll(statuses, allStatusesSelected, dropdownFieldNames.statuses)"
@@ -65,8 +65,8 @@
                    All
                   </mat-option>
                   <mat-option
-                    *ngFor="let status of ($filterDropdownData | async).statuses"
-                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
+                    *ngFor="let status of (filterDropdownData$ | async).statuses"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
                     [value]="status"
                   >
                     {{ status | titlecase }}
@@ -96,7 +96,7 @@
                     {{endpoints.value | normalizeDropdownMultiValue: selectAllValue}}
                   </mat-select-trigger>
                   <mat-option
-                    *ngIf="($filterDropdownData | async).endpoints.length > 1"
+                    *ngIf="(filterDropdownData$ | async).endpoints.length > 1"
                     #allEndpointsSelected
                     [value]="selectAllValue"
                     (click)="onClickAll(endpoints, allEndpointsSelected, dropdownFieldNames.endpoints)"
@@ -104,8 +104,8 @@
                    All
                   </mat-option>
                   <mat-option
-                    *ngFor="let endpoint of ($filterDropdownData | async).endpoints"
-                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
+                    *ngFor="let endpoint of (filterDropdownData$ | async).endpoints"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
                     [value]="endpoint"
                   >
                     {{ endpoint }}
@@ -135,7 +135,7 @@
                     {{templateNames.value | normalizeDropdownMultiValue: selectAllValue}}
                   </mat-select-trigger>
                   <mat-option
-                    *ngIf="($filterDropdownData | async).templateNames.length > 1"
+                    *ngIf="(filterDropdownData$ | async).templateNames.length > 1"
                     #allTemplatesSelected
                     [value]="selectAllValue"
                     (click)="onClickAll(templateNames, allTemplatesSelected, dropdownFieldNames.templateNames)"
@@ -143,8 +143,8 @@
                    All
                   </mat-option>
                   <mat-option
-                    *ngFor="let template of ($filterDropdownData | async).templateNames"
-                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
+                    *ngFor="let template of (filterDropdownData$ | async).templateNames"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
                     [value]="template"
                   >
                     {{ template }}
@@ -174,7 +174,7 @@
                     {{sharingStatuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
                   </mat-select-trigger>
                   <mat-option
-                    *ngIf="($filterDropdownData | async).sharingStatuses.length > 1"
+                    *ngIf="(filterDropdownData$ | async).sharingStatuses.length > 1"
                     #allSharingStatusesSelected
                     [value]="selectAllValue"
                     (click)="onClickAll(sharingStatuses, allSharingStatusesSelected, dropdownFieldNames.sharingStatuses)"
@@ -182,8 +182,8 @@
                    All
                   </mat-option>
                   <mat-option
-                    *ngFor="let status of ($filterDropdownData | async).sharingStatuses"
-                    [ngClass]="{'single-option': ($filterDropdownData | async).statuses.length === 1}"
+                    *ngFor="let status of (filterDropdownData$ | async).sharingStatuses"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
                     [value]="status"
                   >
                     {{ status | titlecase }}
@@ -201,7 +201,7 @@
         <button type="button" class="butt" mat-raised-button (click)="cancelFilter()" >Cancel</button>
         <button
           type="button"
-          [disabled]="($isApplyBtnDisabled | async)"
+          [disabled]="(isApplyBtnDisabled$ | async)"
           class="butt butt-success"
           mat-raised-button
           (click)="confirmFilter()"

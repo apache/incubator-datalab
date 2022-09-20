@@ -27,5 +27,10 @@ export interface UserData {
   type: UserDataType;
 }
 
+export interface ShareDialogData {
+  canBeSharedWith: UserData[];
+  sharedWith: UserData[];
+}
+
 export type UserDataType = 'USER' | 'GROUP';
 

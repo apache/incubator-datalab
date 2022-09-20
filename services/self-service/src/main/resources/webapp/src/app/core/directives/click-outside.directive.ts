@@ -29,7 +29,7 @@ import { Directive, OnInit, OnDestroy, Output, EventEmitter, ElementRef } from '
 
 export class ClickOutsideDirective implements OnInit, OnDestroy {
 
-  @Output('clickOutside') clickOutside: EventEmitter<Object>;
+  @Output() clickOutside: EventEmitter<Object>;
 
   private listening: boolean;
   private globalClick: any;
@@ -44,7 +44,7 @@ export class ClickOutsideDirective implements OnInit, OnDestroy {
       delay(1),
       tap(() => {
         this.listening = true;
-      }),).subscribe(($event: MouseEvent) => {
+      })).subscribe(($event: MouseEvent) => {
         this.onGlobalClick($event);
       });
   }

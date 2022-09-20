@@ -20,6 +20,6 @@
 <div class="user-data__wrapper">
   <span><mat-icon class="user-data__icon">{{userData.type === 'GROUP' ? 'people' : 'person'}}</mat-icon></span>
   <span class="user-data__name">{{userData.value}}
-    <button type="button" (click)="removeUser(userData.value)" class="close-btn">&times;</button>
+    <button type="button" (click)="removeUser(userData)" class="close-btn">&times;</button>
 </span>
 </div>

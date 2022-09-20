@@ -51,7 +51,13 @@
   outline: none;
 
   &::placeholder {
+    font-size: 16px;
     color: #c6bcbc;
+    font-weight: 300;
+  }
+
+  &__wrapper {
+    height: 149px;
   }
 }
 
@@ -73,8 +79,15 @@
 .user-list {
   display: flex;
   flex-wrap: wrap;
-  height: 80px;
   padding: 10px 0;
+
+  &__temporary {
+    height: 80px;
+  }
+
+  &__shared {
+    height: 160px;
+  }
 
   &__wrapper{
     overflow-y: scroll;
@@ -103,19 +116,18 @@
   color: #35afd5;
 }
 
-// TODO REMOVE IT WHEN REMOVING THE RADIO BUTTON FROM APP
-//start
-.radio__wrapper {
-  margin-bottom: 20px;
-  padding-left: 10px;
-  text-align: start;
-}
-input[name="user-radio"] {
-  margin-right: 20px;
+.share-with {
+  &__wrapper {
+    height: 225px;
+  }
 }
 
-label {
-  font-weight: 300;
+.user-data__icon {
+  width: 30px;
+  height: 30px;
+  padding-top: 2px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #E6E6E6;
+  color: white;
 }
-//end
-

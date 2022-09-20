@@ -19,11 +19,14 @@
 
 <datalab-image-action-dialog
   [activeTabConfig]="activeTabConfig"
-  [responseObj]="responseObj"
-  [isApplyBtnDisabled]="isApplyBtnDisabled"
+  [sharingDataList]="sharingDataList"
+  [isShareBtnDisabled]="!isShareBtnDisabled"
 >
 
-  <ng-container *ngIf="($getUserListData | async)"></ng-container>
+<!--  Component subscriptions-->
+  <ng-container *ngIf="(getUserListDataSubscription$ | async)"></ng-container>
+  <ng-container *ngIf="(getUserListDataOnChangeSubscription$ | async)"></ng-container>
+  <ng-container *ngIf="(onInputSubscription$ | async)"></ng-container>
 
   <div datalab-share-dialog class="dialog__wrapper">
     <ul class="title__list">
@@ -53,62 +56,61 @@
 
     <div *ngIf="activeTabConfig.shareImage" class="search-input__wrapper">
 
-<!--      TODO REMOVE IT WHEN REMOVING THE RADIO BUTTON FROM APP-->
-
-      <div class="radio__wrapper">
-        <div class="radio-input__wrapper">
-          <label>
-            user
-            <input
-              name="user-radio"
-              type="radio"
-              [(ngModel)]="userNameOrGroup"
-              [value]="userDataTypeConfig.user">
-          </label>
-          <label>
-            user group
-            <input
-              name="group-radio"
-              type="radio"
-              [(ngModel)]="userNameOrGroup"
-              [value]="userDataTypeConfig.group">
-          </label>
-        </div>
-        <span [hidden]="!isSearchUserTouched" class="error">Select with whom to share the image</span>
-      </div>
       <div class="input__wrapper">
         <input
+          type="text"
           class="search-input"
+          panelClass="scrolling"
           [placeholder]="placeholder.groupOrNameSearchInput"
-          [(ngModel)]="searchInput"
-          #searchUser="ngModel"
-          (keydown.enter)="onAddUser()"
-          required
-        >
-        <button
-          class="add-person__btn"
-          mat-icon-button
-          [disabled]="isAddUserDataBtnDisabled"
-          (click)="onAddUser()"
-        >
-          <mat-icon> person_add </mat-icon>
-        </button>
-        <span [hidden]="!isUserInputEmpty" class="error">This field is required</span>
-        <span [hidden]="!isLongInputMessage" class="error">Length can`t be more than 25 symbols</span>
+          [formControl]="addUserDataControl"
+          (change)="onChange()"
+          (input)="onInputKeyDown()"
+          matInput
+          [matAutocomplete]="auto"
+          #searchUserData
+        />
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option
+            *ngFor="let user of (searchUserDataDropdownList$ | async)"
+            (click)="addUserToTemporaryList(user)"
+            [value]="user.value">
+            <mat-icon class="user-data__icon">{{user.type === 'GROUP' ? 'people' : 'person'}}</mat-icon>
+            {{user.value}}
+          </mat-option>
+          <mat-option *ngIf="!(searchUserDataDropdownList$ | async)?.length" class="multiple-select ml-10" disabled>
+            No results found
+          </mat-option>
+        </mat-autocomplete>
+        <span [hidden]="!isUserDataListEmpty" class="error">
+          Please enter user login or group name
+        </span>
       </div>
       <div class="user-list__wrapper scrolling">
-        <ul class="user-list">
-          <li *ngFor="let entity of temporaryUserDataList" class="user-list__item">
-            <datalab-share-user-data (removeUserData)="onRemoveUserData($event)" [userData]="entity"></datalab-share-user-data>
+        <ul class="user-list user-list__temporary">
+          <li
+            *ngFor="let entity of (temporaryUserDataList$ | async)"
+            class="user-list__item"
+          >
+            <datalab-share-user-data
+              (removeUserData)="onRemoveUserData($event)"
+              [userData]="entity"
+            >
+            </datalab-share-user-data>
           </li>
         </ul>
       </div>
     </div>
 
     <div *ngIf="activeTabConfig.shareWith" class="share-with__wrapper">
-      <div *ngIf="userDataList.length; else emptyUserList" class="user-list__wrapper scrolling">
-        <ul class="user-list">
-          <li *ngFor="let entity of userDataList" class="user-list__item">
+      <div
+        *ngIf="(userDataList$ | async)?.length; else emptyUserList"
+        class="user-list__wrapper scrolling"
+      >
+        <ul class="user-list user-list__shared">
+          <li
+            *ngFor="let entity of (userDataList$ | async)"
+            class="user-list__item"
+          >
             <datalab-share-user-data (removeUserData)="unShare($event)" [userData]="entity"></datalab-share-user-data>
           </li>
         </ul>

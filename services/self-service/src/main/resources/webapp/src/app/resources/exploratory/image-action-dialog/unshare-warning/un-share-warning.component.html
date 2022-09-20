@@ -24,7 +24,7 @@
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <section class="content">
-    <p class="modal__text">User <span class="user__name">{{data.userName}}</span> will no longer have an access to the image.</p>
+    <p class="modal__text"><span>{{data.userData.type | titlecase}} </span> <span class="user__name">{{data.userData.value}}</span> will no longer have an access to the image.</p>
     <p class="question center">
       Do you want proceed?
     </p>

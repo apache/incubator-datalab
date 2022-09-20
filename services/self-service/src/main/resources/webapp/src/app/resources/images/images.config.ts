@@ -124,3 +124,8 @@ export enum ModalTitle {
   terminate = 'Terminate image',
   unShare = '! Warning'
 }
+
+export enum URL_Chunk {
+  sharingInfo = 'sharing_info',
+  autocomplete = 'share_autocomplete'
+}

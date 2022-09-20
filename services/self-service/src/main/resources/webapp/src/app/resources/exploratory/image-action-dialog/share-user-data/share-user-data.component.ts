@@ -28,9 +28,9 @@ import { UserData } from '../image-action.model';
 export class ShareUserDataComponent {
   @Input() userData: UserData;
 
-  @Output() removeUserData: EventEmitter<string> = new EventEmitter<string>();
+  @Output() removeUserData: EventEmitter<UserData> = new EventEmitter<UserData>();
 
-  removeUser(userData: string): void {
+  removeUser(userData: UserData): void {
     this.removeUserData.emit(userData);
   }
 }
