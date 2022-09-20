@@ -1428,3 +1428,9 @@ def update_pyopenssl_lib(os_user):
             conn.sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
         except:
             sys.exit(1)
+
+def get_hdinsight_headnode_private_ip(os_user, cluster_name, keyfile):
+    init_datalab_connection('{}-ssh.azurehdinsight.net'.format(cluster_name), os_user, keyfile)
+    headnode_private_ip = conn.sudo("cat /etc/hosts | grep headnode | awk '{print $1}'")
+    conn.close()
+    return headnode_private_ip
