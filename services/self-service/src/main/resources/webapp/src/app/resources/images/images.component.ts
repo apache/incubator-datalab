@@ -41,7 +41,7 @@ import {
   ImageStatuses,
   Localstorage_Key,
   Placeholders,
-  SharedStatus,
+  SharingStatus,
   DropdownFieldNames,
   FilterFormInitialValue,
   ImageModelKeysForFilter,
@@ -69,7 +69,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   readonly tableHeaderCellTitles: typeof Image_Table_Column_Headers = Image_Table_Column_Headers;
   readonly displayedColumns: typeof Image_Table_Titles = Image_Table_Titles;
   readonly placeholder: typeof Placeholders = Placeholders;
-  readonly sharedStatus: typeof SharedStatus = SharedStatus;
+  readonly sharedStatus: typeof SharingStatus = SharingStatus;
   readonly imageStatus: typeof ImageStatuses = ImageStatuses;
   readonly columnFieldNames: typeof FilterFormControlNames = FilterFormControlNames;
   readonly dropdownFieldNames: typeof DropdownFieldNames = DropdownFieldNames;

@@ -42,6 +42,7 @@ export interface ImageModel {
   imageUserPermissions: ImageUserPermissions;
   name: string;
   project: string;
+  sharedWith: SharedWithField;
   sharingStatus: 'SHARED'| 'PRIVATE' | 'RECEIVED';
   status: 'ACTIVE' | 'CREATING' | 'FAILED';
   user: string;
@@ -130,4 +131,9 @@ export type FilterFormItemType = [string, string[] | string];
 export interface UnShareModal {
   userData: UserData;
   title: ModalTitle;
+}
+
+export interface SharedWithField {
+  users: string[];
+  groups: string[];
 }

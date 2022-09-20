@@ -15,7 +15,7 @@ import {
   ImageActionModalData
 } from './images.model';
 import { ApplicationServiceFacade, UserImagesPageService } from '../../core/services';
-import { ChangedColumnStartValue, FilterFormInitialValue, ModalTitle, SharedStatus } from './images.config';
+import { ChangedColumnStartValue, FilterFormInitialValue, ModalTitle, SharingStatus } from './images.config';
 import { ShareDialogComponent } from '../exploratory/image-action-dialog/share-dialog/share-dialog.component';
 import { TerminateDialogComponent } from '../exploratory/image-action-dialog/terminate-dialog/terminate-dialog.component';
 import { ComponentType } from 'ngx-toastr';
@@ -229,7 +229,7 @@ export class ImagesService {
   }
 
   private isImageShared(image: ImageModel): boolean {
-    return image.sharingStatus !== SharedStatus.private;
+    return image.sharingStatus !== SharingStatus.private;
   }
 
   private checkColumnState(acc: FilteredColumnList, fieldItem: FilterFormItemType): FilteredColumnList {

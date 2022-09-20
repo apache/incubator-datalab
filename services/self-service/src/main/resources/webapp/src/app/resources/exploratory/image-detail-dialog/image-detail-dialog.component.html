@@ -65,17 +65,38 @@
           </ng-template>
         </div>
       </div>
+
       <div class="image__provider--wrapper">
         <span class="modal-row__item modal-row__item--title">Provider</span>
         <span class="modal-row__item">{{ data.image.cloudProvider }}</span>
       </div>
+
       <div class="image__creation-date--wrapper">
         <span class="modal-row__item modal-row__item--title">Creation date</span>
         <span class="modal-row__item">{{data.image.timestamp | localDate : 'short'}} </span>
       </div>
+
       <div class="image__creator--wrapper">
         <span class="modal-row__item modal-row__item--title">Creator</span>
         <span class="modal-row__item">{{ data.image.user }}</span>
+      </div>
+
+      <div *ngIf="data.image.sharingStatus === sharingStatus.shared" class="image__creator--wrapper">
+        <span class="modal-row__item modal-row__item--title">Shared with</span>
+        <div class="user-data__list--wrapper scrolling">
+          <ul class="groups__list">
+            <li *ngFor="let group of data.image.sharedWith.groups" class="groups__item">
+              <span class="icon--wrapper"><mat-icon class="user-data__icon">people</mat-icon></span>
+              <span class="groups__item--wrapper">{{group}}</span>
+            </li>
+          </ul>
+          <ul class="users__list">
+            <li *ngFor="let user of data.image.sharedWith.users" class="users__item">
+              <span class="icon--wrapper"><mat-icon class="user-data__icon">person</mat-icon></span>
+              <span class="groups__item--wrapper">{{user}}</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
