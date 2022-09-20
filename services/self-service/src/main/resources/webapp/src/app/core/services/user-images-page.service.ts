@@ -27,7 +27,8 @@ import {
   ImageActionType,
   ImageFilterFormValue,
   ProjectImagesInfo,
-  ImageParams, URL_Chunk
+  ImageParams,
+  URL_Chunk
 } from '../../resources/images';
 import { ShareDialogData, UserData } from '../../resources/exploratory/image-action-dialog/image-action.model';
 

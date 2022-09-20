@@ -23,7 +23,7 @@
   [isShareBtnDisabled]="!isShareBtnDisabled"
 >
 
-<!--  Component subscription-->
+<!--  Component subscriptions-->
   <ng-container *ngIf="(getUserListDataSubscription$ | async)"></ng-container>
   <ng-container *ngIf="(getUserListDataOnChangeSubscription$ | async)"></ng-container>
   <ng-container *ngIf="(onInputSubscription$ | async)"></ng-container>
