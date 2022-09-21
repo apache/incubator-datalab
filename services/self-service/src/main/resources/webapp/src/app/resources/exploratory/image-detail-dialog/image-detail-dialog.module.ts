@@ -24,6 +24,7 @@ import { TruncateTextPipeModule } from '../../../core/pipes/truncate-text-pipe';
 import {LocalDatePipeModule} from '../../../core/pipes/local-date-pipe';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {LibraryNameNormalizePipeModule} from '../../../core/pipes/library-name-normalize';
+import { MaterialModule } from '../../../shared/material.module';
 
 
 
@@ -34,7 +35,8 @@ import {LibraryNameNormalizePipeModule} from '../../../core/pipes/library-name-n
         TruncateTextPipeModule,
         LocalDatePipeModule,
         MatTooltipModule,
-        LibraryNameNormalizePipeModule
+        LibraryNameNormalizePipeModule,
+        MaterialModule,
     ],
   exports: [ ImageDetailDialogComponent ],
   entryComponents: [ ImageDetailDialogComponent ]

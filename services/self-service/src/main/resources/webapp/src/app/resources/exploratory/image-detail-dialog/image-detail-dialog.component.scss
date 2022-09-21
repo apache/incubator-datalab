@@ -62,3 +62,30 @@
 .no-libraries {
   color: rgba(113, 138, 165, 0.5);
 }
+
+.users__item,
+.groups__item {
+  display: flex;
+  align-items: center;
+
+  &:not(last-child) {
+    margin-bottom: 10px;
+  }
+}
+
+.user-data {
+
+  &__icon {
+    border-radius: 50%;
+  }
+
+  &__list--wrapper {
+    width: 50%;
+    height: 110px;
+    overflow-y: scroll;
+  }
+}
+
+.icon--wrapper {
+  margin-right: 10px;
+}

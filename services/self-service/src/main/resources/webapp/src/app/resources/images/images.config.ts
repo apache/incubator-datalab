@@ -28,7 +28,7 @@ export enum Image_Table_Column_Headers {
   endpoint = 'Endpoint',
 }
 
-export enum SharedStatus {
+export enum SharingStatus {
   shared = 'SHARED',
   private = 'PRIVATE',
   received = 'RECEIVED'

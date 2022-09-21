@@ -19,7 +19,7 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { LibraryInfoItem, Library, ImageDetailModalData } from '../../images';
+import { LibraryInfoItem, Library, ImageDetailModalData, SharingStatus } from '../../images';
 import { LibraryInfoModalComponent } from '../library-info-modal/library-info-modal.component';
 import { caseInsensitiveSortUtil } from '../../../core/util';
 
@@ -33,6 +33,8 @@ import { caseInsensitiveSortUtil } from '../../../core/util';
 })
 
 export class ImageDetailDialogComponent implements OnInit {
+  readonly sharingStatus: typeof SharingStatus = SharingStatus;
+
   maxDescriptionLength: number = 170;
   libraryList = [];
 
