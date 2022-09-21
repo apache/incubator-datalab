@@ -72,6 +72,9 @@ if __name__ == "__main__":
                                                    notebook_config['project_name'], notebook_config['endpoint_tag'])
     edge_instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                               edge_instance_name)
+    notebook_config['headnode_ip'] = datalab.fab.get_hdinsight_headnode_private_ip(os.environ['conf_os_user'],
+                                                                                   notebook_config['cluster_name'],
+                                                                                   notebook_config['key_path'])
 
     if os.environ['application'] == 'deeplearning':
         application = 'jupyter'
@@ -80,13 +83,14 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} " \
+        params = "--bucket {} --cluster_name {} --hdinsight_version {} --keyfile {} --notebook_ip {} --region {} " \
                  "--edge_user_name {} --project_name {} --os_user {}  --edge_hostname {} --proxy_port {} " \
-                 "--scala_version {} --application {}" \
-            .format(notebook_config['storage_account_name_tag'], notebook_config['cluster_name'], os.environ['dataproc_version'],
+                 "--scala_version {} --application {} --headnode_ip" \
+            .format(notebook_config['storage_account_name_tag'], notebook_config['cluster_name'], os.environ['hdinsight_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
                     notebook_config['edge_user_name'], notebook_config['project_name'], os.environ['conf_os_user'],
-                    edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'])
+                    edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],
+                    notebook_config['headnode_ip'])
         try:
             subprocess.run("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params), 
                            shell=True, check=True)

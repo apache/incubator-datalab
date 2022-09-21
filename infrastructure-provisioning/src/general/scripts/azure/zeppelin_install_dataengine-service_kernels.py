@@ -30,17 +30,18 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--dry_run', type=str, default='false')
-parser.add_argument('--emr_version', type=str, default='')
+parser.add_argument('--hdinsight_version', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
-parser.add_argument('--emr_excluded_spark_properties', type=str, default='')
+parser.add_argument('--hdinsight_excluded_spark_properties', type=str, default='')
 parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--headnode_ip', type=str, default='')
 args = parser.parse_args()
 
 
@@ -77,31 +78,16 @@ if __name__ == "__main__":
     numpy_version = os.environ['notebook_numpy_version']
     matplotlib_version = os.environ['notebook_matplotlib_version']
     command = "/usr/bin/python3 /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
-              "--bucket {0} " \
               "--cluster_name {1} " \
-              "--emr_version {2} " \
-              "--spark_version {3} " \
-              "--hadoop_version {4} " \
-              "--region {5} " \
-              "--excluded_lines '{6}' " \
-              "--project_name {7} " \
               "--os_user {8} " \
-              "--edge_hostname {9} " \
-              "--proxy_port {10} " \
-              "--scala_version {11} " \
-              "--livy_version {12} " \
-              "--multiple_clusters {13} " \
-              "--numpy_version {14} " \
-              "--matplotlib_version {15} " \
-              "--application {16} " \
-              "--r_enabled {17}" \
+              "--headnode_ip {18}" \
         .format(args.bucket,
                 args.cluster_name,
-                args.emr_version,
+                args.hdinsight_version,
                 spark_version,
                 hadoop_version,
                 args.region,
-                args.emr_excluded_spark_properties,
+                args.hdinsight_excluded_spark_properties,
                 args.project_name,
                 args.os_user,
                 args.edge_hostname,
@@ -112,5 +98,6 @@ if __name__ == "__main__":
                 numpy_version,
                 matplotlib_version,
                 args.application,
-                r_enabled)
+                r_enabled,
+                args.headnode_ip)
     conn.sudo(command)
