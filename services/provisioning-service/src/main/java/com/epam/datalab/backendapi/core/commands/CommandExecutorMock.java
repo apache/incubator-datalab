@@ -105,7 +105,7 @@ public class CommandExecutorMock implements ICommandExecutor {
             case AWS:
                 return Lists.newArrayList(DOCKER_DATALAB_DATAENGINE_SERVICE, DOCKER_DATALAB_DATAENGINE);
             case AZURE:
-                return Lists.newArrayList(DOCKER_DATALAB_DATAENGINE);
+                return Lists.newArrayList(DOCKER_DATALAB_DATAENGINE, DOCKER_DATALAB_DATAENGINE_SERVICE);
             case GCP:
                 return Lists.newArrayList(DOCKER_DATALAB_DATAENGINE_SERVICE, DOCKER_DATALAB_DATAENGINE);
             default:
