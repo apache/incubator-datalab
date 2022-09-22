@@ -1628,6 +1628,15 @@ def prepare_disk(os_user):
     else:
         ensure_right_mount_paths()
 
+def ensure_hdinsight_secret(os_user, computational_name, cluster_password):
+    if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/hdinsight_secret_ensured'.format(os_user)):
+        try:
+            pass
+            datalab.fab.conn.sudo('echo "{}-access-password=\"{}\"" >> /home/{}/.Renviron')
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/hdinsight_secret_ensured'.format(os_user))
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
 
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
