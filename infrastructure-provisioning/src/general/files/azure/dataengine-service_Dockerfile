@@ -33,6 +33,7 @@ COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_availa
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/
 COPY general/templates/os/inactive.timer /root/templates/
+COPY general/templates/azure/dataengine-service_interpreter_livy.json /root/templates/dataengine-service_interpreter_livy.json
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
