@@ -184,7 +184,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public List<ImageInfoRecord> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint) {
+    public List<ImageInfoDTO> getNotFailedImages(UserInfo user, String dockerImage, String project, String endpoint) {
         List<ImageInfoRecord> images = new ArrayList<>();
         if (UserRoles.checkAccess(user, RoleType.PAGE, CREATE_NOTEBOOK_BASED_ON_OWN_IMAGES, user.getRoles())) {
             images.addAll(imageExploratoryDao.getImages(user.getName(), dockerImage, project, endpoint, ImageStatus.ACTIVE, ImageStatus.CREATING));
@@ -192,7 +192,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         if (UserRoles.checkAccess(user, RoleType.PAGE, CREATE_NOTEBOOK_BASED_ON_SHARED_IMAGES, user.getRoles())) {
             images.addAll(getSharedImages(user, dockerImage, project, endpoint));
         }
-        return images;
+        List<ImageInfoDTO> imageInfoDTOs = images.stream().map(img -> toImageInfoDTO(img, user)).collect(Collectors.toList());
+        return removeSharedWithIfNotOwner(user,imageInfoDTOs);
     }
 
     @Override
@@ -216,29 +217,30 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     public ImagesPageInfo getImagesOfUser(UserInfo user, ImageFilter imageFilter) {
         log.debug("Loading list of images for user {}", user.getName());
         List<ImageInfoRecord> images = imageExploratoryDao.getImagesOfUser(user.getName());
-        images.forEach(img -> img.setSharingStatus(getImageSharingStatus(user.getName(), img)));
-        images.addAll(getSharedImages(user));
-        ImageFilterFormData filterData = getDataForFilter(images);
+
+        List<ImageInfoDTO> imagesDTOs = images.stream().map(img -> toImageInfoDTO(img, user)).collect(Collectors.toList());
+        imagesDTOs.addAll(getSharedImages(user).stream().map(img -> toImageInfoDTO(img, user)).collect(Collectors.toList()));
+        ImageFilterFormData filterData = getDataForFilter(imagesDTOs);
 
         if (imageFilter == null) {
             if (userSettingsDAO.getImageFilter(user.getName()).isPresent()) {
                 imageFilter = userSettingsDAO.getImageFilter(user.getName()).get();
-                images = filterImages(images, imageFilter);
+                imagesDTOs = filterImages(imagesDTOs, imageFilter);
             } else {
                 imageFilter = new ImageFilter();
                 userSettingsDAO.setUserImageFilter(user.getName(), imageFilter);
             }
         } else {
-            images = filterImages(images, imageFilter);
+            imagesDTOs = filterImages(imagesDTOs, imageFilter);
             userSettingsDAO.setUserImageFilter(user.getName(), imageFilter);
         }
 
-        images.forEach(img -> img.setImageUserPermissions(getUserImagePermissions(user, img)));
-        final List<ImageInfoRecord> finalImages = images;
+        // do not show sharing if not owner
+        final List<ImageInfoDTO> finalImages = removeSharedWithIfNotOwner(user, imagesDTOs);
         List<ProjectImagesInfo> projectImagesInfoList = projectService.getUserProjects(user, Boolean.FALSE)
                 .stream()
                 .map(p -> {
-                    List<ImageInfoRecord> im = finalImages.stream().filter(img -> img.getProject().equals(p.getName())).collect(Collectors.toList());
+                    List<ImageInfoDTO> im = finalImages.stream().filter(img -> img.getProject().equals(p.getName())).collect(Collectors.toList());
                     return ProjectImagesInfo.builder()
                             .project(p.getName())
                             .images(im)
@@ -271,13 +273,10 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Override
     public List<ImageInfoRecord> getSharedImages(UserInfo userInfo) {
-        List<ImageInfoRecord> sharedImages = imageExploratoryDao.getAllImages().stream()
+        return imageExploratoryDao.getAllImages().stream()
                 .filter(img -> !img.getUser().equals(userInfo.getName()))
                 .filter(img -> hasAccess(userInfo.getName(), img.getSharedWith()))
                 .collect(Collectors.toList());
-        sharedImages.forEach(img -> img.setSharingStatus(getImageSharingStatus(userInfo.getName(), img)));
-        log.info("Shared with user {} images : {}", userInfo.getName(), sharedImages);
-        return sharedImages;
     }
 
     @Override
@@ -288,7 +287,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> img.getDockerImage().equals(dockerImage) && img.getProject().equals(project) && img.getEndpoint().equals(endpoint))
                 .filter(img -> hasAccess(userInfo.getName(), img.getSharedWith()))
                 .collect(Collectors.toList());
-        sharedImages.forEach(img -> img.setSharingStatus(getImageSharingStatus(userInfo.getName(), img)));
+        //sharedImages.forEach(img -> img.setSharingStatus(getImageSharingStatus(userInfo.getName(), img)));
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }
@@ -391,7 +390,16 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         return ImageSharingStatus.RECEIVED;
     }
 
-    private List<ImageInfoRecord> filterImages(List<ImageInfoRecord> images, ImageFilter filter) {
+    private List<ImageInfoDTO> removeSharedWithIfNotOwner(UserInfo user, List<ImageInfoDTO> imageInfoDTOS){
+        imageInfoDTOS.forEach(img -> {
+            if(!img.getUser().equals(user.getName())){
+                img.setSharedWith(new SharedWith());
+            }
+        });
+        return imageInfoDTOS;
+    }
+
+    private List<ImageInfoDTO> filterImages(List<ImageInfoDTO> images, ImageFilter filter) {
         return images.stream()
                 .filter(img -> img.getName().toLowerCase().contains(filter.getImageName().toLowerCase()))
                 .filter(img -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(img.getStatus()))
@@ -402,13 +410,38 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     }
 
-    private ImageFilterFormData getDataForFilter(List<ImageInfoRecord> images) {
+    private ImageFilterFormData getDataForFilter(List<ImageInfoDTO> images) {
         ImageFilterFormData filterData = new ImageFilterFormData();
-        filterData.setImageNames(images.stream().map(ImageInfoRecord::getName).collect(Collectors.toSet()));
-        filterData.setStatuses(images.stream().map(ImageInfoRecord::getStatus).collect(Collectors.toSet()));
-        filterData.setEndpoints(images.stream().map(ImageInfoRecord::getEndpoint).collect(Collectors.toSet()));
-        filterData.setTemplateNames(images.stream().map(ImageInfoRecord::getTemplateName).collect(Collectors.toSet()));
-        filterData.setSharingStatuses(images.stream().map(ImageInfoRecord::getSharingStatus).collect(Collectors.toSet()));
+        filterData.setImageNames(images.stream().map(ImageInfoDTO::getName).collect(Collectors.toSet()));
+        filterData.setStatuses(images.stream().map(ImageInfoDTO::getStatus).collect(Collectors.toSet()));
+        filterData.setEndpoints(images.stream().map(ImageInfoDTO::getEndpoint).collect(Collectors.toSet()));
+        filterData.setTemplateNames(images.stream().map(ImageInfoDTO::getTemplateName).collect(Collectors.toSet()));
+        filterData.setSharingStatuses(images.stream().map(ImageInfoDTO::getSharingStatus).collect(Collectors.toSet()));
         return filterData;
+    }
+
+    private ImageInfoDTO toImageInfoDTO(ImageInfoRecord imageInfoRecord, UserInfo userInfo){
+        return ImageInfoDTO.builder()
+                .name(imageInfoRecord.getName())
+                .timestamp(imageInfoRecord.getTimestamp())
+                .description(imageInfoRecord.getDescription())
+                .project(imageInfoRecord.getProject())
+                .endpoint(imageInfoRecord.getEndpoint())
+                .user(imageInfoRecord.getUser())
+                .application(imageInfoRecord.getApplication())
+                .templateName(imageInfoRecord.getTemplateName())
+                .instanceName(imageInfoRecord.getInstanceName())
+                .cloudProvider(imageInfoRecord.getCloudProvider())
+                .dockerImage(imageInfoRecord.getDockerImage())
+                .fullName(imageInfoRecord.getFullName())
+                .status(imageInfoRecord.getStatus())
+                .sharingStatus(getImageSharingStatus(userInfo.getName(), imageInfoRecord))
+                .imageUserPermissions(getUserImagePermissions(userInfo, imageInfoRecord))
+                .sharedWith(imageInfoRecord.getSharedWith())
+                .clusterConfig(imageInfoRecord.getClusterConfig())
+                .exploratoryURL(imageInfoRecord.getExploratoryURL())
+                .libraries(imageInfoRecord.getLibraries())
+                .computationalLibraries(imageInfoRecord.getComputationalLibraries())
+        .build();
     }
 }

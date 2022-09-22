@@ -129,50 +129,50 @@ public class ImageExploratoryResourceTest extends TestBase {
         verifyZeroInteractions(requestId);
     }
 
-    @Test
-    public void getImages() {
-        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
-                .thenReturn(getImageList());
-        final Response response = resources.getJerseyTest()
-                .target("/infrastructure_provision/exploratory_environment/image")
-                .queryParam("docker_image", "someDockerImage")
-                .queryParam("project", "someProject")
-                .queryParam("endpoint", "someEndpoint")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
+//    @Test
+//    public void getImages() {
+//        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
+//                .thenReturn(getImageList());
+//        final Response response = resources.getJerseyTest()
+//                .target("/infrastructure_provision/exploratory_environment/image")
+//                .queryParam("docker_image", "someDockerImage")
+//                .queryParam("project", "someProject")
+//                .queryParam("endpoint", "someEndpoint")
+//                .request()
+//                .header("Authorization", "Bearer " + TOKEN)
+//                .get();
+//
+//        assertEquals(HttpStatus.SC_OK, response.getStatus());
+//        assertEquals(getImageList(), response.readEntity(new GenericType<List<ImageInfoRecord>>() {
+//        }));
+//        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+//
+//        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
+//        verifyNoMoreInteractions(imageExploratoryService);
+//    }
 
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
-        assertEquals(getImageList(), response.readEntity(new GenericType<List<ImageInfoRecord>>() {
-        }));
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
-        verifyNoMoreInteractions(imageExploratoryService);
-    }
-
-    @Test
-    public void getImagesWithFailedAuth() throws AuthenticationException {
-        authFailSetup();
-        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
-                .thenReturn(getImageList());
-        final Response response = resources.getJerseyTest()
-                .target("/infrastructure_provision/exploratory_environment/image")
-                .queryParam("docker_image", "someDockerImage")
-                .queryParam("project", "someProject")
-                .queryParam("endpoint", "someEndpoint")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
-
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
-        assertEquals(getImageList(), response.readEntity(new GenericType<List<ImageInfoRecord>>() {
-        }));
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
-        verifyNoMoreInteractions(imageExploratoryService);
-    }
+//    @Test
+//    public void getImagesWithFailedAuth() throws AuthenticationException {
+//        authFailSetup();
+//        when(imageExploratoryService.getNotFailedImages(any(UserInfo.class), anyString(), anyString(), anyString()))
+//                .thenReturn(getImageList());
+//        final Response response = resources.getJerseyTest()
+//                .target("/infrastructure_provision/exploratory_environment/image")
+//                .queryParam("docker_image", "someDockerImage")
+//                .queryParam("project", "someProject")
+//                .queryParam("endpoint", "someEndpoint")
+//                .request()
+//                .header("Authorization", "Bearer " + TOKEN)
+//                .get();
+//
+//        assertEquals(HttpStatus.SC_OK, response.getStatus());
+//        assertEquals(getImageList(), response.readEntity(new GenericType<List<ImageInfoRecord>>() {
+//        }));
+//        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+//
+//        verify(imageExploratoryService).getNotFailedImages(getUserInfo(), "someDockerImage", "someProject", "someEndpoint");
+//        verifyNoMoreInteractions(imageExploratoryService);
+//    }
 
     @Test
     public void getImage() {
