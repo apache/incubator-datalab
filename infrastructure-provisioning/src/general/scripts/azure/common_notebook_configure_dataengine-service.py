@@ -38,8 +38,9 @@ def clear_resources():
     for storage_account in AzureMeta.list_storage_accounts(notebook_config['resource_group_name']):
         if notebook_config['storage_account_name_tag'] == storage_account.tags["Name"]:
             AzureActions.remove_storage_account(notebook_config['resource_group_name'], storage_account.name)
-    # AzureActions.remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
-    #                             os.environ['dataproc_version'], os.environ['conf_os_user'], notebook_config['key_path'])
+    AzureActions.remove_dataengine_kernels(notebook_config['resource_group_name'],
+                                           notebook_config['notebook_name'], os.environ['conf_os_user'],
+                                           notebook_config['key_path'], notebook_config['cluster_name'])
 
 
 if __name__ == "__main__":
