@@ -1431,6 +1431,6 @@ def update_pyopenssl_lib(os_user):
 
 def get_hdinsight_headnode_private_ip(os_user, cluster_name, keyfile):
     init_datalab_connection('{}-ssh.azurehdinsight.net'.format(cluster_name), os_user, keyfile)
-    headnode_private_ip = conn.sudo("cat /etc/hosts | grep headnode | awk '{print $1}'")
+    headnode_private_ip = conn.sudo("cat /etc/hosts | grep headnode | awk '{print $1}'").stdout
     conn.close()
     return headnode_private_ip

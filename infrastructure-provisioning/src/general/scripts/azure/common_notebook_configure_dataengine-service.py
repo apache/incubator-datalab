@@ -57,6 +57,7 @@ if __name__ == "__main__":
     notebook_config['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
     notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-tag'
+    notebook_config['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
     notebook_config['bucket_name'] = '{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
                                                                  notebook_config['endpoint_name'])
@@ -84,11 +85,11 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         params = "--bucket {} --cluster_name {} --hdinsight_version {} --keyfile {} --notebook_ip {} --region {} " \
-                 "--edge_user_name {} --project_name {} --os_user {}  --edge_hostname {} --proxy_port {} " \
-                 "--scala_version {} --application {} --headnode_ip" \
+                 "--project_name {} --os_user {}  --edge_hostname {} --proxy_port {} " \
+                 "--scala_version {} --application {} --headnode_ip {}" \
             .format(notebook_config['storage_account_name_tag'], notebook_config['cluster_name'], os.environ['hdinsight_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
-                    notebook_config['edge_user_name'], notebook_config['project_name'], os.environ['conf_os_user'],
+                    notebook_config['project_name'], os.environ['conf_os_user'],
                     edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],
                     notebook_config['headnode_ip'])
         try:
@@ -99,7 +100,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         clear_resources()
-        datalab.fab.append_result("Failed installing Dataproc kernels.", str(err))
+        datalab.fab.append_result("Failed installing HDinsight kernels.", str(err))
         sys.exit(1)
 
     try:

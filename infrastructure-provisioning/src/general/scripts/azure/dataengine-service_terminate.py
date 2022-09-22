@@ -81,6 +81,15 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    logging.info("[REMOVING NOTEBOOK KERNELS]")
+    try:
+        AzureActions.remove_dataengine_kernels(hdinsight_conf['resource_group_name'],
+                                               hdinsight_conf['notebook_instance_name'], os.environ['conf_os_user'],
+                                               hdinsight_conf['key_path'], hdinsight_conf['cluster_name'])
+    except Exception as err:
+        datalab.fab.append_result("Failed to remove dataengine kernels from notebook", str(err))
+        sys.exit(1)
+
     try:
         with open("/root/result.json", 'w') as result:
             res = {"dataengine-service_name": hdinsight_conf['computational_name'],

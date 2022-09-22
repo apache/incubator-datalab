@@ -24,7 +24,9 @@
 import argparse
 import os
 from datalab.meta_lib import *
+from datalab.fab import init_datalab_connection
 from fabric import *
+from patchwork.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -51,7 +53,7 @@ def configure_notebook(args):
     if os.environ['notebook_multiple_clusters'] == 'true':
         conn.put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     else:
-        conn.put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
+        conn.put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     conn.put('{}{}_dataengine-service_create_configs.py'.format(scripts_dir, args.application),
              '/tmp/zeppelin_dataengine-service_create_configs.py')
     conn.sudo('\cp /tmp/zeppelin_dataengine-service_create_configs.py '
@@ -69,7 +71,7 @@ def configure_notebook(args):
 
 if __name__ == "__main__":
     global conn
-    conn = datalab.fab.init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
+    conn = init_datalab_connection(args.notebook_ip, args.os_user, args.keyfile)
     configure_notebook(args)
     spark_version = "None"  #get_spark_version(args.cluster_name)
     hadoop_version = "None"  #get_hadoop_version(args.cluster_name)

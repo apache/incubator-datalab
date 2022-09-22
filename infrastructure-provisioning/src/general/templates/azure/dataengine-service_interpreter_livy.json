@@ -5,7 +5,7 @@
    "properties":{
       "zeppelin.livy.url":{
          "name":"zeppelin.livy.url",
-         "value":"https://HEADNODEIP:PORT",
+         "value":"http://HEADNODEIP:PORT",
          "type":"url",
          "description":"The URL for Livy Server."
       },
