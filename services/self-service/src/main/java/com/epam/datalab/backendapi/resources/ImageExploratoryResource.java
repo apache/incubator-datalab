@@ -79,9 +79,8 @@ public class ImageExploratoryResource {
                               @QueryParam("project") String project,
                               @QueryParam("endpoint") String endpoint) {
         log.debug("Getting images for user {}, project {}", ui.getName(), project);
-        final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui, dockerImage,
-                project, endpoint);
-        return Response.ok(images).build();
+        return Response.ok(imageExploratoryService.getNotFailedImages(ui, dockerImage,
+                project, endpoint)).build();
     }
 
     @GET

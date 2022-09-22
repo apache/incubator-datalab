@@ -33,5 +33,5 @@ public class ProjectImagesInfo {
     @JsonProperty
     private String project;
     @JsonProperty
-    private List<ImageInfoRecord> images;
+    private List<ImageInfoDTO> images;
 }
