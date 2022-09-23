@@ -18,8 +18,8 @@
  */
 
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { SharePlaceholder, TabName } from '../image-action.config';
-import { DialogWindowTabConfig, ShareDialogData, UserData } from '../image-action.model';
+import { SharePlaceholder } from '../image-action.config';
+import { ShareDialogData, UserData } from '../image-action.model';
 import { FormControl } from '@angular/forms';
 import { ImagesService } from '../../../images/images.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
@@ -45,16 +45,12 @@ export class ShareDialogComponent implements OnInit, OnDestroy {
   @ViewChild('searchUserData') searchUserData: ElementRef;
 
   readonly placeholder: typeof SharePlaceholder = SharePlaceholder;
-  readonly tabsName: typeof TabName = TabName;
 
   searchUserDataDropdownList$: Observable<UserData[]>;
   userDataList$!: Observable<UserData[]>;
   temporaryUserDataList$!: Observable<UserData[]>;
   sharingDataList: UserData[] = [];
-  activeTabConfig: DialogWindowTabConfig = {
-    shareImage: true,
-    shareWith: false
-  };
+  activeTabIndex: boolean = false;
   addUserDataControl: FormControl = new FormControl('');
 
   onInputSubscription$: Observable<UserData[]>;
@@ -107,9 +103,8 @@ export class ShareDialogComponent implements OnInit, OnDestroy {
     this.shareDialogService.filterSearchDropdown();
   }
 
-  onTabTitle(tabName: keyof DialogWindowTabConfig): void {
-    Object.keys(this.activeTabConfig).forEach(item => this.activeTabConfig[item] = false);
-    this.activeTabConfig = {...this.activeTabConfig, [tabName]: true};
+  onTabTitle(): void {
+    this.activeTabIndex = !this.activeTabIndex;
   }
 
   onRemoveUserData(userData: UserData): void {

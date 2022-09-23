@@ -18,8 +18,15 @@
 */
 
 .content {
-  max-height: 75vh;
   margin: 0;
   padding: 20px 30px;
   font-weight: 600;
+}
+
+.share-content {
+  height: 327px;
+}
+
+.terminate-content {
+  max-height: 75vh;
 }

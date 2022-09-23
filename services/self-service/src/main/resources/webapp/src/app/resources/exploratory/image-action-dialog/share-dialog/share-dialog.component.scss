@@ -57,7 +57,7 @@
   }
 
   &__wrapper {
-    height: 149px;
+    padding-top: 30px;
   }
 }
 
@@ -90,6 +90,7 @@
   }
 
   &__wrapper{
+    margin-bottom: 45px;
     overflow-y: scroll;
   }
 
@@ -114,12 +115,7 @@
   align-items: center;
   height: 200px;
   color: #35afd5;
-}
-
-.share-with {
-  &__wrapper {
-    height: 225px;
-  }
+  font-weight: 300;
 }
 
 .user-data__icon {
@@ -130,4 +126,8 @@
   border-radius: 50%;
   background-color: #E6E6E6;
   color: white;
+}
+
+.dialog__wrapper ::ng-deep .mat-tab-label {
+  width: 50%;
 }

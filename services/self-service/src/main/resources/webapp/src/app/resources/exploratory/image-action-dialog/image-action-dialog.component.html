@@ -25,12 +25,12 @@
     </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
-  <section class="content">
+  <section class="content" [ngClass]="isTerminate ? 'terminate-content' : 'share-content'">
     <ng-content select="[datalab-share-dialog]">
     </ng-content>
     <ng-content select="[datalab-terminate-dialog]">
     </ng-content>
-    <div [hidden]="activeTabConfig && activeTabConfig.shareWith" class="text-center m-top-30 m-bott-10">
+    <div *ngIf="!activeTabIndex" class="text-center m-bott-10">
       <button type="button" class="butt mat-raised-button" (click)="dialogRef.close()">No</button>
       <button
         [disabled]="isShareBtnDisabled"
