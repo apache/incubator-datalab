@@ -33,9 +33,10 @@ const CONFIRM_BUTTON_CONFIG = {
   styleUrls: ['./image-action-dialog.component.scss']
 })
 export class ImageActionDialogComponent implements OnInit {
-  @Input() activeTabConfig: DialogWindowTabConfig;
+  @Input() activeTabIndex: boolean;
   @Input() isShareBtnDisabled: Boolean;
   @Input() sharingDataList: UserData[] = [];
+  @Input() isTerminate: boolean = false;
 
   readonly actionType: typeof ImageActions = ImageActions;
 

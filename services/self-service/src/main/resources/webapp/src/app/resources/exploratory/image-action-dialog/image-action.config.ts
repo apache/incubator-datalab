@@ -21,11 +21,6 @@ export enum SharePlaceholder {
   groupOrNameSearchInput = 'Enter user login or group name'
 }
 
-export enum TabName {
-  shareImage = 'shareImage',
-  shareWith = 'shareWith'
-}
-
 export enum UserDataTypeConfig {
   group = 'GROUP',
   user = 'USER'

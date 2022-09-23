@@ -38,7 +38,7 @@ import { UnShareWarningComponent } from './unshare-warning/un-share-warning.comp
     UnShareWarningComponent
   ],
   imports: [ CommonModule, MaterialModule, FormsModule, ReactiveFormsModule ],
-  entryComponents: [TerminateDialogComponent , ShareDialogComponent, UnShareWarningComponent],
+  entryComponents: [ TerminateDialogComponent , ShareDialogComponent, UnShareWarningComponent ],
   exports: [ ImageActionDialogComponent ]
 })
 export class ImageActionDialogModule { }
