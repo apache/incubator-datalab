@@ -48,8 +48,6 @@ public interface ImageExploratoryService {
 
     void updateImageSharing(UserInfo user, ImageShareDTO imageShareDTO);
 
-    //void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS, String info);
-
     List<ImageInfoRecord> getSharedImages(UserInfo user);
 
     List<ImageInfoRecord> getSharedImages(UserInfo userInfo, String dockerImage, String project, String endpoint);
