@@ -85,13 +85,13 @@
         <span class="modal-row__item modal-row__item--title">Shared with</span>
         <div class="user-data__list--wrapper scrolling">
           <ul class="groups__list">
-            <li *ngFor="let group of data.image.sharedWith.groups" class="groups__item">
+            <li *ngFor="let group of sortedShareWith.groups" class="groups__item">
               <span class="icon--wrapper"><mat-icon class="user-data__icon">people</mat-icon></span>
               <span class="groups__item--wrapper">{{group}}</span>
             </li>
           </ul>
           <ul class="users__list">
-            <li *ngFor="let user of data.image.sharedWith.users" class="users__item">
+            <li *ngFor="let user of sortedShareWith.users" class="users__item">
               <span class="icon--wrapper"><mat-icon class="user-data__icon">person</mat-icon></span>
               <span class="groups__item--wrapper">{{user}}</span>
             </li>
