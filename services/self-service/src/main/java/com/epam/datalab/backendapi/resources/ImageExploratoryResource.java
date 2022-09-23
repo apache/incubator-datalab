@@ -124,7 +124,7 @@ public class ImageExploratoryResource {
     @Path("share")
     public Response shareImage(@Auth UserInfo ui, @Valid @NotNull ImageShareDTO dto) {
         log.debug("Sharing user image {} with project {} groups", dto.getImageName(), dto.getProjectName());
-        imageExploratoryService.shareImage(ui, dto.getImageName(), dto.getProjectName(), dto.getEndpoint(), dto.getSharedWith());
+        imageExploratoryService.updateImageSharing(ui, dto);
         return Response.ok(imageExploratoryService.getImagesOfUser(ui,null)).build();
     }
 
