@@ -46,7 +46,9 @@ public interface ImageExploratoryService {
 
     ImagesPageInfo getImagesOfUser(UserInfo user, ImageFilter imageFilter);
 
-    void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS);
+    void updateImageSharing(UserInfo user, ImageShareDTO imageShareDTO);
+
+    //void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS, String info);
 
     List<ImageInfoRecord> getSharedImages(UserInfo user);
 

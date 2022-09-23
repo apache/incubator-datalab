@@ -60,8 +60,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.CREATE;
-import static com.epam.datalab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.datalab.backendapi.domain.AuditActionEnum.*;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.IMAGE;
 
 @Singleton
@@ -76,6 +75,11 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     private static final String CREATE_NOTEBOOK_BASED_ON_OWN_IMAGES = "/api/exploratory/createFromOwnCustomImage";
     private static final String CREATE_NOTEBOOK_BASED_ON_SHARED_IMAGES = "/api/exploratory/createFromSharedCustomImage";
+
+    private static final String AUDIT_SHARE_IMAGE_WITH_GROUPS = "Add group(s): %s\n";
+    private static final String AUDIT_SHARE_IMAGE_WITH_USERS = "Add users(s): %s\n";
+    private static final String AUDIT_STOP_SHARE_IMAGE_WITH_GROUPS = "Remove group(s): %s\n";
+    private static final String AUDIT_STOP_SHARE_IMAGE_WITH_USERS = "Remove users(s): %s\n";
 
     @Inject
     private ExploratoryDAO exploratoryDAO;
@@ -255,12 +259,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public void shareImage(UserInfo user, String imageName, String projectName, String endpoint, Set<SharedWithDTO> sharedWithDTOS) {
-        Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(user.getName(), imageName, projectName, endpoint);
-        image.ifPresent(img -> {
-            log.info("image {}", img);
-            imageExploratoryDao.updateSharing(toSharedWith(sharedWithDTOS), img.getName(), img.getProject(), img.getEndpoint());
-        });
+    public void updateImageSharing(UserInfo user, ImageShareDTO imageShareDTO){
+        String info = updateImageSharingAudit(imageShareDTO);
+        shareImage(user, imageShareDTO.getImageName(), imageShareDTO.getProjectName(), imageShareDTO.getEndpoint(), imageShareDTO.getSharedWith(), info);
     }
 
     @Override
@@ -287,7 +288,6 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .filter(img -> img.getDockerImage().equals(dockerImage) && img.getProject().equals(project) && img.getEndpoint().equals(endpoint))
                 .filter(img -> hasAccess(userInfo.getName(), img.getSharedWith()))
                 .collect(Collectors.toList());
-        //sharedImages.forEach(img -> img.setSharingStatus(getImageSharingStatus(userInfo.getName(), img)));
         log.info("Found shared with user {} images {}", userInfo.getName(), sharedImages);
         return sharedImages;
     }
@@ -322,6 +322,16 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .map(s -> new SharedWithDTO(SharedWithDTO.Type.GROUP, s)).collect(Collectors.toSet()));
         canBeSharedWith.removeAll(sharedWith);
         return new TreeSet<>(canBeSharedWith);
+    }
+
+    @Audit(action = UPDATE_SHARING, type = IMAGE)
+    public void shareImage(@User UserInfo user, @ResourceName String imageName, @Project String projectName, String endpoint,
+                            Set<SharedWithDTO> sharedWithDTOS, @Info String info) {
+        Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(user.getName(), imageName, projectName, endpoint);
+        image.ifPresent(img -> {
+            log.info("image {}", img);
+            imageExploratoryDao.updateSharing(toSharedWith(sharedWithDTOS), img.getName(), img.getProject(), img.getEndpoint());
+        });
     }
 
     private boolean hasAccess(String userName, SharedWith sharedWith) {
@@ -418,6 +428,37 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
         filterData.setTemplateNames(images.stream().map(ImageInfoDTO::getTemplateName).collect(Collectors.toSet()));
         filterData.setSharingStatuses(images.stream().map(ImageInfoDTO::getSharingStatus).collect(Collectors.toSet()));
         return filterData;
+    }
+
+    private String updateImageSharingAudit(ImageShareDTO imageShareDTO){
+        StringBuilder audit = new StringBuilder();
+        imageExploratoryDao.getImage(imageShareDTO.getImageName(), imageShareDTO.getProjectName(), imageShareDTO.getEndpoint()).ifPresent((img)->{
+            Set<String> oldGroups = new TreeSet<>(img.getSharedWith().getGroups());
+            Set<String> oldUsers = new TreeSet<>(img.getSharedWith().getUsers());
+            SharedWith oldSharedWith = img.getSharedWith();
+            SharedWith newSharedWith = toSharedWith(imageShareDTO.getSharedWith());
+
+            oldSharedWith.getGroups().removeAll(newSharedWith.getGroups());
+            oldSharedWith.getUsers().removeAll(newSharedWith.getUsers());
+
+            newSharedWith.getGroups().removeAll(oldGroups);
+            newSharedWith.getUsers().removeAll(oldUsers);
+
+            if(!oldSharedWith.getGroups().isEmpty()){
+                audit.append(String.format(AUDIT_STOP_SHARE_IMAGE_WITH_GROUPS, String.join(", ", oldSharedWith.getGroups())));
+            }
+            if(!oldSharedWith.getUsers().isEmpty()){
+                audit.append(String.format(AUDIT_STOP_SHARE_IMAGE_WITH_USERS, String.join(", ", oldSharedWith.getUsers())));
+            }
+            if(!newSharedWith.getGroups().isEmpty()){
+                audit.append(String.format(AUDIT_SHARE_IMAGE_WITH_GROUPS, String.join(", ", newSharedWith.getGroups())));
+            }
+            if(!newSharedWith.getUsers().isEmpty()){
+                audit.append(String.format(AUDIT_SHARE_IMAGE_WITH_USERS, String.join(", ", newSharedWith.getUsers())));
+            }
+
+        });
+        return audit.toString();
     }
 
     private ImageInfoDTO toImageInfoDTO(ImageInfoRecord imageInfoRecord, UserInfo userInfo){
