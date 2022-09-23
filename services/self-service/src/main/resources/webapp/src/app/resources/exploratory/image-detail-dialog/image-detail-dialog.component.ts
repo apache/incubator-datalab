@@ -19,7 +19,7 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { LibraryInfoItem, Library, ImageDetailModalData, SharingStatus } from '../../images';
+import { LibraryInfoItem, Library, ImageDetailModalData, SharingStatus, SharedWithField } from '../../images';
 import { LibraryInfoModalComponent } from '../library-info-modal/library-info-modal.component';
 import { caseInsensitiveSortUtil } from '../../../core/util';
 
@@ -37,6 +37,7 @@ export class ImageDetailDialogComponent implements OnInit {
 
   maxDescriptionLength: number = 170;
   libraryList = [];
+  sortedShareWith: SharedWithField;
 
   constructor(
     public dialogRef: MatDialogRef<ImageDetailDialogComponent>,
@@ -46,6 +47,7 @@ export class ImageDetailDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.libraryList = this.normalizeLibraries();
+    this.sortedShareWith = this.sortUserData();
   }
 
   onLibraryInfo(libraryList): void {
@@ -84,5 +86,17 @@ export class ImageDetailDialogComponent implements OnInit {
       return libName;
     }
     return library.name;
+  }
+
+  private sortUserData(): SharedWithField {
+    const { groups, users } = this.data.image.sharedWith;
+    return {
+      users: this.sortUserDataByValue(users),
+      groups: this.sortUserDataByValue(groups),
+    };
+  }
+
+  private sortUserDataByValue(arr: string[]): string[] {
+    return arr.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1);
   }
 }
