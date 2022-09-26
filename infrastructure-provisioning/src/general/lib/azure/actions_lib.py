@@ -117,7 +117,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Resource Group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create Resource Group: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create Resource Group",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -134,7 +135,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to remove Resource Group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to remove Resource Group: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to remove Resource Group",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -156,15 +158,15 @@ class AzureActions:
                     },
                     "subnets": [
                         {
-                             "name": os.environ['azure_subnet_name'],
-                             "service_endpoints": [
-                                 {
-                                      "service": "Microsoft.Storage",
-                                      "locations": [
-                                          region
-                                      ]
-                                 }
-                             ]
+                            "name": os.environ['azure_subnet_name'],
+                            "service_endpoints": [
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        region
+                                    ]
+                                }
+                            ]
                         }
                     ]
                 }
@@ -172,7 +174,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Virtual Network: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create Virtual Network: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create Virtual Network",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -199,7 +202,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Virtual Network peering: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create Virtual Network peering: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create Virtual Network peering",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -214,7 +218,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to remove Virtual Network: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to remove Virtual Network: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to remove Virtual Network",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -231,10 +236,10 @@ class AzureActions:
                     "address_prefix": subnet_cidr,
                     "service_endpoints": [
                         {
-                             "service": "Microsoft.Storage",
-                             "locations": [
-                                 region
-                             ]
+                            "service": "Microsoft.Storage",
+                            "locations": [
+                                region
+                            ]
                         }
                     ]
                 }
@@ -264,7 +269,8 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name, region, tags, list_rules, preexisting_sg = False):
+    def create_security_group(self, resource_group_name, network_security_group_name, region, tags, list_rules,
+                              preexisting_sg=False):
         try:
             result = ''
             if not preexisting_sg:
@@ -287,7 +293,8 @@ class AzureActions:
                 return result
         except Exception as err:
             logging.info(
-                "Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create security group",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -296,9 +303,9 @@ class AzureActions:
     def remove_security_rules(self, network_security_group, resource_group, security_rule):
         try:
             result = self.network_client.security_rules.begin_delete(
-                network_security_group_name = network_security_group,
-                resource_group_name = resource_group,
-                security_rule_name = security_rule).wait()
+                network_security_group_name=network_security_group,
+                resource_group_name=resource_group,
+                security_rule_name=security_rule).wait()
             return result
         except Exception as err:
             logging.info(
@@ -317,7 +324,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to remove security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to remove security group: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to remove security group",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -340,7 +348,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create Data Lake store",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -355,7 +364,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to remove Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to remove Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to remove Data Lake store",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -368,7 +378,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -415,7 +426,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to set user permission to Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to set user permission to Data Lake directory: " + str(
+                    err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
             append_result(str({"error": "Unable to set user permission to Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
@@ -430,7 +442,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to unset user permission to Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to unset user permission to Data Lake directory: " + str(
+                    err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
             append_result(str({"error": "Unable to unset user permission to Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
@@ -444,7 +457,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to delete Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to delete Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to delete Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -497,7 +511,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create Storage account",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -513,7 +528,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to remove Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to remove Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to remove Storage account",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -532,7 +548,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create blob container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create blob container: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create blob container",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -540,13 +557,15 @@ class AzureActions:
 
     def upload_to_container(self, resource_group_name, account_name, container_name, files):
         try:
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/",
+                                                   credential=self.credential)
             for filename in files:
                 block_blob_service.create_blob_from_path(container_name, filename, filename)
             return ''
         except Exception as err:
             logging.info(
-                "Unable to upload files to container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to upload files to container: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to upload files to container",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -554,7 +573,8 @@ class AzureActions:
 
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
-            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/", credential=self.credential)
+            block_blob_service = BlobServiceClient(account_url="https://" + account_name + ".blob.core.windows.net/",
+                                                   credential=self.credential)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
             return ''
@@ -562,7 +582,8 @@ class AzureActions:
             return ''
         except Exception as err:
             logging.info(
-                "Unable to download files from container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to download files from container: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to download files from container",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -586,7 +607,8 @@ class AzureActions:
             return datalab.meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
         except Exception as err:
             logging.info(
-                "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create static IP address",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -604,7 +626,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to deny network access for disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to deny network access for disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to deny network access for disk",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -619,7 +642,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to delete static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to delete static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to delete static IP address",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -956,7 +980,7 @@ class AzureActions:
             instance_parameters = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
             instance_parameters.tags = tags
             result = self.compute_client.virtual_machines.begin_create_or_update(resource_group_name, instance_name,
-                                                                           instance_parameters)
+                                                                                 instance_parameters)
             return result
         except Exception as err:
             logging.info(
@@ -982,7 +1006,7 @@ class AzureActions:
             # Removing public static IP address and network interfaces
             network_interface_name = instance_name + '-nif'
             for j in datalab.meta_lib.AzureMeta().get_network_interface(resource_group_name,
-                                                                network_interface_name).ip_configurations:
+                                                                        network_interface_name).ip_configurations:
                 self.delete_network_if(resource_group_name, network_interface_name)
                 print("Network interface {} has been removed".format(network_interface_name))
                 if j.public_ip_address:
@@ -1016,10 +1040,13 @@ class AzureActions:
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
                           tags, public_ip_name="None"):
         try:
-            subnet_cidr = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
+            subnet_cidr = \
+            datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split(
+                '/')[0]
             private_ip = datalab.meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr)
             subnet_id = datalab.meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
-            security_group_id = datalab.meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
+            security_group_id = datalab.meta_lib.AzureMeta().get_security_group(resource_group_name,
+                                                                                security_group_name).id
             if public_ip_name == "None":
                 ip_params = [{
                     "name": interface_name,
@@ -1063,7 +1090,8 @@ class AzureActions:
             return network_interface_id
         except Exception as err:
             logging.info(
-                "Unable to create network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create network interface",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -1075,7 +1103,8 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to delete network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to delete network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to delete network interface",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
@@ -1091,9 +1120,10 @@ class AzureActions:
                 if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
                         livy_port = conn.sudo("cat /opt/" + cluster_name +
-                                         "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace('\n','')
+                                              "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'").stdout.replace(
+                            '\n', '')
                         process_number = conn.sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
-                                              "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n','')
+                                                   "' | awk '{print $7}' | sed 's|/.*||g'").stdout.replace('\n', '')
                         conn.sudo('kill -9 ' + process_number)
                         conn.sudo('systemctl disable livy-server-' + livy_port)
                     except:
@@ -1215,12 +1245,12 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to create HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to create HDInsight Spark cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
-
 
     def terminate_hdinsight_cluster(self, resource_group_name, cluster_name):
         try:
@@ -1234,11 +1264,13 @@ class AzureActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to terminate HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                "Unable to terminate HDInsight Spark cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Unable to terminate HDInsight Spark cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
 
 def configure_zeppelin_hdinsight_interpreter(cluster_name, os_user, headnode_ip):
     try:
@@ -1381,10 +1413,13 @@ def configure_zeppelin_hdinsight_interpreter(cluster_name, os_user, headnode_ip)
         traceback.print_exc(file=sys.stdout)
         sys.exit(1)
 
+
 def ensure_local_jars(os_user, jars_dir):
-    if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
+    if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            hadoop_version = datalab.fab.conn.sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'").stdout.replace('\n','')
+            hadoop_version = datalab.fab.conn.sudo(
+                "ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'").stdout.replace('\n',
+                                                                                                                   '')
             print("Downloading local jars for Azure")
             datalab.fab.conn.sudo('mkdir -p {}'.format(jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
@@ -1424,7 +1459,8 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         spark_jars_paths = None
         if exists(datalab.fab.conn, '/opt/spark/conf/spark-defaults.conf'):
             try:
-                spark_jars_paths = datalab.fab.conn.sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
+                spark_jars_paths = datalab.fab.conn.sudo(
+                    'cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ').stdout
             except:
                 spark_jars_paths = None
         user_storage_account_tag = "{}-{}-{}-bucket".format(os.environ['conf_service_base_name'],
@@ -1432,7 +1468,8 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                                             os.environ['endpoint_name'].lower())
         shared_storage_account_tag = '{0}-{1}-shared-bucket'.format(os.environ['conf_service_base_name'],
                                                                     os.environ['endpoint_name'].lower())
-        for storage_account in datalab.meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+        for storage_account in datalab.meta_lib.AzureMeta().list_storage_accounts(
+                os.environ['azure_resource_group_name']):
             if user_storage_account_tag == storage_account.tags["Name"]:
                 user_storage_account_name = storage_account.name
                 user_storage_account_key = datalab.meta_lib.AzureMeta().list_storage_keys(
@@ -1445,10 +1482,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             datalab.fab.conn.put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
         else:
             datalab.fab.conn.put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
-        datalab.fab.conn.sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-        datalab.fab.conn.sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+        datalab.fab.conn.sudo(
+            'sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+        datalab.fab.conn.sudo(
+            'sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
         datalab.fab.conn.sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
-        datalab.fab.conn.sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+        datalab.fab.conn.sudo(
+            'sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
         if os.environ['azure_datalake_enable'] == 'true':
             client_id = os.environ['azure_application_id']
             refresh_token = os.environ['azure_user_refresh_token']
@@ -1460,18 +1500,22 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
         else:
             datalab.fab.conn.sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
             datalab.fab.conn.sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
-        datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+        datalab.fab.conn.put(templates_dir + 'notebook_spark-defaults_local.conf',
+                             '/tmp/notebook_spark-defaults_local.conf')
         datalab.fab.conn.sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
               /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
         datalab.fab.conn.sudo('cp -f /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
         if memory_type == 'driver':
             spark_memory = datalab.fab.get_spark_memory()
             datalab.fab.conn.sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
-            datalab.fab.conn.sudo('''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
-                                                                                              spark_memory))
-        if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
+            datalab.fab.conn.sudo(
+                '''bash -c 'echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf' '''.format(memory_type,
+                                                                                                            spark_memory))
+        if not exists(datalab.fab.conn, '/opt/spark/conf/spark-env.sh'):
             datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
+        java_home = datalab.fab.conn.run(
+            "update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[
+            0].replace('\n', '')
         datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
             datalab_header = datalab.fab.conn.sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"').stdout
@@ -1490,13 +1534,15 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                                     new_spark_defaults.append(property + ' ' + config['Properties'][property])
                     new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            datalab.fab.conn.sudo('''bash -c 'echo "{}" > /opt/spark/conf/spark-defaults.conf' '''.format(datalab_header))
+            datalab.fab.conn.sudo(
+                '''bash -c 'echo "{}" > /opt/spark/conf/spark-defaults.conf' '''.format(datalab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(prop))
             datalab.fab.conn.sudo('sed -i "/^\s*$/d" /opt/spark/conf/spark-defaults.conf')
             if spark_jars_paths:
-                datalab.fab.conn.sudo('''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))
+                datalab.fab.conn.sudo(
+                    '''bash -c 'echo "{}" >> /opt/spark/conf/spark-defaults.conf' '''.format(spark_jars_paths))
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
@@ -1507,24 +1553,34 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name), shell=True, check=True)
     if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
         additional_spark_properties = subprocess.run('diff --changed-group-format="%>" --unchanged-group-format="" '
-                                            '/tmp/{0}/notebook_spark-defaults_local.conf '
-                                            '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-                                             cluster_name, cluster_dir), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
+                                                     '/tmp/{0}/notebook_spark-defaults_local.conf '
+                                                     '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
+            cluster_name, cluster_dir), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip(
+            "\n\r")
         for property in additional_spark_properties.split('\n'):
-            subprocess.run('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name), shell=True, check=True)
+            subprocess.run('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name),
+                           shell=True, check=True)
     if os.path.exists('{0}'.format(cluster_dir)):
-        subprocess.run('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
-                                                                                                        cluster_dir), shell=True, check=True)
+        subprocess.run(
+            'cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
+                                                                                                          cluster_dir),
+            shell=True, check=True)
         if datalake_enabled == 'false':
-            subprocess.run('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir), shell=True, check=True)
+            subprocess.run('cp -f /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir), shell=True,
+                           check=True)
         else:
-            subprocess.run('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir), shell=True, check=True)
+            subprocess.run(
+                'cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir),
+                shell=True, check=True)
     if spark_configs and os.path.exists('{0}'.format(cluster_dir)):
-        datalab_header = subprocess.run('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
-                               capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
+        datalab_header = subprocess.run(
+            'cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
+            capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
-        spark_defaults = subprocess.run('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
+        spark_defaults = subprocess.run('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir),
+                                        capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip(
+            "\n\r")
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
             if param.split(' ')[0] != '#':
@@ -1537,11 +1593,14 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
                                 new_spark_defaults.append(property + ' ' + config['Properties'][property])
                 new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        subprocess.run("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(datalab_header, cluster_dir), shell=True, check=True)
+        subprocess.run("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(datalab_header, cluster_dir),
+                       shell=True, check=True)
         for prop in new_spark_defaults:
             prop = prop.rstrip()
-            subprocess.run('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir), shell=True, check=True)
-        subprocess.run('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir), shell=True, check=True)
+            subprocess.run('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir), shell=True,
+                           check=True)
+        subprocess.run('sed -i "/^\s*$/d" {0}/spark/conf/spark-defaults.conf'.format(cluster_dir), shell=True,
+                       check=True)
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
@@ -1556,6 +1615,7 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         conn.close()
 
+
 def ensure_right_mount_paths(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
         global conn
@@ -1563,15 +1623,18 @@ def ensure_right_mount_paths(creds=False, os_user='', hostname='', keyfile=''):
     else:
         conn = datalab.fab.conn
     opt_disk = conn.sudo("cat /etc/fstab | grep /opt/ | awk '{print $1}'").stdout.split('\n')[0].split('/')[2]
-    if opt_disk not in conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
-         disk_names = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
-         for disk in disk_names:
-             if disk != '' and disk not in conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in conn.sudo("fdisk -l | grep 'BIOS boot'").stdout:
-                 conn.sudo("umount -l /opt")
-                 conn.sudo("mount /dev/{}1 /opt".format(disk))
-                 conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
+    if opt_disk not in conn.sudo("lsblk | grep /opt", warn=True).stdout or opt_disk in conn.sudo(
+            "fdisk -l | grep 'BIOS boot'").stdout:
+        disk_names = conn.sudo("lsblk | grep disk | awk '{print $1}' | sort").stdout.split('\n')
+        for disk in disk_names:
+            if disk != '' and disk not in conn.sudo('lsblk | grep -E "(mnt|media)"').stdout and disk not in conn.sudo(
+                    "fdisk -l | grep 'BIOS boot'").stdout:
+                conn.sudo("umount -l /opt")
+                conn.sudo("mount /dev/{}1 /opt".format(disk))
+                conn.sudo('sed -i "/opt/ s|/dev/{}|/dev/{}1|g" /etc/fstab'.format(opt_disk, disk))
     if creds:
         conn.close()
+
 
 def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
     if creds:
@@ -1583,7 +1646,7 @@ def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
 
 
 def prepare_disk(os_user):
-    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/disk_ensured'):
+    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
             allow = False
             counter = 0
@@ -1618,7 +1681,8 @@ def prepare_disk(os_user):
                         else:
                             sys.exit(1)
                     datalab.fab.conn.sudo('mount /dev/{}1 /opt/'.format(disk))
-                    datalab.fab.conn.sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk))
+                    datalab.fab.conn.sudo(
+                        ''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk))
 
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except Exception as err:
@@ -1629,33 +1693,51 @@ def prepare_disk(os_user):
         ensure_right_mount_paths()
 
 
+def ensure_hdinsight_secret(os_user, computational_name, cluster_password):
+    if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/hdinsight_secret_ensured'.format(os_user)):
+        try:
+            datalab.fab.conn.sudo('''echo '{}-access-password="{}"' >> /home/{}/.Renviron'''
+                                  .format(computational_name, cluster_password, os_user))
+            datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/hdinsight_secret_ensured'.format(os_user))
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
+
+
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
             if os.environ['azure_datalake_enable'] == 'false':
-                datalab.fab.conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-                datalab.fab.conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-                datalab.fab.conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+                datalab.fab.conn.sudo(
+                    'wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+                datalab.fab.conn.sudo(
+                    'tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+                datalab.fab.conn.sudo(
+                    'mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
                 datalab.fab.conn.sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
                 datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
             else:
                 # Downloading Spark without Hadoop
-                datalab.fab.conn.sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
+                datalab.fab.conn.sudo(
+                    'wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'
                     .format(spark_version))
                 datalab.fab.conn.sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
                 datalab.fab.conn.sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
                 datalab.fab.conn.sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
                 # Downloading Hadoop
                 hadoop_version = '3.0.0'
-                datalab.fab.conn.sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
+                datalab.fab.conn.sudo(
+                    'wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/hadoop-{0}.tar.gz'
                     .format(hadoop_version))
                 datalab.fab.conn.sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
                 datalab.fab.conn.sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
                 datalab.fab.conn.sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
                 # Configuring Hadoop and Spark
                 java_path = datalab.common_lib.find_java_path_remote()
-                datalab.fab.conn.sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
-                datalab.fab.conn.sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
+                datalab.fab.conn.sudo(
+                    'echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
+                datalab.fab.conn.sudo(
+                    """echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
                 datalab.fab.conn.sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
                 datalab.fab.conn.sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
                 spark_dist_classpath = datalab.fab.conn.sudo('/opt/hadoop/bin/hadoop classpath').stdout
@@ -1667,34 +1749,55 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
+def install_dataengine_spark(cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, os_user,
+                             datalake_enabled):
     try:
         if datalake_enabled == 'false':
-            subprocess.run('wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz', shell=True, check=True)
-            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/', shell=True, check=True)
-            subprocess.run('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/', shell=True, check=True)
+            subprocess.run(
+                'wget ' + spark_link + ' -O /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz',
+                shell=True, check=True)
+            subprocess.run(
+                'tar -zxvf /tmp/' + cluster_name + '/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/',
+                shell=True, check=True)
+            subprocess.run(
+                'mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/',
+                shell=True, check=True)
             subprocess.run('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/', shell=True, check=True)
         else:
             # Downloading Spark without Hadoop
-            subprocess.run('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/{1}/spark-{0}-bin-without-hadoop.tgz'
-                 .format(spark_version, cluster_name), shell=True, check=True)
-            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version), shell=True, check=True)
-            subprocess.run('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir), shell=True, check=True)
+            subprocess.run(
+                'wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/{1}/spark-{0}-bin-without-hadoop.tgz'
+                .format(spark_version, cluster_name), shell=True, check=True)
+            subprocess.run(
+                'tar -zxvf /tmp/' + cluster_name + '/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version),
+                shell=True, check=True)
+            subprocess.run('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir),
+                           shell=True, check=True)
             subprocess.run('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir), shell=True, check=True)
             # Downloading Hadoop
             hadoop_version = '3.0.0'
-            subprocess.run('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/{1}/hadoop-{0}.tar.gz'
-                 .format(hadoop_version, cluster_name), shell=True, check=True)
-            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version), shell=True, check=True)
+            subprocess.run(
+                'wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O /tmp/{1}/hadoop-{0}.tar.gz'
+                .format(hadoop_version, cluster_name), shell=True, check=True)
+            subprocess.run('tar -zxvf /tmp/' + cluster_name + '/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version),
+                           shell=True, check=True)
             subprocess.run('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir), shell=True, check=True)
             subprocess.run('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir), shell=True, check=True)
             # Configuring Hadoop and Spark
             java_path = datalab.common_lib.find_java_path_local()
-            subprocess.run('echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir), shell=True, check=True)
-            subprocess.run("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir), shell=True, check=True)
-            subprocess.run('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir), shell=True, check=True)
-            subprocess.run('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir), shell=True, check=True)
-            spark_dist_classpath = subprocess.run('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture_output=True, shell=True, check=True).stdout.decode('UTF-8').rstrip("\n\r")
+            subprocess.run(
+                'echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir),
+                shell=True, check=True)
+            subprocess.run(
+                """echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(
+                    cluster_dir), shell=True, check=True)
+            subprocess.run('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir),
+                           shell=True, check=True)
+            subprocess.run('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir),
+                           shell=True, check=True)
+            spark_dist_classpath = subprocess.run('{}hadoop/bin/hadoop classpath'.format(cluster_dir),
+                                                  capture_output=True, shell=True, check=True).stdout.decode(
+                'UTF-8').rstrip("\n\r")
             subprocess.run('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
                 spark_dist_classpath, cluster_dir), shell=True, check=True)
     except:
