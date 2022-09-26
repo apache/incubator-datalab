@@ -101,6 +101,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     @Inject
     private UserSettingsDAO userSettingsDAO;
 
+    @Inject
+    private SecurityDAO securityDAO;
+
     @Audit(action = CREATE, type = IMAGE)
     @Override
     public String createImage(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, String imageName, String imageDescription, @Info String info) {
@@ -316,10 +319,22 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     @Override
     public Set<SharedWithDTO> getUsersAndGroupsForSharing(String userName, String imageName, String project, String endpoint, String value) {
         Set<SharedWithDTO> sharedWith = getImageSharingInfo(userName, imageName, project, endpoint);
-        Set<SharedWithDTO> canBeSharedWith = userSettingsDAO.getUserNames(value).stream()
+
+        // Find users in groups
+        Map<String, Set<String>> groupsAndUsers = securityDAO.getGroups();
+        final Set<String> usersInGroups = new HashSet<>();
+        groupsAndUsers.entrySet().stream().forEach(entry -> usersInGroups.addAll(entry.getValue()));
+        Set<String> usersFiltered = usersInGroups.stream()
+                .filter(name -> name.toLowerCase().contains(value.toLowerCase())).collect(Collectors.toSet());
+        // Find users who logged in
+        usersFiltered.addAll(securityDAO.getUserNames(value));
+
+        Set<SharedWithDTO> canBeSharedWith = usersFiltered.stream()
                 .map(s -> new SharedWithDTO(SharedWithDTO.Type.USER, s)).collect(Collectors.toSet());
+
         canBeSharedWith.addAll(userGroupDAO.getGroupNames(value).stream()
                 .map(s -> new SharedWithDTO(SharedWithDTO.Type.GROUP, s)).collect(Collectors.toSet()));
+
         canBeSharedWith.removeAll(sharedWith);
         return new TreeSet<>(canBeSharedWith);
     }
