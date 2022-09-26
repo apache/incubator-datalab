@@ -700,6 +700,32 @@ class AzureMeta:
             traceback.print_exc(file=sys.stdout)
 
 
+    def list_hdinsight_statuses(self, resource_group_name, cluster_name_list):
+        data = []
+        for cluster_name in cluster_name_list:
+            cluster_name = cluster_name['id']
+            host = {}
+            try:
+                print(cluster_name)
+                request = self.hdinsight_client.clusters.get(resource_group_name, cluster_name)
+                host['id'] = cluster_name
+                print(request.properties.cluster_state)
+                if request.properties.cluster_state == 'Accepted' or request.properties.cluster_state == 'HdInsightConfiguration' or request.properties.cluster_state == 'ClusterStorageProvisioned' or request.properties.cluster_state == 'ReadyForDeployment':
+                    host['status'] = 'creating'
+                elif request.properties.cluster_state == 'DeletePending' or request.properties.cluster_state == 'Deleting':
+                    host['status'] = 'terminating'
+                elif request.properties.cluster_state == 'Error' or request.properties.cluster_state == 'TimedOut' or request.properties.cluster_state == 'Unknown':
+                    host['status'] = 'failed'
+                elif request.properties.cluster_state == 'Running':
+                    host['status'] = 'running'
+                data.append(host)
+            except:
+                host['id'] = cluster_name
+                host['status'] = 'terminated'
+                data.append(host)
+        return data
+
+
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
         resource_group_name = os.environ['azure_resource_group_name']
