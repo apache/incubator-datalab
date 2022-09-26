@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,21 +17,19 @@
  * under the License.
  */
 
-export enum Sidebar_Names_Config {
-  reports = 'Reports',
-  audit = 'Audit',
-  billing = 'Billing',
-  administration = 'Administration',
-  users = 'Users',
-  projects = 'Projects',
-  resources = 'Resources',
-  configuration = 'Configuration',
-  instances = 'Instances',
-  images = 'Images',
-  connectedPlatforms = 'Connected platforms'
-}
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { ConnectedPlatformsComponent } from './connected-platforms.component';
 
-export interface UserInfo {
-  email: string;
-  name: string;
-}
+const routes: Routes = [
+  {
+    path: '',
+    component: ConnectedPlatformsComponent
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class ConnectedPlatformsRoutingModule { }

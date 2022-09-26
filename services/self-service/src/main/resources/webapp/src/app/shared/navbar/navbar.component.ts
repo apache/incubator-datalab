@@ -43,6 +43,7 @@ import {
 import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {Sidebar_Names_Config, UserInfo} from './navbar.config';
+import { RoutingListConfig } from '../../core/configs/routing-list.config';
 
 interface Quota {
   projectQuotas: {};
@@ -85,6 +86,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 300000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
+  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
 
   currentUserName: string;
   quotesLimit: number = 70;

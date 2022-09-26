@@ -25,3 +25,4 @@ export * from './highlight.pipe';
 export * from './convert-action-pipe';
 export * from './normalize-dropdown-multi-value';
 export * from './is-element-available-pipe';
+export * from './normalize-link';

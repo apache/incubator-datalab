@@ -17,21 +17,18 @@
  * under the License.
  */
 
-export enum Sidebar_Names_Config {
-  reports = 'Reports',
-  audit = 'Audit',
-  billing = 'Billing',
-  administration = 'Administration',
-  users = 'Users',
-  projects = 'Projects',
-  resources = 'Resources',
-  configuration = 'Configuration',
-  instances = 'Instances',
-  images = 'Images',
-  connectedPlatforms = 'Connected platforms'
-}
-
-export interface UserInfo {
-  email: string;
-  name: string;
+export enum RoutingListConfig {
+  instances = 'instances',
+  images = 'images',
+  connectedPlatforms = 'connected-platforms',
+  login = 'login',
+  billing = 'billing',
+  projects = 'projects',
+  users = 'users',
+  resources = 'resources',
+  audit = 'audit',
+  configuration = 'configuration',
+  swagger = 'swagger',
+  publickeyguide = 'help/publickeyguide',
+  accessnotebookguide = 'help/accessnotebookguide',
 }

@@ -17,21 +17,13 @@
  * under the License.
  */
 
-export enum Sidebar_Names_Config {
-  reports = 'Reports',
-  audit = 'Audit',
-  billing = 'Billing',
-  administration = 'Administration',
-  users = 'Users',
-  projects = 'Projects',
-  resources = 'Resources',
-  configuration = 'Configuration',
-  instances = 'Instances',
-  images = 'Images',
-  connectedPlatforms = 'Connected platforms'
-}
+import { Pipe, PipeTransform } from '@angular/core';
 
-export interface UserInfo {
-  email: string;
-  name: string;
+@Pipe({
+  name: 'normalizeLink'
+})
+export class NormalizeLinkPipe implements PipeTransform {
+  transform(value: string): string {
+    return value.includes('http') ? value : `//${value}`;
+  }
 }
