@@ -51,6 +51,11 @@ if __name__ == "__main__":
             statuses['image'] = data_images
         except:
             logging.error("Images JSON wasn't been provided")
+        try:
+            data_clusters = AzureMeta().list_hdinsight_statuses(args.resource_group_name, data.get('cluster'))
+            statuses['cluster'] = data_clusters
+        except:
+            logging.error("Clusters JSON wasn't been provided")
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:
