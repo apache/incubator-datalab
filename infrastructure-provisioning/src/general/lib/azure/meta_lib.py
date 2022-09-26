@@ -706,10 +706,8 @@ class AzureMeta:
             cluster_name = cluster_name['id']
             host = {}
             try:
-                print(cluster_name)
                 request = self.hdinsight_client.clusters.get(resource_group_name, cluster_name)
                 host['id'] = cluster_name
-                print(request.properties.cluster_state)
                 if request.properties.cluster_state == 'Accepted' or request.properties.cluster_state == 'HdInsightConfiguration' or request.properties.cluster_state == 'ClusterStorageProvisioned' or request.properties.cluster_state == 'ReadyForDeployment':
                     host['status'] = 'creating'
                 elif request.properties.cluster_state == 'DeletePending' or request.properties.cluster_state == 'Deleting':
