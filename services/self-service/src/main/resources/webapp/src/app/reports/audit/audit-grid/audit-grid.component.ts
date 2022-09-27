@@ -301,6 +301,7 @@ export class AuditGridComponent implements OnInit {
     .message-wrapper{min-height: 70px;; display: flex; align-items: center}
     .mat-list-wrapper{padding-top: 5px;}
     .list-item{color: #718ba6; height: auto; line-height: 20px; font-size: 14px}
+    .list-item:not(:last-child) { border-bottom:1px solid #edf1f5;}
     .info-item-title{width: 40%; padding: 10px 0;font-size: 14px;}
     .info-item-quota{width: 30%; padding: 10px 0;font-size: 14px;}
     .list-header {padding-top: 5px;}
