@@ -28,7 +28,7 @@ import java.util.Set;
 
 public interface ImageExploratoryService {
 
-    String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription, String info);
+    String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription);
 
     void terminateImage(UserInfo user, String project, String endpoint, String imageName);
 

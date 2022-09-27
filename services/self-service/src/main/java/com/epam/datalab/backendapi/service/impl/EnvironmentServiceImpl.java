@@ -109,7 +109,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     @ProjectAdmin
     @Override
     public void createImage(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String imageName, String description) {
-        imageExploratoryService.createImage(securityService.getUserInfoOffline(user), project, exploratoryName, imageName, description, null);
+        imageExploratoryService.createImage(securityService.getUserInfoOffline(user), project, exploratoryName, imageName, description);
     }
 
     @ProjectAdmin

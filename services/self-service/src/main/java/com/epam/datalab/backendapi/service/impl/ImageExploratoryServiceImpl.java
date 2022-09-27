@@ -106,7 +106,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Audit(action = CREATE, type = IMAGE)
     @Override
-    public String createImage(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, String imageName, String imageDescription, @Info String info) {
+    public String createImage(@User UserInfo user, @Project String project, String exploratoryName, @ResourceName String imageName, String imageDescription) {
         ProjectDTO projectDTO = projectService.get(project);
         UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), project, exploratoryName);
 
@@ -147,7 +147,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Audit(action = TERMINATE, type = IMAGE)
     @Override
-    public void terminateImage(@User UserInfo user, @Project String project, String endpoint, String imageName) {
+    public void terminateImage(@User UserInfo user, @Project String project, String endpoint, @ResourceName String imageName) {
         Optional<ImageInfoRecord> image = imageExploratoryDao.getImage(user.getName(), imageName, project, endpoint);
         if (image.isPresent()) {
             ImageInfoRecord imageInfoRecord = image.get();
