@@ -72,9 +72,11 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         except:
             notebook_config['exploratory_name'] = ''
-        notebook_config['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
-        if notebook_config['custom_tag']:
-            notebook_config['custom_tag'] = ';custom_tag:{}'.format(notebook_config['custom_tag'])
+        notebook_config['custom_tag'] = ''
+        if 'custom_tag' in os.environ['tags']:
+            notebook_config['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+            if notebook_config['custom_tag']:
+                notebook_config['custom_tag'] = ';custom_tag:{}'.format(notebook_config['custom_tag'])
         notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
