@@ -18,7 +18,7 @@
  */
 
 import { ModuleWithProviders } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { LoginComponent } from './login/login.module';
 import { LayoutComponent } from './layout/layout.component';
@@ -31,23 +31,17 @@ import { ManagementComponent } from './administration/management';
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
 import { SwaggerComponent } from './swagger';
-import {
-  AuthorizationGuard,
-  CheckParamsGuard,
-  CloudProviderGuard,
-  AdminGuard,
-  AuditGuard,
-  ImagePageResolveGuard
-} from './core/services';
-import {ConfigurationComponent} from './administration/configuration/configuration.component';
-import {ProjectAdminGuard} from './core/services/projectAdmin.guard';
-import {ReportingComponent} from './reports/reporting/reporting.component';
-import {AuditComponent} from './reports/audit/audit.component';
-import {ImagesComponent} from './resources/images/images.component';
+import { AdminGuard, AuditGuard, AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, ImagePageResolveGuard } from './core/services';
+import { ConfigurationComponent } from './administration/configuration/configuration.component';
+import { ProjectAdminGuard } from './core/services/projectAdmin.guard';
+import { ReportingComponent } from './reports/reporting/reporting.component';
+import { AuditComponent } from './reports/audit/audit.component';
+import { ImagesComponent } from './resources/images/images.component';
+import { RoutingListConfig } from './core/configs/routing-list.config';
 
 const routes: Routes = [
   {
-    path: 'login',
+    path: RoutingListConfig.login,
     component: LoginComponent
   },
   {
@@ -57,29 +51,33 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'instances',
+        redirectTo: RoutingListConfig.instances,
         pathMatch: 'full'
       },
       {
-        path: 'instances',
+        path: RoutingListConfig.instances,
         component: ResourcesComponent,
         canActivate: [AuthorizationGuard]
       },
       {
-        path: 'images',
+        path: RoutingListConfig.images,
         component: ImagesComponent,
         canActivate: [AuthorizationGuard],
         resolve: {
           projectList: ImagePageResolveGuard
-        }
+        },
       },
       {
-        path: 'billing',
+        path: RoutingListConfig.connectedPlatforms,
+        loadChildren: () => import('./resources/connected-platforms/connected-platforms.module').then(m => m.ConnectedPlatformsModule)
+      },
+      {
+        path: RoutingListConfig.billing,
         component: ReportingComponent,
         canActivate: [AuthorizationGuard, CloudProviderGuard]
       },
       {
-        path: 'projects',
+        path: RoutingListConfig.projects,
         component: ProjectComponent,
         canActivate: [AuthorizationGuard, AdminGuard],
       },
@@ -88,37 +86,37 @@ const routes: Routes = [
       //   component: OdahuComponent,
       //   canActivate: [AuthorizationGuard, AdminGuard],
       // }, {
-        path: 'users',
+        path: RoutingListConfig.users,
         component: RolesComponent,
         canActivate: [AuthorizationGuard, AdminGuard],
       },
       {
-        path: 'resources',
+        path: RoutingListConfig.resources,
         component: ManagementComponent,
         canActivate: [AuthorizationGuard, AdminGuard]
       },
       {
-        path: 'configuration',
+        path: RoutingListConfig.configuration,
         component: ConfigurationComponent,
         canActivate: [AuthorizationGuard, AdminGuard, ProjectAdminGuard]
       },
       {
-        path: 'swagger',
+        path: RoutingListConfig.swagger,
         component: SwaggerComponent,
         canActivate: [AuthorizationGuard]
       },
       {
-        path: 'help/publickeyguide',
+        path: RoutingListConfig.publickeyguide,
         component: PublicKeyGuideComponent,
         canActivate: [AuthorizationGuard]
       },
       {
-        path: 'help/accessnotebookguide',
+        path: RoutingListConfig.accessnotebookguide,
         component: AccessNotebookGuideComponent,
         canActivate: [AuthorizationGuard]
       },
       {
-        path: 'audit',
+        path: RoutingListConfig.audit,
         component: AuditComponent,
         canActivate: [AuthorizationGuard, AuditGuard],
       },

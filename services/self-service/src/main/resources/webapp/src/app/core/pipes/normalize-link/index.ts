@@ -17,21 +17,14 @@
  * under the License.
  */
 
-export enum Sidebar_Names_Config {
-  reports = 'Reports',
-  audit = 'Audit',
-  billing = 'Billing',
-  administration = 'Administration',
-  users = 'Users',
-  projects = 'Projects',
-  resources = 'Resources',
-  configuration = 'Configuration',
-  instances = 'Instances',
-  images = 'Images',
-  connectedPlatforms = 'Connected platforms'
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NormalizeLinkPipe } from './normalize-link.pipe';
 
-export interface UserInfo {
-  email: string;
-  name: string;
-}
+@NgModule({
+  imports: [ CommonModule ],
+  declarations: [ NormalizeLinkPipe ],
+  exports: [ NormalizeLinkPipe ]
+})
+
+export class NormalizeLinkPipeModule { }

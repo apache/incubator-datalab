@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,21 +17,24 @@
  * under the License.
  */
 
-export enum Sidebar_Names_Config {
-  reports = 'Reports',
-  audit = 'Audit',
-  billing = 'Billing',
-  administration = 'Administration',
-  users = 'Users',
-  projects = 'Projects',
-  resources = 'Resources',
-  configuration = 'Configuration',
-  instances = 'Instances',
-  images = 'Images',
-  connectedPlatforms = 'Connected platforms'
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-export interface UserInfo {
-  email: string;
-  name: string;
-}
+import { ConnectedPlatformsRoutingModule } from './connected-platforms-routing.module';
+import { ConnectedPlatformsComponent } from './connected-platforms.component';
+import { MaterialModule } from '../../shared/material.module';
+import { NormalizeLinkPipeModule } from '../../core/pipes';
+
+
+@NgModule({
+  declarations: [
+    ConnectedPlatformsComponent
+  ],
+  imports: [
+    CommonModule,
+    MaterialModule,
+    NormalizeLinkPipeModule,
+    ConnectedPlatformsRoutingModule
+  ]
+})
+export class ConnectedPlatformsModule { }

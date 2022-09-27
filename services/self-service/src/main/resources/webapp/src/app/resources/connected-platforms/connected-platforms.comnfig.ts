@@ -17,21 +17,14 @@
  * under the License.
  */
 
-export enum Sidebar_Names_Config {
-  reports = 'Reports',
-  audit = 'Audit',
-  billing = 'Billing',
-  administration = 'Administration',
-  users = 'Users',
-  projects = 'Projects',
-  resources = 'Resources',
-  configuration = 'Configuration',
-  instances = 'Instances',
-  images = 'Images',
-  connectedPlatforms = 'Connected platforms'
+export enum Image_Table_Titles {
+  platformName = 'Platform name',
+  linkToPlatform = 'Link to platform',
+  actions = 'Actions'
 }
 
-export interface UserInfo {
-  email: string;
-  name: string;
-}
+export const ConnectedPlatformDisplayedColumns = [
+  'platformName',
+  'linkToPlatform',
+  'actions',
+];

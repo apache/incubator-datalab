@@ -109,7 +109,7 @@
             <a
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/instances']"
+              [routerLink]="[routerList.instances]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
@@ -120,12 +120,23 @@
             <a
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/images']"
+              [routerLink]="[routerList.images]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
               <span *ngIf="isExpanded; else images">{{sideBarNames.images}}</span>
               <ng-template #images><i class="material-icons">photo</i></ng-template>
+            </a>
+
+            <a
+              class="sub-nav-item"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLink]="[routerList.connectedPlatforms]"
+              [routerLinkActive]="['active']"
+              [routerLinkActiveOptions]="{exact:true}"
+            >
+              <span *ngIf="isExpanded; else connectedPlatforms">{{sideBarNames.connectedPlatforms}}</span>
+              <ng-template #connectedPlatforms><i class="material-icons">cast</i></ng-template>
             </a>
 
           </a>
@@ -135,7 +146,7 @@
             <a
               *ngIf="healthStatus?.auditEnabled"
               class="sub-nav-item"
-              [routerLink]="['/audit']"
+              [routerLink]="[routerList.audit]"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
@@ -146,7 +157,7 @@
             <a
               *ngIf="healthStatus?.billingEnabled"
               class="sub-nav-item"
-              [routerLink]="['/billing']"
+              [routerLink]="[routerList.billing]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
@@ -161,7 +172,7 @@
             <a
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/users']"
+              [routerLink]="[routerList.users]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
@@ -171,7 +182,7 @@
             <a
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/projects']"
+              [routerLink]="[routerList.projects]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
@@ -186,7 +197,7 @@
             <a
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/resources']"
+              [routerLink]="[routerList.resources]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
@@ -197,7 +208,7 @@
               *ngIf="healthStatus?.admin"
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/configuration']"
+              [routerLink]="[routerList.configuration]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
