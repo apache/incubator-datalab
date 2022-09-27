@@ -92,28 +92,6 @@
          }
       },
       {
-         "name":"sql",
-         "class":"org.apache.zeppelin.livy.LivySparkSQLInterpreter",
-         "defaultInterpreter":false,
-         "editor":{
-            "language":"sql",
-            "editOnDblClick":false,
-            "completionKey":"TAB",
-            "completionSupport":true
-         }
-      },
-      {
-         "name":"pyspark",
-         "class":"org.apache.zeppelin.livy.LivyPySparkInterpreter",
-         "defaultInterpreter":false,
-         "editor":{
-            "language":"python",
-            "editOnDblClick":false,
-            "completionKey":"TAB",
-            "completionSupport":true
-         }
-      },
-      {
          "name":"pyspark3",
          "class":"org.apache.zeppelin.livy.LivyPySpark3Interpreter",
          "defaultInterpreter":false,
@@ -123,22 +101,6 @@
             "completionKey":"TAB",
             "completionSupport":true
          }
-      },
-      {
-         "name":"sparkr",
-         "class":"org.apache.zeppelin.livy.LivySparkRInterpreter",
-         "defaultInterpreter":false,
-         "editor":{
-            "language":"r",
-            "editOnDblClick":false,
-            "completionKey":"TAB",
-            "completionSupport":true
-         }
-      },
-      {
-         "name":"shared",
-         "class":"org.apache.zeppelin.livy.LivySharedInterpreter",
-         "defaultInterpreter":false
       }
    ],
    "dependencies":[
