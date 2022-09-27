@@ -77,9 +77,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     private static final String CREATE_NOTEBOOK_BASED_ON_SHARED_IMAGES = "/api/exploratory/createFromSharedCustomImage";
 
     private static final String AUDIT_SHARE_IMAGE_WITH_GROUPS = "Add group(s): %s\n";
-    private static final String AUDIT_SHARE_IMAGE_WITH_USERS = "Add users(s): %s\n";
+    private static final String AUDIT_SHARE_IMAGE_WITH_USERS = "Add user(s): %s\n";
     private static final String AUDIT_STOP_SHARE_IMAGE_WITH_GROUPS = "Remove group(s): %s\n";
-    private static final String AUDIT_STOP_SHARE_IMAGE_WITH_USERS = "Remove users(s): %s\n";
+    private static final String AUDIT_STOP_SHARE_IMAGE_WITH_USERS = "Remove user(s): %s\n";
 
     @Inject
     private ExploratoryDAO exploratoryDAO;
