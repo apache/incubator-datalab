@@ -1,0 +1,17 @@
+{
+  "kernel_python_credentials" : {
+    "username": "",
+    "password": "",
+    "url": "http://HEADNODEIP:PORT/",
+    "auth": "None"
+  },
+  "kernel_scala_credentials" : {
+    "username": "",
+    "password": "",
+    "url": "http://HEADNODEIP:PORT/",
+    "auth": "None"
+  },
+  "custom_headers" : {
+    "X-Requested-By": "livy"
+  }
+}
