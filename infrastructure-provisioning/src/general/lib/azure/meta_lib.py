@@ -710,6 +710,8 @@ class AzureMeta:
                 host['id'] = cluster_name
                 if request.properties.cluster_state == 'Accepted' or request.properties.cluster_state == 'HdInsightConfiguration' or request.properties.cluster_state == 'ClusterStorageProvisioned' or request.properties.cluster_state == 'ReadyForDeployment':
                     host['status'] = 'creating'
+                elif request.properties.cluster_state == 'AzureVMConfiguration' or request.properties.cluster_state == 'Operational' or request.properties.cluster_state == 'ClusterCustomization':
+                    host['status'] = 'creating'
                 elif request.properties.cluster_state == 'DeletePending' or request.properties.cluster_state == 'Deleting':
                     host['status'] = 'terminating'
                 elif request.properties.cluster_state == 'Error' or request.properties.cluster_state == 'TimedOut' or request.properties.cluster_state == 'Unknown':
