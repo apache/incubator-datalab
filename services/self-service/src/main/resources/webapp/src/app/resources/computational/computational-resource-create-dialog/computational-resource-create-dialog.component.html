@@ -29,7 +29,7 @@
           <div class="col">
             <div
               class="control-group"
-              *ngIf="(clusterTypes | isElementAvailable : isHasHDInside) || this.PROVIDER !== providerList.azure"
+              *ngIf="(clusterTypes | isElementAvailable : hasHDInside) || this.PROVIDER !== providerList.azure"
               [hidden]="clusterTypes.length === 1"
             >
               <label class="label">Select cluster type</label>
@@ -133,7 +133,7 @@
             </div>
 
             <div class="control-group"
-                 *ngIf="(clusterTypes | isElementAvailable : isHasHDInside) || PROVIDER !== providerList.azure"
+                 *ngIf="(clusterTypes | isElementAvailable : hasHDInside) || PROVIDER !== providerList.azure"
                  [hidden]="!selectedImage.templates.length"
             >
               <label class="label">Select template</label>
@@ -370,7 +370,8 @@
         </div>
         <div
           class="checkbox-group control-group m-top-10"
-          [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
+          [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'
+           || templateNameControl.value === templateName.hdInsight"
           *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'"
         >
           <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('configuration')">

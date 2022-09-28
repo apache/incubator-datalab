@@ -308,7 +308,8 @@
                 </span>
                 <span
                   *ngIf="element.imageUserPermissions | isElementAvailable: isObjectFieldTrue"
-                  #settings class="actions"
+                  class="actions"
+                  #settings
                   (click)="actions.toggle($event, settings)"
                 ></span>
               </div>

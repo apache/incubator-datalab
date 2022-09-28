@@ -129,6 +129,7 @@
             </a>
 
             <a
+              *ngIf="healthStatus.connectedPlatforms?.view"
               class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
               [routerLink]="[routerList.connectedPlatforms]"

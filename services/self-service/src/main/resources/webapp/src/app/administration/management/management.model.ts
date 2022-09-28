@@ -85,8 +85,14 @@ export interface GeneralEnvironmentStatus {
   status: string;
   projectAssigned: boolean;
   bucketBrowser: object;
+  connectedPlatforms: ConnectedPlatformsStatus;
 }
 
+export interface ConnectedPlatformsStatus {
+  add: boolean;
+  disconnect: boolean;
+  view: boolean;
+}
 
 export class ManagementConfigModel {
 

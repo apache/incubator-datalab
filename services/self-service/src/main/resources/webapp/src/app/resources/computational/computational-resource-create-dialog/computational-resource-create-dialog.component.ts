@@ -45,6 +45,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly CLUSTER_CONFIGURATION = CLUSTER_CONFIGURATION;
   readonly CheckUtils = CheckUtils;
   readonly providerList: typeof Providers = Providers;
+  readonly templateName: typeof ImageTemplateName = ImageTemplateName;
 
   notebook_instance: any;
   resourcesList: any;
@@ -158,7 +159,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       );
   }
 
-  public isHasHDInside(templateList: ComputationalTemplate[]): boolean {
+  public hasHDInside(templateList: ComputationalTemplate[]): boolean {
     return  templateList.some(({template_name}) => template_name === ImageTemplateName.hdInsight);
   }
 
@@ -391,5 +392,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   get instanceSpot() {
     return this.resourceForm.controls['emr_slave_instance_spot'].value;
+  }
+  get templateNameControl(): FormControl {
+    return  this.resourceForm.get('template_name') as FormControl;
   }
 }

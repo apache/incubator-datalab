@@ -18,30 +18,18 @@
  */
 
 import { Component, OnInit } from '@angular/core';
-import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
-import { HealthStatusService } from '../../core/services';
+import { BehaviorSubject, EMPTY, Observable, pipe } from 'rxjs';
+import { switchMap, take, tap } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { ConnectedPlatformDisplayedColumns, Image_Table_Titles } from './connected-platforms.comnfig';
 
-const mockedData = [
-  {
-    platformName: 'azure',
-    linkToPlatform: 'www.google.com/'
-  },
-  {
-    platformName: 'azure',
-    linkToPlatform: 'google.com'
-  },
-  {
-    platformName: 'azure',
-    linkToPlatform: 'google.com'
-  },
-  {
-    platformName: 'azure',
-    linkToPlatform: 'google.com'
-  },
-];
-
+import { ConnectedPlatformsStatus, GeneralEnvironmentStatus } from '../../administration/management/management.model';
+import { HealthStatusService } from '../../core/services';
+import { ConnectedPlatformsTableTitles, ConnectedPlatformDisplayedColumns } from './connected-platforms.config';
+import { ConnectedPlatformDialogComponent } from './connected-platform-dialog/connected-platform-dialog.component';
+import { ConnectedPlatformsInfo, Platform } from './connected-platforms.models';
+import { ConnectedPlatformsService } from './connected-platforms.service';
+import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
 
 @Component({
   selector: 'datalab-connected-platforms',
@@ -49,28 +37,77 @@ const mockedData = [
   styleUrls: ['./connected-platforms.component.scss']
 })
 export class ConnectedPlatformsComponent implements OnInit {
-  readonly tableHeaderCellTitles: typeof Image_Table_Titles = Image_Table_Titles;
+  readonly tableHeaderCellTitles: typeof ConnectedPlatformsTableTitles = ConnectedPlatformsTableTitles;
 
-  healthStatus: GeneralEnvironmentStatus;
+  // tslint:disable-next-line:max-line-length
+  private readonly connectedPlatformsStatus$$: BehaviorSubject<ConnectedPlatformsStatus> = new BehaviorSubject<ConnectedPlatformsStatus>({} as ConnectedPlatformsStatus);
+  readonly connectedPlatformsStatus$: Observable<ConnectedPlatformsStatus> = this.connectedPlatformsStatus$$.asObservable();
+
+  platformPageData$: Observable<ConnectedPlatformsInfo>;
 
   displayedColumns: typeof ConnectedPlatformDisplayedColumns = ConnectedPlatformDisplayedColumns;
-  dataSource = mockedData;
 
   constructor(
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
+    private dialog: MatDialog,
+    private connectedPlatformsService: ConnectedPlatformsService
   ) { }
 
   ngOnInit(): void {
     this.getEnvironmentHealthStatus();
+    this.getConnectedPlatformPageInfo();
+    this.initPageData();
+  }
+
+  onAddNew(): void {
+    this.dialog.open(ConnectedPlatformDialogComponent, {
+      data: this.connectedPlatformsService.addModalData,
+      panelClass: 'modal-lg'
+    })
+      .afterClosed()
+      .pipe(
+        this.getModalAction(this.connectedPlatformsService.addPlatform),
+      ).subscribe();
+  }
+
+  onPlatformDisconnect({name}: Platform): void {
+    this.dialog.open(WarningDialogComponent,
+      {
+        data: name,
+        panelClass: 'modal-sm'
+      })
+      .afterClosed()
+      .pipe(
+        this.getModalAction(this.connectedPlatformsService.disconnectPlatform)
+      ).subscribe();
+  }
+
+  private getModalAction(callback: Function) {
+    callback = callback.bind(this.connectedPlatformsService);
+    return pipe(
+      switchMap((arg) => {
+        if (arg) {
+          return callback(arg);
+        }
+        return EMPTY;
+      }),
+      switchMap(() => this.connectedPlatformsService.getConnectedPlatformPageInfo())
+    );
   }
 
   private getEnvironmentHealthStatus(): void {
-    this.healthStatusService.getEnvironmentHealthStatus().subscribe(
-      (result: GeneralEnvironmentStatus) => {
-        this.healthStatus = result;
-      },
-      error => this.toastr.error(error.message, 'Oops!')
-    );
+    this.healthStatusService.getEnvironmentHealthStatus().pipe(
+      tap((response: GeneralEnvironmentStatus) => this.connectedPlatformsStatus$$.next(response.connectedPlatforms)),
+      take(1)
+    ).subscribe();
+  }
+
+  private getConnectedPlatformPageInfo(): void {
+    this.connectedPlatformsService.getConnectedPlatformPageInfo().subscribe();
+  }
+
+  private initPageData(): void {
+    this.platformPageData$ = this.connectedPlatformsService.platformPageData$;
   }
 }

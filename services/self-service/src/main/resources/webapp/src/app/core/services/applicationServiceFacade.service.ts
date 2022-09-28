@@ -24,7 +24,8 @@ import { HttpClient } from '@angular/common/http';
 import { Dictionary } from '../collections';
 import { environment } from '../../../environments/environment';
 import { HTTPMethod } from '../util';
-import { ImageActionType, ImageFilterFormValue, ImageParams } from '../../resources/images';
+import { ImageFilterFormValue, ImageParams } from '../../resources/images';
+import { AddPlatformFromValue } from '../../resources/connected-platforms/connected-platforms.models';
 
 // we can now access environment.apiUrl
 const API_URL = environment.apiUrl;
@@ -84,6 +85,7 @@ export class ApplicationServiceFacade {
   private static readonly CONFIG = 'config';
   private static readonly QUOTA = 'quota';
   private static readonly IMAGE_PAGE = 'image_page';
+  private static readonly CONNECTED_PLATFORMS = 'connected_platforms';
 
   private requestRegistry: Dictionary<string>;
 
@@ -200,6 +202,26 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.SHARE_ALL),
       params
       );
+  }
+  buildGetConnectedPlatformsPage(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      `${this.requestRegistry.Item(ApplicationServiceFacade.CONNECTED_PLATFORMS)}/user`,
+      null
+      );
+  }
+
+  buildAddPlatform(platformParams: AddPlatformFromValue): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.CONNECTED_PLATFORMS),
+      platformParams
+    );
+  }
+
+  buildDisconnectPlatform(platformName: string): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
+      `${this.requestRegistry.Item(ApplicationServiceFacade.CONNECTED_PLATFORMS)}/${platformName}`,
+      null
+    );
   }
 
   public buildGetTemplatesRequest(params): Observable<any> {
@@ -750,6 +772,8 @@ export class ApplicationServiceFacade {
       '/api/infrastructure/info');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE_PAGE,
       '/api/infrastructure_provision/exploratory_environment/image/user');
+    this.requestRegistry.Add(ApplicationServiceFacade.CONNECTED_PLATFORMS,
+      '/api/connected_platforms');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.TEMPLATES,

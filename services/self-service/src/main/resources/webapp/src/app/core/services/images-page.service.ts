@@ -33,7 +33,7 @@ import {
 import { ShareDialogData, UserData } from '../../resources/exploratory/image-action-dialog/image-action.model';
 
 @Injectable()
-export class UserImagesPageService {
+export class ImagesPageService {
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade
   ) { }
