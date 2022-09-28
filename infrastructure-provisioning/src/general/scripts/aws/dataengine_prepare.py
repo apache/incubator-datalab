@@ -66,7 +66,9 @@ if __name__ == "__main__":
             data_engine['computational_name'] = os.environ['computational_name'].lower()
         else:
             data_engine['computational_name'] = ''
-        data_engine['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+            data_engine['custom_tag'] = ''
+        if 'custom_tag' in os.environ['tags']:
+            data_engine['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
         if data_engine['custom_tag']:
             data_engine['custom_tag'] = ';custom_tag:{}'.format(data_engine['custom_tag'])
         data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
