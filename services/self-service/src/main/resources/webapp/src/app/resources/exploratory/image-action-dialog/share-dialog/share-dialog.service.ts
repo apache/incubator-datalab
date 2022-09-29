@@ -25,9 +25,8 @@ import isEqual from 'lodash.isequal';
 
 import { ImagesService } from '../../../images/images.service';
 import { ImageActionDialogModule } from '../image-action-dialog.module';
-import { ImageParams, ProjectImagesInfo } from '../../../images';
+import { ImageModel, ImageParams, ProjectImagesInfo } from '../../../images';
 import { ShareDialogData, UserData } from '../image-action.model';
-import { UserImagesPageService } from '../../../../core/services';
 
 @Injectable({
   providedIn: ImageActionDialogModule
@@ -45,17 +44,18 @@ export class ShareDialogService {
 
   constructor(
     private imagesService: ImagesService,
-    private userImagesPageService: UserImagesPageService
   ) { }
 
   getUserDataForShareDropdown(userData: string = ''): Observable<UserData[]> {
-    return this.userImagesPageService.getUserDataForShareDropdown(this.imageInfo, userData)
+    return this.imagesService.getUserDataForShareDropdown(userData, this.imageInfo)
       .pipe(
         tap(response => this.filterSearchDropdown(response))
       );
   }
 
-  sendShareRequest(flag: boolean, imageInfo: ImageParams): Observable<ProjectImagesInfo> {
+  sendShareRequest(flag: boolean, image: ImageModel, userData: UserData): Observable<ProjectImagesInfo> {
+    const filteredList = this.filterSharingList(userData);
+    const imageInfo = this.imagesService.createImageRequestInfo(image, filteredList);
     if (!flag) {
       return EMPTY;
     }
@@ -63,7 +63,7 @@ export class ShareDialogService {
   }
 
   getImageShareInfo(): Observable<ShareDialogData> {
-    return this.userImagesPageService.getImageShareInfo(this.imageInfo).pipe(
+    return this.imagesService.getImageShareInfo(this.imageInfo).pipe(
       tap(({canBeSharedWith, sharedWith}) => {
         this.cashedUserDataDropdownList = canBeSharedWith;
         this.searchUserDataDropdownList$$.next(canBeSharedWith);
@@ -106,5 +106,9 @@ export class ShareDialogService {
      .some(temporaryDataItem => isEqual(item, temporaryDataItem))
    );
     this.searchUserDataDropdownList$$.next(filteredDropdownList);
+  }
+
+  getImageParams(image: ImageModel): void {
+    this.imageInfo = this.imagesService.createImageRequestInfo(image);
   }
 }
