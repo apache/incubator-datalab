@@ -132,7 +132,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                 .connectedPlatforms(HealthStatusPageDTO.ConnectedPlatforms.builder()
                         .view(checkAccess(userInfo, CONNECTED_PLATFORMS_PERMISSION_VIEW))
                         .add(checkAccess(userInfo, CONNECTED_PLATFORMS_PERMISSION_ADD))
-                        .disconnect(checkAccess(userInfo, CONNECTED_PLATFORMS_PERMISSION_VIEW))
+                        .disconnect(checkAccess(userInfo, CONNECTED_PLATFORMS_PERMISSION_DISCONNECT))
                 .build())
                 .build();
     }
