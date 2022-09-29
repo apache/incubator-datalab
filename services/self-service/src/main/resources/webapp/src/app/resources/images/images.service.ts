@@ -16,10 +16,7 @@ import {
 } from './images.model';
 import { ApplicationServiceFacade, UserImagesPageService } from '../../core/services';
 import { ChangedColumnStartValue, FilterFormInitialValue, ModalTitle, SharingStatus } from './images.config';
-import { ShareDialogComponent } from '../exploratory/image-action-dialog/share-dialog/share-dialog.component';
-import { TerminateDialogComponent } from '../exploratory/image-action-dialog/terminate-dialog/terminate-dialog.component';
-import { ComponentType } from 'ngx-toastr';
-import { UserData } from '../exploratory/image-action-dialog/image-action.model';
+import { ShareDialogData, UserData } from '../exploratory/image-action-dialog/image-action.model';
 
 @Injectable({
   providedIn: 'root'
@@ -177,20 +174,6 @@ export class ImagesService {
     this.isImageListFiltered$$.next(isImageListFiltered);
   }
 
-  createImageRequestInfo(image: ImageModel, userDataList?: UserData[]): ImageParams {
-    const { name, project, endpoint } = image;
-    const imageParams = {
-      imageName: name,
-      projectName: project,
-      endpoint: endpoint,
-    };
-
-    if (userDataList) {
-      imageParams['sharedWith'] = userDataList;
-    }
-    return imageParams;
-  }
-
   createActionDialogConfig(image: ImageModel, actionType: ImageActionType): ImageActionModalData {
     const modalTitle = {
       share: ModalTitle.share,
@@ -212,14 +195,6 @@ export class ImagesService {
     return callbackList[actionType];
   }
 
-  getComponentByAction(actionType): ComponentType<unknown> {
-    const componentList = {
-      share: ShareDialogComponent,
-      terminate: TerminateDialogComponent
-    };
-    return componentList[actionType];
-  }
-
   initImagePageInfo(imagePageInfo: ProjectImagesInfo): void {
     this.getImagePageData(imagePageInfo.projectImagesInfos);
     this.getDropdownDataList(imagePageInfo.filterData);
@@ -227,6 +202,28 @@ export class ImagesService {
     this.updateFilterColumnState(imagePageInfo.imageFilter);
     this.checkIsPageFiltered();
   }
+
+  createImageRequestInfo(image: ImageModel, userDataList?: UserData[]): ImageParams {
+    const { name, project, endpoint } = image;
+    const imageParams = {
+      imageName: name,
+      projectName: project,
+      endpoint: endpoint,
+    };
+
+    if (userDataList) {
+      imageParams['sharedWith'] = userDataList;
+    }
+    return imageParams;
+  }
+
+  getImageShareInfo(imageInfo: ImageParams): Observable<ShareDialogData> {
+    return this.userImagesPageService.getImageShareInfo(imageInfo);
+  }
+
+  getUserDataForShareDropdown(userData: string, imageInfo: ImageParams): Observable<UserData[]> {
+    return this.userImagesPageService.getUserDataForShareDropdown(imageInfo, userData);
+}
 
   private isImageShared(image: ImageModel): boolean {
     return image.sharingStatus !== SharingStatus.private;

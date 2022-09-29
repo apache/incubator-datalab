@@ -22,7 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EMPTY, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
-import { ToastrService } from 'ngx-toastr';
+import { ComponentType, ToastrService } from 'ngx-toastr';
 
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ApplicationSecurityService, HealthStatusService } from '../../core/services';
@@ -54,6 +54,8 @@ import { ImagesService } from './images.service';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
 import { ImageDetailDialogComponent } from '../exploratory/image-detail-dialog/image-detail-dialog.component';
 import { ActivatedRoute } from '@angular/router';
+import { ShareDialogComponent } from '../exploratory/image-action-dialog/share-dialog/share-dialog.component';
+import { TerminateDialogComponent } from '../exploratory/image-action-dialog/terminate-dialog/terminate-dialog.component';
 
 @Component({
   selector: 'datalab-images',
@@ -164,7 +166,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     let imageInfo: ImageParams;
     const data = this.imagesService.createActionDialogConfig(image, actionType);
     const requestCallback = this.imagesService.getRequestByAction(actionType).bind(this.imagesService);
-    const component = this.imagesService.getComponentByAction(actionType);
+    const component = this.getComponentByAction(actionType);
 
     this.dialog.open(component, {
       data,
@@ -227,6 +229,14 @@ export class ImagesComponent implements OnInit, OnDestroy {
 
   onClickOutside(): void {
     this.imagesService.closeFilter();
+  }
+
+  private getComponentByAction(actionType): ComponentType<unknown> {
+    const componentList = {
+      share: ShareDialogComponent,
+      terminate: TerminateDialogComponent
+    };
+    return componentList[actionType];
   }
 
   private callActionHelpers(actionType: ImageActionType, callback?: (actionType: string) => void): void {

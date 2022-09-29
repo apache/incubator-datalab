@@ -21,7 +21,6 @@ import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@an
 import { SharePlaceholder } from '../image-action.config';
 import { ShareDialogData, UserData } from '../image-action.model';
 import { FormControl } from '@angular/forms';
-import { ImagesService } from '../../../images/images.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
   ImageActionModalData,
@@ -59,7 +58,6 @@ export class ShareDialogComponent implements OnInit, OnDestroy {
 
   constructor(
     public toastr: ToastrService,
-    private imagesService: ImagesService,
     @Inject(MAT_DIALOG_DATA) public data: ImageActionModalData,
     private dialog: MatDialog,
     private shareDialogService: ShareDialogService
@@ -117,22 +115,20 @@ export class ShareDialogComponent implements OnInit, OnDestroy {
       userData,
       title: ModalTitle.unShare
     };
-    const filteredList = this.shareDialogService.filterSharingList(userData);
-    const imageInfo = this.imagesService.createImageRequestInfo(this.data.image, filteredList);
 
     this.getUserListDataSubscription$ = this.dialog.open(UnShareWarningComponent, {
       data,
       panelClass: 'modal-sm'
     }).afterClosed()
       .pipe(
-        switchMap((isShare) => this.shareDialogService.sendShareRequest(isShare, imageInfo)),
+        switchMap((isShare) => this.shareDialogService.sendShareRequest(isShare, this.data.image, userData)),
         switchMap(() =>  this.shareDialogService.getImageShareInfo()),
         tap(() => this.toastr.success(Toaster_Message.successUnShare, Toaster_Message.successTitle))
       );
   }
 
   private getImageParams(): void {
-    this.shareDialogService.imageInfo = this.imagesService.createImageRequestInfo(this.data.image);
+    this.shareDialogService.getImageParams(this.data.image);
   }
 
   private initUserData(): void {
