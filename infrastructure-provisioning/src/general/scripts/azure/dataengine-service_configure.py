@@ -40,6 +40,14 @@ parser.add_argument('--uuid', type=str, default='')
 parser.add_argument('--access_password', type=str, default='')
 args = parser.parse_args()
 
+
+def add_notebook_secret(resource_group_name, instance_name, os_user, keyfile, computational_name, cluster_password):
+    private_ip = AzureMeta.get_private_ip_address(resource_group_name, instance_name)
+    global conn
+    conn = datalab.fab.init_datalab_connection(private_ip, os_user, keyfile)
+    datalab.actions_lib.ensure_hdinsight_secret(os_user, computational_name, cluster_password)
+
+
 if __name__ == "__main__":
     try:
         AzureMeta = datalab.meta_lib.AzureMeta()
@@ -56,21 +64,36 @@ if __name__ == "__main__":
         hdinsight_conf['project_tag'] = hdinsight_conf['project_name']
         hdinsight_conf['endpoint_name'] = os.environ['endpoint_name']
         hdinsight_conf['endpoint_tag'] = hdinsight_conf['endpoint_name']
-        hdinsight_conf['key_name'] = os.environ['conf_key_name']
         hdinsight_conf['hdinsight_master_instance_type'] = os.environ['hdinsight_master_instance_type']
         hdinsight_conf['hdinsight_slave_instance_type'] = os.environ['hdinsight_slave_instance_type']
+        hdinsight_conf['key_path'] = '{}/{}.pem'.format(os.environ['conf_key_dir'],
+                                                        os.environ['conf_key_name'])
         if 'computational_name' in os.environ:
             hdinsight_conf['computational_name'] = os.environ['computational_name']
         else:
             hdinsight_conf['computational_name'] = ''
         hdinsight_conf['cluster_name'] = '{}-{}-{}-des-{}'.format(hdinsight_conf['service_base_name'],
-                                                               hdinsight_conf['project_name'],
-                                                               hdinsight_conf['endpoint_name'],
-                                                               hdinsight_conf['computational_name'])
+                                                                  hdinsight_conf['project_name'],
+                                                                  hdinsight_conf['endpoint_name'],
+                                                                  hdinsight_conf['computational_name'])
         hdinsight_conf['cluster_url'] = 'https://{}.azurehdinsight.net'.format(hdinsight_conf['cluster_name'])
         hdinsight_conf['cluster_jupyter_url'] = '{}/jupyter/'.format(hdinsight_conf['cluster_url'])
         hdinsight_conf['cluster_sparkhistory_url'] = '{}/sparkhistory/'.format(hdinsight_conf['cluster_url'])
         hdinsight_conf['cluster_zeppelin_url'] = '{}/zeppelin/'.format(hdinsight_conf['cluster_url'])
+
+        if os.environ["application"] == "rstudio":
+            add_notebook_secret(hdinsight_conf['resource_group_name'], os.environ["notebook_instance_name"],
+                                os.environ["conf_os_user"], hdinsight_conf['key_path'],
+                                hdinsight_conf['computational_name'], args.access_password)
+            hdinsight_conf['rstudio_livy_connection'] = 'library(sparklyr); ' \
+                                                        'sc <- spark_connect(master = "{}/livy/", ' \
+                                                        'version = "3.1.1", method = "livy", ' \
+                                                        'config = livy_config(username = "{}", ' \
+                                                        'password = Sys.getenv("{}-access-password")))' \
+                .format(hdinsight_conf['cluster_url'], os.environ["conf_os_user"], hdinsight_conf['computational_name'])
+        else:
+            hdinsight_conf['rstudio_livy_connection'] = ''
+
         logging.info('[SUMMARY]')
         logging.info("Service base name: {}".format(hdinsight_conf['service_base_name']))
         logging.info("Region: {}".format(hdinsight_conf['region']))
@@ -98,7 +121,8 @@ if __name__ == "__main__":
                         "url": hdinsight_conf['cluster_jupyter_url']},
                        {"description": "Zeppelin notebook",
                         "url": hdinsight_conf['cluster_zeppelin_url']}
-                   ]
+                   ],
+                   "Connection_string": hdinsight_conf['rstudio_livy_connection']
                    }
             result.write(json.dumps(res))
     except Exception as err:
