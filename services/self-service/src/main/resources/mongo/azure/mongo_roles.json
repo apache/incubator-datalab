@@ -192,6 +192,18 @@
     ]
   },
   {
+    "_id": "compShapes_Standard_D12_v2_fetching",
+    "description": "Use Standard_D12_v2 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
+    "computational_shapes": [
+      "Standard_D12_v2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_Standard_F4s_fetching",
     "description": "Use Standard_F4s instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
