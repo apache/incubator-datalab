@@ -113,16 +113,17 @@ if __name__ == "__main__":
                    "key_name": hdinsight_conf['key_name'],
                    "Action": "Create new HDInsight cluster",
                    "computational_url": [
-                       {"description": "HDInsight cluster",
-                        "url": hdinsight_conf['cluster_url']},
+                       # {"description": "HDInsight cluster",
+                       #  "url": hdinsight_conf['cluster_url']},
                        {"description": "Apache Spark History",
                         "url": hdinsight_conf['cluster_sparkhistory_url']},
-                       {"description": "Jupyter notebook",
-                        "url": hdinsight_conf['cluster_jupyter_url']},
-                       {"description": "Zeppelin notebook",
-                        "url": hdinsight_conf['cluster_zeppelin_url']}
+                       {"description": "Connection string",
+                        "url": hdinsight_conf['rstudio_livy_connection']}
+                       # {"description": "Jupyter notebook",
+                       #  "url": hdinsight_conf['cluster_jupyter_url']},
+                       # {"description": "Zeppelin notebook",
+                       #  "url": hdinsight_conf['cluster_zeppelin_url']}
                    ],
-                   "Connection_string": hdinsight_conf['rstudio_livy_connection']
                    }
             result.write(json.dumps(res))
     except Exception as err:
