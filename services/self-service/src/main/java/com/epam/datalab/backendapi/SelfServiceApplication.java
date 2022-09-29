@@ -181,6 +181,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 	    jersey.register(injector.getInstance(OdahuResource.class));
 	    jersey.register(injector.getInstance(OdahuCallback.class));
 	    jersey.register(injector.getInstance(ChangePropertiesResource.class));
+	    jersey.register(injector.getInstance(ConnectedPlatformResource.class));
     }
 
     private void disableGzipHandlerForGuacamoleServlet(Server server) {

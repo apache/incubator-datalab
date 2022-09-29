@@ -96,6 +96,42 @@
     ]
   },
   {
+    "_id": "connectedPlatformsView",
+    "description": "Allow to view connected platforms",
+    "type": "CONNECTED_PLATFORMS",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/connected_platforms/view"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "connectedPlatformsDisconnect",
+    "description": "Allow to disconnect connected platforms",
+    "type": "CONNECTED_PLATFORMS",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/connected_platforms/disconnect"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "connectedPlatformsAdd",
+    "description": "Allow to add connected platforms",
+    "type": "CONNECTED_PLATFORMS",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/connected_platforms/add"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "bucketBrowserDelete",
     "description": "Allow to delete object via bucket browser",
     "type": "BUCKET_BROWSER",
