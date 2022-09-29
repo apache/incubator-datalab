@@ -47,6 +47,8 @@ public class HealthStatusPageDTO {
     private boolean projectAssigned;
     @JsonProperty
     private BucketBrowser bucketBrowser;
+    @JsonProperty
+    private ConnectedPlatforms connectedPlatforms;
 
     @Builder
     @Data
@@ -55,5 +57,13 @@ public class HealthStatusPageDTO {
         private final boolean upload;
         private final boolean download;
         private final boolean delete;
+    }
+
+    @Builder
+    @Data
+    public static class ConnectedPlatforms {
+        private final boolean view;
+        private final boolean add;
+        private final boolean disconnect;
     }
 }
