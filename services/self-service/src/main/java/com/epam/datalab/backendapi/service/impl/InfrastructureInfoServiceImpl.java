@@ -60,6 +60,11 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
     private static final String PERMISSION_UPLOAD = "/api/bucket/upload";
     private static final String PERMISSION_DOWNLOAD = "/api/bucket/download";
     private static final String PERMISSION_DELETE = "/api/bucket/delete";
+
+    private static final String CONNECTED_PLATFORMS_PERMISSION_VIEW = "/api/connected_platforms/view";
+    private static final String CONNECTED_PLATFORMS_PERMISSION_ADD = "/api/connected_platforms/add";
+    private static final String CONNECTED_PLATFORMS_PERMISSION_DISCONNECT = "/api/connected_platforms/disconnect";
+
     private static final String INFRASTRUCTURE_STATUS = "infrastructure/status";
 
     private final ExploratoryDAO expDAO;
@@ -124,6 +129,11 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
                         .download(checkAccess(userInfo, PERMISSION_DOWNLOAD))
                         .delete(checkAccess(userInfo, PERMISSION_DELETE))
                         .build())
+                .connectedPlatforms(HealthStatusPageDTO.ConnectedPlatforms.builder()
+                        .view(checkAccess(userInfo, CONNECTED_PLATFORMS_PERMISSION_VIEW))
+                        .add(checkAccess(userInfo, CONNECTED_PLATFORMS_PERMISSION_ADD))
+                        .disconnect(checkAccess(userInfo, CONNECTED_PLATFORMS_PERMISSION_DISCONNECT))
+                .build())
                 .build();
     }
 

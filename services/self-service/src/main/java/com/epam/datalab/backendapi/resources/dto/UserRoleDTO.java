@@ -55,6 +55,7 @@ public class UserRoleDTO {
         IMAGE,
         NOTEBOOK_SHAPE,
         COMPUTATIONAL_SHAPE,
+        CONNECTED_PLATFORMS,
         BILLING,
         BUCKET_BROWSER,
         ADMINISTRATION,

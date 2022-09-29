@@ -111,6 +111,8 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
         bind(TagService.class).to(TagServiceImpl.class);
         bind(SecurityService.class).to(SecurityServiceImpl.class);
         bind(KeycloakService.class).to(KeycloakServiceImpl.class);
+        bind(ConnectedPlatformsService.class).to(ConnectedPlatformsServiceImpl.class);
+        bind(ConnectedPlatformsDAO.class).to(ConnectedPlatformsDAOImpl.class);
         bind(Client.class).toInstance(httpClient);
     }
 }
