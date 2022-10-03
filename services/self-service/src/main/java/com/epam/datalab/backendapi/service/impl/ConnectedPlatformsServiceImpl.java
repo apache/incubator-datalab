@@ -80,6 +80,6 @@ public class ConnectedPlatformsServiceImpl implements ConnectedPlatformsService 
 
     @Override
     public void disconnect(UserInfo user, String name) {
-        connectedPlatformsDAO.delete(name);
+        connectedPlatformsDAO.delete(user.getName(), name);
     }
 }
