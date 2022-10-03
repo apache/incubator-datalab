@@ -30,5 +30,7 @@ public interface ConnectedPlatformsDAO {
 
     List<ConnectedPlatformDTO> getAll();
 
+    List<ConnectedPlatformDTO> getUserPlatforms(String userName);
+
     void delete(String name);
 }
