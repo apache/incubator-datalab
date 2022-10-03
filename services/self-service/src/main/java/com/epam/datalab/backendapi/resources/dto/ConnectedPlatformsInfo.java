@@ -17,20 +17,25 @@
  * under the License.
  */
 
-package com.epam.datalab.backendapi.service;
+package com.epam.datalab.backendapi.resources.dto;
 
-import com.epam.datalab.auth.UserInfo;
-import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformDTO;
-import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformType;
-import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformsInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
-public interface ConnectedPlatformsService {
-    ConnectedPlatformsInfo getUserPlatforms(String userName);
-    List<ConnectedPlatformDTO> getAll();
-
-    void addPlatform(UserInfo user, String name, ConnectedPlatformType type, String url);
-
-    void disconnect(UserInfo user, String name);
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
+@ToString
+public class ConnectedPlatformsInfo {
+    @JsonProperty
+    private List<ConnectedPlatformDTO> userPlatforms;
+    @JsonProperty
+    private List<ConnectedPlatformType> types;
+    @JsonProperty
+    private List<String> platformNames;
 }

@@ -23,13 +23,17 @@ import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.dao.ConnectedPlatformsDAO;
 import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformDTO;
 import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformType;
+import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformsInfo;
 import com.epam.datalab.backendapi.service.ConnectedPlatformsService;
 import com.epam.datalab.exceptions.ResourceAlreadyExistException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Singleton
 @Slf4j
 public class ConnectedPlatformsServiceImpl implements ConnectedPlatformsService {
@@ -45,8 +49,13 @@ public class ConnectedPlatformsServiceImpl implements ConnectedPlatformsService 
 
 
     @Override
-    public List<ConnectedPlatformDTO> getUserPlatforms(String userName) {
-        return connectedPlatformsDAO.getUserPlatforms(userName);
+    public ConnectedPlatformsInfo getUserPlatforms(String userName) {
+        List<String> platformNames = getAll().stream().map(ConnectedPlatformDTO::getName).collect(Collectors.toList());
+        return ConnectedPlatformsInfo.builder()
+                .userPlatforms(connectedPlatformsDAO.getUserPlatforms(userName))
+                .types(Arrays.asList(ConnectedPlatformType.values()))
+                .platformNames(platformNames)
+                .build();
     }
 
     @Override
