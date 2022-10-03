@@ -48,8 +48,9 @@ public class ConnectedPlatformResource {
 
     @RolesAllowed("/api/connected_platforms/view")
     @GET
+    @Path("/user")
     public Response getConnectedPlatforms(@Auth UserInfo ui) {
-        return Response.ok(connectedPlatformsService.getAll()).build();
+        return Response.ok(connectedPlatformsService.getUserPlatforms(ui.getName())).build();
     }
 
     @RolesAllowed("/api/connected_platforms/view")

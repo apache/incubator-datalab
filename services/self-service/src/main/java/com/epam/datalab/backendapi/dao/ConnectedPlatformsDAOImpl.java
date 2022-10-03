@@ -45,6 +45,11 @@ public class ConnectedPlatformsDAOImpl extends BaseDAO implements ConnectedPlatf
     }
 
     @Override
+    public List<ConnectedPlatformDTO> getUserPlatforms(String userName) {
+        return find(CONNECTED_PLATFORMS, eq("user", userName), ConnectedPlatformDTO.class);
+    }
+
+    @Override
     public void delete(String name) {
         deleteOne(CONNECTED_PLATFORMS, eq(NAME,name));
     }

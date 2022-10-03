@@ -26,6 +26,7 @@ import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformType;
 import java.util.List;
 
 public interface ConnectedPlatformsService {
+    List<ConnectedPlatformDTO> getUserPlatforms(String userName);
     List<ConnectedPlatformDTO> getAll();
 
     void addPlatform(UserInfo user, String name, ConnectedPlatformType type, String url);
