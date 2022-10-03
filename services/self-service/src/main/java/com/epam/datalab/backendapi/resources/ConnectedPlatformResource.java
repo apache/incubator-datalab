@@ -53,13 +53,6 @@ public class ConnectedPlatformResource {
         return Response.ok(connectedPlatformsService.getUserPlatforms(ui.getName())).build();
     }
 
-    @RolesAllowed("/api/connected_platforms/view")
-    @GET
-    @Path("/types")
-    public Response getConnectedPlatformTypes(@Auth UserInfo ui){
-        return Response.ok(ConnectedPlatformType.values()).build();
-    }
-
     @RolesAllowed("/api/connected_platforms/add")
     @POST
     public Response addConnectedPlatform(@Auth UserInfo ui, @Valid ConnectedPlatformAddFrom from) {
