@@ -45,6 +45,11 @@ public class ConnectedPlatformsServiceImpl implements ConnectedPlatformsService 
 
 
     @Override
+    public List<ConnectedPlatformDTO> getUserPlatforms(String userName) {
+        return connectedPlatformsDAO.getUserPlatforms(userName);
+    }
+
+    @Override
     public List<ConnectedPlatformDTO> getAll() {
         return connectedPlatformsDAO.getAll();
     }
