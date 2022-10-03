@@ -69,7 +69,7 @@ if __name__ == "__main__":
         hdinsight_conf['key_path'] = '{}/{}.pem'.format(os.environ['conf_key_dir'],
                                                         os.environ['conf_key_name'])
         if 'computational_name' in os.environ:
-            hdinsight_conf['computational_name'] = os.environ['computational_name']
+            hdinsight_conf['computational_name'] = os.environ['computational_name'].lower().replace('_', '-')
         else:
             hdinsight_conf['computational_name'] = ''
         hdinsight_conf['cluster_name'] = '{}-{}-{}-des-{}'.format(hdinsight_conf['service_base_name'],

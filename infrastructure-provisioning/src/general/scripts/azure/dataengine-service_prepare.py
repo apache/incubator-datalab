@@ -78,7 +78,9 @@ if __name__ == "__main__":
             "endpoint_tag": hdinsight_conf['endpoint_name']
         }
 
-        hdinsight_conf['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+        hdinsight_conf['custom_tag'] = ''
+        if 'custom_tag' in os.environ['tags']:
+            hdinsight_conf['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
         if hdinsight_conf['custom_tag']:
             hdinsight_conf['cluster_tags']['custom_tag'] = hdinsight_conf['custom_tag']
 
