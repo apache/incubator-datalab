@@ -22,12 +22,15 @@ package com.epam.datalab.backendapi.dao;
 import com.epam.datalab.backendapi.resources.dto.ConnectedPlatformDTO;
 
 import java.util.List;
+
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 public class ConnectedPlatformsDAOImpl extends BaseDAO implements ConnectedPlatformsDAO {
 
     private static final String CONNECTED_PLATFORMS = "connectedPlatforms";
     private static final String NAME = "name";
+    private static final String USER = "user";
 
     @Override
     public boolean exist(String name) {
@@ -46,11 +49,11 @@ public class ConnectedPlatformsDAOImpl extends BaseDAO implements ConnectedPlatf
 
     @Override
     public List<ConnectedPlatformDTO> getUserPlatforms(String userName) {
-        return find(CONNECTED_PLATFORMS, eq("user", userName), ConnectedPlatformDTO.class);
+        return find(CONNECTED_PLATFORMS, eq(USER, userName), ConnectedPlatformDTO.class);
     }
 
     @Override
-    public void delete(String name) {
-        deleteOne(CONNECTED_PLATFORMS, eq(NAME,name));
+    public void delete(String user, String name) {
+        deleteOne(CONNECTED_PLATFORMS, and(eq(USER,user),eq(NAME,name)));
     }
 }
