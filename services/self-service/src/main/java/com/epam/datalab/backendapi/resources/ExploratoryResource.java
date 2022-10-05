@@ -84,7 +84,8 @@ public class ExploratoryResource implements ExploratoryAPI {
             log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
             throw new DatalabException("You do not have the privileges to create a " + formDTO.getTemplateName());
         }
-        if(formDTO.getImageName() != null
+
+        if(imageExploratoryService.imageExistInProject(formDTO.getImageName(), formDTO.getProject())
                 && !imageExploratoryService.canCreateFromImage(userInfo, formDTO.getImageName(),formDTO.getProject() , formDTO.getEndpoint())){
             log.warn("Unauthorized attempt to create notebook from image  {} by user {}", formDTO.getImageName(), userInfo.getName());
             throw new DatalabException("You do not have the privileges to create notebook from image " + formDTO.getImageName());
