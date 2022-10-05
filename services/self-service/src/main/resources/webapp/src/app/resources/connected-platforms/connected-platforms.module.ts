@@ -25,10 +25,11 @@ import { ConnectedPlatformsComponent } from './connected-platforms.component';
 import { MaterialModule } from '../../shared/material.module';
 import { NormalizeLinkPipeModule } from '../../core/pipes';
 import { BubbleModule } from '../../shared';
-import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
-import { ModalPartsModule } from '../../shared/modal-parts/modal-parts.module';
-import { ConnectedPlatformDialogComponent } from './connected-platform-dialog/connected-platform-dialog.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TruncateTextPipeModule } from '../../core/pipes/truncate-text-pipe';
+import { ModalPartsModule } from '../../shared/modal-parts/modal-parts.module';
+import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
+import { ConnectedPlatformDialogComponent } from './connected-platform-dialog/connected-platform-dialog.component';
 
 
 @NgModule({
@@ -44,7 +45,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     ConnectedPlatformsRoutingModule,
     BubbleModule,
     ModalPartsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TruncateTextPipeModule
   ],
   entryComponents: [ ConnectedPlatformDialogComponent, WarningDialogComponent ]
 })

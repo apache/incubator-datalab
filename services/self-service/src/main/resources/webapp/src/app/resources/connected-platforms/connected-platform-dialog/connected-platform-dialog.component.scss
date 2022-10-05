@@ -25,12 +25,12 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 20px;
+  height: 56px;
 }
 
 .select__wrapper {
   position: relative;
-  width: 285px;
+  width: 320px;
   height: 36px;
 
   & ::ng-deep .mat-form-field-wrapper {
@@ -89,5 +89,10 @@
 }
 
 .input__wrapper {
-  width: 285px;
+  width: 320px;
+  height: 56px;
+}
+
+.button__wrapper {
+  padding-top: 20px;
 }

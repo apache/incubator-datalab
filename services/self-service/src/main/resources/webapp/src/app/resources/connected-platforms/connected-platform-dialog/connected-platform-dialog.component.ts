@@ -19,10 +19,11 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalTitle } from '../../images';
 import { AddModalData, AddPlatformFromValue } from '../connected-platforms.models';
 import { ConfirmButtonNames } from '../connected-platforms.config';
+import { PATTERNS } from '../../../core/util';
 
 @Component({
   selector: 'datalab-connected-platform-dialog',
@@ -55,9 +56,13 @@ export class ConnectedPlatformDialogComponent implements OnInit {
 
   private initForm(): void {
     this.connectedPlatformForm = this.fb.group({
-      type: '',
-      url: '',
-      name: ''
+      type: ['', Validators.required],
+      url: ['', [ Validators.required, Validators.pattern(PATTERNS.fullUrl)]],
+      name: ['', [ Validators.required, Validators.pattern(PATTERNS.projectName), Validators.minLength(2)]]
     });
+  }
+
+  get isFormValid(): boolean {
+    return this.connectedPlatformForm.valid;
   }
 }

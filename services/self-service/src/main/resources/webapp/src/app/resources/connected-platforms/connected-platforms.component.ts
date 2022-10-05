@@ -38,6 +38,7 @@ import { WarningDialogComponent } from './warning-dialog/warning-dialog.componen
 })
 export class ConnectedPlatformsComponent implements OnInit {
   readonly tableHeaderCellTitles: typeof ConnectedPlatformsTableTitles = ConnectedPlatformsTableTitles;
+  readonly maxUrlLength: number = 30;
 
   // tslint:disable-next-line:max-line-length
   private readonly connectedPlatformsStatus$$: BehaviorSubject<ConnectedPlatformsStatus> = new BehaviorSubject<ConnectedPlatformsStatus>({} as ConnectedPlatformsStatus);
