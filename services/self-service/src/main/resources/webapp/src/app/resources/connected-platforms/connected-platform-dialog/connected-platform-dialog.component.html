@@ -46,6 +46,13 @@
           <label>Platform url</label>
           <div class="input__wrapper">
             <input placeholder="Platform url" type="text" formControlName="url">
+            <span
+              class="error"
+              *ngIf="!connectedPlatformForm?.controls.url.valid
+                        && connectedPlatformForm.controls.url.touched"
+            >
+              Please provide a valid endpoint url with slash in the end.
+            </span>
           </div>
         </div>
 
@@ -53,9 +60,21 @@
           <label>Name</label>
           <div class="input__wrapper">
             <input placeholder="Enter name" type="text" formControlName="name">
+            <span
+              class="error"
+              *ngIf="!connectedPlatformForm?.controls.name.valid && connectedPlatformForm.controls.name.touched"
+            >
+              Can only contain letters, numbers. Minimum 2 symbols.
+            </span>
           </div>
         </div>
-        <datalab-modal-btn [confirmBtnName]="confirmButtonName.add" (closeEvent)="onBtnClick($event)"></datalab-modal-btn>
+        <div class="button__wrapper">
+          <datalab-modal-btn
+            [isConfirmBtnDisabled]="isFormValid"
+            [confirmBtnName]="confirmButtonName.add"
+            (closeEvent)="onBtnClick($event)"
+          ></datalab-modal-btn>
+        </div>
       </form>
     </div>
   </div>

@@ -41,8 +41,15 @@
     <ng-container matColumnDef="linkToPlatform">
       <th mat-header-cell *matHeaderCellDef>{{tableHeaderCellTitles.linkToPlatform}}</th>
       <td class="column" mat-cell *matCellDef="let element">
-        <a class="link" [href]="element.url | normalizeLink" target="_blank">
-          {{element.url}}
+        <a
+          class="link"
+          [href]="element.url | normalizeLink"
+          target="_blank"
+          [matTooltip]="element.url"
+          matTooltipPosition="above"
+          [matTooltipDisabled]="element.url.length < maxUrlLength"
+        >
+          {{element.url | truncateTextPipe : maxUrlLength}}
         </a>
       </td>
     </ng-container>
