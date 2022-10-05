@@ -78,7 +78,6 @@ export class ImagesComponent implements OnInit, OnDestroy {
   readonly imageActionType: typeof ImageActions = ImageActions;
 
   isActionsOpen: boolean = false;
-  healthStatus: GeneralEnvironmentStatus;
   dataSource: Observable<ImageModel[]>;
   projectSource: Observable<ProjectModel[]>;
   checkboxSelected: boolean = false;
@@ -265,12 +264,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
   }
 
   private getEnvironmentHealthStatus(): void {
-    this.healthStatusService.getEnvironmentHealthStatus().subscribe(
-      (result: GeneralEnvironmentStatus) => {
-        this.healthStatus = result;
-      },
-      error => this.toastr.error(error.message, 'Oops!')
-    );
+    this.healthStatusService.getEnvironmentHealthStatus().subscribe();
   }
 
   private initFilteredColumnState(): void {

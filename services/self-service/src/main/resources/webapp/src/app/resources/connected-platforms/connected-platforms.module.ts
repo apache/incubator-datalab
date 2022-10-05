@@ -24,17 +24,28 @@ import { ConnectedPlatformsRoutingModule } from './connected-platforms-routing.m
 import { ConnectedPlatformsComponent } from './connected-platforms.component';
 import { MaterialModule } from '../../shared/material.module';
 import { NormalizeLinkPipeModule } from '../../core/pipes';
+import { BubbleModule } from '../../shared';
+import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
+import { ModalPartsModule } from '../../shared/modal-parts/modal-parts.module';
+import { ConnectedPlatformDialogComponent } from './connected-platform-dialog/connected-platform-dialog.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
   declarations: [
-    ConnectedPlatformsComponent
+    ConnectedPlatformsComponent,
+    WarningDialogComponent,
+    ConnectedPlatformDialogComponent
   ],
   imports: [
     CommonModule,
     MaterialModule,
     NormalizeLinkPipeModule,
-    ConnectedPlatformsRoutingModule
-  ]
+    ConnectedPlatformsRoutingModule,
+    BubbleModule,
+    ModalPartsModule,
+    ReactiveFormsModule
+  ],
+  entryComponents: [ ConnectedPlatformDialogComponent, WarningDialogComponent ]
 })
 export class ConnectedPlatformsModule { }

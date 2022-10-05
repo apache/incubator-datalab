@@ -122,7 +122,8 @@ export enum ImageActions {
 export enum ModalTitle {
   share = 'Share image',
   terminate = 'Terminate image',
-  unShare = '! Warning'
+  unShare = '! Warning',
+  addPlatform = 'Add platform'
 }
 
 export enum URL_Chunk {

@@ -14,7 +14,7 @@ import {
   ImageActionType,
   ImageActionModalData
 } from './images.model';
-import { ApplicationServiceFacade, UserImagesPageService } from '../../core/services';
+import { ApplicationServiceFacade, ImagesPageService } from '../../core/services';
 import { ChangedColumnStartValue, FilterFormInitialValue, ModalTitle, SharingStatus } from './images.config';
 import { ShareDialogData, UserData } from '../exploratory/image-action-dialog/image-action.model';
 
@@ -45,7 +45,7 @@ export class ImagesService {
 
   constructor(
     private applicationServiceFacade: ApplicationServiceFacade,
-    private userImagesPageService: UserImagesPageService
+    private userImagesPageService: ImagesPageService
   ) { }
 
   getImagePageInfo(): Observable<ProjectImagesInfo> {

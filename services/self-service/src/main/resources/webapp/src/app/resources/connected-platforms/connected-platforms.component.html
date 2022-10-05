@@ -20,6 +20,8 @@
 <section class="connected-platforms__wrapper base-retreat">
   <nav class="sub-nav">
     <button
+      *ngIf="(connectedPlatformsStatus$ | async)?.add"
+      (click)="onAddNew()"
       mat-raised-button
       class="butt butt-create"
     >
@@ -29,27 +31,55 @@
 
   <mat-divider></mat-divider>
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 table">
+  <table mat-table [dataSource]="(platformPageData$ | async).userPlatforms" class="mat-elevation-z8 table">
 
     <ng-container matColumnDef="platformName">
       <th mat-header-cell *matHeaderCellDef>{{tableHeaderCellTitles.platformName}}</th>
-      <td mat-cell class="column" *matCellDef="let element"> {{element.platformName}} </td>
+      <td mat-cell class="column" *matCellDef="let element"> {{element.name}} </td>
     </ng-container>
 
     <ng-container matColumnDef="linkToPlatform">
       <th mat-header-cell *matHeaderCellDef>{{tableHeaderCellTitles.linkToPlatform}}</th>
       <td class="column" mat-cell *matCellDef="let element">
-        <a class="link" [href]="element.linkToPlatform | normalizeLink" target="_blank">
-          {{element.linkToPlatform}}
+        <a class="link" [href]="element.url | normalizeLink" target="_blank">
+          {{element.url}}
         </a>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>{{tableHeaderCellTitles.actions}}</th>
-      <td mat-cell *matCellDef="let element"><span class="actions">
-        <img class="action-icon" [src]="'assets/svg/settings_icon.svg'" alt="setting-icon">
-      </span></td>
+      <th
+        mat-header-cell
+        [ngClass]="{'hided-table-title': !(connectedPlatformsStatus$ | async)?.disconnect}"
+        *matHeaderCellDef
+      >
+        {{tableHeaderCellTitles.actions}}
+      </th>
+      <td mat-cell class="action-cell" *matCellDef="let element">
+        <span class="actions-menu"
+              #settings
+              (click)="actions.toggle($event, settings)">
+          <img
+            *ngIf="(connectedPlatformsStatus$ | async)?.disconnect"
+            class="action-icon"
+            [src]="'assets/svg/settings_icon.svg'"
+            alt="setting-icon"
+          >
+        </span>
+        <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+          <ul class="list-unstyled">
+            <li>
+              <button
+                class="action-button__disconnect"
+                (click)="onPlatformDisconnect(element)"
+              >
+                <i class="material-icons icon">cast</i>
+                <span>Disconnect</span>
+              </button>
+            </li>
+          </ul>
+        </bubble-up>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

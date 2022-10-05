@@ -4,7 +4,7 @@ import { Observable, of  } from 'rxjs';
 
 import { ProjectImagesInfo } from '../../resources/images';
 import { switchMap, take } from 'rxjs/operators';
-import { UserImagesPageService } from './user-images-page.service';
+import { ImagesPageService } from './images-page.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ import { UserImagesPageService } from './user-images-page.service';
 export class ImagePageResolveGuard implements Resolve<ProjectImagesInfo> {
   constructor(
     private router: Router,
-    private userImagesPageService: UserImagesPageService
+    private userImagesPageService: ImagesPageService
   ) {}
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ProjectImagesInfo> {
