@@ -104,6 +104,11 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     @Inject
     private SecurityDAO securityDAO;
 
+    @Override
+    public boolean imageExistInProject(String imageName, String project) {
+        return imageExploratoryDao.exist(imageName, project);
+    }
+
     @Audit(action = CREATE, type = IMAGE)
     @Override
     public String createImage(@User UserInfo user, @Project String project, String exploratoryName, @ResourceName String imageName, String imageDescription) {

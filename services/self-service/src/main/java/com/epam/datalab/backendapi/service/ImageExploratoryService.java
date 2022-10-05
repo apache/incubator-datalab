@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface ImageExploratoryService {
+    boolean imageExistInProject(String imageName, String project);
 
     String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription);
 
