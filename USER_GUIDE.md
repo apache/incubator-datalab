@@ -326,7 +326,7 @@ Once you click on the cross the confirmation pop-up window appears:
 
 As soon as you confirm stop sharing, the user login/group is deleted from the sharing pop-up window and from the images' table list of the user.
 
-You always have possibility to view image information by clicking on question icon <img src="doc/question.png" alt="question" width="20"> in the "Actions" column. Then the pop-up window with additional info shows up:
+You always have possibility to view image information by clicking the question icon <img src="doc/question.png" alt="question" width="20"> in the "Actions" column. Then the pop-up window with additional info shows up:
 
 <p align="center"> 
     <img src="doc/image_additional_info.png" alt="Image info." width="450">
@@ -426,7 +426,15 @@ This picture shows menu for creating Dataproc (Data Engine Service) and Standalo
 
 To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
-This picture shows menu for creating Standalone Apache Spark cluster for Azure and AWS:
+
+This picture shows menu for HDInsight creation for Azure:
+
+<p align="center"> 
+    <img src="doc/hdinsight.png" alt="Create HDInsight on Azure" width="760">
+</p>
+
+
+This picture shows menu for creating Standalone Apache Spark cluster for Azure, GCP and AWS:
 <p align="center"> 
     <img src="doc/spark_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
