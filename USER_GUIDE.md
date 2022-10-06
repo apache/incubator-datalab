@@ -301,7 +301,7 @@ Confirmation pop-up for image termination:
 
 After you confirm your intent to terminate the image - the status changes to "Terminating" and later becomes "Terminated"
 
-Share image pop-up:
+Share image pop-up for image sharing:
 
 <p align="center"> 
     <img src="doc/image_sharing.png" alt="Image sharing" width="500">
@@ -311,13 +311,13 @@ You can share the image  with individual users by entering a user login and with
 
 As soon as you confirm image sharing the image status changes from "Private" to "Shared" status for user who shares the image. The shared image shows up in the list of images and has "Received" status for user with whom image is shared.
 
-The information about sharing is saved in the sharing pop-up window:
+In addition, the information about sharing is saved in the sharing pop-up window:
 
 <p align="center"> 
     <img src="doc/information_about_sharing.png" alt="Information about sharing" width="400">
 </p>
 
-At any timae you can stop sharing the image with other users by clicking on the cross next to users groups in the "Shared with" section.
+At any time you can stop sharing the image with other users by clicking on the cross next to users groups in the "Shared with" section.
 Once you click on the cross the confirmation pop-up window appears: 
 
 <p align="center"> 
@@ -326,7 +326,7 @@ Once you click on the cross the confirmation pop-up window appears:
 
 As soon as you confirm stop sharing, the user login/group is deleted from the sharing pop-up window and from the images' table list of the user.
 
-When you click on question icon <img src="doc/question.png" alt="question" width="20"> in the "Actions" column the pop-up window with additional info shows up where you are able to see the additional information about the image:
+You always have possibility to view image information by clicking on question icon <img src="doc/question.png" alt="question" width="20"> in the "Actions" column. Then the pop-up window with additional info shows up:
 
 <p align="center"> 
     <img src="doc/image_additional_info.png" alt="Image info." width="450">
