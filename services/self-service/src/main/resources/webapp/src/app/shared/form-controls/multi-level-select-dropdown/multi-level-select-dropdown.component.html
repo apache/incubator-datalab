@@ -53,7 +53,7 @@
               [someChecked]="selectedSomeInCattegory(item.type)"
               (toggleSelection)="toggleSelectedCategory(model, item.type)"
             ></datalab-checkbox>
-            {{labels[item.type] || item.type | titlecase}}
+            {{labels[item.type] || item.type | titlecase | underscoreless}}
           </a>
         </li>
 
