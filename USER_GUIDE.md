@@ -279,7 +279,6 @@ Here you can filter by:
 As soon as you select one or several filtered options you can confirm the filter action by clicking the "Ok" button. 
 After confirmation the page is updated by filtered parameters.
 
-
 ![Filter Image Popup](doc/filtered_images.png)
 
 On top of that, you have several options to clear filter by:
@@ -287,7 +286,7 @@ On top of that, you have several options to clear filter by:
 - Clicking on cross icon <img src="doc/filter_cross_icon.png" alt="cross" width="20"> near to blue activate filter button - all filters are cleared
 - Clicking  in each column in the "Filter image" pop-up
 
-You can share the image (only in "Active" status) with all users in the project or terminate it if you are image creator. Creator is the user who has created the image. 
+You can share the image (only in "Active" status) with selected users/groups in the project or terminate it if you are an image creator. Creator is the user who has created the image. 
 To share or terminate image click on the gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed image and hit "Terminate" or "Share" button appropriately.
 
 <p align="center"> 
@@ -302,13 +301,44 @@ Confirmation pop-up for image termination:
 
 After you confirm your intent to terminate the image - the status changes to "Terminating" and later becomes "Terminated"
 
-Confirmation pop-up for image sharing:
+Share image pop-up:
 
 <p align="center"> 
     <img src="doc/image_sharing.png" alt="Image sharing" width="500">
 </p>
 
-Confirm image sharing and afterwards image status changes from "Private" to "Shared" status for user who shares the image. The shared image shows up in the list of images and has "Received" status for user with whom image is shared.
+You can share the image  with individual users by entering a user login and with groups of users by entering the group name.
+
+As soon as you confirm image sharing the image status changes from "Private" to "Shared" status for user who shares the image. The shared image shows up in the list of images and has "Received" status for user with whom image is shared.
+
+The information about sharing is saved in the sharing pop-up window:
+
+<p align="center"> 
+    <img src="doc/information_about_sharing.png" alt="Information about sharing" width="400">
+</p>
+
+At any timae you can stop sharing the image with other users by clicking on the cross next to users groups in the "Shared with" section.
+Once you click on the cross the confirmation pop-up window appears: 
+
+<p align="center"> 
+    <img src="doc/stop_sharing_confirmation.png" alt="Stop sharing confirmation" width="400">
+</p>
+
+As soon as you confirm stop sharing, the user login/group is deleted from the sharing pop-up window and from the images' table list of the user.
+
+When you click on question icon <img src="doc/question.png" alt="question" width="20"> in the "Actions" column the pop-up window with additional info shows up where you are able to see the additional information about the image:
+
+<p align="center"> 
+    <img src="doc/image_additional_info.png" alt="Image info." width="450">
+</p>
+
+- Image status
+- Notebook template which was used for image creation
+- Which extra libraries were installed for the image
+- Cloud provider where image was created
+- Image creation date
+- Who created the image
+- With whom the image was shared.
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
