@@ -35,7 +35,7 @@ public class ConnectedPlatformsInfo {
     @JsonProperty
     private List<ConnectedPlatformDTO> userPlatforms;
     @JsonProperty
-    private List<ConnectedPlatformType> types;
+    private List<String> types;
     @JsonProperty
     private List<String> platformNames;
 }

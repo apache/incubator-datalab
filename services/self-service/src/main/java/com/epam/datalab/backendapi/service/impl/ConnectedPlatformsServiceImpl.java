@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Singleton
 @Slf4j
@@ -51,9 +52,10 @@ public class ConnectedPlatformsServiceImpl implements ConnectedPlatformsService 
     @Override
     public ConnectedPlatformsInfo getUserPlatforms(String userName) {
         List<String> platformNames = getAll().stream().map(ConnectedPlatformDTO::getName).collect(Collectors.toList());
+        List<String> platformTypes = Stream.of(ConnectedPlatformType.values()).map(ConnectedPlatformType::getName).collect(Collectors.toList());
         return ConnectedPlatformsInfo.builder()
                 .userPlatforms(connectedPlatformsDAO.getUserPlatforms(userName))
-                .types(Arrays.asList(ConnectedPlatformType.values()))
+                .types(platformTypes)
                 .platformNames(platformNames)
                 .build();
     }

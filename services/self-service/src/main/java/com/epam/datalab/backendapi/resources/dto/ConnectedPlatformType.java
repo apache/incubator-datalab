@@ -19,10 +19,13 @@
 
 package com.epam.datalab.backendapi.resources.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum ConnectedPlatformType {
     MLFLOW("MLflow");
 
-    ConnectedPlatformType(String name) {
-
-    }
+    private final String name;
 }
