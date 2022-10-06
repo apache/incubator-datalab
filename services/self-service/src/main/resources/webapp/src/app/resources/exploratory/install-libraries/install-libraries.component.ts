@@ -113,8 +113,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
       )
       .subscribe(value => {
-        if(!!value?.match(/\s+/g)) {
-          this.libSearch.setValue(value.replace(/\s+/g, ''))
+        if (!!value?.match(/\s+/g)) {
+          this.libSearch.setValue(value.replace(/\s+/g, ''));
           this.lib.name = value.replace(/\s+/g, '');
         } else {
           this.lib.name = value;
@@ -219,7 +219,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.checkFilters();
   }
 
-  private checkFilters() : void{
+  private checkFilters(): void {
     this.isFilterChanged = CompareUtils.compareFilters(this.filterModel, this.cashedFilterForm);
     this.isFilterSelected = Object.keys(this.filterModel).some(v => this.filterModel[v].length > 0);
   }
