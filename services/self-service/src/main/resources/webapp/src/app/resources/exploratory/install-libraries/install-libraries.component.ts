@@ -22,7 +22,7 @@ import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inje
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import {debounceTime, filter, take, takeUntil} from 'rxjs/operators';
+import {debounceTime, take, takeUntil} from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
@@ -30,7 +30,6 @@ import { SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { FilterLibsModel } from './filter-libs.model';
 import { Subject, timer } from 'rxjs';
 import { CompareUtils } from '../../../core/util/compareUtils';
-import { DockerImageName } from '../../../core/configs/docker-image-name';
 
 interface Library {
   name: string;
