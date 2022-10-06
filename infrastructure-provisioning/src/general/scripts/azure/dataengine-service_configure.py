@@ -76,6 +76,7 @@ if __name__ == "__main__":
                                                                   hdinsight_conf['project_name'],
                                                                   hdinsight_conf['endpoint_name'],
                                                                   hdinsight_conf['computational_name'])
+        hdinsight_conf["instance_id"] = hdinsight_conf["cluster_name"]
         hdinsight_conf['cluster_url'] = 'https://{}.azurehdinsight.net'.format(hdinsight_conf['cluster_name'])
         hdinsight_conf['cluster_jupyter_url'] = '{}/jupyter/'.format(hdinsight_conf['cluster_url'])
         hdinsight_conf['cluster_sparkhistory_url'] = '{}/sparkhistory/'.format(hdinsight_conf['cluster_url'])
@@ -111,6 +112,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"hostname": hdinsight_conf['cluster_name'],
                    "key_name": hdinsight_conf['key_name'],
+                   "instance_id": hdinsight_conf["instance_id"],
                    "Action": "Create new HDInsight cluster",
                    "computational_url": [
                        # {"description": "HDInsight cluster",
