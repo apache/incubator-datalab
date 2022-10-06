@@ -22,7 +22,7 @@ import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inje
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import {debounceTime, filter, take, takeUntil} from 'rxjs/operators';
+import {debounceTime, take, takeUntil} from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
@@ -112,8 +112,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
       )
       .subscribe(value => {
-        if(!!value?.match(/\s+/g)) {
-          this.libSearch.setValue(value.replace(/\s+/g, ''))
+        if (!!value?.match(/\s+/g)) {
+          this.libSearch.setValue(value.replace(/\s+/g, ''));
           this.lib.name = value.replace(/\s+/g, '');
         } else {
           this.lib.name = value;
@@ -159,6 +159,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.notebook.type = 'EXPLORATORY';
     this.notebook.title = `${this.notebook.name} <em class="capt">notebook</em>`;
     return [this.notebook].concat(this.notebook.resources
+      .filter((item) => !Boolean(item.hdinsight_version))
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
@@ -170,14 +171,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public filterList(): void {
     this.validity_format = '';
-    (this.lib.name && this.lib.name.length >= 2 && this.group ) 
-      ? this.getFilteredList() 
+    (this.lib.name && this.lib.name.length >= 2 && this.group )
+      ? this.getFilteredList()
       : this.filteredList = null;
   }
 
   public filterGroups(groupsList): Array<string> {
     const CURRENT_TEMPLATE = this.notebook.template_name.toLowerCase();
-    if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1  
+    if (CURRENT_TEMPLATE.indexOf('jupyter with tensorflow') !== -1
       || CURRENT_TEMPLATE.indexOf('deep learning') !== -1) {
       const filtered = groupsList.filter(group => group !== 'r_pkg');
       return SortUtils.libGroupsSort(filtered);
@@ -217,7 +218,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.checkFilters();
   }
 
-  private checkFilters() : void{
+  private checkFilters(): void {
     this.isFilterChanged = CompareUtils.compareFilters(this.filterModel, this.cashedFilterForm);
     this.isFilterSelected = Object.keys(this.filterModel).some(v => this.filterModel[v].length > 0);
   }
@@ -499,22 +500,22 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       Object.setPrototypeOf(this.cashedFilterForm, Object.getPrototypeOf(this.filterModel));
     }
     this.filtredNotebookLibs = this.notebookLibs.filter((lib) => {
-      const isName = this.cashedFilterForm.name 
+      const isName = this.cashedFilterForm.name
         ? lib.name.toLowerCase().indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1
-          || lib.version.indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1 
+          || lib.version.indexOf(this.cashedFilterForm.name.toLowerCase().trim()) !== -1
         : true;
-      const isGroup = this.cashedFilterForm.group.length 
-        ? this.cashedFilterForm.group.includes(this.groupsListMap[lib.group]) 
+      const isGroup = this.cashedFilterForm.group.length
+        ? this.cashedFilterForm.group.includes(this.groupsListMap[lib.group])
         : true;
       lib.filteredStatus = lib.status.filter(status => {
-        const isResource = this.cashedFilterForm.resource.length 
-          ? this.cashedFilterForm.resource.includes(status.resource) 
+        const isResource = this.cashedFilterForm.resource.length
+          ? this.cashedFilterForm.resource.includes(status.resource)
           : true;
-        const isResourceType = this.cashedFilterForm.resource_type.length 
-          ? this.cashedFilterForm.resource_type.includes(status.resourceType) 
+        const isResourceType = this.cashedFilterForm.resource_type.length
+          ? this.cashedFilterForm.resource_type.includes(status.resourceType)
           : true;
-        const isStatus = this.cashedFilterForm.status.length 
-          ? this.cashedFilterForm.status.includes(status.status) 
+        const isStatus = this.cashedFilterForm.status.length
+          ? this.cashedFilterForm.status.includes(status.status)
           : true;
         return isResource && isResourceType && isStatus;
       });
