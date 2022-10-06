@@ -70,6 +70,10 @@
   &:hover {
     color: #35afd5;
     cursor: pointer;
+
+    & ::before {
+      background-color: #35afd5;
+    }
   }
 }
 
@@ -83,13 +87,13 @@
 
   &::before {
     position: absolute;
-    top: 12px;
-    left: -8px;
-    width: 39px;
+    top: 11px;
+    left: -4px;
+    width: 32px;
     height: 1px;
     rotate: 40deg;
     content: '';
-    background-color: black;
+    background-color: #577289;
     transform: rotateX(1deg);
   }
 }

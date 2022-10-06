@@ -23,7 +23,7 @@
   <div class="button__wrapper">
     <button type="button" class="butt mat-raised-button" (click)="close()">No</button>
     <button
-      [disabled]="!isConfirmBtnDisabled"
+      [disabled]="isConfirmBtnDisabled"
       type="button"
       class="butt butt-success mat-raised-button"
       (click)="close(true)">

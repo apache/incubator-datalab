@@ -70,7 +70,7 @@
         </div>
         <div class="button__wrapper">
           <datalab-modal-btn
-            [isConfirmBtnDisabled]="isFormValid"
+            [isConfirmBtnDisabled]="!isFormValid"
             [confirmBtnName]="confirmButtonName.add"
             (closeEvent)="onBtnClick($event)"
           ></datalab-modal-btn>
