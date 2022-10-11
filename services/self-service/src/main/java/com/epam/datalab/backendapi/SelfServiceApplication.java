@@ -47,6 +47,7 @@ import com.epam.datalab.backendapi.resources.UserGroupResource;
 import com.epam.datalab.backendapi.resources.UserRoleResource;
 import com.epam.datalab.backendapi.resources.UserSettingsResource;
 import com.epam.datalab.backendapi.resources.ChangePropertiesResource;
+import com.epam.datalab.backendapi.resources.ConnectedPlatformResource;
 import com.epam.datalab.backendapi.resources.callback.BackupCallback;
 import com.epam.datalab.backendapi.resources.callback.CheckInactivityCallback;
 import com.epam.datalab.backendapi.resources.callback.ComputationalCallback;
