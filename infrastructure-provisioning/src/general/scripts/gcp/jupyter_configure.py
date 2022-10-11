@@ -31,6 +31,7 @@ import sys
 import traceback
 import subprocess
 from fabric import *
+import uuid
 
 if __name__ == "__main__":
     try:
@@ -203,6 +204,46 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         datalab.fab.append_result("Failed to setup git credentials.", str(err))
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+        
+    try:
+        logging.info('[SETUP KEYCLOAK CLIENT]')
+        notebook_config['keycloak_client_name'] = '{}-{}-{}-{}'\
+            .format(notebook_config['service_base_name'], notebook_config['project_name'],
+                    notebook_config['endpoint_name'], notebook_config['exploratory_name'])
+        notebook_config['keycloak_client_secret'] = str(uuid.uuid4())
+        keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
+                          "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
+                          "--project_name {} --endpoint_name {} --exploratory_name {}"\
+            .format(notebook_config['service_base_name'], os.environ['keycloak_auth_server_url'],
+                    os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
+                    os.environ['keycloak_user_password'], notebook_config['keycloak_client_secret'],
+                    notebook_config['project_name'], notebook_config['endpoint_name'],
+                    notebook_config['exploratory_name'])
+        try:
+            subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True, check=True)
+        except:
+            datalab.fab.append_result("Failed setup keycloak client")
+            raise Exception
+
+        try:
+            conn = datalab.fab.init_datalab_connection(instance_hostname, notebook_config['datalab_ssh_user'],
+                                                       notebook_config['ssh_key_path'], '', False)
+
+            with open("/home/datalab-user/template.json") as py3kernel:
+                content = json.loads(py3kernel.read())
+            content['env']['KEYCLOAK_CLIENT'] = notebook_config['keycloak_client_name']
+            content['env']['KEYCLOAK_SECRET'] = notebook_config['keycloak_client_secret']
+            print(content['env'])
+            with open("/home/datalab-user/template.json", 'w') as py3kernel:
+                py3kernel.write(json.dumps(content))
+        except:
+            datalab.fab.append_result("Failed to write variables to .bashrc")
+            raise Exception
+
+    except Exception as err:
+        datalab.fab.append_result("Failed setup keycloak client ", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
