@@ -20,50 +20,22 @@
 package com.epam.datalab.backendapi.resources.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
-/**
- * Stores the health statuses for environment resources.
- */
-@Data
+@AllArgsConstructor
 @Builder
-public class HealthStatusPageDTO {
+@EqualsAndHashCode
+@ToString
+public class ConnectedPlatformsInfo {
     @JsonProperty
-    private String status;
-    @JsonProperty("list_resources")
-    private List<HealthStatusResource> listResources;
+    private List<ConnectedPlatformDTO> userPlatforms;
     @JsonProperty
-    private boolean billingEnabled;
+    private List<ConnectedPlatformType> types;
     @JsonProperty
-    private boolean auditEnabled;
-    @JsonProperty
-    private boolean admin;
-    @JsonProperty
-    private boolean projectAdmin;
-    @JsonProperty
-    private boolean projectAssigned;
-    @JsonProperty
-    private BucketBrowser bucketBrowser;
-    @JsonProperty
-    private ConnectedPlatforms connectedPlatforms;
-
-    @Builder
-    @Data
-    public static class BucketBrowser {
-        private final boolean view;
-        private final boolean upload;
-        private final boolean download;
-        private final boolean delete;
-    }
-
-    @Builder
-    @Data
-    public static class ConnectedPlatforms {
-        private final boolean view;
-        private final boolean add;
-        private final boolean disconnect;
-    }
+    private List<String> platformNames;
 }
