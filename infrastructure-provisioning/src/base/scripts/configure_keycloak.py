@@ -94,7 +94,11 @@ if __name__ == "__main__":
         if not args.exploratory_name:
             keycloak_client_data["redirectUris"] = keycloak_redirectUris
 
-        if args.exploratory_name or not args.project_name:
+        if not args.project_name:
+            keycloak_client_data["serviceAccountsEnabled"] = "true"
+
+        if args.exploratory_name:
+            keycloak_client_data["standardFlowEnabled"] = "false"
             keycloak_client_data["serviceAccountsEnabled"] = "true"
 
         try:
