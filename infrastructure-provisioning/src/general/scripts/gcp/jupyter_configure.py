@@ -268,8 +268,6 @@ if __name__ == "__main__":
 
         except Exception as err:
             datalab.fab.append_result("Failed setup keycloak client ", str(err))
-            GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
-            sys.exit(1)
 
     if os.environ['gpu_enabled'] == 'True':
         try:
