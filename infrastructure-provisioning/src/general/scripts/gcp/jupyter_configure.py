@@ -207,6 +207,30 @@ if __name__ == "__main__":
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
+    if notebook_config['image_enabled'] == 'true':
+        try:
+            logging.info('[CREATING IMAGE]')
+            primary_image_id = GCPMeta.get_image_by_name(notebook_config['expected_primary_image_name'])
+            if primary_image_id == '':
+                logging.info("Looks like it's first time we configure notebook server. Creating images.")
+                image_id_list = GCPActions.create_image_from_instance_disks(
+                    notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
+                    notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'],
+                    notebook_config['gcp_wrapped_csek'])
+                if image_id_list and image_id_list[0] != '':
+                    logging.info("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
+                else:
+                    logging.info("Looks like another image creating operation for your template have been started a "
+                          "moment ago.")
+                if image_id_list and image_id_list[1] != '':
+                    logging.info("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
+        except Exception as err:
+            datalab.fab.append_result("Failed creating image.", str(err))
+            GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+            GCPActions.remove_image(notebook_config['expected_primary_image_name'])
+            GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
+            sys.exit(1)
+
     if os.environ['notebook_create_keycloak_client'] == 'True':
         try:
             logging.info('[SETUP KEYCLOAK CLIENT]')
@@ -245,30 +269,6 @@ if __name__ == "__main__":
         except Exception as err:
             datalab.fab.append_result("Failed setup keycloak client ", str(err))
             GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
-            sys.exit(1)
-
-    if notebook_config['image_enabled'] == 'true':
-        try:
-            logging.info('[CREATING IMAGE]')
-            primary_image_id = GCPMeta.get_image_by_name(notebook_config['expected_primary_image_name'])
-            if primary_image_id == '':
-                logging.info("Looks like it's first time we configure notebook server. Creating images.")
-                image_id_list = GCPActions.create_image_from_instance_disks(
-                    notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
-                    notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'],
-                    notebook_config['gcp_wrapped_csek'])
-                if image_id_list and image_id_list[0] != '':
-                    logging.info("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
-                else:
-                    logging.info("Looks like another image creating operation for your template have been started a "
-                          "moment ago.")
-                if image_id_list and image_id_list[1] != '':
-                    logging.info("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
-        except Exception as err:
-            datalab.fab.append_result("Failed creating image.", str(err))
-            GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
-            GCPActions.remove_image(notebook_config['expected_primary_image_name'])
-            GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
             sys.exit(1)
 
     if os.environ['gpu_enabled'] == 'True':
