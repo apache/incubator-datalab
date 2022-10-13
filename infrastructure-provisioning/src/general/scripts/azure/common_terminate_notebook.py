@@ -25,6 +25,7 @@ import datalab.actions_lib
 import datalab.fab
 import datalab.meta_lib
 import json
+import requests
 from datalab.logger import logging
 import os
 import sys
@@ -67,6 +68,44 @@ def terminate_nb(resource_group_name, notebook_name):
     except Exception as err:
         datalab.fab.append_result("Failed to terminate instance", str(err))
         sys.exit(1)
+
+    if os.environ['notebook_create_keycloak_client'] == 'True':
+        logging.info("Terminating notebook keycloak client")
+        try:
+            keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
+                os.environ['keycloak_auth_server_url'])
+            keycloak_client_url = '{0}/admin/realms/{1}/clients'.format(os.environ['keycloak_auth_server_url'],
+                                                                        os.environ['keycloak_realm_name'])
+
+            keycloak_auth_data = {
+                "username": os.environ['keycloak_user'],
+                "password": os.environ['keycloak_user_password'],
+                "grant_type": "password",
+                "client_id": "admin-cli",
+            }
+
+            client_params = {
+                "clientId": "{}-{}-{}-{}".format(notebook_config['service_base_name'], notebook_config['project_name'],
+                                                 notebook_config['endpoint_name'], notebook_config['exploratory_name'])
+            }
+
+            keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()
+
+            keycloak_get_id_client = requests.get(keycloak_client_url, data=keycloak_auth_data, params=client_params,
+                                                  headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
+                                                           "Content-Type": "application/json"})
+            json_keycloak_client_id = json.loads(keycloak_get_id_client.text)
+            keycloak_id_client = json_keycloak_client_id[0]['id']
+
+            keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'],
+                                                                                   os.environ['keycloak_realm_name'],
+                                                                                   keycloak_id_client)
+
+            requests.delete(keycloak_client_delete_url,
+                            headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
+                                     "Content-Type": "application/json"})
+        except Exception as err:
+            logging.error("Failed to remove project client from Keycloak", str(err))
 
 
 if __name__ == "__main__":
