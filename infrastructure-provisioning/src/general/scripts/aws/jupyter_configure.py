@@ -32,6 +32,7 @@ import traceback
 import subprocess
 from fabric import *
 from datalab.logger import logging
+import uuid
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
