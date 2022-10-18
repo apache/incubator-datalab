@@ -51,7 +51,7 @@
               *ngIf="!connectedPlatformForm?.controls.url.valid
                         && connectedPlatformForm.controls.url.touched"
             >
-              Please provide a valid endpoint url with slash in the end.
+              Please provide a valid platform url.
             </span>
           </div>
         </div>
@@ -64,7 +64,7 @@
               class="error"
               *ngIf="!connectedPlatformForm?.controls.name.valid && connectedPlatformForm.controls.name.touched"
             >
-              Can only contain letters, numbers. Minimum 2 symbols.
+              Platform name cannot be longer than 6 characters.
             </span>
           </div>
         </div>

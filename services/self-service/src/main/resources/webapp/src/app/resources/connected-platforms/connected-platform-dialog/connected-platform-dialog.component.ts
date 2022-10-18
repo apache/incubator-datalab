@@ -25,6 +25,8 @@ import { AddModalData, AddPlatformFromValue } from '../connected-platforms.model
 import { ConfirmButtonNames } from '../connected-platforms.config';
 import { PATTERNS } from '../../../core/util';
 
+const URL_REGEXP_VALIDATION_STRING = '^(http(s)?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]';
+
 @Component({
   selector: 'datalab-connected-platform-dialog',
   templateUrl: './connected-platform-dialog.component.html',
@@ -57,7 +59,7 @@ export class ConnectedPlatformDialogComponent implements OnInit {
   private initForm(): void {
     this.connectedPlatformForm = this.fb.group({
       type: ['', Validators.required],
-      url: ['', [ Validators.required, Validators.pattern(PATTERNS.fullUrl)]],
+      url: ['', [ Validators.required, Validators.pattern(URL_REGEXP_VALIDATION_STRING)]],
       name: ['', [ Validators.required, Validators.pattern(PATTERNS.projectName), Validators.minLength(2)]]
     });
   }
