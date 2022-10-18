@@ -40,7 +40,7 @@ from patchwork import files
 
 
 # general functions for all resources
-def init_datalab_connection(hostname, username, keyfile, reserve_user=''):
+def init_datalab_connection(hostname, username, keyfile, reserve_user='', run_echo=True):
     try:
         global conn
         if reserve_user:
@@ -52,11 +52,11 @@ def init_datalab_connection(hostname, username, keyfile, reserve_user=''):
             while attempt < 15:
                 logging.info('connection attempt {} with user {}'.format(attempt, user))
                 conn = Connection(host=hostname, user=user, connect_kwargs={'banner_timeout': 200,
-                                                                                'key_filename': keyfile})
-                conn.config.run.echo = True
+                                                                            'key_filename': keyfile})
+                conn.config.run.echo = run_echo
                 try:
                     conn.run('hostname')
-                    conn.config.run.echo = True
+                    conn.config.run.echo = run_echo
                     return conn
                 except:
                     attempt += 1
