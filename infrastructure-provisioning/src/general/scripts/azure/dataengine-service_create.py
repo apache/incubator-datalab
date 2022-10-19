@@ -42,9 +42,15 @@ parser.add_argument('--location', type=str, help='')
 parser.add_argument('--master_instance_type', type=str, help='')
 parser.add_argument('--worker_instance_type', type=str, help='')
 parser.add_argument('--worker_count', type=str, help='')
-parser.add_argument('--storage_account_name', type=str, help='')
-parser.add_argument('--storage_account_key', type=str, help='')
-parser.add_argument('--container_name', type=str, help='')
+parser.add_argument('--cluster_storage_account_name', type=str, help='')
+parser.add_argument('--cluster_storage_account_key', type=str, help='')
+parser.add_argument('--cluster_container_name', type=str, help='')
+parser.add_argument('--edge_storage_account_name', type=str, help='')
+parser.add_argument('--edge_storage_account_key', type=str, help='')
+parser.add_argument('--edge_container_name', type=str, help='')
+parser.add_argument('--shared_storage_account_name', type=str, help='')
+parser.add_argument('--shared_storage_account_key', type=str, help='')
+parser.add_argument('--shared_container_name', type=str, help='')
 parser.add_argument('--tags', type=str, help='')
 parser.add_argument('--public_key', type=str, help='')
 parser.add_argument('--vpc_id', type=str, help='')
@@ -59,8 +65,10 @@ def build_hdinsight_cluster(resource_group_name, cluster_name, params):
 
 
 def create_cluster_parameters(location, tags, cluster_version, cluster_login_username, password, master_instance_type,
-                              worker_count, worker_instance_type, storage_account_name, storage_account_key,
-                              container_name, public_key, vpc_id, subnet):
+                              worker_count, worker_instance_type, cluster_storage_account_name, cluster_storage_account_key,
+                              cluster_container_name, public_key, vpc_id, subnet,
+                              edge_storage_account_name, edge_storage_account_key, edge_container_name,
+                              shared_storage_account_name, shared_storage_account_key, shared_container_name):
 
     # Returns cluster parameters
 
@@ -149,10 +157,20 @@ def create_cluster_parameters(location, tags, cluster_version, cluster_login_use
             storage_profile=StorageProfile(
                 storageaccounts=[
                     StorageAccount(
-                        name=storage_account_name + ".blob.core.windows.net",
-                        key=storage_account_key,
-                        container=container_name.lower(),
+                        name=cluster_storage_account_name + ".blob.core.windows.net",
+                        key=cluster_storage_account_key,
+                        container=cluster_container_name.lower(),
                         is_default=True
+                    ),
+                    StorageAccount(
+                        name=edge_storage_account_name + ".blob.core.windows.net",
+                        key=edge_storage_account_key,
+                        container=edge_container_name.lower()
+                    ),
+                    StorageAccount(
+                        name=shared_storage_account_name + ".blob.core.windows.net",
+                        key=shared_storage_account_key,
+                        container=shared_container_name.lower()
                     )
                 ]
             )
@@ -167,8 +185,11 @@ if __name__ == "__main__":
     #parser.print_help()
     params = create_cluster_parameters(args.location, json.loads(args.tags), args.cluster_version, 'datalab-user',
                                        args.access_password, args.master_instance_type, args.worker_count,
-                                       args.worker_instance_type, args.storage_account_name, args.storage_account_key,
-                                       args.container_name, args.public_key, args.vpc_id, args.subnet)
+                                       args.worker_instance_type, args.cluster_storage_account_name, args.cluster_storage_account_key,
+                                       args.cluster_container_name, args.public_key, args.vpc_id, args.subnet,
+                                       args.edge_storage_account_name, args.edge_storage_account_key,
+                                       args.edge_container_name, args.shared_storage_account_name,
+                                       args.shared_storage_account_key, args.shared_container_name)
 
     build_hdinsight_cluster(args.resource_group_name, args.cluster_name, params)
 
