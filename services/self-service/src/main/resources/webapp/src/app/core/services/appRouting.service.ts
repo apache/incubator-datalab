@@ -19,6 +19,7 @@
 
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { RoutingListConfig } from '../configs/routing-list.config';
 
 @Injectable()
 export class AppRoutingService {
@@ -34,7 +35,7 @@ export class AppRoutingService {
   }
 
   redirectToHomePage(): void {
-    this.router.navigate(['/resources_list']);
+    this.router.navigate(['/', RoutingListConfig.instances]);
   }
 
   redirectToHealthStatusPage(): void {

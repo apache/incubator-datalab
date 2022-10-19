@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+export enum ModalTitle {
+  share = 'Share image',
+  terminate = 'Terminate image',
+  unShare = '! Warning',
+  addPlatform = 'Add platform'
+}
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
-})
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+export enum URL_Chunk {
+  sharingInfo = 'sharing_info',
+  autocomplete = 'share_autocomplete'
 }

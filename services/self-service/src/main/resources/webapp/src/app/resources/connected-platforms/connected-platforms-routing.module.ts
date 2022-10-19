@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,14 +17,19 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { ConnectedPlatformsComponent } from './connected-platforms.component';
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
+const routes: Routes = [
+  {
+    path: '',
+    component: ConnectedPlatformsComponent
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
 })
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
-}
+export class ConnectedPlatformsRoutingModule { }

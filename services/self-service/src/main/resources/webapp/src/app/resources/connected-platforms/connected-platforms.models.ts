@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,14 +17,19 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
-
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
-})
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+export interface ConnectedPlatformsInfo {
+  userPlatforms: Platform[];
+  types: string[];
+  platformNames: string[];
 }
+
+export interface Platform {
+  name: string;
+  type: string;
+  user: string;
+  url: string;
+}
+
+export type AddModalData = Omit<ConnectedPlatformsInfo, 'userPlatforms'>;
+
+export type AddPlatformFromValue = Omit<Platform, 'user'>;

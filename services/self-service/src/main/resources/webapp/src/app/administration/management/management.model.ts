@@ -85,8 +85,14 @@ export interface GeneralEnvironmentStatus {
   status: string;
   projectAssigned: boolean;
   bucketBrowser: object;
+  connectedPlatforms: ConnectedPlatformsStatus;
 }
 
+export interface ConnectedPlatformsStatus {
+  add: boolean;
+  disconnect: boolean;
+  view: boolean;
+}
 
 export class ManagementConfigModel {
 
@@ -117,8 +123,8 @@ export class ManagementConfigModel {
 
 export interface ModalData {
   action: ActionsType;
-  resource_name?: any; 
-  user?: any, 
+  resource_name?: any;
+  user?: any,
   type: string;
   notebooks?: any
 }

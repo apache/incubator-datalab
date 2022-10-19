@@ -17,14 +17,23 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+export enum ConnectedPlatformsTableTitles {
+  platformName = 'Platform name',
+  linkToPlatform = 'Link to platform',
+  actions = 'Actions'
+}
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
-})
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+export const ConnectedPlatformDisplayedColumns = [
+  'platformName',
+  'linkToPlatform',
+  'actions',
+];
+
+export enum ModalTitles {
+  disconnect= 'Disconnect platform'
+}
+
+export enum ConfirmButtonNames {
+  yes = 'Yes',
+  add = 'Add'
 }

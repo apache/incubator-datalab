@@ -17,14 +17,18 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
-
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
-})
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+export enum RoutingListConfig {
+  instances = 'instances',
+  images = 'images',
+  connectedPlatforms = 'connected-platforms',
+  login = 'login',
+  billing = 'billing',
+  projects = 'projects',
+  users = 'users',
+  resources = 'resources',
+  audit = 'audit',
+  configuration = 'configuration',
+  swagger = 'swagger',
+  publickeyguide = 'help/publickeyguide',
+  accessnotebookguide = 'help/accessnotebookguide',
 }

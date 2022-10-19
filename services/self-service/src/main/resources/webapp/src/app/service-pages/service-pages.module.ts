@@ -21,9 +21,10 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AccessDeniedComponent } from './access-denied/access-denied.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   declarations: [NotFoundComponent, AccessDeniedComponent],
   exports: [NotFoundComponent, AccessDeniedComponent]
 })

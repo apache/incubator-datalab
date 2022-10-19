@@ -1,0 +1,99 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.table {
+  width: 100%;
+}
+
+.column {
+  width: 20%;
+}
+
+.action-icon,
+.link {
+  cursor: pointer;
+}
+
+.link {
+  text-decoration: underline;
+}
+
+.hided-table-title {
+  color: transparent;
+}
+
+.table-cell {
+  position: relative;
+}
+
+.list-menu {
+  left: auto;
+  top: 30px !important;
+  width: 190px;
+  max-height: calc(100vh / 2 - 70px);
+  margin-left: 0;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border: none;
+}
+
+.actions-menu {
+  position: relative;
+  width: 190px;
+}
+
+.action-button__disconnect {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 15px;
+  background-color: transparent;
+  color: rgb(87, 114, 137);
+  border: none;
+  outline: none;
+
+  &:hover {
+    color: #35afd5;
+    cursor: pointer;
+
+    & ::before {
+      background-color: #35afd5;
+    }
+  }
+}
+
+.action-cell {
+  position: relative;
+}
+
+.icon {
+  position: relative;
+  margin-right: 10px;
+
+  &::before {
+    position: absolute;
+    top: 11px;
+    left: -4px;
+    width: 32px;
+    height: 1px;
+    rotate: 40deg;
+    content: '';
+    background-color: #577289;
+    transform: rotateX(1deg);
+  }
+}

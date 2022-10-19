@@ -17,14 +17,13 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+import { Pipe, PipeTransform } from '@angular/core';
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
+@Pipe({
+  name: 'normalizeLink'
 })
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+export class NormalizeLinkPipe implements PipeTransform {
+  transform(value: string): string {
+    return value.includes('http') ? value : `//${value}`;
+  }
 }

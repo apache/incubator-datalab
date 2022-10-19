@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,14 +17,24 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ModalHeaderComponent } from './modal-header/modal-header.component';
+import { ModalBtnComponent } from './modal-btn/modal-btn.component';
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
+
+
+@NgModule({
+  declarations: [
+    ModalHeaderComponent,
+    ModalBtnComponent
+  ],
+  imports: [
+    CommonModule
+  ],
+  exports: [
+    ModalBtnComponent,
+    ModalHeaderComponent
+  ]
 })
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
-}
+export class ModalPartsModule { }

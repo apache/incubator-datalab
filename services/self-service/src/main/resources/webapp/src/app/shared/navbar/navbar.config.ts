@@ -17,16 +17,18 @@
  * under the License.
  */
 
-export const sideBarNamesConfig: Record<string, string> = {
-    resourses: 'Resources',
-    reports: 'Reports',
-    audit: 'Audit',
-    billing: 'Billing',
-    administration: 'Administration',
-    users: 'Users',
-    projects: 'Projects',
-    resources: 'Resources',
-    configuration: 'Configuration'
+export enum Sidebar_Names_Config {
+  reports = 'Reports',
+  audit = 'Audit',
+  billing = 'Billing',
+  administration = 'Administration',
+  users = 'Users',
+  projects = 'Projects',
+  resources = 'Resources',
+  configuration = 'Configuration',
+  instances = 'Instances',
+  images = 'Images',
+  connectedPlatforms = 'Connected platforms'
 }
 
 export interface UserInfo {

@@ -17,20 +17,21 @@
  * under the License.
  */
 import { Component, OnInit } from '@angular/core';
+import { RoutingListConfig } from '../../core/configs/routing-list.config';
 
 @Component({
   selector: 'datalab-access-denied',
   template: `
     <div class="no-access-page">
       <div class="content">
-        <a class="logo" href="#/resources_list">
+        <a class="logo" [routerLink]="['/', routerList.instances]">
           <img src="assets/img/security-screen.png" alt="">
         </a>
 
         <div class="message-block">
           <h3>Access Denied!</h3>
           <p>The page you were trying to reach has restricted access.
-            <a href="#/resources_list">Go to the Homepage?</a>
+            <a [routerLink]="['/', routerList.instances]">Go to the Homepage?</a>
           </p>
         </div>
       </div>
@@ -38,7 +39,6 @@ import { Component, OnInit } from '@angular/core';
   `,
   styleUrls: ['./access-denied.component.scss']
 })
-export class AccessDeniedComponent implements OnInit {
-  constructor() { }
-  ngOnInit() { }
+export class AccessDeniedComponent {
+  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
 }
