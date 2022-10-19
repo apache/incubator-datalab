@@ -34,7 +34,8 @@ from fabric import *
 
 
 def clear_resources():
-    AzureActions.terminate_hdinsight_cluster(notebook_config['resource_group_name'], notebook_config['cluster_name'])
+    AzureActions.terminate_hdinsight_cluster(notebook_config['resource_group_name'],
+                                             notebook_config['full_cluster_name'])
     for storage_account in AzureMeta.list_storage_accounts(notebook_config['resource_group_name']):
         if notebook_config['storage_account_name_tag'] == storage_account.tags["Name"]:
             AzureActions.remove_storage_account(notebook_config['resource_group_name'], storage_account.name)
@@ -74,8 +75,11 @@ if __name__ == "__main__":
                                                    notebook_config['project_name'], notebook_config['endpoint_tag'])
     edge_instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                               edge_instance_name)
+    for cluster in AzureMeta.list_hdinsight_clusters(notebook_config['resource_group_name']):
+        if notebook_config['cluster_name'] == cluster.tags["Name"]:
+            notebook_config['full_cluster_name'] = cluster.name
     notebook_config['headnode_ip'] = datalab.fab.get_hdinsight_headnode_private_ip(os.environ['conf_os_user'],
-                                                                                   notebook_config['cluster_name'],
+                                                                                   notebook_config['full_cluster_name'],
                                                                                    notebook_config['key_path'])
 
     if os.environ['application'] == 'deeplearning':
@@ -88,7 +92,7 @@ if __name__ == "__main__":
         params = "--bucket {} --cluster_name {} --hdinsight_version {} --keyfile {} --notebook_ip {} --region {} " \
                  "--project_name {} --os_user {}  --edge_hostname {} --proxy_port {} " \
                  "--scala_version {} --application {} --headnode_ip {}" \
-            .format(notebook_config['storage_account_name_tag'], notebook_config['cluster_name'], os.environ['hdinsight_version'],
+            .format(notebook_config['storage_account_name_tag'], notebook_config['full_cluster_name'], os.environ['hdinsight_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
                     notebook_config['project_name'], os.environ['conf_os_user'],
                     edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],

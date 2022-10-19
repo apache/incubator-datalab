@@ -67,6 +67,11 @@ if __name__ == "__main__":
                                                                   hdinsight_conf['project_name'],
                                                                   hdinsight_conf['endpoint_name'],
                                                                   hdinsight_conf['computational_name'])
+        hdinsight_conf['full_cluster_name'] = '{}-{}-{}-{}-des-{}'.format(args.uuid,
+                                                                          hdinsight_conf['service_base_name'],
+                                                                          hdinsight_conf['project_name'],
+                                                                          hdinsight_conf['endpoint_name'],
+                                                                          hdinsight_conf['computational_name'])
 
         hdinsight_conf['cluster_tags'] = {
             "Name": hdinsight_conf['cluster_name'],
@@ -172,7 +177,7 @@ if __name__ == "__main__":
                  "--tags '{}' --public_key '{}' --vpc_id {} --subnet {} --access_password {} " \
                  "--edge_storage_account_name {} --edge_storage_account_key '{}' --edge_container_name {} " \
                  "--shared_storage_account_name {} --shared_storage_account_key '{}' --shared_container_name {}"\
-            .format(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'],
+            .format(hdinsight_conf['resource_group_name'], hdinsight_conf['full_cluster_name'],
                     hdinsight_conf['release_label'], hdinsight_conf['region'],
                     hdinsight_conf['hdinsight_master_instance_type'], hdinsight_conf['hdinsight_slave_instance_type'],
                     hdinsight_conf['hdinsight_worker_count'], hdinsight_conf['cluster_storage_account_name'],
