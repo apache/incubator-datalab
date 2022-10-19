@@ -27,13 +27,12 @@ import sys
 import uuid
 import secrets
 import subprocess
-
+import random
+import string
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
 from fabric import *
-import random
-import string
 
 @task
 def run(ctx):
