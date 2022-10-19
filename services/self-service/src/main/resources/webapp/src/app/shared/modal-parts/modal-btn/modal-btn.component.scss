@@ -17,14 +17,13 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+.button__wrapper {
+  text-align: center;
+}
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
-})
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+.question {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #718ba6;
+  font-weight: bold;
 }

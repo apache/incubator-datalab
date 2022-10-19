@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,14 +17,26 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+.dialog-header {
+  position: relative;
+  padding-left: 30px;
+  height: 50px;
+  background: #f6fafe;
+  line-height: 50px;
+}
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
-})
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 50px;
+  width: 50px;
+  font-size: 24px;
+  font-weight: 300;
+  border: 0;
+  background: none;
+  color: #577289;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
 }

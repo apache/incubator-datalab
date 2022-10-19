@@ -37,12 +37,13 @@ import {ProjectAdminGuard} from './core/services/projectAdmin.guard';
 import {ReportingComponent} from './reports/reporting/reporting.component';
 import {OdahuComponent} from './administration/odahu/odahu.component';
 import {AuditComponent} from './reports/audit/audit.component';
+import { RoutingListConfig } from './core/configs/routing-list.config';
 
 const routes: Routes = [
   {
-    path: 'login',
+    path: RoutingListConfig.login,
     component: LoginComponent
-  }, 
+  },
   {
     path: '',
     canActivate: [CheckParamsGuard],
@@ -50,77 +51,81 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'resources_list',
+        redirectTo: RoutingListConfig.instances,
         pathMatch: 'full'
-      }, 
+      },
       {
-        path: 'resources_list',
+        path: RoutingListConfig.instances,
         component: ResourcesComponent,
         canActivate: [AuthorizationGuard]
-      }, 
+      },
       {
-        path: 'billing_report',
+        path: RoutingListConfig.connectedPlatforms,
+        loadChildren: () => import('./resources/connected-platforms/connected-platforms.module').then(m => m.ConnectedPlatformsModule)
+      },
+      {
+        path: RoutingListConfig.billing,
         component: ReportingComponent,
         canActivate: [AuthorizationGuard, CloudProviderGuard]
-      }, 
+      },
       {
-        path: 'projects',
+        path: RoutingListConfig.projects,
         component: ProjectComponent,
         canActivate: [AuthorizationGuard, AdminGuard],
       },
       {
-      //   path: 'odahu',
-      //   component: OdahuComponent,
-      //   canActivate: [AuthorizationGuard, AdminGuard],
-      // }, {
-        path: 'roles',
+        //   path: 'odahu',
+        //   component: OdahuComponent,
+        //   canActivate: [AuthorizationGuard, AdminGuard],
+        // }, {
+        path: RoutingListConfig.users,
         component: RolesComponent,
         canActivate: [AuthorizationGuard, AdminGuard],
-      }, 
+      },
       {
-        path: 'environment_management',
+        path: RoutingListConfig.resources,
         component: ManagementComponent,
         canActivate: [AuthorizationGuard, AdminGuard]
-      }, 
+      },
       {
-        path: 'configuration',
+        path: RoutingListConfig.configuration,
         component: ConfigurationComponent,
         canActivate: [AuthorizationGuard, AdminGuard, ProjectAdminGuard]
       },
       {
-        path: 'swagger',
+        path: RoutingListConfig.swagger,
         component: SwaggerComponent,
         canActivate: [AuthorizationGuard]
-      }, 
+      },
       {
-        path: 'help/publickeyguide',
+        path: RoutingListConfig.publickeyguide,
         component: PublicKeyGuideComponent,
         canActivate: [AuthorizationGuard]
-      }, 
+      },
       {
-        path: 'help/accessnotebookguide',
+        path: RoutingListConfig.accessnotebookguide,
         component: AccessNotebookGuideComponent,
         canActivate: [AuthorizationGuard]
       },
       {
-        path: 'audit',
+        path: RoutingListConfig.audit,
         component: AuditComponent,
         canActivate: [AuthorizationGuard, AuditGuard],
       },
     ]
-  }, 
+  },
   {
     path: 'terminal/:id/:endpoint',
     component: WebterminalComponent
-  }, 
+  },
   {
     path: '403',
     component: AccessDeniedComponent,
     canActivate: [AuthorizationGuard]
-  }, 
+  },
   {
-  path: '**',
-  component: NotFoundComponent
+    path: '**',
+    component: NotFoundComponent
   }
 ];
 

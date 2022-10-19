@@ -17,17 +17,12 @@
   ~ under the License.
   -->
 
-<div class="not-found-page">
-  <div class="content">
-    <a class="logo" [routerLink]="['/', routerList.instances]">
-      <img src="assets/svg/not_found_page.svg" alt="">
-    </a>
-
-    <div class="message-block">
-      <h3>Whooops... Page Not Found!</h3>
-      <p>We couldn't seem to found the page you are looking for.
-        <a [routerLink]="['/', routerList.instances]">Go to the Homepage?</a>
-      </p>
-    </div>
-  </div>
+<datalab-modal-header (close)="onClose()" [modalTitle]="title.disconnect"></datalab-modal-header>
+<div class="dialog-content">
+  <p class="content red">The <span class="platform-name">{{data}}</span> will be disconnected from this account.</p>
+  <datalab-modal-btn
+    [needAdditionalQuestion]="true"
+    (closeEvent)="onBtnClick($event)"
+    [confirmBtnName]="confirmButtonName.yes"
+  ></datalab-modal-btn>
 </div>

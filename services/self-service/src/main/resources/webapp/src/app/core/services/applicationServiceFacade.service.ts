@@ -24,6 +24,7 @@ import { HttpClient } from '@angular/common/http';
 import { Dictionary } from '../collections';
 import { environment } from '../../../environments/environment';
 import { HTTPMethod } from '../util';
+import { AddPlatformFromValue } from '../../resources/connected-platforms/connected-platforms.models';
 
 // we can now access environment.apiUrl
 const API_URL = environment.apiUrl;
@@ -81,6 +82,7 @@ export class ApplicationServiceFacade {
   private static readonly AUDIT = 'audit';
   private static readonly CONFIG = 'config';
   private static readonly QUOTA = 'quota';
+  private static readonly CONNECTED_PLATFORMS = 'connected_platforms';
 
   private requestRegistry: Dictionary<string>;
 
@@ -178,6 +180,28 @@ export class ApplicationServiceFacade {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.PROVISIONED_RESOURCES),
       null);
+  }
+
+  buildGetConnectedPlatformsPage(): Observable<any> {
+    console.log(`${this.requestRegistry.Item(ApplicationServiceFacade.CONNECTED_PLATFORMS)}/user`);
+    return this.buildRequest(HTTPMethod.GET,
+      `${this.requestRegistry.Item(ApplicationServiceFacade.CONNECTED_PLATFORMS)}/user`,
+      null
+    );
+  }
+
+  buildAddPlatform(platformParams: AddPlatformFromValue): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.CONNECTED_PLATFORMS),
+      platformParams
+    );
+  }
+
+  buildDisconnectPlatform(platformName: string): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
+      `${this.requestRegistry.Item(ApplicationServiceFacade.CONNECTED_PLATFORMS)}/${platformName}`,
+      null
+    );
   }
 
   public buildGetTemplatesRequest(params): Observable<any> {
@@ -724,6 +748,10 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/exploratory_environment/image');
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
       '/api/infrastructure_provision/exploratory_environment/scheduler');
+
+    // Connected Platforms
+    this.requestRegistry.Add(ApplicationServiceFacade.CONNECTED_PLATFORMS,
+      '/api/connected_platforms');
 
     // Computational Resources
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,

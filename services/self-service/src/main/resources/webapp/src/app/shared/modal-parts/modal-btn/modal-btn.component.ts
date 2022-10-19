@@ -17,14 +17,21 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
+  selector: 'datalab-modal-btn',
+  templateUrl: './modal-btn.component.html',
+  styleUrls: ['./modal-btn.component.scss']
 })
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+export class ModalBtnComponent {
+  @Input() isConfirmBtnDisabled: boolean;
+  @Input() confirmBtnName: string;
+  @Input() needAdditionalQuestion: boolean = false;
+
+  @Output() closeEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+  close(flag: boolean = false): void {
+    this.closeEvent.emit(flag);
+  }
 }

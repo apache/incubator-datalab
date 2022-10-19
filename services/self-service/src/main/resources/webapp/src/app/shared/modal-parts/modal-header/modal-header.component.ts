@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,14 +17,20 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
+  selector: 'datalab-modal-header',
+  templateUrl: './modal-header.component.html',
+  styleUrls: ['./modal-header.component.scss']
 })
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+export class ModalHeaderComponent {
+  @Input() modalTitle: string;
+
+  @Output() close: EventEmitter<any> = new EventEmitter<any>();
+
+  onClose(): void {
+    this.close.emit();
+  }
+
 }

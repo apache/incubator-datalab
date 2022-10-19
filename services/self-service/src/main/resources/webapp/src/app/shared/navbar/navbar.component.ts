@@ -23,12 +23,12 @@ import { Subscription, timer } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { RouterOutlet } from '@angular/router';
 
-import { 
-  ApplicationSecurityService, 
-  HealthStatusService, 
-  AppRoutingService, 
-  SchedulerService, 
-  StorageService 
+import {
+  ApplicationSecurityService,
+  HealthStatusService,
+  AppRoutingService,
+  SchedulerService,
+  StorageService
 } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
@@ -37,12 +37,13 @@ import {
   animate,
   transition,
   style,
-  query, 
+  query,
   group,
 } from '@angular/animations';
 import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-import{ sideBarNamesConfig, UserInfo } from './navbar.config'
+import { Sidebar_Names_Config, UserInfo } from './navbar.config';
+import { RoutingListConfig } from '../../core/configs/routing-list.config';
 
 interface Quota {
   projectQuotas: {};
@@ -85,6 +86,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 300000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
+  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
+  readonly sideBarNames: typeof Sidebar_Names_Config = Sidebar_Names_Config;
 
   currentUserName: string;
   quotesLimit: number = 70;
@@ -93,7 +96,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isExpanded: boolean = true;
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
-  sideBarNames!: Record<string, string>;
   userData!: UserInfo;
   commitMaxLength: number = 22;
 
@@ -109,7 +111,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.sideBarNames = sideBarNamesConfig;
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;
@@ -197,22 +198,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
         } else {
           this.storage.setBillingQuoteUsed('');
         }
-        
+
         if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
         checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.totalQuotaUsed, exceedProjects, informProjects);
       });
     }
   }
-  
+
   private getUserData(): UserInfo {
-    const token = localStorage.getItem('JWT_TOKEN')
+    const token = localStorage.getItem('JWT_TOKEN');
     const [_, tokenInfo] = token.split('.');
     const {name, email} = JSON.parse(atob(tokenInfo));
-    
+
     return {
       name: name || 'Jhon Doe',
       email: email || 'Email not found'
-    }
+    };
   }
 
   private checkAssignment(params): void {

@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { RoutingListConfig } from '../../core/configs/routing-list.config';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NormalizeLinkPipe } from './normalize-link.pipe';
 
-@Component({
-    selector: 'not-found',
-    templateUrl: 'not-found.component.html',
-    styleUrls: ['not-found.component.scss']
+@NgModule({
+  imports: [ CommonModule ],
+  declarations: [ NormalizeLinkPipe ],
+  exports: [ NormalizeLinkPipe ]
 })
-export class NotFoundComponent {
-  readonly routerList: typeof RoutingListConfig = RoutingListConfig;
-}
+
+export class NormalizeLinkPipeModule { }

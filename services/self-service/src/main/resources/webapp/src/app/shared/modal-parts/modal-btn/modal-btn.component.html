@@ -16,18 +16,19 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-
-<div class="not-found-page">
-  <div class="content">
-    <a class="logo" [routerLink]="['/', routerList.instances]">
-      <img src="assets/svg/not_found_page.svg" alt="">
-    </a>
-
-    <div class="message-block">
-      <h3>Whooops... Page Not Found!</h3>
-      <p>We couldn't seem to found the page you are looking for.
-        <a [routerLink]="['/', routerList.instances]">Go to the Homepage?</a>
-      </p>
-    </div>
+<div class="component__wrapper">
+  <p *ngIf="needAdditionalQuestion" class="question center">
+    Do you want proceed?
+  </p>
+  <div class="button__wrapper">
+    <button type="button" class="butt mat-raised-button" (click)="close()">No</button>
+    <button
+      [disabled]="isConfirmBtnDisabled"
+      type="button"
+      class="butt butt-success mat-raised-button"
+      (click)="close(true)">
+      {{confirmBtnName}}
+    </button>
   </div>
 </div>
+
