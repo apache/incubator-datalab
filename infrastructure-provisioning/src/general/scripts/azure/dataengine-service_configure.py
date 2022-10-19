@@ -72,12 +72,18 @@ if __name__ == "__main__":
             hdinsight_conf['computational_name'] = os.environ['computational_name'].lower().replace('_', '-')
         else:
             hdinsight_conf['computational_name'] = ''
+
         hdinsight_conf['cluster_name'] = '{}-{}-{}-des-{}'.format(hdinsight_conf['service_base_name'],
                                                                   hdinsight_conf['project_name'],
                                                                   hdinsight_conf['endpoint_name'],
                                                                   hdinsight_conf['computational_name'])
-        hdinsight_conf["instance_id"] = hdinsight_conf["cluster_name"]
-        hdinsight_conf['cluster_url'] = 'https://{}.azurehdinsight.net'.format(hdinsight_conf['cluster_name'])
+
+        hdinsight_conf['full_cluster_name'] = '{}-{}-{}-{}-des-{}'.format(args.uuid, hdinsight_conf['service_base_name'],
+                                                                     hdinsight_conf['project_name'],
+                                                                     hdinsight_conf['endpoint_name'],
+                                                                     hdinsight_conf['computational_name'])
+        hdinsight_conf["instance_id"] = hdinsight_conf["full_cluster_name"]
+        hdinsight_conf['cluster_url'] = 'https://{}.azurehdinsight.net'.format(hdinsight_conf['full_cluster_name'])
         hdinsight_conf['cluster_jupyter_url'] = '{}/jupyter/'.format(hdinsight_conf['cluster_url'])
         hdinsight_conf['cluster_sparkhistory_url'] = '{}/sparkhistory/'.format(hdinsight_conf['cluster_url'])
         hdinsight_conf['cluster_zeppelin_url'] = '{}/zeppelin/'.format(hdinsight_conf['cluster_url'])
@@ -98,7 +104,7 @@ if __name__ == "__main__":
         logging.info('[SUMMARY]')
         logging.info("Service base name: {}".format(hdinsight_conf['service_base_name']))
         logging.info("Region: {}".format(hdinsight_conf['region']))
-        logging.info("Cluster name: {}".format(hdinsight_conf['cluster_name']))
+        logging.info("Cluster name: {}".format(hdinsight_conf['full_cluster_name']))
         logging.info("Master node shape: {}".format(hdinsight_conf['hdinsight_master_instance_type']))
         logging.info("Slave node shape: {}".format(hdinsight_conf['hdinsight_slave_instance_type']))
         logging.info("Instance count: {}".format(str(os.environ['hdinsight_count'])))
@@ -110,7 +116,7 @@ if __name__ == "__main__":
         logging.info("Zeppelin URL: {}".format(hdinsight_conf['cluster_zeppelin_url']))
 
         with open("/root/result.json", 'w') as result:
-            res = {"hostname": hdinsight_conf['cluster_name'],
+            res = {"hostname": hdinsight_conf['full_cluster_name'],
                    "key_name": hdinsight_conf['key_name'],
                    "instance_id": hdinsight_conf["instance_id"],
                    "Action": "Create new HDInsight cluster",
@@ -131,5 +137,6 @@ if __name__ == "__main__":
     except Exception as err:
         traceback.print_exc()
         datalab.fab.append_result("Error with writing results", str(err))
-        AzureActions.terminate_hdinsight_cluster(hdinsight_conf['resource_group_name'], hdinsight_conf['cluster_name'])
+        AzureActions.terminate_hdinsight_cluster(hdinsight_conf['resource_group_name'],
+                                                 hdinsight_conf['full_cluster_name'])
         sys.exit(1)

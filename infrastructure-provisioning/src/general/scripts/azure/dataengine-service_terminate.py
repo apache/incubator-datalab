@@ -66,11 +66,14 @@ if __name__ == "__main__":
     try:
         logging.info('[TERMINATE HDINSIGHT CLUSTER AND ASSOCIATED RESOURCES]')
         try:
+            for cluster in AzureMeta.list_hdinsight_clusters(hdinsight_conf['resource_group_name']):
+                if hdinsight_conf['cluster_name'] == cluster.tags["Name"]:
+                    hdinsight_conf['full_cluster_name'] = cluster.name
             cluster = AzureMeta.get_hdinsight_cluster(hdinsight_conf['resource_group_name'],
-                                                      hdinsight_conf['cluster_name'])
+                                                      hdinsight_conf['full_cluster_name'])
             if cluster and cluster.properties.cluster_state == 'Running':
                 AzureActions.terminate_hdinsight_cluster(hdinsight_conf['resource_group_name'],
-                                                         hdinsight_conf['cluster_name'])
+                                                         hdinsight_conf['full_cluster_name'])
             for storage_account in AzureMeta.list_storage_accounts(hdinsight_conf['resource_group_name']):
                 if hdinsight_conf['storage_account_name_tag'] == storage_account.tags["Name"]:
                     AzureActions.remove_storage_account(hdinsight_conf['resource_group_name'], storage_account.name)

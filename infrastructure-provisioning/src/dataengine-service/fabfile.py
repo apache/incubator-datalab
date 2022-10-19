@@ -27,11 +27,13 @@ import sys
 import uuid
 import secrets
 import subprocess
+
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
 from fabric import *
-
+import random
+import string
 
 @task
 def run(ctx):
@@ -42,7 +44,7 @@ def run(ctx):
                         level=logging.INFO,
                         filename=local_log_filepath)
     dataengine_service_config = dict()
-    dataengine_service_config['uuid'] = str(uuid.uuid4())[:5]
+    dataengine_service_config['uuid'] = '{}{}'.format(random.choice(string.ascii_lowercase), str(uuid.uuid4())[:5])
     dataengine_service_config['access_password'] = secrets.token_urlsafe(32)
     try:
         subprocess.run("~/scripts/{}.py --uuid {} --access_password {}"
