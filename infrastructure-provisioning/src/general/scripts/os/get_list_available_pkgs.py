@@ -69,13 +69,8 @@ def get_available_pip_pkgs(version):
 def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
     try:
         pip_pkgs = dict()
-<<<<<<< HEAD
-        attempts = 0
-        while attempts < 3:
-=======
         attempt = 0
         while attempt < 3:
->>>>>>> 80e8ea9dc... [DATALAB-2768]: changed retrying cycle concept
             try:
                 client = xmlrpc.client.ServerProxy('https://pypi.python.org/pypi')
                 raw_pkgs = client.list_packages()
@@ -83,19 +78,11 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
                 for pkg in raw_pkgs:
                     if pkg not in all_pkgs_pip2 and pkg not in all_pkgs_pip3:
                         all_pkgs_other.append(pkg)
-<<<<<<< HEAD
-                for pkg in all_pkgs_other:
-                    pip_pkgs[pkg] = "N/A"
-                return pip_pkgs
-            except:
-                attempts += 1
-=======
                         for pkg in all_pkgs_other:
                             pip_pkgs[pkg] = "N/A"
                         return pip_pkgs
             except:
                 attempt += 1
->>>>>>> 80e8ea9dc... [DATALAB-2768]: changed retrying cycle concept
                 time.sleep(10)
         if attempt == 3:
             logging.info("Unable to get uncategorised pip packages")
