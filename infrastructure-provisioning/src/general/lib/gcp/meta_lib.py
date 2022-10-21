@@ -274,7 +274,7 @@ class GCPMeta:
                     else:
                         next_page = False
                 for service_account in full_list_of_service_accounts:
-                    if service_account['displayName'] == service_account_name:
+                    if 'displayName' in service_account and service_account['displayName'] == service_account_name:
                         service_account_email = service_account['email']
                         response = service_account_email[:service_account_email.find('@')][-5:]
                 return response
