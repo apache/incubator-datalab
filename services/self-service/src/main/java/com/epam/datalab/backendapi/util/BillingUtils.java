@@ -51,6 +51,7 @@ public class BillingUtils {
     private static final String EDGE_VOLUME_FORMAT = "%s-%s-%s-edge-volume-primary";
     private static final String PROJECT_ENDPOINT_BUCKET_FORMAT = "%s-%s-%s-bucket";
     private static final String ENDPOINT_SHARED_BUCKET_FORMAT = "%s-%s-shared-bucket";
+    private static final String DATA_ENGINE_BUCKET_FORMAT = "%s-bucket";
 
     private static final String VOLUME_PRIMARY_FORMAT = "%s-volume-primary";
     private static final String VOLUME_PRIMARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-primary";
@@ -178,6 +179,11 @@ public class BillingUtils {
                                     .resourceName(cr.getComputationalName())
                                     .datalabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, computationalId, "m"))
                                     .resourceType(VOLUME)
+                                    .build(),
+                            withUserProjectEndpoint(userInstance)
+                                    .resourceName(cr.getComputationalName())
+                                    .datalabId(String.format(DATA_ENGINE_BUCKET_FORMAT, computationalId))
+                                    .resourceType(BUCKET)
                                     .build()
                             ),
                             getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
