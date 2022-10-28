@@ -493,11 +493,11 @@ class GCPActions:
                                                    zone=zone)
             res = request.execute()
             if 'ssn' in network_tag:
-                instance_tag = {"items": [network_tag, "datalab", "ssn"], "fingerprint": res['tags']['fingerprint']}
+                instance_tag = {"items": [network_tag, "datalab", "ssn", "datalab-deploy-22"], "fingerprint": res['tags']['fingerprint']}
             elif 'edge' in network_tag:
-                instance_tag = {"items": [network_tag, "datalab", "edge"], "fingerprint": res['tags']['fingerprint']}
+                instance_tag = {"items": [network_tag, "datalab", "edge", "datalab-deploy-22"], "fingerprint": res['tags']['fingerprint']}
             else:
-                instance_tag = {"items": [network_tag, "datalab"], "fingerprint": res['tags']['fingerprint']}
+                instance_tag = {"items": [network_tag, "datalab", "datalab-deploy-22"], "fingerprint": res['tags']['fingerprint']}
             request = self.service.instances().setTags(instance=instance_name, project=self.project,
                                                        zone=zone,
                                                        body=instance_tag)
