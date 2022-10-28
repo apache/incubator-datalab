@@ -50,7 +50,8 @@ if __name__ == "__main__":
             empty_vpc = True
             subnets = []
         for subnet in subnets:
-            subnets_cidr.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
+            if args.region in subnet:
+                subnets_cidr.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
         sortkey = lambda addr: \
             (int(addr.split("/")[0].split(".")[0]),
              int(addr.split("/")[0].split(".")[1]),
@@ -103,7 +104,8 @@ if __name__ == "__main__":
         existed_subnet_list = []
         response = GCPMeta().get_vpc(args.vpc_selflink.split('/')[-1])['subnetworks']
         for subnet in response:
-            existed_subnet_list.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
+            if args.region in subnet:
+                existed_subnet_list.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
         available_subnets = list(set(pre_defined_subnet_list) - set(existed_subnet_list))
         if not available_subnets:
             logging.info("There is no available subnet to create. Aborting...")
