@@ -330,7 +330,7 @@ public class BillingUtils {
      */
     public static String getHeader(boolean isReportHeaderCompletable) {
         if (!isReportHeaderCompletable) {
-            return CSVFormatter.formatLine(Arrays.asList(BillingUtils.m), CSVFormatter.SEPARATOR);
+            return CSVFormatter.formatLine(Arrays.asList(BillingUtils.BILLING_FILTERED_REPORT_HEADERS), CSVFormatter.SEPARATOR);
         }
         return CSVFormatter.formatLine(Arrays.asList(BillingUtils.COMPLETE_REPORT_REPORT_HEADERS), CSVFormatter.SEPARATOR);
     }
