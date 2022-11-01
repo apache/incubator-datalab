@@ -733,6 +733,7 @@ public class BillingServiceImplTest extends TestBase {
         resource.setMasterNodeShape(SHAPE);
         resource.setSlaveNodeShape(SHAPE);
         resource.setStatus("creating");
+        resource.setTemplateName("template_name");
 
         return resource;
     }
