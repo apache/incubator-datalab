@@ -151,7 +151,7 @@ public class BillingUtils {
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
                 .flatMap(cr -> {
-                    final String computationalId = cr.getComputationalId().toLowerCase();
+                    final String computationalId = getDatalabIdForComputeResources(cr);
                     return Stream.concat(Stream.of(
                             withUserProjectEndpoint(userInstance)
                                     .resourceName(cr.getComputationalName())
@@ -227,12 +227,23 @@ public class BillingUtils {
         );
     }
 
+    /**
+        For HDInsight computational_id begins with random id
+        which differs from datalab_id tag
+     */
+    private static String getDatalabIdForComputeResources(UserComputationalResource cr){
+        if(cr.getTemplateName().equals("HDInsight cluster")){
+            return cr.getComputationalId().toLowerCase().substring(7);
+        }
+        return cr.getComputationalId().toLowerCase();
+    }
+
     private static Stream<BillingReportLine> getSlaveVolumes(UserInstanceDTO userInstance, UserComputationalResource cr, Integer maxSparkInstanceCount) {
         List<BillingReportLine> list = new ArrayList<>();
         for (int i = 1; i <= maxSparkInstanceCount; i++) {
-            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId().toLowerCase(), "s" + i))
+            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, getDatalabIdForComputeResources(cr), "s" + i))
                     .resourceType(VOLUME).build());
-            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId().toLowerCase(), "s" + i))
+            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, getDatalabIdForComputeResources(cr), "s" + i))
                     .resourceType(VOLUME).build());
         }
         return list.stream();
@@ -319,7 +330,7 @@ public class BillingUtils {
      */
     public static String getHeader(boolean isReportHeaderCompletable) {
         if (!isReportHeaderCompletable) {
-            return CSVFormatter.formatLine(Arrays.asList(BillingUtils.BILLING_FILTERED_REPORT_HEADERS), CSVFormatter.SEPARATOR);
+            return CSVFormatter.formatLine(Arrays.asList(BillingUtils.m), CSVFormatter.SEPARATOR);
         }
         return CSVFormatter.formatLine(Arrays.asList(BillingUtils.COMPLETE_REPORT_REPORT_HEADERS), CSVFormatter.SEPARATOR);
     }
