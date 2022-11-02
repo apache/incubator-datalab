@@ -73,6 +73,7 @@ def install_remote_livy(args):
     subprocess.run('sudo mkdir -p /var/run/livy', shell=True, check=True)
     subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /var/run/livy', shell=True, check=True)
     subprocess.run('sudo chown ' + args.os_user + ':' + args.os_user + ' -R ' + livy_path, shell=True, check=True)
+    subprocess.run('sudo service zeppelin-notebook start', shell=True, check=True)
 
 
 if __name__ == "__main__":

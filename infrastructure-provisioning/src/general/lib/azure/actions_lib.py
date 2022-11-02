@@ -1191,6 +1191,13 @@ class AzureActions:
                 conn.sudo('sleep 5')
                 conn.sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(os_user,
                                                                                                          cluster_name))
+            if exists(conn, '/home/{}/.ensure_dir/hdinsight_secret_ensured'.format(os_user)):
+                conn.sudo("sed -i '/-access-password/d' /home/{}/.Renviron".format(os_user))
+            if exists(conn, '/home/{}/.ensure_dir/sparkmagic_kernels_ensured'.format(os_user)):
+                conn.sudo('rm -rf /home/{0}/.local/share/jupyter/kernels/pysparkkernel/ '
+                          '/home/{0}/.local/share/jupyter/kernels/sparkkernel/ '
+                          '/home/{0}/.sparkmagic/ '
+                          '/home/{0}/.ensure_dir/sparkmagic_kernels_ensured'.format(os_user))
             conn.sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(private))
         except Exception as err:
