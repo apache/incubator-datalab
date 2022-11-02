@@ -298,6 +298,7 @@ if __name__ == "__main__":
         ip_address = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+        edge_instance_hostname = notebook_config['project_name'] + '.datalab-ssn.epm-aidp.projects.epam.com'
         jupyter_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
             notebook_config['exploratory_name'])
         jupyter_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(

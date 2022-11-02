@@ -273,6 +273,7 @@ if __name__ == "__main__":
         tensorboard_url = "http://" + ip_address + ":6006/"
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+        edge_instance_hostname = notebook_config['project_name'] + '.datalab-ssn.epm-aidp.projects.epam.com'
         jupyter_notebook_access_url = "https://" + edge_instance_hostname + "/{}/".format(
             notebook_config['exploratory_name'])
         tensorboard_access_url = "https://" + edge_instance_hostname + "/{}-tensor/".format(
