@@ -78,6 +78,7 @@ def install_sparkamagic_kernels(args):
         subprocess.run('sed -i \'s|HEADNODEIP:PORT|{0}:{2}|g\' /home/{1}/.sparkmagic/config.json'.format(
                 args.master_ip, args.os_user, args.livy_port, shell=True, check=True)
         subprocess.run('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user), shell=True, check=True)
+        subprocess.run('touch /home/{}/.ensure_dir/sparkmagic_kernels_ensured'.format(args.os_user), shell=True, check=True)
     except:
         sys.exit(1)
 

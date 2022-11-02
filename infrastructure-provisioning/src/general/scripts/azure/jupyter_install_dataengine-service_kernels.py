@@ -89,6 +89,7 @@ def install_sparkamagic_kernels(args):
         datalab.fab.conn.sudo('sed -i \'s|HEADNODEIP:PORT|{0}:{2}|g\' /home/{1}/.sparkmagic/config.json'.format(
                 args.master_ip, args.os_user, args.livy_port))
         datalab.fab.conn.sudo('chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user))
+        datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/sparkmagic_kernels_ensured'.format(args.os_user))
     except:
         sys.exit(1)
 
