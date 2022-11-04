@@ -1249,6 +1249,8 @@ class AzureActions:
                 time.sleep(30)
                 logging.info('The cluster is being provisioned... Please wait')
                 cluster = datalab.meta_lib.AzureMeta().get_hdinsight_cluster(resource_group_name, cluster_name)
+                if cluster.properties.cluster_state in 'Error|Unknown|TimedOut':
+                    raise Exception
             return result
         except Exception as err:
             logging.info(
@@ -1257,6 +1259,7 @@ class AzureActions:
             append_result(str({"error": "Unable to create HDInsight Spark cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
+            AzureActions().terminate_hdinsight_cluster(resource_group_name, cluster_name)
             traceback.print_exc(file=sys.stdout)
 
     def terminate_hdinsight_cluster(self, resource_group_name, cluster_name):
