@@ -83,14 +83,10 @@ if __name__ == "__main__":
                                                                       notebook_config['project_name'],
                                                                       notebook_config['endpoint_name'],
                                                                       notebook_config['exploratory_name'], args.uuid)
-        #notebook_config['primary_disk_size'] = (lambda x: '100' if x == 'deeplearning' else '16')(
-        #    os.environ['application'])
-        if os.environ['application'] == 'deeplearning':
-            notebook_config['primary_disk_size'] = '150'
-        elif os.environ['application'] == 'tensor':
-            notebook_config['primary_disk_size'] = '28'
-        else:
-            notebook_config['primary_disk_size'] = '16'
+
+        notebook_config['primary_disk_size'] = (lambda x: '150' if x == 'deeplearning' else
+        ('28' if x == 'tensor' or x == 'tensor-rstudio' else '16'))(os.environ['application'])
+
         notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-profile'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'])
         notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
