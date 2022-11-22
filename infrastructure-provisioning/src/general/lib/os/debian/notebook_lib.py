@@ -320,8 +320,8 @@ def install_nvidia_drivers(os_user):
                 cuda_file_name = "cuda-repo-ubuntu2004-11-3-local_11.3.0-465.19.01-1_amd64.deb"
                 cuda_key = '/var/cuda-repo-ubuntu2004-11-3-local/7fa2af80.pub'
             else:
-                cuda_version = '11.4.0'
-                cuda_file_name = 'cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb'
+                cuda_version = '11.4.4'
+                cuda_file_name = 'cuda-repo-ubuntu2004-11-4-local_11.4.4-470.82.01-1_amd64.deb'
                 cuda_key = '/var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub'
             # install nvidia drivers
             datalab.fab.conn.sudo(
