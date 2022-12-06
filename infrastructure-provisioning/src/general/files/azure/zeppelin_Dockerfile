@@ -28,6 +28,7 @@ COPY zeppelin/ /root/
 COPY general/scripts/os/* /root/scripts/
 COPY general/scripts/azure/zeppelin_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python3.8/datalab/notebook_lib.py
+COPY general/templates/azure/dataengine-service_interpreter_livy.json /root/templates/
 COPY general/templates/azure/interpreter_livy.json /root/templates/
 COPY general/templates/azure/interpreter_spark.json /root/templates/
 COPY general/templates/os/dataengine_interpreter_livy.json /root/templates/

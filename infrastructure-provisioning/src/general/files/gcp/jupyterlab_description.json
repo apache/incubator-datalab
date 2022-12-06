@@ -23,10 +23,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "JupyterLab 0.35.6",
+      "template_name": "JupyterLab 3.4.3",
       "description": "Base image with JupyterLab node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_lab-0.35.6",
+      "version": "jupyter_lab-3.4.3",
       "vendor": "GCP"
     }
   ]

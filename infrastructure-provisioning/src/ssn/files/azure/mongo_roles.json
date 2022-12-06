@@ -100,6 +100,16 @@
     ]
   },
   {
+    "_id": "nbCreateJupyterLab",
+    "description": "Create Notebook JupyterLab",
+    "exploratories": [
+      "docker.datalab-jupyterlab"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
     "exploratories": [
@@ -140,10 +150,40 @@
     ]
   },
   {
+    "_id": "nbCreateDataEngineService",
+    "description": "Create Data Engine Service",
+    "computationals": [
+      "docker.datalab-dataengine-service"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_D12_v2_fetching",
+    "description": "Use Standard_D12_v2 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_D12_v2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_Standard_F4s_fetching",
     "description": "Use Standard_F4s instance shape for cluster",
     "computational_shapes": [
       "Standard_F4s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E4_v3_fetching",
+    "description": "Use Standard_E4_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E4_v3"
     ],
     "groups": [
       "$anyuser"
@@ -160,10 +200,30 @@
     ]
   },
   {
+    "_id": "compShapes_Standard_E16_v3_fetching",
+    "description": "Use Standard_E16_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E16_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "compShapes_Standard_E16s_v3_fetching",
     "description": "Use Standard_E16s_v3 instance shape for cluster",
     "computational_shapes": [
       "Standard_E16s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E32_v3_fetching",
+    "description": "Use Standard_E32_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E32_v3"
     ],
     "groups": [
       "$anyuser"

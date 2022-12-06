@@ -114,6 +114,8 @@ def build_parser():
                         help='Column name in report file that contains cost tag')
     parser.add_argument('--resource_id', type=str, default='line_item_resource_id',
                         help='Column name in report file that contains datalab resource id tag')
+    parser.add_argument('--conf_bucket_versioning_enabled', type=str, default='true', choices=BOOL_CHOICES_LIST,
+                            help='Versioning for S3 bucket (valid choices: %s)' % BOOL_CHOICES_LIST)
 
     parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description',
                         help='Column name in report file that contains tags')
@@ -135,7 +137,7 @@ def build_parser():
         multiple emails, e.g. u1@example.com,u2@example.com.''')
     parser.add_argument('--conf_repository_user', type=str, default='',
                         help='user to access repository (used for jars download)')
-    parser.add_argument('--conf_release_tag', type=str, default='2.5.1',
+    parser.add_argument('--conf_release_tag', type=str, default='2.6.0',
                         help='tag used for jars download')
     parser.add_argument('--conf_repository_pass', type=str, default='',
                         help='password to access repository (used for jars download)')
@@ -210,6 +212,8 @@ def build_parser():
     aws_parser.add_argument('--aws_report_path', type=str, help='The path to billing reports directory in S3 bucket')
     aws_parser.add_argument('--aws_permissions_boundary_arn', type=str, default='',
                             help='Permission boundary to be attached to new roles')
+    aws_parser.add_argument('--aws_ssn_instance_role', type=str, default='',
+                            help='Role to be attached to SSN instance')
 
     aws_required_args = aws_parser.add_argument_group('Required arguments')
     aws_required_args.add_argument('--aws_region', type=str, required=True, help='AWS region')
@@ -257,6 +261,20 @@ def build_parser():
                             help='One of more comma-separated GCP Firewall rules for SSN')
     gcp_parser.add_argument('--gcp_ssn_instance_size', type=str, default='n1-standard-2',
                                    help='The SSN instance shape')
+    gcp_parser.add_argument('--gcp_os_login_enabled', type=str, default='FALSE',
+                            help='"TRUE" to enable os login for gcp instances')
+    gcp_parser.add_argument('--gcp_block_project_ssh_keys', type=str, default='FALSE',
+                            help='"TRUE" to block project ssh keys for gcp instances')
+    gcp_parser.add_argument('--gcp_cmek_resource_name', type=str, default='',
+                            help='customer managed encryption key resource name '
+                            'e.g. projects/{project_name}/locations/{us}/keyRings/{keyring_name}/cryptoKeys/{key_name}')
+    gcp_parser.add_argument('--gcp_storage_lifecycle_rules', type=str, default='',
+                            help='storage bucket lifecycle rules')
+    gcp_parser.add_argument('--gcp_wrapped_csek', type=str, default='',
+                            help='customer supplied encryption key for disk/image encryption in RFC 4648 base64 '
+                                 'encoded, RSA-wrapped 2048-bit format as rsaEncryptedKey')
+    gcp_parser.add_argument('--gcp_jupyter_gpu_type', type=str, default='nvidia-tesla-a100',
+                            help='gpu type for jupyter gpu notebooks with a2-highgpu-1g shape')
 
     gcp_required_args = gcp_parser.add_argument_group('Required arguments')
     gcp_required_args.add_argument('--gcp_region', type=str, required=True, help='GCP region')

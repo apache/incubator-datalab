@@ -38,12 +38,14 @@ resource "google_project_iam_custom_role" "endpoint_role" {
 
 resource "google_project_iam_member" "iam" {
   # try to set perms as file
+  project = var.gcp_project_id
   count  = length(var.endpoint_roles)
   member = "serviceAccount:${google_service_account.endpoint_sa.email}"
   role   = element(var.endpoint_roles, count.index)
 }
 
 resource "google_project_iam_member" "role_for_member" {
+  project = var.gcp_project_id
   member = "serviceAccount:${google_service_account.endpoint_sa.email}"
   role   = google_project_iam_custom_role.endpoint_role.id
 }

@@ -30,6 +30,7 @@ import com.epam.datalab.backendapi.core.commands.RunDockerCommand;
 import com.epam.datalab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.aws.computational.SparkComputationalCreateAws;
+import com.epam.datalab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.datalab.dto.base.DataEngineType;
 import com.epam.datalab.dto.base.computational.ComputationalBase;
 import com.epam.datalab.dto.gcp.computational.SparkComputationalCreateGcp;
@@ -66,7 +67,12 @@ public class ComputationalConfigure implements DockerCommands {
                     return runConfigure(uuid, dto, DataEngineType.CLOUD_SERVICE);
                 }
             case AZURE:
-                return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+                if (dto instanceof SparkComputationalCreateAzure) {
+                    return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+                } else {
+                    return runConfigure(uuid, dto, DataEngineType.CLOUD_SERVICE);
+                }
+
             case GCP:
                 if (dto instanceof SparkComputationalCreateGcp) {
                     return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);

@@ -49,7 +49,7 @@ if __name__ == "__main__":
     try:
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']

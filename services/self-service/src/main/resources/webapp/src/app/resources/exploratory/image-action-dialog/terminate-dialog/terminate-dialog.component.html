@@ -1,0 +1,37 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<datalab-image-action-dialog [isTerminate]="true">
+  <div datalab-terminate-dialog class="wrapper">
+    <div  class="terminate-action__wrapper">
+      <div class="list-header sans terminate-action__header--wrapper">
+        <div class="image">Image</div>
+        <div class="status">Further status</div>
+      </div>
+      <div class="scrolling-content scrolling terminate-image-list__wrapper">
+        <div class="image-name ellipsis">{{data.image.name}}</div>
+        <div class="status terminated">Terminated</div>
+      </div>
+      <p *ngIf="data.isShared" class="shared-warning">!The image is shared with other users.</p>
+    </div>
+    <p class="question">
+      Do you want proceed?
+    </p>
+  </div>
+</datalab-image-action-dialog>

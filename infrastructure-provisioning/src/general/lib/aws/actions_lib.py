@@ -65,13 +65,18 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         return False
 
 
-def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
+def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag, bucket_versioning_enabled):
     try:
         s3 = boto3.resource('s3', config=botoConfig(signature_version='s3v4'))
         if region == "us-east-1":
             bucket = s3.create_bucket(Bucket=bucket_name)
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
+
+        if bucket_versioning_enabled == "true":
+            bucket_versioning = s3.BucketVersioning(bucket_name)
+            bucket_versioning.enable()
+
         boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_encryption(
             Bucket=bucket_name, ServerSideEncryptionConfiguration={
                 'Rules': [
@@ -82,6 +87,43 @@ def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
                     },
                 ]
             })
+
+        # Config for Public Access Block in s3
+        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_public_access_block(
+            Bucket=bucket_name,
+            PublicAccessBlockConfiguration={
+                'BlockPublicAcls': True,
+                'IgnorePublicAcls': True,
+                'BlockPublicPolicy': True,
+                'RestrictPublicBuckets': True
+            })
+
+        # Configuring bucket policy to ensure encryption in transit
+        bucket_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Deny",
+                    "Principal": {"AWS": "*"},
+                    "Action": "s3:*",
+                    "Resource": [
+                        f"arn:aws:s3:::{bucket_name}",
+                        f"arn:aws:s3:::{bucket_name}/*"
+                    ],
+                    "Condition": {
+                        "Bool": {"aws:SecureTransport": "false"}
+                    }
+                }]
+        }
+
+        # Convert the policy from Json dict to string
+        bucket_policy = json.dumps(bucket_policy)
+
+        boto3.client('s3', config=botoConfig(signature_version='s3v4')).put_bucket_policy(
+            Bucket=bucket_name,
+            Policy=bucket_policy
+        )
+
         tags = list()
         tags.append({'Key': os.environ['conf_tag_resource_id'],
                      'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
@@ -1101,7 +1143,7 @@ def remove_s3(bucket_type='all', scientist=''):
         for s3bucket in bucket_list:
             if s3bucket:
                 bucket = s3.Bucket(s3bucket)
-                bucket.objects.all().delete()
+                bucket.object_versions.delete()
                 print("The S3 bucket {} has been cleaned".format(s3bucket))
                 client.delete_bucket(Bucket=s3bucket)
                 print("The S3 bucket {} has been deleted successfully".format(s3bucket))
@@ -1455,6 +1497,7 @@ def install_emr_spark(args):
             print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     subprocess.run('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/' + args.emr_version + '/' + args.cluster_name + '/', shell=True, check=True)
+    subprocess.run('sudo cp -R /opt/spark/R/lib/SparkR /opt/' + args.emr_version + '/' + args.cluster_name + '/spark/R/lib/', shell=True, check=True)
 
 
 def jars(args, emr_dir):
@@ -1539,7 +1582,8 @@ def create_aws_config_files(generate_full_config=False):
         sys.exit(1)
 
 
-def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
+def installing_python(region, bucket, user_name, cluster_name, application='', numpy_version='1.14.3',
+                      matplotlib_version='3.3.4', pip_mirror=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with open('/tmp/python_version') as f:
         python_version = f.read()
@@ -1548,7 +1592,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         subprocess.run('wget https://www.python.org/ftp/python/' + python_version +
               '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz', shell=True, check=True)
         subprocess.run('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/', shell=True, check=True)
-        subprocess.run('cd /tmp/Python-{0}; ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version), shell=True, check=True)
+        subprocess.run('cd /tmp/Python-{0}; ./configure --prefix=/opt/python/python{0} --with-zlib-dir=/usr/local/lib/ '
+                       '--with-ensurepip=install'.format(python_version), shell=True, check=True)
         subprocess.run('cd /tmp/Python-{0}; sudo make altinstall'.format(python_version), shell=True, check=True)
         subprocess.run('cd /tmp/; sudo rm -rf Python-' + python_version + '/', shell=True, check=True)
         if region == 'cn-north-1':
@@ -1559,8 +1604,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             subprocess.run('sudo echo "[global]" >> /etc/pip.conf', shell=True, check=True)
             subprocess.run('sudo echo "timeout = 600" >> /etc/pip.conf', shell=True, check=True)
         subprocess.run('sudo -i virtualenv /opt/python/python' + python_version, shell=True, check=True)
-        venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
-        pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
+        venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
+        pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
         if region == 'cn-north-1':
             try:
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command +
@@ -1573,7 +1618,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={0}'.format(numpy_version), shell=True, check=True)
                 subprocess.run(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 SciPy '
-                      'Matplotlib=={1} pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, os.environ['notebook_matplotlib_version']), shell=True, check=True)
+                      'Matplotlib=={1} pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, matplotlib_version), shell=True, check=True)
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     subprocess.run(venv_command + ' && sudo -i ' + pip_command +
@@ -1591,24 +1636,23 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 subprocess.run('sudo rm -rf /opt/python/python{}/'.format(python_version), shell=True, check=True)
                 sys.exit(1)
         else:
-            print(subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3', shell=True, check=True))
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0', shell=True, check=True)
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir', shell=True, check=True)
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={}'.format(numpy_version), shell=True, check=True)
-            subprocess.run(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 SciPy Matplotlib=={} pandas Sympy Pillow sklearn '
-                  '--no-cache-dir'.format(os.environ['notebook_matplotlib_version']), shell=True, check=True)
+            for lib in ['-U pip==9.0.3', 'pyzmq==17.0.0',
+                        'ipython ipykernel boto boto3 pybind11 pythran cython NumPy=={0} Matplotlib=={1} '
+                        '--no-cache-dir'.format(numpy_version, matplotlib_version),
+                        'SciPy pandas Sympy Pillow', 'sklearn --no-cache-dir']:
+                subprocess.run('bash -c "{0} && sudo -i {1} install {2}"'
+                               .format(venv_command, pip_command, lib), shell=True, check=True)
             # Need to refactor when we add GPU cluster
             if application == 'deeplearning':
-                subprocess.run(venv_command + ' && sudo -i ' + pip_command +
-                      ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir', shell=True, check=True)
+                subprocess.run('bash -c "{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano '
+                               '--no-cache-dir"'.format(venv_command, pip_command), shell=True, check=True)
                 python_without_dots = python_version.replace('.', '')
-                subprocess.run(venv_command + ' && sudo -i ' + pip_command +
-                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl '
-                      '--no-cache-dir'.format(python_without_dots[:2]), shell=True, check=True)
+                subprocess.run('bash -c "{0} && sudo -i {1} install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}'
+                               '-cp{0}m-linux_x86_64.whl --no-cache-dir"'
+                               .format(venv_command, pip_command, python_without_dots[:2]), shell=True, check=True)
         subprocess.run('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]), shell=True, check=True)
-        subprocess.run('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version,
-                                                                                             python_version[0:3]), shell=True, check=True)
+        subprocess.run('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'
+                       .format(python_version, python_version[0:3]), shell=True, check=True)
 
 
 def spark_defaults(args):
@@ -1645,9 +1689,11 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             datalab.fab.conn.sudo('mkdir -p {0}'.format(jars_dir))
             datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar -O \
-                    {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
+                    {1}hadoop-aws-{0}.jar'.format('3.2.0', jars_dir))
             datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
-                    {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
+                    {1}aws-java-sdk-{0}.jar'.format('1.11.874', jars_dir))
+            datalab.fab.conn.sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/{0}/aws-java-sdk-bundle-{0}.jar -O \
+                    {1}aws-java-sdk-bundle-{0}.jar'.format('1.11.874', jars_dir))
             # datalab.fab.conn.sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
             #         {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
@@ -1676,8 +1722,6 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             endpoint_url))
         datalab.fab.conn.sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
              '/tmp/notebook_spark-defaults_local.conf')
-        if not exists(datalab.fab.conn,'/opt/spark/conf/spark-env.sh'):
-            datalab.fab.conn.sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         java_home = datalab.fab.conn.run("update-alternatives --query java | grep -o --color=never \'/.*/java-8.*/jre\'").stdout.splitlines()[0].replace('\n','')
         datalab.fab.conn.sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if os.environ['application'] == 'zeppelin':
@@ -1960,6 +2004,8 @@ def prepare_disk(os_user):
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
+ #           spark_version = '3.2.0'
+ #           hadoop_version = '3.2'
             datalab.fab.conn.sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
             datalab.fab.conn.sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
             datalab.fab.conn.sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)

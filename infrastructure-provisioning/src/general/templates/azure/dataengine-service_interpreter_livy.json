@@ -1,0 +1,121 @@
+{
+   "id":"livy",
+   "name":"CLUSTERNAME",
+   "group":"livy",
+   "properties":{
+      "zeppelin.livy.url":{
+         "name":"zeppelin.livy.url",
+         "value":"http://HEADNODEIP:PORT",
+         "type":"url",
+         "description":"The URL for Livy Server."
+      },
+      "zeppelin.livy.session.create_timeout":{
+         "name":"zeppelin.livy.session.create_timeout",
+         "value":"120",
+         "type":"number",
+         "description":"Livy Server create session timeout (seconds)."
+      },
+      "livy.spark.driver.memory":{
+         "name":"livy.spark.driver.memory",
+         "value":"1g",
+         "type":"string",
+         "description":"Driver memory. ex) 512m, 32g"
+      },
+      "zeppelin.livy.pull_status.interval.millis":{
+         "name":"zeppelin.livy.pull_status.interval.millis",
+         "value":"1000",
+         "type":"number",
+         "description":"The interval for checking paragraph execution status"
+      },
+      "zeppelin.livy.maxLogLines":{
+         "name":"zeppelin.livy.maxLogLines",
+         "value":"1000",
+         "type":"number",
+         "description":"Max number of lines of logs"
+      },
+      "livy.spark.jars.packages":{
+         "name":"livy.spark.jars.packages",
+         "value":"",
+         "type":"textarea",
+         "description":"Adding extra libraries to livy interpreter"
+      },
+      "zeppelin.livy.displayAppInfo":{
+         "name":"zeppelin.livy.displayAppInfo",
+         "value":true,
+         "type":"checkbox",
+         "description":"Whether display app info"
+      },
+      "zeppelin.livy.spark.sql.maxResult":{
+         "name":"zeppelin.livy.spark.sql.maxResult",
+         "value":"1000",
+         "type":"number",
+         "description":"Max number of Spark SQL result to display."
+      },
+      "zeppelin.livy.spark.sql.field.truncate":{
+         "name":"zeppelin.livy.spark.sql.field.truncate",
+         "value":true,
+         "type":"checkbox",
+         "description":"If true, truncate field values longer than 20 characters."
+      },
+      "zeppelin.R.knitr":{
+         "name":"zeppelin.R.knitr",
+         "value":"true",
+         "type":"string"
+      },
+      "zeppelin.R.image.width":{
+         "name":"zeppelin.R.image.width",
+         "value":"100%",
+         "type":"string"
+      },
+      "zeppelin.R.cmd":{
+         "name":"zeppelin.R.cmd",
+         "value":"R",
+         "type":"string"
+      },
+      "zeppelin.R.render.options":{
+         "name":"zeppelin.R.render.options",
+         "value":"out.format \u003d \u0027html\u0027, comment \u003d NA, echo \u003d FALSE, results \u003d \u0027asis\u0027, message \u003d F, warning \u003d F",
+         "type":"string"
+      }
+   },
+   "status":"READY",
+   "interpreterGroup":[
+      {
+         "name":"spark",
+         "class":"org.apache.zeppelin.livy.LivySparkInterpreter",
+         "defaultInterpreter":true,
+         "editor":{
+            "language":"scala",
+            "editOnDblClick":false,
+            "completionKey":"TAB",
+            "completionSupport":true
+         }
+      },
+      {
+         "name":"pyspark3",
+         "class":"org.apache.zeppelin.livy.LivyPySpark3Interpreter",
+         "defaultInterpreter":false,
+         "editor":{
+            "language":"python",
+            "editOnDblClick":false,
+            "completionKey":"TAB",
+            "completionSupport":true
+         }
+      }
+   ],
+   "dependencies":[
+
+   ],
+   "option":{
+      "remote":true,
+      "port":-1,
+      "perNote":"shared",
+      "perUser":"scoped",
+      "isExistingProcess":false,
+      "setPermission":false,
+      "owners":[
+
+      ],
+      "isUserImpersonate":false
+   }
+}

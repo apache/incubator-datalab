@@ -222,12 +222,18 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def add_bucket_labels(self, bucket_name, tags):
+    def add_bucket_labels_vers_cmek(self, bucket_name, tags, versioning_enabled='false', cmek_resource_name='',
+                                    lifecycle_rules=''):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
             labels = bucket.labels
             labels.update(tags)
             bucket.labels = labels
+            bucket.versioning = {"enabled": versioning_enabled}
+            if cmek_resource_name != '':
+                bucket.encryption = {"defaultKmsKeyName": cmek_resource_name}
+            if lifecycle_rules != '':
+                bucket.lifecycle_rules = ast.literal_eval(lifecycle_rules)
             bucket.patch()
             print('Updated labels on {}.'.format(bucket_name))
         except Exception as err:
@@ -271,15 +277,21 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_disk(self, instance_name, zone, size, secondary_image_name):
+    def create_disk(self, instance_name, zone, size, secondary_image_name, rsa_encrypted_csek=''):
         try:
             if secondary_image_name == 'None':
                 params = {"sizeGb": size, "name": instance_name + '-secondary',
                           "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
+                if rsa_encrypted_csek:
+                    params['diskEncryptionKey'] = {"rsaEncryptedKey": rsa_encrypted_csek}
+
             else:
                 params = {"sizeGb": size, "name": instance_name + '-secondary',
                           "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone),
                           "sourceImage": secondary_image_name}
+                if rsa_encrypted_csek:
+                    params["sourceImageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+                    params['diskEncryptionKey'] = {"rsaEncryptedKey": rsa_encrypted_csek}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
             datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
@@ -315,12 +327,12 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_name, service_base_name, cluster_name, region, zone, vpc_name, subnet_name, instance_size,
-                        ssh_key_path,
-                        initial_user, image_name, secondary_image_name, service_account_name, instance_class,
-                        network_tag, labels, static_ip='',
+    def create_instance(self, instance_name, service_base_name, cluster_name, region, zone, vpc_name, subnet_name,
+                        instance_size, ssh_key_path, initial_user, image_name, secondary_image_name,
+                        service_account_name, instance_class, network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
-                        gpu_accelerator_type='None', gpu_accelerator_count='1'):
+                        gpu_accelerator_type='None', gpu_accelerator_count='1',
+                        os_login_enabled='FALSE', block_project_ssh_keys='FALSE', rsa_encrypted_csek=''):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH").decode('UTF-8')
         unique_index = datalab.meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
@@ -337,7 +349,7 @@ class GCPActions:
                 "natIP": static_ip
             }]
         if instance_class == 'notebook':
-            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name)
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name, rsa_encrypted_csek)
             disks = [
                 {
                     "name": instance_name,
@@ -367,7 +379,7 @@ class GCPActions:
                 }
             ]
         elif instance_class == 'dataengine':
-            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name)
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name, rsa_encrypted_csek)
             disks = [{
                 "name": instance_name,
                 "tag_name": cluster_name + '-volume-primary',
@@ -407,6 +419,16 @@ class GCPActions:
                 "boot": 'true',
                 "mode": "READ_WRITE"
             }]
+
+        if service_base_name in image_name and rsa_encrypted_csek:
+            for disk in disks:
+                if "initializeParams" in disk:
+                    disk["initializeParams"]["sourceImageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+                disk["diskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+        elif rsa_encrypted_csek:
+            for disk in disks:
+                disk["diskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+
         instance_params = {
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
@@ -424,6 +446,14 @@ class GCPActions:
                     {
                         "key": "ssh-keys",
                         "value": "{}:{}".format(initial_user, ssh_key)
+                    },
+                    {
+                        "key": "enable-oslogin",
+                        "value": "{}".format(os_login_enabled)
+                    },
+                    {
+                        "key": "block-project-ssh-keys",
+                        "value": "{}".format(block_project_ssh_keys)
                     }
                 ]
                 },
@@ -537,8 +567,18 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def start_instance(self, instance_name, zone):
-        request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
+    def start_instance(self, instance_name, zone, rsa_encrypted_csek=''):
+        if rsa_encrypted_csek:
+            params = dict()
+            params['disks'] = list()
+            instance_data = datalab.meta_lib.GCPMeta().get_instance(instance_name)
+            for disk in instance_data['disks']:
+                params["disks"].append(
+                    {"diskEncryptionKey": {"rsaEncryptedKey": rsa_encrypted_csek}, "source": disk['source']})
+            request = self.service.instances().startWithEncryptionKey(project=self.project, zone=zone,
+                                                                      instance=instance_name, body=params)
+        else:
+            request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
             datalab.meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
@@ -792,21 +832,28 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, labels):
+    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, labels,
+                                         rsa_encrypted_csek=''):
         primary_disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
         secondary_disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
         labels.update({"name": primary_image_name})
         primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": labels}
+        if rsa_encrypted_csek:
+            primary_params["imageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+            primary_params["sourceDiskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
         primary_request = self.service.images().insert(project=self.project, body=primary_params)
         labels.update({"name": secondary_image_name})
         secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": labels}
+        if rsa_encrypted_csek:
+            secondary_params["imageEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
+            secondary_params["sourceDiskEncryptionKey"] = {"rsaEncryptedKey": rsa_encrypted_csek}
         secondary_request = self.service.images().insert(project=self.project, body=secondary_params)
-        id_list=[]
+        id_list = []
         try:
             GCPActions().stop_instance(instance_name, zone)
             primary_image_check = datalab.meta_lib.GCPMeta().get_image_by_name(primary_image_name)
             if primary_image_check != '':
-                GCPActions().start_instance(instance_name, zone)
+                GCPActions().start_instance(instance_name, zone, rsa_encrypted_csek)
                 return ''
             primary_result = primary_request.execute()
             secondary_result = secondary_request.execute()
@@ -816,7 +863,7 @@ class GCPActions:
             datalab.meta_lib.GCPMeta().wait_for_operation(secondary_result['name'])
             print('Image {} has been created.'.format(secondary_image_name))
             id_list.append(secondary_result.get('id'))
-            GCPActions().start_instance(instance_name, zone)
+            GCPActions().start_instance(instance_name, zone, rsa_encrypted_csek)
             return id_list
         except Exception as err:
             logging.info(
@@ -1293,7 +1340,7 @@ class GCPActions:
         except:
             sys.exit(1)
 
-    def install_python(self, bucket, user_name, cluster_name, application, numpy_version='1.14.3'):
+    def install_python(self, bucket, user_name, cluster_name, application, numpy_version):
         try:
             GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
             with open('/tmp/python_version') as f:
@@ -1308,15 +1355,14 @@ class GCPActions:
                 subprocess.run('sudo -i virtualenv /opt/python/python{}'.format(python_version), shell=True, check=True)
                 venv_command = 'source /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
-                subprocess.run('{0} && sudo -i {1} install -U pip==9.0.3'.format(venv_command, pip_command), shell=True, check=True)
-                subprocess.run('{0} && sudo -i {1} install pyzmq==17.0.0'.format(venv_command, pip_command), shell=True, check=True)
-                subprocess.run('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command), shell=True, check=True)
-                subprocess.run('{0} && sudo -i {1} install boto boto3 NumPy=={2} SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
-                      .format(venv_command, pip_command, numpy_version), shell=True, check=True)
+                for lib in ['-U pip==9.0.3', 'pyzmq==17.0.0', 'ipython ipykernel boto boto3 pybind11 pythran cython NumPy=={} Matplotlib --no-cache-dir'.format(numpy_version),
+                            'SciPy pandas Sympy Pillow --no-cache-dir', 'sklearn --no-cache-dir']:
+                    subprocess.run('bash -c "{0} && sudo -i {1} install {2}"'
+                                   .format(venv_command, pip_command, lib), shell=True, check=True)
                 if application == 'deeplearning':
-                    subprocess.run('{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(venv_command, pip_command), shell=True, check=True)
+                    subprocess.run('bash -c "{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano --no-cache-dir"'.format(venv_command, pip_command), shell=True, check=True)
                     python_without_dots = python_version.replace('.', '')
-                    subprocess.run('{0} && sudo -i {1} install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{2}-cp{2}m-linux_x86_64.whl --no-cache-dir'
+                    subprocess.run('bash -c "{0} && sudo -i {1} install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{2}-cp{2}m-linux_x86_64.whl --no-cache-dir"'
                           .format(venv_command, pip_command, python_without_dots[:2]), shell=True, check=True)
                 subprocess.run('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]), shell=True, check=True)
                 subprocess.run('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version, python_version[0:3]), shell=True, check=True)
@@ -1362,7 +1408,7 @@ def get_cluster_python_version(region, bucket, user_name, cluster_name):
 
 def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror='', numpy_version='1.14.3'):
     try:
-        GCPActions().install_python(bucket, user_name, cluster_name, application)
+        GCPActions().install_python(bucket, user_name, cluster_name, application, numpy_version)
     except:
         sys.exit(1)
 

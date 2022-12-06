@@ -24,6 +24,7 @@ import { MaterialModule } from '../../../shared/material.module';
 import { DetailDialogComponent } from './detail-dialog.component';
 import { DirectivesModule } from '../../../core/directives';
 import {LongDatePipeModule} from '../../../core/pipes/long-date-pipe';
+import { TruncateTextPipeModule } from '../../../core/pipes/truncate-text-pipe';
 
 export * from './detail-dialog.component';
 
@@ -34,7 +35,8 @@ export * from './detail-dialog.component';
         ReactiveFormsModule,
         MaterialModule,
         DirectivesModule,
-        LongDatePipeModule
+        LongDatePipeModule,
+        TruncateTextPipeModule
     ],
   declarations: [DetailDialogComponent],
   entryComponents: [DetailDialogComponent],

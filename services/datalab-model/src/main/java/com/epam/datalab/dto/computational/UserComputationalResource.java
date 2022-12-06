@@ -71,6 +71,8 @@ public class UserComputationalResource {
     private String gcpClusterVersion;
     @JsonProperty("emr_version")
     private String awsClusterVersion;
+    @JsonProperty("hdinsight_version")
+    private String azureClusterVersion;
     private int totalInstanceCount;
     protected List<ClusterConfig> config;
     private Map<String, String> tags;

@@ -39,7 +39,7 @@ import static com.epam.datalab.dto.billing.BillingResourceType.*;
 
 @Slf4j
 public class BillingUtils {
-    private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "deeplearning"};
+    private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "tensor-jupyterlab", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "jupyter-gpu", "deeplearning"};
     private static final String[] BILLING_FILTERED_REPORT_HEADERS = {"DataLab ID", "Project", "DataLab Resource Type", "Status", "Shape", "Product", "Cost"};
     private static final String[] COMPLETE_REPORT_REPORT_HEADERS = {"DataLab ID", "User", "Project", "DataLab Resource Type", "Status", "Shape", "Product", "Cost"};
 
@@ -51,6 +51,7 @@ public class BillingUtils {
     private static final String EDGE_VOLUME_FORMAT = "%s-%s-%s-edge-volume-primary";
     private static final String PROJECT_ENDPOINT_BUCKET_FORMAT = "%s-%s-%s-bucket";
     private static final String ENDPOINT_SHARED_BUCKET_FORMAT = "%s-%s-shared-bucket";
+    private static final String DATA_ENGINE_BUCKET_FORMAT = "%s-bucket";
 
     private static final String VOLUME_PRIMARY_FORMAT = "%s-volume-primary";
     private static final String VOLUME_PRIMARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-primary";
@@ -60,6 +61,11 @@ public class BillingUtils {
     private static final String IMAGE_STANDARD_FORMAT1 = "%s-%s-%s-%s-notebook-image";
     private static final String IMAGE_STANDARD_FORMAT2 = "%s-%s-%s-notebook-image";
     private static final String IMAGE_CUSTOM_FORMAT = "%s-%s-%s-%s-%s";
+    // GCP specific
+    private static final String IMAGE_VOLUME_PRIMARY_GCP = "%s-%s-%s-%s-primary-image";
+    private static final String IMAGE_VOLUME_SECONDARY_GCP = "%s-%s-%s-%s-secondary-image";
+    private static final String IMAGE_CUSTOM_VOLUME_PRIMARY_GCP = "%s-%s-%s-%s-primary-image-%s";
+    private static final String IMAGE_CUSTOM_VOLUME_SECONDARY_GCP = "%s-%s-%s-%s-secondary-image-%s";
 
     private static final String SHARED_RESOURCE = "Shared resource";
     private static final String IMAGE_NAME = "Image";
@@ -145,7 +151,7 @@ public class BillingUtils {
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
                 .flatMap(cr -> {
-                    final String computationalId = cr.getComputationalId().toLowerCase();
+                    final String computationalId = getDatalabIdForComputeResources(cr);
                     return Stream.concat(Stream.of(
                             withUserProjectEndpoint(userInstance)
                                     .resourceName(cr.getComputationalName())
@@ -173,6 +179,11 @@ public class BillingUtils {
                                     .resourceName(cr.getComputationalName())
                                     .datalabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, computationalId, "m"))
                                     .resourceType(VOLUME)
+                                    .build(),
+                            withUserProjectEndpoint(userInstance)
+                                    .resourceName(cr.getComputationalName())
+                                    .datalabId(String.format(DATA_ENGINE_BUCKET_FORMAT, computationalId))
+                                    .resourceType(BUCKET)
                                     .build()
                             ),
                             getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
@@ -206,17 +217,33 @@ public class BillingUtils {
 
     public static Stream<BillingReportLine> customImageBillingDataStream(ImageInfoRecord image, String sbn) {
         String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
+        String imageIdGCP1 = String.format(IMAGE_CUSTOM_VOLUME_PRIMARY_GCP, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
+        String imageIdGCP2 = String.format(IMAGE_CUSTOM_VOLUME_SECONDARY_GCP, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
         return Stream.of(
-                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageId).user(image.getUser()).resourceType(IMAGE).build()
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageId).user(image.getUser()).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageIdGCP1).user(image.getUser()).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).datalabId(imageIdGCP2).user(image.getUser()).resourceType(IMAGE).build()
+
         );
+    }
+
+    /**
+        For HDInsight computational_id begins with random id
+        which differs from datalab_id tag
+     */
+    private static String getDatalabIdForComputeResources(UserComputationalResource cr){
+        if(cr.getTemplateName().equals("HDInsight cluster")){
+            return cr.getComputationalId().toLowerCase().substring(7);
+        }
+        return cr.getComputationalId().toLowerCase();
     }
 
     private static Stream<BillingReportLine> getSlaveVolumes(UserInstanceDTO userInstance, UserComputationalResource cr, Integer maxSparkInstanceCount) {
         List<BillingReportLine> list = new ArrayList<>();
         for (int i = 1; i <= maxSparkInstanceCount; i++) {
-            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId().toLowerCase(), "s" + i))
+            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, getDatalabIdForComputeResources(cr), "s" + i))
                     .resourceType(VOLUME).build());
-            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId().toLowerCase(), "s" + i))
+            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).datalabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, getDatalabIdForComputeResources(cr), "s" + i))
                     .resourceType(VOLUME).build());
         }
         return list.stream();
@@ -256,6 +283,22 @@ public class BillingUtils {
                     .builder()
                     .resourceName(IMAGE_NAME)
                     .datalabId(String.format(IMAGE_STANDARD_FORMAT1, sbn, project, endpoint, notebook).toLowerCase())
+                    .project(project)
+                    .user(SHARED_RESOURCE)
+                    .resourceType(IMAGE)
+                    .build());
+            list.add(BillingReportLine
+                    .builder()
+                    .resourceName(IMAGE_NAME)
+                    .datalabId(String.format(IMAGE_VOLUME_PRIMARY_GCP, sbn, project, endpoint, notebook).toLowerCase())
+                    .project(project)
+                    .user(SHARED_RESOURCE)
+                    .resourceType(IMAGE)
+                    .build());
+            list.add(BillingReportLine
+                    .builder()
+                    .resourceName(IMAGE_NAME)
+                    .datalabId(String.format(IMAGE_VOLUME_SECONDARY_GCP, sbn, project, endpoint, notebook).toLowerCase())
                     .project(project)
                     .user(SHARED_RESOURCE)
                     .resourceType(IMAGE)

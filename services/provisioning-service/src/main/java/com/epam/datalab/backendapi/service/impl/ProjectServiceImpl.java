@@ -35,6 +35,7 @@ import com.epam.datalab.dto.project.ProjectCreateDTO;
 import com.epam.datalab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
+import io.dropwizard.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
@@ -96,9 +97,13 @@ public class ProjectServiceImpl implements ProjectService {
     private String executeDocker(UserInfo userInfo, ResourceBaseDTO dto, DockerAction action, String projectName,
                                  String resourceType, String image, String endpoint) {
         String uuid = DockerCommands.generateUUID();
+        Duration timeout = configuration.getKeyLoaderPollTimeout();
+        if(action == DockerAction.CREATE){
+            timeout = Duration.minutes(timeout.toMinutes() + 30);
+        }
 
         folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
-                configuration.getKeyLoaderPollTimeout(),
+                timeout,
                 new ProjectCallbackHandler(selfService, userInfo.getName(), uuid,
                         action, CALLBACK_URI, projectName, getEdgeClass(), endpoint));
 

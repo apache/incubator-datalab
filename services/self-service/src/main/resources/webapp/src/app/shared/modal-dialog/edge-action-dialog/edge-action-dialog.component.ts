@@ -56,7 +56,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
           </ul>
         </div>
         <ng-template #oneNode>
-          Edge node <span class="strong">{{data.item[0].name}}</span> wil be {{data.type === 'stop' ? 'stopped' : data.type === 'start' ? 'started' : 'recreated'}}
+          Edge node <span class="strong">{{data.item[0].name}}</span> will be {{data.type === 'stop' ? 'stopped' : data.type === 'start' ? 'started' : 'recreated'}}
         </ng-template>
 
       <p class="m-top-20 action-text"><span class="strong">Do you want to proceed?</span></p>

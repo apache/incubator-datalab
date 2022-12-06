@@ -46,7 +46,7 @@ DataLab is an essential toolset for analytics. It is a self-service Web Console,
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Project management](#project_management)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Environment management](#environment_management)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Resourses](#environment_management)
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Multiple Cloud endpoints](#multiple_cloud_endpoints)
 
@@ -68,21 +68,24 @@ As soon as DataLab is deployed by an infrastructure provisioning team and you re
 
 DataLab Web Application authenticates users against:
 
--   OpenLdap;
--   Cloud Identity and Access Management service user validation;
--   KeyCloak integration for seamless SSO experience *;
+As soon as DataLab is deployed by an infrastructure provisioning team and you received DataLab URL, your username and password – open DataLab login page, fill in your credentials and hit Login.
+
+DataLab Web Application authenticates users against:
+
+-   KeyCloak integration for seamless SSO experience;
 
     * NOTE: in case has been installed and configured to use SSO, please click on "Login with SSO" and use your corporate credentials
 
 | Login error messages               | Reason                                                                           |
 |------------------------------------|----------------------------------------------------------------------------------|
-| Username or password is invalid |The username provided:<br>doesn’t match any LDAP user OR<br>there is a type in the password field |
-| Please contact AWS administrator to create corresponding IAM User | The user name provided:<br>exists in LDAP BUT:<br>doesn’t match any of IAM users in AWS |
-| Please contact AWS administrator to activate your Access Key      | The username provided:<br>exists in LDAP BUT:<br>IAM user doesn’t have a single Access Key\* created OR<br>IAM user’s Access Key is Inactive |
+| Invalid username or password. |The username provided: doesn’t match any LDAP user OR there is a type in the password field |
 
-\* Please refer to official documentation from Amazon to figure out how to manage Access Keys for your AWS Account: http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html
 
-To stop working with DataLab - click on Log Out link at the top right corner of DataLab.
+To stop working with DataLab - click on user icon <img src="doc/user.png" alt="user" width="20"> at the top right corner of DataLab and hit "Log out from account" button:
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/user_information.png" alt="User information" width="300">
+</p>
 
 After login user sees warning in case of exceeding quota or close to this limit.
 
@@ -107,9 +110,9 @@ To do this click on “Upload” button on “Projects” page, select your pers
 
 Please note, that you need to have a key pair combination (public and private key) to work with DataLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. DataLab build-in wiki page guides Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DataLab to setup initial infrastructure for you. During this process project is in status "Creating".
+Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 25 minutes for DataLab to setup initial infrastructure for you. During this process project is in status "Creating".
 
-As soon as Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” is appeared on “List of Resources” page:
+As soon as Project is created, Data Scientist can create  notebook server in “Resources” section on "Instances" page . The message “To start working, please create new environment” is appeared on “Instances” page:
 
 ![Main page](doc/main_page.png)
 
@@ -119,7 +122,7 @@ As soon as Project is created, Data Scientist can create  notebook server on “
 
 ## Create notebook server <a name="notebook_create"></a>
 
-To create new analytical environment from “List of Resources” page click on "Create new" button.
+To create new analytical environment from “Instances” page click on "Create new" button.
 
 The "Create analytical tool" popup shows up. Data Scientist can choose the preferred project, endpoint and analytical tool. Adding new analytical toolset is supported by architecture, so you can expect new templates to show up in upcoming releases.
 Currently by means of DataLab, Data Scientists can select between any of the following templates:
@@ -129,7 +132,7 @@ Currently by means of DataLab, Data Scientists can select between any of the fol
 -   RStudio
 -   RStudio with TensorFlow (implemented on AWS)
 -   Jupyter with TensorFlow
--   Deep Learning (Jupyter + MXNet, Caffe2, TensorFlow, CNTK, Theano, PyTorch and Keras)
+-   Deep Learning based on Cloud native image
 -   JupyterLab
 -   Superset (implemented on GCP)
 
@@ -139,7 +142,7 @@ Currently by means of DataLab, Data Scientists can select between any of the fol
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
 
-Keep in mind that "Name" field – is just for visual differentiation between analytical tools on “List of resources” dashboard.
+Keep in mind that "Name" field – is just for visual differentiation between analytical tools on “Instances” dashboard.
 
 Instance shape dropdown, contains configurable list of shapes, which should be chosen depending on the type of analytical work to be performed. Following groups of instance shapes are showing up with default setup configuration:
 
@@ -189,6 +192,13 @@ In the body of the dialog:
 
 To access analytical tool Web UI you use direct URL's (your access is established via reverse proxy, so you don't need to have Edge node tunnel up and running).
 
+
+**TensorBoard usage**
+
+Tensorboard, the one that can be accessed by the URL from DataLab UI uses --logdir=/var/log/tensorboard.
+If another logdir is required, existing TensorBoard can be stopped from jupyter terminal using command **sudo systemctl stop tensorboard.service** and another one started instead of it from the terminal with command **source /opt/python/python3.7.9/bin/activate && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; tensorboard --host 0.0.0.0 --port 6006 --logdir=/var/log/tensorboard**  or from Jupyter UI with magic **%tensorboard --host 0.0.0.0 --port 6006 --logdir=/home/datalab-user/LOG_DIR**. 
+This TensorBoard will not be shown in Jupyter window, but can be accessed via TensorBoard URL from DataLab UI.
+
 ### Manage libraries <a name="manage_libraries"></a>
 
 On every analytical tool instance you can install additional libraries by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Manage libraries":
@@ -199,7 +209,7 @@ On every analytical tool instance you can install additional libraries by clicki
 
 After clicking you see the window with 4 fields:
 -   Field for selecting an active resource to install libraries
--   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Java, Others)
+-   Field for selecting group of packages (apt/yum, Python 3, R, Java, Others)
 -   Field for search available packages with autocomplete feature (if it's gained) except Java dependencies. For Java library you should enter using the next format: "groupID:artifactID:versionID"
 -   Field for library version. It's an optional field.
 
@@ -211,7 +221,7 @@ You need to wait for a while after resource and group choosing till list of all 
 
 **Note:** Apt or Yum packages depend on your DataLab OS family.
 
-**Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
+**Note:** In group Others you can find other Python (3) packages, which haven't classifiers of version.
 
 After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
@@ -225,13 +235,13 @@ After clicking on "Install" button you see process of installation with appropri
 
 ### Create image <a name="create_image"></a>
 
-Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you want to re-use existing configuration. To create an AMI click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed Notebook and hit "Create AMI":
+Out of each analytical tool instance you can create an AMI image (notebook should be in Running status), including all libraries, which have been installed on it. You can use that AMI to speed-up provisioining of further analytical tool, if you want to re-use existing configuration. To create an AMI click on the gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed Notebook and hit "Create AMI":
 
 <p align="center"> 
-    <img src="doc/notebook_menu_create_ami.png" alt="Notebook create_ami" width="150">
+    <img src="doc/notebook_menu_create_image.png" alt="Notebook create_image" width="150">
 </p>
 
-On "Create AMI" popup you should fill:
+On "Create AMI" pop-up you should fill out:
 -   text box for an AMI name (mandatory)
 -   text box for an AMI description (optional)
 
@@ -239,17 +249,96 @@ On "Create AMI" popup you should fill:
     <img src="doc/create_ami.png" alt="Create AMI" width="480">
 </p>
 
-After clicking on "Create" button the Notebook status changes to "Creating image". Once an image is created the Notebook status changes back to "Running".
+After clicking on the "Create" button the Notebook status changes to "Creating image" and this image shows up in the list of "Images" page. Once an image is created the Notebook status changes back to "Running" and image status - to "Active":
 
-To create new analytical environment from custom image click on "Create new" button on “List of Resources” page. 
+![Main Image Page](doc/main_image_page.png) 
 
-“Create analytical tool” popup shows up. Choose project, endpoint, template of a Notebook for which the custom image has been created:
+To create a new analytical environment from custom image click on the "Create new" button on “Resources” page. 
+
+“Create analytical tool” pop-up shows up. Choose project, endpoint, template of a Notebook for which the custom image has been created:
 
 <p align="center"> 
     <img src="doc/create_notebook_from_ami.png" alt="Create notebook from AMI" width="560">
 </p>
 
-Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape". For Deeplearning notebook on GCP there is also a list of predefined images.
+Before clicking the "Create" button you should choose the image from "Select AMI" and fill out the "Name" and "Instance shape". For Deeplearning notebook on GCP there is also a list of predefined images.
+
+In addition, you can filter list of images by clicking on the "Filter" button:
+
+<p align="center"> 
+    <img src="doc/filter_image_popup.png" alt="Filter Image Popup" width="480">
+</p>
+
+Here you can filter by:
+- Image name - custom image name that has been assigned by user who has created the image
+- Status - current status of the image that inform user whether image is active or not
+- Endpoint - endpoint for the instance which was used to create the image
+- Template name - the name of the template (custom or cloud) which was used to create the instance and later the image
+- Sharing status - current status of the image that inform user whether image has been shared with other users or user groups
+
+As soon as you select one or several filtered options you can confirm the filter action by clicking the "Ok" button. 
+After confirmation the page is updated by filtered parameters.
+
+![Filter Image Popup](doc/filtered_images.png)
+
+On top of that, you have several options to clear filter by:
+- Clicking on blue cross icon <img src="doc/filter_cross_icon.png" alt="cross" width="20"> next to each column  - only the filtering for this column is cleared
+- Clicking on cross icon <img src="doc/filter_cross_icon.png" alt="cross" width="20"> near to blue activate filter button - all filters are cleared
+- Clicking  in each column in the "Filter image" pop-up
+
+You can share the image (only in "Active" status) with selected users/groups in the project or terminate it if you are an image creator. Creator is the user who has created the image. 
+To share or terminate image click on the gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" menu for a needed image and hit "Terminate" or "Share" button appropriately.
+
+<p align="center"> 
+    <img src="doc/image_action_menu.png" alt="Image action menu" width="150">
+</p>
+
+Confirmation pop-up for image termination:
+
+<p align="center"> 
+    <img src="doc/image_termination.png" alt="Image termination" width="500">
+</p>
+
+After you confirm your intent to terminate the image - the status changes to "Terminating" and later becomes "Terminated"
+
+Share image pop-up for image sharing:
+
+<p align="center"> 
+    <img src="doc/image_sharing.png" alt="Image sharing" width="500">
+</p>
+
+You can share the image  with individual users by entering a user login and with groups of users by entering the group name.
+
+As soon as you confirm image sharing the image status changes from "Private" to "Shared" status for user who shares the image. The shared image shows up in the list of images and has "Received" status for user with whom image is shared.
+
+In addition, the information about sharing is saved in the sharing pop-up window:
+
+<p align="center"> 
+    <img src="doc/information_about_sharing.png" alt="Information about sharing" width="400">
+</p>
+
+At any time you can stop sharing the image with other users by clicking on the cross next to users groups in the "Shared with" section.
+Once you click on the cross the confirmation pop-up window appears: 
+
+<p align="center"> 
+    <img src="doc/stop_sharing_confirmation.png" alt="Stop sharing confirmation" width="400">
+</p>
+
+As soon as you confirm stop sharing, the user login/group is deleted from the sharing pop-up window and from the images' table list of the user.
+
+You always have possibility to view image information by clicking the question icon <img src="doc/question.png" alt="question" width="20"> in the "Actions" column. Then the pop-up window with additional info shows up:
+
+<p align="center"> 
+    <img src="doc/image_additional_info.png" alt="Image info." width="450">
+</p>
+
+- Image status
+- Notebook template which was used for image creation
+- Which extra libraries were installed for the image
+- Cloud provider where image was created
+- Image creation date
+- Who created the image
+- With whom the image was shared.
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
@@ -337,7 +426,15 @@ This picture shows menu for creating Dataproc (Data Engine Service) and Standalo
 
 To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
-This picture shows menu for creating Standalone Apache Spark cluster for Azure and AWS:
+
+This picture shows menu for HDInsight creation for Azure:
+
+<p align="center"> 
+    <img src="doc/hdinsight.png" alt="Create HDInsight on Azure" width="760">
+</p>
+
+
+This picture shows menu for creating Standalone Apache Spark cluster for Azure, GCP and AWS:
 <p align="center"> 
     <img src="doc/spark_creating_menu.png" alt="Create Computational resource on Azure" width="760">
 </p>
@@ -362,9 +459,15 @@ Since Computational resource is up and running - you are now able to leverage cl
 
 To do that open any of the analytical tools and select proper kernel/interpreter:
 
-**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2 (only for local kernel)/3, Spark, Scala, R in Jupyter.
+**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 3, Spark, Scala, R in Jupyter.
 
-![Jupiter](doc/jupyter_kernel.png)
+![Jupyter](doc/jupyter_kernel.png)
+
+As you know, you can install library thanks to [Manage libraries functionality](#manage_libraries), but in addition you are supposed to install library via Jupyter cell using the next command (i.e., for Python group):
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/library_magic_usage.png" alt="Library magic usage" width="200">
+</p>
 
 **Zeppelin** – go to Interpreter Biding menu and switch between local and Computational resource there. Once needed interpreter is selected click on "Save".
 
@@ -373,7 +476,6 @@ To do that open any of the analytical tools and select proper kernel/interpreter
 Insert following “magics” before blocks of your code to start executing your analytical jobs:
 
 -   interpreter\_name.%spark – for Scala and Spark;
--   interpreter\_name.%pyspark – for Python2;
 -   interpreter\_name.%pyspark3 – for Python3;
 -   interpreter\_name.%sparkr – for R;
 
@@ -534,8 +636,8 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 You are able to access to cloud buckets via DataLab Web UI.
 There are two ways to open bucket browser:
-- clicking on Notebook name on the "List of resources" page, where there is an "Open bucket browser" link;
-- clicking on "Bucket browser" bucket on the "List of resources" page.
+- clicking on Notebook name on the "Instances" page, where there is an "Open bucket browser" link;
+- clicking on "Bucket browser" bucket on the "Instances" page.
 
 ![Bucket_browser_button](doc/bucket_button.png)
 
@@ -556,6 +658,18 @@ In the bucket browser you are supposed to:
 
 --------------------------------
 # Administration <a name="administration"></a>
+
+There are four pages in the "Administration" panel:
+
+<p align="center"> 
+    <img src="doc/administration_section.png" alt="Administration section" width="150">
+</p>
+
+- "Users" page, where administrator can assign appropriate permisions for users;
+- "Projects" page, where administrator can manage a project;
+- "Resources" page, where administrator monitor and manage project resources;
+- "Configuration" page, where administrator can view and change configuration files and restart DataLab services.
+
 
 ## Manage roles <a name="manage_roles"></a>
 
@@ -612,14 +726,14 @@ To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation 
 
 To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon become "Terminated".
 
-## Environment management <a name="environment_management"></a>
+## Resourses <a name="Resourses"></a>
 
-DataLab Environment Management page is an administration page allowing adminstrator to see the list of all users environments and to stop/terminate all of them.
+DataLab Resourses page is an administration page allowing adminstrator to see the list of all users environments and to stop/terminate all of them.
 
-To access Environment management page either navigate to it via main menu:
+To access Resourses page either navigate to it via main menu:
 
 <p align="center"> 
-    <img src="doc/environment_management.png" alt="Environment management">
+    <img src="doc/environment_management.png" alt="Resourses">
 </p>
 
 To stop or terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Stop" or "Terminate" action:
@@ -744,7 +858,7 @@ You are able to view:
 - who did the action
 - what the action was done
 
-Furthermore on the center of header you can choose period of report in datepicker.
+Furthermore, on the center of header you can choose period of report in datepicker.
 
 ![Audit page](doc/audit_page.png)
 

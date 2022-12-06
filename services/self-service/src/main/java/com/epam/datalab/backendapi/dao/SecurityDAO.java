@@ -39,10 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.dao.MongoCollections.ROLES;
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.gte;
-import static com.mongodb.client.model.Filters.ne;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
@@ -107,6 +104,12 @@ public class SecurityDAO extends BaseDAO {
     public Optional<AccessTokenResponse> getTokenResponse(String user) {
         return findOne(SECURITY_COLLECTION, eq(ID, user), Projections.fields(include(TOKEN_RESPONSE)))
                 .map(d -> convertFromDocument((Document) d.get(TOKEN_RESPONSE), AccessTokenResponse.class));
+    }
+
+    public Set<String> getUserNames(String name){
+        return stream(find(SECURITY_COLLECTION, regex(ID, name,"i")))
+                .map(document -> document.getString(ID))
+                .collect(Collectors.toSet());
     }
 
     @SuppressWarnings("unchecked")

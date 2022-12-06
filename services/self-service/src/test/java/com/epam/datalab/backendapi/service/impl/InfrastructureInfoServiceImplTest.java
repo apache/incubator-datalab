@@ -255,6 +255,11 @@ public class InfrastructureInfoServiceImplTest extends TestBase {
                         .download(Boolean.TRUE)
                         .delete(Boolean.TRUE)
                         .build())
+                .connectedPlatforms(HealthStatusPageDTO.ConnectedPlatforms.builder()
+                        .view(Boolean.TRUE)
+                        .add(Boolean.TRUE)
+                        .disconnect(Boolean.TRUE)
+                        .build())
                 .build();
     }
 

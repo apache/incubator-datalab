@@ -20,14 +20,20 @@
 package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.auth.UserInfo;
+import com.epam.datalab.backendapi.resources.dto.ImageFilter;
 import com.epam.datalab.backendapi.resources.dto.UserDTO;
 import io.dropwizard.auth.Auth;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
+
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.dao.MongoCollections.USER_SETTINGS;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.set;
 
 /**
@@ -36,6 +42,8 @@ import static com.mongodb.client.model.Updates.set;
 public class UserSettingsDAO extends BaseDAO {
     private static final String USER_UI_SETTINGS_FIELD = "userUISettings";
     private static final String USER_ALLOWED_BUDGET = "allowedBudget";
+
+    private static final String USER_IMAGE_FILTER = "imageFilter";
 
     /**
      * Returns the user preferences of UI dashboard.
@@ -72,6 +80,26 @@ public class UserSettingsDAO extends BaseDAO {
     public Optional<Integer> getAllowedBudget(String user) {
         return findOne(USER_SETTINGS, eq(ID, user))
                 .flatMap(d -> Optional.ofNullable(d.getInteger(USER_ALLOWED_BUDGET)));
+    }
+
+    public Optional<ImageFilter> getImageFilter(String user){
+         return findOne(USER_SETTINGS, and(eq(ID, user), notNull(USER_IMAGE_FILTER)),
+                fields(include(USER_IMAGE_FILTER), excludeId()))
+                 .map(d -> convertFromDocument((Document) d.get(USER_IMAGE_FILTER), ImageFilter.class));
+    }
+
+
+    public void setUserImageFilter(String userName, ImageFilter imageFilter) {
+        updateOne(USER_SETTINGS,
+                eq(ID, userName),
+                set(USER_IMAGE_FILTER, convertToBson(imageFilter)),
+                true);
+    }
+
+    public Set<String> getUserNames(String name){
+        return stream(find(USER_SETTINGS, regex(ID, name,"i")))
+                .map(document -> document.getString(ID))
+                .collect(Collectors.toSet());
     }
 
 }

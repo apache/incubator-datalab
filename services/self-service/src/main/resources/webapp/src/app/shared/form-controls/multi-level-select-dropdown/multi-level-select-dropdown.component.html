@@ -51,13 +51,13 @@
               class="header-checkbox"
               [checked]="selectedAllInCattegory(item.type)"
               [someChecked]="selectedSomeInCattegory(item.type)"
-              (toggleSelection)="toggleselectedCategory(model, item.type)"
+              (toggleSelection)="toggleSelectedCategory(model, item.type)"
             ></datalab-checkbox>
-            {{labels[item.type] || item.type | titlecase}}
+            {{labels[item.type] || item.type | titlecase | underscoreless}}
           </a>
         </li>
 
-        <li 
+        <li
           class="role-item"
           role="presentation"
           *ngIf="model && isOpenCategory[item.type] && item.type !== 'COMPUTATIONAL_SHAPE' && item.type !== 'NOTEBOOK_SHAPE'"
@@ -75,9 +75,9 @@
             {{item.role}}
           </a>
         </li>
-        <li 
-          class="role-item" 
-          role="presentation" 
+        <li
+          class="role-item"
+          role="presentation"
           (click)="toggleItemsForCloud(item.type + item.cloud, $event)"
           *ngIf="model && isOpenCategory[item.type] && item.type === 'COMPUTATIONAL_SHAPE' && item.cloud !== items[i - 1].cloud
             || model && isOpenCategory[item.type] && item.type === 'NOTEBOOK_SHAPE' && item.type !== items[i - 1].type

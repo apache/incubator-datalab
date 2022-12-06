@@ -85,8 +85,14 @@ export interface GeneralEnvironmentStatus {
   status: string;
   projectAssigned: boolean;
   bucketBrowser: object;
+  connectedPlatforms: ConnectedPlatformsStatus;
 }
 
+export interface ConnectedPlatformsStatus {
+  add: boolean;
+  disconnect: boolean;
+  view: boolean;
+}
 
 export class ManagementConfigModel {
 
@@ -114,3 +120,28 @@ export class ManagementConfigModel {
     this.endpoints = [];
   }
 }
+
+export interface ModalData {
+  action: ActionsType;
+  resource_name?: any;
+  user?: any;
+  type: string;
+  notebooks?: any;
+}
+
+export enum ModalDataType {
+  cluster = 'cluster',
+  notebook = 'notebook',
+}
+
+export enum ActionsType {
+  stop = 'stop',
+  terminate = 'terminate',
+  start = 'start',
+  run = 'run',
+  recreate = 'recreate',
+  createImage = 'create image'
+}
+
+export type ActionTypeOptions = 'stop' | 'terminate' | 'start' | 'createImage';
+

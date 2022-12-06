@@ -28,8 +28,8 @@
       <span class="line"></span>
     </button>
 
-    <a [routerLink]="['/resources_list']" class="navbar-logo">
-      <img src="assets/svg/logo.svg" alt="">
+    <a [routerLink]="['/instances']" class="navbar-logo">
+      <img src="assets/svg/logo.svg" alt="datalab">
     </a>
   </div>
 
@@ -37,10 +37,16 @@
     <!-- <a *ngIf="healthStatus.status" [routerLink]="['/environment_management']" class="statusbar">
       <span class="material-icons" ngClass="{{healthStatus.status || ''}}">radio_button_checked</span>
     </a> -->
-    <a class="statusbar" #info (click)="actions.toggle($event, info)" *ngIf="metadata">
-      <span class="material-icons meta">info</span>
+
+    <a
+      *ngIf="metadata"
+      class="statusbar about-btn--wrapper"
+      #info
+      (click)="actions.toggle($event, info)">
+        <span class="about-btn">About</span>
     </a>
-    <bubble-up #actions class="list-menu" position="bottom-right">
+
+    <bubble-up #actions class="list-menu bubble-menu" position="bottom-left">
       <div class="app-info">
         <p>
           <strong>Version: </strong>
@@ -53,7 +59,7 @@
         <p>
           <strong>Revision: </strong>
           <span class="ellipsis commit" matTooltip="{{ metadata?.commit }}"
-            matTooltipPosition="above">{{ metadata?.commit }}</span>
+            matTooltipPosition="above">{{ metadata?.commit | truncateTextPipe: commitMaxLength }}</span>
         </p>
         <p>
           <a class="helper_instruction" [attr.href]="metadata?.release_notes" target="_blank">
@@ -61,55 +67,127 @@
         </p>
       </div>
     </bubble-up>
-    <button class="btn btn-logout ani" (click)="logout_btnClick()">
-      Log out <span class="user-name">{{currentUserName}}</span>
-    </button>
+
+    <span class="help-link--wrapper">
+      <a class="help-link" href="https://github.com/apache/incubator-datalab/blob/master/USER_GUIDE.md" target="_blank">Help</a>
+    </span>
+
+    <span
+      class="material-icons account-icon--nav-bar account-icon" #login (click)="loginInfo.toggle($event, login)">
+        account_circle
+    </span>
+    <bubble-up class="user-info-popup__conponent" #loginInfo position="bottom-left">
+      <div class="user-info-popup--wrapper">
+        <span class="material-icons account-icon--buble">
+          account_circle
+        </span>
+        <span class="user-name">{{userData.name}}</span>
+        <span class="user-mail">{{userData.email}}</span>
+        <button type="button" class="logout-btn" (click)="logout_btnClick()">
+          Log out from account
+        </button>
+      </div>
+    </bubble-up>
   </div>
 </div>
 
 <mat-sidenav-container class="example-container" autosize >
-  <mat-sidenav 
-    #drawer 
-    mode="side" 
-    opened 
-    role="navigation" 
-    [style.width]="isExpanded ? '220px' : '60px'" 
-    disableClose 
+  <mat-sidenav
+    #drawer
+    mode="side"
+    opened
+    role="navigation"
+    [style.width]="isExpanded ? '220px' : '60px'"
+    disableClose
     *ngIf="healthStatus"
   >
     <mat-nav-list >
       <nav>
         <div>
-          <a 
-            class="nav-item" 
-            [routerLink]="['/resources_list']" 
-            [routerLinkActive]="['active']"
-            [routerLinkActiveOptions]="{exact:true}"
-          >
-            <span *ngIf="isExpanded; else resources">List of Resources</span>
-            <ng-template #resources><i class="material-icons">dashboard</i></ng-template>
+          <a class="nav-item has-children">
+            <span *ngIf="isExpanded">{{sideBarNames.resources}}</span>
+            <a
+              class="sub-nav-item"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLink]="[routerList.instances]"
+              [routerLinkActive]="['active']"
+              [routerLinkActiveOptions]="{exact:true}"
+            >
+              <span *ngIf="isExpanded; else instances">{{sideBarNames.instances}}</span>
+              <ng-template #instances><i class="material-icons">laptop</i></ng-template>
+            </a>
+
+            <a
+              class="sub-nav-item"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLink]="[routerList.images]"
+              [routerLinkActive]="['active']"
+              [routerLinkActiveOptions]="{exact:true}"
+            >
+              <span *ngIf="isExpanded; else images">{{sideBarNames.images}}</span>
+              <ng-template #images><i class="material-icons">photo</i></ng-template>
+            </a>
+
+            <a
+              *ngIf="healthStatus.connectedPlatforms?.view"
+              class="sub-nav-item"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLink]="[routerList.connectedPlatforms]"
+              [routerLinkActive]="['active']"
+              [routerLinkActiveOptions]="{exact:true}"
+            >
+              <span *ngIf="isExpanded; else connectedPlatforms">{{sideBarNames.connectedPlatforms}}</span>
+              <ng-template #connectedPlatforms><i class="material-icons">cast</i></ng-template>
+            </a>
+
+          </a>
+
+          <a class="nav-item has-children" *ngIf="healthStatus?.billingEnabled || healthStatus?.auditEnabled">
+            <span *ngIf="isExpanded">{{sideBarNames.reports}}</span>
+            <a
+              *ngIf="healthStatus?.auditEnabled"
+              class="sub-nav-item"
+              [routerLink]="[routerList.audit]"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLinkActive]="['active']"
+              [routerLinkActiveOptions]="{exact:true}"
+            >
+              <span *ngIf="isExpanded; else audit">{{sideBarNames.audit}}</span>
+              <ng-template #audit><i class="material-icons">library_books</i></ng-template>
+            </a>
+            <a
+              *ngIf="healthStatus?.billingEnabled"
+              class="sub-nav-item"
+              [routerLink]="[routerList.billing]"
+              [routerLinkActive]="['active']"
+              [routerLinkActiveOptions]="{exact:true}"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+            >
+              <span *ngIf="isExpanded; else billing">{{sideBarNames.billing}}</span>
+              <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
+            </a>
           </a>
           <a class="nav-item has-children" *ngIf="healthStatus?.admin || healthStatus?.projectAdmin">
-            <span *ngIf="isExpanded">Administration</span>
+            <span *ngIf="isExpanded">{{sideBarNames.administration}}</span>
 
-            <a 
-              class="sub-nav-item" 
-              [style.margin-left.px]="isExpanded ? '30' : '0'" 
-              [routerLink]="['/roles']"
-              [routerLinkActive]="['active']" 
+            <a
+              class="sub-nav-item"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLink]="[routerList.users]"
+              [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else roles">Roles</span>
+              <span *ngIf="isExpanded; else roles">{{sideBarNames.users}}</span>
               <ng-template #roles><i class="material-icons">account_box</i></ng-template>
             </a>
-            <a 
-              class="sub-nav-item" 
-              [style.margin-left.px]="isExpanded ? '30' : '0'" 
-              [routerLink]="['/projects']"
-              [routerLinkActive]="['active']" 
+            <a
+              class="sub-nav-item"
+              [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLink]="[routerList.projects]"
+              [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else projects">Projects</span>
+              <span *ngIf="isExpanded; else projects">{{sideBarNames.projects}}</span>
               <ng-template #projects><i class="material-icons">dns</i></ng-template>
             </a>
             <!--            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/odahu']"-->
@@ -117,53 +195,29 @@
             <!--              <span *ngIf="isExpanded; else odahu">Odahu deployment</span>-->
             <!--              <ng-template #odahu><i class="material-icons">get_app</i></ng-template>-->
             <!--            </a>-->
-            <a 
-              class="sub-nav-item" 
+            <a
+              class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/environment_management']" 
+              [routerLink]="[routerList.resources]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else env">Environment Management</span>
+              <span *ngIf="isExpanded; else env">{{sideBarNames.resources}}</span>
               <ng-template #env><i class="material-icons">settings</i></ng-template>
             </a>
-            <a 
-              *ngIf="healthStatus?.admin" 
-              class="sub-nav-item" 
+            <a
+              *ngIf="healthStatus?.admin"
+              class="sub-nav-item"
               [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLink]="['/configuration']" 
+              [routerLink]="[routerList.configuration]"
               [routerLinkActive]="['active']"
               [routerLinkActiveOptions]="{exact:true}"
             >
-              <span *ngIf="isExpanded; else env">Configuration</span>
+              <span *ngIf="isExpanded; else env">{{sideBarNames.configuration}}</span>
               <ng-template #env><i class="material-icons">build_circle</i></ng-template>
             </a>
           </a>
-          <a class="nav-item has-children" *ngIf="healthStatus?.billingEnabled || healthStatus?.auditEnabled">
-            <span *ngIf="isExpanded">Reports</span>
-            <a 
-              *ngIf="healthStatus?.auditEnabled" 
-              class="sub-nav-item" 
-              [routerLink]="['/audit']" 
-              [style.margin-left.px]="isExpanded ? '30' : '0'"
-              [routerLinkActive]="['active']" 
-              [routerLinkActiveOptions]="{exact:true}"
-            >
-              <span *ngIf="isExpanded; else audit">Audit</span>
-              <ng-template #audit><i class="material-icons">library_books</i></ng-template>
-            </a>
-            <a 
-              *ngIf="healthStatus?.billingEnabled" 
-              class="sub-nav-item" 
-              [routerLink]="['/billing_report']"
-              [routerLinkActive]="['active']" 
-              [routerLinkActiveOptions]="{exact:true}" 
-              [style.margin-left.px]="isExpanded ? '30' : '0'"
-            >
-              <span *ngIf="isExpanded; else billing">Billing</span>
-              <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
-            </a>
-          </a>
+
         </div>
         <!--        <div>-->
         <!--          <a class="nav-item" [routerLink]="['/swagger']" [routerLinkActive]="['active']"-->

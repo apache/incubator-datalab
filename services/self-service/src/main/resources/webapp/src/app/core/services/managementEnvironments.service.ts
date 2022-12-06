@@ -23,6 +23,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
+import { ActionTypeOptions } from '../../administration/management/management.model';
 
 @Injectable()
 export class ManageEnvironmentsService {
@@ -36,10 +37,11 @@ export class ManageEnvironmentsService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  environmentManagement(data, action: string, project: string, resource: string, computational?: string): Observable<{}> {
+  environmentManagement(data, action: ActionTypeOptions, project: string, resource: string, computational?: string): Observable<{}> {
     const params = computational ? `/${action}/${project}/${resource}/${computational}` : `/${action}/${project}/${resource}`;
+    const headers = action === 'createImage' ? { 'Content-Type': 'application/json; charset=UTF-8' } : { 'Content-Type': 'text/plain' };
     return this.applicationServiceFacade
-      .buildEnvironmentManagement(params, data)
+      .buildEnvironmentManagement(params, data, headers)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

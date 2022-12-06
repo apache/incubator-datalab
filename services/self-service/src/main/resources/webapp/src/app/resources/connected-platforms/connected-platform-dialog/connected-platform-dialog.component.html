@@ -1,0 +1,80 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+  <div id="dialog-box" class="dialog__wrapper">
+    <header class="dialog-header">
+      <h4 class="modal-title">
+        {{modalTitle.addPlatform}}
+      </h4>
+      <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+    </header>
+    <div class="dialog-content">
+      <form [formGroup]="connectedPlatformForm">
+          <div class="control__wrapper">
+            <label>Select platform</label>
+            <mat-form-field class="select__wrapper" appearance="fill">
+              <mat-select placeholder="Select platform" name="platformType" formControlName="type">
+                <mat-option *ngIf="!data.types.length" disabled="true">
+                  No platforms to add
+                </mat-option><mat-option *ngFor="let type of data.types" [value]="type">
+                  {{type}}
+                </mat-option>
+              </mat-select>
+              <button class="caret">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </button>
+            </mat-form-field>
+          </div>
+
+        <div class="control__wrapper">
+          <label>Platform url</label>
+          <div class="input__wrapper">
+            <input placeholder="Platform url" type="text" formControlName="url">
+            <span
+              class="error"
+              *ngIf="!connectedPlatformForm?.controls.url.valid
+                        && connectedPlatformForm.controls.url.touched"
+            >
+              Please provide a valid platform url.
+            </span>
+          </div>
+        </div>
+
+        <div class="control__wrapper">
+          <label>Name</label>
+          <div class="input__wrapper">
+            <input placeholder="Enter name" type="text" formControlName="name">
+            <span
+              class="error"
+              *ngIf="!connectedPlatformForm?.controls.name.valid && connectedPlatformForm.controls.name.touched"
+            >
+              Platform name cannot be longer than 6 characters.
+            </span>
+          </div>
+        </div>
+        <div class="button__wrapper">
+          <datalab-modal-btn
+            [isConfirmBtnDisabled]="!isFormValid"
+            [confirmBtnName]="confirmButtonName.add"
+            (closeEvent)="onBtnClick($event)"
+          ></datalab-modal-btn>
+        </div>
+      </form>
+    </div>
+  </div>

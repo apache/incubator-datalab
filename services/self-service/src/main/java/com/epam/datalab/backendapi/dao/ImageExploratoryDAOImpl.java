@@ -20,6 +20,7 @@
 package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.dto.SharedWith;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.dto.exploratory.LibStatus;
 import com.epam.datalab.model.exploratory.Image;
@@ -42,6 +43,7 @@ import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.set;
 
 @Singleton
 public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratoryDAO {
@@ -54,6 +56,8 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
     private static final String DOCKER_IMAGE = "dockerImage";
     private static final String PROJECT = "project";
     private static final String ENDPOINT = "endpoint";
+
+    private static final String SHARED_WITH = "sharedWith";
 
     @Override
     public boolean exist(String image, String project) {
@@ -73,9 +77,34 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
     }
 
     @Override
+    public void updateImageStatus(String user, String imageName, String project, String endpoint, ImageStatus status) {
+        final Bson condition = userImageCondition(user, imageName, project, endpoint);
+        updateOne(MongoCollections.IMAGES, condition, set(STATUS,status.toString()));
+    }
+    @Override
+    public void updateImageStatus(String imageName, String projectName, String endpoint, ImageStatus status) {
+        updateOne(MongoCollections.IMAGES, and(eq(IMAGE_NAME, imageName), eq(PROJECT, projectName), eq(ENDPOINT, endpoint)), set(STATUS,status.toString()));
+    }
+
+    @Override
     public List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses) {
         return find(MongoCollections.IMAGES,
                 userImagesCondition(user, dockerImage, project, endpoint, statuses),
+                ImageInfoRecord.class);
+    }
+
+    @Override
+    public List<ImageInfoRecord> getImages(String project, String endpoint, String dockerImage) {
+        return find(MongoCollections.IMAGES,
+                imageProjectEndpointDockerCondition(project, endpoint, dockerImage),
+                ImageInfoRecord.class);
+    }
+
+
+    @Override
+    public List<ImageInfoRecord> getImagesOfUser(String user) {
+        return find(MongoCollections.IMAGES,
+                eq(USER, user),
                 ImageInfoRecord.class);
     }
 
@@ -87,24 +116,38 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
     }
 
     @Override
+    public List<ImageInfoRecord> getAllImages() {
+        return find(MongoCollections.IMAGES, ImageInfoRecord.class);
+    }
+
+    @Override
     public Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint) {
         return findOne(MongoCollections.IMAGES, userImageCondition(user, name, project, endpoint), ImageInfoRecord.class);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status) {
-        return ((List<Document>) libDocument(user, imageFullName, project, endpoint, status)
+    public Optional<ImageInfoRecord> getImage(String name, String project, String endpoint) {
+        return findOne(MongoCollections.IMAGES, imageProjectEndpointCondition(name, project, endpoint), ImageInfoRecord.class);
+    }
+
+    @Override
+    public List<Library> getLibraries(String imageName,  String project, String endpoint, LibStatus status) {
+        return ((List<Document>) libDocument(imageName, project, endpoint, status)
                 .orElse(emptyLibrariesDocument()).get(LIBRARIES))
                 .stream()
                 .map(d -> convertFromDocument(d, Library.class))
                 .collect(Collectors.toList());
     }
 
-    private Optional<Document> libDocument(String user, String imageFullName, String project, String endpoint,
+    @Override
+    public void updateSharing(SharedWith sharedWith, String imageName, String project, String endpoint) {
+        updateOne(MongoCollections.IMAGES, and(eq(IMAGE_NAME,imageName),eq(PROJECT,project),eq(ENDPOINT,endpoint)), set(SHARED_WITH, convertToBson(sharedWith)));
+    }
+
+    private Optional<Document> libDocument(String imageName, String project, String endpoint,
                                            LibStatus status) {
         return findOne(MongoCollections.IMAGES,
-                imageLibraryCondition(user, imageFullName, project, endpoint, status),
+                imageLibraryCondition(imageName,project,endpoint,status),
                 fields(include(LIBRARIES), excludeId()));
     }
 
@@ -112,9 +155,8 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
         return new Document(LIBRARIES, Collections.emptyList());
     }
 
-    private Bson imageLibraryCondition(String user, String imageFullName, String project, String endpoint,
-                                       LibStatus status) {
-        return and(eq(USER, user), eq(IMAGE_NAME, imageFullName), eq(PROJECT, project), eq(ENDPOINT, endpoint),
+    private Bson imageLibraryCondition(String imageName, String project, String endpoint, LibStatus status){
+        return and(eq(IMAGE_NAME, imageName), eq(PROJECT, project), eq(ENDPOINT, endpoint),
                 elemMatch(LIBRARIES, eq(STATUS, status.name())));
     }
 
@@ -144,6 +186,18 @@ public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratory
 
     private Bson imageProjectCondition(String image, String project) {
         return and(eq(IMAGE_NAME, image), eq(PROJECT, project));
+    }
+
+    private Bson imageProjectEndpointCondition(String image, String project, String endpoint) {
+        return and(eq(IMAGE_NAME, image), eq(PROJECT, project), eq(ENDPOINT, endpoint));
+    }
+
+    private Bson imageUserProjectCondition(String user, String project) {
+        return and(eq(USER, user), eq(PROJECT, project));
+    }
+
+    private Bson imageProjectEndpointDockerCondition(String project, String endpoint, String dockerImage){
+        return and(eq(PROJECT, project), eq(ENDPOINT, endpoint), eq(DOCKER_IMAGE,dockerImage));
     }
 
     private Document getUpdatedFields(Image image) {

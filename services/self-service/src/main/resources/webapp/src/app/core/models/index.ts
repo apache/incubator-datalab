@@ -23,5 +23,8 @@ export * from './exploratoryEnvironmentVersion.model';
 export * from './computationalResourceImage.model';
 export * from './computationalResourceApplicationTemplate.model';
 export * from './computationalResourceApplication.model';
-export * from './imageType.enum';
+export * from '../configs/imageType.enum';
+export * from '../configs/docker-image-name';
+export * from '../configs/statusTypes.enum';
+
 

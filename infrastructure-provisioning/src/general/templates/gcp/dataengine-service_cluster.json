@@ -10,6 +10,7 @@
             "internalIpOnly": "true",
             "serviceAccount": "SERVICE_ACCOUNT",
             "metadata": {
+                "enable-oslogin": "FALSE",
                 "ssh-keys": "SSH_USER:SSH_PUBKEY"
             },
             "tags": [

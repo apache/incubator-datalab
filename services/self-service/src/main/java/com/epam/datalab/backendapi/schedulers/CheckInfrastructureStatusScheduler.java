@@ -73,6 +73,7 @@ public class CheckInfrastructureStatusScheduler implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
+        log.info("Trying to update infrastructure statuses");
         UserInfo serviceUser = securityService.getServiceAccountInfo("admin");
 
         List<String> activeEndpoints = endpointService.getEndpointsWithStatus(EndpointDTO.EndpointStatus.ACTIVE)
@@ -80,7 +81,8 @@ public class CheckInfrastructureStatusScheduler implements Job {
                 .map(EndpointDTO::getName)
                 .collect(Collectors.toList());
 
-        List<UserInstanceDTO> userInstanceDTOS = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusIn(activeEndpoints, statusesToCheck, Boolean.TRUE);
+        List<UserInstanceDTO> userInstanceDTOS = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusIn(activeEndpoints, statusesToCheck, Boolean.TRUE)
+        .stream().filter(e -> e.getInstanceId() != null).collect(Collectors.toList());
 
         Map<String, List<EnvResource>> exploratoryAndSparkInstances = userInstanceDTOS
                 .stream()

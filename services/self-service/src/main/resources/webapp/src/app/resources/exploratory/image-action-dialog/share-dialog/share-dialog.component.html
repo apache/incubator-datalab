@@ -1,0 +1,113 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<datalab-image-action-dialog
+  [activeTabIndex]="activeTabIndex"
+  [sharingDataList]="sharingDataList"
+  [isShareBtnDisabled]="!isShareBtnDisabled"
+>
+
+  <!--  Component subscriptions-->
+  <ng-container *ngIf="(getUserListDataSubscription$ | async)"></ng-container>
+  <ng-container *ngIf="(getUserListDataOnChangeSubscription$ | async)"></ng-container>
+  <ng-container *ngIf="(onInputSubscription$ | async)"></ng-container>
+
+  <div datalab-share-dialog class="dialog__wrapper">
+    <mat-tab-group (selectedTabChange)="onTabTitle( )">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          SHARE IMAGE
+        </ng-template>
+        <ng-template matTabContent>
+          <div class="search-input__wrapper">
+
+            <div class="input__wrapper">
+              <input
+                type="text"
+                class="search-input"
+                [placeholder]="placeholder.groupOrNameSearchInput"
+                [formControl]="addUserDataControl"
+                (change)="onChange()"
+                (input)="onInputKeyDown()"
+                matInput
+                [matAutocomplete]="auto"
+                #searchUserData
+              />
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option
+                  *ngFor="let user of (searchUserDataDropdownList$ | async)"
+                  (click)="addUserToTemporaryList(user)"
+                  [value]="user.value">
+                  <mat-icon class="user-data__icon">{{user.type === 'GROUP' ? 'people' : 'person'}}</mat-icon>
+                  {{user.value}}
+                </mat-option>
+                <mat-option *ngIf="!(searchUserDataDropdownList$ | async)?.length" class="multiple-select ml-10" disabled>
+                  No results found
+                </mat-option>
+              </mat-autocomplete>
+              <span [hidden]="!isUserDataListEmpty" class="error">
+          Please enter user login or group name
+        </span>
+            </div>
+            <div class="user-list__wrapper scrolling">
+              <ul class="user-list user-list__temporary">
+                <li
+                  *ngFor="let entity of (temporaryUserDataList$ | async)"
+                  class="user-list__item"
+                >
+                  <datalab-share-user-data
+                    (removeUserData)="onRemoveUserData($event)"
+                    [userData]="entity"
+                  >
+                  </datalab-share-user-data>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </ng-template>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          SHARED WITH
+        </ng-template>
+        <ng-template matTabContent>
+          <div class="share-with__wrapper">
+            <div
+              *ngIf="(userDataList$ | async)?.length; else emptyUserList"
+              class="user-list__wrapper scrolling"
+            >
+              <ul class="user-list user-list__shared">
+                <li
+                  *ngFor="let entity of (userDataList$ | async)"
+                  class="user-list__item"
+                >
+                  <datalab-share-user-data (removeUserData)="unShare($event)" [userData]="entity"></datalab-share-user-data>
+                </li>
+              </ul>
+
+            </div>
+            <ng-template #emptyUserList>
+              <p class="empty-state">The image hase not been shared.</p>
+            </ng-template>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</datalab-image-action-dialog>

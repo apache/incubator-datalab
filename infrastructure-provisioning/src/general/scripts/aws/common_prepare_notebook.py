@@ -69,18 +69,24 @@ if __name__ == "__main__":
             sys.exit(1)
         logging.info('Generating infrastructure names and tags')
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         except:
             notebook_config['exploratory_name'] = ''
-
+        notebook_config['custom_tag'] = ''
+        if 'custom_tag' in os.environ['tags']:
+            notebook_config['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+            if notebook_config['custom_tag']:
+                notebook_config['custom_tag'] = ';custom_tag:{}'.format(notebook_config['custom_tag'])
         notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
                                                                       notebook_config['project_name'],
                                                                       notebook_config['endpoint_name'],
                                                                       notebook_config['exploratory_name'], args.uuid)
-        notebook_config['primary_disk_size'] = (lambda x: '100' if x == 'deeplearning' else '16')(
-            os.environ['application'])
+
+        notebook_config['primary_disk_size'] = (lambda x: '150' if x == 'deeplearning' else
+        ('28' if x == 'tensor' or x == 'tensor-rstudio' else '16'))(os.environ['application'])
+
         notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-profile'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'])
         notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
@@ -109,6 +115,11 @@ if __name__ == "__main__":
             notebook_config['ami_id'] = image_id
             logging.info('Pre-configured image found. Using: {}'.format(notebook_config['ami_id']))
         else:
+            if 'notebook_image_name' in os.environ:
+                logging.info('{} is available in the list for notebook creation but image_id '
+                             'is not present on the cloud'.format(os.environ['notebook_image_name']))
+                sys.exit(1)
+
             os.environ['notebook_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
             logging.info('No pre-configured image found. Using default one: {}'.format(notebook_config['ami_id']))
 
@@ -123,11 +134,12 @@ if __name__ == "__main__":
             json.dump(data, f)
 
         try:
-            os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1};'.format(
-                notebook_config['project_name'], notebook_config['endpoint_name'], os.environ['conf_additional_tags'])
-        except KeyError:
-            os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(
-                notebook_config['project_name'], notebook_config['endpoint_name'])
+            os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}{3}'.format(
+                notebook_config['project_name'], notebook_config['endpoint_name'], os.environ['conf_additional_tags'],
+                notebook_config['custom_tag'])
+        except KeyError as ex:
+            os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}{2}'.format(
+                notebook_config['project_name'], notebook_config['endpoint_name'], notebook_config['custom_tag'])
 
         logging.info('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
     except Exception as err:

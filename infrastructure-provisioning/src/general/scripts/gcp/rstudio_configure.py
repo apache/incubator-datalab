@@ -88,6 +88,10 @@ if __name__ == "__main__":
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
         notebook_config['ip_address'] = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
         notebook_config['rstudio_pass'] = datalab.fab.id_generator()
+        if "gcp_wrapped_csek" in os.environ:
+            notebook_config['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+        else:
+            notebook_config['gcp_wrapped_csek'] = ''
     except Exception as err:
         datalab.fab.append_result("Failed to generate variables dictionary", str(err))
         GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
@@ -212,7 +216,8 @@ if __name__ == "__main__":
                 logging.info("Looks like it's first time we configure notebook server. Creating images.")
                 image_id_list = GCPActions.create_image_from_instance_disks(
                     notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
-                    notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'])
+                    notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'],
+                    notebook_config['gcp_wrapped_csek'])
                 if image_id_list and image_id_list[0] != '':
                     logging.info("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
                 else:

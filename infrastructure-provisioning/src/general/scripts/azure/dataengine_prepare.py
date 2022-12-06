@@ -98,6 +98,12 @@ if __name__ == "__main__":
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name'],
                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+        data_engine['custom_tag'] = ''
+        if 'custom_tag' in os.environ['tags']:
+            data_engine['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+        if data_engine['custom_tag']:
+            data_engine['slave_tags']['custom_tag'] = data_engine['custom_tag']
+            data_engine['master_tags']['custom_tag'] = data_engine['custom_tag']
         # data_engine['primary_disk_size'] = '32'
         if os.environ['conf_deeplearning_cloud_ami'] == 'true' and os.environ['application'] == 'deeplearning':
             data_engine['primary_disk_size'] = '150'

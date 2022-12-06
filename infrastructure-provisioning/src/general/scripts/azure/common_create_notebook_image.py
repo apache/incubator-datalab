@@ -46,7 +46,7 @@ if __name__ == "__main__":
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['application'] = os.environ['application']
         image_conf['datalab_ssh_user'] = os.environ['conf_os_user']
-        image_conf['image_name'] = os.environ['notebook_image_name']
+        image_conf['image_name'] = os.environ['notebook_image_name'].replace('_', '-')
         image_conf['full_image_name'] = '{}-{}-{}-{}-{}'.format(image_conf['service_base_name'],
                                                                 image_conf['project_name'],
                                                                 image_conf['endpoint_name'],
@@ -119,7 +119,7 @@ if __name__ == "__main__":
                        "user_name": image_conf['user_name'],
                        "project_name": image_conf['project_name'],
                        "application": image_conf['application'],
-                       "status": "created",
+                       "status": "active",
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
     except Exception as err:

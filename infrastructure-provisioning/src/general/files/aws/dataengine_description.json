@@ -5,6 +5,7 @@
     "computation_resources_shapes":
     {
       "For testing" : [
+        {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2"},
         {"Size": "S", "Description": "c4.xlarge", "Type": "c4.xlarge","Ram": "7.5 GB","Cpu": "4"}
       ],
       "Memory optimized" : [
@@ -14,6 +15,7 @@
         {"Size": "L", "Description": "r3.8xlarge", "Type": "r3.8xlarge","Ram": "244 GB","Cpu": "32"}
       ],
       "Compute optimized": [
+        {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2"},
         {"Size": "S", "Description": "c4.xlarge", "Type": "c4.xlarge","Ram": "7.5 GB","Cpu": "4"},
         {"Size": "M", "Description": "c4.2xlarge", "Type": "c4.2xlarge","Ram": "15.0 GB","Cpu": "8"},
         {"Size": "L", "Description": "c4.8xlarge", "Type": "c4.8xlarge","Ram": "60.0 GB","Cpu": "36"}

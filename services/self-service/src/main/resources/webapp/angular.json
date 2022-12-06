@@ -11,7 +11,12 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "allowedCommonJsDependencies": ["chart.js", "ng-daterangepicker", "moment-timezone"],
+            "allowedCommonJsDependencies": [
+              "chart.js",
+              "ng-daterangepicker",
+              "moment-timezone",
+              "rxjs-compat"
+            ],
             "aot": true,
             "outputPath": "dist",
             "index": "src/index.html",
@@ -23,8 +28,10 @@
               "src/assets",
               "src/favicon.ico"
             ],
-            "styles": [{
-                "input": "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"
+            "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+                "inject": true
               },
               "src/styles.scss",
               "src/assets/styles/app-loading.scss",
@@ -52,16 +59,17 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
-              "fileReplacements": [{
-                "replace": "src/environments/environment.ts",
-                "with": "src/environments/environment.prod.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             }
           }
         },
@@ -90,8 +98,10 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [],
-            "styles": [{
-                "input": "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"
+            "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+                "inject": true
               },
               "src/styles.scss",
               "src/assets/fonts/iconfont/material-icons.css"

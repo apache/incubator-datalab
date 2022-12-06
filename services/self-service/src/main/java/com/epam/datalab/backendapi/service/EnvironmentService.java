@@ -31,6 +31,10 @@ public interface EnvironmentService {
 
     List<UserResourceInfo> getAllEnv(UserInfo user);
 
+    void createImage(UserInfo userInfo, String user, String project, String exploratoryName, String imageName, String description);
+
+    void startExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
+
     void stopAll();
 
     void stopEnvironmentWithServiceAccount(String user);

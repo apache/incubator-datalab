@@ -78,6 +78,7 @@ parser.add_argument('--tags', type=str, default=None)
 parser.add_argument('--keycloak_client_id', type=str, default=None)
 parser.add_argument('--keycloak_client_secret', type=str, default=None)
 parser.add_argument('--keycloak_auth_server_url', type=str, default=None)
+parser.add_argument('--keycloak_realm_name', type=str, default=None)
 args = parser.parse_args()
 
 datalab_conf_dir = args.datalab_path + 'conf/'
@@ -95,7 +96,7 @@ def copy_ssn_libraries():
     try:
         conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
         conn.run('mkdir -p /tmp/datalab_libs/')
-        subprocess.run('scp -i {} /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string), shell=True, check=True)
+        subprocess.run('rsync -e "ssh -i {}" /usr/lib/python3.8/datalab/*.py {}:/tmp/datalab_libs/'.format(args.keyfile, host_string), shell=True, check=True)
         conn.run('chmod a+x /tmp/datalab_libs/*')
         conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
         if exists(conn, '/usr/lib64'):
@@ -113,23 +114,23 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
                 subprocess.run('sed -i "s/MONGO_USR/mongodb/g" /root/templates/mongod.service_template', shell=True, check=True)
             elif os.environ['conf_os_family'] == 'redhat':
                 subprocess.run('sed -i "s/MONGO_USR/mongod/g" /root/templates/mongod.service_template', shell=True, check=True)
-            subprocess.run('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
+            subprocess.run('rsync -e "ssh -i {}" /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
                                                                                                     host_string), shell=True, check=True)
             conn.sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable mongod.service')
         subprocess.run('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd), shell=True, check=True)
-        subprocess.run('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
+        subprocess.run('rsync -e "ssh -i {}" /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
                                                                                              host_string), shell=True, check=True)
         conn.sudo('mv /tmp/resource_status.py ' + os.environ['ssn_datalab_path'] + 'tmp/')
         subprocess.run('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd), shell=True, check=True)
-        subprocess.run('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
+        subprocess.run('rsync -e "ssh -i {}" /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
                                                                                              host_string), shell=True, check=True)
         conn.sudo('mv /tmp/configure_mongo.py ' + args.datalab_path + 'tmp/')
-        subprocess.run('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
+        subprocess.run('rsync -e "ssh -i {}" /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
                                                                                           host_string), shell=True, check=True)
-        subprocess.run('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
+        subprocess.run('rsync -e "ssh -i {}" /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
                                                                                              host_string), shell=True, check=True)
         conn.sudo('mv /tmp/mongo_roles.json ' + args.datalab_path + 'tmp/')
         conn.sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
@@ -137,9 +138,6 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
             os.environ['conf_cloud_provider'].upper()))
         conn.sudo('mv /tmp/local_endpoint.json ' + args.datalab_path + 'tmp/')
         conn.sudo('pip3 install -U six==1.15.0 patchwork')
-        conn.sudo("ls -la " + args.datalab_path + "tmp/")
-        conn.sudo("ls -la /etc/")
-        conn.sudo("lsblk")
         conn.sudo("python3 " + args.datalab_path + "tmp/configure_mongo.py --datalab_path {} ".format(
             args.datalab_path))
     except Exception as err:
@@ -260,6 +258,6 @@ if __name__ == "__main__":
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
              args.datalab_id, args.usage_date, args.product, args.usage_type,
              args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
-             args.keycloak_client_secret, args.keycloak_auth_server_url)
+             args.keycloak_client_secret, args.keycloak_auth_server_url, args.keycloak_realm_name)
 
     conn.close()

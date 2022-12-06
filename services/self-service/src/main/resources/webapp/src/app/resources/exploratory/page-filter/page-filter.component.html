@@ -1,0 +1,214 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div class="dialog-content selection">
+
+  <ng-container *ngIf="setFilterValueObservable$ | async"></ng-container>
+  <ng-container *ngIf="changeIsApplyBtnDisabledObservable$ | async"></ng-container>
+
+  <div id="scrolling" class="mat-reset">
+    <form class="filter-table__wrapper" [formGroup]="filterForm">
+      <div class="form-control__wrapper control-group">
+        <label class="label">Image name</label>
+        <input
+          type="text"
+          class="form-control"
+          [placeholder]="placeholders.imageName"
+          [formControlName]="controlNames.imageName"
+          matInput
+          [matAutocomplete]="auto"
+        />
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+          <mat-option *ngFor="let option of (filterDropdownData$ | async).imageNames" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </div>
+
+      <div class="control-group">
+        <label class="label">Status</label>
+        <div class="control selector-wrapper">
+            <span class="form-field-wrapper">
+              <mat-form-field (click)="onSelectClick()">
+                <mat-select
+                  [formControlName]="dropdownFieldNames.statuses"
+                  disableOptionCentering
+                  panelClass="create-resources-dialog scrolling"
+                  [placeholder]="placeholders.status"
+                  multiple
+                >
+                  <mat-select-trigger class="select__value">
+                    {{statuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
+                  </mat-select-trigger>
+                  <mat-option
+                    *ngIf="(filterDropdownData$ | async).statuses.length > 1"
+                    #allStatusesSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(statuses, allStatusesSelected, dropdownFieldNames.statuses)"
+                  >
+                   All
+                  </mat-option>
+                  <mat-option
+                    *ngFor="let status of (filterDropdownData$ | async).statuses"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
+                    [value]="status"
+                  >
+                    {{ status | titlecase }}
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="label">Endpoint</label>
+        <div class="control selector-wrapper">
+            <span class="form-field-wrapper">
+              <mat-form-field (click)="onSelectClick()">
+                <mat-select
+                  [formControlName]="dropdownFieldNames.endpoints"
+                  disableOptionCentering
+                  panelClass="create-resources-dialog scrolling"
+                  [placeholder]="placeholders.endpoint"
+                  multiple
+                >
+                  <mat-select-trigger class="select__value">
+                    {{endpoints.value | normalizeDropdownMultiValue: selectAllValue}}
+                  </mat-select-trigger>
+                  <mat-option
+                    *ngIf="(filterDropdownData$ | async).endpoints.length > 1"
+                    #allEndpointsSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(endpoints, allEndpointsSelected, dropdownFieldNames.endpoints)"
+                  >
+                   All
+                  </mat-option>
+                  <mat-option
+                    *ngFor="let endpoint of (filterDropdownData$ | async).endpoints"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
+                    [value]="endpoint"
+                  >
+                    {{ endpoint }}
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="label">Template name</label>
+        <div class="control selector-wrapper">
+            <span class="form-field-wrapper">
+              <mat-form-field (click)="onSelectClick()">
+                <mat-select
+                  [formControlName]="dropdownFieldNames.templateNames"
+                  disableOptionCentering
+                  panelClass="create-resources-dialog scrolling"
+                  [placeholder]="placeholders.templateName"
+                  multiple
+                >
+                  <mat-select-trigger class="select__value">
+                    {{templateNames.value | normalizeDropdownMultiValue: selectAllValue}}
+                  </mat-select-trigger>
+                  <mat-option
+                    *ngIf="(filterDropdownData$ | async).templateNames.length > 1"
+                    #allTemplatesSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(templateNames, allTemplatesSelected, dropdownFieldNames.templateNames)"
+                  >
+                   All
+                  </mat-option>
+                  <mat-option
+                    *ngFor="let template of (filterDropdownData$ | async).templateNames"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
+                    [value]="template"
+                  >
+                    {{ template }}
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="label">Sharing</label>
+        <div class="control selector-wrapper">
+            <span class="form-field-wrapper">
+              <mat-form-field (click)="onSelectClick()">
+                <mat-select
+                  [formControlName]="dropdownFieldNames.sharingStatuses"
+                  disableOptionCentering
+                  panelClass="create-resources-dialog scrolling"
+                  [placeholder]="placeholders.sharing"
+                  multiple
+                >
+                  <mat-select-trigger class="select__value">
+                    {{sharingStatuses.value | normalizeDropdownMultiValue: selectAllValue | titlecase}}
+                  </mat-select-trigger>
+                  <mat-option
+                    *ngIf="(filterDropdownData$ | async).sharingStatuses.length > 1"
+                    #allSharingStatusesSelected
+                    [value]="selectAllValue"
+                    (click)="onClickAll(sharingStatuses, allSharingStatusesSelected, dropdownFieldNames.sharingStatuses)"
+                  >
+                   All
+                  </mat-option>
+                  <mat-option
+                    *ngFor="let status of (filterDropdownData$ | async).sharingStatuses"
+                    [ngClass]="{'single-option': (filterDropdownData$ | async).statuses.length === 1}"
+                    [value]="status"
+                  >
+                    {{ status | titlecase }}
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </span>
+        </div>
+      </div>
+
+      <div class="text-center m-top-20">
+        <button type="button" class="butt" mat-raised-button (click)="cancelFilter()" >Cancel</button>
+        <button
+          type="button"
+          [disabled]="(isApplyBtnDisabled$ | async)"
+          class="butt butt-success"
+          mat-raised-button
+          (click)="confirmFilter()"
+        >
+          Apply
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

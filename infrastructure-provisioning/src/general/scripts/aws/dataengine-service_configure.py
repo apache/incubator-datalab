@@ -37,6 +37,7 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
+parser.add_argument('--access_password', type=str, default='')
 args = parser.parse_args()
 
 
@@ -162,11 +163,11 @@ if __name__ == "__main__":
         logging.info('Generating infrastructure names and tags')
         emr_conf = dict()
         if 'exploratory_name' in os.environ:
-            emr_conf['exploratory_name'] = os.environ['exploratory_name']
+            emr_conf['exploratory_name'] = os.environ['exploratory_name'].lower()
         else:
             emr_conf['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            emr_conf['computational_name'] = os.environ['computational_name']
+            emr_conf['computational_name'] = os.environ['computational_name'].lower()
         else:
             emr_conf['computational_name'] = ''
         emr_conf['apps'] = 'Hadoop Hive Hue Spark Livy'

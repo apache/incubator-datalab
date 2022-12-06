@@ -41,12 +41,17 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['zone'] = os.environ['gcp_zone']
+    if "gcp_wrapped_csek" in os.environ:
+        notebook_config['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+    else:
+        notebook_config['gcp_wrapped_csek'] = ''
 
     try:
         logging.info('[START NOTEBOOK]')
         try:
             logging.info("Starting notebook")
-            GCPActions.start_instance(notebook_config['notebook_name'], notebook_config['zone'])
+            GCPActions.start_instance(notebook_config['notebook_name'], notebook_config['zone'],
+                                      notebook_config['gcp_wrapped_csek'])
         except Exception as err:
             traceback.print_exc()
             datalab.fab.append_result("Failed to start notebook.", str(err))

@@ -42,6 +42,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +69,7 @@ public class BucketServiceImplTest extends TestBase {
     private static final String BUCKET = "bucket";
     private static final String OBJECT = "object";
     private static final String SIZE = "size";
-    private static final long DATE = LocalDate.now().toEpochDay();
+    private static final long DATE = Instant.now().toEpochMilli();
     private static final String FOLDER = "folder/";
 
     @Mock

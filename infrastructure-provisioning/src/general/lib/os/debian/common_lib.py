@@ -223,10 +223,9 @@ def manage_pkg(command, environment, requisites):
         sys.exit(1)
 
 
-def ensure_pkg(os_user, requisites='linux-headers-$(uname -r) python3-pip python3-dev python3-virtualenv '
-                                'groff gcc vim less git wget '
-                                'libssl-dev unattended-upgrades nmap '
-                                'libffi-dev unzip libxml2-dev haveged'):
+def ensure_pkg(os_user, requisites='linux-headers-$(uname -r) python3-pip python3-opencv python3-dev '
+                                   'python3-virtualenv groff gcc vim less git wget libssl-dev unattended-upgrades '
+                                   'nmap libffi-dev unzip libxml2-dev haveged'):
     try:
         if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/pkg_upgraded'.format(os_user)):
             count = 0
@@ -285,11 +284,12 @@ def find_java_path_local():
         sys.exit(1)
 
 
-def disable_edge_scp_binary(os_user):
+def remove_scp_nmap_binary(os_user):
     try:
-        if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/disabled_scp_binary'.format(os_user)):
-            datalab.fab.conn.sudo('mv /usr/bin/scp /usr/bin/scp_disabled')
-        datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/disabled_scp_binary'.format(os_user))
+        if not exists(datalab.fab.conn, '/home/{}/.ensure_dir/remove_scp_nmap_binary'.format(os_user)):
+            datalab.fab.conn.sudo('rm /usr/bin/scp')
+            datalab.fab.conn.sudo('rm /usr/share/nmap/nselib/data/psexec/nmap_service.exe > /dev/null; echo $?')
+        datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/remove_scp_nmap_binary'.format(os_user))
     except Exception as err:
         logging.error('Updating openssh to version:', str(err))
         traceback.print_exc()

@@ -247,8 +247,12 @@ def ensure_docker_endpoint():
                                            "| grep 'DNS Servers:' "
                                            "| awk '{print $3}'")
                                   .stdout.rstrip("\n\r"))
-                conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
+                if dns_ip_resolve:
+                    conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
                           .format(dns_ip_resolve, args.datalab_path))
+                else:
+                    conn.sudo("sed -i 's|DNS_IP_RESOLVE||g' {}/tmp/daemon.json"
+                              .format(args.datalab_path))
             elif args.cloud_provider == "gcp" or args.cloud_provider == "azure":
                 dns_ip_resolve = ""
                 conn.sudo('sed -i "s|DNS_IP_RESOLVE||g" {1}/tmp/daemon.json'
@@ -270,10 +274,8 @@ def ensure_mongo_endpoint():
     try:
         print('[INSTALLING MONGO DATABASE]')
         if not exists(conn, '/home/{}/.ensure_dir/mongo_ensured'.format(args.os_user)):
-            conn.sudo("bash -c 'wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -'")
-            conn.sudo("bash -c 'echo \"deb [ arch=amd64,arm64 ] "
-                      "https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/4.2 multiverse\" | sudo "
-                      "tee /etc/apt/sources.list.d/mongodb-org-4.2.list'")
+            conn.sudo("bash -c 'wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -'")
+            conn.sudo("bash -c 'echo \"deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/4.4 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list'")
             conn.sudo('apt-get update')
             conn.sudo('apt-get -y --allow-unauthenticated install mongodb-org')
             conn.sudo('systemctl enable mongod.service')
@@ -639,8 +641,8 @@ def pull_docker_images():
         if not exists(conn, ensure_file):
             list_images = {
                 'aws': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
-                        'deeplearning', 'jupyterlab', 'dataengine-service', 'dataengine'],
-                'gcp': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
+                        'tensor-jupyterlab', 'deeplearning', 'jupyterlab', 'dataengine-service', 'dataengine'],
+                'gcp': ['base', 'edge', 'project', 'jupyter', 'jupyter-gpu', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
                         'deeplearning', 'superset', 'jupyterlab', 'dataengine-service', 'dataengine'],
                 'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
                           'dataengine']
@@ -658,8 +660,7 @@ def pull_docker_images():
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
                 conn.sudo('docker rmi {0}:{1}/docker.datalab-{3}-{2}'
                           .format(args.repository_address, args.repository_port, args.cloud_provider, image))
-            conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
-                      .format(args.os_user))
+            #conn.sudo('chown -R {0}:docker /home/{0}/.docker/'.format(args.os_user))
             conn.sudo('touch {}'.format(ensure_file))
     except Exception as err:
         logging.error('Failed to pull Docker images: ', str(err))
@@ -675,7 +676,7 @@ def configure_guacamole():
     try:
         mysql_pass = id_generator()
         conn.sudo('docker run --name guacd --restart unless-stopped -d -p 4822:4822 guacamole/guacd')
-        conn.sudo('docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql')
+        conn.sudo('docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql')
         conn.sudo('mkdir /tmp/scripts')
         conn.sudo('cp initdb.sql /tmp/scripts')
         conn.sudo('mkdir -p /opt/mysql')
@@ -693,7 +694,7 @@ def configure_guacamole():
                   .format(mysql_pass))
         conn.sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql"
                   " -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}'"
-                  " -d -p 8080:8080 guacamole/guacamole".format(mysql_pass))
+                  " -d -p 8080:8080 guacamole/guacamole:1.4.0".format(mysql_pass))
         # create cronjob for run containers on reboot
         conn.sudo('mkdir -p /opt/datalab/cron')
         conn.sudo('touch /opt/datalab/cron/mysql.sh')
@@ -704,7 +705,7 @@ def configure_guacamole():
         conn.sudo('echo "docker rm guacamole" >> /opt/datalab/cron/mysql.sh')
         conn.sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd"""
                   """ --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' """
-                  """-e MYSQL_PASSWORD='{}' -d -p 8080:8080 guacamole/guacamole" >> """
+                  """-e MYSQL_PASSWORD='{}' -d -p 8080:8080 guacamole/guacamole:1.4.0" >> """
                   """/opt/datalab/cron/mysql.sh""".format(mysql_pass))
         conn.sudo('''/bin/bash -c '(crontab -l 2>/dev/null; echo "@reboot sh /opt/datalab/cron/mysql.sh") |'''
                   ''' crontab - ' ''')
@@ -989,7 +990,7 @@ def init_args():
     parser.add_argument('--repository_user', type=str, default='')
     parser.add_argument('--repository_pass', type=str, default='')
     parser.add_argument('--release_tag', type=str,
-                        default='2.5.1')
+                        default='2.6.0')
     parser.add_argument('--docker_version', type=str,
                         default='5:20.10.6~3-0~ubuntu-bionic')
     parser.add_argument('--ssn_bucket_name', type=str, default='')

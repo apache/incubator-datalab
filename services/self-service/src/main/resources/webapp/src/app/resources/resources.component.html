@@ -26,9 +26,9 @@
         [matTooltipClass]="'full-size-tooltip'"
         [matTooltipDisabled]="healthStatus?.projectAssigned && resourcesGrid.activeProjectsList?.length !== 0"
       >
-        <button 
-          mat-raised-button 
-          class="butt butt-create" 
+        <button
+          mat-raised-button
+          class="butt butt-create"
           (click)="createEnvironment()"
           [disabled]="!healthStatus?.projectAssigned || !resourcesGrid.activeProjectsList?.length"
         >
@@ -36,23 +36,26 @@
         </button>
       </span>
       <div class="mat-reset">
-        <div class="control selector-wrapper" *ngIf="projects?.length">
+        <div class="control selector-wrapper" *ngIf="projects?.length"
+        [ngClass]="{'disabled-select': !isProjectsMoreThanOne}"
+        >
           <mat-form-field>
             <mat-label>Select project</mat-label>
 
-            <mat-select 
+            <mat-select
               disableOptionCentering
-              [(value)]="resourcesGrid.activeProject" 
+              [(value)]="resourcesGrid.activeProject"
               panelClass="top-select scrolling"
+              [disabled]="!isProjectsMoreThanOne"
             >
-              <mat-option 
-                *ngIf="projects?.length > 1" 
+              <mat-option
+                *ngIf="projects?.length > 1"
                 (click)="setActiveProject('')"
               >
                 Show all
               </mat-option>
-              <mat-option 
-                *ngFor="let project of projects" 
+              <mat-option
+                *ngFor="let project of projects"
                 [value]="project"
                 (click)="setActiveProject(project)"
               >
@@ -60,7 +63,7 @@
               </mat-option>
               <mat-option *ngIf="!projects?.length" class="multiple-select ml-10" disabled>Projects list is empty</mat-option>
             </mat-select>
-            <button class="caret">
+            <button class="caret" [disabled]="!isProjectsMoreThanOne">
               <i class="material-icons">keyboard_arrow_down</i>
             </button>
           </mat-form-field>
@@ -69,15 +72,15 @@
     </div>
 
     <div>
-      <span  
+      <span
         matTooltip="{{!this.bucketStatus?.view ? 'You have not permission to open bucket browser' : 'You have not any bucket'}}"
         matTooltipPosition="above"
         matTooltipDisabled="{{resourcesGrid.bucketsList?.length > 0 && this.bucketStatus?.view}}"
         [matTooltipClass]="'full-size-tooltip'"
       >
-        <button 
-          mat-raised-button 
-          class="butt butt-tool" 
+        <button
+          mat-raised-button
+          class="butt butt-tool"
           (click)="bucketBrowser(this.bucketStatus?.view)"
           [disabled]="!this.bucketStatus?.view || resourcesGrid.bucketsList?.length === 0"
         >

@@ -27,18 +27,22 @@
       <form [formGroup]="resourceForm" *ngIf="clusterTypes.length && resourceForm; else placeholder">
         <div class="form-wrapper">
           <div class="col">
-            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="clusterTypes.length === 1">
+            <div
+              class="control-group"
+              *ngIf="(clusterTypes | isElementAvailable : hasHDInside) || this.PROVIDER !== providerList.azure"
+              [hidden]="clusterTypes.length === 1"
+            >
               <label class="label">Select cluster type</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-select 
-                    formControlName="template_name" 
+                  <mat-select
+                    formControlName="template_name"
                     disableOptionCentering
                     panelClass="scrolling"
                     placeholder="Select cluster type"
                   >
-                    <mat-option 
-                      *ngFor="let type of clusterTypes" 
+                    <mat-option
+                      *ngFor="let type of clusterTypes"
                       [value]="type.template_name"
                       (click)="selectImage(type)"
                     >
@@ -60,12 +64,12 @@
               <div class="control">
                 <input
                   [class.danger_field]="!resourceForm?.controls['cluster_alias_name'].valid
-                        && resourceForm?.controls['cluster_alias_name'].dirty 
+                        && resourceForm?.controls['cluster_alias_name'].dirty
                         && resourceForm?.controls['cluster_alias_name'].hasError('duplication')"
-                  type="text" 
-                  class="form-control" 
+                  type="text"
+                  class="form-control"
                   placeholder="Enter cluster alias"
-                  formControlName="cluster_alias_name" 
+                  formControlName="cluster_alias_name"
                 />
                 <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')">
                   You have cluster with this name in current project.
@@ -73,9 +77,9 @@
                 <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">
                   Other user has cluster with this name in current project.
                 </span>
-                <span 
-                  class="error" 
-                  *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('maxlength') 
+                <span
+                  class="error"
+                  *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('maxlength')
                     && !resourceForm?.controls['cluster_alias_name'].hasError('pattern')"
                 >
                   Cluster name cannot be longer than {{maxClusterNameLength}} characters.
@@ -93,7 +97,7 @@
                 <mat-form-field>
                   <mat-label>Select instance size</mat-label>
                   <mat-select panelClass="scrolling" formControlName="shape_master" disableOptionCentering>
-                    <mat-optgroup 
+                    <mat-optgroup
                       *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless"
                     >
@@ -114,12 +118,12 @@
             <div class="control-group" *ngIf="selectedImage?.image">
               <label class="label">Total instance number</label>
               <div class="control">
-                <input 
-                  type="number" 
-                  class="form-control" 
-                  min="{{minInstanceNumber}}" 
+                <input
+                  type="number"
+                  class="form-control"
+                  min="{{minInstanceNumber}}"
                   max="{{maxInstanceNumber}}"
-                  formControlName="instance_number" (keypress)="CheckUtils.isNumberKey($event)" 
+                  formControlName="instance_number" (keypress)="CheckUtils.isNumberKey($event)"
                 />
                 <span class="error" *ngIf="!resourceForm?.controls.instance_number.valid">
                   <span>Only integer values greater than or equal to {{ minInstanceNumber }} and less than
@@ -128,7 +132,10 @@
               </div>
             </div>
 
-            <div class="control-group" *ngIf="PROVIDER !== 'azure'" [hidden]="!selectedImage.templates.length">
+            <div class="control-group"
+                 *ngIf="(clusterTypes | isElementAvailable : hasHDInside) || PROVIDER !== providerList.azure"
+                 [hidden]="!selectedImage.templates.length"
+            >
               <label class="label">Select template</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
@@ -153,13 +160,13 @@
                 <mat-form-field>
                   <mat-label>Select instance size</mat-label>
                   <mat-select panelClass="scrolling" formControlName="shape_slave" disableOptionCentering>
-                    <mat-optgroup 
+                    <mat-optgroup
                       *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless"
                     >
-                      <mat-option 
-                        *ngFor="let list_item of item.value" 
-                        [value]="list_item.Type" 
+                      <mat-option
+                        *ngFor="let list_item of item.value"
+                        [value]="list_item.Type"
                         (click)="clearGpuType('slave')"
                       >
                         <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{
@@ -186,7 +193,7 @@
             <div class="col">
               <div class="control-group">
                 <label class="label">Master GPU type</label>
-                <div 
+                <div
                   class="control selector-wrapper"
                   [ngClass]="{ 'not-active' : !resourceForm.controls['shape_master'].value}"
                   [matTooltip]="'Please, select master instance size.'"
@@ -195,7 +202,7 @@
                   [matTooltipDisabled]="!!resourceForm.controls['shape_master'].value.length"
                 >
                   <mat-form-field>
-                    <mat-select 
+                    <mat-select
                       formControlName="master_GPU_type" disableOptionCentering
                       placeholder="Select master GPU type"
                       [disabled]="!resourceForm.controls['shape_master'].value"
@@ -215,7 +222,7 @@
               </div>
               <div class="control-group">
                 <label class="label">Master GPU сount</label>
-                <div 
+                <div
                   class="control selector-wrapper"
                   [ngClass]="{'not-active': !resourceForm.controls['master_GPU_type'].value}"
                   [matTooltip]="'Please, select master GPU type.'"
@@ -242,7 +249,7 @@
             <div class="col">
               <div class="control-group">
                 <label class="label">Slave GPU type</label>
-                <div 
+                <div
                   class="control selector-wrapper"
                   [ngClass]="{ 'not-active': !resourceForm.controls['shape_slave'].value}"
                   [matTooltip]="'Please, select slave instance size.'"
@@ -271,7 +278,7 @@
 
               <div class="control-group">
                 <label class="label">Slave GPU сount</label>
-                <div 
+                <div
                   class="control selector-wrapper"
                   [ngClass]="{'not-active': !resourceForm.controls['slave_GPU_type'].value}"
                   [matTooltip]="'Please, select slave GPU type.'"
@@ -298,7 +305,7 @@
             </div>
           </div>
         </div>
-        <div 
+        <div
           class="preemptible checkbox-group control-group"
           *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
         >
@@ -308,14 +315,14 @@
             </div>
             <span class="pl-5">Preemptible node</span>
           </div>
-          <div 
-            *ngIf="isSelected.preemptible" 
+          <div
+            *ngIf="isSelected.preemptible"
             class="preemptible-details control"
             [ngClass]="{ show: isSelected.preemptible}"
           >
-            <input 
-              type="text" 
-              class="form-control" 
+            <input
+              type="text"
+              class="form-control"
               formControlName="preemptible_instance_number"
               (keypress)="CheckUtils.isNumberKey($event)"
               (keydown.arrowup)="preemptibleCounter($event, 'increment')"
@@ -333,37 +340,38 @@
 
         <div class="checkbox-group control-group m-top-15" *ngIf="PROVIDER === 'aws'" [hidden]="!selectedImage.templates.length">
           <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('spotInstances')">
-            <div class="empty-checkbox ml-10" [ngClass]="{'checked': isSelected.spotInstances}" (click)="selectSpotInstances()">
-              <span class="checked-checkbox" *ngIf="isSelected.spotInstances"></span>
+            <div class="empty-checkbox ml-10" [ngClass]="{'checked': instanceSpot}" (click)="selectSpotInstances()">
+              <span class="checked-checkbox" *ngIf="instanceSpot"></span>
             </div>
-            <span class="pl-5">Spot instance</span><span [hidden]="!isSelected.spotInstances">&nbsp;bid, %</span>
+            <span class="pl-5">Spot instance</span><span [hidden]="!instanceSpot">&nbsp;bid, %</span>
           </div>
-          <div 
-            class="control spot-details" 
-            [ngClass]="{ show: isSelected.spotInstances }"
-            *ngIf="isSelected.spotInstances"
+          <div
+            class="control spot-details"
+            [ngClass]="{ show: instanceSpot }"
+            *ngIf="instanceSpot"
           >
-            <input 
-              type="number" 
-              class="form-control" 
-              step="5" 
-              min="{{minSpotPrice}}" 
+            <input
+              type="number"
+              class="form-control"
+              step="5"
+              min="{{minSpotPrice}}"
               max="{{maxSpotPrice}}"
-              formControlName="instance_price" 
+              formControlName="instance_price"
               (keypress)="CheckUtils.isNumberKey($event)"
             />
             <span class="error error-bottom" *ngIf="!resourceForm?.controls.instance_price.valid">
               Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed.
             </span>
           </div>
-          <span class="info ml-10" *ngIf="isSelected.spotInstances">When the current Spot price
+          <span class="info ml-10" *ngIf="instanceSpot">When the current Spot price
             rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another
             customer. Make sure to backup your data on periodic basis.
           </span>
         </div>
-        <div 
+        <div
           class="checkbox-group control-group m-top-10"
-          [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'"
+          [hidden]="PROVIDER === 'gcp' && selectedImage?.image === 'docker.datalab-dataengine-service'
+           || templateNameControl.value === templateName.hdInsight"
           *ngIf="notebook_instance?.image !== 'docker.datalab-zeppelin'"
         >
           <div class="d-flex cursor-pointer label" (click)="addAdditionalParams('configuration')">
@@ -372,9 +380,9 @@
             </div>
             <span class="pl-5">Cluster configurations</span>
           </div>
-          <div 
-            class="config-link" 
-            *ngIf="(isSelected.configuration) 
+          <div
+            class="config-link"
+            *ngIf="(isSelected.configuration)
               && selectedImage?.image === 'docker.datalab-dataengine-service'
               && PROVIDER === 'aws'"
           >
@@ -386,14 +394,14 @@
         </div>
         <div class="checkbox-group ml-10">
           <div class="config-details" [ngClass]="{ show: isSelected.configuration }">
-            <textarea 
-              formControlName="configuration_parameters" 
+            <textarea
+              formControlName="configuration_parameters"
               placeholder="Cluster configuration template, JSON"
               data-gramm_editor="false">
             </textarea>
-            <span 
+            <span
               class="error"
-              *ngIf="!resourceForm?.controls.configuration_parameters.valid 
+              *ngIf="!resourceForm?.controls.configuration_parameters.valid
                 && resourceForm?.controls['configuration_parameters'].dirty"
             >
               Configuration parameters is not in a valid format.
@@ -410,25 +418,25 @@
           </small>
         </div>
         <div class="text-center m-top-30">
-          <button 
-            mat-raised-button 
-            type="button" 
-            (click)="dialogRef.close()" 
+          <button
+            mat-raised-button
+            type="button"
+            (click)="dialogRef.close()"
             class="butt action"
           >
             Cancel
           </button>
-          <button 
-            mat-raised-button 
-            type="button" 
-            [disabled]="!resourceForm?.valid 
-              || (!resourceForm.value.shape_slave) 
-              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version)"
-            (click)="createComputationalResource(resourceForm.value)" 
-            class="butt butt-success action"
-            [ngClass]="{'not-allowed': !resourceForm?.valid 
-              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave) 
+          <button
+            mat-raised-button
+            [ngClass]="{'not-allowed': !resourceForm?.valid
+              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.shape_slave)
               || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version) }"
+            [disabled]="!resourceForm?.valid
+              || (!resourceForm.value.shape_slave)
+              || (selectedImage?.image === 'docker.datalab-dataengine-service' && !resourceForm.value.version)"
+            type="button"
+            (click)="createComputationalResource(resourceForm.value)"
+            class="butt butt-success action"
           >
             Create
           </button>

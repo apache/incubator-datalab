@@ -32,6 +32,7 @@ import traceback
 import subprocess
 from fabric import *
 from datalab.logger import logging
+import uuid
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     try:
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
@@ -295,6 +296,44 @@ if __name__ == "__main__":
             datalab.fab.append_result("Failed creating image.", str(err))
             datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
             sys.exit(1)
+
+    if os.environ['notebook_create_keycloak_client'] == 'True':
+        try:
+            logging.info('[SETUP KEYCLOAK CLIENT]')
+            notebook_config['keycloak_client_name'] = '{}-{}-{}-{}'\
+                .format(notebook_config['service_base_name'], notebook_config['project_name'],
+                        notebook_config['endpoint_name'], notebook_config['exploratory_name'])
+            notebook_config['keycloak_client_secret'] = str(uuid.uuid4())
+            keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
+                              "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
+                              "--project_name {} --endpoint_name {} --exploratory_name {}"\
+                .format(notebook_config['service_base_name'], os.environ['keycloak_auth_server_url'],
+                        os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
+                        os.environ['keycloak_user_password'], notebook_config['keycloak_client_secret'],
+                        notebook_config['project_name'], notebook_config['endpoint_name'],
+                        notebook_config['exploratory_name'])
+            try:
+                subprocess.run("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params), shell=True, check=True)
+            except:
+                datalab.fab.append_result("Failed setup keycloak client")
+                raise Exception
+
+            try:
+                conn = datalab.fab.init_datalab_connection(instance_hostname, notebook_config['datalab_ssh_user'],
+                                                           notebook_config['ssh_key_path'], '', False)
+                content = json.loads(conn.sudo("cat /home/{}/.local/share/jupyter/kernels/py3spark_local/kernel.json"
+                                               .format(notebook_config['datalab_ssh_user'])).stdout)
+                content['env']['KEYCLOAK_CLIENT'] = notebook_config['keycloak_client_name']
+                content['env']['KEYCLOAK_SECRET'] = notebook_config['keycloak_client_secret']
+                conn.sudo("echo '{}' > /home/{}/.local/share/jupyter/kernels/py3spark_local/kernel.json"
+                          .format(json.dumps(content), notebook_config['datalab_ssh_user']))
+                conn.sudo('systemctl restart jupyter-notebook')
+            except:
+                datalab.fab.append_result("Failed to write variables to .bashrc")
+                raise Exception
+
+        except Exception as err:
+            datalab.fab.append_result("Failed setup keycloak client ", str(err))
 
     try:
         # generating output information

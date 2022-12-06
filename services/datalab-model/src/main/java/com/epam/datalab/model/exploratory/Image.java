@@ -19,6 +19,8 @@
 
 package com.epam.datalab.model.exploratory;
 
+import com.epam.datalab.dto.SharedWith;
+import com.epam.datalab.dto.aws.computational.ClusterConfig;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.model.library.Library;
 import lombok.Builder;
@@ -40,7 +42,12 @@ public class Image {
     private final String fullName;
     private final String externalName;
     private final String application;
+    private final String templateName;
+    private final String instanceName;
+    private final String cloudProvider;
     private final String dockerImage;
+    private final SharedWith sharedWith;
+    private final List<ClusterConfig> clusterConfig;
     private final List<Library> libraries;
     private final Map<String, List<Library>> computationalLibraries;
 }

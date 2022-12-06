@@ -46,6 +46,16 @@ if __name__ == "__main__":
             statuses['host'] = data_instances
         except:
             logging.error("Hosts JSON wasn't been provided")
+        try:
+            data_images = AzureMeta().get_image_statuses(args.resource_group_name, data.get('image'))
+            statuses['image'] = data_images
+        except:
+            logging.error("Images JSON wasn't been provided")
+        try:
+            data_clusters = AzureMeta().list_hdinsight_statuses(args.resource_group_name, data.get('cluster'))
+            statuses['cluster'] = data_clusters
+        except:
+            logging.error("Clusters JSON wasn't been provided")
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:

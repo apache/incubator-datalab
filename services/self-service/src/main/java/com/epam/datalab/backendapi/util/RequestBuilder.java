@@ -30,6 +30,7 @@ import com.epam.datalab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.datalab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.datalab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.datalab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
+import com.epam.datalab.backendapi.resources.dto.azure.AzureComputationalCreateForm;
 import com.epam.datalab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.datalab.cloud.CloudProvider;
 import com.epam.datalab.dto.*;
@@ -40,6 +41,8 @@ import com.epam.datalab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.datalab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.datalab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.datalab.dto.azure.AzureCloudSettings;
+import com.epam.datalab.dto.azure.computational.AzureComputationalTerminateDTO;
+import com.epam.datalab.dto.azure.computational.ComputationalCreateAzure;
 import com.epam.datalab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.datalab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.datalab.dto.azure.exploratory.ExploratoryActionStopAzure;
@@ -339,7 +342,15 @@ public class RequestBuilder {
         CloudProvider cloudProvider = endpointDTO.getCloudProvider();
         switch (cloudProvider) {
             case AZURE:
-                throw new UnsupportedOperationException("Creating dataengine service is not supported yet");
+                AzureComputationalCreateForm azureForm = (AzureComputationalCreateForm) form;
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ComputationalCreateAzure.class)
+                        .withInstanceCount(azureForm.getInstanceCount())
+                        .withMasterInstanceType(azureForm.getMasterInstanceType())
+                        .withSlaveInstanceType(azureForm.getSlaveInstanceType())
+                        .withVersion(azureForm.getVersion())
+                        .withConfig((azureForm.getConfig()))
+                        .withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
+                break;
             case AWS:
                 AwsComputationalCreateForm awsForm = (AwsComputationalCreateForm) form;
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ComputationalCreateAws.class)
@@ -460,7 +471,11 @@ public class RequestBuilder {
                 computationalTerminate = (T) terminateDTO;
                 break;
             case AZURE:
-                computationalTerminate = (T) newResourceSysBaseDTO(resourceCreator, cloudProvider, ComputationalTerminateDTO.class);
+                AzureComputationalTerminateDTO azureTerminateDTO =  newResourceSysBaseDTO(resourceCreator, cloudProvider, AzureComputationalTerminateDTO.class);
+                if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE){
+                    azureTerminateDTO.setClusterName(computationalResource.getComputationalId());
+                }
+                computationalTerminate = (T) azureTerminateDTO;
                 break;
             case GCP:
                 GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(resourceCreator, cloudProvider,

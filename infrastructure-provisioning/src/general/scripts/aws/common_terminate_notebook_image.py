@@ -32,17 +32,29 @@ if __name__ == "__main__":
     try:
         datalab.actions_lib.create_aws_config_files()
         image_conf = dict()
-        image_conf['full_image_name'] = os.environ['notebook_image_name']
-
+        image_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'][:20], '-', True)
+        image_conf['project_name'] = os.environ['project_name']
+        image_conf['endpoint_name'] = os.environ['endpoint_name']
+        image_conf['application'] = os.environ['application']
+        image_conf['image_name'] = os.environ['notebook_image_name']
+        image_conf['full_image_name'] = '{}-{}-{}-{}-{}'.format(image_conf['service_base_name'],
+                                                                image_conf['project_name'],
+                                                                image_conf['endpoint_name'],
+                                                                image_conf['application'],
+                                                                image_conf['image_name'])
         image_id = datalab.meta_lib.get_ami_id_by_name(image_conf['full_image_name'], 'available')
         if image_id != '':
             datalab.actions_lib.deregister_image(image_conf['full_image_name'])
 
-            with open("/root/result.json", 'w') as result:
-                res = {"notebook_image_name": image_conf['full_image_name'],
-                       "status": "terminated",
-                       "Action": "Delete existing notebook image"}
-                result.write(json.dumps(res))
+        with open("/root/result.json", 'w') as result:
+            res = {"notebook_image_name": image_conf['full_image_name'],
+                   "endpoint": image_conf['endpoint_name'],
+                   "project": image_conf['project_name'],
+                   "imageName": image_conf['image_name'],
+                   "status": "terminated",
+                   "Action": "Delete existing notebook image"}
+            result.write(json.dumps(res))
     except Exception as err:
         datalab.fab.append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)

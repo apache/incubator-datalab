@@ -1,0 +1,261 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.image-list {
+  &--wrapper {
+    padding: 12px 15px;
+  }
+
+  &__nav-bar {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.action-button {
+  padding: 0 38px 0 45px;
+
+  &--wrapper {
+    position: relative;
+    margin-right: 10px;
+  }
+}
+
+.image-table {
+  width: 100%;
+}
+
+.image-checkbox {
+  &--wrapper {
+    padding-left: 10px !important;
+  }
+}
+
+.currency_details {
+  display: flex;
+  color: #35afd5;
+  cursor: pointer;
+  transition: all 0.45s ease-in-out;
+}
+
+.material-icons {
+  font-size: 18px;
+}
+
+.button--wrapper,
+.header-cell--wrapper {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+}
+
+.shared-status {
+  padding-right: 16px;
+
+  &--wrapper {
+    display: flex;
+  }
+}
+
+.date-item {
+  margin-right: 10px;
+}
+
+.action-menu {
+  position: absolute;
+  z-index: 10;
+}
+
+.action-menu-item:disabled {
+  color: rgba(180, 179, 179, 0.87) !important;
+  background-color: white;
+  opacity: 1;
+}
+
+.action-button__share {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  padding: 10px 15px;
+  background-color: transparent;
+  color: rgb(87, 114, 137);
+  border: none;
+  outline: none;
+
+  &:hover {
+    color: #35afd5;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.26);
+    cursor: not-allowed;
+    transition: all 0.45s ease-in-out;
+  }
+}
+
+.list-menu {
+  padding: 0 !important;
+}
+
+.list-unstyled > li {
+  margin: 0 !important;
+}
+
+.filer__component--wrapper {
+  position: absolute;
+  top: 46px;
+  //UNCOMMENT AFTER UNCOMMENT ACTION MENU
+  //left: 135px;
+  left: -35px;
+  z-index: 10;
+}
+
+.filter__btn {
+  position: relative;
+  margin-right: 10px;
+  vertical-align: middle;
+  width: 110px;
+
+  &--name {
+    line-height: 0;
+  }
+}
+
+.show-active__btn {
+  line-height: 1;
+}
+
+.close__btn {
+  position: absolute;
+  top: 0px;
+  right: 2px;
+  width: 12px;
+  color: rgb(87, 114, 137);
+  background-color: transparent;
+  font-size: 15px;
+  border: none;
+  outline: none;
+
+  &:hover {
+    color: #35afd5;
+    cursor: pointer;
+  }
+}
+
+.image-page__project {
+  font-weight: 600;
+  color: #577289;
+  padding-left: 21px;
+}
+
+.image-checkbox--wrapper {
+    width: 4%;
+}
+
+table.resources .header-row > .header-cell {
+  padding: 5px 0;
+}
+
+table.resources .exploratory .element-row td.actions-col {
+  padding: 0;
+}
+
+table.resources .exploratory .element-row td,
+table.resources .header-row > .header-cell,
+table.resources .header-row th.label-header,{
+  padding: 0;
+}
+
+table.resources .header-row .label.image-label {
+  padding-top: 0px;
+  vertical-align: inherit !important;
+}
+
+.image-table-cell {
+  padding: 0 !important;
+}
+
+table.resources {
+  & .name-col.header-cell {
+    width: 15.5%;
+  }
+
+  & .shape-col.image-table-cell,
+  & .tag-col.image-table-cell {
+    width: 17%;
+  }
+
+  & .shape-col.header-cell,
+  & .tag-col.header-cell{
+    width: 15.7%;
+  }
+
+  & .resources-col.image-table-cell {
+    width: 23%;
+  }
+
+  & .resources-col.label-header {
+    width: 21%;
+  }
+
+  & .settings.actions-col,
+  & .settings.label-header {
+    width: 7%;
+  }
+
+  &  .status-col.header-cell {
+    width: 10.1%;
+  }
+
+  & .cost-col.label-header {
+    width: 12.5%;
+  }
+}
+
+.settings.image-table-cell,
+.settings.label-header {
+  width: 12%;
+}
+
+.action__button--wrapper {
+  width: 100%;
+}
+
+table.resources .label-header.settings {
+  padding-right: 15px !important;
+}
+
+td.mat-cell.image-page__project {
+  padding-left: 3.75%;
+}
+
+.filtered-icon {
+  color: #35afd5;
+}
+
+.label {
+  position: relative;
+}
+
+.header__close--btn.close__btn {
+  top: -15px;
+  right: -15px;
+}

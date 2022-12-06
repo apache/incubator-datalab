@@ -28,7 +28,7 @@ export class CheckUtils {
     STOPPING: 'DISCONNECTING',
     STOPPED: 'DISCONNECTED'
   };
-  
+
   public static isJSON(str) {
     try {
       JSON.parse(str);

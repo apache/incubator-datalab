@@ -35,6 +35,16 @@ from fabric import *
 
 
 def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region):
+    logging.info("Terminating HDINSIGHT clusters")
+    try:
+        for cluster in AzureMeta.list_hdinsight_clusters(resource_group_name):
+            if "SBN" in cluster.tags and service_base_name == cluster.tags["SBN"]:
+                AzureActions.terminate_hdinsight_cluster(resource_group_name, cluster.name)
+                logging.info("Cluster {} has been terminated".format(cluster.name))
+    except Exception as err:
+        datalab.fab.append_result("Failed to terminate HDINSIGHT clusters", str(err))
+        sys.exit(1)
+
     logging.info("Terminating instances")
     try:
         for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
@@ -85,15 +95,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
         datalab.fab.append_result("Failed to remove storage accounts", str(err))
         sys.exit(1)
 
-    logging.info("Removing Data Lake Store")
-    try:
-        for datalake in AzureMeta.list_datalakes(resource_group_name):
-            if "SBN" in datalake.tags and service_base_name == datalake.tags["SBN"]:
-                AzureActions.delete_datalake_store(resource_group_name, datalake.name)
-                logging.info("Data Lake Store {} has been terminated".format(datalake.name))
-    except Exception as err:
-        datalab.fab.append_result("Failed to remove Data Lake", str(err))
-        sys.exit(1)
+   # logging.info("Removing Data Lake Store")
+   # try:
+   #     for datalake in AzureMeta.list_datalakes(resource_group_name):
+   #         if "SBN" in datalake.tags and service_base_name == datalake.tags["SBN"]:
+   #             AzureActions.delete_datalake_store(resource_group_name, datalake.name)
+   #             logging.info("Data Lake Store {} has been terminated".format(datalake.name))
+   # except Exception as err:
+   #     datalab.fab.append_result("Failed to remove Data Lake", str(err))
+   #     sys.exit(1)
 
     logging.info("Removing images")
     try:
@@ -182,16 +192,16 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
                                               headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
                                                        "Content-Type": "application/json"})
         json_keycloak_client_id = json.loads(keycloak_get_id_client.text)
-        keycloak_id_client = json_keycloak_client_id[0]['id']
-
-        keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'],
-                                                                               os.environ['keycloak_realm_name'],
-                                                                               keycloak_id_client)
-
-        keycloak_client = requests.delete(
-            keycloak_client_delete_url,
-            headers={"Authorization": "Bearer {}".format(keycloak_token.get("access_token")),
-                     "Content-Type": "application/json"})
+        if not json_keycloak_client_id:
+            logging.info("Unable to find {}-* Keycloak clients".format(ssn_conf['service_base_name']))
+        else:
+            keycloak_id_client = json_keycloak_client_id[0]['id']
+            keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'],
+                                                                                   os.environ['keycloak_realm_name'],
+                                                                                   keycloak_id_client)
+            keycloak_client = requests.delete(keycloak_client_delete_url,
+                                              headers={"Authorization": "Bearer {}".format(keycloak_token.get("access_token")),
+                                                       "Content-Type": "application/json"})
     except Exception as err:
         logging.info("Failed to remove ssn client from Keycloak", str(err))
 

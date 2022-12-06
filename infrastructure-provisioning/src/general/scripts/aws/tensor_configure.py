@@ -42,7 +42,7 @@ if __name__ == "__main__":
     try:
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
@@ -152,6 +152,22 @@ if __name__ == "__main__":
     except Exception as err:
         datalab.fab.append_result("Failed installing apps: apt & pip.", str(err))
         datalab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    #Installing GPU drivers
+    try:
+        logging.info('[INSTALLING GPU DRIVERS]')
+        params = "--hostname {} --keyfile {} --os_user {}".format(
+            instance_hostname, keyfile_name, notebook_config['datalab_ssh_user'])
+        try:
+            subprocess.run("~/scripts/{}.py {}".format('common_install_gpu', params), shell=True, check=True)
+        except:
+            datalab.fab.append_result("Failed installing users key")
+            raise Exception
+
+    except Exception as err:
+        datalab.fab.append_result("Failed to install GPU drivers.", str(err))
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # installing and configuring TensorFlow and all dependencies

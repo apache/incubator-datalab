@@ -51,12 +51,17 @@ variable "subnet_id" {
   default = ""
 }
 
+variable "allowed_ip_cidrs" {
+  type    = list(string)
+  default = ["0.0.0.0/0"]
+}
+
 variable "subnet_cidr" {}
 
 variable "endpoint_shape" {}
 
 variable "ami" {
-  default = "Canonical_UbuntuServer_16.04-LTS"
+  default = "Canonical:0001-com-ubuntu-server-focal:20_04-lts"
 }
 
 variable "endpoint_volume_size" {}

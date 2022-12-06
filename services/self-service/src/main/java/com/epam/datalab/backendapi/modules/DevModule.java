@@ -119,6 +119,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
         bind(BillingDAO.class).to(BaseBillingDAO.class);
         bind(AuditDAO.class).to(AuditDAOImpl.class);
         bind(BucketService.class).to(BucketServiceImpl.class);
+        bind(ConnectedPlatformsService.class).to(ConnectedPlatformsServiceImpl.class);
+        bind(ConnectedPlatformsDAO.class).to(ConnectedPlatformsDAOImpl.class);
     }
 
     private void configureCors(Environment environment) {

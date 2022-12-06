@@ -45,10 +45,14 @@ if __name__ == "__main__":
     edge_conf['static_address_name'] = '{0}-{1}-{2}-static-ip'.format(edge_conf['service_base_name'],
                                                                edge_conf['project_name'],
                                                                edge_conf['endpoint_name'])
+    if "gcp_wrapped_csek" in os.environ:
+        edge_conf['gcp_wrapped_csek'] = os.environ['gcp_wrapped_csek']
+    else:
+        edge_conf['gcp_wrapped_csek'] = ''
 
     logging.info('[START EDGE]')
     try:
-        GCPActions.start_instance(edge_conf['instance_name'], edge_conf['zone'])
+        GCPActions.start_instance(edge_conf['instance_name'], edge_conf['zone'], edge_conf['gcp_wrapped_csek'])
     except Exception as err:
         datalab.fab.append_result("Failed to start edge.", str(err))
         sys.exit(1)

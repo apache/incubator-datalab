@@ -148,10 +148,3 @@ export class ExploratoryModel {
     }
   }
 }
-
-// export interface Exploratory {
-//   project: string;
-//   endpoints: [];
-//   projectEndpoints: [];
-//   exploratory: ExploratoryModel[];
-// }

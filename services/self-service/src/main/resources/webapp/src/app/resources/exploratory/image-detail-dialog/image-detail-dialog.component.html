@@ -1,0 +1,103 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div class="detail-dialog" id="dialog-box">
+  <header class="dialog-header header-white">
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+
+  <div>
+    <table class="detail-header">
+      <tr>
+        <td>{{ data.image.name }}</td>
+        <td>{{ data.image.project }}</td>
+        <td>
+            <span class="status" [ngClass]="data.image.status.toLowerCase()">
+              {{ data.image.status | titlecase }}
+            </span>
+        </td>
+      </tr>
+    </table>
+
+    <div class="content-box">
+      <div *ngIf="data.image.description" class="image__description--wrapper">
+        <p
+          [matTooltip]="data.image.description"
+          matTooltipPosition="above"
+          [matTooltipDisabled]="data.image.description.length < maxDescriptionLength"
+          class="image__description">
+          {{ data.image.description | truncateTextPipe : maxDescriptionLength}}
+        </p>
+      </div>
+
+      <div class="image__template--wrapper">
+        <span class="modal-row__item modal-row__item--title">Template name</span>
+        <span class="modal-row__item">{{ data.image.templateName }}</span>
+      </div>
+
+      <div class="image__libraries--wrapper">
+        <span class="modal-row__item modal-row__item--title">Installed libraries' groups</span>
+        <div class="language__wrapper modal-row__item">
+          <div *ngIf="libraryList.length; else notAvailable">
+            <div *ngFor="let library of libraryList" class="library__wrapper">
+              <span>{{library.name | libNameNormalize}}</span>
+              <i (click)="onLibraryInfo(library)" class="material-icons library__info">info</i>
+            </div>
+          </div>
+          <ng-template #notAvailable>
+            <span class="no-libraries">No additional libraries installed</span>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="image__provider--wrapper">
+        <span class="modal-row__item modal-row__item--title">Provider</span>
+        <span class="modal-row__item">{{ data.image.cloudProvider }}</span>
+      </div>
+
+      <div class="image__creation-date--wrapper">
+        <span class="modal-row__item modal-row__item--title">Creation date</span>
+        <span class="modal-row__item">{{data.image.timestamp | localDate : 'short'}} </span>
+      </div>
+
+      <div class="image__creator--wrapper">
+        <span class="modal-row__item modal-row__item--title">Creator</span>
+        <span class="modal-row__item">{{ data.image.user }}</span>
+      </div>
+
+      <div *ngIf="data.image.sharingStatus === sharingStatus.shared" class="image__creator--wrapper">
+        <span class="modal-row__item modal-row__item--title">Shared with</span>
+        <div class="user-data__list--wrapper scrolling">
+          <ul class="groups__list">
+            <li *ngFor="let group of sortedShareWith.groups" class="groups__item">
+              <span class="icon--wrapper"><mat-icon class="user-data__icon">people</mat-icon></span>
+              <span class="groups__item--wrapper">{{group}}</span>
+            </li>
+          </ul>
+          <ul class="users__list">
+            <li *ngFor="let user of sortedShareWith.users" class="users__item">
+              <span class="icon--wrapper"><mat-icon class="user-data__icon">person</mat-icon></span>
+              <span class="groups__item--wrapper">{{user}}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

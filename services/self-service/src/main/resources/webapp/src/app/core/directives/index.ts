@@ -22,14 +22,26 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective } from './click-outside.directive';
 import { ScrollDirective } from './scrollTo.directive';
-
-export * from './scrollTo.directive';
-export * from './click-outside.directive';
+import { IsEndpointsActiveDirective } from './is-endpoint-active.directive';
+import { ClickedOutsideMatSelectDirective } from './click-outside-with-material-select.directive';
+import { IsGroupNameUniqueDirective } from './is-group-name-unique.directive';
 
 @NgModule({
-  imports: [CommonModule],
-  declarations: [ClickOutsideDirective, ScrollDirective],
-  exports: [ClickOutsideDirective, ScrollDirective]
+  imports: [ CommonModule ],
+  declarations: [
+    ClickOutsideDirective,
+    ScrollDirective,
+    IsEndpointsActiveDirective,
+    ClickedOutsideMatSelectDirective,
+    IsGroupNameUniqueDirective
+  ],
+  exports: [
+    ClickOutsideDirective,
+    ScrollDirective,
+    IsEndpointsActiveDirective,
+    ClickedOutsideMatSelectDirective,
+    IsGroupNameUniqueDirective
+  ]
 })
 
 export class DirectivesModule { }

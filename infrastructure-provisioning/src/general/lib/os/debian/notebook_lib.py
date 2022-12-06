@@ -85,9 +85,11 @@ def ensure_r(os_user, r_libs):
             r_repository = 'https://cloud.r-project.org'
             #add_marruter_key()
             datalab.fab.conn.sudo('apt update')
-            manage_pkg('-yV install', 'remote', 'libssl-dev libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
+            manage_pkg('-yV install', 'remote', 'libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev '
+                                                'libfontconfig1-dev libharfbuzz-dev libfribidi-dev libssl-dev '
+                                                'libcurl4-gnutls-dev libgit2-dev libxml2-dev libreadline-dev')
             manage_pkg('-y install', 'remote', 'cmake')
-            datalab.fab.conn.sudo('''bash -c -l 'apt-key adv --keyserver-options http-proxy="$http_proxy" --keyserver hkp://keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9' ''')
+            datalab.fab.conn.sudo('''bash -c -l 'apt-key adv --keyserver-options http-proxy="$http_proxy" --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9' ''')
             datalab.fab.conn.sudo("add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'")
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'r-base r-base-dev')
@@ -213,7 +215,7 @@ def ensure_scala(scala_link, scala_version, os_user):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/scala_ensured'):
         try:
             datalab.fab.conn.sudo('hostname; pwd')
-            datalab.fab.conn.sudo('wget {}scala-{}.deb --tries=3 -O /tmp/scala.deb'.format(scala_link, scala_version))
+            datalab.fab.conn.sudo('wget {}scala-{}.deb --tries=5 -O /tmp/scala.deb'.format(scala_link, scala_version))
             datalab.fab.conn.sudo('dpkg -i /tmp/scala.deb')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/scala_ensured')
         except:
@@ -248,6 +250,7 @@ def ensure_additional_python_libs(os_user):
                 datalab.fab.conn.sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 datalab.fab.conn.sudo('pip3 install opencv-python h5py --no-cache-dir')
+                #datalab.fab.conn.sudo('pip3 install python3-opencv scikit-learn --no-cache-dir')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -270,22 +273,41 @@ def ensure_python3_libraries(os_user):
             #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
             manage_pkg('-y install', 'remote', 'libkrb5-dev')
-            datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
-            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true': 
-                datalab.fab.conn.sudo('pip3 install --upgrade --user pyqt5==5.12')
-                datalab.fab.conn.sudo('pip3 install --upgrade --user pyqtwebengine==5.12')
-                datalab.fab.conn.sudo('pip3 install setuptools')
-            else:
+            manage_pkg('-y install', 'remote', 'libbz2-dev libsqlite3-dev tk-dev libncursesw5-dev libreadline-dev '
+                                               'liblzma-dev uuid-dev lzma-dev libgdbm-dev')  #necessary for python build
+            if os.environ['conf_cloud_provider'] == 'aws' and os.environ['conf_deeplearning_cloud_ami'] == 'true':
+                datalab.fab.conn.sudo('-i pip3 install -U keyrings.alt backoff')
+                datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqt5==5.12')
+                datalab.fab.conn.sudo('-i pip3 install --upgrade --user pyqtwebengine==5.12')
                 datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
-            try:
-                datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} sparkmagic --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            except:
-                datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} sparkmagic --no-cache-dir' \
-                     .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
-            datalab.fab.conn.sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
-            datalab.fab.conn.sudo('pip3 install boto3 --no-cache-dir')
-            datalab.fab.conn.sudo('pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
+                try:
+                    datalab.fab.conn.sudo(
+                        '-i pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                        .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                except:
+                    datalab.fab.conn.sudo(
+                        '-i pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                        .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                datalab.fab.conn.sudo(
+                    '-i pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+                datalab.fab.conn.sudo('-i pip3 install boto3 --no-cache-dir')
+                datalab.fab.conn.sudo('-i pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
+            else:
+                datalab.fab.conn.sudo('pip3 install -U keyrings.alt backoff')
+                datalab.fab.conn.sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
+                try:
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.21.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                         .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                 os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                except:
+                    datalab.fab.conn.sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} nbconvert=={2} nbformat=={3} sparkmagic --no-cache-dir' \
+                         .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version'],
+                                 os.environ['notebook_nbconvert_version'], os.environ['notebook_nbformat_version']))
+                datalab.fab.conn.sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+                datalab.fab.conn.sudo('pip3 install boto3 --no-cache-dir')
+                datalab.fab.conn.sudo('pip3 install fabvenv fabric-virtualenv future patchwork --no-cache-dir')
             datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
             sys.exit(1)
@@ -293,18 +315,27 @@ def ensure_python3_libraries(os_user):
 def install_nvidia_drivers(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nvidia_ensured'.format(os_user)):
         try:
+            if os.environ['conf_cloud_provider'] == 'aws':
+                cuda_version = '11.3.0'
+                cuda_file_name = "cuda-repo-ubuntu2004-11-3-local_11.3.0-465.19.01-1_amd64.deb"
+                cuda_key = '/var/cuda-repo-ubuntu2004-11-3-local/7fa2af80.pub'
+            else:
+                cuda_version = '11.4.0'
+                cuda_file_name = 'cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb'
+                cuda_key = '/var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub'
             # install nvidia drivers
             datalab.fab.conn.sudo(
                 'wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin')
             datalab.fab.conn.sudo('mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600')
             datalab.fab.conn.sudo(
-                'wget https://developer.download.nvidia.com/compute/cuda/11.4.0/local_installers/cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb')
-            datalab.fab.conn.sudo('dpkg -i cuda-repo-ubuntu2004-11-4-local_11.4.0-470.42.01-1_amd64.deb')
-            datalab.fab.conn.sudo('apt-key add /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub')
+                'wget https://developer.download.nvidia.com/compute/cuda/{}/local_installers/{}'.format(cuda_version, cuda_file_name))
+            datalab.fab.conn.sudo('dpkg -i {}'.format(cuda_file_name))
+            datalab.fab.conn.sudo('apt-key add {}'.format(cuda_key))
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'cuda')
             #clean space on disk
             manage_pkg('clean', 'remote', 'all')
+            datalab.fab.conn.sudo('rm {}'.format(cuda_file_name))
             datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nvidia_ensured'.format(os_user))
         except Exception as err:
             print('Failed to install_nvidia_drivers: ', str(err))
@@ -386,6 +417,29 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sys.exit(1)
 
 
+def ensure_venv_libs(os_user, libs):
+    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/venv_libs_ensured'):
+        datalab.fab.install_venv_pip_pkg(libs)
+        datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/venv_libs_ensured')
+
+
+def ensure_pytorch(os_user, gpu=True):
+    if not exists(datalab.fab.conn, '/home/' + os_user + '/.ensure_dir/pytorch_ensured'):
+        if gpu:
+            if os.environ['application'] in ('jupyter-gpu', 'jupyter-conda'):
+                datalab.fab.install_venv_pip_pkg('torch==1.10.0+cu111 torchvision==0.11.0+cu111 '
+                                                 'torchaudio==0.10.0+cu111 -f '
+                                                 'https://download.pytorch.org/whl/cu111/torch_stable.html')
+            else:
+                datalab.fab.install_venv_pip_pkg('torch==1.10.2+cu113 torchvision==0.11.3+cu113 '
+                                                  'torchaudio==0.10.2+cu113 -f '
+                                                  'https://download.pytorch.org/whl/cu113/torch_stable.html')
+        else:
+            datalab.fab.install_venv_pip_pkg('torch==1.10.2+cpu torchvision==0.11.3+cpu torchaudio==0.10.2+cpu -f '
+                                                  'https://download.pytorch.org/whl/cpu/torch_stable.html')
+        datalab.fab.conn.sudo('touch /home/' + os_user + '/.ensure_dir/pytorch_ensured')
+
+
 def install_maven(os_user):
     if not exists(datalab.fab.conn,'/home/' + os_user + '/.ensure_dir/maven_ensured'):
         manage_pkg('-y install', 'remote', 'maven')
@@ -422,8 +476,13 @@ def install_nodejs(os_user):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         if os.environ['conf_cloud_provider'] == 'gcp' and os.environ['application'] == 'deeplearning':
             datalab.fab.conn.sudo('add-apt-repository --remove ppa:deadsnakes/ppa -y')
-        datalab.fab.conn.sudo('curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -')
-        manage_pkg('-y install', 'remote', 'nodejs')
+        #datalab.fab.conn.sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_16.x | bash -"')
+        #manage_pkg('-y install', 'remote', 'nodejs')
+        datalab.fab.conn.sudo(
+            'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash')
+        datalab.fab.conn.run(
+            'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" && nvm install 16.15.0')
+        datalab.fab.conn.sudo('cp -R .nvm/versions/node/v16.15.0/* /usr/')
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 def install_os_pkg(requisites):
@@ -529,11 +588,11 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
                    'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
                    'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         datalab.fab.conn.sudo(
-            'pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
+            '-i pip3 install flask graphviz hypothesis jupyter matplotlib=={} pydot python-nvd3 pyyaml requests scikit-image '
             'scipy tornado --no-cache-dir'.format(os.environ['notebook_matplotlib_version']))
         if os.environ['application'] == 'deeplearning':
-            datalab.fab.conn.sudo('apt install -y cmake')
-            datalab.fab.conn.sudo('pip3 install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html')
+            manage_pkg('-y install', 'remote', 'cmake')
+            datalab.fab.conn.sudo('-i pip3 install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html')
         else:
             # datalab.fab.conn.sudo('mkdir /opt/cuda-{}'.format(os.environ['notebook_cuda_version']))
             # datalab.fab.conn.sudo('mkdir /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
@@ -573,7 +632,7 @@ def install_theano(os_user, theano_version):
 
 def install_mxnet(os_user, mxnet_version):
     if not exists(datalab.fab.conn,'/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        datalab.fab.conn.sudo('pip3 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        datalab.fab.conn.sudo('-i pip3 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
         datalab.fab.conn.sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 

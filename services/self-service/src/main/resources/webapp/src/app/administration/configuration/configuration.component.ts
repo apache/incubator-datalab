@@ -305,15 +305,15 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
           if (this.services['self-service'].selected) {
             this.messagesStatus.counter += 1;
-            this.restartSingleService(true, false, false, 'Self-service')
+            this.restartSingleService(true, false, false, 'Self-service');
           }
           if (this.services['provisioning'].selected) {
             this.messagesStatus.counter += 1;
-            this.restartSingleService(false, true, false, 'Provisioning service')
+            this.restartSingleService(false, true, false, 'Provisioning service');
           }
           if (this.services['billing'].selected) {
             this.messagesStatus.counter += 1;
-            this.restartSingleService(false, false, true, 'Billing service')
+            this.restartSingleService(false, false, true, 'Billing service');
           }
 
           let timer = setInterval(() => {
@@ -350,6 +350,10 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     this.getServicesConfig(this.activeEndpoint);
     this.activeTab.index = 0;
   }
+
+  get isEndpointsMoreThanOne() {
+    return this.endpoints.length > 1;
+  }
 }
 
 @Component({
@@ -365,13 +369,13 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
 
     <div mat-dialog-content class="content">
       <ng-template [ngIf]="data.action === 'restart' && !data.environmentStatuses[data.activeEndpoint]?.length" ]>
-        <span class="strong">{{data.services.join(', ') | titlecase}}</span> 
+        <span class="strong">{{data.services.join(', ') | titlecase}}</span>
         <span class="strong" *ngIf="data.services.length > 1 || (data.services.length === 1 && data.services[0] !== 'self-service')"> service</span>
         <span class="strong" [hidden]="(data.services.length < 2) || data.services.length === 2 && data.services[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>
 
       <ng-template [ngIf]="data.action === 'restart' && data.environmentStatuses[data.activeEndpoint]?.length && filterProvisioning.length" ]>
-        <span class="strong" >{{filterProvisioning.join(', ') | titlecase}}</span> 
+        <span class="strong" >{{filterProvisioning.join(', ') | titlecase}}</span>
         <span class="strong" *ngIf="filterProvisioning.length > 1 || (filterProvisioning.length === 1 && filterProvisioning[0] !== 'self-service')"> service</span>
         <span [hidden]="(filterProvisioning.length < 2) || filterProvisioning.length === 2 && filterProvisioning[0] === 'self-service'">s</span>: restarting will make DataLab unavailable for some time.
       </ng-template>

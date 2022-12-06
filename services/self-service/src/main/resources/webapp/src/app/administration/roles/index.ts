@@ -26,15 +26,17 @@ import { FormControlsModule } from '../../shared/form-controls';
 import { RolesComponent, ConfirmDeleteUserAccountDialogComponent } from './roles.component';
 import { GroupNameValidationDirective } from './group-name-validarion.directive';
 import {InformMessageModule} from '../../shared/inform-message';
+import { DirectivesModule } from '../../core/directives';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MaterialModule,
-        FormControlsModule,
-        InformMessageModule
+      CommonModule,
+      FormsModule,
+      ReactiveFormsModule,
+      MaterialModule,
+      FormControlsModule,
+      InformMessageModule,
+      DirectivesModule
     ],
   declarations: [RolesComponent, ConfirmDeleteUserAccountDialogComponent, GroupNameValidationDirective],
   entryComponents: [ConfirmDeleteUserAccountDialogComponent],

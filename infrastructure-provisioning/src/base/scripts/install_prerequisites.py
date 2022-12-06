@@ -36,7 +36,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--pip_packages', type=str,
-                    default='boto3 argparse fabric awscli google-api-python-client google-auth-httplib2 google-cloud-storage pycryptodome azure==2.0.0')
+                    default='boto3 argparse fabric awscli google-api-python-client google-auth-httplib2 '
+                            'google-cloud-storage pycryptodome azure-storage-blob azure-datalake-store '
+                            'azure-mgmt-compute azure-mgmt-network azure-mgmt-resource azure-mgmt-storage '
+                            'azure-mgmt-datalake-store azure-identity azure-mgmt-hdinsight')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--user', type=str, default='')
 parser.add_argument('--edge_private_ip', type=str, default='')
@@ -60,8 +63,8 @@ if __name__ == "__main__":
         traceback.print_exc()
         sys.exit(1)
 
-    #logging.info("Disable scp on nodes")
-    #disable_edge_scp_binary(args.user)
+    logging.info("Disable scp on nodes")
+    remove_scp_nmap_binary(args.user)
 
     #logging.info("Updating openssh to version")
     #ensure_openssh_version(args.user)

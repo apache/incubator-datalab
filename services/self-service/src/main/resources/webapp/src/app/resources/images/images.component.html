@@ -1,0 +1,353 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<section class="image-list--wrapper">
+  <nav class="image-list__nav-bar">
+    <div class="selection">
+      <div class="mat-reset">
+        <div class="control selector-wrapper"
+             [ngClass]="{'disabled-select': !isProjectsMoreThanOne}"
+        >
+          <mat-form-field>
+            <mat-label>{{placeholder.projectSelect}}</mat-label>
+
+            <mat-select
+              disableOptionCentering
+              name="project"
+              [(value)]="activeProjectName"
+              panelClass="top-select scrolling"
+              [disabled]="!isProjectsMoreThanOne"
+            >
+              <mat-option
+                *ngIf="isProjectsMoreThanOne"
+                (click)="onSelectClick()"
+              >
+                Show all
+              </mat-option>
+              <mat-option
+                *ngFor="let project of projectList"
+                [value]="project"
+                (click)="onSelectClick(project)"
+              >
+                {{ project }}
+              </mat-option>
+              <mat-option *ngIf="!projectList?.length" class="multiple-select ml-10" disabled>
+                Projects list is empty
+              </mat-option>
+            </mat-select>
+            <button class="caret" [disabled]="!isProjectsMoreThanOne">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div class="button--wrapper">
+
+
+<!--      <span class="action-button&#45;&#45;wrapper">-->
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="butt action-button"-->
+<!--            mat-raised-button-->
+<!--            [disabled]="!isImageSelected"-->
+<!--            (click)="onActionClick()"-->
+<!--          >-->
+<!--            Actions-->
+<!--            <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>-->
+<!--          </button>-->
+<!--        <div class="action-menu" *ngIf="isActionsOpen">-->
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="butt action-menu-item"-->
+<!--            mat-raised-button-->
+<!--            [disabled]="true"-->
+<!--          >-->
+<!--            Terminate-->
+<!--          </button>-->
+
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="butt action-menu-item"-->
+<!--            mat-raised-button-->
+<!--            [disabled]="true"-->
+<!--          >-->
+<!--            Share-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </span>-->
+      <div
+        class="filter__wrapper"
+        datalabClickedOutsideMatSelect
+        (clickedOutside)="onClickOutside()"
+        [isFormOpened]="isFilterOpened | async"
+      >
+        <button mat-raised-button [disabled]="!(dataSource | async)?.length && !($isFiltered | async)" class="butt filter__btn" (click)="onFilterClick()">
+          <i class="material-icons" [ngClass]="{'filtered-icon': $isFiltered | async}">filter_list</i>
+          <span class="filter__btn--name" [ngClass]="{'filtered-icon': $isFiltered | async}">Filter</span>
+          <button *ngIf="$isFiltered | async" type="button" (click)="onResetFilterClick($event)" class="close__btn">&times;</button>
+        </button>
+
+        <div *ngIf="isFilterOpened | async" class="filer__component--wrapper">
+          <datalab-page-filter
+            [filterDropdownData$]="$filterDropdownData"
+            [filterFormStartValue$]="$filterFormValue"
+            (filterFormValue)="onFilterApplyClick($event)"
+            (closeFilter)="onFilterCancelClick()"
+            (onValueChanges)="onControlChanges(dropdownFieldNames.imageNames, $event)"
+          >
+          </datalab-page-filter>
+        </div>
+      </div>
+
+      <button
+        mat-raised-button
+        class="butt mr-10 show-active__btn"
+        (click)="toggleShowActive()"
+      >
+        <span *ngIf="isShowActive; else inactive">
+          <i class="material-icons">visibility_off</i> Show active
+        </span>
+        <ng-template #inactive>
+          <span>
+            <i class="material-icons">visibility</i> Show all
+          </span>
+        </ng-template>
+      </button>
+
+      <span>
+        <button mat-raised-button class="butt" (click)="onRefreshClick()">
+          <i class="material-icons highlight">autorenew</i>
+          Refresh
+        </button>
+      </span>
+    </div>
+  </nav>
+
+  <mat-divider></mat-divider>
+
+    <table
+      mat-table
+      [dataSource]="projectSource | async"
+      multiTemplateDataRows
+      class="data-grid resources mat-elevation-z6"
+      [trackBy]="trackBy"
+    >
+
+      <ng-container matColumnDef="project">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="image-page__project">
+          {{ element?.project }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="checkbox">
+        <th mat-header-cell *matHeaderCellDef class="image-checkbox--wrapper">
+          <div class="header-cell--wrapper">
+<!--          <span  *ngIf="(dataSource | async)?.length" >-->
+<!--            <datalab-checkbox-->
+<!--              (click)="allCheckboxToggle()"-->
+<!--              [checked]="checkboxSelected"-->
+<!--              class="image-checkbox"-->
+<!--            ></datalab-checkbox>-->
+<!--          </span>-->
+          </div>
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="imageName">
+        <th mat-header-cell *matHeaderCellDef class="name-col header-cell">
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.imageName}">
+            {{tableHeaderCellTitles.imageName}}
+            <button
+              *ngIf="($filteredColumnState | async)?.imageName"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(columnFieldNames.imageName)"
+            >
+              &times;
+            </button>
+          </span>
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="imageStatus">
+        <th mat-header-cell *matHeaderCellDef class="status-col header-cell">
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.statuses}">
+            {{tableHeaderCellTitles.imageStatus}}
+            <button
+              *ngIf="($filteredColumnState | async)?.statuses"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(columnFieldNames.statuses)"
+            >
+              &times;
+            </button>
+          </span>
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="creationDate">
+        <th mat-header-cell *matHeaderCellDef class="shape-col header-cell">
+          <span class="label image-label"> {{tableHeaderCellTitles.creationDate}} </span>
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="endpoint">
+        <th mat-header-cell *matHeaderCellDef class="tag-col header-cell">
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.endpoints}">
+            {{tableHeaderCellTitles.endpoint}}
+            <button
+              *ngIf="($filteredColumnState | async)?.endpoints"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(columnFieldNames.endpoints)"
+            >
+              &times;
+            </button>
+          </span>
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="templateName">
+        <th mat-header-cell *matHeaderCellDef class="resources-col label-header">
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.templateNames}">
+            {{tableHeaderCellTitles.templateName}}
+            <button
+              *ngIf="($filteredColumnState | async)?.templateNames"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(columnFieldNames.templateNames)"
+            >
+              &times;
+            </button>
+          </span>
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="sharedStatus">
+        <th mat-header-cell *matHeaderCellDef class="cost-col label-header">
+          <span class="label image-label" [ngClass]="{'filtered-icon': ($filteredColumnState | async)?.sharingStatuses}">
+            {{tableHeaderCellTitles.sharedStatus}}
+            <button
+              *ngIf="($filteredColumnState | async)?.sharingStatuses"
+              type="button"
+              class="close__btn header__close--btn"
+              (click)="onResetColumn(columnFieldNames.sharingStatuses)"
+            >
+              &times;
+            </button>
+          </span>
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="settings label-header">
+          <span class="label image-label"> {{tableHeaderCellTitles.actions}} </span>
+        </th>
+      </ng-container>
+
+      <!-- -------------------------TABLE BODY---------------------------- -->
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="8">
+          <tr *ngFor="let element of element?.images; let i = index" class="element-row mat-row">
+            <td mat-cell class="image-checkbox--wrapper">
+<!--              <datalab-checkbox-->
+<!--                (click)="onCheckboxClick(element)"-->
+<!--                class="image-checkbox"-->
+<!--                [checked]="element.isSelected"-->
+<!--              ></datalab-checkbox>-->
+            </td>
+
+            <td class="name-col image-table-cell">
+              <span>
+                {{ element.name }}
+              </span>
+            </td>
+            <td class="status-col status image-table-cell" ngClass="{{ element.status.toLowerCase() || ''}}">
+              {{element.status | titlecase}}
+            </td>
+            <td class="shape-col image-table-cell">
+              <span> {{element.timestamp | localDate : 'short'}} </span>
+            </td>
+
+            <td class="tag-col selection image-table-cell">
+              {{element.endpoint }}
+            </td>
+
+            <td class="resources-col image-table-cell">
+              {{element.templateName }}
+            </td>
+            <td class="cost-col image-table-cell">
+              <div class="shared-status--wrapper">
+                <span class="shared-status"> {{element.sharingStatus | titlecase}} </span>
+              </div>
+            </td>
+
+            <td mat-cell class="settings actions-col">
+              <div class="button--wrapper action__button--wrapper">
+                <span class="currency_details" (click)="onImageInfoClick(element)">
+                  <i class="material-icons">help_outline</i>
+                </span>
+                <span
+                  *ngIf="element.imageUserPermissions | isElementAvailable: isObjectFieldTrue"
+                  class="actions"
+                  #settings
+                  (click)="actions.toggle($event, settings)"
+                ></span>
+              </div>
+              <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+                <ul class="list-unstyled">
+                  <li *ngIf="element.imageUserPermissions.canShare">
+                    <button
+                      class="action-button__share"
+                      (click)="onActionClick(element, imageActionType.share)"
+                    >
+                      <i class="material-icons">screen_share</i>
+                      <span>Share</span>
+                    </button>
+                  </li>
+                  <li *ngIf="element.imageUserPermissions.canTerminate"
+                      (click)="onActionClick(element, imageActionType.terminate)">
+                    <button class="action-button__share">
+                      <i class="material-icons">phonelink_off</i>
+                      <span>Terminate</span>
+                    </button>
+                  </li>
+                </ul>
+              </bubble-up>
+            </td>
+          </tr>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="placeholder">
+        <td mat-footer-cell *matFooterCellDef class="info" [colSpan]="displayedColumns.length - 1">
+          <span>{{ ($isFiltered | async) ? 'No matches found' : 'There are no images yet' }}</span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns;" class="header-row"></tr>
+
+      <tr mat-row [hidden]="!element?.images.length" *matRowDef="let element; columns: ['project']" class="element-row"></tr>
+      <tr mat-row [hidden]="!row?.images.length" *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+      <tr [hidden]="!($isProjectListEmpty | async)" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+    </table>
+</section>

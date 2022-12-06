@@ -27,23 +27,8 @@ import {HealthStatusService, ProjectService } from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 import { ProjectListComponent } from './project-list/project-list.component';
 import { EnvironmentsDataService } from '../management/management-data.service';
+import { Project } from './project.model';
 
-export interface Endpoint {
-  name: string;
-  status: string;
-  edgeInfo: any;
-}
-
-export interface Project {
-  name: string;
-  endpoints: any;
-  tag: string;
-  groups: string[];
-  shared_image_enabled?: boolean;
-  areStoppedNode?: boolean;
-  areTerminatedNode?: boolean;
-  areRunningNode?: boolean;
-}
 
 @Component({
   selector: 'datalab-project',
@@ -118,8 +103,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus($event) {
-    const data = { 
-      'project_name': $event.project.name, 
+    const data = {
+      'project_name': $event.project.name,
       endpoint: $event.endpoint.map(endpoint => endpoint.name),
       'edge_status': $event.endpoint.map(endpoint => endpoint.status)[0]
     };
@@ -129,11 +114,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   private toggleStatusRequest(data, action, isOnlyOneEdge?) {
     if ( action === 'terminate') {
       const projectsResources = this.resources
-        .filter(resource => resource.project === data.project_name && resource.resource_type !== "edge node");
+        .filter(resource => resource.project === data.project_name && resource.resource_type !== 'edge node');
 
       const activeProjectsResources = projectsResources?.length ? projectsResources
         .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
-        
+
       const termResources = data.endpoint.reduce((res, endp) => {
         res.push(...activeProjectsResources.filter(resource => resource.endpoint === endp));
         return res;
@@ -143,7 +128,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.edgeNodeAction(data, action);
       } else {
         this.dialog.open(NotificationDialogComponent, { data: {
-            type: 'terminateNode', 
+            type: 'terminateNode',
             item: {action: data, resources: termResources}
           }, panelClass: 'modal-sm' })
           .afterClosed().subscribe(result => {
@@ -161,7 +146,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         () => {
           this.refreshGrid();
           this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
-        }, 
+        },
         error => {
           this.toastr.error(error.message, 'Oops!');
         }

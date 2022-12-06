@@ -673,6 +673,27 @@ class GCPMeta:
                 data.append(host)
         return data
 
+    def get_list_image_statuses(self, image_name_list):
+        data = []
+        for image in image_name_list:
+            host = {}
+            try:
+                request = self.service.images().get(project=self.project, image=image)
+                result = request.execute()
+                host['id'] = image
+                if result.get('status') == 'PENDING':
+                    host['status'] = 'CREATING'
+                elif result.get('status') == 'READY':
+                    host['status'] = 'ACTIVE'
+                else:
+                    host['status'] = result.get('status')
+                data.append(host)
+            except:
+                host['id'] = image
+                host['status'] = 'TERMINATED'
+                data.append(host)
+        return data
+
     def get_cluster(self, cluster_name):
         try:
             request = self.dataproc.projects().regions().clusters().get(projectId=self.project,
@@ -758,7 +779,7 @@ class GCPMeta:
 
     def dataproc_waiter(self, labels):
         if os.path.exists(
-                '/response/.emr_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
+                '/response/.dataproc_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
                 os.environ['notebook_instance_name']):
             with hide('stderr', 'running', 'warnings'):
                 subprocess.run("echo 'Some Dataproc cluster is still being created/terminated, waiting..'", shell=True, check=True)

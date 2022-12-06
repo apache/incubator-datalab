@@ -124,7 +124,8 @@ public class ProjectServiceImpl implements ProjectService {
     public List<ProjectDTO> getProjectsByEndpoint(String endpointName) {
         return projectDAO.getProjectsByEndpoint(endpointName);
     }
-
+    
+    @BudgetLimited
     @Override
     public void create(UserInfo user, ProjectDTO projectDTO, String projectName) {
         if (!projectDAO.get(projectDTO.getName()).isPresent()) {

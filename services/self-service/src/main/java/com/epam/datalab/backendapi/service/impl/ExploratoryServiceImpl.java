@@ -52,7 +52,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.*;
-import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
+import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.INSTANCE;
 import static com.epam.datalab.dto.UserInstanceStatus.*;
 import static com.epam.datalab.rest.contracts.ExploratoryAPI.*;
 
@@ -92,26 +92,26 @@ public class ExploratoryServiceImpl implements ExploratoryService {
     }
 
     @BudgetLimited
-    @Audit(action = START, type = NOTEBOOK)
+    @Audit(action = START, type = INSTANCE)
     @Override
     public String start(@User UserInfo userInfo, @ResourceName String exploratoryName, @Project String project, @Info String auditInfo) {
         return action(userInfo, userInfo.getName(), project, exploratoryName, EXPLORATORY_START, STARTING);
     }
 
-    @Audit(action = STOP, type = NOTEBOOK)
+    @Audit(action = STOP, type = INSTANCE)
     @Override
     public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
         return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
     }
 
-    @Audit(action = TERMINATE, type = NOTEBOOK)
+    @Audit(action = TERMINATE, type = INSTANCE)
     @Override
     public String terminate(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
         return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
     }
 
     @BudgetLimited
-    @Audit(action = CREATE, type = NOTEBOOK)
+    @Audit(action = CREATE, type = INSTANCE)
     @Override
     public String create(@User UserInfo userInfo, Exploratory exploratory, @Project String project, @ResourceName String exploratoryName) {
         boolean isAdded = false;
@@ -151,7 +151,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
     }
 
     private boolean isDeepLearningOnAwsOrAzure(Exploratory exploratory, EndpointDTO endpointDTO) {
-        return exploratory.getVersion().equals("Deep Learning AMI (Ubuntu 18.04) Version 42.1") ||
+        return exploratory.getVersion().equals("Deep Learning AMI (Ubuntu 18.04) Version 60.2") ||
                 exploratory.getVersion().equals("microsoft-dsvm:ubuntu-1804:1804");
     }
 
@@ -170,7 +170,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
                 });
     }
 
-    @Audit(action = RECONFIGURE, type = NOTEBOOK)
+    @Audit(action = RECONFIGURE, type = INSTANCE)
     @Override
     public void updateClusterConfig(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, List<ClusterConfig> config) {
         final String userName = userInfo.getName();
@@ -246,7 +246,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
         return new ExploratoryCreatePopUp(userProjects, collect);
     }
 
-    @Audit(action = UPDATE, type = NOTEBOOK)
+    @Audit(action = UPDATE, type = INSTANCE)
     @Override
     public void updateAfterStatusCheck(@User UserInfo userInfo, @Project String project, String endpoint, @ResourceName String name,
                                        String instanceID, UserInstanceStatus status, @Info String auditInfo) {
@@ -292,7 +292,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
         }
     }
 
-    @Audit(action = TERMINATE, type = NOTEBOOK)
+    @Audit(action = TERMINATE, type = INSTANCE)
     public void updateExploratoryComputeStatuses(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, UserInstanceStatus status, String resourceCreator) {
         updateExploratoryStatus(resourceCreator, project, exploratoryName, status);
         updateComputationalStatuses(userInfo.getName(), resourceCreator, project, exploratoryName, status);
@@ -422,16 +422,16 @@ public class ExploratoryServiceImpl implements ExploratoryService {
                 .withGPUEnabled(exploratory.getEnabledGPU())
                 .withGPUType(exploratory.getGpuType());
         if (StringUtils.isNotBlank(exploratory.getImageName())) {
-            final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory.getImageName(),
+            final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(exploratory.getImageName(),
                     project, exploratory.getEndpoint());
             userInstance.withLibs(libInstallDtoList);
         }
         return userInstance;
     }
 
-    private List<LibInstallDTO> getImageRelatedLibraries(UserInfo userInfo, String imageFullName, String project,
+    private List<LibInstallDTO> getImageRelatedLibraries(String imageName, String project,
                                                          String endpoint) {
-        final List<Library> libraries = imageExploratoryDao.getLibraries(userInfo.getName(), imageFullName, project,
+        final List<Library> libraries = imageExploratoryDao.getLibraries(imageName, project,
                 endpoint, LibStatus.INSTALLED);
         return toLibInstallDtoList(libraries);
     }

@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -68,6 +68,11 @@ if __name__ == "__main__":
                                    "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    "product": "datalab"}
+        notebook_config['custom_tag'] = ''
+        if 'custom_tag' in os.environ['tags']:
+            notebook_config['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+            if notebook_config['custom_tag']:
+                notebook_config['tags']['custom_tag'] = notebook_config['custom_tag']
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
         notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                          notebook_config['project_name'],

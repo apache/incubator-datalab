@@ -72,8 +72,8 @@ def read_yml_conf(path, section, param):
 
 if __name__ == "__main__":
     mongo_passwd = "PASSWORD"
-    mongo_ip = read_yml_conf(path,'net','bindIp')
-    mongo_port = read_yml_conf(path,'net','port')
+    mongo_ip = read_yml_conf(path, 'net', 'bindIp')
+    mongo_port = read_yml_conf(path, 'net', 'port')
     #mongo_parameters = json.loads(args.mongo_parameters)
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         command = ['service', 'mongod', 'start']
         subprocess.call(command, shell=False)
         time.sleep(5)
-        client.datalabdb.add_user('admin', mongo_passwd, roles=[{'role': 'userAdminAnyDatabase', 'db': 'admin'}])
+        client.datalabdb.command('createUser', 'admin', pwd=mongo_passwd, roles=[{'role': 'userAdminAnyDatabase', 'db': 'admin'}])
         client.datalabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
         # set_mongo_parameters(client, mongo_parameters)
         with open(args.datalab_path + 'tmp/local_endpoint.json', 'r') as data:

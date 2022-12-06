@@ -74,6 +74,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
     if (this.resource.image === 'docker.datalab-dataengine') {
       this.getClusterConfiguration();
     }
+    console.log(this.resource);
   }
 
   public isEllipsisActive($event): void {
@@ -139,9 +140,9 @@ export class DetailComputationalResourcesComponent implements OnInit {
     };
 
     this.auditService.sendDataToAudit(
-      { 
-        resource_name: resource.computational_name, 
-        info: JSON.stringify(clusterInfo), 
+      {
+        resource_name: resource.computational_name,
+        info: JSON.stringify(clusterInfo),
         type: 'COMPUTE'
       }
     ).subscribe();
@@ -154,7 +155,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
   public showCopyIcon(element) {
     this.isCopyIconVissible[element] = true;
   }
-  
+
   public hideCopyIcon() {
     for (const key in this.isCopyIconVissible) {
       this.isCopyIconVissible[key] = false;

@@ -31,4 +31,5 @@ public interface ExploratoryAPI {
     String EXPLORATORY_LIB_LIST = LIBRARY + EXPLORATORY + "/lib_list";
     String EXPLORATORY_GIT_CREDS = EXPLORATORY + "/git_creds";
     String EXPLORATORY_IMAGE = EXPLORATORY + "/image";
+    String EXPLORATORY_IMAGE_TERMINATE = EXPLORATORY + "/image" + "/terminate";
 }

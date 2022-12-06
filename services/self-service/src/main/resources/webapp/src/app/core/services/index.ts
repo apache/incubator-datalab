@@ -40,3 +40,5 @@ export * from './storage.service';
 export * from './project.service';
 export * from './odahu-deployment.service';
 export * from './endpoint.service';
+export * from './image-page-resolve.guard';
+export * from './images-page.service';

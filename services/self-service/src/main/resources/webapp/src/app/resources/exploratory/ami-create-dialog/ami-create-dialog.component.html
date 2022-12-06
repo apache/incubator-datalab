@@ -45,19 +45,19 @@
         </div>
       </form>
       <div class="text-center m-top-30 m-bott-10">
-        <button 
-          mat-raised-button 
-          type="button" 
-          class="butt action" 
+        <button
+          mat-raised-button
+          type="button"
+          class="butt action"
           (click)="dialogRef.close()"
         >
           Cancel
         </button>
-        <button 
-          mat-raised-button 
-          type="button" 
+        <button
+          mat-raised-button
+          type="button"
           [disabled]="!createAMIForm.valid"
-          (click)="assignChanges(createAMIForm.value)" 
+          (click)="assignChanges(createAMIForm.value)"
           class="butt butt-success action"
         >
           Create

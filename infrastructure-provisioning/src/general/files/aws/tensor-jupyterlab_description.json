@@ -1,0 +1,22 @@
+{
+  "exploratory_environment_shapes" :
+  {
+
+    "Memory optimized" : [
+      {"Size": "S", "Description": "r3.xlarge", "Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4"}
+    ],
+    "Compute optimized": [
+      {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2"}
+    ]
+  },
+  "exploratory_environment_versions" :
+  [
+    {
+      "template_name": "JupyterLab with TensorFlow 2.9.1",
+      "description": "Base image with TensorFlow and JupyterLab node creation routines",
+      "environment_type": "exploratory",
+      "version": "tensorflow-jupyterlab-2.9.1",
+      "vendor": "AWS"
+    }
+  ]
+}

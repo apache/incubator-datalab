@@ -48,9 +48,9 @@ import { NoCacheInterceptor } from './interceptors/nocache.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {ConfigurationService} from './services/configutration.service';
-import {AuditGuard, OdahuDeploymentService} from './services';
-import {ProjectAdminGuard} from './services/projectAdmin.guard';
+import {  ConfigurationService } from './services/configutration.service';
+import {AuditGuard, OdahuDeploymentService, ImagesPageService} from './services';
+import {  ProjectAdminGuard } from './services/projectAdmin.guard';
 
 @NgModule({
   imports: [CommonModule],
@@ -90,6 +90,7 @@ export class CoreModule {
         UserAccessKeyService,
         ConfigurationService,
         OdahuDeploymentService,
+        ImagesPageService,
 
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: [] },

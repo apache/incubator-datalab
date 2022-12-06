@@ -55,6 +55,15 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private int maxEmrSpotInstanceBidPct;
 
+
+    @Min(value = 2)
+    @JsonProperty
+    private int minHDInsightInstanceCount;
+
+    @Max(value = 1000)
+    @JsonProperty
+    private int maxHDInsightInstanceCount;
+
     @Min(value = 2)
     @JsonProperty
     private int minSparkInstanceCount;
@@ -178,6 +187,14 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
     public int getMaxEmrSpotInstanceBidPct() {
         return maxEmrSpotInstanceBidPct;
+    }
+
+    public int getMinHDInsightInstanceCount() {
+        return minHDInsightInstanceCount;
+    }
+
+    public int getMaxHDInsightInstanceCount() {
+        return maxHDInsightInstanceCount;
     }
 
     public int getMinSparkInstanceCount() {

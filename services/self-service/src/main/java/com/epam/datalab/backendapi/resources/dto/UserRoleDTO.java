@@ -42,6 +42,7 @@ public class UserRoleDTO {
     private Set<String> pages;
     private Set<String> computationals;
     private Set<String> exploratories;
+    private Set<String> images;
     @JsonProperty("exploratory_shapes")
     private Set<String> exploratoryShapes;
     @JsonProperty("computational_shapes")
@@ -51,14 +52,16 @@ public class UserRoleDTO {
     private enum Type {
         NOTEBOOK,
         COMPUTATIONAL,
+        IMAGE,
         NOTEBOOK_SHAPE,
         COMPUTATIONAL_SHAPE,
+        CONNECTED_PLATFORMS,
         BILLING,
         BUCKET_BROWSER,
         ADMINISTRATION,
     }
 
     public static List<Type> cloudSpecificTypes() {
-        return Arrays.asList(Type.NOTEBOOK, Type.COMPUTATIONAL, Type.NOTEBOOK_SHAPE, Type.COMPUTATIONAL_SHAPE);
+        return Arrays.asList(Type.NOTEBOOK, Type.COMPUTATIONAL, Type.IMAGE, Type.NOTEBOOK_SHAPE, Type.COMPUTATIONAL_SHAPE);
     }
 }

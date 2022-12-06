@@ -34,6 +34,7 @@ parser.add_argument('--container_name', type=str, default='')
 parser.add_argument('--account_tags', type=str, default='{"empty":"string"}')
 parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--storage_account_kind', type=str, default='BlobStorage')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -50,9 +51,9 @@ if __name__ == "__main__":
             if check.name_available:
                 logging.info("Creating storage account {}.".format(account_name))
                 storage_account = AzureActions().create_storage_account(args.resource_group_name, account_name,
-                                                                        args.region, account_tags)
-                blob_container = AzureActions().create_blob_container(args.resource_group_name, account_name,
-                                                                      args.container_name)
+                                                                        args.region, account_tags,
+                                                                        args.storage_account_kind)
+                blob_container = AzureActions().create_blob_container(account_name, args.container_name)
                 logging.info("STORAGE ACCOUNT {} has been created".format(account_name))
                 logging.info("CONTAINER {} has been created".format(args.container_name))
             else:

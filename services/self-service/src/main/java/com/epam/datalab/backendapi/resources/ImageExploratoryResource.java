@@ -21,22 +21,16 @@ package com.epam.datalab.backendapi.resources;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.domain.RequestId;
-import com.epam.datalab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
-import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.backendapi.resources.dto.*;
 import com.epam.datalab.backendapi.service.ImageExploratoryService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -53,7 +47,6 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ImageExploratoryResource {
-    private static final String AUDIT_MESSAGE = "Create image: %s";
 
     private final ImageExploratoryService imageExploratoryService;
     private final RequestId requestId;
@@ -70,7 +63,7 @@ public class ImageExploratoryResource {
                                 @Context UriInfo uriInfo) {
         log.debug("Creating an image {} for user {}", formDTO, ui.getName());
         String uuid = imageExploratoryService.createImage(ui, formDTO.getProjectName(), formDTO.getNotebookName(),
-                formDTO.getName(), formDTO.getDescription(), String.format(AUDIT_MESSAGE, formDTO.getName()));
+                formDTO.getName(), formDTO.getDescription());
         requestId.put(ui.getName(), uuid);
 
         final URI imageUri = UriBuilder.fromUri(uriInfo.getRequestUri())
@@ -85,9 +78,8 @@ public class ImageExploratoryResource {
                               @QueryParam("project") String project,
                               @QueryParam("endpoint") String endpoint) {
         log.debug("Getting images for user {}, project {}", ui.getName(), project);
-        final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui.getName(), dockerImage,
-                project, endpoint);
-        return Response.ok(images).build();
+        return Response.ok(imageExploratoryService.getNotFailedImages(ui, dockerImage,
+                project, endpoint)).build();
     }
 
     @GET
@@ -98,6 +90,24 @@ public class ImageExploratoryResource {
         return Response.ok(images).build();
     }
 
+
+    @GET
+    @Path("user")
+    public Response getImagesForUser(@Auth UserInfo ui) {
+        log.debug("Getting images for user {}", ui.getName());
+        final ImagesPageInfo images = imageExploratoryService.getImagesOfUser(ui,null);
+        return Response.ok(images).build();
+    }
+
+    @POST
+    @Path("user")
+    public Response getImagesForUser(@Auth UserInfo ui, @Valid @NotNull ImageFilter imageFilter) {
+        log.debug("Getting images for user {} with filter {}", ui.getName(), imageFilter);
+        final ImagesPageInfo images = imageExploratoryService.getImagesOfUser(ui, imageFilter);
+        return Response.ok(images).build();
+    }
+
+
     @GET
     @Path("{name}")
     public Response getImage(@Auth UserInfo ui,
@@ -106,5 +116,45 @@ public class ImageExploratoryResource {
                              @QueryParam("endpoint") String endpoint) {
         log.debug("Getting image with name {} for user {}", name, ui.getName());
         return Response.ok(imageExploratoryService.getImage(ui.getName(), name, project, endpoint)).build();
+    }
+
+    @RolesAllowed("/api/image/share")
+    @POST
+    @Path("share")
+    public Response shareImage(@Auth UserInfo ui, @Valid @NotNull ImageShareDTO dto) {
+        log.debug("Sharing user image {} with project {} groups", dto.getImageName(), dto.getProjectName());
+        imageExploratoryService.updateImageSharing(ui, dto);
+        return Response.ok(imageExploratoryService.getImagesOfUser(ui,null)).build();
+    }
+
+    @RolesAllowed("/api/image/terminate")
+    @DELETE
+    @Path("/{projectName}/{endpoint}/{imageName}/terminate")
+    public Response terminateUserImage(@Auth UserInfo ui,
+                                       @PathParam("imageName") String imageName,
+                                       @PathParam("projectName") String projectName,
+                                       @PathParam("endpoint") String endpoint) {
+        log.debug("Terminating  image {} of user {} groups", imageName, ui.getName());
+        imageExploratoryService.terminateImage(ui,projectName,endpoint,imageName);
+        return Response.ok(imageExploratoryService.getImagesOfUser(ui,null)).build();
+    }
+
+    @GET
+    @Path("sharing_info/{imageName}/{projectName}/{endpoint}")
+    public Response getSharingInfo(@Auth UserInfo ui,
+                                   @PathParam("imageName") String imageName,
+                                   @PathParam("projectName") String projectName,
+                                   @PathParam("endpoint") String endpoint){
+        return Response.ok(imageExploratoryService.getSharingInfo(ui.getName(),imageName,projectName, endpoint)).build();
+    }
+
+    @GET
+    @Path("share_autocomplete/{imageName}/{projectName}/{endpoint}")
+    public Response getUsersAndGroups(@Auth UserInfo userInfo,
+                                      @PathParam("imageName") String imageName,
+                                      @PathParam("projectName") String projectName,
+                                      @PathParam("endpoint") String endpoint,
+                                      @NotNull @QueryParam("value") String value){
+        return Response.ok(imageExploratoryService.getUsersAndGroupsForSharing(userInfo.getName(),imageName, projectName, endpoint, value)).build();
     }
 }

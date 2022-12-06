@@ -60,7 +60,7 @@ import java.util.stream.Stream;
 
 import static com.epam.datalab.backendapi.domain.AuditActionEnum.INSTALL_LIBS;
 import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
-import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
+import static com.epam.datalab.backendapi.domain.AuditResourceTypeEnum.INSTANCE;
 import static com.epam.datalab.backendapi.domain.NotebookTemplate.*;
 import static com.epam.datalab.dto.LibraryGroups.*;
 
@@ -142,7 +142,7 @@ public class LibraryServiceImpl implements LibraryService {
         return uuid;
     }
 
-    @Audit(action = INSTALL_LIBS, type = NOTEBOOK)
+    @Audit(action = INSTALL_LIBS, type = INSTANCE)
     @Override
     public String installExploratoryLibs(@User UserInfo ui, @Project String project, @ResourceName String expName, List<LibInstallDTO> libs, @Info String auditInfo) {
         final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);
@@ -163,10 +163,12 @@ public class LibraryServiceImpl implements LibraryService {
         if (isTemplateGroup(templateName, Stream.of(JUPYTER, ZEPPELIN))) {
             groups.addAll(Arrays.asList(GROUP_R_PKG, GROUP_JAVA));
         }
-        if (isTemplateGroup(templateName, Stream.of(DEEP_LEARNING, TENSOR, TENSOR_GCP,
-                DEEP_LEARNING_GCP, DEEP_LEARNING_AWS, DEEP_LEARNING_AZURE))) {
+
+        if (isTemplateGroup(templateName, Stream.of(DEEP_LEARNING, TENSOR, TENSOR_GCP, TENSOR_JUPYTERLAB,
+                DEEP_LEARNING_GCP, DEEP_LEARNING_AWS, DEEP_LEARNING_AZURE, JUPYTER_GPU))) {
             groups.add(GROUP_JAVA);
         }
+      
         if (isTemplateGroup(templateName, Stream.of(RSTUDIO, TENSOR_RSTUDIO))) {
             groups.add(GROUP_R_PKG);
         }

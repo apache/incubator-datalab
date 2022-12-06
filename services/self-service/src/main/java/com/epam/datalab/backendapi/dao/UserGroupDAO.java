@@ -30,4 +30,6 @@ public interface UserGroupDAO {
     Set<String> getUserGroups(String user);
 
     Set<String> getUsers(String group);
+
+    Set<String> getGroupNames(String name);
 }

@@ -25,12 +25,14 @@ import logging
 import os
 import sys
 import uuid
+import secrets
 import subprocess
+import random
+import string
 from datalab.actions_lib import *
 from datalab.fab import *
 from datalab.meta_lib import *
 from fabric import *
-
 
 @task
 def run(ctx):
@@ -41,16 +43,21 @@ def run(ctx):
                         level=logging.INFO,
                         filename=local_log_filepath)
     dataengine_service_config = dict()
-    dataengine_service_config['uuid'] = str(uuid.uuid4())[:5]
+    dataengine_service_config['uuid'] = '{}{}'.format(random.choice(string.ascii_lowercase), str(uuid.uuid4())[:5])
+    dataengine_service_config['access_password'] = secrets.token_urlsafe(32)
     try:
-        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_prepare', dataengine_service_config['uuid']), shell=True, check=True)
+        subprocess.run("~/scripts/{}.py --uuid {} --access_password {}"
+                       .format('dataengine-service_prepare', dataengine_service_config['uuid'],
+                               dataengine_service_config['access_password']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Data Engine service.", str(err))
         sys.exit(1)
 
     try:
-        subprocess.run("~/scripts/{}.py --uuid {}".format('dataengine-service_configure', dataengine_service_config['uuid']), shell=True, check=True)
+        subprocess.run("~/scripts/{}.py --uuid {} --access_password {}"
+                       .format('dataengine-service_configure', dataengine_service_config['uuid'],
+                               dataengine_service_config['access_password']), shell=True, check=True)
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Data Engine service.", str(err))

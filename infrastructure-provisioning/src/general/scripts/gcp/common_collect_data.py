@@ -62,6 +62,12 @@ if __name__ == "__main__":
             statuses['cluster'] = data_clusters
         except:
             logging.error("Clusters JSON wasn't been provided")
+        try:
+            id_images = get_id_resourses(data.get('image'))
+            data_images = GCPMeta().get_list_image_statuses(id_images)
+            statuses['image'] = data_images
+        except:
+            logging.error("Images JSON wasn't been provided")
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:

@@ -17,16 +17,16 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { ValidatorFn, FormControl } from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter, Inject, ViewChild, ElementRef } from '@angular/core';
+import { ValidatorFn, FormControl, NgModel } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService } from '../../core/services';
-import { CheckUtils, SortUtils } from '../../core/util';
+import { SortUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { ProgressBarService } from '../../core/services/progress-bar.service';
-import { ConfirmationDialogComponent, ConfirmationDialogType } from '../../shared/modal-dialog/confirmation-dialog';
+import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared';
 
 @Component({
   selector: 'datalab-roles',
@@ -96,7 +96,7 @@ export class RolesComponent implements OnInit {
     );
   }
 
-  getGroupsData() {
+  getGroupsData(): void {
     this.rolesService.getGroupsData()
       .subscribe(
         list => this.updateGroupData(list),
@@ -169,6 +169,10 @@ export class RolesComponent implements OnInit {
               }
             });
           }
+          // TODO REMOVE THIS CODE AFTER IMAGE ROLE REFACTORING
+          setTimeout(() => {
+            this.checkAuthorize();
+          });
           deletedUsers = [];
         });
     }
@@ -240,11 +244,11 @@ export class RolesComponent implements OnInit {
   }
 
   public extractIds(sourceList, target) {
-    const map = new Map();
+    const mapObj = new Map();
     const mapped = sourceList.reduce((acc, item) => {
       target.includes(item.description) && acc.set(item._id, item.description);
       return acc;
-    }, map);
+    }, mapObj);
 
     return this.mapToObj(mapped);
   }
@@ -264,16 +268,10 @@ export class RolesComponent implements OnInit {
   }
 
   public groupValidation(): ValidatorFn {
-    const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
       if (control.value && control.value.length > this.maxGroupLength) {
         return { long: true };
       }
-
-      if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
-        return { duplicate: true };
-      }
-
       if (control.value && !this.groupnamePattern.test(control.value))
         return { patterns: true };
 
@@ -315,9 +313,28 @@ export class RolesComponent implements OnInit {
       return;
     }
     if (user.value && user.value.trim()) {
-      item.users instanceof Array ? item.users.push(user.value.trim()) : item.users = [user.value.trim()];
+      item.users = [...item.users, ...this.normalizeUserList(user.value)];
     }
     user.value = '';
+  }
+
+  onAddGroupClick(): void {
+    this.stepperView = !this.stepperView;
+  }
+
+  private normalizeUserList(userNameList: string): string[] {
+    if (userNameList.includes(',')) {
+      return userNameList.split(',')
+                  .map(userName => userName.trim())
+                  .filter(userName => userName);
+    }
+    return [ userNameList ];
+  }
+
+  private checkAuthorize(): void {
+    this.applicationSecurityService.isLoggedIn().subscribe(() => {
+      this.getEnvironmentHealthStatus();
+    });
   }
 
   private getEnvironmentHealthStatus() {
@@ -341,9 +358,13 @@ export class RolesComponent implements OnInit {
   }
 
   public checkIfUserAdded(element: any, value: string) {
-    element.isUserAdded = element.users
-      .map(v => v.toLowerCase())
-      .includes(value.toLowerCase());
+    if (value.includes(',')) {
+      element.isUserAdded = element.users.some(userName => this.normalizeUserList(value).includes(userName));
+    } else {
+      element.isUserAdded = element.users
+        .map(v => v.toLowerCase())
+        .includes(value.toLowerCase());
+    }
   }
 }
 
@@ -367,18 +388,18 @@ export class RolesComponent implements OnInit {
     </p>
   </div>
   <div class="text-center">
-    <button 
-      type="button" 
-      class="butt" 
-      mat-raised-button 
+    <button
+      type="button"
+      class="butt"
+      mat-raised-button
       (click)="dialogRef.close()"
     >
       No
     </button>
-    <button 
-      type="button" 
-      class="butt butt-success" 
-      mat-raised-button 
+    <button
+      type="button"
+      class="butt butt-success"
+      mat-raised-button
       (click)="dialogRef.close(true)"
     >
       Yes

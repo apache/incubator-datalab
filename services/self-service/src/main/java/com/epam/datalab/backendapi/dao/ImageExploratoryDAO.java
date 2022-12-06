@@ -20,6 +20,7 @@
 package com.epam.datalab.backendapi.dao;
 
 import com.epam.datalab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.datalab.dto.SharedWith;
 import com.epam.datalab.dto.exploratory.ImageStatus;
 import com.epam.datalab.dto.exploratory.LibStatus;
 import com.epam.datalab.model.exploratory.Image;
@@ -36,11 +37,23 @@ public interface ImageExploratoryDAO {
 
     void updateImageFields(Image image);
 
+    void updateImageStatus(String user, String imageName, String project, String endpoint, ImageStatus status);
+    void updateImageStatus(String imageName, String projectName, String endpoint, ImageStatus status);
+
     List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses);
+
+    List<ImageInfoRecord> getImages(String project, String endpoint, String dockerImage);
+
+    List<ImageInfoRecord> getImagesOfUser(String user);
 
     List<ImageInfoRecord> getImagesForProject(String project);
 
+    List<ImageInfoRecord> getAllImages();
     Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);
 
-    List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status);
+    Optional<ImageInfoRecord> getImage(String name, String project, String endpoint);
+
+    List<Library> getLibraries(String imageName,  String project, String endpoint, LibStatus status);
+
+    void updateSharing(SharedWith sharedWith, String imageName, String project, String endpoint);
 }

@@ -17,17 +17,21 @@
  * under the License.
  */
 
-import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
-import {FormGroup, FormBuilder, Validators} from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
 import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES, PATTERNS, CheckUtils, SortUtils, HelpUtils } from '../../../core/util';
+import { CheckUtils, HelpUtils, HTTP_STATUS_CODES, PATTERNS, SortUtils } from '../../../core/util';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
+import { DockerImageName } from '../../../core/models';
+import { ImageTemplateName } from '../../../core/configs/image-template-name';
+import { ComputationalTemplate } from './computational.resource.model';
+import { Providers } from '../../../core/configs/providers';
 
 @Component({
   selector: 'computational-resource-create-dialog',
@@ -40,6 +44,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   readonly CLUSTER_CONFIGURATION = CLUSTER_CONFIGURATION;
   readonly CheckUtils = CheckUtils;
+  readonly providerList: typeof Providers = Providers;
+  readonly templateName: typeof ImageTemplateName = ImageTemplateName;
 
   notebook_instance: any;
   resourcesList: any;
@@ -78,7 +84,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     private _ref: ChangeDetectorRef,
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loading = true;
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
@@ -86,7 +92,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint, this.notebook_instance.cloud_provider);
   }
 
-  public selectImage($event) {
+  public selectImage($event): void {
     this.selectedImage = $event;
     this.filterShapes();
     this.getComputationalResourceLimits();
@@ -97,22 +103,25 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public selectSpotInstances(): void {
-    if (this.isSelected.spotInstances) {
+    if (!this.instanceSpot) {
       this.spotInstance = true;
-      this.resourceForm.controls['instance_price'].setValue(50);
+      this.resourceForm.controls['emr_slave_instance_spot'].patchValue(true);
+      this.resourceForm.controls['instance_price'].enable();
+      this.resourceForm.controls['instance_price'].patchValue(50);
     } else {
       this.spotInstance = false;
-      this.resourceForm.controls['instance_price'].setValue(0);
+      this.resourceForm.controls['emr_slave_instance_spot'].patchValue(false);
+      this.resourceForm.controls['instance_price'].disable();
     }
   }
 
-  public selectPreemptibleNodes(addPreemptible) {
+  public selectPreemptibleNodes(addPreemptible): void {
     if (addPreemptible) {
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
     }
   }
 
-  public selectConfiguration() {
+  public selectConfiguration(): void {
     if (this.isSelected.configuration) {
       const template = (this.selectedImage.image === 'docker.datalab-dataengine-service')
         ? CLUSTER_CONFIGURATION.EMR
@@ -139,15 +148,19 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public createComputationalResource(data) {
+  public createComputationalResource(data): void {
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance,
-      this.spotInstance, this.PROVIDER.toLowerCase(), this.isSelected.gpu)
+      this.PROVIDER.toLowerCase(), this.isSelected.gpu)
       .subscribe(
         (response: any) => {
           if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
-        }, 
+        },
         error => this.toastr.error(error.message, 'Oops!')
       );
+  }
+
+  public hasHDInside(templateList: ComputationalTemplate[]): boolean {
+    return  templateList.some(({template_name}) => template_name === ImageTemplateName.hdInsight);
   }
 
   private initFormModel(): void {
@@ -155,6 +168,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       template_name: ['', [Validators.required]],
       version: [''],
       shape_master: ['', Validators.required],
+      emr_slave_instance_spot: '',
       shape_slave: [''],
       cluster_alias_name: ['', [
         Validators.required, Validators.pattern(PATTERNS.namePattern),
@@ -165,7 +179,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       preemptible_instance_number: [0,
         Validators.compose([Validators.pattern(PATTERNS.integerRegex),
         this.validPreemptibleRange.bind(this)])],
-      instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
+      instance_price: [0, [this.validInstanceSpotRange()]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag],
       master_GPU_type: [''],
@@ -186,17 +200,18 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.minInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max];
 
-      if (this.PROVIDER === 'gcp' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
+      if (this.PROVIDER === 'gcp' && this.selectedImage.image === DockerImageName.dataEngineService) {
         this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max] - 1;
         this.minPreemptibleInstanceNumber = this.selectedImage.limits.min_dataproc_preemptible_instance_count;
       }
 
-      if (this.PROVIDER === 'aws' && this.selectedImage.image === 'docker.datalab-dataengine-service') {
+      if (this.PROVIDER === 'aws' && this.selectedImage.image === DockerImageName.dataEngineService) {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
         this.isSelected.spotInstances = true;
-        this.selectSpotInstances();
+        this.resourceForm.controls['emr_slave_instance_spot'].setValue(true);
+        this.resourceForm.controls['instance_price'].setValue(50);
       }
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
@@ -239,18 +254,21 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  private validInstanceSpotRange(control) {
-    if (this.isSelected.spotInstances) {
-      return this.isSelected.spotInstances
-        ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
-        : control.value;
-    }
+  private validInstanceSpotRange(): ValidatorFn {
+    return (control: FormControl) => {
+      if (!this.isSelected.spotInstances) {
+        return null;
+      }
+      return control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice
+        ? null
+        : { valid: false };
+    };
   }
 
   private validConfiguration(control) {
     if (this.isSelected.configuration) {
-      return this.isSelected.configuration 
-        ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
+      return this.isSelected.configuration
+        ? (control.value && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
     }
   }
@@ -265,12 +283,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
   }
 
-  private getTemplates(project, endpoint, provider) {
+  private getTemplates(project, endpoint, provider): void {
     this.userResourceService.getComputationalTemplates(project, endpoint, provider).subscribe(
-      clusterTypes => {
-        this.clusterTypes = clusterTypes.templates;
-        this.userComputations = clusterTypes.user_computations;
-        this.projectComputations = clusterTypes.project_computations;
+      ({templates, user_computations, project_computations}) => {
+        this.clusterTypes = templates;
+        this.userComputations = user_computations;
+        this.projectComputations = project_computations;
 
         this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes =
           SortUtils.shapesSort(cluster.computation_resources_shapes));
@@ -291,8 +309,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     let filtered;
 
     const reduceShapes = (obj, key) => {
-      obj[key] = this.selectedImage.computation_resources_shapes[key];
-      return obj;
+      return {...obj, [key]: this.selectedImage.computation_resources_shapes[key]};
     };
 
     const filteredShapeKeys = Object.keys(
@@ -307,8 +324,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     ) {
       filtered = filterShapes(key => allowed.includes(key));
       if (this.PROVIDER !== 'azure') {
-        const images = this.clusterTypes.filter(image => image.image === 'docker.datalab-dataengine');
-        this.clusterTypes = images;
+        this.clusterTypes = this.clusterTypes.filter(image => image.image === 'docker.datalab-dataengine');
         this.selectedImage = this.clusterTypes[0];
       }
     } else if (this.notebook_instance.template_name.toLowerCase().indexOf('jupyter notebook') !== -1 &&
@@ -372,5 +388,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.resourceForm.controls['slave_GPU_type'].setValue('');
       this.resourceForm.controls['slave_GPU_count'].setValue('');
     }
+  }
+
+  get instanceSpot() {
+    return this.resourceForm.controls['emr_slave_instance_spot'].value;
+  }
+  get templateNameControl(): FormControl {
+    return  this.resourceForm.get('template_name') as FormControl;
   }
 }

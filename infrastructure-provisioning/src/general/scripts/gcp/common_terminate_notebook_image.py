@@ -33,7 +33,7 @@ if __name__ == "__main__":
         image_conf = dict()
         GCPMeta = datalab.meta_lib.GCPMeta()
         GCPActions = datalab.actions_lib.GCPActions()
-        image_conf['image_name'] = os.environ['notebook_image_name']
+        image_conf['image_name'] = os.environ['notebook_image_name'].replace('_', '-').lower()
         image_conf['service_base_name'] = os.environ['conf_service_base_name'] = datalab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         image_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
@@ -48,13 +48,16 @@ if __name__ == "__main__":
             os.environ['application'], image_conf['image_name']).lower()
         primary_image_id = GCPMeta.get_image_by_name(image_conf['expected_primary_image_name'])
         if primary_image_id != '':
-            GCPActions.remove_image(notebook_config['expected_primary_image_name'])
-            GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
-            with open("/root/result.json", 'w') as result:
-                res = {"notebook_image_name": image_conf['full_image_name'],
-                       "status": "terminated",
-                       "Action": "Delete existing notebook image"}
-                result.write(json.dumps(res))
+            GCPActions.remove_image(image_conf['expected_primary_image_name'])
+            GCPActions.remove_image(image_conf['expected_secondary_image_name'])
+        with open("/root/result.json", 'w') as result:
+            res = {"notebook_image_name": image_conf['expected_primary_image_name'],
+                   "endpoint": image_conf['endpoint_name'],
+                   "project": image_conf['project_name'],
+                   "imageName": image_conf['image_name'],
+                   "status": "terminated",
+                   "Action": "Delete existing notebook image"}
+            result.write(json.dumps(res))
 
     except Exception as err:
         datalab.fab.append_result("Failed to delete existing notebook image", str(err))

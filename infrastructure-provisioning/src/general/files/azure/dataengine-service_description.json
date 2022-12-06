@@ -1,0 +1,20 @@
+{
+  "template_name": "HDInsight cluster",
+  "description": "HDInsight cluster",
+  "environment_type": "computational",
+  "computation_resources_shapes":
+    {
+      "For testing" : [
+        {"Size": "S", "Description": "Standard_D12_v2", "Type": "Standard_D12_v2","Ram": "28.0 GB","Cpu": "4"}
+      ],
+      "Memory optimized" : [
+        {"Size": "S", "Description": "Standard_E4_v3", "Type": "Standard_E4_v3","Ram": "32 GB","Cpu": "4"},
+        {"Size": "M", "Description": "Standard_E16_v3", "Type": "Standard_E16_v3","Ram": "128 GB","Cpu": "16"},
+        {"Size": "L", "Description": "Standard_E32_v3", "Type": "Standard_E32_v3","Ram": "256 GB","Cpu": "32"}
+      ]
+    },
+  "templates":
+  [
+    {"version":"5.0", "applications": [{"Name":"Spark", "Version": "3.1"}]}
+  ]
+}

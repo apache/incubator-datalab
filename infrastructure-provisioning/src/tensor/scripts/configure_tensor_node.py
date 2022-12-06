@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -69,7 +69,7 @@ cuda_version = os.environ['notebook_cuda_version']
 cuda_file_name = os.environ['notebook_cuda_file_name']
 cudnn_version = os.environ['notebook_cudnn_version']
 cudnn_file_name = os.environ['notebook_cudnn_file_name']
-
+venv_libs = "numpy scipy matplotlib pandas scikit-learn opencv-python tensorflow=={0}".format(tensorflow_version)
 
 ##############
 # Run script #
@@ -142,11 +142,19 @@ if __name__ == "__main__":
     # INSTALL OPTIONAL PACKAGES
     print("Installing additional Python packages")
     ensure_additional_python_libs(args.os_user)
+    print('Installing Pytorch')
+    ensure_pytorch(args.os_user)
     print("Install Matplotlib")
     ensure_matplot(args.os_user)
-    
+
+    print("Install python venv required libs")
+    ensure_venv_libs(args.os_user, venv_libs)
+    datalab.fab.install_venv_pip_pkg('--extra-index-url https://google-coral.github.io/py-repo/ tflite_runtime==2.5.0')
+
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)
+    print("Removing unexisting kernels")
+    remove_unexisting_kernel(args.os_user)
 
     conn.close()

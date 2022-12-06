@@ -78,7 +78,8 @@ public class ProjectCallback {
 
     private void saveGpuForProject(ProjectResult projectResult, String projectName) {
         try {
-            if (projectResult.getEdgeInfo().getGpuList() != null) {
+            if (projectResult.getEdgeInfo().getGpuList() != null
+                    && !gpuDAO.getGPUByProjectName(projectName).isPresent()) {
                 List<String> gpuList = projectResult.getEdgeInfo().getGpuList();
                 log.info("Adding edgeGpu with gpu_types: {}, for project: {}", gpuList, projectName);
                 gpuDAO.create(new EdgeGPU(projectName, gpuList));

@@ -1,5 +1,53 @@
 [
   {
+    "_id": "imgShareOwnImages",
+    "description": "Allow to share own images",
+    "type": "IMAGE",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/image/share"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "imgTerminateOwnImages",
+    "description": "Allow to terminate own images",
+    "type": "IMAGE",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/image/terminate"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateBasedOnCustomOwnImages",
+    "description": "Create Notebook based on custom own images",
+    "type": "NOTEBOOK",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/exploratory/createFromOwnCustomImage"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateBasedOnSharedImages",
+    "description": "Create Notebook based on custom shared images",
+    "type": "NOTEBOOK",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/exploratory/createFromSharedCustomImage"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbBillingReportFull",
     "description": "View full billing report for all users",
     "type": "BILLING",
@@ -42,6 +90,42 @@
     "cloud": "GENERAL",
     "pages": [
       "/api/bucket/download"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "connectedPlatformsView",
+    "description": "Allow to view connected platforms",
+    "type": "CONNECTED_PLATFORMS",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/connected_platforms/view"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "connectedPlatformsDisconnect",
+    "description": "Allow to disconnect connected platforms",
+    "type": "CONNECTED_PLATFORMS",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/connected_platforms/disconnect"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "connectedPlatformsAdd",
+    "description": "Allow to add connected platforms",
+    "type": "CONNECTED_PLATFORMS",
+    "cloud": "GENERAL",
+    "pages": [
+      "/api/connected_platforms/add"
     ],
     "groups": [
       "$anyuser"

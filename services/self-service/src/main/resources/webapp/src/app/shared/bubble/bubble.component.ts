@@ -17,17 +17,17 @@
  * under the License.
  */
 
-import { 
-  Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
   HostBinding,
-  ChangeDetectorRef, 
-  ElementRef, 
+  ChangeDetectorRef,
+  ElementRef,
   OnDestroy,
-  ViewEncapsulation, 
-  HostListener 
+  ViewEncapsulation,
+  HostListener
 } from '@angular/core';
 import { BubblesCollector, BubbleService } from './bubble.service';
 
@@ -101,11 +101,14 @@ export class BubbleComponent implements OnDestroy {
           this.changeDirection = !this.isInViewport(bubbleElem);
 
           let isBubbleOutOfWrapper;
-          
-          if(document.querySelector('.wrapper')) {
-            isBubbleOutOfWrapper = bubbleElem.getBoundingClientRect().bottom > document.querySelector('.wrapper').getBoundingClientRect().bottom;
+
+          if (document.querySelector('.wrapper')) {
+            isBubbleOutOfWrapper = bubbleElem.getBoundingClientRect()
+              .bottom > document.querySelector('.wrapper')
+              .getBoundingClientRect()
+              .bottom;
           }
-          
+
           (this.changeDirection || isBubbleOutOfWrapper) && this.bubbleService.updatePosition(element, bubbleElem, this.alternative);
         }
 

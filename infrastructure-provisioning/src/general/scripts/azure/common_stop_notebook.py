@@ -31,6 +31,20 @@ import sys
 
 
 def stop_notebook(resource_group_name, notebook_name):
+    logging.info("Terminating Dataengine-service clusters")
+    try:
+        clusters_list = AzureMeta.list_hdinsight_clusters(resource_group_name)
+        if clusters_list:
+            for cluster in clusters_list:
+                if "notebook_name" in cluster.tags and notebook_name == cluster.tags["notebook_name"]:
+                    AzureActions.terminate_hdinsight_cluster(resource_group_name, cluster.name)
+                    logging.info('The HDinsight cluster {} has been terminated successfully'.format(cluster.name))
+        else:
+            logging.info("There are no HDinsight clusters to terminate.")
+    except Exception as err:
+        datalab.fab.append_result("Failed to terminate dataengine-service", str(err))
+        sys.exit(1)
+
     logging.info("Stopping data engine cluster")
     cluster_list = []
     try:

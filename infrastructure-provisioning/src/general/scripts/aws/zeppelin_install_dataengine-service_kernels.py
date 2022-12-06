@@ -40,7 +40,6 @@ parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
-parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 args = parser.parse_args()
 
@@ -59,7 +58,7 @@ def configure_notebook(args):
     conn.sudo('chmod 755 /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
     conn.sudo('mkdir -p /usr/lib/python3.8/datalab/')
     conn.run('mkdir -p /tmp/datalab_libs/')
-    conn.local('scp -i {} /usr/lib/python3.8/datalab/*.py {}@{}:/tmp/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
+    conn.local('rsync -e "ssh -i {}" /usr/lib/python3.8/datalab/*.py {}@{}:/tmp/datalab_libs/'.format(args.keyfile, args.os_user, args.notebook_ip))
     conn.run('chmod a+x /tmp/datalab_libs/*')
     conn.sudo('mv /tmp/datalab_libs/* /usr/lib/python3.8/datalab/')
     if exists(conn, '/usr/lib64'):
@@ -76,6 +75,7 @@ if __name__ == "__main__":
     livy_version = os.environ['notebook_livy_version']
     r_enabled = os.environ['notebook_r_enabled']
     numpy_version = os.environ['notebook_numpy_version']
+    matplotlib_version = os.environ['notebook_matplotlib_version']
     command = "/usr/bin/python3 /usr/local/bin/zeppelin_dataengine-service_create_configs.py " \
              "--bucket {0} " \
              "--cluster_name {1} " \
@@ -91,8 +91,8 @@ if __name__ == "__main__":
              "--scala_version {11} " \
              "--livy_version {12} " \
              "--multiple_clusters {13} " \
-             "--pip_mirror {14} " \
-             "--numpy_version {15} " \
+             "--numpy_version {14} " \
+             "--matplotlib_version {15} " \
              "--application {16} " \
              "--r_enabled {17}" \
         .format(args.bucket,
@@ -109,8 +109,8 @@ if __name__ == "__main__":
                 args.scala_version,
                 livy_version,
                 os.environ['notebook_multiple_clusters'],
-                args.pip_mirror,
                 numpy_version,
+                matplotlib_version,
                 args.application,
                 r_enabled)
     conn.sudo(command)

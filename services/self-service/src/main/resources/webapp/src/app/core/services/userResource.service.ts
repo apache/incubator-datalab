@@ -23,6 +23,9 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ErrorUtils } from '../util/';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import {
+  ComputationalResourceModel
+} from '../../resources/computational/computational-resource-create-dialog/computational.resource.model';
 
 @Injectable()
 export class UserResourceService {
@@ -37,7 +40,7 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalTemplates(project, endpoint, provider): Observable<any> {
+  public getComputationalTemplates(project, endpoint, provider): Observable<ComputationalResourceModel> {
     const url = `/${project}/${endpoint}/templates`;
     return this.applicationServiceFacade
       .buildGetComputationTemplatesRequest(url, provider)
@@ -109,9 +112,9 @@ export class UserResourceService {
   }
 
   public suspendComputationalResource(
-    projectName: string, 
-    notebookName: string, 
-    computationalResourceName: string, 
+    projectName: string,
+    notebookName: string,
+    computationalResourceName: string,
     provider: string
   ): Observable<{}> {
     const body = JSON.stringify('/' + projectName + '/' + notebookName + '/' + computationalResourceName + '/terminate');
@@ -123,10 +126,10 @@ export class UserResourceService {
   }
 
   public toggleStopStartAction(
-    project: string, 
-    notebook: string, 
-    resource: string, 
-    action, 
+    project: string,
+    notebook: string,
+    resource: string,
+    action,
     provider: string
   ): Observable<{}> {
     const url = `/${project}/${notebook}/${resource}/${action}`;
@@ -181,7 +184,6 @@ export class UserResourceService {
   }
 
   public createAMI(data): Observable<any> {
-    const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateAMI(data)
       .pipe(

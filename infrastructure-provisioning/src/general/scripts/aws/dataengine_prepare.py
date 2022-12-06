@@ -59,13 +59,18 @@ if __name__ == "__main__":
             sys.exit(1)
         logging.info('Generating infrastructure names and tags')
         if 'exploratory_name' in os.environ:
-            data_engine['exploratory_name'] = os.environ['exploratory_name']
+            data_engine['exploratory_name'] = os.environ['exploratory_name'].lower()
         else:
             data_engine['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            data_engine['computational_name'] = os.environ['computational_name']
+            data_engine['computational_name'] = os.environ['computational_name'].lower()
         else:
             data_engine['computational_name'] = ''
+        data_engine['custom_tag'] = ''
+        if 'custom_tag' in os.environ['tags']:
+            data_engine['custom_tag'] = json.loads(os.environ['tags'].replace("'", '"'))['custom_tag']
+        if data_engine['custom_tag']:
+            data_engine['custom_tag'] = ';custom_tag:{}'.format(data_engine['custom_tag'])
         data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
@@ -138,11 +143,13 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1};'.format(
-            data_engine['project_name'], data_engine['endpoint_name'], os.environ['conf_additional_tags'])
+        os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1}{3}'.format(
+            data_engine['project_name'], data_engine['endpoint_name'], os.environ['conf_additional_tags'],
+            data_engine['custom_tag'])
     except KeyError:
-        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(data_engine['project_name'],
-                                                                                       data_engine['endpoint_name'])
+        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}{2}'.format(
+            data_engine['project_name'], data_engine['endpoint_name'], data_engine['custom_tag'])
+
     logging.info('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
     try:
