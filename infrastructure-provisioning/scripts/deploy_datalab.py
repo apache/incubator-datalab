@@ -350,8 +350,8 @@ if __name__ == "__main__":
     parser = build_parser()
     args = parser.parse_args()
 
-#    if args.conf_cloud_provider == 'aws' and not (args.aws_secret_access_key and args.aws_access_key):
-#        sys.exit('Please provide both arguments: --aws_secret_access_key and --aws_access_key')
+    if args.conf_cloud_provider == 'aws' and not (args.aws_secret_access_key and args.aws_access_key):
+        sys.exit('Please provide both arguments: --aws_secret_access_key and --aws_access_key')
 
     if not args.workspace_path:
         print("Workspace path isn't set, using current directory: {}".format(os.environ['PWD']))
