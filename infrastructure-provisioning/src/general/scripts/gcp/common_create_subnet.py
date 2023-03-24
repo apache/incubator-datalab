@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -40,6 +40,13 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    region_list = ["asia-east1", "asia-east2", "asia-northeast1", "asia-northeast2", "asia-northeast3",
+                   "asia-south1", "asia-south2", "asia-southeast1", "asia-southeast2", "australia-southeast1",
+                   "australia-southeast2", "europe-central2", "europe-north1", "europe-southwest1", "europe-west1",
+                   "europe-west12", "europe-west2", "europe-west3", "europe-west4", "europe-west6",
+                   "europe-west8", "europe-west9", "me-west1", "northamerica-northeast1", "northamerica-northeast2",
+                   "southamerica-east1", "southamerica-west1", "us-central1", "us-east1", "us-east4",
+                   "us-east5", "us-south1", "us-west1", "us-west2", "us-west3", "us-west4"]
     if args.user_subnets_range == '' or args.ssn:
         empty_vpc = False
         private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
@@ -50,7 +57,9 @@ if __name__ == "__main__":
             empty_vpc = True
             subnets = []
         for subnet in subnets:
-            subnets_cidr.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
+            for region in region_list:
+                if region in subnet:
+                    subnets_cidr.append(GCPMeta().get_subnet(subnet.split('/')[-1], region)['ipCidrRange'])
         sortkey = lambda addr: \
             (int(addr.split("/")[0].split(".")[0]),
              int(addr.split("/")[0].split(".")[1]),
@@ -103,7 +112,9 @@ if __name__ == "__main__":
         existed_subnet_list = []
         response = GCPMeta().get_vpc(args.vpc_selflink.split('/')[-1])['subnetworks']
         for subnet in response:
-            existed_subnet_list.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
+            for region in region_list:
+                if region in subnet:
+                    existed_subnet_list.append(GCPMeta().get_subnet(subnet.split('/')[-1], region)['ipCidrRange'])
         available_subnets = list(set(pre_defined_subnet_list) - set(existed_subnet_list))
         if not available_subnets:
             logging.info("There is no available subnet to create. Aborting...")
