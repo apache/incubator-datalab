@@ -66,7 +66,10 @@ if __name__ == "__main__":
         ssn_conf['static_address_name'] = '{}-ssn-static-ip'.format(ssn_conf['service_base_name'])
         ssn_conf['ssn_policy_path'] = '/root/files/ssn_policy.json'
         ssn_conf['ssn_roles_path'] = '/root/files/ssn_roles.json'
-        ssn_conf['network_tag'] = ssn_conf['instance_name']
+        ssn_conf['network_tags'] = list(os.environ['gcp_additional_network_tag'].split(","))
+        ssn_conf['network_tags'].append(ssn_conf['instance_name'])
+        ssn_conf['network_tags'].append('ssn')
+        ssn_conf['network_tags'].append('datalab')
         ssn_conf['instance_labels'] = {"name": ssn_conf['instance_name'],
                                        "sbn": ssn_conf['service_base_name'],
                                        os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
@@ -163,7 +166,7 @@ if __name__ == "__main__":
 
             ingress_rule = dict()
             ingress_rule['name'] = '{}-ingress'.format(ssn_conf['firewall_name'])
-            ingress_rule['targetTags'] = [ssn_conf['network_tag']]
+            ingress_rule['targetTags'] = [ssn_conf['instance_name']]
             ingress_rule['sourceRanges'] = ssn_conf['allowed_ip_cidr']
             rules = [
                 {
@@ -178,7 +181,7 @@ if __name__ == "__main__":
 
             egress_rule = dict()
             egress_rule['name'] = '{}-egress'.format(ssn_conf['firewall_name'])
-            egress_rule['targetTags'] = [ssn_conf['network_tag']]
+            egress_rule['targetTags'] = [ssn_conf['instance_name']]
             egress_rule['destinationRanges'] = ssn_conf['allowed_ip_cidr']
             rules = [
                 {
@@ -278,7 +281,7 @@ if __name__ == "__main__":
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'],
                    ssn_conf['initial_user'], ssn_conf['service_account_name'], ssn_conf['image_name'], 'ssn',
-                   ssn_conf['static_ip'], ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20',
+                   ssn_conf['static_ip'], ssn_conf['network_tags'], json.dumps(ssn_conf['instance_labels']), '20',
                    ssn_conf['service_base_name'], ssn_conf['gcp_os_login_enabled'],
                    ssn_conf['gcp_block_project_ssh_keys'], ssn_conf['gcp_wrapped_csek'])
         try:

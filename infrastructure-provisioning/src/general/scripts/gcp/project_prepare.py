@@ -108,9 +108,10 @@ if __name__ == "__main__":
         project_conf['fw_ps_ingress'] = '{}-sg-ingress'.format(project_conf['fw_common_name'])
         project_conf['fw_ps_egress_private'] = '{}-sg-egress-private'.format(project_conf['fw_common_name'])
         project_conf['fw_ps_egress_public'] = '{}-sg-egress-public'.format(project_conf['fw_common_name'])
-        print("DEBUG1:" + os.environ['gcp_additional_network_tag'])
-        project_conf['network_tag'] = list(os.environ['gcp_additional_network_tag']
-                                           .split(",")).append(project_conf['instance_name'])
+        project_conf['network_tags'] = list(os.environ['gcp_additional_network_tag'].split(","))
+        project_conf['network_tags'].append(project_conf['instance_name'])
+        project_conf['network_tags'].append('edge')
+        project_conf['network_tags'].append('datalab')
         project_conf['instance_labels'] = {"name": project_conf['instance_name'],
                                            "sbn": project_conf['service_base_name'],
                                            "project_tag": project_conf['project_tag'],
@@ -533,15 +534,14 @@ if __name__ == "__main__":
         project_conf['static_ip'] = \
             GCPMeta.get_static_address(project_conf['region'], project_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
-        print("DEBUG2: --network_tag '{}'".format(project_conf['network_tag']))
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} " \
                  "--ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} " \
-                 "--static_ip {} --network_tag '{}' --labels '{}' --service_base_name {} --os_login_enabled {} " \
+                 "--static_ip {} --network_tag {} --labels '{}' --service_base_name {} --os_login_enabled {} " \
                  "--block_project_ssh_keys {} --rsa_encrypted_csek '{}'".format(
                   project_conf['instance_name'], project_conf['region'], project_conf['zone'], project_conf['vpc_name'],
                   project_conf['subnet_name'], project_conf['instance_size'], project_conf['ssh_key_path'],
                   project_conf['initial_user'], project_conf['edge_service_account_name'], project_conf['image_name'],
-                  'edge', project_conf['static_ip'], project_conf['network_tag'],
+                  'edge', project_conf['static_ip'], ','.join(project_conf['network_tags']),
                   json.dumps(project_conf['instance_labels']), project_conf['service_base_name'],
                   project_conf['gcp_os_login_enabled'], project_conf['gcp_block_project_ssh_keys'],
                   project_conf['gcp_wrapped_csek'])
