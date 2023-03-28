@@ -108,7 +108,9 @@ if __name__ == "__main__":
         project_conf['fw_ps_ingress'] = '{}-sg-ingress'.format(project_conf['fw_common_name'])
         project_conf['fw_ps_egress_private'] = '{}-sg-egress-private'.format(project_conf['fw_common_name'])
         project_conf['fw_ps_egress_public'] = '{}-sg-egress-public'.format(project_conf['fw_common_name'])
-        project_conf['network_tag'] = project_conf['instance_name']
+        print("DEBUG1:" + os.environ['gcp_additional_network_tag'])
+        project_conf['network_tag'] = list(os.environ['gcp_additional_network_tag']
+                                           .split(",")).append(project_conf['instance_name'])
         project_conf['instance_labels'] = {"name": project_conf['instance_name'],
                                            "sbn": project_conf['service_base_name'],
                                            "project_tag": project_conf['project_tag'],
@@ -237,7 +239,7 @@ if __name__ == "__main__":
         else:
             project_conf['allowed_ip_cidr'] = [os.environ['conf_allowed_ip_cidr']]
         ingress_rule['name'] = project_conf['fw_edge_ingress_public']
-        ingress_rule['targetTags'] = [project_conf['network_tag']]
+        ingress_rule['targetTags'] = [project_conf['instance_name']]
         ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
@@ -252,7 +254,7 @@ if __name__ == "__main__":
 
         ingress_rule = dict()
         ingress_rule['name'] = project_conf['fw_edge_ingress_internal']
-        ingress_rule['targetTags'] = [project_conf['network_tag']]
+        ingress_rule['targetTags'] = [project_conf['instance_name']]
         if os.environ['gcp_subnet_name']:
             project_conf['ssn_subnet'] = os.environ['gcp_subnet_name']
         else:
@@ -272,7 +274,7 @@ if __name__ == "__main__":
 
         egress_rule = dict()
         egress_rule['name'] = project_conf['fw_edge_egress_public']
-        egress_rule['targetTags'] = [project_conf['network_tag']]
+        egress_rule['targetTags'] = [project_conf['instance_name']]
         egress_rule['destinationRanges'] = project_conf['allowed_ip_cidr']
         rules = [
             {
@@ -291,7 +293,7 @@ if __name__ == "__main__":
 
         egress_rule = dict()
         egress_rule['name'] = project_conf['fw_edge_egress_internal']
-        egress_rule['targetTags'] = [project_conf['network_tag']]
+        egress_rule['targetTags'] = [project_conf['instance_name']]
         egress_rule['destinationRanges'] = [project_conf['private_subnet_cidr']]
         rules = [
             {
@@ -531,9 +533,10 @@ if __name__ == "__main__":
         project_conf['static_ip'] = \
             GCPMeta.get_static_address(project_conf['region'], project_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
+        print("DEBUG2: --network_tag '{}'".format(project_conf['network_tag']))
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} " \
                  "--ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} " \
-                 "--static_ip {} --network_tag {} --labels '{}' --service_base_name {} --os_login_enabled {} " \
+                 "--static_ip {} --network_tag '{}' --labels '{}' --service_base_name {} --os_login_enabled {} " \
                  "--block_project_ssh_keys {} --rsa_encrypted_csek '{}'".format(
                   project_conf['instance_name'], project_conf['region'], project_conf['zone'], project_conf['vpc_name'],
                   project_conf['subnet_name'], project_conf['instance_size'], project_conf['ssh_key_path'],
