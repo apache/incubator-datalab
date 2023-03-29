@@ -275,7 +275,7 @@ if __name__ == "__main__":
         logging.info('[CREATE SSN INSTANCE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5}"\
                  " --ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9}"\
-                 " --instance_class {10} --static_ip {11} --network_tag '{12}' --labels '{13}' " \
+                 " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' " \
                  "--primary_disk_size {14} --service_base_name {15} --os_login_enabled {16} " \
                  "--block_project_ssh_keys {17} --rsa_encrypted_csek '{18}'".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
