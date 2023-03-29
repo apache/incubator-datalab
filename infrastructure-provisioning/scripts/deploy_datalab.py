@@ -268,7 +268,7 @@ def build_parser():
     gcp_parser.add_argument('--gcp_cmek_resource_name', type=str, default='',
                             help='customer managed encryption key resource name '
                             'e.g. projects/{project_name}/locations/{us}/keyRings/{keyring_name}/cryptoKeys/{key_name}')
-    gcp_parser.add_argument('--gcp_additional_network_tag', type=str,
+    gcp_parser.add_argument('--gcp_additional_network_tag', type=str, default='',
                             help='Additional_network_tag')
     gcp_parser.add_argument('--gcp_storage_lifecycle_rules', type=str, default='',
                             help='storage bucket lifecycle rules')
