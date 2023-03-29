@@ -281,7 +281,7 @@ if __name__ == "__main__":
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'],
                    ssn_conf['initial_user'], ssn_conf['service_account_name'], ssn_conf['image_name'], 'ssn',
-                   ssn_conf['static_ip'], ssn_conf['network_tags'], json.dumps(ssn_conf['instance_labels']), '20',
+                   ssn_conf['static_ip'], ','.join(ssn_conf['network_tags']), json.dumps(ssn_conf['instance_labels']), '20',
                    ssn_conf['service_base_name'], ssn_conf['gcp_os_login_enabled'],
                    ssn_conf['gcp_block_project_ssh_keys'], ssn_conf['gcp_wrapped_csek'])
         try:
