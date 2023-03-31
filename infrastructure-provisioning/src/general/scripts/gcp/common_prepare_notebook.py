@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -175,9 +175,6 @@ if __name__ == "__main__":
         notebook_config['network_tag'] = '{0}-{1}-{2}-ps'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
                                                                  notebook_config['endpoint_name'])
-        notebook_config['network_tags'].append(notebook_config['network_tag'])
-        notebook_config['network_tags'] = list(os.environ['gcp_additional_network_tag'].split(","))
-        notebook_config['network_tags'].append('datalab')
 
         with open('/root/result.json', 'w') as f:
             data = {"notebook_name": notebook_config['instance_name'], "error": ""}
@@ -218,7 +215,7 @@ if __name__ == "__main__":
                    notebook_config['notebook_service_account_name'], notebook_config['primary_image_name'],
                    notebook_config['secondary_image_name'], 'notebook', notebook_config['primary_disk_size'],
                    notebook_config['secondary_disk_size'], notebook_config['gpu_accelerator_type'],
-                   notebook_config['gpu_accelerator_count'], notebook_config['network_tags'],
+                   notebook_config['gpu_accelerator_count'], notebook_config['network_tag'],
                    json.dumps(notebook_config['labels']), notebook_config['service_base_name'],
                    notebook_config['gcp_os_login_enabled'], notebook_config['gcp_block_project_ssh_keys'],
                    notebook_config['gcp_wrapped_csek'])
