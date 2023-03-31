@@ -106,7 +106,7 @@ if __name__ == "__main__":
         edge_conf['static_address_name'] = '{0}-{1}-{2}-static-ip'.format(edge_conf['service_base_name'],
                                                                           edge_conf['project_name'],
                                                                           edge_conf['endpoint_name'])
-        edge_conf['instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(edge_conf['instance_name'])
+        edge_conf['instance_hostname'] = GCPMeta.get_private_ip_address(edge_conf['instance_name'])
         edge_conf['datalab_ssh_user'] = os.environ['conf_os_user']
         edge_conf['private_subnet_cidr'] = GCPMeta.get_subnet(edge_conf['subnet_name'],
                                                               edge_conf['region'])['ipCidrRange']
