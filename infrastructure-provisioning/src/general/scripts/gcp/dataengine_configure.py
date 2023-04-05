@@ -346,7 +346,7 @@ if __name__ == "__main__":
                  "--type {} " \
                  "--exploratory_name {} " \
                  "--additional_info '{}'"\
-            .format(edge_instance_hostname,
+            .format(edge_instance_private_ip,
                     keyfile_name,
                     data_engine['datalab_ssh_user'],
                     'spark',

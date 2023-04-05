@@ -241,7 +241,7 @@ if __name__ == "__main__":
                  "--type {} " \
                  "--exploratory_name {} " \
                  "--additional_info '{}'"\
-            .format(edge_instance_hostname,
+            .format(edge_instance_private_ip,
                     notebook_config['ssh_key_path'],
                     notebook_config['datalab_ssh_user'],
                     'jupyter',
