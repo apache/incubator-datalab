@@ -164,7 +164,7 @@ if __name__ == "__main__":
         dataproc_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                         dataproc_conf['project_name'],
                                                                         dataproc_conf['endpoint_name'])
-        dataproc_conf['edge_instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(
+        dataproc_conf['edge_instance_hostname'] = GCPMeta.get_private_ip_address(
             dataproc_conf['edge_instance_name'])
         dataproc_conf['datalab_ssh_user'] = os.environ['conf_os_user']
         dataproc_conf['master_name'] = dataproc_conf['cluster_name'] + '-m'
