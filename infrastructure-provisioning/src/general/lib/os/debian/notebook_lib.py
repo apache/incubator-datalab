@@ -248,6 +248,7 @@ def ensure_additional_python_libs(os_user):
             manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
                 datalab.fab.conn.sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                datalab.fab.conn.sudo('pip3 install jinja2 --upgrade')
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 datalab.fab.conn.sudo('pip3 install opencv-python h5py --no-cache-dir')
                 #datalab.fab.conn.sudo('pip3 install python3-opencv scikit-learn --no-cache-dir')
