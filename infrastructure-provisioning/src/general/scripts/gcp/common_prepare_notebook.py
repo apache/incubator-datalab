@@ -90,8 +90,8 @@ if __name__ == "__main__":
                                                                        notebook_config['project_name'],
                                                                        notebook_config['endpoint_name'],
                                                                        notebook_config['exploratory_name'])
-        notebook_config['primary_disk_size'] = (lambda x: '60' if x == 'deeplearning' else '30')(
-            os.environ['application'])
+        notebook_config['primary_disk_size'] = (lambda x, y: '60' if x == 'deeplearning' else '50' if y == 'True'
+        else '30')(os.environ['application'], os.environ['gpu_enabled'])
         notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
 
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
