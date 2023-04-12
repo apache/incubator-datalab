@@ -225,96 +225,96 @@ if __name__ == "__main__":
         datalab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
-    # try:
-    #     logging.info('[CREATE FIREWALL FOR EDGE NODE]')
-    #     firewall_rules = dict()
-    #     firewall_rules['ingress'] = []
-    #     firewall_rules['egress'] = []
-    #     ingress_rule = dict()
-    #     if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] == 'local':
-    #         ssn_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-ssn'.format(project_conf['service_base_name']))
-    #         project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], ssn_public_ip).split(', ')
-    #     elif os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] != 'local':
-    #         endpoint_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
-    #         project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], endpoint_public_ip).split(', ')
-    #     else:
-    #         project_conf['allowed_ip_cidr'] = [os.environ['conf_allowed_ip_cidr']]
-    #     ingress_rule['name'] = project_conf['fw_edge_ingress_public']
-    #     ingress_rule['targetTags'] = [project_conf['instance_name']]
-    #     ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
-    #     rules = [
-    #         {
-    #             'IPProtocol': 'tcp',
-    #             'ports': ['22', '80', '443', '3128']
-    #         }
-    #     ]
-    #     ingress_rule['allowed'] = rules
-    #     ingress_rule['network'] = project_conf['vpc_selflink']
-    #     ingress_rule['direction'] = 'INGRESS'
-    #     firewall_rules['ingress'].append(ingress_rule)
-    #
-    #     ingress_rule = dict()
-    #     ingress_rule['name'] = project_conf['fw_edge_ingress_internal']
-    #     ingress_rule['targetTags'] = [project_conf['instance_name']]
-    #     if os.environ['gcp_subnet_name']:
-    #         project_conf['ssn_subnet'] = os.environ['gcp_subnet_name']
-    #     else:
-    #         project_conf['ssn_subnet'] = '{}-subnet'.format(project_conf['service_base_name'])
-    #     ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr'],
-    #                                     GCPMeta.get_subnet(project_conf['subnet_name'],
-    #                                                        project_conf['region'])['ipCidrRange']]
-    #     rules = [
-    #         {
-    #             'IPProtocol': 'all'
-    #         }
-    #     ]
-    #     ingress_rule['allowed'] = rules
-    #     ingress_rule['network'] = project_conf['vpc_selflink']
-    #     ingress_rule['direction'] = 'INGRESS'
-    #     firewall_rules['ingress'].append(ingress_rule)
-    #
-    #     egress_rule = dict()
-    #     egress_rule['name'] = project_conf['fw_edge_egress_public']
-    #     egress_rule['targetTags'] = [project_conf['instance_name']]
-    #     egress_rule['destinationRanges'] = project_conf['allowed_ip_cidr']
-    #     rules = [
-    #         {
-    #             'IPProtocol': 'udp',
-    #             'ports': ['53', '123']
-    #         },
-    #         {
-    #             'IPProtocol': 'tcp',
-    #             'ports': ['22', '80', '443']
-    #         }
-    #     ]
-    #     egress_rule['allowed'] = rules
-    #     egress_rule['network'] = project_conf['vpc_selflink']
-    #     egress_rule['direction'] = 'EGRESS'
-    #     firewall_rules['egress'].append(egress_rule)
-    #
-    #     egress_rule = dict()
-    #     egress_rule['name'] = project_conf['fw_edge_egress_internal']
-    #     egress_rule['targetTags'] = [project_conf['instance_name']]
-    #     egress_rule['destinationRanges'] = [project_conf['private_subnet_cidr']]
-    #     rules = [
-    #         {
-    #             'IPProtocol': 'tcp',
-    #             'ports': ['22', '389', '8888', '8080', '8787', '6006', '20888', '8042', '8088', '18080', '50070',
-    #                       '8085', '8081', '4040-4045']
-    #         }
-    #     ]
-    #     egress_rule['allowed'] = rules
-    #     egress_rule['network'] = project_conf['vpc_selflink']
-    #     egress_rule['direction'] = 'EGRESS'
-    #     firewall_rules['egress'].append(egress_rule)
-    #
-    #     params = "--firewall '{}'".format(json.dumps(firewall_rules))
-    #     try:
-    #         subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True, check=True)
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
+    try:
+        logging.info('[CREATE FIREWALL FOR EDGE NODE]')
+        firewall_rules = dict()
+        firewall_rules['ingress'] = []
+        firewall_rules['egress'] = []
+        ingress_rule = dict()
+        if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] == 'local':
+            ssn_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-ssn'.format(project_conf['service_base_name']))
+            project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], ssn_public_ip).split(', ')
+        elif os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] != 'local':
+            endpoint_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
+            project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], endpoint_public_ip).split(', ')
+        else:
+            project_conf['allowed_ip_cidr'] = [os.environ['conf_allowed_ip_cidr']]
+        ingress_rule['name'] = project_conf['fw_edge_ingress_public']
+        ingress_rule['targetTags'] = [project_conf['instance_name']]
+        ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
+        rules = [
+            {
+                'IPProtocol': 'tcp',
+                'ports': ['22', '80', '443', '3128']
+            }
+        ]
+        ingress_rule['allowed'] = rules
+        ingress_rule['network'] = project_conf['vpc_selflink']
+        ingress_rule['direction'] = 'INGRESS'
+        firewall_rules['ingress'].append(ingress_rule)
+
+        ingress_rule = dict()
+        ingress_rule['name'] = project_conf['fw_edge_ingress_internal']
+        ingress_rule['targetTags'] = [project_conf['instance_name']]
+        if os.environ['gcp_subnet_name']:
+            project_conf['ssn_subnet'] = os.environ['gcp_subnet_name']
+        else:
+            project_conf['ssn_subnet'] = '{}-subnet'.format(project_conf['service_base_name'])
+        ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr'],
+                                        GCPMeta.get_subnet(project_conf['subnet_name'],
+                                                           project_conf['region'])['ipCidrRange']]
+        rules = [
+            {
+                'IPProtocol': 'all'
+            }
+        ]
+        ingress_rule['allowed'] = rules
+        ingress_rule['network'] = project_conf['vpc_selflink']
+        ingress_rule['direction'] = 'INGRESS'
+        firewall_rules['ingress'].append(ingress_rule)
+
+        egress_rule = dict()
+        egress_rule['name'] = project_conf['fw_edge_egress_public']
+        egress_rule['targetTags'] = [project_conf['instance_name']]
+        egress_rule['destinationRanges'] = project_conf['allowed_ip_cidr']
+        rules = [
+            {
+                'IPProtocol': 'udp',
+                'ports': ['53', '123']
+            },
+            {
+                'IPProtocol': 'tcp',
+                'ports': ['22', '80', '443']
+            }
+        ]
+        egress_rule['allowed'] = rules
+        egress_rule['network'] = project_conf['vpc_selflink']
+        egress_rule['direction'] = 'EGRESS'
+        firewall_rules['egress'].append(egress_rule)
+
+        egress_rule = dict()
+        egress_rule['name'] = project_conf['fw_edge_egress_internal']
+        egress_rule['targetTags'] = [project_conf['instance_name']]
+        egress_rule['destinationRanges'] = [project_conf['private_subnet_cidr']]
+        rules = [
+            {
+                'IPProtocol': 'tcp',
+                'ports': ['22', '389', '8888', '8080', '8787', '6006', '20888', '8042', '8088', '18080', '50070',
+                          '8085', '8081', '4040-4045']
+            }
+        ]
+        egress_rule['allowed'] = rules
+        egress_rule['network'] = project_conf['vpc_selflink']
+        egress_rule['direction'] = 'EGRESS'
+        firewall_rules['egress'].append(egress_rule)
+
+        params = "--firewall '{}'".format(json.dumps(firewall_rules))
+        try:
+            subprocess.run("~/scripts/{}.py {}".format('common_create_firewall', params), shell=True, check=True)
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
         GCPActions.remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
         GCPActions.remove_role(project_conf['ps_role_name'])
         GCPActions.remove_service_account(project_conf['edge_service_account_name'],
