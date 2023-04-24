@@ -95,7 +95,7 @@ if __name__ == "__main__":
         project_conf['static_address_name'] = '{0}-{1}-{2}-static-ip'.format(project_conf['service_base_name'],
                                                                              project_conf['project_name'],
                                                                              project_conf['endpoint_name'])
-        project_conf['fw_edge_ingress_public'] = '{}-sg-ingress-public'.format(project_conf['instance_name'])
+        # project_conf['fw_edge_ingress_public'] = '{}-sg-ingress-public'.format(project_conf['instance_name'])
         project_conf['fw_edge_ingress_internal'] = '{}-sg-ingress-internal'.format(project_conf['instance_name'])
         project_conf['fw_edge_egress_public'] = '{}-sg-egress-public'.format(project_conf['instance_name'])
         project_conf['fw_edge_egress_internal'] = '{}-sg-egress-internal'.format(project_conf['instance_name'])
@@ -239,7 +239,7 @@ if __name__ == "__main__":
             project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], endpoint_public_ip).split(', ')
         else:
             project_conf['allowed_ip_cidr'] = [os.environ['conf_allowed_ip_cidr']]
-        ingress_rule['name'] = project_conf['fw_edge_ingress_public']
+        # ingress_rule['name'] = project_conf['fw_edge_ingress_public']
         ingress_rule['targetTags'] = [project_conf['instance_name']]
         ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
         rules = [
@@ -393,7 +393,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         datalab.fab.append_result("Failed to create firewall for private subnet.", str(err))
-        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        # GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
@@ -447,7 +447,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         datalab.fab.append_result("Unable to create bucket.", str(err))
-        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        # GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
@@ -471,7 +471,7 @@ if __name__ == "__main__":
     except Exception as err:
         datalab.fab.append_result("Failed to set bucket permissions.", str(err))
         GCPActions.remove_bucket(project_conf['bucket_name'])
-        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        # GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
@@ -501,7 +501,7 @@ if __name__ == "__main__":
         except:
             logging.info("Static IP address hasn't been created.")
         GCPActions.remove_bucket(project_conf['bucket_name'])
-        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        # GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
@@ -554,7 +554,7 @@ if __name__ == "__main__":
         datalab.fab.append_result("Failed to create instance.", str(err))
         GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
         GCPActions.remove_bucket(project_conf['bucket_name'])
-        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        # GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
         GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
@@ -590,7 +590,7 @@ if __name__ == "__main__":
             GCPActions.remove_instance(project_conf['instance_name'], project_conf['zone'])
             GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
             GCPActions.remove_bucket(project_conf['bucket_name'])
-            GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+            # GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
             GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
             GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
             GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
