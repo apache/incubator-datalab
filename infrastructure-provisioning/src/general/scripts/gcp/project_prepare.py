@@ -230,6 +230,29 @@ if __name__ == "__main__":
         firewall_rules = dict()
         firewall_rules['ingress'] = []
         firewall_rules['egress'] = []
+        # ingress_rule = dict()
+        # if os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] == 'local':
+        #     ssn_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-ssn'.format(project_conf['service_base_name']))
+        #     project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], ssn_public_ip).split(', ')
+        # elif os.environ['conf_allowed_ip_cidr'] != '0.0.0.0/0' and project_conf['endpoint_name'] != 'local':
+        #     endpoint_public_ip = GCPMeta.get_instance_public_ip_by_name('{}-{}-endpoint'.format(project_conf['service_base_name'], project_conf['endpoint_name']))
+        #     project_conf['allowed_ip_cidr'] = '{}, {}/32'.format(project_conf['allowed_ip_cidr'], endpoint_public_ip).split(', ')
+        # else:
+        #     project_conf['allowed_ip_cidr'] = [os.environ['conf_allowed_ip_cidr']]
+        # ingress_rule['name'] = project_conf['fw_edge_ingress_public']
+        # ingress_rule['targetTags'] = [project_conf['instance_name']]
+        # ingress_rule['sourceRanges'] = project_conf['allowed_ip_cidr']
+        # rules = [
+        #     {
+        #         'IPProtocol': 'tcp',
+        #         'ports': ['22', '80', '443', '3128']
+        #     }
+        # ]
+        # ingress_rule['allowed'] = rules
+        # ingress_rule['network'] = project_conf['vpc_selflink']
+        # ingress_rule['direction'] = 'INGRESS'
+        # firewall_rules['ingress'].append(ingress_rule)
+
         ingress_rule = dict()
         ingress_rule['name'] = project_conf['fw_edge_ingress_internal']
         ingress_rule['targetTags'] = [project_conf['instance_name']]
