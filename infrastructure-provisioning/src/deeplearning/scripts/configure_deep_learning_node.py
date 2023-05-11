@@ -98,16 +98,16 @@ def configure_jupyterlab_at_gcp_image(os_user, exploratory_name):
         #jupyter_conf_file = '/home/jupyter/.jupyter/jupyter_notebook_config.py'
         jupyter_conf_file = '/home/{}/.jupyter/jupyter_lab_config.py'.format(os_user)
         conn.run('/opt/conda/bin/python3.7 /opt/conda/bin/jupyter-lab --generate-config')
-        conn.sudo('''bash -l -c 'sed -i "s|ServerApp|#cServerApp|g" {}' '''.format(jupyter_conf_file))
-        conn.sudo('''bash -l -c "echo 'c.ServerApp.ip = \\"0.0.0.0\\" ' >> {}" '''.format(jupyter_conf_file))
-        conn.sudo('''bash -l -c "echo 'c.ServerApp.port = 8888' >> {}" '''.format(jupyter_conf_file))
-        conn.sudo('''bash -l -c "echo 'c.ServerApp.base_url = \\"/{0}/\\"' >> {1}" '''.format(exploratory_name,
+        conn.sudo('''bash -l -c 'sed -i "s|c.NotebookApp|#c.NotebookApp|g" {}' '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.ip = \\"0.0.0.0\\" ' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.port = 8888' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.base_url = \\"/{0}/\\"' >> {1}" '''.format(exploratory_name,
                                                                                                 jupyter_conf_file))
-        conn.sudo('''bash -l -c "echo 'c.ServerApp.open_browser = False' >> {}" '''.format(jupyter_conf_file))
-        conn.sudo('''bash -l -c "echo 'c.ServerApp.allow_remote_access = True' >> {}" '''.format(jupyter_conf_file))
-        conn.sudo('''bash -l -c "echo 'c.ServerApp.cookie_secret = b\\"{0}\\"' >> {1}" '''.format(id_generator(),
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.open_browser = False' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.allow_remote_access = True' >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo 'c.NotebookApp.cookie_secret = b\\"{0}\\"' >> {1}" '''.format(id_generator(),
                                                                                                     jupyter_conf_file))
-        conn.sudo('''bash -l -c "echo \\"c.ServerApp.token = u''\\" >> {}" '''.format(jupyter_conf_file))
+        conn.sudo('''bash -l -c "echo \\"c.NotebookApp.token = u''\\" >> {}" '''.format(jupyter_conf_file))
         conn.sudo('cp /home/{}/.jupyter/jupyter_lab_config.py /home/jupyter/.jupyter/jupyter_notebook_config.py'.format(os_user))
         conn.sudo('systemctl restart jupyter')
         conn.sudo('touch /home/{}/.ensure_dir/jupyterlab_ensured'.format(os_user))
