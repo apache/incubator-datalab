@@ -1,41 +1,72 @@
 # DataLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## Improvements in v2.5.1
+## New features in v2.6.0
+
 **All cloud platforms:**
-- Added GPU filter type and count for easier environment management by administrator;
-- Added explanation for open terminal action on Audit page.
+- Implemented Images page, where DataLab users may view and manage custom images. 
+  * Now DataLab user can: 
+    - View the list of own and shared custom images; 
+    - View additional info about custom image; 
+    - View activities on sharing/stopping sharing custom images; 
+    - Share custom images with selected users or user groups; 
+    - Stop sharing custom images with selected users or user groups; 
+    - Terminate custom images. 
+  * DataLab administrators can grant permission to user for: 
+    - Sharing own custom images; 
+    - Terminating own custom images; 
+    - Notebook creation based on own custom images; 
+    - Notebook creation based on shared custom images.
+- Updated versions of installed software:
+  * Jupyter notebook v.6.4.12;
+  * JupyterLab notebook v.3.4.3;
+  * Superset notebook v.1.5.1;
+  * TensorFlow notebook v.2.9.1;
+  * RStudio notebook v.2022.02.2-485;
+  * Angular v.11.2.14;
+  * Keycloak v.18.0.1.
+- Added the possibility to connect a new data platform to DataLab account.
+  * Now DataLab users can connect MLflow platform.
 
-## Bug fixes in v2.5.1
+**AWS:**
+- Added a new template JupyterLab with TensorFlow.
+
 **Azure:**
-- Fixed a bug when instance creation failed on stage of devtools installation;
-- Fixed a bug when Apache Zeppelin notebook creation failed during shell interpreter configuration;
-- Fixed a bug when edge node status on WEB DataLab UI was not synced up with Cloud instance status;
-- Fixed a bug when DeepLearning creation failed due to wrong path to connector;
-- Fixed a bug when not all billing drop down values were visible;
-- Fixed minor  UI issues which were reproduced only for smaller desktop size;
-- Fixed a bug when connection for Jupyter R/Scala kernels were unsuccessful;
-- Fixed a bug when Data Engine creation failed on Jupyter/RStudio/Apache Zeppelin notebooks;
-- Fixed a bug when very often notebook/Data Engine creation and stopping failed due to low level socket;
-- Fixed a bug when Jupyter/RStudio/DeepLearning notebooks creation failed from image;
-- Fixed a bug when SSN/any type of notebook creation was not always successful from the first attempt.
+- Added support of Data Engine Service (HDInsight) for RStudio, Jupyter & Apache Zeppelin notebooks.
 
-**Azure and GCP:**
-- Fixed a bug when time to time DeepLearning notebook creation failed on stage of nvidia installation;
-- Fixed a bug when sometimes any type of notebook creation failed during disk mount.
+## Improvements in v2.6.0
 
-## Known issues in v2.5.1
+**All cloud platforms:**
+- Added ability to start user's notebook from administrative panel;
+- Improved filter function by creating a separate “Filter” action button (in this release available only for Image page, to be updated on other pages in the next releases);
+- Added minor improvements for About & Help sections to make user experience easier and more intuitive.
+
+## Bug fixes in v2.6.0
+
+**All cloud platforms:**
+- Fixed a bug when project creation was allowed after total quota exceeded;
+- Fixed a bug when Ungit link leaded to 502 error for DeepLearning notebook;
+- Fixed wrong date & time data of uploaded objects in the bucket browser;
+- Fixed a bug when R package was absent for installation from DataLab WEB UI for RStudio & Apache Zeppelin notebooks;
+
+**AWS:**
+- Fixed a bug when EMR creation failed on RStudio & Apache Zeppelin notebooks.
+
 **GCP:**
-- Superset creation fails during configuration;
+- Fixed a bug when Superset creation failed during configuration;
+- Fixed a bug when  Dataproc creation failed on RStudio & Apache Zeppelin notebooks;
+- Fixed a bug when billing data were absent for Compute;
+- Fixed a bug when DataLab deployment was unsuccessful in existing VPC or subnet.
+
+## Known issues in v2.6.0
+
+**GCP:**
 - SSO is not available for Superset.
 
-**Microsoft Azure:**
-- Notebook WEB terminal does not work for remote endpoint.
+*Refer to the following link in order to view other major/minor issues in v2.6.0*
 
-*Refer to the following link in order to view other major/minor issues in v2.5.1*
+[Apache DataLab: Known issues](https://issues.apache.org/jira/issues/?filter=12352236)
 
-[Apache DataLab: Known issues](https://issues.apache.org/jira/issues/?filter=12351099 "Apache DataLab: Known issues")
-
-## Known issues caused by cloud provider limitations in v2.5.1
+## Known issues caused by cloud provider limitations in v2.6.0
 
 **Microsoft Azure:**
 - Resource name length should not exceed 80 chars.

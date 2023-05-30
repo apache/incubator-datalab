@@ -81,6 +81,7 @@ export interface Bucket {
   endpoint: string;
 }
 
+
 @Component({
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
