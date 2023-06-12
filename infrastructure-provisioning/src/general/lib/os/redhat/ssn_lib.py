@@ -388,7 +388,7 @@ def start_ss(keyfile, host_string, datalab_conf_dir, web_path,
 def install_build_dep():
     try:
         if not exists(conn,'{}tmp/build_dep_ensured'.format(os.environ['ssn_datalab_path'])):
-            maven_version = '3.5.4'
+            maven_version = '3.9.2'
             manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk java-1.8.0-openjdk-devel git wget unzip')
             conn.sudo(
                     'cd /opt/ && wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
