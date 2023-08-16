@@ -1337,7 +1337,7 @@ if __name__ == "__main__":
             configuration[varname] = config.get(section, option)
     groovy_version = '2.5.1'
     nexus_version = '3.15.2-01'
-    maven_version = '3.5.4'
+    maven_version = '3.8.8'
     cuda_version_deeplearning = '8.0'
     cuda_deeplearingn_file_name = 'cuda_8.0.44_linux-run'
     cudnn_version_deeplearning = '6.0'

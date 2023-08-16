@@ -92,7 +92,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             datalab.fab.conn.sudo('wget -O - https://openresty.org/package/pubkey.gpg | sudo apt-key add -')
             datalab.fab.conn.sudo('add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"')
             datalab.fab.conn.sudo('apt-get update')
-            datalab.fab.conn.sudo('apt-get -y install openresty=1.19.3.1-1~focal1')
+            datalab.fab.conn.sudo('apt-get -y install openresty=1.19.3.2-1~focal1')
 
             datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && ./configure' ''')
             datalab.fab.conn.sudo('''bash -c 'cd /tmp/src/luarocks-3.3.1/ && make install' ''')
