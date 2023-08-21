@@ -1023,10 +1023,12 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                     conn.sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
                 except Exception as err:
                     logging.error('Error:', str(err))
+            conn.sudo("pip3 install environment_kernels")
             conn.sudo("systemctl daemon-reload")
             conn.sudo("systemctl enable jupyter-notebook")
             conn.sudo("systemctl start jupyter-notebook")
             conn.sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
+            conn.sudo("systemctl restart jupyter-notebook")
         except Exception as err:
             logging.error('Function configure_jupyter error:', str(err))
             traceback.print_exc()
