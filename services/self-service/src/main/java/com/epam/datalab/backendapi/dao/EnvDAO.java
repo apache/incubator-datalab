@@ -319,6 +319,22 @@ public class EnvDAO extends BaseDAO {
 
     }
 
+    /**
+     * If NoteBook is started within scheduler interface, the edge node should be RUNNING
+     * @param user
+     * @return true or false
+     */
+    public Boolean isEdgeNodeRunning(String user) {
+        LOGGER.trace("Verify if the edge node is stopped for user {}", user);
+        boolean isNodeRunning = true;
+        Optional<Document> edgeNode = getEdgeNode(user);
+        if (edgeNode.isPresent()) {
+            String edgeStatus = edgeNode.get().getString(EDGE_STATUS);
+            isNodeRunning =edgeStatus.equals(RUNNING.toString());
+        }
+        return isNodeRunning;
+    }
+
     private void updateEdgeStatus(String user, Document edge, String instanceId, EnvResource r) {
         final String oldStatus = edge.getString(EDGE_STATUS);
         LOGGER.trace("Update EDGE status for user {} with instance_id {} from {} to {}",

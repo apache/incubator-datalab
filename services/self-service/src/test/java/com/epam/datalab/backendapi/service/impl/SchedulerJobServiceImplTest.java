@@ -21,6 +21,7 @@ package com.epam.datalab.backendapi.service.impl;
 
 import com.epam.datalab.auth.UserInfo;
 import com.epam.datalab.backendapi.dao.ComputationalDAO;
+import com.epam.datalab.backendapi.dao.EnvDAO;
 import com.epam.datalab.backendapi.dao.ExploratoryDAO;
 import com.epam.datalab.backendapi.dao.SchedulerJobDAO;
 import com.epam.datalab.backendapi.service.ComputationalService;
@@ -100,6 +101,8 @@ public class SchedulerJobServiceImplTest {
     private ExploratoryService exploratoryService;
     @Mock
     private ComputationalService computationalService;
+    @Mock
+    private EnvDAO envDAO;
 
     @InjectMocks
     private SchedulerJobServiceImpl schedulerJobService;
@@ -706,7 +709,7 @@ public class SchedulerJobServiceImplTest {
                         LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
                 )));
         when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
-
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
@@ -732,7 +735,7 @@ public class SchedulerJobServiceImplTest {
         when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
                 anyString(), any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
                 DataEngineType.SPARK_STANDALONE, true)));
-
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService, times(2)).getServiceAccountInfo(USER);
@@ -759,7 +762,7 @@ public class SchedulerJobServiceImplTest {
         when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
                 anyString(), any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
                 DataEngineType.CLOUD_SERVICE, true)));
-
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
@@ -784,7 +787,7 @@ public class SchedulerJobServiceImplTest {
         when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
                 anyString(), any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
                 DataEngineType.SPARK_STANDALONE, false)));
-
+        when(envDAO.isEdgeNodeRunning(USER)).thenReturn(true);
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
